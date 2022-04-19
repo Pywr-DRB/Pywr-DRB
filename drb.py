@@ -9,7 +9,7 @@ import time
 import json
 import pandas
 
-MODEL_FILENAME = "model_data/drb.json"
+MODEL_FILENAME = "model_data/drb_model_full.json"
 OUTPUT_FILENAME = "output_data/drb_output.h5"
 
 @click.group()

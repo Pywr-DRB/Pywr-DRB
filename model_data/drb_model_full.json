@@ -1,0 +1,755 @@
+{
+    "metadata": {
+        "title": "DRB",
+        "description": "Simple DRB representation",
+        "minimum_version": "0.4"
+    },
+    "timestepper": {
+        "start": "1990-10-01",
+        "end": "2021-09-30",
+        "timestep": 1
+    },
+    "scenarios": [
+        {
+            "name": "inflow",
+            "size": 5
+        }
+    ],
+    "nodes": [
+        {
+            "name": "catchment_can",
+            "type": "catchment",
+            "flow": "flow_can"
+        },
+        {
+            "name": "catchment_pep",
+            "type": "catchment",
+            "flow": "flow_pep"
+        },
+        {
+            "name": "catchment_nev",
+            "type": "catchment",
+            "flow": "flow_nev"
+        },
+        {
+            "name": "catchment_lac",
+            "type": "catchment",
+            "flow": "flow_lac"
+        },
+        {
+            "name": "reservoir_can",
+            "type": "storage",
+            "max_volume": 96000.0,
+            "initial_volume": 86400.0,
+            "cost": "storage_cost_can"
+        },
+        {
+            "name": "reservoir_pep",
+            "type": "storage",
+            "max_volume": 140000.0,
+            "initial_volume": 126000.0,
+            "cost": "storage_cost_pep"
+        },
+        {
+            "name": "reservoir_nev",
+            "type": "storage",
+            "max_volume": 35000.0,
+            "initial_volume": 31500.0,
+            "cost": "storage_cost_nev"
+        },
+        {
+            "name": "reservoir_agg_nyc",
+            "type": "aggregatedstorage",
+            "storage_nodes": [
+                "reservoir_can",
+                "reservoir_pep",
+                "reservoir_nev"
+            ]
+        },
+        {
+            "name": "link_can_nyc",
+            "type": "link"
+        },
+        {
+            "name": "link_pep_nyc",
+            "type": "link"
+        },
+        {
+            "name": "link_nev_nyc",
+            "type": "link"
+        },
+        {
+            "name": "demand_nyc",
+            "type": "output",
+            "cost": -500,
+            "max_flow": "demand_max_flow_nyc"
+        },
+        {
+            "name": "flowtarget_can",
+            "type": "rivergauge",
+            "mrf": "mrf_target_can",
+            "mrf_cost": -1000.0
+        },
+        {
+            "name": "flowtarget_pep",
+            "type": "rivergauge",
+            "mrf": "mrf_target_pep",
+            "mrf_cost": -1000.0
+        },
+        {
+            "name": "flowtarget_nev",
+            "type": "rivergauge",
+            "mrf": "mrf_target_nev",
+            "mrf_cost": -1000.0
+        },
+        {
+            "name": "flowtarget_montague",
+            "type": "rivergauge",
+            "mrf": "mrf_target_montague",
+            "mrf_cost": -1000.0
+        },
+        {
+            "name": "term1",
+            "type": "output"
+        }
+    ],
+    "edges": [
+        [
+            "catchment_can",
+            "reservoir_can"
+        ],
+        [
+            "catchment_pep",
+            "reservoir_pep"
+        ],
+        [
+            "catchment_nev",
+            "reservoir_nev"
+        ],
+        [
+            "reservoir_can",
+            "link_can_nyc"
+        ],
+        [
+            "reservoir_pep",
+            "link_pep_nyc"
+        ],
+        [
+            "reservoir_nev",
+            "link_nev_nyc"
+        ],
+        [
+            "link_can_nyc",
+            "demand_nyc"
+        ],
+        [
+            "link_pep_nyc",
+            "demand_nyc"
+        ],
+        [
+            "link_nev_nyc",
+            "demand_nyc"
+        ],
+        [
+            "reservoir_can",
+            "flowtarget_can"
+        ],
+        [
+            "reservoir_pep",
+            "flowtarget_pep"
+        ],
+        [
+            "reservoir_nev",
+            "flowtarget_nev"
+        ],
+        [
+            "flowtarget_can",
+            "flowtarget_montague"
+        ],
+        [
+            "flowtarget_pep",
+            "flowtarget_montague"
+        ],
+        [
+            "flowtarget_nev",
+            "flowtarget_montague"
+        ],
+        [
+            "catchment_lac",
+            "flowtarget_montague"
+        ],
+        [
+            "flowtarget_montague",
+            "term1"
+        ]
+    ],
+    "parameters": {
+        "flow_factor": {
+            "type": "constantscenario",
+            "scenario": "inflow",
+            "values": [
+                0.75,
+                0.9,
+                1.0,
+                1.1,
+                1.25
+            ]
+        },
+        "flow_cumecs_can": {
+            "type": "dataframe",
+            "url": "../input_data/inflows_clean.csv",
+            "column": "cannonsville",
+            "index_col": "datetime",
+            "parse_dates": true
+        },
+        "flow_cumecs_pep": {
+            "type": "dataframe",
+            "url": "../input_data/inflows_clean.csv",
+            "column": "pepacton",
+            "index_col": "datetime",
+            "parse_dates": true
+        },
+        "flow_cumecs_nev": {
+            "type": "dataframe",
+            "url": "../input_data/inflows_clean.csv",
+            "column": "neversink",
+            "index_col": "datetime",
+            "parse_dates": true
+        },
+        "flow_cumecs_lac": {
+            "type": "dataframe",
+            "url": "../input_data/inflows_clean.csv",
+            "column": "lackawaxen",
+            "index_col": "datetime",
+            "parse_dates": true
+        },
+        "flow_can": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "flow_cumecs_can",
+                "flow_factor"
+            ]
+        },
+        "flow_pep": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "flow_cumecs_pep",
+                "flow_factor"
+            ]
+        },
+        "flow_nev": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "flow_cumecs_nev",
+                "flow_factor"
+            ]
+        },
+        "flow_lac": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "flow_cumecs_lac",
+                "flow_factor"
+            ]
+        },
+        "demand_baseline_nyc": {
+            "type": "constant",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "constants",
+            "column": "value",
+            "index_col": "parameter",
+            "index": "demand_baseline_nyc"
+        },
+        "demand_max_flow_nyc": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "demand_baseline_nyc",
+                "demand_drought_factor_nyc",
+                "demand_growth_factor_nyc"
+            ]
+        },
+        "level1b": {
+            "type": "dailyprofile",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "dailyProfiles",
+            "index_col": "profile",
+            "index": "level1b"
+        },
+        "level1c": {
+            "type": "dailyprofile",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "dailyProfiles",
+            "index_col": "profile",
+            "index": "level1c"
+        },
+        "level2": {
+            "type": "dailyprofile",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "dailyProfiles",
+            "index_col": "profile",
+            "index": "level2"
+        },
+        "level3": {
+            "type": "dailyprofile",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "dailyProfiles",
+            "index_col": "profile",
+            "index": "level3"
+        },
+        "level4": {
+            "type": "dailyprofile",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "dailyProfiles",
+            "index_col": "profile",
+            "index": "level4"
+        },
+        "level5": {
+            "type": "dailyprofile",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "dailyProfiles",
+            "index_col": "profile",
+            "index": "level5"
+        },
+        "demand_drought_level_nyc": {
+            "type": "controlcurveindex",
+            "storage_node": "reservoir_agg_nyc",
+            "control_curves": [
+                "level1b",
+                "level1c",
+                "level2",
+                "level3",
+                "level4",
+                "level5"
+            ]
+        },
+        "demand_drought_factor_nyc": {
+            "type": "indexedarray",
+            "index_parameter": "demand_drought_level_nyc",
+            "params": [
+                "level1a_factor_demand_nyc",
+                "level1b_factor_demand_nyc",
+                "level1c_factor_demand_nyc",
+                "level2_factor_demand_nyc",
+                "level3_factor_demand_nyc",
+                "level4_factor_demand_nyc",
+                "level5_factor_demand_nyc"
+            ]
+        },
+        "level1a_factor_demand_nyc": {
+            "type": "constant",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "constants",
+            "column": "value",
+            "index_col": "parameter",
+            "index": "level1a_factor_demand_nyc"
+        },
+        "level1b_factor_demand_nyc": {
+            "type": "constant",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "constants",
+            "column": "value",
+            "index_col": "parameter",
+            "index": "level1b_factor_demand_nyc"
+        },
+        "level1c_factor_demand_nyc": {
+            "type": "constant",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "constants",
+            "column": "value",
+            "index_col": "parameter",
+            "index": "level1c_factor_demand_nyc"
+        },
+        "level2_factor_demand_nyc": {
+            "type": "constant",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "constants",
+            "column": "value",
+            "index_col": "parameter",
+            "index": "level2_factor_demand_nyc"
+        },
+        "level3_factor_demand_nyc": {
+            "type": "constant",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "constants",
+            "column": "value",
+            "index_col": "parameter",
+            "index": "level3_factor_demand_nyc"
+        },
+        "level4_factor_demand_nyc": {
+            "type": "constant",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "constants",
+            "column": "value",
+            "index_col": "parameter",
+            "index": "level4_factor_demand_nyc"
+        },
+        "level5_factor_demand_nyc": {
+            "type": "constant",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "constants",
+            "column": "value",
+            "index_col": "parameter",
+            "index": "level5_factor_demand_nyc"
+        },
+        "demand_growth_factor_nyc": {
+            "type": "constant",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "constants",
+            "column": "value",
+            "index_col": "parameter",
+            "index": "demand_growth_factor_nyc"
+        },
+        "mrf_target_montague": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "mrf_baseline_montague",
+                "mrf_drought_factor_montague"
+            ]
+        },
+        "mrf_baseline_montague": {
+            "type": "constant",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "constants",
+            "column": "value",
+            "index_col": "parameter",
+            "index": "mrf_baseline_montague"
+        },
+        "mrf_drought_factor_montague": {
+            "type": "indexedarray",
+            "index_parameter": "demand_drought_level_nyc",
+            "params": [
+                "level1a_factor_mrf_montague",
+                "level1b_factor_mrf_montague",
+                "level1c_factor_mrf_montague",
+                "level2_factor_mrf_montague",
+                "level3_factor_mrf_montague",
+                "level4_factor_mrf_montague",
+                "level5_factor_mrf_montague"
+            ]
+        },
+        "level1a_factor_mrf_montague": {
+            "type": "monthlyprofile",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "monthlyProfiles",
+            "index_col": "profile",
+            "index": "level1a_factor_mrf_montague"
+        },
+        "level1b_factor_mrf_montague": {
+            "type": "monthlyprofile",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "monthlyProfiles",
+            "index_col": "profile",
+            "index": "level1b_factor_mrf_montague"
+        },
+        "level1c_factor_mrf_montague": {
+            "type": "monthlyprofile",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "monthlyProfiles",
+            "index_col": "profile",
+            "index": "level1c_factor_mrf_montague"
+        },
+        "level2_factor_mrf_montague": {
+            "type": "monthlyprofile",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "monthlyProfiles",
+            "index_col": "profile",
+            "index": "level2_factor_mrf_montague"
+        },
+        "level3_factor_mrf_montague": {
+            "type": "monthlyprofile",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "monthlyProfiles",
+            "index_col": "profile",
+            "index": "level3_factor_mrf_montague"
+        },
+        "level4_factor_mrf_montague": {
+            "type": "monthlyprofile",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "monthlyProfiles",
+            "index_col": "profile",
+            "index": "level4_factor_mrf_montague"
+        },
+        "level5_factor_mrf_montague": {
+            "type": "monthlyprofile",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "monthlyProfiles",
+            "index_col": "profile",
+            "index": "level5_factor_mrf_montague"
+        },
+        "mrf_target_can": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "mrf_baseline_can",
+                "mrf_drought_factor_can"
+            ]
+        },
+        "mrf_target_pep": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "mrf_baseline_can",
+                "mrf_drought_factor_can"
+            ]
+        },
+        "mrf_target_nev": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "mrf_baseline_can",
+                "mrf_drought_factor_can"
+            ]
+        },
+        "mrf_baseline_can": {
+            "type": "constant",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "constants",
+            "column": "value",
+            "index_col": "parameter",
+            "index": "mrf_baseline_can"
+        },
+        "mrf_baseline_pep": {
+            "type": "constant",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "constants",
+            "column": "value",
+            "index_col": "parameter",
+            "index": "mrf_baseline_pep"
+        },
+        "mrf_baseline_nev": {
+            "type": "constant",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "constants",
+            "column": "value",
+            "index_col": "parameter",
+            "index": "mrf_baseline_nev"
+        },
+        "mrf_drought_factor_can": {
+            "type": "indexedarray",
+            "index_parameter": "demand_drought_level_nyc",
+            "params": [
+                "level1a_factor_mrf_can",
+                "level1b_factor_mrf_can",
+                "level1c_factor_mrf_can",
+                "level2_factor_mrf_can",
+                "level3_factor_mrf_can",
+                "level4_factor_mrf_can",
+                "level5_factor_mrf_can"
+            ]
+        },
+        "mrf_drought_factor_pep": {
+            "type": "indexedarray",
+            "index_parameter": "demand_drought_level_nyc",
+            "params": [
+                "level1a_factor_mrf_pep",
+                "level1b_factor_mrf_pep",
+                "level1c_factor_mrf_pep",
+                "level2_factor_mrf_pep",
+                "level3_factor_mrf_pep",
+                "level4_factor_mrf_pep",
+                "level5_factor_mrf_pep"
+            ]
+        },
+        "mrf_drought_factor_nev": {
+            "type": "indexedarray",
+            "index_parameter": "demand_drought_level_nyc",
+            "params": [
+                "level1a_factor_mrf_nev",
+                "level1b_factor_mrf_nev",
+                "level1c_factor_mrf_nev",
+                "level2_factor_mrf_nev",
+                "level3_factor_mrf_nev",
+                "level4_factor_mrf_nev",
+                "level5_factor_mrf_nev"
+            ]
+        },
+        "level1a_factor_mrf_can": {
+            "type": "dailyprofile",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "dailyProfiles",
+            "index_col": "profile",
+            "index": "level1a_factor_mrf_can"
+        },
+        "level1a_factor_mrf_pep": {
+            "type": "dailyprofile",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "dailyProfiles",
+            "index_col": "profile",
+            "index": "level1a_factor_mrf_pep"
+        },
+        "level1a_factor_mrf_nev": {
+            "type": "dailyprofile",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "dailyProfiles",
+            "index_col": "profile",
+            "index": "level1a_factor_mrf_nev"
+        },
+        "level1b_factor_mrf_can": {
+            "type": "dailyprofile",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "dailyProfiles",
+            "index_col": "profile",
+            "index": "level1b_factor_mrf_can"
+        },
+        "level1b_factor_mrf_pep": {
+            "type": "dailyprofile",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "dailyProfiles",
+            "index_col": "profile",
+            "index": "level1b_factor_mrf_pep"
+        },
+        "level1b_factor_mrf_nev": {
+            "type": "dailyprofile",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "dailyProfiles",
+            "index_col": "profile",
+            "index": "level1b_factor_mrf_nev"
+        },
+        "level1c_factor_mrf_can": {
+            "type": "dailyprofile",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "dailyProfiles",
+            "index_col": "profile",
+            "index": "level1c_factor_mrf_can"
+        },
+        "level1c_factor_mrf_pep": {
+            "type": "dailyprofile",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "dailyProfiles",
+            "index_col": "profile",
+            "index": "level1c_factor_mrf_pep"
+        },
+        "level1c_factor_mrf_nev": {
+            "type": "dailyprofile",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "dailyProfiles",
+            "index_col": "profile",
+            "index": "level1c_factor_mrf_nev"
+        },
+        "level2_factor_mrf_can": {
+            "type": "dailyprofile",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "dailyProfiles",
+            "index_col": "profile",
+            "index": "level2_factor_mrf_can"
+        },
+        "level2_factor_mrf_pep": {
+            "type": "dailyprofile",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "dailyProfiles",
+            "index_col": "profile",
+            "index": "level2_factor_mrf_pep"
+        },
+        "level2_factor_mrf_nev": {
+            "type": "dailyprofile",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "dailyProfiles",
+            "index_col": "profile",
+            "index": "level2_factor_mrf_nev"
+        },
+        "level3_factor_mrf_can": {
+            "type": "dailyprofile",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "dailyProfiles",
+            "index_col": "profile",
+            "index": "level3_factor_mrf_can"
+        },
+        "level3_factor_mrf_pep": {
+            "type": "dailyprofile",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "dailyProfiles",
+            "index_col": "profile",
+            "index": "level3_factor_mrf_pep"
+        },
+        "level3_factor_mrf_nev": {
+            "type": "dailyprofile",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "dailyProfiles",
+            "index_col": "profile",
+            "index": "level3_factor_mrf_nev"
+        },
+        "level4_factor_mrf_can": {
+            "type": "dailyprofile",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "dailyProfiles",
+            "index_col": "profile",
+            "index": "level4_factor_mrf_can"
+        },
+        "level4_factor_mrf_pep": {
+            "type": "dailyprofile",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "dailyProfiles",
+            "index_col": "profile",
+            "index": "level4_factor_mrf_pep"
+        },
+        "level4_factor_mrf_nev": {
+            "type": "dailyprofile",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "dailyProfiles",
+            "index_col": "profile",
+            "index": "level4_factor_mrf_nev"
+        },
+        "level5_factor_mrf_can": {
+            "type": "dailyprofile",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "dailyProfiles",
+            "index_col": "profile",
+            "index": "level5_factor_mrf_can"
+        },
+        "level5_factor_mrf_pep": {
+            "type": "dailyprofile",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "dailyProfiles",
+            "index_col": "profile",
+            "index": "level5_factor_mrf_pep"
+        },
+        "level5_factor_mrf_nev": {
+            "type": "dailyprofile",
+            "url": "drb_model_sheets.xlsx",
+            "sheet_name": "dailyProfiles",
+            "index_col": "profile",
+            "index": "level5_factor_mrf_nev"
+        },
+        "storage_cost_can": {
+            "type": "interpolatedvolume",
+            "values": [
+                -100,
+                -1
+            ],
+            "node": "reservoir_can",
+            "volumes": [
+                0,
+                96000
+            ]
+        },
+        "storage_cost_pep": {
+            "type": "interpolatedvolume",
+            "values": [
+                -100,
+                -1
+            ],
+            "node": "reservoir_pep",
+            "volumes": [
+                0,
+                140000
+            ]
+        },
+        "storage_cost_nev": {
+            "type": "interpolatedvolume",
+            "values": [
+                -100,
+                -1
+            ],
+            "node": "reservoir_nev",
+            "volumes": [
+                0,
+                35000
+            ]
+        }
+    }
+}

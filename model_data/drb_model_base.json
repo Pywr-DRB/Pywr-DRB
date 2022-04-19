@@ -1,0 +1,18 @@
+{
+    "metadata": {
+        "title": "DRB",
+        "description": "Simple DRB representation",
+        "minimum_version": "0.4"
+    },
+    "timestepper": {
+        "start": "1990-10-01",
+        "end": "2021-09-30",
+        "timestep": 1
+    },
+    "scenarios": [
+        {
+            "name": "inflow",
+            "size": 5
+        }
+    ]
+}
