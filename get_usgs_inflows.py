@@ -1,0 +1,72 @@
+import numpy as np
+import pandas as pd
+import urllib.request
+import os
+
+### get list of gages from WEAP
+# ### West Branch Delaware River
+# gages = ['01423000','01425000','01426500']
+# ### Delaware River
+# gages.extend(['01446500','01417500','01413500','01417000','01428500','01438500','01427207','01463500'])
+# ### Beaver Kill
+# gages.extend(['01420500'])
+# ### Wallenpaupack Creek
+# gages.extend(['01431270'])
+# ### Lackawaxen River
+# gages.extend(['01429000','01431500'])
+# ### Mongaup River
+# gages.extend(['01443350'])
+# ### Neversink River
+# gages.extend(['01436000','01435000','01437500'])
+# ### Lehigh River
+# gages.extend(['01454700','01453000','01447800','01449000'])
+# ### Pohopoco Creek --- last one fails
+# gages.extend(['01498000','01449360','01450000'])
+# ### Musconetcong River
+# gages.extend(['01457000'])
+### Assunpink Creek
+gages = ['01464000','01463620']
+# gages.extend(['01464000','01463620'])
+### Neshaminy Creek
+gages.extend(['01465645','01465500'])
+### Rancocas River
+gages.extend(['01467000'])
+### Schuylkill River
+gages.extend(['01474500','01470500','01472000','01473500'])
+### Tulpehocken Creek
+gages.extend(['01471000','01470960','01470779'])
+### Brandywine Creek
+gages.extend(['01481500'])
+### fix typos that failed before
+gages.extend(['01431270','01443350','01498000'])
+
+
+for gage in gages:
+    try:
+        url = 'https://nwis.waterdata.usgs.gov/usa/nwis/uv/?cb_00060=on&format=rdb&site_no=' + gage + '&period=&begin_date=1950-10-01&end_date=2021-12-31'
+        filename = 'input_data/USGS_' + gage + '.txt'
+        urllib.request.urlretrieve(url, filename)
+    except:
+        print('DOWNLOAD FAIL: GAGE ' + gage)
+
+for gage in gages:
+    try:
+        filename = 'input_data/USGS_' + gage + '.txt'
+        with open('input_data/USGS_' + gage + '.txt') as file:
+            ### find line with gage ID and location
+            lines = file.readlines()
+            i = 0
+            while i < 100:
+                line = lines[i]
+                if gage in line:
+                    break
+                i += 1
+        ### rename file with name based on gage. abbreviate East/West/etc, Branch/Fork/River/Creek/Kill
+        newname = line.lower().replace('#','').strip().replace(' ','_') + '.txt'
+        for full, abbrev in [['eastern','e'], ['western','w'], ['northern','n'], ['southern', 's'],
+                             ['east','e'], ['west','w'], ['north','n'], ['south', 's'],
+                             ['branch','b'], ['fork','f'], ['river','r'], ['creek', 'c'], ['kill','k']]:
+            newname = newname.replace(full, abbrev)
+        os.replace(filename, 'input_data/' + newname)
+    except:
+        print('CLEANING FAIL: GAGE ' + gage)
