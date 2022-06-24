@@ -5,6 +5,5 @@
 __pycache__
 */__pycache__
 input_data/usgs_0*
-output_data/*
 .ipynb_checkpoints
 */.ipynb_checkpoints
