@@ -49,16 +49,18 @@ gages = ['0142400103','01423000','01415000','01414500','01414000','01413500','01
 
 for gage in gages:
     try:
-        url = 'https://nwis.waterdata.usgs.gov/usa/nwis/uv/?cb_00060=on&format=rdb&site_no=' + gage + '&period=&begin_date=1980-01-01&end_date=2021-12-31'
-        filename = 'input_data/usgs_' + gage + '.txt'
+        start_date = '1980-01-01'
+        end_date = '2021-12-31'
+        url = f'https://nwis.waterdata.usgs.gov/usa/nwis/uv/?cb_00060=on&format=rdb&site_no={gage}&period=&begin_date={start_date}&end_date={end_date}'
+        filename = f'input_data/usgs_{gage}.txt'
         urllib.request.urlretrieve(url, filename)
     except:
         print('DOWNLOAD FAIL: GAGE ' + gage)
 
 for gage in gages:
     try:
-        filename = 'input_data/usgs_' + gage + '.txt'
-        with open('input_data/usgs_' + gage + '.txt') as file:
+        filename = f'input_data/usgs_{gage}.txt'
+        with open(f'input_data/usgs_{gage}.txt') as file:
             ### find line with gage ID and location
             lines = file.readlines()
             i = 0
