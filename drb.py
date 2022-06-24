@@ -2,12 +2,10 @@
 """
 from pywr.model import Model
 from pywr.recorders import TablesRecorder
+# import custom_pywr
 import numpy as np
 from matplotlib import pyplot as plt
 import click
-import time
-import json
-import pandas
 
 MODEL_FILENAME = "model_data/drb_model_full.json"
 OUTPUT_FILENAME = "output_data/drb_output.h5"
@@ -24,7 +22,7 @@ def run():
     model = Model.load(MODEL_FILENAME)
 
     # Add a storage recorder
-    TablesRecorder(model, OUTPUT_FILENAME, parameters=[p for p in model.parameters])
+    TablesRecorder(model, OUTPUT_FILENAME, parameters=[p for p in model.parameters if p.name])
 
     # Run the model
     stats = model.run()
@@ -41,8 +39,8 @@ def figures(ext, show):
         df.columns = ["Very low", "Low", "Central", "High", "Very high"]
 
         # if name.split('_')[0] in ("reservoir"):
-        # if name.split('_')[0] in ("link", "demand"):
-        if name.startswith("mrf_target") or name.startswith("demand_drought_level"):
+        if name.split('_')[0] in ("reservoir", "outflow", "spill", "max"):
+        # if name.startswith("mrf_target") or name.startswith("demand_drought_level"):
 
             fig, (ax1, ax2) = plt.subplots(
                 figsize=(12, 4), ncols=2, sharey="row", gridspec_kw={"width_ratios": [3, 1]}

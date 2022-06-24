@@ -25,34 +25,40 @@ import os
 # ### Musconetcong River
 # gages.extend(['01457000'])
 ### Assunpink Creek
-gages = ['01464000','01463620']
-# gages.extend(['01464000','01463620'])
-### Neshaminy Creek
-gages.extend(['01465645','01465500'])
-### Rancocas River
-gages.extend(['01467000'])
-### Schuylkill River
-gages.extend(['01474500','01470500','01472000','01473500'])
-### Tulpehocken Creek
-gages.extend(['01471000','01470960','01470779'])
-### Brandywine Creek
-gages.extend(['01481500'])
-### fix typos that failed before
-gages.extend(['01431270','01443350','01498000'])
+# gages = ['01464000','01463620']
+# # gages.extend(['01464000','01463620'])
+# ### Neshaminy Creek
+# gages.extend(['01465645','01465500'])
+# ### Rancocas River
+# gages.extend(['01467000'])
+# ### Schuylkill River
+# gages.extend(['01474500','01470500','01472000','01473500'])
+# ### Tulpehocken Creek
+# gages.extend(['01471000','01470960','01470779'])
+# ### Brandywine Creek
+# gages.extend(['01481500'])
+
+
+### get list of gages from pywr node-edge network spreadsheet (see "nodes_dev" tab)
+gages = ['0142400103','01423000','01415000','01414500','01414000','01413500','01427207','01428750','01432160','01432900',
+         '01435000','01438500','01449360','01447500','01447720','01457500','01463500','01470755','01470779','01475850',
+         '01480675','01482100','01425000','01417000','01429000','01432110','01431500','01433500','01436000','01449800',
+         '01447800','01455500','01459500','01463620','01470761','01469500','01470960','01473000','01480685']
+
 
 
 for gage in gages:
     try:
-        url = 'https://nwis.waterdata.usgs.gov/usa/nwis/uv/?cb_00060=on&format=rdb&site_no=' + gage + '&period=&begin_date=1950-10-01&end_date=2021-12-31'
-        filename = 'input_data/USGS_' + gage + '.txt'
+        url = 'https://nwis.waterdata.usgs.gov/usa/nwis/uv/?cb_00060=on&format=rdb&site_no=' + gage + '&period=&begin_date=1980-01-01&end_date=2021-12-31'
+        filename = 'input_data/usgs_' + gage + '.txt'
         urllib.request.urlretrieve(url, filename)
     except:
         print('DOWNLOAD FAIL: GAGE ' + gage)
 
 for gage in gages:
     try:
-        filename = 'input_data/USGS_' + gage + '.txt'
-        with open('input_data/USGS_' + gage + '.txt') as file:
+        filename = 'input_data/usgs_' + gage + '.txt'
+        with open('input_data/usgs_' + gage + '.txt') as file:
             ### find line with gage ID and location
             lines = file.readlines()
             i = 0
@@ -62,7 +68,7 @@ for gage in gages:
                     break
                 i += 1
         ### rename file with name based on gage. abbreviate East/West/etc, Branch/Fork/River/Creek/Kill
-        newname = line.lower().replace('#','').strip().replace(' ','_') + '.txt'
+        newname = line.lower().replace('#','').replace(',','').strip().replace(' ','_') + '.txt'
         for full, abbrev in [['eastern','e'], ['western','w'], ['northern','n'], ['southern', 's'],
                              ['east','e'], ['west','w'], ['north','n'], ['south', 's'],
                              ['branch','b'], ['fork','f'], ['river','r'], ['creek', 'c'], ['kill','k']]:
