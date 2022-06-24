@@ -4,6 +4,9 @@
 
 This is the repository for the pywr implementation of a Delaware River Basin (DRB) water management model. Better documentation will be forthcoming, but for now here are the basic steps to run the model and analysis.
 
+### Python installation
+You will need Python 3 - I am running 3.8.10 and haven't done extensive compatability testing with other versions, though I expect it should be broadly stable for 3.6+ and perhaps earlier. You will also need to install numpy, matplotlib, click, and pywr packages. Additionally, to run the geospatial analysis, you will need to install gdal on your system followed by the geopandas, fiona, shapely, and contextily packages.
+
 ### Geospatial analysis
 The ``DRB_spatial/`` directory contains the Jupyter Notebook ``DRB_spatial.ipynb`` that creates some (rudimentary for now) maps of the system, which can be helpful for visualizing the node network used in the pywr simulation. To recreate the maps, you will need to download additional geospatial data, as outlined in the separate README file in that directory.
 
@@ -19,3 +22,10 @@ Pywr builds the system model from a JSON file with a specific format. However, t
 This script also uses parametric information stored in the Excel file to build pywr representations of the STARFIT data-driven control rules for many reservoirs. See Turner et al, "Water storage and release policies for all large reservoirs of conterminous United States", Journal of Hydrology, 2021.
 
 *Note: There seems to be an issue with the STARFIT implementation and/or unit inconsistencies, as I am getting strange results on our simple test problem at the moment.*
+
+### Running the model
+The ``drb.py`` script can be used to run the model by supplying the command line argument "run" (i.e. ``python3 drb.py run``). Results will be stored as ``output_data/drb_output.hdf5``.
+
+The same script can also be used to visualize the output, using the "figures" command line argument. Note that the types of data to visualize are currently hard-coded in line 42. 
+
+
