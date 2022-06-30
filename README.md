@@ -17,11 +17,11 @@ The ``get_usgs_inflows.py`` script downloads historical discharge timeseries for
 The ``drb_inflow_prep.py`` script will loop through each input dataset, extract and clean up the desired information, and store all in a single file, ``input_data/inflows_clean.csv``. *Note: This is currently broken, need to go back and fix, but you can still use the inflows_clean.csv file. Also note that at present, I am just using constant streamflows for the 4 catchments in the simplified model, until I can verify that everything is working properly.*
 
 ### Creating the "model" file
-Pywr builds the system model from a JSON file with a specific format. However, this format is rather difficult to read and develop for large, complex models. For this reason, the DRB model is mostly defined in an Excel file, ``model_data/drb_model_sheets.xlsx``, with different sheets for nodes, edges, parameters rules curves, etc. The ``drb_make_model.py`` script is used to extract this information and transform it into the necessary JSON format, ``model_data/drb_model_full.json``. 
+Pywr builds the system model from a JSON file with a specific format. However, this format is rather difficult to read and develop for large, complex models. For this reason, the DRB model is mostly defined in a collection of CSV files in the ``model_data/`` directory, with different files for nodes, edges, parameters, rules curves, etc., e.g., ``model_data/drb_model_nodes.csv`` for the node information. The ``drb_make_model.py`` script is used to extract this information and transform it into the necessary JSON format, ``model_data/drb_model_full.json``. 
 
-This script also uses parametric information stored in the Excel file to build pywr representations of the STARFIT data-driven control rules for many reservoirs. See Turner et al, "Water storage and release policies for all large reservoirs of conterminous United States", Journal of Hydrology, 2021.
+This script also uses parametric information stored in the ``model_data/drb_model_istarf_conus.csv`` file to build pywr representations of the STARFIT data-driven control rules for many reservoirs. See Turner et al, "Water storage and release policies for all large reservoirs of conterminous United States", Journal of Hydrology, 2021.
 
-*Note: There seems to be an issue with the STARFIT implementation and/or unit inconsistencies, as I am getting strange results on our simple test problem at the moment.*
+*Note: There seems to be an issue with my implementation of the STARFIT rules and/or unit inconsistencies, as I am getting strange results on our simple test problem at the moment.*
 
 ### Running the model
 The ``drb.py`` script can be used to run the model by supplying the command line argument "run" (i.e. ``python3 drb.py run``). Results will be stored as ``output_data/drb_output.hdf5``.
