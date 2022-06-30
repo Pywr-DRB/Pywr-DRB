@@ -1,0 +1,34 @@
+node,huc12_outlet,USGS_gages
+reservoir_cannonsville,020401010207,01425000
+reservoir_pepacton,020401020405,01417000
+reservoir_prompton,020401030103,01429000
+reservoir_wallenpaupack,020401030505,"01432110, 01431500"
+reservoir_shoholaMarsh,020401040402,01432495
+reservoir_mongaupe,020401040107,01433500
+reservoir_neversink,020401040303,01436000
+reservoir_beltzville,020401060404,01449800
+reservoir_fewalter,020401060204,01447800
+reservoir_merrillCreek,020401050402,
+reservoir_hopatcong,020401050501,01455500
+reservoir_nockamixon,020401050702,01459500
+reservoir_assunpink,020401050801,01463620
+reservoir_ontelaunee,020402030307,01470761
+reservoir_stillCreek,020402030101,01469500
+reservoir_blueMarsh,020402030407,01470960
+reservoir_greenLane,020402030806,01473000
+reservoir_springton,020402020601,
+reservoir_marshCreek,020402050101,01480685
+link_delLordville,020401010403,01427207
+link_delLackawaxen_lackawaxen,020401030603,01432110
+link_delLackawaxen_delaware,020401010606,01428500
+link_delMontague_neversink,020401040308,01437500
+link_delMontague_usDelaware,020401040505,01434000
+link_delMontague_dsDelaware,020401040704,01438500
+link_delLehigh_lehigh,020401060813,01454700
+link_delLehigh_bushkill,020401050303,01446775
+link_delLehigh_delaware,020401050603,01446500
+link_delTrenton,020401050911,01463500
+link_delPhlEast,020402020403,
+link_delSchuykill,020402031008,01474500
+link_delPhlWest,020402020507,
+link_delChristina,020402050505,"01481500, 01480015, 01479000, 01478000"

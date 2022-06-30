@@ -1,0 +1,5 @@
+reservoir,GRanD_ID,GRanD_NAME,GRanD_CAP_MCM,GRanD_MEANFLOW_CUMECS,Obs_MEANFLOW_CUMECS,fit,match,NORhi_alpha,NORhi_beta,NORhi_max,NORhi_min,NORhi_mu,NORlo_alpha,NORlo_beta,NORlo_max,NORlo_min,NORlo_mu,Release_alpha1,Release_alpha2,Release_beta1,Release_beta2,Release_c,Release_max,Release_min,Release_p1,Release_p2,GRanD_CAP_MG,GRanD_MEANFLOW_MGD
+cannonsville,1550,Cannonsville Dam,555.1,24.605,NA,extrapolated,1615,-0.23,-2.01,Inf,-Inf,15.08,0.2,-4.08,15.52,12.31,12.58,0.2118,-0.0357,0.1302,-0.0248,-0.123,1.774,-0.804,0.183,0.732,146641.8772,561.5959692
+pepacton,2192,Downsville Dam,752.1,20.799,NA,extrapolated,1615,-0.23,-2.01,Inf,-Inf,15.08,0.2,-4.08,15.52,12.31,12.58,0.2118,-0.0357,0.1302,-0.0248,-0.123,1.774,-0.804,0.183,0.732,198683.7612,474.7260542
+neversink,2200,Neversink Reservoir Dam,175.2,5.169,NA,extrapolated,1615,-0.23,-2.01,Inf,-Inf,15.08,0.2,-4.08,15.52,12.31,12.58,0.2118,-0.0357,0.1302,-0.0248,-0.123,1.774,-0.804,0.183,0.732,46282.9344,117.9796612
+wallenpaupack,1560,Wallenpaupack,333,10.777,NA,extrapolated,1615,-0.23,-2.01,Inf,-Inf,15.08,0.2,-4.08,15.52,12.31,12.58,0.2118,-0.0357,0.1302,-0.0248,-0.123,1.774,-0.804,0.183,0.732,87969.276,245.9792628

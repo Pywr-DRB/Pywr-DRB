@@ -4,61 +4,68 @@ import numpy as np
 import pandas as pd
 
 ### first load baseline model
-model_base_file = 'model_data/drb_model_base.json'
-model_sheets_file = 'model_data/drb_model_sheets.xlsx'
-model_full_file = 'model_data/drb_model_full.json'
+model_sheets_dir = 'model_data/'
+model_base_file = model_sheets_dir + 'drb_model_base.json'
+model_full_file = model_sheets_dir + 'drb_model_full.json'
+model_sheets_start = model_sheets_dir + 'drb_model_'
 model = json.load(open(model_base_file, 'r'))
 
 ### load nodes from spreadsheet & add elements as dict items
-for sheet in ['nodes']:
-    df = pd.read_excel(model_sheets_file, sheet_name=sheet)
-    model[sheet] = []
-    for i in range(df.shape[0]):
-        nodedict = {}
-        for j, col in enumerate(df.columns):
-            val = df.iloc[i,j]
-            if isinstance(val, int):
-                nodedict[col] = val
-            elif isinstance(val, str):
-                ### if it's a list, need to convert from str to actual list
-                if '[' in val:
-                    val = ast.literal_eval(val)
-                ### if it's "true" or "false", convert to bool
-                if val in ["\"true\"", "\"false\""]:
-                    val = {"\"true\"": True, "\"false\"": False}[val]
-                nodedict[col] = val
-            elif isinstance(val, float) or isinstance(val, np.float64):
-                if not np.isnan(val):
-                    nodedict[col] = val
+sheet = 'nodes'
+df = pd.read_csv(model_sheets_start + sheet + '.csv')
+model[sheet] = []
+for i in range(df.shape[0]):
+    nodedict = {}
+    for j, col in enumerate(df.columns):
+        val = df.iloc[i,j]
+        if isinstance(val, int):
+            nodedict[col] = val
+        elif isinstance(val, str):
+            ### if it's a list, need to convert from str to actual list
+            if '[' in val:
+                val = ast.literal_eval(val)
+            ### if it's "true" or "false", convert to bool
+            if val in ["\"true\"", "\"false\""]:
+                val = {"\"true\"": True, "\"false\"": False}[val]
+            ### if it's actually a number as string, convert to numeric
             else:
-                print(f'type not supported: {type(val)}, instance: {val}')
-        model[sheet].append(nodedict)
+                try:
+                    val = float(val)
+                except:
+                    pass
+            nodedict[col] = val
+        elif isinstance(val, float) or isinstance(val, np.float64):
+            if not np.isnan(val):
+                nodedict[col] = val
+        else:
+            print(f'type not supported: {type(val)}, instance: {val}')
+    model[sheet].append(nodedict)
 
 
 ### load edges from spreadsheet & add elements as dict items
-for sheet in ['edges']:
-    df = pd.read_excel(model_sheets_file, sheet_name=sheet)
-    model[sheet] = []
-    for i in range(df.shape[0]):
-        edge = []
-        for j, col in enumerate(df.columns):
-            val = df.iloc[i,j]
-            if isinstance(val, int):
+sheet = 'edges'
+df = pd.read_csv(model_sheets_start + sheet + '.csv')
+model[sheet] = []
+for i in range(df.shape[0]):
+    edge = []
+    for j, col in enumerate(df.columns):
+        val = df.iloc[i,j]
+        if isinstance(val, int):
+            edge.append(val)
+        elif isinstance(val, str):
+            ### if it's a list, need to convert from str to actual list
+            if '[' in val:
+                val = ast.literal_eval(val)
+            ### if it's "true" or "false", convert to bool
+            if val in ["\"true\"", "\"false\""]:
+                val = {"\"true\"": True, "\"false\"": False}[val]
+            edge.append(val)
+        elif isinstance(val, float) or isinstance(val, np.float64):
+            if not np.isnan(val):
                 edge.append(val)
-            elif isinstance(val, str):
-                ### if it's a list, need to convert from str to actual list
-                if '[' in val:
-                    val = ast.literal_eval(val)
-                ### if it's "true" or "false", convert to bool
-                if val in ["\"true\"", "\"false\""]:
-                    val = {"\"true\"": True, "\"false\"": False}[val]
-                edge.append(val)
-            elif isinstance(val, float) or isinstance(val, np.float64):
-                if not np.isnan(val):
-                    edge.append(val)
-            else:
-                print(f'type not supported: {type(val)}, instance: {val}')
-        model[sheet].append(edge)
+        else:
+            print(f'type not supported: {type(val)}, instance: {val}')
+    model[sheet].append(edge)
 
 
 ### function for writing all relevant parameters to simulate starfit reservoir
@@ -74,8 +81,7 @@ def create_starfit_params(d, r):
         name = 'starfit_' + s + '_' + r
         d[name] = {}
         d[name]['type'] = 'constant'
-        d[name]['url'] = 'drb_model_sheets.xlsx'
-        d[name]['sheet_name'] = 'istarf_conus'
+        d[name]['url'] = 'drb_model_istarf_conus.csv'
         d[name]['column'] = s
         d[name]['index_col'] = 'reservoir'
         d[name]['index'] = r
@@ -174,38 +180,44 @@ def create_starfit_params(d, r):
 
 
 ### load parameters from spreadsheet & add elements as dict items
-for sheet in ['parameters']:
-    df = pd.read_excel(model_sheets_file, sheet_name=sheet)
-    model[sheet] = {}
-    for i in range(df.shape[0]):
-        name = df.iloc[i,0]
-        ### skip empty line
-        if type(name) is not str:
-            pass
-        ### other than starfit types, print elements from excel directly into json
-        elif df.iloc[i,1] != 'starfit':
-            model[sheet][name] = {}
-            for j, col in enumerate(df.columns[1:], start=1):
-                val = df.iloc[i,j]
-                if isinstance(val, int):
-                    model[sheet][name][col] = val
-                elif isinstance(val, str):
-                    ### if it's a list, need to convert from str to actual list
-                    if '[' in val:
-                        val = ast.literal_eval(val)
-                    ### if it's "true" or "false", convert to bool
-                    if val in ["\"true\"", "\"false\""]:
-                        val = {"\"true\"": True, "\"false\"": False}[val]
-                    model[sheet][name][col] = val
-                elif isinstance(val, float) or isinstance(val, np.float64):
-                    if not np.isnan(val):
-                        model[sheet][name][col] = val
+sheet = 'parameters'
+df = pd.read_csv(model_sheets_start + sheet + '.csv')
+model[sheet] = {}
+for i in range(df.shape[0]):
+    name = df.iloc[i,0]
+    ### skip empty line
+    if type(name) is not str:
+        pass
+    ### other than starfit types, print elements from excel directly into json
+    elif df.iloc[i,1] != 'starfit':
+        model[sheet][name] = {}
+        for j, col in enumerate(df.columns[1:], start=1):
+            val = df.iloc[i,j]
+            if isinstance(val, int):
+                model[sheet][name][col] = val
+            elif isinstance(val, str):
+                ### if it's a list, need to convert from str to actual list
+                if '[' in val:
+                    val = ast.literal_eval(val)
+                ### if it's "true" or "false", convert to bool
+                if val in ["\"true\"", "\"false\""]:
+                    val = {"\"true\"": True, "\"false\"": False}[val]
+                ### if it's actually a number as string, convert to numeric
                 else:
-                    print(f'type not supported: {type(val)}, instance: {val}')
-        ### for starfit types, follow function to create all starfit params for this reservoir
-        else:
-            reservoir = name.split('_')[1]
-            model[sheet] = create_starfit_params(model[sheet], reservoir)
+                    try:
+                        val = float(val)
+                    except:
+                        pass
+                model[sheet][name][col] = val
+            elif isinstance(val, float) or isinstance(val, np.float64):
+                if not np.isnan(val):
+                    model[sheet][name][col] = val
+            else:
+                print(f'type not supported: {type(val)}, instance: {val}')
+    ### for starfit types, follow function to create all starfit params for this reservoir
+    else:
+        reservoir = name.split('_')[1]
+        model[sheet] = create_starfit_params(model[sheet], reservoir)
 
 
 ### save full model as json

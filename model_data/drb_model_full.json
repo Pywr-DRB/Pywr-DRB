@@ -76,7 +76,7 @@
         {
             "name": "demand_nyc",
             "type": "output",
-            "cost": -500,
+            "cost": -500.0,
             "max_flow": "demand_max_flow_nyc"
         },
         {
@@ -105,20 +105,20 @@
         {
             "name": "reservoir_wallenpaupack",
             "type": "storage",
-            "max_volume": 87969.27600000001,
-            "initial_volume": 79172.34840000002,
-            "cost": -10
+            "max_volume": 87969.276,
+            "initial_volume": 79172.3484,
+            "cost": -10.0
         },
         {
             "name": "outflow_wallenpaupack",
             "type": "link",
-            "cost": -500,
+            "cost": -500.0,
             "max_flow": "starfit_release_final_wallenpaupack"
         },
         {
             "name": "spill_wallenpaupack",
             "type": "link",
-            "cost": 5000
+            "cost": 5000.0
         },
         {
             "name": "flowtarget_montague",
@@ -276,8 +276,7 @@
         },
         "demand_baseline_nyc": {
             "type": "constant",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "constants",
+            "url": "drb_model_constants.csv",
             "column": "value",
             "index_col": "parameter",
             "index": "demand_baseline_nyc"
@@ -293,43 +292,37 @@
         },
         "level1b": {
             "type": "dailyprofile",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "dailyProfiles",
+            "url": "drb_model_dailyProfiles.csv",
             "index_col": "profile",
             "index": "level1b"
         },
         "level1c": {
             "type": "dailyprofile",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "dailyProfiles",
+            "url": "drb_model_dailyProfiles.csv",
             "index_col": "profile",
             "index": "level1c"
         },
         "level2": {
             "type": "dailyprofile",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "dailyProfiles",
+            "url": "drb_model_dailyProfiles.csv",
             "index_col": "profile",
             "index": "level2"
         },
         "level3": {
             "type": "dailyprofile",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "dailyProfiles",
+            "url": "drb_model_dailyProfiles.csv",
             "index_col": "profile",
             "index": "level3"
         },
         "level4": {
             "type": "dailyprofile",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "dailyProfiles",
+            "url": "drb_model_dailyProfiles.csv",
             "index_col": "profile",
             "index": "level4"
         },
         "level5": {
             "type": "dailyprofile",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "dailyProfiles",
+            "url": "drb_model_dailyProfiles.csv",
             "index_col": "profile",
             "index": "level5"
         },
@@ -360,64 +353,56 @@
         },
         "level1a_factor_demand_nyc": {
             "type": "constant",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "constants",
+            "url": "drb_model_constants.csv",
             "column": "value",
             "index_col": "parameter",
             "index": "level1a_factor_demand_nyc"
         },
         "level1b_factor_demand_nyc": {
             "type": "constant",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "constants",
+            "url": "drb_model_constants.csv",
             "column": "value",
             "index_col": "parameter",
             "index": "level1b_factor_demand_nyc"
         },
         "level1c_factor_demand_nyc": {
             "type": "constant",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "constants",
+            "url": "drb_model_constants.csv",
             "column": "value",
             "index_col": "parameter",
             "index": "level1c_factor_demand_nyc"
         },
         "level2_factor_demand_nyc": {
             "type": "constant",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "constants",
+            "url": "drb_model_constants.csv",
             "column": "value",
             "index_col": "parameter",
             "index": "level2_factor_demand_nyc"
         },
         "level3_factor_demand_nyc": {
             "type": "constant",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "constants",
+            "url": "drb_model_constants.csv",
             "column": "value",
             "index_col": "parameter",
             "index": "level3_factor_demand_nyc"
         },
         "level4_factor_demand_nyc": {
             "type": "constant",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "constants",
+            "url": "drb_model_constants.csv",
             "column": "value",
             "index_col": "parameter",
             "index": "level4_factor_demand_nyc"
         },
         "level5_factor_demand_nyc": {
             "type": "constant",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "constants",
+            "url": "drb_model_constants.csv",
             "column": "value",
             "index_col": "parameter",
             "index": "level5_factor_demand_nyc"
         },
         "demand_growth_factor_nyc": {
             "type": "constant",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "constants",
+            "url": "drb_model_constants.csv",
             "column": "value",
             "index_col": "parameter",
             "index": "demand_growth_factor_nyc"
@@ -448,24 +433,21 @@
         },
         "mrf_baseline_cannonsville": {
             "type": "constant",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "constants",
+            "url": "drb_model_constants.csv",
             "column": "value",
             "index_col": "parameter",
             "index": "mrf_baseline_cannonsville"
         },
         "mrf_baseline_pepacton": {
             "type": "constant",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "constants",
+            "url": "drb_model_constants.csv",
             "column": "value",
             "index_col": "parameter",
             "index": "mrf_baseline_pepacton"
         },
         "mrf_baseline_neversink": {
             "type": "constant",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "constants",
+            "url": "drb_model_constants.csv",
             "column": "value",
             "index_col": "parameter",
             "index": "mrf_baseline_neversink"
@@ -511,148 +493,127 @@
         },
         "level1a_factor_mrf_cannonsville": {
             "type": "dailyprofile",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "dailyProfiles",
+            "url": "drb_model_dailyProfiles.csv",
             "index_col": "profile",
             "index": "level1a_factor_mrf_cannonsville"
         },
         "level1a_factor_mrf_pepacton": {
             "type": "dailyprofile",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "dailyProfiles",
+            "url": "drb_model_dailyProfiles.csv",
             "index_col": "profile",
             "index": "level1a_factor_mrf_pepacton"
         },
         "level1a_factor_mrf_neversink": {
             "type": "dailyprofile",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "dailyProfiles",
+            "url": "drb_model_dailyProfiles.csv",
             "index_col": "profile",
             "index": "level1a_factor_mrf_neversink"
         },
         "level1b_factor_mrf_cannonsville": {
             "type": "dailyprofile",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "dailyProfiles",
+            "url": "drb_model_dailyProfiles.csv",
             "index_col": "profile",
             "index": "level1b_factor_mrf_cannonsville"
         },
         "level1b_factor_mrf_pepacton": {
             "type": "dailyprofile",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "dailyProfiles",
+            "url": "drb_model_dailyProfiles.csv",
             "index_col": "profile",
             "index": "level1b_factor_mrf_pepacton"
         },
         "level1b_factor_mrf_neversink": {
             "type": "dailyprofile",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "dailyProfiles",
+            "url": "drb_model_dailyProfiles.csv",
             "index_col": "profile",
             "index": "level1b_factor_mrf_neversink"
         },
         "level1c_factor_mrf_cannonsville": {
             "type": "dailyprofile",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "dailyProfiles",
+            "url": "drb_model_dailyProfiles.csv",
             "index_col": "profile",
             "index": "level1c_factor_mrf_cannonsville"
         },
         "level1c_factor_mrf_pepacton": {
             "type": "dailyprofile",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "dailyProfiles",
+            "url": "drb_model_dailyProfiles.csv",
             "index_col": "profile",
             "index": "level1c_factor_mrf_pepacton"
         },
         "level1c_factor_mrf_neversink": {
             "type": "dailyprofile",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "dailyProfiles",
+            "url": "drb_model_dailyProfiles.csv",
             "index_col": "profile",
             "index": "level1c_factor_mrf_neversink"
         },
         "level2_factor_mrf_cannonsville": {
             "type": "dailyprofile",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "dailyProfiles",
+            "url": "drb_model_dailyProfiles.csv",
             "index_col": "profile",
             "index": "level2_factor_mrf_cannonsville"
         },
         "level2_factor_mrf_pepacton": {
             "type": "dailyprofile",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "dailyProfiles",
+            "url": "drb_model_dailyProfiles.csv",
             "index_col": "profile",
             "index": "level2_factor_mrf_pepacton"
         },
         "level2_factor_mrf_neversink": {
             "type": "dailyprofile",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "dailyProfiles",
+            "url": "drb_model_dailyProfiles.csv",
             "index_col": "profile",
             "index": "level2_factor_mrf_neversink"
         },
         "level3_factor_mrf_cannonsville": {
             "type": "dailyprofile",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "dailyProfiles",
+            "url": "drb_model_dailyProfiles.csv",
             "index_col": "profile",
             "index": "level3_factor_mrf_cannonsville"
         },
         "level3_factor_mrf_pepacton": {
             "type": "dailyprofile",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "dailyProfiles",
+            "url": "drb_model_dailyProfiles.csv",
             "index_col": "profile",
             "index": "level3_factor_mrf_pepacton"
         },
         "level3_factor_mrf_neversink": {
             "type": "dailyprofile",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "dailyProfiles",
+            "url": "drb_model_dailyProfiles.csv",
             "index_col": "profile",
             "index": "level3_factor_mrf_neversink"
         },
         "level4_factor_mrf_cannonsville": {
             "type": "dailyprofile",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "dailyProfiles",
+            "url": "drb_model_dailyProfiles.csv",
             "index_col": "profile",
             "index": "level4_factor_mrf_cannonsville"
         },
         "level4_factor_mrf_pepacton": {
             "type": "dailyprofile",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "dailyProfiles",
+            "url": "drb_model_dailyProfiles.csv",
             "index_col": "profile",
             "index": "level4_factor_mrf_pepacton"
         },
         "level4_factor_mrf_neversink": {
             "type": "dailyprofile",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "dailyProfiles",
+            "url": "drb_model_dailyProfiles.csv",
             "index_col": "profile",
             "index": "level4_factor_mrf_neversink"
         },
         "level5_factor_mrf_cannonsville": {
             "type": "dailyprofile",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "dailyProfiles",
+            "url": "drb_model_dailyProfiles.csv",
             "index_col": "profile",
             "index": "level5_factor_mrf_cannonsville"
         },
         "level5_factor_mrf_pepacton": {
             "type": "dailyprofile",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "dailyProfiles",
+            "url": "drb_model_dailyProfiles.csv",
             "index_col": "profile",
             "index": "level5_factor_mrf_pepacton"
         },
         "level5_factor_mrf_neversink": {
             "type": "dailyprofile",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "dailyProfiles",
+            "url": "drb_model_dailyProfiles.csv",
             "index_col": "profile",
             "index": "level5_factor_mrf_neversink"
         },
@@ -702,8 +663,7 @@
         },
         "mrf_baseline_montague": {
             "type": "constant",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "constants",
+            "url": "drb_model_constants.csv",
             "column": "value",
             "index_col": "parameter",
             "index": "mrf_baseline_montague"
@@ -723,78 +683,67 @@
         },
         "level1a_factor_mrf_montague": {
             "type": "monthlyprofile",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "monthlyProfiles",
+            "url": "drb_model_monthlyProfiles.csv",
             "index_col": "profile",
             "index": "level1a_factor_mrf_montague"
         },
         "level1b_factor_mrf_montague": {
             "type": "monthlyprofile",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "monthlyProfiles",
+            "url": "drb_model_monthlyProfiles.csv",
             "index_col": "profile",
             "index": "level1b_factor_mrf_montague"
         },
         "level1c_factor_mrf_montague": {
             "type": "monthlyprofile",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "monthlyProfiles",
+            "url": "drb_model_monthlyProfiles.csv",
             "index_col": "profile",
             "index": "level1c_factor_mrf_montague"
         },
         "level2_factor_mrf_montague": {
             "type": "monthlyprofile",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "monthlyProfiles",
+            "url": "drb_model_monthlyProfiles.csv",
             "index_col": "profile",
             "index": "level2_factor_mrf_montague"
         },
         "level3_factor_mrf_montague": {
             "type": "monthlyprofile",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "monthlyProfiles",
+            "url": "drb_model_monthlyProfiles.csv",
             "index_col": "profile",
             "index": "level3_factor_mrf_montague"
         },
         "level4_factor_mrf_montague": {
             "type": "monthlyprofile",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "monthlyProfiles",
+            "url": "drb_model_monthlyProfiles.csv",
             "index_col": "profile",
             "index": "level4_factor_mrf_montague"
         },
         "level5_factor_mrf_montague": {
             "type": "monthlyprofile",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "monthlyProfiles",
+            "url": "drb_model_monthlyProfiles.csv",
             "index_col": "profile",
             "index": "level5_factor_mrf_montague"
         },
         "sin_weekly": {
             "type": "weeklyprofile",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "weeklyProfiles",
+            "url": "drb_model_weeklyProfiles.csv",
             "index_col": "profile",
             "index": "sin_weekly"
         },
         "cos_weekly": {
             "type": "weeklyprofile",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "weeklyProfiles",
+            "url": "drb_model_weeklyProfiles.csv",
             "index_col": "profile",
             "index": "cos_weekly"
         },
         "sin2x_weekly": {
             "type": "weeklyprofile",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "weeklyProfiles",
+            "url": "drb_model_weeklyProfiles.csv",
             "index_col": "profile",
             "index": "sin2x_weekly"
         },
         "cos2x_weekly": {
             "type": "weeklyprofile",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "weeklyProfiles",
+            "url": "drb_model_weeklyProfiles.csv",
             "index_col": "profile",
             "index": "cos2x_weekly"
         },
@@ -815,168 +764,147 @@
         },
         "starfit_NORhi_alpha_wallenpaupack": {
             "type": "constant",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "istarf_conus",
+            "url": "drb_model_istarf_conus.csv",
             "column": "NORhi_alpha",
             "index_col": "reservoir",
             "index": "wallenpaupack"
         },
         "starfit_NORhi_beta_wallenpaupack": {
             "type": "constant",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "istarf_conus",
+            "url": "drb_model_istarf_conus.csv",
             "column": "NORhi_beta",
             "index_col": "reservoir",
             "index": "wallenpaupack"
         },
         "starfit_NORhi_max_wallenpaupack": {
             "type": "constant",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "istarf_conus",
+            "url": "drb_model_istarf_conus.csv",
             "column": "NORhi_max",
             "index_col": "reservoir",
             "index": "wallenpaupack"
         },
         "starfit_NORhi_min_wallenpaupack": {
             "type": "constant",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "istarf_conus",
+            "url": "drb_model_istarf_conus.csv",
             "column": "NORhi_min",
             "index_col": "reservoir",
             "index": "wallenpaupack"
         },
         "starfit_NORhi_mu_wallenpaupack": {
             "type": "constant",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "istarf_conus",
+            "url": "drb_model_istarf_conus.csv",
             "column": "NORhi_mu",
             "index_col": "reservoir",
             "index": "wallenpaupack"
         },
         "starfit_NORlo_alpha_wallenpaupack": {
             "type": "constant",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "istarf_conus",
+            "url": "drb_model_istarf_conus.csv",
             "column": "NORlo_alpha",
             "index_col": "reservoir",
             "index": "wallenpaupack"
         },
         "starfit_NORlo_beta_wallenpaupack": {
             "type": "constant",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "istarf_conus",
+            "url": "drb_model_istarf_conus.csv",
             "column": "NORlo_beta",
             "index_col": "reservoir",
             "index": "wallenpaupack"
         },
         "starfit_NORlo_max_wallenpaupack": {
             "type": "constant",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "istarf_conus",
+            "url": "drb_model_istarf_conus.csv",
             "column": "NORlo_max",
             "index_col": "reservoir",
             "index": "wallenpaupack"
         },
         "starfit_NORlo_min_wallenpaupack": {
             "type": "constant",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "istarf_conus",
+            "url": "drb_model_istarf_conus.csv",
             "column": "NORlo_min",
             "index_col": "reservoir",
             "index": "wallenpaupack"
         },
         "starfit_NORlo_mu_wallenpaupack": {
             "type": "constant",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "istarf_conus",
+            "url": "drb_model_istarf_conus.csv",
             "column": "NORlo_mu",
             "index_col": "reservoir",
             "index": "wallenpaupack"
         },
         "starfit_Release_alpha1_wallenpaupack": {
             "type": "constant",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "istarf_conus",
+            "url": "drb_model_istarf_conus.csv",
             "column": "Release_alpha1",
             "index_col": "reservoir",
             "index": "wallenpaupack"
         },
         "starfit_Release_alpha2_wallenpaupack": {
             "type": "constant",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "istarf_conus",
+            "url": "drb_model_istarf_conus.csv",
             "column": "Release_alpha2",
             "index_col": "reservoir",
             "index": "wallenpaupack"
         },
         "starfit_Release_beta1_wallenpaupack": {
             "type": "constant",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "istarf_conus",
+            "url": "drb_model_istarf_conus.csv",
             "column": "Release_beta1",
             "index_col": "reservoir",
             "index": "wallenpaupack"
         },
         "starfit_Release_beta2_wallenpaupack": {
             "type": "constant",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "istarf_conus",
+            "url": "drb_model_istarf_conus.csv",
             "column": "Release_beta2",
             "index_col": "reservoir",
             "index": "wallenpaupack"
         },
         "starfit_Release_c_wallenpaupack": {
             "type": "constant",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "istarf_conus",
+            "url": "drb_model_istarf_conus.csv",
             "column": "Release_c",
             "index_col": "reservoir",
             "index": "wallenpaupack"
         },
         "starfit_Release_max_wallenpaupack": {
             "type": "constant",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "istarf_conus",
+            "url": "drb_model_istarf_conus.csv",
             "column": "Release_max",
             "index_col": "reservoir",
             "index": "wallenpaupack"
         },
         "starfit_Release_min_wallenpaupack": {
             "type": "constant",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "istarf_conus",
+            "url": "drb_model_istarf_conus.csv",
             "column": "Release_min",
             "index_col": "reservoir",
             "index": "wallenpaupack"
         },
         "starfit_Release_p1_wallenpaupack": {
             "type": "constant",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "istarf_conus",
+            "url": "drb_model_istarf_conus.csv",
             "column": "Release_p1",
             "index_col": "reservoir",
             "index": "wallenpaupack"
         },
         "starfit_Release_p2_wallenpaupack": {
             "type": "constant",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "istarf_conus",
+            "url": "drb_model_istarf_conus.csv",
             "column": "Release_p2",
             "index_col": "reservoir",
             "index": "wallenpaupack"
         },
         "starfit_GRanD_CAP_MG_wallenpaupack": {
             "type": "constant",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "istarf_conus",
+            "url": "drb_model_istarf_conus.csv",
             "column": "GRanD_CAP_MG",
             "index_col": "reservoir",
             "index": "wallenpaupack"
         },
         "starfit_GRanD_MEANFLOW_MGD_wallenpaupack": {
             "type": "constant",
-            "url": "drb_model_sheets.xlsx",
-            "sheet_name": "istarf_conus",
+            "url": "drb_model_istarf_conus.csv",
             "column": "GRanD_MEANFLOW_MGD",
             "index_col": "reservoir",
             "index": "wallenpaupack"

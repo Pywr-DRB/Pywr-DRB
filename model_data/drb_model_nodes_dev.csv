@@ -1,0 +1,63 @@
+name,type,flow,max_volume,initial_volume,cost,storage_nodes,max_flow,mrf,mrf_cost,long,lat,notes,huc12,gages
+catchment_cannonsville,catchment,,,,,,,,,42.128727,-75.278417,,,"inflows: 0142400103 to 1952, 01423000 to 1950"
+catchment_pepacton,catchment,,,,,,,,,42.12065,-74.672851,,,"inflows: 01415000 to 1937, 01414500 to 1937, 01414000 to 1941, 01413500 to 1937"
+catchment_delLordville,catchment,,,,,,,,,41.856644,-75.340805,,,"flow: 01427207 to 1967, minus (reservoir_cannonsville + reservoir_pepacton)"
+catchment_prompton,catchment,,,,,,,,,41.633051,-75.345897,,,inflow:  01428750 to 1975 (ways upstream)
+catchment_wallenpaupack,catchment,,,,,,,,,41.365279,-75.34474,,,none
+catchment_delLackawaxen,catchment,,,,,,,,,41.438921,-75.091205,,,"flow: 01432160 to 1967, minus (reservoir_prompton + reservoir_wallenpaupack)"
+catchment_shoholaMarsh,catchment,,,,,,,,,41.354616,-75.003795,,,none
+catchment_mongaupe,catchment,,,,,,,,,41.573951,-74.772103,,,inflow:  01432900 to 1949
+catchment_neversink,catchment,,,,,,,,,41.877839,-74.610214,,,inflow: 01435000 to 1937
+catchment_delMontague,catchment,,,,,,,,,41.470555,-74.427697,,,"flow: 01438500 to 1903, minus (catchment_delLackawaxen + reservoir_shoholaMarsh + reservoir_mongaupe + reservoir_neversink)"
+catchment_beltzville,catchment,,,,,,,,,40.895163,-75.551658,,,inflow: 01449360 to 1966
+catchment_fewalter,catchment,,,,,,,,,41.158354,-75.684578,,,"inflow: 01447500 to 1926, 01447720 to 1930"
+catchment_delLehigh,catchment,,,,,,,,,40.592831,-75.445382,,,"flow: 01457500 to 1841, minus (catchment_delMontague + reservoir_beltzville + reservoir_fewalter)"
+catchment_merrillCreek,catchment,,,,,,,,,40.753498,-75.080465,,,none
+catchment_hopatcong,catchment,,,,,,,,,40.969757,-74.607153,,,none
+catchment_nockamixon,catchment,,,,,,,,,40.41994,-75.270199,,,none
+catchment_delTrenton,catchment,,,,,,,,,40.289476,-75.064388,,,"flow: 01463500 to 1897, minus (catchment_delLehigh + reservoir_merrillCreek + reservoir_hepatcong + reservoir_nockamixon)"
+catchment_assunpink,catchment,,,,,,,,,40.21557,-74.483705,,,none
+catchment_vanSciver,catchment,,,,,,,,,40.177633,-74.806627,,,none
+catchment_delPhlEast,catchment,,,,,,,,,40.012463,-74.753945,,,none
+catchment_ontelaunee,catchment,,,,,,,,,40.511906,-75.882452,,,inflow: 01470755 to 1978
+catchment_stillCreek,catchment,,,,,,,,,40.876125,-75.945122,,,none  
+catchment_blueMarsh,catchment,,,,,,,,,40.429982,-76.114437,,,inflow: 01470779 to 1972
+catchment_greenLane,catchment,,,,,,,,,40.391341,-75.510177,,,"none (note there are two, but they say something about data changing and/or historically unreliable)"
+catchment_delSchuykill,catchment,,,,,,,,,40.054921,-75.266056,,,none
+catchment_delPhlWest,catchment,,,,,,,,,39.788833,-75.20212,,,none
+catchment_springton,catchment,,,,,,,,,39.968414,-75.428759,,,inflow: 01475850 to 1932
+catchment_marshCreek,catchment,,,,,,,,,40.093204,-75.735073,,,inflow: 01480675 to 1966
+catchment_delChristina,catchment,,,,,,,,,39.75727,-75.616599,,,flow: 01482100 to 1950 (note this is tidal & oscillatory)
+reservoir_cannonsville,storage,,,,,,,,,42.065872,-75.37462,,20401010207,outflow: 01425000 to 1952
+reservoir_pepacton,storage,,,,,,,,,42.073603,-74.965531,,20401020405,outflow: 01417000 to 1903
+reservoir_prompton,storage,,,,,,,,,41.589961,-75.32768,,20401030103,outflow: 01429000 to 1942
+reservoir_wallenpaupack,storage,,,,,,,,,41.460825,-75.18423,,20401030505,"none, but could approximate as (01432110 to 1949, ~10 miles downstream) minus (01431500 to 1908, lackawaxen right upstream of wallenpaupack junction)"
+reservoir_shoholaMarsh,storage,,,,,,,,,41.392015,-74.96866,,20401040402,"none, there is only 01432495, but this is ~10 miles downstream and only to 2018"
+reservoir_mongaupe,storage,,,,,,,,,41.478898,-74.755352,"mongaupe system includes many reservoirs, including mongaup falls, toronto, swinging bridge, rio, lebanon, cliff, st josephs, black, white, superior, swan. Rio is last in chain.",20401040107,outflow: 01433500 to 1939
+reservoir_neversink,storage,,,,,,,,,41.821286,-74.643266,,20401040303,outflow: 01436000 to 1941
+reservoir_beltzville,storage,,,,,,,,,40.851266,-75.638495,includes penn forest & wild creek reservoirs upstream,20401060404,outflow: 01449800 to 1967
+reservoir_fewalter,storage,,,,,,,,,41.113559,-75.720849,,20401060204,outflow: 01447800 to 1955
+reservoir_merrillCreek,storage,,,,,,,,,40.727174,-75.10281,,20401050402,none
+reservoir_hopatcong,storage,,,,,,,,,40.917661,-74.664516,,20401050501,outflow: 01455500 to 1928
+reservoir_nockamixon,storage,,,,,,,,,40.471662,-75.184604,,20401050702,outflow: 01459500 to 1935
+reservoir_assunpink,storage,,,,,,,,,40.219222,-74.524199,also include mercer lake downstream in huc12,20401050801,"01463620 to 1963 (note this is ~8 miles downstream, & past another reservoir, Mercer Lake)"
+reservoir_vanSciver,storage,,,,,,,,,40.130127,-74.776749,"huc12 also includes river itself, should remove node", ,none
+reservoir_ontelaunee,storage,,,,,,,,,40.447622,-75.933283,,20402030307,"outflow: 01470761, only back to 2020"
+reservoir_stillCreek,storage,,,,,,,,,40.85809,-75.990719,huc12 also includes a couple other small lakes,20402030101,outflow: 01469500 to 1916 (note this is ~5 miles downstream)
+reservoir_blueMarsh,storage,,,,,,,,,40.379002,-76.031525,,20402030407,outflow: 01470960 to 1965
+reservoir_greenLane,storage,,,,,,,,,40.332875,-75.481018,,20402030806,"outflow: 01473000 to 1914 (note this is ~7 miles downstream, past tribs)"
+reservoir_springton,storage,,,,,,,,,39.951858,-75.392403,huc12 outlet pretty far downstream,20402020601,none
+reservoir_marshCreek,storage,,,,,,,,,40.055435,-75.717303,,20402050101,outflow: 01480685 to 1973
+link_delLordville,link,,,,,,,,,41.867528,-75.21417,,20401010403,
+link_delLackawaxen,link,,,,,,,,,41.485352,-74.985343,,020401030603 (lackawaxen) + 020401010606 (delaware),
+link_delMontague,link,,,,,,,,,41.354396,-74.701019,"note: montague gage is actually a bit downstream of this junction, part way into 020401040704",020401040308 (neversink) + 020401040505 (delaware),
+link_delLehigh,link,,,,,,,,,40.689339,-75.202901,note: delaware huc includes flow from lehigh & bushkill near outlet,020401060813 (lehigh) + 020401050303 (bushkill) + 020401050603 (delaware),
+link_delTrenton,link,,,,,,,,,40.183489,-74.751254,,20401050911,
+link_delPhlEast,link,,,,,,,,,39.973535,-75.084221,,20402020403,
+link_delSchuykill,link,,,,,,,,,39.878592,-75.192669,flows midway into delPhWest,020402031008 (schuykill),
+link_delPhlWest,link,,,,,,,,,39.849722,-75.313423,,20402020507,
+link_delChristina,link,,,,,,,,,39.714079,-75.500758,"delaware fully tidal at Christina juncture, not sure it's worth going below Phl",020402050505 (christina) ,
+demand_nyc,output,,,,,,,,,41.929537,-74.326084,,,
+demand_nj,output,,,,,,,,,40.341568,-74.643334,,,
+demand_phl,output,,,,,,,,,39.945847,-75.179834,,,
+output_del,output,,,,,,,,,39.649087,-75.558104,,,

@@ -1,0 +1,17 @@
+parameter,value,units
+cfs_to_mgd,0.646316883,
+cumecs_to_mgd,22.82446532,
+m3_to_gal,264.172,
+mrf_baseline_cannonsville,122.8002078,
+mrf_baseline_pepacton,64.63168831,
+mrf_baseline_neversink,48.47376623,
+mrf_baseline_montague,1131.054545,
+demand_baseline_nyc,800,mgd
+level1a_factor_demand_nyc,1,
+level1b_factor_demand_nyc,1,
+level1c_factor_demand_nyc,1,
+level2_factor_demand_nyc,1,
+level3_factor_demand_nyc,0.85,
+level4_factor_demand_nyc,0.7,
+level5_factor_demand_nyc,0.65,
+demand_growth_factor_nyc,1,

@@ -1,0 +1,65 @@
+node1,node2,type,notes
+catchment_cannonsville,reservoir_cannonsville,tributary,upper delaware
+reservoir_cannonsville,link_delLordville,mainstem,
+reservoir_cannonsville,demand_nyc,diversion,tunnels to nyc
+catchment_pepacton,reservoir_pepacton,tributary,EB delaware
+reservoir_pepacton,link_delLordville,tributary,
+reservoir_pepacton,demand_nyc,diversion,tunnels to nyc
+catchment_delLordville,link_delLordville,mainstem,gain to delLordville gage minus cannonsville & pepacton releases
+link_delLordville,link_delLackawaxen,mainstem,
+catchment_prompton,reservoir_prompton,tributary,delLackawaxen
+reservoir_prompton,link_delLackawaxen,tributary,where delLackawaxen meets Delaware
+catchment_wallenpaupack,reservoir_wallenpaupack,tributary,
+reservoir_wallenpaupack,link_delLackawaxen,tributary,
+catchment_delLackawaxen,link_delLackawaxen,tributary,
+link_delLackawaxen,link_delMontague,mainstem,
+catchment_shoholaMarsh,reservoir_shoholaMarsh,tributary,
+reservoir_shoholaMarsh,link_delMontague,tributary,
+catchment_mongaupe,reservoir_mongaupe,tributary,several reservoirs representing mongaupe hydropower system
+reservoir_mongaupe,link_delMontague,tributary,
+catchment_neversink,reservoir_neversink,tributary,
+reservoir_neversink,link_delMontague,tributary,
+reservoir_neversink,demand_nyc,diversion,tunnels to nyc
+catchment_delMontague,link_delMontague,tributary,
+link_delMontague,link_delLehigh,mainstem,
+catchment_beltzville,reservoir_beltzville,tributary,
+reservoir_beltzville,link_delLehigh,tributary,
+catchment_fewalter,reservoir_fewalter,tributary,
+reservoir_fewalter,link_delLehigh,tributary,
+catchment_delLehigh,link_delLehigh,tributary,
+link_delLehigh,link_delTrenton,mainstem,
+catchment_merrillCreek,reservoir_merrillCreek,tributary,
+reservoir_merrillCreek,link_delTrenton,tributary,
+catchment_hopatcong,reservoir_hopatcong,tributary,
+reservoir_hopatcong,link_delTrenton,tributary,
+catchment_nockamixon,reservoir_nockamixon,tributary,
+reservoir_nockamixon,link_delTrenton,tributary,
+catchment_delTrenton,link_delTrenton,tributary,
+link_delTrenton,link_delPhlEast,mainstem,
+catchment_assunpink,reservoir_assunpink,tributary,
+reservoir_assunpink,link_delPhlEast,tributary,
+reservoir_assunpink,demand_nj,diversion,tunnel - see WEAP. need to figure out where this starts & goes exactly
+catchment_vanSciver,reservoir_vanSciver,tributary,
+reservoir_vanSciver,link_delPhlEast,tributary,
+catchment_delPhlEast,link_delPhlEast,tributary,
+link_delPhlEast,demand_phl,diversion,philly demand intake 1
+link_delPhlEast,link_delSchuykill,mainstem,
+catchment_ontelaunee,reservoir_ontelaunee,tributary,
+reservoir_ontelaunee,link_delSchuykill,tributary,
+catchment_stillCreek,reservoir_stillCreek,tributary,
+reservoir_stillCreek,link_delSchuykill,tributary,
+catchment_blueMarsh,reservoir_blueMarsh,tributary,
+reservoir_blueMarsh,link_delSchuykill,tributary,
+catchment_greenLane,reservoir_greenLane,tributary,
+reservoir_greenLane,link_delSchuykill,tributary,
+catchment_delSchuykill,link_delSchuykill,tributary,
+link_delSchuykill,link_delPhlWest,mainstem,
+catchment_delPhlWest,link_delPhlWest,tributary,
+link_delPhlWest,demand_phl,diversion,
+link_delPhlWest,link_delChristina,mainstem,philly demand intake 1
+catchment_springton,reservoir_springton,tributary,
+reservoir_springton,link_delChristina,tributary,
+catchment_marshCreek,reservoir_marshCreek,tributary,
+reservoir_marshCreek,link_delChristina,tributary,
+catchment_delChristina,link_delChristina,tributary,
+link_delChristina,output_del,mainstem,
