@@ -1,0 +1,308 @@
+{
+    "metadata": {
+        "title": "DRB",
+        "description": "Simple DRB representation",
+        "minimum_version": "0.4"
+    },
+    "timestepper": {
+        "start": "1990-10-01",
+        "end": "2021-09-30",
+        "timestep": 7
+    },
+    "scenarios": [
+        {
+            "name": "inflow",
+            "size": 5
+        }
+    ],
+    "nodes": [
+        {
+            "name": "catchment_cannonsville",
+            "type": "catchment",
+            "flow": "flow_cannonsville"
+        },
+        {
+            "name": "catchment_pepacton",
+            "type": "catchment",
+            "flow": "flow_pepacton"
+        },
+        {
+            "name": "catchment_neversink",
+            "type": "catchment",
+            "flow": "flow_neversink"
+        },
+        {
+            "name": "reservoir_cannonsville",
+            "type": "storage",
+            "max_volume": "max_volume_cannonsville",
+            "initial_volume": 117313.5018,
+            "initial_volume_pc": 0.8,
+            "cost": "storage_cost_cannonsville"
+        },
+        {
+            "name": "reservoir_pepacton",
+            "type": "storage",
+            "max_volume": "max_volume_pepacton",
+            "initial_volume": 158947.009,
+            "initial_volume_pc": 0.8,
+            "cost": "storage_cost_pepacton"
+        },
+        {
+            "name": "reservoir_neversink",
+            "type": "storage",
+            "max_volume": "max_volume_neversink",
+            "initial_volume": 37026.34752,
+            "initial_volume_pc": 0.8,
+            "cost": "storage_cost_neversink"
+        },
+        {
+            "name": "reservoir_agg_nyc",
+            "type": "aggregatedstorage",
+            "storage_nodes": [
+                "reservoir_cannonsville",
+                "reservoir_pepacton",
+                "reservoir_neversink"
+            ]
+        },
+        {
+            "name": "link_cannonsville_nyc",
+            "type": "link"
+        },
+        {
+            "name": "link_pepacton_nyc",
+            "type": "link"
+        },
+        {
+            "name": "link_neversink_nyc",
+            "type": "link"
+        },
+        {
+            "name": "demand_nyc",
+            "type": "output",
+            "cost": -500.0,
+            "max_flow": "demand_max_flow_nyc"
+        },
+        {
+            "name": "flowtarget_cannonsville",
+            "type": "rivergauge",
+            "mrf": "mrf_target_cannonsville",
+            "mrf_cost": -1000.0
+        },
+        {
+            "name": "flowtarget_pepacton",
+            "type": "rivergauge",
+            "mrf": "mrf_target_pepacton",
+            "mrf_cost": -1000.0
+        },
+        {
+            "name": "flowtarget_neversink",
+            "type": "rivergauge",
+            "mrf": "mrf_target_neversink",
+            "mrf_cost": -1000.0
+        },
+        {
+            "name": "catchment_wallenpaupack",
+            "type": "catchment",
+            "flow": "flow_wallenpaupack"
+        },
+        {
+            "name": "reservoir_wallenpaupack",
+            "type": "storage",
+            "max_volume": "max_volume_wallenpaupack",
+            "initial_volume": 70375.4208,
+            "initial_volume_pc": 0.8,
+            "cost": -10.0
+        },
+        {
+            "name": "outflow_wallenpaupack",
+            "type": "link",
+            "cost": -500.0,
+            "max_flow": "starfit_release_final_wallenpaupack"
+        },
+        {
+            "name": "spill_wallenpaupack",
+            "type": "link",
+            "cost": 5000.0
+        },
+        {
+            "name": "flowtarget_montague",
+            "type": "rivergauge",
+            "mrf": "mrf_target_montague",
+            "mrf_cost": -1000.0
+        },
+        {
+            "name": "term1",
+            "type": "output"
+        }
+    ],
+    "edges": [
+        [
+            "catchment_cannonsville",
+            "reservoir_cannonsville"
+        ],
+        [
+            "catchment_pepacton",
+            "reservoir_pepacton"
+        ],
+        [
+            "catchment_neversink",
+            "reservoir_neversink"
+        ],
+        [
+            "reservoir_cannonsville",
+            "link_cannonsville_nyc"
+        ],
+        [
+            "reservoir_pepacton",
+            "link_pepacton_nyc"
+        ],
+        [
+            "reservoir_neversink",
+            "link_neversink_nyc"
+        ],
+        [
+            "link_cannonsville_nyc",
+            "demand_nyc"
+        ],
+        [
+            "link_pepacton_nyc",
+            "demand_nyc"
+        ],
+        [
+            "link_neversink_nyc",
+            "demand_nyc"
+        ],
+        [
+            "reservoir_cannonsville",
+            "flowtarget_cannonsville"
+        ],
+        [
+            "reservoir_pepacton",
+            "flowtarget_pepacton"
+        ],
+        [
+            "reservoir_neversink",
+            "flowtarget_neversink"
+        ],
+        [
+            "flowtarget_cannonsville",
+            "flowtarget_montague"
+        ],
+        [
+            "flowtarget_pepacton",
+            "flowtarget_montague"
+        ],
+        [
+            "flowtarget_neversink",
+            "flowtarget_montague"
+        ],
+        [
+            "catchment_wallenpaupack",
+            "reservoir_wallenpaupack"
+        ],
+        [
+            "reservoir_wallenpaupack",
+            "outflow_wallenpaupack"
+        ],
+        [
+            "reservoir_wallenpaupack",
+            "spill_wallenpaupack"
+        ],
+        [
+            "outflow_wallenpaupack",
+            "flowtarget_montague"
+        ],
+        [
+            "spill_wallenpaupack",
+            "flowtarget_montague"
+        ],
+        [
+            "flowtarget_montague",
+            "term1"
+        ]
+    ],
+    "parameters": {
+        "flow_factor": {
+            "type": "constantscenario",
+            "scenario": "inflow",
+            "values": [
+                0.3,
+                0.9,
+                1.0,
+                1.1,
+                1.25
+            ]
+        },
+
+
+
+
+
+
+
+
+
+
+        "sin_weekly": {
+            "type": "weeklyprofile",
+            "url": "drb_model_weeklyProfiles.csv",
+            "index_col": "profile",
+            "index": "sin_weekly"
+        },
+        "cos_weekly": {
+            "type": "weeklyprofile",
+            "url": "drb_model_weeklyProfiles.csv",
+            "index_col": "profile",
+            "index": "cos_weekly"
+        },
+
+
+
+
+
+
+        "starfit_NORhi_alpha_wallenpaupack": {
+            "type": "constant",
+            "url": "drb_model_istarf_conus.csv",
+            "column": "NORhi_alpha",
+            "index_col": "reservoir",
+            "index": "wallenpaupack"
+        },
+        "starfit_NORhi_beta_wallenpaupack": {
+            "type": "constant",
+            "url": "drb_model_istarf_conus.csv",
+            "column": "NORhi_beta",
+            "index_col": "reservoir",
+            "index": "wallenpaupack"
+        },
+        "starfit_NORhi_max_wallenpaupack": {
+            "type": "constant",
+            "url": "drb_model_istarf_conus.csv",
+            "column": "NORhi_max",
+            "index_col": "reservoir",
+            "index": "wallenpaupack"
+        },
+        "starfit_NORhi_min_wallenpaupack": {
+            "type": "constant",
+            "url": "drb_model_istarf_conus.csv",
+            "column": "NORhi_min",
+            "index_col": "reservoir",
+            "index": "wallenpaupack"
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    }
+}

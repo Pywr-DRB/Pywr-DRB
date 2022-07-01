@@ -39,8 +39,9 @@ def figures(ext, show):
         df.columns = ["Very low", "Low", "Central", "High", "Very high"]
 
         # if name.split('_')[0] in ("reservoir"):
-        if name.split('_')[0] in ("reservoir", "outflow", "spill", "max"):
+        # if name.split('_')[0] in ("reservoir", "outflow", "spill", "max"):
         # if name.startswith("mrf_target") or name.startswith("demand_drought_level"):
+        if 'reservoir' in name.split('_') or 'release' in name.split('_'):
 
             fig, (ax1, ax2) = plt.subplots(
                 figsize=(12, 4), ncols=2, sharey="row", gridspec_kw={"width_ratios": [3, 1]}

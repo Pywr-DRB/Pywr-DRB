@@ -87,20 +87,22 @@ def create_starfit_params(d, r):
         d[name]['index'] = r
 
     ### aggregated params - each needs agg function and list of params to agg
-    for s, f, lp in [('Release_max_unnorm_pt1', 'sum', ['Release_max', 1]),
-                     ('Release_max_unnorm_final', 'product', ['Release_max_unnorm_pt1', 'GRanD_MEANFLOW_MGD']),
-                     ('Release_min_unnorm_pt1', 'sum', ['Release_min', 1]),
-                     ('Release_min_unnorm_final', 'product', ['Release_min_unnorm_pt1', 'GRanD_MEANFLOW_MGD']),
+    for s, f, lp in [('Release_max_norm', 'sum', ['Release_max', 1]),
+                     ('Release_max_final', 'product', ['Release_max_norm', 'GRanD_MEANFLOW_MGD']),
+                     ('Release_min_norm', 'sum', ['Release_min', 1]),
+                     ('Release_min_final', 'product', ['Release_min_norm', 'GRanD_MEANFLOW_MGD']),
                      ('NORhi_sin', 'product', ['sin_weekly', 'NORhi_alpha']),
                      ('NORhi_cos', 'product', ['cos_weekly', 'NORhi_beta']),
                      ('NORhi_sum', 'sum', ['NORhi_mu', 'NORhi_sin', 'NORhi_cos']),
                      ('NORhi_minbound', 'max', ['NORhi_sum', 'NORhi_min']),
-                     ('NORhi_final', 'min', ['NORhi_minbound', 'NORhi_max']),
+                     ('NORhi_maxbound', 'min', ['NORhi_minbound', 'NORhi_max']),
+                     ('NORhi_final', 'product', ['NORhi_maxbound', 0.01]),
                      ('NORlo_sin', 'product', ['sin_weekly', 'NORlo_alpha']),
                      ('NORlo_cos', 'product', ['cos_weekly', 'NORlo_beta']),
                      ('NORlo_sum', 'sum', ['NORlo_mu', 'NORlo_sin', 'NORlo_cos']),
                      ('NORlo_minbound', 'max', ['NORlo_sum', 'NORlo_min']),
-                     ('NORlo_final', 'min', ['NORlo_minbound', 'NORlo_max']),
+                     ('NORlo_maxbound', 'min', ['NORlo_minbound', 'NORlo_max']),
+                     ('NORlo_final', 'product', ['NORlo_maxbound', 0.01]),
                      ('aboveNOR_final', 'sum', ['volume', 'neg_NORhi_final', 'flow']),
                      ('inNOR_sin', 'product', ['sin_weekly', 'Release_alpha1']),
                      ('inNOR_cos', 'product', ['cos_weekly', 'Release_beta1']),
@@ -113,9 +115,9 @@ def create_starfit_params(d, r):
                      ('inNOR_p2i', 'product', ['inNOR_inorm_final', 'Release_p2']),
                      ('inNOR_norm', 'sum', ['inNOR_sin', 'inNOR_cos', 'inNOR_sin2x', 'inNOR_cos2x', 'Release_c', 'inNOR_p1a_final', 'inNOR_p2i', 1]),
                      ('inNOR_final', 'product', ['inNOR_norm', 'GRanD_MEANFLOW_MGD']),
-                     ('belowNOR_final', 'sum', ['Release_min_unnorm_final']),
-                     ('target_pt2', 'max', ['target_pt1', 'Release_min_unnorm_final']),
-                     ('target_final', 'min', ['target_pt2', 'Release_max_unnorm_final']),
+                     ('belowNOR_final', 'sum', ['Release_min_final']),
+                     ('target_pt2', 'max', ['target_pt1', 'Release_min_final']),
+                     ('target_final', 'min', ['target_pt2', 'Release_max_final']),
                      ('release_pt1', 'sum', ['flow', 'volume']),
                      ('release_pt2', 'min', ['release_pt1', 'target_final']),
                      ('release_pt3', 'sum', ['release_pt1', 'neg_GRanD_CAP_MG']),
@@ -127,6 +129,8 @@ def create_starfit_params(d, r):
         d[name]['parameters'] = []
         for p in lp:
             if type(p) is int:
+                param = p
+            elif type(p) is float:
                 param = p
             elif type(p) is str:
                 if p.split('_')[0] in ('sin','cos','sin2x','cos2x'):
@@ -156,19 +160,19 @@ def create_starfit_params(d, r):
         d[name]['denominator'] = 'starfit_' + denom + '_' + r
 
     ### other params
-    other = {'starfit_level_wallenpaupack': {'type': 'controlcurveindex',
-                                            'storage_node': 'reservoir_wallenpaupack',
-                                            'control_curves': ['starfit_NORhi_final_wallenpaupack',
-                                                               'starfit_NORlo_final_wallenpaupack']},
-             'volume_wallenpaupack': {'type': 'interpolatedvolume',
+    other = {'starfit_level_'+r: {'type': 'controlcurveindex',
+                                            'storage_node': 'reservoir_'+r,
+                                            'control_curves': ['starfit_NORhi_final_'+r,
+                                                               'starfit_NORlo_final_'+r]},
+             'volume_'+r: {'type': 'interpolatedvolume',
                                       'values': [0, 1000000],
-                                      'node': 'reservoir_wallenpaupack',
+                                      'node': 'reservoir_'+r,
                                       'volumes': [0, 1000000]},
-             'starfit_target_pt1_wallenpaupack': {'type': 'indexedarray',
-                                                  'index_parameter': 'starfit_level_wallenpaupack',
-                                                  'params': ['starfit_aboveNOR_final_wallenpaupack',
-                                                             'starfit_inNOR_final_wallenpaupack',
-                                                             'starfit_belowNOR_final_wallenpaupack']}}
+             'starfit_target_pt1_'+r: {'type': 'indexedarray',
+                                                  'index_parameter': 'starfit_level_'+r,
+                                                  'params': ['starfit_aboveNOR_final_'+r,
+                                                             'starfit_inNOR_final_'+r,
+                                                             'starfit_belowNOR_final_'+r]}}
     for name, params in other.items():
         d[name] = {}
         for k,v in params.items():

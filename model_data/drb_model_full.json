@@ -34,22 +34,25 @@
         {
             "name": "reservoir_cannonsville",
             "type": "storage",
-            "max_volume": 96000.0,
-            "initial_volume": 86400.0,
+            "max_volume": "max_volume_cannonsville",
+            "initial_volume": 117313.5018,
+            "initial_volume_pc": 0.8,
             "cost": "storage_cost_cannonsville"
         },
         {
             "name": "reservoir_pepacton",
             "type": "storage",
-            "max_volume": 140000.0,
-            "initial_volume": 126000.0,
+            "max_volume": "max_volume_pepacton",
+            "initial_volume": 158947.009,
+            "initial_volume_pc": 0.8,
             "cost": "storage_cost_pepacton"
         },
         {
             "name": "reservoir_neversink",
             "type": "storage",
-            "max_volume": 35000.0,
-            "initial_volume": 31500.0,
+            "max_volume": "max_volume_neversink",
+            "initial_volume": 37026.34752,
+            "initial_volume_pc": 0.8,
             "cost": "storage_cost_neversink"
         },
         {
@@ -105,8 +108,9 @@
         {
             "name": "reservoir_wallenpaupack",
             "type": "storage",
-            "max_volume": 87969.276,
-            "initial_volume": 79172.3484,
+            "max_volume": "max_volume_wallenpaupack",
+            "initial_volume": 70375.4208,
+            "initial_volume_pc": 0.8,
             "cost": -10.0
         },
         {
@@ -229,21 +233,42 @@
                 1.25
             ]
         },
-        "flow_cumecs_cannonsville": {
+        "flow_base_cannonsville": {
+            "type": "constant",
+            "url": "drb_model_istarf_conus.csv",
+            "column": "GRanD_MEANFLOW_MGD",
+            "index_col": "reservoir",
+            "index": "cannonsville"
+        },
+        "flow_base_pepacton": {
+            "type": "constant",
+            "url": "drb_model_istarf_conus.csv",
+            "column": "GRanD_MEANFLOW_MGD",
+            "index_col": "reservoir",
+            "index": "pepacton"
+        },
+        "flow_base_neversink": {
+            "type": "constant",
+            "url": "drb_model_istarf_conus.csv",
+            "column": "GRanD_MEANFLOW_MGD",
+            "index_col": "reservoir",
+            "index": "neversink"
+        },
+        "flow_cumecs_cannonsville_old": {
             "type": "dataframe",
             "url": "../input_data/inflows_clean.csv",
             "column": "cannonsville",
             "index_col": "datetime",
             "parse_dates": true
         },
-        "flow_cumecs_pepacton": {
+        "flow_cumecs_pepacton_old": {
             "type": "dataframe",
             "url": "../input_data/inflows_clean.csv",
             "column": "pepacton",
             "index_col": "datetime",
             "parse_dates": true
         },
-        "flow_cumecs_neversink": {
+        "flow_cumecs_neversink_old": {
             "type": "dataframe",
             "url": "../input_data/inflows_clean.csv",
             "column": "neversink",
@@ -254,7 +279,7 @@
             "type": "aggregated",
             "agg_func": "product",
             "parameters": [
-                "flow_cumecs_cannonsville",
+                "flow_base_cannonsville",
                 "flow_factor"
             ]
         },
@@ -262,7 +287,7 @@
             "type": "aggregated",
             "agg_func": "product",
             "parameters": [
-                "flow_cumecs_pepacton",
+                "flow_base_pepacton",
                 "flow_factor"
             ]
         },
@@ -270,9 +295,30 @@
             "type": "aggregated",
             "agg_func": "product",
             "parameters": [
-                "flow_cumecs_neversink",
+                "flow_base_neversink",
                 "flow_factor"
             ]
+        },
+        "max_volume_cannonsville": {
+            "type": "constant",
+            "url": "drb_model_istarf_conus.csv",
+            "column": "GRanD_CAP_MG",
+            "index_col": "reservoir",
+            "index": "cannonsville"
+        },
+        "max_volume_pepacton": {
+            "type": "constant",
+            "url": "drb_model_istarf_conus.csv",
+            "column": "GRanD_CAP_MG",
+            "index_col": "reservoir",
+            "index": "pepacton"
+        },
+        "max_volume_neversink": {
+            "type": "constant",
+            "url": "drb_model_istarf_conus.csv",
+            "column": "GRanD_CAP_MG",
+            "index_col": "reservoir",
+            "index": "neversink"
         },
         "demand_baseline_nyc": {
             "type": "constant",
@@ -626,7 +672,7 @@
             "node": "reservoir_cannonsville",
             "volumes": [
                 0,
-                96000
+                146641.8772
             ]
         },
         "storage_cost_pepacton": {
@@ -638,7 +684,7 @@
             "node": "reservoir_pepacton",
             "volumes": [
                 0,
-                140000
+                198683.7612
             ]
         },
         "storage_cost_neversink": {
@@ -650,7 +696,7 @@
             "node": "reservoir_neversink",
             "volumes": [
                 0,
-                35000
+                46282.9344
             ]
         },
         "mrf_target_montague": {
@@ -747,7 +793,14 @@
             "index_col": "profile",
             "index": "cos2x_weekly"
         },
-        "flow_cumecs_wallenpaupack": {
+        "flow_base_wallenpaupack": {
+            "type": "constant",
+            "url": "drb_model_istarf_conus.csv",
+            "column": "GRanD_MEANFLOW_MGD",
+            "index_col": "reservoir",
+            "index": "wallenpaupack"
+        },
+        "flow_cumecs_wallenpaupack_old": {
             "type": "dataframe",
             "url": "../input_data/inflows_clean.csv",
             "column": "lackawaxen",
@@ -758,9 +811,16 @@
             "type": "aggregated",
             "agg_func": "product",
             "parameters": [
-                "flow_cumecs_wallenpaupack",
+                "flow_base_wallenpaupack",
                 "flow_factor"
             ]
+        },
+        "max_volume_wallenpaupack": {
+            "type": "constant",
+            "url": "drb_model_istarf_conus.csv",
+            "column": "GRanD_CAP_MG",
+            "index_col": "reservoir",
+            "index": "wallenpaupack"
         },
         "starfit_NORhi_alpha_wallenpaupack": {
             "type": "constant",
@@ -909,7 +969,7 @@
             "index_col": "reservoir",
             "index": "wallenpaupack"
         },
-        "starfit_Release_max_unnorm_pt1_wallenpaupack": {
+        "starfit_Release_max_norm_wallenpaupack": {
             "type": "aggregated",
             "agg_func": "sum",
             "parameters": [
@@ -917,15 +977,15 @@
                 1
             ]
         },
-        "starfit_Release_max_unnorm_final_wallenpaupack": {
+        "starfit_Release_max_final_wallenpaupack": {
             "type": "aggregated",
             "agg_func": "product",
             "parameters": [
-                "starfit_Release_max_unnorm_pt1_wallenpaupack",
+                "starfit_Release_max_norm_wallenpaupack",
                 "starfit_GRanD_MEANFLOW_MGD_wallenpaupack"
             ]
         },
-        "starfit_Release_min_unnorm_pt1_wallenpaupack": {
+        "starfit_Release_min_norm_wallenpaupack": {
             "type": "aggregated",
             "agg_func": "sum",
             "parameters": [
@@ -933,11 +993,11 @@
                 1
             ]
         },
-        "starfit_Release_min_unnorm_final_wallenpaupack": {
+        "starfit_Release_min_final_wallenpaupack": {
             "type": "aggregated",
             "agg_func": "product",
             "parameters": [
-                "starfit_Release_min_unnorm_pt1_wallenpaupack",
+                "starfit_Release_min_norm_wallenpaupack",
                 "starfit_GRanD_MEANFLOW_MGD_wallenpaupack"
             ]
         },
@@ -974,12 +1034,20 @@
                 "starfit_NORhi_min_wallenpaupack"
             ]
         },
-        "starfit_NORhi_final_wallenpaupack": {
+        "starfit_NORhi_maxbound_wallenpaupack": {
             "type": "aggregated",
             "agg_func": "min",
             "parameters": [
                 "starfit_NORhi_minbound_wallenpaupack",
                 "starfit_NORhi_max_wallenpaupack"
+            ]
+        },
+        "starfit_NORhi_final_wallenpaupack": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_NORhi_maxbound_wallenpaupack",
+                0.01
             ]
         },
         "starfit_NORlo_sin_wallenpaupack": {
@@ -1015,12 +1083,20 @@
                 "starfit_NORlo_min_wallenpaupack"
             ]
         },
-        "starfit_NORlo_final_wallenpaupack": {
+        "starfit_NORlo_maxbound_wallenpaupack": {
             "type": "aggregated",
             "agg_func": "min",
             "parameters": [
                 "starfit_NORlo_minbound_wallenpaupack",
                 "starfit_NORlo_max_wallenpaupack"
+            ]
+        },
+        "starfit_NORlo_final_wallenpaupack": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_NORlo_maxbound_wallenpaupack",
+                0.01
             ]
         },
         "starfit_aboveNOR_final_wallenpaupack": {
@@ -1130,7 +1206,7 @@
             "type": "aggregated",
             "agg_func": "sum",
             "parameters": [
-                "starfit_Release_min_unnorm_final_wallenpaupack"
+                "starfit_Release_min_final_wallenpaupack"
             ]
         },
         "starfit_target_pt2_wallenpaupack": {
@@ -1138,7 +1214,7 @@
             "agg_func": "max",
             "parameters": [
                 "starfit_target_pt1_wallenpaupack",
-                "starfit_Release_min_unnorm_final_wallenpaupack"
+                "starfit_Release_min_final_wallenpaupack"
             ]
         },
         "starfit_target_final_wallenpaupack": {
@@ -1146,7 +1222,7 @@
             "agg_func": "min",
             "parameters": [
                 "starfit_target_pt2_wallenpaupack",
-                "starfit_Release_max_unnorm_final_wallenpaupack"
+                "starfit_Release_max_final_wallenpaupack"
             ]
         },
         "starfit_release_pt1_wallenpaupack": {
