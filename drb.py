@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 import click
 
 MODEL_FILENAME = "model_data/drb_model_full.json"
-OUTPUT_FILENAME = "output_data/drb_output.h5"
+OUTPUT_FILENAME = "output_data/drb_output.hdf5"
 
 @click.group()
 def cli():
@@ -41,7 +41,7 @@ def figures(ext, show):
         # if name.split('_')[0] in ("reservoir"):
         # if name.split('_')[0] in ("reservoir", "outflow", "spill", "max"):
         # if name.startswith("mrf_target") or name.startswith("demand_drought_level"):
-        if 'reservoir' in name.split('_') or 'release' in name.split('_'):
+        if 'wallenpaupack' in name.split('_'):
 
             fig, (ax1, ax2) = plt.subplots(
                 figsize=(12, 4), ncols=2, sharey="row", gridspec_kw={"width_ratios": [3, 1]}

@@ -103,19 +103,21 @@ def create_starfit_params(d, r):
                      ('NORlo_minbound', 'max', ['NORlo_sum', 'NORlo_min']),
                      ('NORlo_maxbound', 'min', ['NORlo_minbound', 'NORlo_max']),
                      ('NORlo_final', 'product', ['NORlo_maxbound', 0.01]),
-                     ('aboveNOR_final', 'sum', ['volume', 'neg_NORhi_final', 'flow']),
+                     ('neg_NORhi_final_unnorm', 'product', ['neg_NORhi_final', 'GRanD_CAP_MG']),
+                     ('aboveNOR_sum', 'sum', ['volume', 'neg_NORhi_final_unnorm', 'flow_weekly']),
+                     ('aboveNOR_final', 'product', ['aboveNOR_sum', 1/7]),
                      ('inNOR_sin', 'product', ['sin_weekly', 'Release_alpha1']),
                      ('inNOR_cos', 'product', ['cos_weekly', 'Release_beta1']),
                      ('inNOR_sin2x', 'product', ['sin2x_weekly', 'Release_alpha2']),
                      ('inNOR_cos2x', 'product', ['cos2x_weekly', 'Release_beta2']),
-                     ('inNOR_p1a_num', 'sum', ['volume', 'neg_NORlo_final']),
+                     ('inNOR_p1a_num', 'sum', ['inNOR_fracvol', 'neg_NORlo_final']),
                      ('inNOR_p1a_denom', 'sum', ['NORhi_final', 'neg_NORlo_final']),
-                     ('inNOR_p1a_final', 'product', ['inNOR_p1a_div', 'Release_p2']),
-                     ('inNOR_inorm_pt1', 'sum', ['flow', 'neg_GRanD_CAP_MG']),
+                     ('inNOR_p1a_final', 'product', ['inNOR_p1a_div', 'Release_p1']),
+                     ('inNOR_inorm_pt1', 'sum', ['flow', 'neg_GRanD_MEANFLOW_MGD']),
                      ('inNOR_p2i', 'product', ['inNOR_inorm_final', 'Release_p2']),
                      ('inNOR_norm', 'sum', ['inNOR_sin', 'inNOR_cos', 'inNOR_sin2x', 'inNOR_cos2x', 'Release_c', 'inNOR_p1a_final', 'inNOR_p2i', 1]),
                      ('inNOR_final', 'product', ['inNOR_norm', 'GRanD_MEANFLOW_MGD']),
-                     ('belowNOR_final', 'sum', ['Release_min_final']),
+                     ('belowNOR_final', 'product', ['Release_min_final']),
                      ('target_pt2', 'max', ['target_pt1', 'Release_min_final']),
                      ('target_final', 'min', ['target_pt2', 'Release_max_final']),
                      ('release_pt1', 'sum', ['flow', 'volume']),
@@ -151,19 +153,32 @@ def create_starfit_params(d, r):
         d[name]['parameter'] = 'starfit_' + s + '_' + r
 
     ### division params
-    for s, num, denom in [('inNOR_p1a_div', 'inNOR_p1a_num', 'inNOR_p1a_denom'),
+    for s, num, denom in [('inNOR_fracvol', 'volume', 'GRanD_CAP_MG'),
+                          ('inNOR_p1a_div', 'inNOR_p1a_num', 'inNOR_p1a_denom'),
                           ('inNOR_inorm_final', 'inNOR_inorm_pt1', 'GRanD_MEANFLOW_MGD')]:
         name = 'starfit_' + s + '_' + r
         d[name] = {}
         d[name]['type'] = 'division'
-        d[name]['numerator'] = 'starfit_' + num + '_' + r
-        d[name]['denominator'] = 'starfit_' + denom + '_' + r
+        if num.split('_')[0] in ('sin', 'cos', 'sin2x', 'cos2x'):
+            d[name]['numerator'] = num
+        elif num.split('_')[0] in ('volume', 'flow'):
+            d[name]['numerator'] = num + '_' + r
+        else:
+            d[name]['numerator'] = 'starfit_' + num + '_' + r
+        if denom.split('_')[0] in ('sin', 'cos', 'sin2x', 'cos2x'):
+            d[name]['denominator'] = denom
+        elif denom.split('_')[0] in ('volume', 'flow'):
+            d[name]['denominator'] = denom + '_' + r
+        else:
+            d[name]['denominator'] = 'starfit_' + denom + '_' + r
+
 
     ### other params
     other = {'starfit_level_'+r: {'type': 'controlcurveindex',
                                             'storage_node': 'reservoir_'+r,
                                             'control_curves': ['starfit_NORhi_final_'+r,
                                                                'starfit_NORlo_final_'+r]},
+             'flow_weekly_'+r: {'type': 'aggregated', 'agg_func': 'product', 'parameters': ['flow_'+r, 7]},
              'volume_'+r: {'type': 'interpolatedvolume',
                                       'values': [0, 1000000],
                                       'node': 'reservoir_'+r,
@@ -177,8 +192,6 @@ def create_starfit_params(d, r):
         d[name] = {}
         for k,v in params.items():
             d[name][k] = v
-
-
 
     return d
 

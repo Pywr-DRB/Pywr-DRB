@@ -6,7 +6,7 @@
     },
     "timestepper": {
         "start": "1990-10-01",
-        "end": "2021-09-30",
+        "end": "1993-10-01",
         "timestep": 1
     },
     "scenarios": [
@@ -793,6 +793,30 @@
             "index_col": "profile",
             "index": "cos2x_weekly"
         },
+        "sin_daily": {
+            "type": "dailyprofile",
+            "url": "drb_model_dailyProfiles.csv",
+            "index_col": "profile",
+            "index": "sin_daily"
+        },
+        "cos_daily": {
+            "type": "dailyprofile",
+            "url": "drb_model_dailyProfiles.csv",
+            "index_col": "profile",
+            "index": "cos_daily"
+        },
+        "sin2x_daily": {
+            "type": "dailyprofile",
+            "url": "drb_model_dailyProfiles.csv",
+            "index_col": "profile",
+            "index": "sin2x_daily"
+        },
+        "cos2x_daily": {
+            "type": "dailyprofile",
+            "url": "drb_model_dailyProfiles.csv",
+            "index_col": "profile",
+            "index": "cos2x_daily"
+        },
         "flow_base_wallenpaupack": {
             "type": "constant",
             "url": "drb_model_istarf_conus.csv",
@@ -1099,13 +1123,29 @@
                 0.01
             ]
         },
-        "starfit_aboveNOR_final_wallenpaupack": {
+        "starfit_neg_NORhi_final_unnorm_wallenpaupack": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_neg_NORhi_final_wallenpaupack",
+                "starfit_GRanD_CAP_MG_wallenpaupack"
+            ]
+        },
+        "starfit_aboveNOR_sum_wallenpaupack": {
             "type": "aggregated",
             "agg_func": "sum",
             "parameters": [
                 "volume_wallenpaupack",
-                "starfit_neg_NORhi_final_wallenpaupack",
-                "flow_wallenpaupack"
+                "starfit_neg_NORhi_final_unnorm_wallenpaupack",
+                "flow_weekly_wallenpaupack"
+            ]
+        },
+        "starfit_aboveNOR_final_wallenpaupack": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_aboveNOR_sum_wallenpaupack",
+                0.14285714285714285
             ]
         },
         "starfit_inNOR_sin_wallenpaupack": {
@@ -1144,7 +1184,7 @@
             "type": "aggregated",
             "agg_func": "sum",
             "parameters": [
-                "volume_wallenpaupack",
+                "starfit_inNOR_fracvol_wallenpaupack",
                 "starfit_neg_NORlo_final_wallenpaupack"
             ]
         },
@@ -1161,7 +1201,7 @@
             "agg_func": "product",
             "parameters": [
                 "starfit_inNOR_p1a_div_wallenpaupack",
-                "starfit_Release_p2_wallenpaupack"
+                "starfit_Release_p1_wallenpaupack"
             ]
         },
         "starfit_inNOR_inorm_pt1_wallenpaupack": {
@@ -1169,7 +1209,7 @@
             "agg_func": "sum",
             "parameters": [
                 "flow_wallenpaupack",
-                "starfit_neg_GRanD_CAP_MG_wallenpaupack"
+                "starfit_neg_GRanD_MEANFLOW_MGD_wallenpaupack"
             ]
         },
         "starfit_inNOR_p2i_wallenpaupack": {
@@ -1204,7 +1244,7 @@
         },
         "starfit_belowNOR_final_wallenpaupack": {
             "type": "aggregated",
-            "agg_func": "sum",
+            "agg_func": "product",
             "parameters": [
                 "starfit_Release_min_final_wallenpaupack"
             ]
@@ -1273,6 +1313,11 @@
             "type": "negative",
             "parameter": "starfit_GRanD_CAP_MG_wallenpaupack"
         },
+        "starfit_inNOR_fracvol_wallenpaupack": {
+            "type": "division",
+            "numerator": "volume_wallenpaupack",
+            "denominator": "starfit_GRanD_CAP_MG_wallenpaupack"
+        },
         "starfit_inNOR_p1a_div_wallenpaupack": {
             "type": "division",
             "numerator": "starfit_inNOR_p1a_num_wallenpaupack",
@@ -1289,6 +1334,14 @@
             "control_curves": [
                 "starfit_NORhi_final_wallenpaupack",
                 "starfit_NORlo_final_wallenpaupack"
+            ]
+        },
+        "flow_weekly_wallenpaupack": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "flow_wallenpaupack",
+                7
             ]
         },
         "volume_wallenpaupack": {

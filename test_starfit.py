@@ -24,12 +24,13 @@ def update(storage, inflow, week):
     Rt = sw['Release_alpha1'] * sint + sw['Release_alpha2'] * sin2t + sw['Release_beta1'] * cost + sw['Release_beta2'] * cos2t
     At = (shat - NORlo) / (NORhi - NORlo)
     eps = sw['Release_c'] + sw['Release_p1'] * At + sw['Release_p2'] * ihat
-    inNOR_target = sw['GRanD_MEANFLOW_MGD'] * (Rt + eps + 1)
+    inNOR_target = sw['GRanD_MEANFLOW_MGD'] * (Rt + eps + 1)  
+    print(Rt, At, ihat, eps)
 
-    release_max = (sw['Release_max'] + 1) * sw['GRanD_MEANFLOW_MGD']
+    release_max = (sw['Release_max'] + 1) * sw['GRanD_MEANFLOW_MGD'] 
     release_min = (sw['Release_min'] + 1) * sw['GRanD_MEANFLOW_MGD']
-    aboveNOR_target = sw['GRanD_CAP_MG'] * (shat - NORhi) + inflow
-    belowNOR_target = release_min
+    aboveNOR_target = (sw['GRanD_CAP_MG'] * (shat - NORhi) + inflow * 7) / 7
+    belowNOR_target = release_min 
 
     if shat < NORlo:
         target = belowNOR_target
@@ -40,6 +41,6 @@ def update(storage, inflow, week):
 
     release = max(min(target, release_max), release_min) 
 
-    return NORhi, NORlo, target, release
+    return NORhi, NORlo, belowNOR_target, inNOR_target, aboveNOR_target, target, release
 
-print(update(38000, 245*7, 13))
+print(update(36326.89897021, 73.79377884, 5))

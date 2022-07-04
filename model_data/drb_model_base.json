@@ -6,8 +6,8 @@
     },
     "timestepper": {
         "start": "1990-10-01",
-        "end": "2021-09-30",
-        "timestep": 7
+        "end": "1993-10-01",
+        "timestep": 1
     },
     "scenarios": [
         {
