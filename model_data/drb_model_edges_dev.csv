@@ -15,15 +15,15 @@ catchment_delLackawaxen,link_delLackawaxen,tributary,
 link_delLackawaxen,link_delMontague,mainstem,
 catchment_shoholaMarsh,reservoir_shoholaMarsh,tributary,
 reservoir_shoholaMarsh,link_delMontague,tributary,
-catchment_mongaupe,reservoir_mongaupe,tributary,several reservoirs representing mongaupe hydropower system
-reservoir_mongaupe,link_delMontague,tributary,
+catchment_mongaupe,reservoir_mongaupeCombined,tributary,several reservoirs representing mongaupe hydropower system
+reservoir_mongaupeCombined,link_delMontague,tributary,
 catchment_neversink,reservoir_neversink,tributary,
 reservoir_neversink,link_delMontague,tributary,
 reservoir_neversink,demand_nyc,diversion,tunnels to nyc
 catchment_delMontague,link_delMontague,tributary,
 link_delMontague,link_delLehigh,mainstem,
-catchment_beltzville,reservoir_beltzville,tributary,
-reservoir_beltzville,link_delLehigh,tributary,
+catchment_beltzville,reservoir_beltzvilleCombined,tributary,
+reservoir_beltzvilleCombined,link_delLehigh,tributary,includes 2 other GRanD reservoirs upstream
 catchment_fewalter,reservoir_fewalter,tributary,
 reservoir_fewalter,link_delLehigh,tributary,
 catchment_delLehigh,link_delLehigh,tributary,

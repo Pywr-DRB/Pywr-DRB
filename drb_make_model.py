@@ -17,28 +17,29 @@ model[sheet] = []
 for i in range(df.shape[0]):
     nodedict = {}
     for j, col in enumerate(df.columns):
-        val = df.iloc[i,j]
-        if isinstance(val, int):
-            nodedict[col] = val
-        elif isinstance(val, str):
-            ### if it's a list, need to convert from str to actual list
-            if '[' in val:
-                val = ast.literal_eval(val)
-            ### if it's "true" or "false", convert to bool
-            if val in ["\"true\"", "\"false\""]:
-                val = {"\"true\"": True, "\"false\"": False}[val]
-            ### if it's actually a number as string, convert to numeric
-            else:
-                try:
-                    val = float(val)
-                except:
-                    pass
-            nodedict[col] = val
-        elif isinstance(val, float) or isinstance(val, np.float64):
-            if not np.isnan(val):
+        if col not in ('long', 'lat', 'notes', 'huc12', 'gages'):
+            val = df.iloc[i,j]
+            if isinstance(val, int):
                 nodedict[col] = val
-        else:
-            print(f'type not supported: {type(val)}, instance: {val}')
+            elif isinstance(val, str):
+                ### if it's a list, need to convert from str to actual list
+                if '[' in val:
+                    val = ast.literal_eval(val)
+                ### if it's "true" or "false", convert to bool
+                if val in ["\"true\"", "\"false\""]:
+                    val = {"\"true\"": True, "\"false\"": False}[val]
+                ### if it's actually a number as string, convert to numeric
+                else:
+                    try:
+                        val = float(val)
+                    except:
+                        pass
+                nodedict[col] = val
+            elif isinstance(val, float) or isinstance(val, np.float64):
+                if not np.isnan(val):
+                    nodedict[col] = val
+            else:
+                print(f'type not supported: {type(val)}, instance: {val}')
     model[sheet].append(nodedict)
 
 
@@ -49,22 +50,23 @@ model[sheet] = []
 for i in range(df.shape[0]):
     edge = []
     for j, col in enumerate(df.columns):
-        val = df.iloc[i,j]
-        if isinstance(val, int):
-            edge.append(val)
-        elif isinstance(val, str):
-            ### if it's a list, need to convert from str to actual list
-            if '[' in val:
-                val = ast.literal_eval(val)
-            ### if it's "true" or "false", convert to bool
-            if val in ["\"true\"", "\"false\""]:
-                val = {"\"true\"": True, "\"false\"": False}[val]
-            edge.append(val)
-        elif isinstance(val, float) or isinstance(val, np.float64):
-            if not np.isnan(val):
+        if col not in ('type', 'notes'):
+            val = df.iloc[i,j]
+            if isinstance(val, int):
                 edge.append(val)
-        else:
-            print(f'type not supported: {type(val)}, instance: {val}')
+            elif isinstance(val, str):
+                ### if it's a list, need to convert from str to actual list
+                if '[' in val:
+                    val = ast.literal_eval(val)
+                ### if it's "true" or "false", convert to bool
+                if val in ["\"true\"", "\"false\""]:
+                    val = {"\"true\"": True, "\"false\"": False}[val]
+                edge.append(val)
+            elif isinstance(val, float) or isinstance(val, np.float64):
+                if not np.isnan(val):
+                    edge.append(val)
+            else:
+                print(f'type not supported: {type(val)}, instance: {val}')
     model[sheet].append(edge)
 
 
