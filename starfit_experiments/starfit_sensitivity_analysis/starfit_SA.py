@@ -6,10 +6,10 @@ from SALib.sample import saltelli
 from SALib.analyze import sobol
 from SALib.plotting.bar import plot as barplot
 from reservoir_models_for_SA import sim_reservoir_S
-import seaborn as sns
 
 ################################################################################
-# Find parameter bounds
+# Find parameter bounds: See find_starfit_param_bounds.py for
+#                       visual value distribution
 ################################################################################
 
 starfit_conus = pd.read_csv('ISTARF-CONUS.csv')
@@ -23,10 +23,8 @@ consider_params = ['NORhi_alpha', 'NORhi_beta', 'NORhi_max', 'NORhi_min',
     'Release_p2']
 
 p = np.linspace(1,100,100)
-hi = 90
-lo = 10
-fig = plt.figure(figsize = (10,30), dpi = 300)
-plot_location = 1
+hi = 95
+lo = 5
 
 for param in consider_params:
 
@@ -37,59 +35,54 @@ for param in consider_params:
     param_bounds[param] = percentiles
     param_bounds_mat.append([percentiles[lo], percentiles[hi]])
 
-    ax = fig.add_subplot(7,3,plot_location)
-    ax.plot(p, percentiles)
-    ymin, ymax = ax.get_ylim()
-    ax.vlines([lo,hi], ymin = ymin, ymax = ymax, colors = ['black', 'black'], ls='--', lw=2, alpha=0.5)
-    ax.set_title(param)
-
-    plot_location += 1
-
-plt.suptitle('STARFIT Parameter Value Percentiles\nFull ISTARF-CONUS dataset considered', fontsize=16, y = 0.91)
-#plt.savefig('starfit_parameter_ranges.png')
-plt.show()
 
 ################################################################################
 # SALib
 ################################################################################
 
+# Test a single reservoir
+test_reservoir = 'beltzville'
+
+# Select the bounds according to above percentile ranges
 problem = {
     'num_vars': len(consider_params),
     'names' : consider_params,
     'bounds': param_bounds_mat
 }
-"""
+
 # Generate samples
 param_samples = saltelli.sample(problem, 1024)
 
 # Run the model for all samples
 Y = np.zeros([param_samples.shape[0]])
 for i, X in enumerate(param_samples):
-    Y[i] = sim_reservoir_S(X)
+    Y[i] = sim_reservoir_S(X, reservoir_name = test_reservoir)
     if i%100 == 0:
         print(i)
-"""
 
+
+# Calculate metrics
 Si = sobol.analyze(problem, Y)
 total_Si, first_Si, second_Si = Si.to_df()
-
-barplot(total_Si)
-
+higher_S = total_Si - first_Si
 
 bar_labs = first_Si.index.to_list()
 plt.bar(x = range(len(bar_labs)) , height = first_Si['S1'])
 plt.xticks(range(len(bar_labs)), bar_labs, rotation = 90)
+plt.savefig(str('./figures/S1_' + test_reservoir + '.png'))
 plt.show()
-
-bar_labs = total_Si.index.to_list()
-plt.bar(x = range(len(bar_labs)) , height = total_Si['ST'])
-plt.xticks(range(len(bar_labs)), bar_labs, rotation = 90)
-plt.show()
-
-
-sns.heatmap(second_Si['S2'])
 
 S2bar_labs = second_Si.index.to_list()
 plt.bar(x = range(len(S2bar_labs)) , height = second_Si['S2'])
 plt.xticks(range(len(S2bar_labs)), S2bar_labs, rotation = 90)
+plt.savefig(str('./figures/S2_' + test_reservoir + '.png'))
+plt.show()
+
+fig, ax = plt.subplots()
+bar_labs = total_Si.index.to_list()
+ax.bar(bar_labs, first_Si['S1'], label = 'First Order')
+ax.bar(bar_labs, higher_S['S1'], label = 'Higher Order')
+ax.set_xticks(range(len(bar_labs)), bar_labs, rotation = 90)
+ax.set_xlabel('Parameter')
+plt.savefig(str('./figures/S_total_' + test_reservoir + '.png'))
 plt.show()

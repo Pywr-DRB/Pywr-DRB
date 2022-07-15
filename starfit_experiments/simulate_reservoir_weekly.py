@@ -4,12 +4,14 @@ Summer 2022
 
 Simulates reservoir storage and releases, using STARFIT inferred operating
 rule parameters.
+
+Operates at a weekly time step
 """
 import numpy as np
 import pandas as pd
 from math import pi, sin, cos
 
-def sim_starfit_reservoir(starfit_df, reservoir_name, inflow, S_initial):
+def sim_starfit_reservoir_weekly(starfit_df, reservoir_name, inflow, S_initial):
     """
     Parameters:
     ----------
@@ -131,7 +133,7 @@ def sim_starfit_reservoir(starfit_df, reservoir_name, inflow, S_initial):
 
         I = inflow[wk]
         S_hat[wk] = percent_storage(S[wk])
-        target_R = target_release(S_hat[wk], wk+1)
+        target_R = target_release(S_hat[wk], wk)
         R[wk] = actual_release(target_R, I, S[wk])
 
         S[wk + 1] = S[wk] + I - R[wk]

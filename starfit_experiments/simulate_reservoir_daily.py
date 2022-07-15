@@ -4,12 +4,14 @@ Summer 2022
 
 Simulates reservoir storage and releases, using STARFIT inferred operating
 rule parameters.
+
+Operates at a daily time step
 """
 import numpy as np
 import pandas as pd
 from math import pi, sin, cos
 
-def sim_reservoir_S(params, reservoir_name = 'beltzville'):
+def sim_starfit_reservoir_daily(starfit_df, reservoir_name, inflow, S_initial):
     """
     Parameters:
     ----------
@@ -29,15 +31,6 @@ def sim_reservoir_S(params, reservoir_name = 'beltzville'):
     releases : array
         An array of daily reservoir release volumes.
     """
-    uncertain_params = ['NORhi_alpha', 'NORhi_beta', 'NORhi_max', 'NORhi_min',
-        'NORhi_mu', 'NORlo_alpha', 'NORlo_beta', 'NORlo_max', 'NORlo_min',
-        'NORlo_mu', 'Release_alpha1', 'Release_alpha2', 'Release_beta1',
-        'Release_beta2', 'Release_max', 'Release_min', 'Release_c', 'Release_p1',
-        'Release_p2']
-
-    # Load starfit data for DRB reservoirs
-    starfit_df = pd.read_csv('../../model_data/drb_model_istarf_conus.csv')
-    reservoirs = [res for res in starfit_df['reservoir']]
 
     # Find the index of the desired reservoir
     res_index = starfit_df.index[starfit_df['reservoir'] == reservoir_name].tolist()
@@ -48,29 +41,13 @@ def sim_reservoir_S(params, reservoir_name = 'beltzville'):
         return
 
     # Source all starfit data for reservoir of interest in dictionary
-    full_starfit_params = starfit_df.columns.tolist()
-    known_params = []
-
-    for check_param in full_starfit_params:
-        if check_param not in uncertain_params:
-            known_params.append(check_param)
-
-    # build data frame
-    data = pd.DataFrame()
-    for c in range(len(known_params)):
-        data[known_params[c]] = starfit_df[known_params[c]][res_index].values
-    for c in range(len(uncertain_params)):
-        data[uncertain_params[c]] = params[c]
+    data = starfit_df.iloc[res_index]
 
     # Define reservoir constant characteristics daily
     R_max = ((data['Release_max'] + 1) * data['GRanD_MEANFLOW_MGD']).values
     R_min = ((data['Release_min'] + 1) * data['GRanD_MEANFLOW_MGD']).values
     I_bar = data['GRanD_MEANFLOW_MGD'].values
     S_cap = data['GRanD_CAP_MG'].values
-    S_initial = S_cap * data['NORhi_mu']/100
-    n_time = 365
-
-    inflow = abs(np.random.normal((I_bar), 50, n_time))
 
     # Define the average daily release function
     def release_harmonic(time, timestep = 'daily'):
@@ -138,11 +115,13 @@ def sim_reservoir_S(params, reservoir_name = 'beltzville'):
             target_R = min(I_bar * (release_harmonic(time) +
                                     release_adjustment(S_hat, time))
                            + I_bar, R_max)
-
+            print('in NOR')
         elif (S_hat > NOR_hi):
             target_R = min(S_cap * (S_hat - NOR_hi) + inflow[time], R_max)
+            print('above NOR')
         elif (S_hat < NOR_lo):
             target_R = R_min
+            print('below NOR')
         return target_R
 
 
@@ -154,7 +133,6 @@ def sim_reservoir_S(params, reservoir_name = 'beltzville'):
     S = np.zeros_like(inflow)
     S_hat = np.zeros_like(S)
     R = np.zeros_like(inflow)
-    days_in_NOR = 0
 
     # Set initial storage
     S[0] = S_initial
@@ -170,14 +148,49 @@ def sim_reservoir_S(params, reservoir_name = 'beltzville'):
 
         S[d + 1] = S[d] + I - R[d]
 
-        NOR_hi_t = calc_NOR_hi(d)
-        NOR_lo_t = calc_NOR_lo(d)
-        if (S_hat[d] <= NOR_hi_t) and (S_hat[d] >= NOR_lo_t):
-            days_in_NOR += 1
+    return S, S_hat, R
 
-        # Calculate output metric
-        out = (days_in_NOR / 365) * 100
+################################################################################
+# Define release, and NOR harmonics for independent use
+################################################################################
 
-    return out
 
-##########################################################
+# Define the average daily release function
+def release_harmonic(data, time, timestep = 'daily'):
+    if timestep == 'daily':
+        time = time/7
+    R_avg_t = (data['Release_alpha1'] * sin(2 * pi * time/52) +
+             data['Release_alpha2'] * sin(4 * pi * time/52) +
+             data['Release_beta1'] * cos(2 * pi * time/52) +
+             data['Release_beta2'] * cos(4 * pi * time/52))
+    return R_avg_t
+
+# Calculate daily values of the upper NOR bound
+def NOR_hi(data, time, timestep = 'daily'):
+    # NOR harmonic is at weekly step
+    if timestep == 'daily':
+        time = time/7
+
+    NOR_hi = (data['NORhi_mu'] + data['NORhi_alpha'] * sin(2*pi*time/52) +
+                 data['NORhi_beta'] * cos(2*pi*time/52))
+
+    if (NOR_hi < data['NORhi_min']):
+        NOR_hi = data['NORhi_min']
+    elif (NOR_hi > data['NORhi_max']):
+        NOR_hi = data['NORhi_max']
+    return NOR_hi
+
+# Calculate daily values of the lower NOR bound
+def NOR_lo(data, time, timestep = 'daily'):
+    # NOR harmonic is at weekly step
+    if timestep == 'daily':
+        time = time/7
+
+    NOR_lo = (data['NORlo_mu'] + data['NORlo_alpha'] * sin(2*pi*time/52) +
+                 data['NORlo_beta'] * cos(2*pi*time/52))
+
+    if (NOR_lo < data['NORlo_min']):
+        NOR_lo = data['NORlo_min']
+    elif (NOR_lo > data['NORlo_max']):
+        NOR_lo = data['NORlo_max']
+    return NOR_lo
