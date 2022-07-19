@@ -41,9 +41,9 @@ def figures(ext, show):
         # if name.split('_')[0] in ("reservoir"):
         # if name.split('_')[0] in ("reservoir", "outflow", "flow", "link", "flowtarget", "demand"):
         # if name.startswith("mrf_target") or name.startswith("demand_drought_level"):
-        # if 'wallenpaupack' in name.split('_'):
-        reservoir = 'neversink'
-        if name in ('reservoir_'+reservoir, 'flow_'+reservoir, 'outflow_'+reservoir):
+        if 'pepacton' in name.split('_'):
+        # reservoir = 'beltzvilleCombined'
+        # if name in ('reservoir_'+reservoir, 'flow_'+reservoir, 'outflow_'+reservoir):
             fig, (ax1, ax2) = plt.subplots(
                 figsize=(12, 4), ncols=2, sharey="row", gridspec_kw={"width_ratios": [3, 1]}
             )
@@ -60,8 +60,8 @@ def figures(ext, show):
                 ax.grid(True)
             plt.tight_layout()
 
-            # if ext is not None:
-            #     fig.savefig(f"figs/{name}.{ext}", dpi=300)
+            if ext is not None:
+                fig.savefig(f"figs/{name}.{ext}", dpi=300)
 
     if show:
         plt.show()

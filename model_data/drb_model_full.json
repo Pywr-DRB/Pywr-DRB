@@ -5,8 +5,8 @@
         "minimum_version": "0.4"
     },
     "timestepper": {
-        "start": "1990-10-01",
-        "end": "1993-10-01",
+        "start": "1983-10-01",
+        "end": "2012-10-01",
         "timestep": 1
     },
     "scenarios": [
@@ -165,160 +165,160 @@
             "name": "reservoir_cannonsville",
             "type": "storage",
             "max_volume": "max_volume_cannonsville",
-            "initial_volume": 117313.5018,
-            "initial_volume_pc": 0.8,
+            "initial_volume": 73320.93863,
+            "initial_volume_pc": 0.5,
             "cost": "storage_cost_cannonsville"
         },
         {
             "name": "reservoir_pepacton",
             "type": "storage",
             "max_volume": "max_volume_pepacton",
-            "initial_volume": 158947.009,
-            "initial_volume_pc": 0.8,
+            "initial_volume": 99341.88063,
+            "initial_volume_pc": 0.5,
             "cost": "storage_cost_pepacton"
         },
         {
             "name": "reservoir_neversink",
             "type": "storage",
             "max_volume": "max_volume_neversink",
-            "initial_volume": 37026.34752,
-            "initial_volume_pc": 0.8,
+            "initial_volume": 23141.4672,
+            "initial_volume_pc": 0.5,
             "cost": "storage_cost_neversink"
         },
         {
             "name": "reservoir_wallenpaupack",
             "type": "storage",
             "max_volume": "max_volume_wallenpaupack",
-            "initial_volume": 70375.4208,
-            "initial_volume_pc": 0.8,
+            "initial_volume": 43984.638,
+            "initial_volume_pc": 0.5,
             "cost": -10.0
         },
         {
             "name": "reservoir_prompton",
             "type": "storage",
             "max_volume": "max_volume_prompton",
-            "initial_volume": 3022.12768,
-            "initial_volume_pc": 0.8,
+            "initial_volume": 1888.8298,
+            "initial_volume_pc": 0.5,
             "cost": -10.0
         },
         {
             "name": "reservoir_shoholaMarsh",
             "type": "storage",
             "max_volume": "max_volume_shoholaMarsh",
-            "initial_volume": 6889.60576,
-            "initial_volume_pc": 0.8,
+            "initial_volume": 4306.0036,
+            "initial_volume_pc": 0.5,
             "cost": -10.0
         },
         {
             "name": "reservoir_mongaupeCombined",
             "type": "storage",
             "max_volume": "max_volume_mongaupeCombined",
-            "initial_volume": 22697.65824,
-            "initial_volume_pc": 0.8,
+            "initial_volume": 14186.0364,
+            "initial_volume_pc": 0.5,
             "cost": -10.0
         },
         {
             "name": "reservoir_beltzvilleCombined",
             "type": "storage",
             "max_volume": "max_volume_beltzvilleCombined",
-            "initial_volume": 38653.64704,
-            "initial_volume_pc": 0.8,
+            "initial_volume": 24158.5294,
+            "initial_volume_pc": 0.5,
             "cost": -10.0
         },
         {
             "name": "reservoir_fewalter",
             "type": "storage",
             "max_volume": "max_volume_fewalter",
-            "initial_volume": 3022.12768,
-            "initial_volume_pc": 0.8,
+            "initial_volume": 1888.8298,
+            "initial_volume_pc": 0.5,
             "cost": -10.0
         },
         {
             "name": "reservoir_merrillCreek",
             "type": "storage",
             "max_volume": "max_volume_merrillCreek",
-            "initial_volume": 11982.84192,
-            "initial_volume_pc": 0.8,
+            "initial_volume": 7489.2762,
+            "initial_volume_pc": 0.5,
             "cost": -10.0
         },
         {
             "name": "reservoir_hopatcong",
             "type": "storage",
             "max_volume": "max_volume_hopatcong",
-            "initial_volume": 12574.5872,
-            "initial_volume_pc": 0.8,
+            "initial_volume": 7859.117,
+            "initial_volume_pc": 0.5,
             "cost": -10.0
         },
         {
             "name": "reservoir_nockamixon",
             "type": "storage",
             "max_volume": "max_volume_nockamixon",
-            "initial_volume": 18513.17376,
-            "initial_volume_pc": 0.8,
+            "initial_volume": 11570.7336,
+            "initial_volume_pc": 0.5,
             "cost": -10.0
         },
         {
             "name": "reservoir_assunpink",
             "type": "storage",
             "max_volume": "max_volume_assunpink",
-            "initial_volume": 3296.86656,
-            "initial_volume_pc": 0.8,
+            "initial_volume": 2060.5416,
+            "initial_volume_pc": 0.5,
             "cost": -10.0
         },
         {
             "name": "reservoir_vanSciver",
             "type": "storage",
             "max_volume": "max_volume_vanSciver",
-            "initial_volume": 3000.99392,
-            "initial_volume_pc": 0.8,
+            "initial_volume": 1875.6212,
+            "initial_volume_pc": 0.5,
             "cost": -10.0
         },
         {
             "name": "reservoir_ontelaunee",
             "type": "storage",
             "max_volume": "max_volume_ontelaunee",
-            "initial_volume": 3022.12768,
-            "initial_volume_pc": 0.8,
+            "initial_volume": 1888.8298,
+            "initial_volume_pc": 0.5,
             "cost": -10.0
         },
         {
             "name": "reservoir_stillCreek",
             "type": "storage",
             "max_volume": "max_volume_stillCreek",
-            "initial_volume": 3022.12768,
-            "initial_volume_pc": 0.8,
+            "initial_volume": 1888.8298,
+            "initial_volume_pc": 0.5,
             "cost": -10.0
         },
         {
             "name": "reservoir_blueMarsh",
             "type": "storage",
             "max_volume": "max_volume_blueMarsh",
-            "initial_volume": 33856.28352,
-            "initial_volume_pc": 0.8,
+            "initial_volume": 21160.1772,
+            "initial_volume_pc": 0.5,
             "cost": -10.0
         },
         {
             "name": "reservoir_greenLane",
             "type": "storage",
             "max_volume": "max_volume_greenLane",
-            "initial_volume": 6551.4656,
-            "initial_volume_pc": 0.8,
+            "initial_volume": 4094.666,
+            "initial_volume_pc": 0.5,
             "cost": -10.0
         },
         {
             "name": "reservoir_springton",
             "type": "storage",
             "max_volume": "max_volume_springton",
-            "initial_volume": 3550.47168,
-            "initial_volume_pc": 0.8,
+            "initial_volume": 2219.0448,
+            "initial_volume_pc": 0.5,
             "cost": -10.0
         },
         {
             "name": "reservoir_marshCreek",
             "type": "storage",
             "max_volume": "max_volume_marshCreek",
-            "initial_volume": 3022.12768,
-            "initial_volume_pc": 0.8,
+            "initial_volume": 1888.8298,
+            "initial_volume_pc": 0.5,
             "cost": -10.0
         },
         {
@@ -884,7 +884,7 @@
             "type": "constantscenario",
             "scenario": "inflow",
             "values": [
-                0.3,
+                0.75,
                 0.9,
                 1.0,
                 1.1,
@@ -892,45 +892,24 @@
             ]
         },
         "flow_base_cannonsville": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_MEANFLOW_MGD",
-            "index_col": "reservoir",
-            "index": "cannonsville"
+            "type": "dataframe",
+            "url": "../input_data/inflows_nhmv10_scaled.csv",
+            "column": "cannonsville",
+            "index_col": "UTC_date",
+            "parse_dates": true
         },
         "flow_base_pepacton": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_MEANFLOW_MGD",
-            "index_col": "reservoir",
-            "index": "pepacton"
+            "type": "dataframe",
+            "url": "../input_data/inflows_nhmv10_scaled.csv",
+            "column": "pepacton",
+            "index_col": "UTC_date",
+            "parse_dates": true
         },
         "flow_base_neversink": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_MEANFLOW_MGD",
-            "index_col": "reservoir",
-            "index": "neversink"
-        },
-        "flow_cumecs_cannonsville_old": {
             "type": "dataframe",
-            "url": "../input_data/inflows_clean.csv",
-            "column": "cannonsville",
-            "index_col": "datetime",
-            "parse_dates": true
-        },
-        "flow_cumecs_pepacton_old": {
-            "type": "dataframe",
-            "url": "../input_data/inflows_clean.csv",
-            "column": "pepacton",
-            "index_col": "datetime",
-            "parse_dates": true
-        },
-        "flow_cumecs_neversink_old": {
-            "type": "dataframe",
-            "url": "../input_data/inflows_clean.csv",
+            "url": "../input_data/inflows_nhmv10_scaled.csv",
             "column": "neversink",
-            "index_col": "datetime",
+            "index_col": "UTC_date",
             "parse_dates": true
         },
         "flow_cannonsville": {
@@ -1476,123 +1455,123 @@
             "index": "cos2x_daily"
         },
         "flow_base_wallenpaupack": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_MEANFLOW_MGD",
-            "index_col": "reservoir",
-            "index": "wallenpaupack"
+            "type": "dataframe",
+            "url": "../input_data/inflows_nhmv10_scaled.csv",
+            "column": "wallenpaupack",
+            "index_col": "UTC_date",
+            "parse_dates": true
         },
         "flow_base_prompton": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_MEANFLOW_MGD",
-            "index_col": "reservoir",
-            "index": "prompton"
+            "type": "dataframe",
+            "url": "../input_data/inflows_nhmv10_scaled.csv",
+            "column": "prompton",
+            "index_col": "UTC_date",
+            "parse_dates": true
         },
         "flow_base_shoholaMarsh": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_MEANFLOW_MGD",
-            "index_col": "reservoir",
-            "index": "shoholaMarsh"
+            "type": "dataframe",
+            "url": "../input_data/inflows_nhmv10_scaled.csv",
+            "column": "shoholaMarsh",
+            "index_col": "UTC_date",
+            "parse_dates": true
         },
         "flow_base_mongaupeCombined": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_MEANFLOW_MGD",
-            "index_col": "reservoir",
-            "index": "mongaupeCombined"
+            "type": "dataframe",
+            "url": "../input_data/inflows_nhmv10_scaled.csv",
+            "column": "mongaupeCombined",
+            "index_col": "UTC_date",
+            "parse_dates": true
         },
         "flow_base_beltzvilleCombined": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_MEANFLOW_MGD",
-            "index_col": "reservoir",
-            "index": "beltzvilleCombined"
+            "type": "dataframe",
+            "url": "../input_data/inflows_nhmv10_scaled.csv",
+            "column": "beltzvilleCombined",
+            "index_col": "UTC_date",
+            "parse_dates": true
         },
         "flow_base_fewalter": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_MEANFLOW_MGD",
-            "index_col": "reservoir",
-            "index": "fewalter"
+            "type": "dataframe",
+            "url": "../input_data/inflows_nhmv10_scaled.csv",
+            "column": "fewalter",
+            "index_col": "UTC_date",
+            "parse_dates": true
         },
         "flow_base_merrillCreek": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_MEANFLOW_MGD",
-            "index_col": "reservoir",
-            "index": "merrillCreek"
+            "type": "dataframe",
+            "url": "../input_data/inflows_nhmv10_scaled.csv",
+            "column": "merrillCreek",
+            "index_col": "UTC_date",
+            "parse_dates": true
         },
         "flow_base_hopatcong": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_MEANFLOW_MGD",
-            "index_col": "reservoir",
-            "index": "hopatcong"
+            "type": "dataframe",
+            "url": "../input_data/inflows_nhmv10_scaled.csv",
+            "column": "hopatcong",
+            "index_col": "UTC_date",
+            "parse_dates": true
         },
         "flow_base_nockamixon": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_MEANFLOW_MGD",
-            "index_col": "reservoir",
-            "index": "nockamixon"
+            "type": "dataframe",
+            "url": "../input_data/inflows_nhmv10_scaled.csv",
+            "column": "nockamixon",
+            "index_col": "UTC_date",
+            "parse_dates": true
         },
         "flow_base_assunpink": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_MEANFLOW_MGD",
-            "index_col": "reservoir",
-            "index": "assunpink"
+            "type": "dataframe",
+            "url": "../input_data/inflows_nhmv10_scaled.csv",
+            "column": "assunpink",
+            "index_col": "UTC_date",
+            "parse_dates": true
         },
         "flow_base_vanSciver": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_MEANFLOW_MGD",
-            "index_col": "reservoir",
-            "index": "vanSciver"
+            "type": "dataframe",
+            "url": "../input_data/inflows_nhmv10_scaled.csv",
+            "column": "vanSciver",
+            "index_col": "UTC_date",
+            "parse_dates": true
         },
         "flow_base_ontelaunee": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_MEANFLOW_MGD",
-            "index_col": "reservoir",
-            "index": "ontelaunee"
+            "type": "dataframe",
+            "url": "../input_data/inflows_nhmv10_scaled.csv",
+            "column": "ontelaunee",
+            "index_col": "UTC_date",
+            "parse_dates": true
         },
         "flow_base_stillCreek": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_MEANFLOW_MGD",
-            "index_col": "reservoir",
-            "index": "stillCreek"
+            "type": "dataframe",
+            "url": "../input_data/inflows_nhmv10_scaled.csv",
+            "column": "stillCreek",
+            "index_col": "UTC_date",
+            "parse_dates": true
         },
         "flow_base_blueMarsh": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_MEANFLOW_MGD",
-            "index_col": "reservoir",
-            "index": "blueMarsh"
+            "type": "dataframe",
+            "url": "../input_data/inflows_nhmv10_scaled.csv",
+            "column": "blueMarsh",
+            "index_col": "UTC_date",
+            "parse_dates": true
         },
         "flow_base_greenLane": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_MEANFLOW_MGD",
-            "index_col": "reservoir",
-            "index": "greenLane"
+            "type": "dataframe",
+            "url": "../input_data/inflows_nhmv10_scaled.csv",
+            "column": "greenLane",
+            "index_col": "UTC_date",
+            "parse_dates": true
         },
         "flow_base_springton": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_MEANFLOW_MGD",
-            "index_col": "reservoir",
-            "index": "springton"
+            "type": "dataframe",
+            "url": "../input_data/inflows_nhmv10_scaled.csv",
+            "column": "springton",
+            "index_col": "UTC_date",
+            "parse_dates": true
         },
         "flow_base_marshCreek": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_MEANFLOW_MGD",
-            "index_col": "reservoir",
-            "index": "marshCreek"
+            "type": "dataframe",
+            "url": "../input_data/inflows_nhmv10_scaled.csv",
+            "column": "marshCreek",
+            "index_col": "UTC_date",
+            "parse_dates": true
         },
         "flow_wallenpaupack": {
             "type": "aggregated",

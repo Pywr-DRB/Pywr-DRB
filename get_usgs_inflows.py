@@ -52,15 +52,15 @@ for gage in gages:
         start_date = '1980-01-01'
         end_date = '2021-12-31'
         url = f'https://nwis.waterdata.usgs.gov/usa/nwis/uv/?cb_00060=on&format=rdb&site_no={gage}&period=&begin_date={start_date}&end_date={end_date}'
-        filename = f'input_data/usgs_{gage}.txt'
+        filename = f'input_data/usgs_gages/usgs_{gage}.txt'
         urllib.request.urlretrieve(url, filename)
     except:
         print('DOWNLOAD FAIL: GAGE ' + gage)
 
 for gage in gages:
     try:
-        filename = f'input_data/usgs_{gage}.txt'
-        with open(f'input_data/usgs_{gage}.txt') as file:
+        filename = f'input_data/usgs_gages/usgs_{gage}.txt'
+        with open(f'input_data/usgs_gages/usgs_{gage}.txt') as file:
             ### find line with gage ID and location
             lines = file.readlines()
             i = 0
@@ -75,6 +75,6 @@ for gage in gages:
                              ['east','e'], ['west','w'], ['north','n'], ['south', 's'],
                              ['branch','b'], ['fork','f'], ['river','r'], ['creek', 'c'], ['kill','k']]:
             newname = newname.replace(full, abbrev)
-        os.replace(filename, 'input_data/' + newname)
+        os.replace(filename, 'input_data/usgs_gages/' + newname)
     except:
         print('CLEANING FAIL: GAGE ' + gage)
