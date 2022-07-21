@@ -5,7 +5,7 @@ Summer 2022
 Simulates reservoir storage and releases, using STARFIT inferred operating
 rule parameters.
 
-Operates at a weekly time step
+Operates at a weekly time step (Use the new *_daily version)
 """
 import numpy as np
 import pandas as pd

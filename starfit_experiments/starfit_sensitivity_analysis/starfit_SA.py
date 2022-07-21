@@ -66,23 +66,38 @@ Si = sobol.analyze(problem, Y)
 total_Si, first_Si, second_Si = Si.to_df()
 higher_S = total_Si - first_Si
 
+# Export
+Si.to_csv('./S_index.csv', sep = ',')
+sensitivity = Si.to_df()
+sensitivity.to_csv('./senesitivities.csv',sep = ',')
+
+total_Si, first_Si, second_Si = Si.to_df()
+
+total_Si.columns = ['S','S_conf']
+first_Si.columns = ['S','S_conf']
+higher_S = total_Si.subtract(first_Si)
+
 bar_labs = first_Si.index.to_list()
 plt.bar(x = range(len(bar_labs)) , height = first_Si['S1'])
 plt.xticks(range(len(bar_labs)), bar_labs, rotation = 90)
+plt.title('First Order Sensitivity Index')
 plt.savefig(str('./figures/S1_' + test_reservoir + '.png'))
 plt.show()
 
 S2bar_labs = second_Si.index.to_list()
 plt.bar(x = range(len(S2bar_labs)) , height = second_Si['S2'])
 plt.xticks(range(len(S2bar_labs)), S2bar_labs, rotation = 90)
+plt.title('Second Order Sensitivity Index')
 plt.savefig(str('./figures/S2_' + test_reservoir + '.png'))
 plt.show()
 
 fig, ax = plt.subplots()
 bar_labs = total_Si.index.to_list()
-ax.bar(bar_labs, first_Si['S1'], label = 'First Order')
-ax.bar(bar_labs, higher_S['S1'], label = 'Higher Order')
+ax.bar(bar_labs, first_Si['S'], label = 'First Order', color = 'black')
+ax.bar(bar_labs, higher_S['S'], bottom = first_Si['S'], label = 'Higher Order', color = 'grey')
 ax.set_xticks(range(len(bar_labs)), bar_labs, rotation = 90)
 ax.set_xlabel('Parameter')
+plt.title('Sensitivity Index')
+plt.legend()
 plt.savefig(str('./figures/S_total_' + test_reservoir + '.png'))
 plt.show()

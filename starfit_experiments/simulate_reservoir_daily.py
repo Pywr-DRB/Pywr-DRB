@@ -119,7 +119,7 @@ def sim_starfit_reservoir_daily(starfit_df, reservoir_name, inflow, S_initial):
         elif (S_hat > NOR_hi):
             target_R = min(S_cap * (S_hat - NOR_hi) + inflow[time], R_max)
             print('above NOR')
-        elif (S_hat < NOR_lo):
+        else:
             target_R = R_min
             print('below NOR')
         return target_R
