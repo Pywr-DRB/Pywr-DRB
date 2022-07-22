@@ -40,10 +40,10 @@ def figures(ext, show):
 
         # if name.split('_')[0] in ("reservoir"):
         # if name.split('_')[0] in ("reservoir", "outflow", "flow", "link", "flowtarget", "demand"):
-        # if name.startswith("mrf_target") or name.startswith("demand_drought_level"):
-        if 'pepacton' in name.split('_'):
-        # reservoir = 'beltzvilleCombined'
-        # if name in ('reservoir_'+reservoir, 'flow_'+reservoir, 'outflow_'+reservoir):
+        # if 'target' in name.split('_'):
+        reservoir = 'delLordville'
+        if name in ('reservoir_'+reservoir, 'flow_'+reservoir, 'outflow_'+reservoir, 'link_'+reservoir):
+        # if name in ('mrf_target_montague'):
             fig, (ax1, ax2) = plt.subplots(
                 figsize=(12, 4), ncols=2, sharey="row", gridspec_kw={"width_ratios": [3, 1]}
             )

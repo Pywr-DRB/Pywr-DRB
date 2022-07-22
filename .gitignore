@@ -8,3 +8,4 @@ input_data/usgs_gages
 .ipynb_checkpoints
 */.ipynb_checkpoints
 output_data/*
+pywr_glpk_debug*

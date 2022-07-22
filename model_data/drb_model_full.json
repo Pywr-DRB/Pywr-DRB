@@ -1,11 +1,11 @@
 {
     "metadata": {
         "title": "DRB",
-        "description": "Simple DRB representation",
+        "description": "Pywr DRB representation",
         "minimum_version": "0.4"
     },
     "timestepper": {
-        "start": "1983-10-01",
+        "start": "2005-10-01",
         "end": "2012-10-01",
         "timestep": 1
     },
@@ -47,11 +47,6 @@
             "flow": "flow_prompton"
         },
         {
-            "name": "catchment_delLackawaxen",
-            "type": "catchment",
-            "flow": "flow_delLackawaxen"
-        },
-        {
             "name": "catchment_shoholaMarsh",
             "type": "catchment",
             "flow": "flow_shoholaMarsh"
@@ -75,11 +70,6 @@
             "name": "catchment_fewalter",
             "type": "catchment",
             "flow": "flow_fewalter"
-        },
-        {
-            "name": "catchment_delLehigh",
-            "type": "catchment",
-            "flow": "flow_delLehigh"
         },
         {
             "name": "catchment_merrillCreek",
@@ -107,14 +97,9 @@
             "flow": "flow_assunpink"
         },
         {
-            "name": "catchment_vanSciver",
+            "name": "catchment_outletAssunpink",
             "type": "catchment",
-            "flow": "flow_vanSciver"
-        },
-        {
-            "name": "catchment_delPhlEast",
-            "type": "catchment",
-            "flow": "flow_delPhlEast"
+            "flow": "flow_outletAssunpink"
         },
         {
             "name": "catchment_ontelaunee",
@@ -137,19 +122,9 @@
             "flow": "flow_greenLane"
         },
         {
-            "name": "catchment_delSchuykill",
+            "name": "catchment_outletSchuylkill",
             "type": "catchment",
-            "flow": "flow_delSchuykill"
-        },
-        {
-            "name": "catchment_delPhlWest",
-            "type": "catchment",
-            "flow": "flow_delPhlWest"
-        },
-        {
-            "name": "catchment_springton",
-            "type": "catchment",
-            "flow": "flow_springton"
+            "flow": "flow_outletSchuylkill"
         },
         {
             "name": "catchment_marshCreek",
@@ -157,9 +132,9 @@
             "flow": "flow_marshCreek"
         },
         {
-            "name": "catchment_delChristina",
+            "name": "catchment_outletChristina",
             "type": "catchment",
-            "flow": "flow_delChristina"
+            "flow": "flow_outletChristina"
         },
         {
             "name": "reservoir_cannonsville",
@@ -266,14 +241,6 @@
             "cost": -10.0
         },
         {
-            "name": "reservoir_vanSciver",
-            "type": "storage",
-            "max_volume": "max_volume_vanSciver",
-            "initial_volume": 1875.6212,
-            "initial_volume_pc": 0.5,
-            "cost": -10.0
-        },
-        {
             "name": "reservoir_ontelaunee",
             "type": "storage",
             "max_volume": "max_volume_ontelaunee",
@@ -302,14 +269,6 @@
             "type": "storage",
             "max_volume": "max_volume_greenLane",
             "initial_volume": 4094.666,
-            "initial_volume_pc": 0.5,
-            "cost": -10.0
-        },
-        {
-            "name": "reservoir_springton",
-            "type": "storage",
-            "max_volume": "max_volume_springton",
-            "initial_volume": 2219.0448,
             "initial_volume_pc": 0.5,
             "cost": -10.0
         },
@@ -415,12 +374,6 @@
             "max_flow": "starfit_release_final_assunpink"
         },
         {
-            "name": "outflow_vanSciver",
-            "type": "link",
-            "cost": -500.0,
-            "max_flow": "starfit_release_final_vanSciver"
-        },
-        {
             "name": "outflow_ontelaunee",
             "type": "link",
             "cost": -500.0,
@@ -445,12 +398,6 @@
             "max_flow": "starfit_release_final_greenLane"
         },
         {
-            "name": "outflow_springton",
-            "type": "link",
-            "cost": -500.0,
-            "max_flow": "starfit_release_final_springton"
-        },
-        {
             "name": "outflow_marshCreek",
             "type": "link",
             "cost": -500.0,
@@ -473,15 +420,7 @@
             "type": "link"
         },
         {
-            "name": "link_delLackawaxen",
-            "type": "link"
-        },
-        {
             "name": "link_delMontague",
-            "type": "link"
-        },
-        {
-            "name": "link_delLehigh",
             "type": "link"
         },
         {
@@ -489,19 +428,15 @@
             "type": "link"
         },
         {
-            "name": "link_delPhlEast",
+            "name": "link_outletAssunpink",
             "type": "link"
         },
         {
-            "name": "link_delSchuykill",
+            "name": "link_outletSchuylkill",
             "type": "link"
         },
         {
-            "name": "link_delPhlWest",
-            "type": "link"
-        },
-        {
-            "name": "link_delChristina",
+            "name": "link_outletChristina",
             "type": "link"
         },
         {
@@ -515,10 +450,6 @@
             "type": "output",
             "cost": -500.0,
             "max_flow": 100.0
-        },
-        {
-            "name": "demand_phl",
-            "type": "output"
         },
         {
             "name": "output_del",
@@ -572,7 +503,7 @@
         ],
         [
             "link_delLordville",
-            "link_delLackawaxen"
+            "link_delMontague"
         ],
         [
             "catchment_prompton",
@@ -584,7 +515,7 @@
         ],
         [
             "outflow_prompton",
-            "link_delLackawaxen"
+            "link_delMontague"
         ],
         [
             "catchment_wallenpaupack",
@@ -596,14 +527,6 @@
         ],
         [
             "outflow_wallenpaupack",
-            "link_delLackawaxen"
-        ],
-        [
-            "catchment_delLackawaxen",
-            "link_delLackawaxen"
-        ],
-        [
-            "link_delLackawaxen",
             "link_delMontague"
         ],
         [
@@ -660,7 +583,7 @@
         ],
         [
             "outflow_montague",
-            "link_delLehigh"
+            "link_delTrenton"
         ],
         [
             "catchment_beltzvilleCombined",
@@ -672,7 +595,7 @@
         ],
         [
             "outflow_beltzvilleCombined",
-            "link_delLehigh"
+            "link_delTrenton"
         ],
         [
             "catchment_fewalter",
@@ -684,14 +607,6 @@
         ],
         [
             "outflow_fewalter",
-            "link_delLehigh"
-        ],
-        [
-            "catchment_delLehigh",
-            "link_delLehigh"
-        ],
-        [
-            "link_delLehigh",
             "link_delTrenton"
         ],
         [
@@ -736,7 +651,7 @@
         ],
         [
             "link_delTrenton",
-            "link_delPhlEast"
+            "output_del"
         ],
         [
             "catchment_assunpink",
@@ -748,35 +663,19 @@
         ],
         [
             "outflow_assunpink",
-            "link_delPhlEast"
+            "link_outletAssunpink"
+        ],
+        [
+            "catchment_outletAssunpink",
+            "link_outletAssunpink"
+        ],
+        [
+            "link_outletAssunpink",
+            "output_del"
         ],
         [
             "reservoir_assunpink",
             "demand_nj"
-        ],
-        [
-            "catchment_vanSciver",
-            "reservoir_vanSciver"
-        ],
-        [
-            "reservoir_vanSciver",
-            "outflow_vanSciver"
-        ],
-        [
-            "outflow_vanSciver",
-            "link_delPhlEast"
-        ],
-        [
-            "catchment_delPhlEast",
-            "link_delPhlEast"
-        ],
-        [
-            "link_delPhlEast",
-            "demand_phl"
-        ],
-        [
-            "link_delPhlEast",
-            "link_delSchuykill"
         ],
         [
             "catchment_ontelaunee",
@@ -788,7 +687,7 @@
         ],
         [
             "outflow_ontelaunee",
-            "link_delSchuykill"
+            "link_outletSchuylkill"
         ],
         [
             "catchment_stillCreek",
@@ -800,7 +699,7 @@
         ],
         [
             "outflow_stillCreek",
-            "link_delSchuykill"
+            "link_outletSchuylkill"
         ],
         [
             "catchment_blueMarsh",
@@ -812,7 +711,7 @@
         ],
         [
             "outflow_blueMarsh",
-            "link_delSchuykill"
+            "link_outletSchuylkill"
         ],
         [
             "catchment_greenLane",
@@ -824,39 +723,15 @@
         ],
         [
             "outflow_greenLane",
-            "link_delSchuykill"
+            "link_outletSchuylkill"
         ],
         [
-            "catchment_delSchuykill",
-            "link_delSchuykill"
+            "catchment_outletSchuylkill",
+            "link_outletSchuylkill"
         ],
         [
-            "link_delSchuykill",
-            "link_delPhlWest"
-        ],
-        [
-            "catchment_delPhlWest",
-            "link_delPhlWest"
-        ],
-        [
-            "link_delPhlWest",
-            "demand_phl"
-        ],
-        [
-            "link_delPhlWest",
-            "link_delChristina"
-        ],
-        [
-            "catchment_springton",
-            "reservoir_springton"
-        ],
-        [
-            "reservoir_springton",
-            "outflow_springton"
-        ],
-        [
-            "outflow_springton",
-            "link_delChristina"
+            "link_outletSchuylkill",
+            "output_del"
         ],
         [
             "catchment_marshCreek",
@@ -868,14 +743,14 @@
         ],
         [
             "outflow_marshCreek",
-            "link_delChristina"
+            "link_outletChristina"
         ],
         [
-            "catchment_delChristina",
-            "link_delChristina"
+            "catchment_outletChristina",
+            "link_outletChristina"
         ],
         [
-            "link_delChristina",
+            "link_outletChristina",
             "output_del"
         ]
     ],
@@ -1524,13 +1399,6 @@
             "index_col": "UTC_date",
             "parse_dates": true
         },
-        "flow_base_vanSciver": {
-            "type": "dataframe",
-            "url": "../input_data/inflows_nhmv10_scaled.csv",
-            "column": "vanSciver",
-            "index_col": "UTC_date",
-            "parse_dates": true
-        },
         "flow_base_ontelaunee": {
             "type": "dataframe",
             "url": "../input_data/inflows_nhmv10_scaled.csv",
@@ -1556,13 +1424,6 @@
             "type": "dataframe",
             "url": "../input_data/inflows_nhmv10_scaled.csv",
             "column": "greenLane",
-            "index_col": "UTC_date",
-            "parse_dates": true
-        },
-        "flow_base_springton": {
-            "type": "dataframe",
-            "url": "../input_data/inflows_nhmv10_scaled.csv",
-            "column": "springton",
             "index_col": "UTC_date",
             "parse_dates": true
         },
@@ -1653,14 +1514,6 @@
                 "flow_factor"
             ]
         },
-        "flow_vanSciver": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "flow_base_vanSciver",
-                "flow_factor"
-            ]
-        },
         "flow_ontelaunee": {
             "type": "aggregated",
             "agg_func": "product",
@@ -1690,14 +1543,6 @@
             "agg_func": "product",
             "parameters": [
                 "flow_base_greenLane",
-                "flow_factor"
-            ]
-        },
-        "flow_springton": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "flow_base_springton",
                 "flow_factor"
             ]
         },
@@ -1779,13 +1624,6 @@
             "index_col": "reservoir",
             "index": "assunpink"
         },
-        "max_volume_vanSciver": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_CAP_MG",
-            "index_col": "reservoir",
-            "index": "vanSciver"
-        },
         "max_volume_ontelaunee": {
             "type": "constant",
             "url": "drb_model_istarf_conus.csv",
@@ -1813,13 +1651,6 @@
             "column": "GRanD_CAP_MG",
             "index_col": "reservoir",
             "index": "greenLane"
-        },
-        "max_volume_springton": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_CAP_MG",
-            "index_col": "reservoir",
-            "index": "springton"
         },
         "max_volume_marshCreek": {
             "type": "constant",
@@ -7018,525 +6849,6 @@
                 "starfit_belowNOR_final_assunpink"
             ]
         },
-        "starfit_NORhi_alpha_vanSciver": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "NORhi_alpha",
-            "index_col": "reservoir",
-            "index": "vanSciver"
-        },
-        "starfit_NORhi_beta_vanSciver": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "NORhi_beta",
-            "index_col": "reservoir",
-            "index": "vanSciver"
-        },
-        "starfit_NORhi_max_vanSciver": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "NORhi_max",
-            "index_col": "reservoir",
-            "index": "vanSciver"
-        },
-        "starfit_NORhi_min_vanSciver": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "NORhi_min",
-            "index_col": "reservoir",
-            "index": "vanSciver"
-        },
-        "starfit_NORhi_mu_vanSciver": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "NORhi_mu",
-            "index_col": "reservoir",
-            "index": "vanSciver"
-        },
-        "starfit_NORlo_alpha_vanSciver": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "NORlo_alpha",
-            "index_col": "reservoir",
-            "index": "vanSciver"
-        },
-        "starfit_NORlo_beta_vanSciver": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "NORlo_beta",
-            "index_col": "reservoir",
-            "index": "vanSciver"
-        },
-        "starfit_NORlo_max_vanSciver": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "NORlo_max",
-            "index_col": "reservoir",
-            "index": "vanSciver"
-        },
-        "starfit_NORlo_min_vanSciver": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "NORlo_min",
-            "index_col": "reservoir",
-            "index": "vanSciver"
-        },
-        "starfit_NORlo_mu_vanSciver": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "NORlo_mu",
-            "index_col": "reservoir",
-            "index": "vanSciver"
-        },
-        "starfit_Release_alpha1_vanSciver": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "Release_alpha1",
-            "index_col": "reservoir",
-            "index": "vanSciver"
-        },
-        "starfit_Release_alpha2_vanSciver": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "Release_alpha2",
-            "index_col": "reservoir",
-            "index": "vanSciver"
-        },
-        "starfit_Release_beta1_vanSciver": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "Release_beta1",
-            "index_col": "reservoir",
-            "index": "vanSciver"
-        },
-        "starfit_Release_beta2_vanSciver": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "Release_beta2",
-            "index_col": "reservoir",
-            "index": "vanSciver"
-        },
-        "starfit_Release_c_vanSciver": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "Release_c",
-            "index_col": "reservoir",
-            "index": "vanSciver"
-        },
-        "starfit_Release_max_vanSciver": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "Release_max",
-            "index_col": "reservoir",
-            "index": "vanSciver"
-        },
-        "starfit_Release_min_vanSciver": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "Release_min",
-            "index_col": "reservoir",
-            "index": "vanSciver"
-        },
-        "starfit_Release_p1_vanSciver": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "Release_p1",
-            "index_col": "reservoir",
-            "index": "vanSciver"
-        },
-        "starfit_Release_p2_vanSciver": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "Release_p2",
-            "index_col": "reservoir",
-            "index": "vanSciver"
-        },
-        "starfit_GRanD_CAP_MG_vanSciver": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_CAP_MG",
-            "index_col": "reservoir",
-            "index": "vanSciver"
-        },
-        "starfit_GRanD_MEANFLOW_MGD_vanSciver": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_MEANFLOW_MGD",
-            "index_col": "reservoir",
-            "index": "vanSciver"
-        },
-        "starfit_Release_max_norm_vanSciver": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_Release_max_vanSciver",
-                1
-            ]
-        },
-        "starfit_Release_max_final_vanSciver": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_Release_max_norm_vanSciver",
-                "starfit_GRanD_MEANFLOW_MGD_vanSciver"
-            ]
-        },
-        "starfit_Release_min_norm_vanSciver": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_Release_min_vanSciver",
-                1
-            ]
-        },
-        "starfit_Release_min_final_vanSciver": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_Release_min_norm_vanSciver",
-                "starfit_GRanD_MEANFLOW_MGD_vanSciver"
-            ]
-        },
-        "starfit_NORhi_sin_vanSciver": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "sin_weekly",
-                "starfit_NORhi_alpha_vanSciver"
-            ]
-        },
-        "starfit_NORhi_cos_vanSciver": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "cos_weekly",
-                "starfit_NORhi_beta_vanSciver"
-            ]
-        },
-        "starfit_NORhi_sum_vanSciver": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_NORhi_mu_vanSciver",
-                "starfit_NORhi_sin_vanSciver",
-                "starfit_NORhi_cos_vanSciver"
-            ]
-        },
-        "starfit_NORhi_minbound_vanSciver": {
-            "type": "aggregated",
-            "agg_func": "max",
-            "parameters": [
-                "starfit_NORhi_sum_vanSciver",
-                "starfit_NORhi_min_vanSciver"
-            ]
-        },
-        "starfit_NORhi_maxbound_vanSciver": {
-            "type": "aggregated",
-            "agg_func": "min",
-            "parameters": [
-                "starfit_NORhi_minbound_vanSciver",
-                "starfit_NORhi_max_vanSciver"
-            ]
-        },
-        "starfit_NORhi_final_vanSciver": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_NORhi_maxbound_vanSciver",
-                0.01
-            ]
-        },
-        "starfit_NORlo_sin_vanSciver": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "sin_weekly",
-                "starfit_NORlo_alpha_vanSciver"
-            ]
-        },
-        "starfit_NORlo_cos_vanSciver": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "cos_weekly",
-                "starfit_NORlo_beta_vanSciver"
-            ]
-        },
-        "starfit_NORlo_sum_vanSciver": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_NORlo_mu_vanSciver",
-                "starfit_NORlo_sin_vanSciver",
-                "starfit_NORlo_cos_vanSciver"
-            ]
-        },
-        "starfit_NORlo_minbound_vanSciver": {
-            "type": "aggregated",
-            "agg_func": "max",
-            "parameters": [
-                "starfit_NORlo_sum_vanSciver",
-                "starfit_NORlo_min_vanSciver"
-            ]
-        },
-        "starfit_NORlo_maxbound_vanSciver": {
-            "type": "aggregated",
-            "agg_func": "min",
-            "parameters": [
-                "starfit_NORlo_minbound_vanSciver",
-                "starfit_NORlo_max_vanSciver"
-            ]
-        },
-        "starfit_NORlo_final_vanSciver": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_NORlo_maxbound_vanSciver",
-                0.01
-            ]
-        },
-        "starfit_neg_NORhi_final_unnorm_vanSciver": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_neg_NORhi_final_vanSciver",
-                "starfit_GRanD_CAP_MG_vanSciver"
-            ]
-        },
-        "starfit_aboveNOR_sum_vanSciver": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "volume_vanSciver",
-                "starfit_neg_NORhi_final_unnorm_vanSciver",
-                "flow_weekly_vanSciver"
-            ]
-        },
-        "starfit_aboveNOR_final_vanSciver": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_aboveNOR_sum_vanSciver",
-                0.14285714285714285
-            ]
-        },
-        "starfit_inNOR_sin_vanSciver": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "sin_weekly",
-                "starfit_Release_alpha1_vanSciver"
-            ]
-        },
-        "starfit_inNOR_cos_vanSciver": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "cos_weekly",
-                "starfit_Release_beta1_vanSciver"
-            ]
-        },
-        "starfit_inNOR_sin2x_vanSciver": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "sin2x_weekly",
-                "starfit_Release_alpha2_vanSciver"
-            ]
-        },
-        "starfit_inNOR_cos2x_vanSciver": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "cos2x_weekly",
-                "starfit_Release_beta2_vanSciver"
-            ]
-        },
-        "starfit_inNOR_p1a_num_vanSciver": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_inNOR_fracvol_vanSciver",
-                "starfit_neg_NORlo_final_vanSciver"
-            ]
-        },
-        "starfit_inNOR_p1a_denom_vanSciver": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_NORhi_final_vanSciver",
-                "starfit_neg_NORlo_final_vanSciver"
-            ]
-        },
-        "starfit_inNOR_p1a_final_vanSciver": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_inNOR_p1a_div_vanSciver",
-                "starfit_Release_p1_vanSciver"
-            ]
-        },
-        "starfit_inNOR_inorm_pt1_vanSciver": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "flow_vanSciver",
-                "starfit_neg_GRanD_MEANFLOW_MGD_vanSciver"
-            ]
-        },
-        "starfit_inNOR_p2i_vanSciver": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_inNOR_inorm_final_vanSciver",
-                "starfit_Release_p2_vanSciver"
-            ]
-        },
-        "starfit_inNOR_norm_vanSciver": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_inNOR_sin_vanSciver",
-                "starfit_inNOR_cos_vanSciver",
-                "starfit_inNOR_sin2x_vanSciver",
-                "starfit_inNOR_cos2x_vanSciver",
-                "starfit_Release_c_vanSciver",
-                "starfit_inNOR_p1a_final_vanSciver",
-                "starfit_inNOR_p2i_vanSciver",
-                1
-            ]
-        },
-        "starfit_inNOR_final_vanSciver": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_inNOR_norm_vanSciver",
-                "starfit_GRanD_MEANFLOW_MGD_vanSciver"
-            ]
-        },
-        "starfit_belowNOR_final_vanSciver": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_Release_min_final_vanSciver"
-            ]
-        },
-        "starfit_target_pt2_vanSciver": {
-            "type": "aggregated",
-            "agg_func": "max",
-            "parameters": [
-                "starfit_target_pt1_vanSciver",
-                "starfit_Release_min_final_vanSciver"
-            ]
-        },
-        "starfit_target_final_vanSciver": {
-            "type": "aggregated",
-            "agg_func": "min",
-            "parameters": [
-                "starfit_target_pt2_vanSciver",
-                "starfit_Release_max_final_vanSciver"
-            ]
-        },
-        "starfit_release_pt1_vanSciver": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "flow_vanSciver",
-                "volume_vanSciver"
-            ]
-        },
-        "starfit_release_pt2_vanSciver": {
-            "type": "aggregated",
-            "agg_func": "min",
-            "parameters": [
-                "starfit_release_pt1_vanSciver",
-                "starfit_target_final_vanSciver"
-            ]
-        },
-        "starfit_release_pt3_vanSciver": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_release_pt1_vanSciver",
-                "starfit_neg_GRanD_CAP_MG_vanSciver"
-            ]
-        },
-        "starfit_release_final_vanSciver": {
-            "type": "aggregated",
-            "agg_func": "max",
-            "parameters": [
-                "starfit_release_pt2_vanSciver",
-                "starfit_release_pt3_vanSciver"
-            ]
-        },
-        "starfit_neg_NORhi_final_vanSciver": {
-            "type": "negative",
-            "parameter": "starfit_NORhi_final_vanSciver"
-        },
-        "starfit_neg_NORlo_final_vanSciver": {
-            "type": "negative",
-            "parameter": "starfit_NORlo_final_vanSciver"
-        },
-        "starfit_neg_GRanD_MEANFLOW_MGD_vanSciver": {
-            "type": "negative",
-            "parameter": "starfit_GRanD_MEANFLOW_MGD_vanSciver"
-        },
-        "starfit_neg_GRanD_CAP_MG_vanSciver": {
-            "type": "negative",
-            "parameter": "starfit_GRanD_CAP_MG_vanSciver"
-        },
-        "starfit_inNOR_fracvol_vanSciver": {
-            "type": "division",
-            "numerator": "volume_vanSciver",
-            "denominator": "starfit_GRanD_CAP_MG_vanSciver"
-        },
-        "starfit_inNOR_p1a_div_vanSciver": {
-            "type": "division",
-            "numerator": "starfit_inNOR_p1a_num_vanSciver",
-            "denominator": "starfit_inNOR_p1a_denom_vanSciver"
-        },
-        "starfit_inNOR_inorm_final_vanSciver": {
-            "type": "division",
-            "numerator": "starfit_inNOR_inorm_pt1_vanSciver",
-            "denominator": "starfit_GRanD_MEANFLOW_MGD_vanSciver"
-        },
-        "starfit_level_vanSciver": {
-            "type": "controlcurveindex",
-            "storage_node": "reservoir_vanSciver",
-            "control_curves": [
-                "starfit_NORhi_final_vanSciver",
-                "starfit_NORlo_final_vanSciver"
-            ]
-        },
-        "flow_weekly_vanSciver": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "flow_vanSciver",
-                7
-            ]
-        },
-        "volume_vanSciver": {
-            "type": "interpolatedvolume",
-            "values": [
-                0,
-                1000000
-            ],
-            "node": "reservoir_vanSciver",
-            "volumes": [
-                0,
-                1000000
-            ]
-        },
-        "starfit_target_pt1_vanSciver": {
-            "type": "indexedarray",
-            "index_parameter": "starfit_level_vanSciver",
-            "params": [
-                "starfit_aboveNOR_final_vanSciver",
-                "starfit_inNOR_final_vanSciver",
-                "starfit_belowNOR_final_vanSciver"
-            ]
-        },
         "starfit_NORhi_alpha_ontelaunee": {
             "type": "constant",
             "url": "drb_model_istarf_conus.csv",
@@ -9613,525 +8925,6 @@
                 "starfit_belowNOR_final_greenLane"
             ]
         },
-        "starfit_NORhi_alpha_springton": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "NORhi_alpha",
-            "index_col": "reservoir",
-            "index": "springton"
-        },
-        "starfit_NORhi_beta_springton": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "NORhi_beta",
-            "index_col": "reservoir",
-            "index": "springton"
-        },
-        "starfit_NORhi_max_springton": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "NORhi_max",
-            "index_col": "reservoir",
-            "index": "springton"
-        },
-        "starfit_NORhi_min_springton": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "NORhi_min",
-            "index_col": "reservoir",
-            "index": "springton"
-        },
-        "starfit_NORhi_mu_springton": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "NORhi_mu",
-            "index_col": "reservoir",
-            "index": "springton"
-        },
-        "starfit_NORlo_alpha_springton": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "NORlo_alpha",
-            "index_col": "reservoir",
-            "index": "springton"
-        },
-        "starfit_NORlo_beta_springton": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "NORlo_beta",
-            "index_col": "reservoir",
-            "index": "springton"
-        },
-        "starfit_NORlo_max_springton": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "NORlo_max",
-            "index_col": "reservoir",
-            "index": "springton"
-        },
-        "starfit_NORlo_min_springton": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "NORlo_min",
-            "index_col": "reservoir",
-            "index": "springton"
-        },
-        "starfit_NORlo_mu_springton": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "NORlo_mu",
-            "index_col": "reservoir",
-            "index": "springton"
-        },
-        "starfit_Release_alpha1_springton": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "Release_alpha1",
-            "index_col": "reservoir",
-            "index": "springton"
-        },
-        "starfit_Release_alpha2_springton": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "Release_alpha2",
-            "index_col": "reservoir",
-            "index": "springton"
-        },
-        "starfit_Release_beta1_springton": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "Release_beta1",
-            "index_col": "reservoir",
-            "index": "springton"
-        },
-        "starfit_Release_beta2_springton": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "Release_beta2",
-            "index_col": "reservoir",
-            "index": "springton"
-        },
-        "starfit_Release_c_springton": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "Release_c",
-            "index_col": "reservoir",
-            "index": "springton"
-        },
-        "starfit_Release_max_springton": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "Release_max",
-            "index_col": "reservoir",
-            "index": "springton"
-        },
-        "starfit_Release_min_springton": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "Release_min",
-            "index_col": "reservoir",
-            "index": "springton"
-        },
-        "starfit_Release_p1_springton": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "Release_p1",
-            "index_col": "reservoir",
-            "index": "springton"
-        },
-        "starfit_Release_p2_springton": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "Release_p2",
-            "index_col": "reservoir",
-            "index": "springton"
-        },
-        "starfit_GRanD_CAP_MG_springton": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_CAP_MG",
-            "index_col": "reservoir",
-            "index": "springton"
-        },
-        "starfit_GRanD_MEANFLOW_MGD_springton": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_MEANFLOW_MGD",
-            "index_col": "reservoir",
-            "index": "springton"
-        },
-        "starfit_Release_max_norm_springton": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_Release_max_springton",
-                1
-            ]
-        },
-        "starfit_Release_max_final_springton": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_Release_max_norm_springton",
-                "starfit_GRanD_MEANFLOW_MGD_springton"
-            ]
-        },
-        "starfit_Release_min_norm_springton": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_Release_min_springton",
-                1
-            ]
-        },
-        "starfit_Release_min_final_springton": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_Release_min_norm_springton",
-                "starfit_GRanD_MEANFLOW_MGD_springton"
-            ]
-        },
-        "starfit_NORhi_sin_springton": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "sin_weekly",
-                "starfit_NORhi_alpha_springton"
-            ]
-        },
-        "starfit_NORhi_cos_springton": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "cos_weekly",
-                "starfit_NORhi_beta_springton"
-            ]
-        },
-        "starfit_NORhi_sum_springton": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_NORhi_mu_springton",
-                "starfit_NORhi_sin_springton",
-                "starfit_NORhi_cos_springton"
-            ]
-        },
-        "starfit_NORhi_minbound_springton": {
-            "type": "aggregated",
-            "agg_func": "max",
-            "parameters": [
-                "starfit_NORhi_sum_springton",
-                "starfit_NORhi_min_springton"
-            ]
-        },
-        "starfit_NORhi_maxbound_springton": {
-            "type": "aggregated",
-            "agg_func": "min",
-            "parameters": [
-                "starfit_NORhi_minbound_springton",
-                "starfit_NORhi_max_springton"
-            ]
-        },
-        "starfit_NORhi_final_springton": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_NORhi_maxbound_springton",
-                0.01
-            ]
-        },
-        "starfit_NORlo_sin_springton": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "sin_weekly",
-                "starfit_NORlo_alpha_springton"
-            ]
-        },
-        "starfit_NORlo_cos_springton": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "cos_weekly",
-                "starfit_NORlo_beta_springton"
-            ]
-        },
-        "starfit_NORlo_sum_springton": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_NORlo_mu_springton",
-                "starfit_NORlo_sin_springton",
-                "starfit_NORlo_cos_springton"
-            ]
-        },
-        "starfit_NORlo_minbound_springton": {
-            "type": "aggregated",
-            "agg_func": "max",
-            "parameters": [
-                "starfit_NORlo_sum_springton",
-                "starfit_NORlo_min_springton"
-            ]
-        },
-        "starfit_NORlo_maxbound_springton": {
-            "type": "aggregated",
-            "agg_func": "min",
-            "parameters": [
-                "starfit_NORlo_minbound_springton",
-                "starfit_NORlo_max_springton"
-            ]
-        },
-        "starfit_NORlo_final_springton": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_NORlo_maxbound_springton",
-                0.01
-            ]
-        },
-        "starfit_neg_NORhi_final_unnorm_springton": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_neg_NORhi_final_springton",
-                "starfit_GRanD_CAP_MG_springton"
-            ]
-        },
-        "starfit_aboveNOR_sum_springton": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "volume_springton",
-                "starfit_neg_NORhi_final_unnorm_springton",
-                "flow_weekly_springton"
-            ]
-        },
-        "starfit_aboveNOR_final_springton": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_aboveNOR_sum_springton",
-                0.14285714285714285
-            ]
-        },
-        "starfit_inNOR_sin_springton": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "sin_weekly",
-                "starfit_Release_alpha1_springton"
-            ]
-        },
-        "starfit_inNOR_cos_springton": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "cos_weekly",
-                "starfit_Release_beta1_springton"
-            ]
-        },
-        "starfit_inNOR_sin2x_springton": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "sin2x_weekly",
-                "starfit_Release_alpha2_springton"
-            ]
-        },
-        "starfit_inNOR_cos2x_springton": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "cos2x_weekly",
-                "starfit_Release_beta2_springton"
-            ]
-        },
-        "starfit_inNOR_p1a_num_springton": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_inNOR_fracvol_springton",
-                "starfit_neg_NORlo_final_springton"
-            ]
-        },
-        "starfit_inNOR_p1a_denom_springton": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_NORhi_final_springton",
-                "starfit_neg_NORlo_final_springton"
-            ]
-        },
-        "starfit_inNOR_p1a_final_springton": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_inNOR_p1a_div_springton",
-                "starfit_Release_p1_springton"
-            ]
-        },
-        "starfit_inNOR_inorm_pt1_springton": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "flow_springton",
-                "starfit_neg_GRanD_MEANFLOW_MGD_springton"
-            ]
-        },
-        "starfit_inNOR_p2i_springton": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_inNOR_inorm_final_springton",
-                "starfit_Release_p2_springton"
-            ]
-        },
-        "starfit_inNOR_norm_springton": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_inNOR_sin_springton",
-                "starfit_inNOR_cos_springton",
-                "starfit_inNOR_sin2x_springton",
-                "starfit_inNOR_cos2x_springton",
-                "starfit_Release_c_springton",
-                "starfit_inNOR_p1a_final_springton",
-                "starfit_inNOR_p2i_springton",
-                1
-            ]
-        },
-        "starfit_inNOR_final_springton": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_inNOR_norm_springton",
-                "starfit_GRanD_MEANFLOW_MGD_springton"
-            ]
-        },
-        "starfit_belowNOR_final_springton": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_Release_min_final_springton"
-            ]
-        },
-        "starfit_target_pt2_springton": {
-            "type": "aggregated",
-            "agg_func": "max",
-            "parameters": [
-                "starfit_target_pt1_springton",
-                "starfit_Release_min_final_springton"
-            ]
-        },
-        "starfit_target_final_springton": {
-            "type": "aggregated",
-            "agg_func": "min",
-            "parameters": [
-                "starfit_target_pt2_springton",
-                "starfit_Release_max_final_springton"
-            ]
-        },
-        "starfit_release_pt1_springton": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "flow_springton",
-                "volume_springton"
-            ]
-        },
-        "starfit_release_pt2_springton": {
-            "type": "aggregated",
-            "agg_func": "min",
-            "parameters": [
-                "starfit_release_pt1_springton",
-                "starfit_target_final_springton"
-            ]
-        },
-        "starfit_release_pt3_springton": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_release_pt1_springton",
-                "starfit_neg_GRanD_CAP_MG_springton"
-            ]
-        },
-        "starfit_release_final_springton": {
-            "type": "aggregated",
-            "agg_func": "max",
-            "parameters": [
-                "starfit_release_pt2_springton",
-                "starfit_release_pt3_springton"
-            ]
-        },
-        "starfit_neg_NORhi_final_springton": {
-            "type": "negative",
-            "parameter": "starfit_NORhi_final_springton"
-        },
-        "starfit_neg_NORlo_final_springton": {
-            "type": "negative",
-            "parameter": "starfit_NORlo_final_springton"
-        },
-        "starfit_neg_GRanD_MEANFLOW_MGD_springton": {
-            "type": "negative",
-            "parameter": "starfit_GRanD_MEANFLOW_MGD_springton"
-        },
-        "starfit_neg_GRanD_CAP_MG_springton": {
-            "type": "negative",
-            "parameter": "starfit_GRanD_CAP_MG_springton"
-        },
-        "starfit_inNOR_fracvol_springton": {
-            "type": "division",
-            "numerator": "volume_springton",
-            "denominator": "starfit_GRanD_CAP_MG_springton"
-        },
-        "starfit_inNOR_p1a_div_springton": {
-            "type": "division",
-            "numerator": "starfit_inNOR_p1a_num_springton",
-            "denominator": "starfit_inNOR_p1a_denom_springton"
-        },
-        "starfit_inNOR_inorm_final_springton": {
-            "type": "division",
-            "numerator": "starfit_inNOR_inorm_pt1_springton",
-            "denominator": "starfit_GRanD_MEANFLOW_MGD_springton"
-        },
-        "starfit_level_springton": {
-            "type": "controlcurveindex",
-            "storage_node": "reservoir_springton",
-            "control_curves": [
-                "starfit_NORhi_final_springton",
-                "starfit_NORlo_final_springton"
-            ]
-        },
-        "flow_weekly_springton": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "flow_springton",
-                7
-            ]
-        },
-        "volume_springton": {
-            "type": "interpolatedvolume",
-            "values": [
-                0,
-                1000000
-            ],
-            "node": "reservoir_springton",
-            "volumes": [
-                0,
-                1000000
-            ]
-        },
-        "starfit_target_pt1_springton": {
-            "type": "indexedarray",
-            "index_parameter": "starfit_level_springton",
-            "params": [
-                "starfit_aboveNOR_final_springton",
-                "starfit_inNOR_final_springton",
-                "starfit_belowNOR_final_springton"
-            ]
-        },
         "starfit_NORhi_alpha_marshCreek": {
             "type": "constant",
             "url": "drb_model_istarf_conus.csv",
@@ -10652,81 +9445,52 @@
             ]
         },
         "flow_base_delLordville": {
-            "type": "constant",
-            "url": "drb_model_constants.csv",
-            "column": "value",
-            "index_col": "parameter",
-            "index": "flow_generic"
-        },
-        "flow_base_delLackawaxen": {
-            "type": "constant",
-            "url": "drb_model_constants.csv",
-            "column": "value",
-            "index_col": "parameter",
-            "index": "flow_generic"
+            "type": "dataframe",
+            "url": "../input_data/inflows_nhmv10_scaled.csv",
+            "column": "delLordville",
+            "index_col": "UTC_date",
+            "parse_dates": true
         },
         "flow_base_delMontague": {
-            "type": "constant",
-            "url": "drb_model_constants.csv",
-            "column": "value",
-            "index_col": "parameter",
-            "index": "flow_generic"
-        },
-        "flow_base_delLehigh": {
-            "type": "constant",
-            "url": "drb_model_constants.csv",
-            "column": "value",
-            "index_col": "parameter",
-            "index": "flow_generic"
+            "type": "dataframe",
+            "url": "../input_data/inflows_nhmv10_scaled.csv",
+            "column": "delMontague",
+            "index_col": "UTC_date",
+            "parse_dates": true
         },
         "flow_base_delTrenton": {
-            "type": "constant",
-            "url": "drb_model_constants.csv",
-            "column": "value",
-            "index_col": "parameter",
-            "index": "flow_generic"
+            "type": "dataframe",
+            "url": "../input_data/inflows_nhmv10_scaled.csv",
+            "column": "delTrenton",
+            "index_col": "UTC_date",
+            "parse_dates": true
         },
-        "flow_base_delPhlEast": {
-            "type": "constant",
-            "url": "drb_model_constants.csv",
-            "column": "value",
-            "index_col": "parameter",
-            "index": "flow_generic"
+        "flow_base_outletAssunpink": {
+            "type": "dataframe",
+            "url": "../input_data/inflows_nhmv10_scaled.csv",
+            "column": "outletAssunpink",
+            "index_col": "UTC_date",
+            "parse_dates": true
         },
-        "flow_base_delSchuykill": {
-            "type": "constant",
-            "url": "drb_model_constants.csv",
-            "column": "value",
-            "index_col": "parameter",
-            "index": "flow_generic"
+        "flow_base_outletSchuylkill": {
+            "type": "dataframe",
+            "url": "../input_data/inflows_nhmv10_scaled.csv",
+            "column": "outletSchuylkill",
+            "index_col": "UTC_date",
+            "parse_dates": true
         },
-        "flow_base_delPhlWest": {
-            "type": "constant",
-            "url": "drb_model_constants.csv",
-            "column": "value",
-            "index_col": "parameter",
-            "index": "flow_generic"
-        },
-        "flow_base_delChristina": {
-            "type": "constant",
-            "url": "drb_model_constants.csv",
-            "column": "value",
-            "index_col": "parameter",
-            "index": "flow_generic"
+        "flow_base_outletChristina": {
+            "type": "dataframe",
+            "url": "../input_data/inflows_nhmv10_scaled.csv",
+            "column": "outletChristina",
+            "index_col": "UTC_date",
+            "parse_dates": true
         },
         "flow_delLordville": {
             "type": "aggregated",
             "agg_func": "product",
             "parameters": [
                 "flow_base_delLordville",
-                "flow_factor"
-            ]
-        },
-        "flow_delLackawaxen": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "flow_base_delLackawaxen",
                 "flow_factor"
             ]
         },
@@ -10738,14 +9502,6 @@
                 "flow_factor"
             ]
         },
-        "flow_delLehigh": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "flow_base_delLehigh",
-                "flow_factor"
-            ]
-        },
         "flow_delTrenton": {
             "type": "aggregated",
             "agg_func": "product",
@@ -10754,35 +9510,27 @@
                 "flow_factor"
             ]
         },
-        "flow_delPhlEast": {
+        "flow_outletAssunpink": {
             "type": "aggregated",
             "agg_func": "product",
             "parameters": [
-                "flow_base_delPhlEast",
+                "flow_base_outletAssunpink",
                 "flow_factor"
             ]
         },
-        "flow_delSchuykill": {
+        "flow_outletSchuylkill": {
             "type": "aggregated",
             "agg_func": "product",
             "parameters": [
-                "flow_base_delSchuykill",
+                "flow_base_outletSchuylkill",
                 "flow_factor"
             ]
         },
-        "flow_delPhlWest": {
+        "flow_outletChristina": {
             "type": "aggregated",
             "agg_func": "product",
             "parameters": [
-                "flow_base_delPhlWest",
-                "flow_factor"
-            ]
-        },
-        "flow_delChristina": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "flow_base_delChristina",
+                "flow_base_outletChristina",
                 "flow_factor"
             ]
         }
