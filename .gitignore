@@ -4,8 +4,9 @@
 ~*
 __pycache__
 */__pycache__
+*/*/__pycache__
 input_data/usgs_gages
 .ipynb_checkpoints
 */.ipynb_checkpoints
-output_data/*
+*/*/.ipynb_checkpoints
 pywr_glpk_debug*
