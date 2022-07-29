@@ -5,8 +5,8 @@
         "minimum_version": "0.4"
     },
     "timestepper": {
-        "start": "2005-10-01",
-        "end": "2012-10-01",
+        "start": "2008-01-01",
+        "end": "2015-12-31",
         "timestep": 1
     },
     "scenarios": [
