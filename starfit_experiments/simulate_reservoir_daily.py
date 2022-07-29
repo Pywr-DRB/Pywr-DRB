@@ -13,6 +13,9 @@ from math import pi, sin, cos
 
 def sim_starfit_reservoir_daily(starfit_df, reservoir_name, inflow, S_initial):
     """
+    Simulates reservoir storage and release using STARFIT parameters.
+    NOTE: Data must begin on the Oct-1 (start of water year).
+
     Parameters:
     ----------
     starfit_df : DataFrame
@@ -53,10 +56,10 @@ def sim_starfit_reservoir_daily(starfit_df, reservoir_name, inflow, S_initial):
     def release_harmonic(time, timestep = 'daily'):
         if timestep == 'daily':
             time = time/7
-        R_avg_t = (data['Release_alpha1'] * sin(2 * pi * time/52) +
-                 data['Release_alpha2'] * sin(4 * pi * time/52) +
-                 data['Release_beta1'] * cos(2 * pi * time/52) +
-                 data['Release_beta2'] * cos(4 * pi * time/52))
+        R_avg_t = (data['Release_alpha1'] * sin(2 * pi * (time + 39)/52) +
+                 data['Release_alpha2'] * sin(4 * pi * (time + 39)/52) +
+                 data['Release_beta1'] * cos(2 * pi * (time + 39)/52) +
+                 data['Release_beta2'] * cos(4 * pi * (time + 39)/52))
         return R_avg_t.values[0]
 
     # Calculate daily values of the upper NOR bound
@@ -65,14 +68,14 @@ def sim_starfit_reservoir_daily(starfit_df, reservoir_name, inflow, S_initial):
         if timestep == 'daily':
             time = time/7
 
-        NOR_hi = (data['NORhi_mu'] + data['NORhi_alpha'] * sin(2*pi*time/52) +
-                     data['NORhi_beta'] * cos(2*pi*time/52))
+        NOR_hi = (data['NORhi_mu'] + data['NORhi_alpha'] * sin(2*pi*(time + 39)/52) +
+                     data['NORhi_beta'] * cos(2*pi*(time + 39)/52))
 
         if (NOR_hi < data['NORhi_min']).bool():
             NOR_hi = data['NORhi_min']
         elif (NOR_hi > data['NORhi_max']).bool():
             NOR_hi = data['NORhi_max']
-        return NOR_hi.values
+        return (NOR_hi.values/100)
 
     # Calculate daily values of the lower NOR bound
     def calc_NOR_lo(time, timestep = 'daily'):
@@ -80,14 +83,14 @@ def sim_starfit_reservoir_daily(starfit_df, reservoir_name, inflow, S_initial):
         if timestep == 'daily':
             time = time/7
 
-        NOR_lo = (data['NORlo_mu'] + data['NORlo_alpha'] * sin(2*pi*time/52) +
-                     data['NORlo_beta'] * cos(2*pi*time/52))
+        NOR_lo = (data['NORlo_mu'] + data['NORlo_alpha'] * sin(2*pi*(time + 39)/52) +
+                     data['NORlo_beta'] * cos(2*pi*(time + 39)/52))
 
         if (NOR_lo < data['NORlo_min']).bool():
             NOR_lo = data['NORlo_min']
         elif (NOR_lo > data['NORlo_max']).bool():
             NOR_lo = data['NORlo_max']
-        return NOR_lo.values
+        return (NOR_lo.values/100)
 
     # Standardize inflow using annual average
     def standardize_inflow(I_t):
@@ -95,7 +98,7 @@ def sim_starfit_reservoir_daily(starfit_df, reservoir_name, inflow, S_initial):
 
     # Calculate storage as % of S_cap
     def percent_storage(S_t):
-        return (S_t / S_cap)*100
+        return (S_t / S_cap)
 
     # Define the daily release adjustement function
     def release_adjustment(S_hat, time, timestep = 'daily'):
@@ -107,7 +110,7 @@ def sim_starfit_reservoir_daily(starfit_df, reservoir_name, inflow, S_initial):
         return epsilon.values
 
     # Calculate the conditional target release volume
-    def target_release(S_hat, time):
+    def target_release(S_hat, I_t, time, R_previous):
         NOR_hi = calc_NOR_hi(time)
         NOR_lo = calc_NOR_lo(time)
 
@@ -117,10 +120,10 @@ def sim_starfit_reservoir_daily(starfit_df, reservoir_name, inflow, S_initial):
                            + I_bar, R_max)
             print('in NOR')
         elif (S_hat > NOR_hi):
-            target_R = min(S_cap * (S_hat - NOR_hi) + inflow[time], R_max)
+            target_R = min(S_cap * (S_hat - NOR_hi) + I_t, R_max)
             print('above NOR')
         else:
-            target_R = R_min
+            target_R = (R_min + R_previous)/2
             print('below NOR')
         return target_R
 
@@ -143,12 +146,14 @@ def sim_starfit_reservoir_daily(starfit_df, reservoir_name, inflow, S_initial):
 
         I = inflow[d]
         S_hat[d] = percent_storage(S[d])
-        target_R = target_release(S_hat[d], d)
+        target_R = target_release(S_hat[d], I, d, R[d-1])
         R[d] = actual_release(target_R, I, S[d])
 
         S[d + 1] = S[d] + I - R[d]
 
-    return S, S_hat, R
+        out = {'storage' : S, 'outflow':R}
+        result = pd.DataFrame(out)
+    return result
 
 ################################################################################
 # Define release, and NOR harmonics for independent use
@@ -159,10 +164,10 @@ def sim_starfit_reservoir_daily(starfit_df, reservoir_name, inflow, S_initial):
 def release_harmonic(data, time, timestep = 'daily'):
     if timestep == 'daily':
         time = time/7
-    R_avg_t = (data['Release_alpha1'] * sin(2 * pi * time/52) +
-             data['Release_alpha2'] * sin(4 * pi * time/52) +
-             data['Release_beta1'] * cos(2 * pi * time/52) +
-             data['Release_beta2'] * cos(4 * pi * time/52))
+    R_avg_t = (data['Release_alpha1'] * sin(2 * pi * (time + 39)/52) +
+             data['Release_alpha2'] * sin(4 * pi * (time + 39)/52) +
+             data['Release_beta1'] * cos(2 * pi * (time + 39)/52) +
+             data['Release_beta2'] * cos(4 * pi * (time + 39)/52))
     return R_avg_t
 
 # Calculate daily values of the upper NOR bound
@@ -171,8 +176,8 @@ def NOR_hi(data, time, timestep = 'daily'):
     if timestep == 'daily':
         time = time/7
 
-    NOR_hi = (data['NORhi_mu'] + data['NORhi_alpha'] * sin(2*pi*time/52) +
-                 data['NORhi_beta'] * cos(2*pi*time/52))
+    NOR_hi = (data['NORhi_mu'] + data['NORhi_alpha'] * sin(2*pi*(time + 39)/52) +
+                 data['NORhi_beta'] * cos(2*pi*(time + 39)/52))
 
     if (NOR_hi < data['NORhi_min']):
         NOR_hi = data['NORhi_min']
@@ -186,8 +191,8 @@ def NOR_lo(data, time, timestep = 'daily'):
     if timestep == 'daily':
         time = time/7
 
-    NOR_lo = (data['NORlo_mu'] + data['NORlo_alpha'] * sin(2*pi*time/52) +
-                 data['NORlo_beta'] * cos(2*pi*time/52))
+    NOR_lo = (data['NORlo_mu'] + data['NORlo_alpha'] * sin(2*pi*(time + 39)/52) +
+                 data['NORlo_beta'] * cos(2*pi*(time + 39)/52))
 
     if (NOR_lo < data['NORlo_min']):
         NOR_lo = data['NORlo_min']
