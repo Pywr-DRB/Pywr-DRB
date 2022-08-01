@@ -21,7 +21,7 @@ import os
 # Gages of interest (downstream of reservoirs)
 # Blue marsh: '01470960'
 
-gages = ['01470960']
+gages = ['01470960', '01449800']
 
 def download_usgs_gage_data(gages):
 
@@ -30,7 +30,7 @@ def download_usgs_gage_data(gages):
             start_date = '2005-10-01'
             end_date = '2012-10-01'
             url = f'https://nwis.waterdata.usgs.gov/usa/nwis/uv/?cb_00060=on&format=rdb&site_no={gage}&period=&begin_date={start_date}&end_date={end_date}'
-            filename = f'usgs_data/usgs_{gage}.txt'
+            filename = f'usgs_{gage}.txt'
             urllib.request.urlretrieve(url, filename)
         except:
             print('DOWNLOAD FAIL: GAGE ' + gage)
@@ -50,7 +50,7 @@ def get_usgs_data(gages, daily_average = True):
     # clean txt and export to csv
     for gage in gages:
 
-        filename = f'usgs_data/usgs_{gage}.txt'
+        filename = f'usgs_{gage}.txt'
 
 
         data = pd.read_csv(filename, sep = '\t', header = None, skiprows = 29)
@@ -67,7 +67,7 @@ def get_usgs_data(gages, daily_average = True):
             data = data.reset_index()
 
         # Export
-        output_file =  f'usgs_data/clean_usgs_{gage}.csv'
+        output_file =  f'clean_usgs_{gage}.csv'
         data.to_csv(output_file, index = False)
 
     return

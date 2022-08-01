@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 from math import pi, sin, cos
 
-def sim_starfit_reservoir_daily(starfit_df, reservoir_name, inflow, S_initial):
+def starfit_reservoir_simulation(starfit_df, reservoir_name, inflow, S_initial):
     """
     Simulates reservoir storage and release using STARFIT parameters.
     NOTE: Data must begin on the Oct-1 (start of water year).
@@ -118,13 +118,10 @@ def sim_starfit_reservoir_daily(starfit_df, reservoir_name, inflow, S_initial):
             target_R = min(I_bar * (release_harmonic(time) +
                                     release_adjustment(S_hat, time))
                            + I_bar, R_max)
-            print('in NOR')
         elif (S_hat > NOR_hi):
             target_R = min(S_cap * (S_hat - NOR_hi) + I_t, R_max)
-            print('above NOR')
         else:
-            target_R = (R_min + R_previous)/2
-            print('below NOR')
+            target_R = R_min
         return target_R
 
 
@@ -183,7 +180,7 @@ def NOR_hi(data, time, timestep = 'daily'):
         NOR_hi = data['NORhi_min']
     elif (NOR_hi > data['NORhi_max']):
         NOR_hi = data['NORhi_max']
-    return NOR_hi
+    return NOR_hi/100
 
 # Calculate daily values of the lower NOR bound
 def NOR_lo(data, time, timestep = 'daily'):
@@ -198,4 +195,4 @@ def NOR_lo(data, time, timestep = 'daily'):
         NOR_lo = data['NORlo_min']
     elif (NOR_lo > data['NORlo_max']):
         NOR_lo = data['NORlo_max']
-    return NOR_lo
+    return NOR_lo/100
