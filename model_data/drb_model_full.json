@@ -1806,38 +1806,6 @@
             "index_col": "reservoir",
             "index": "wallenpaupack"
         },
-        "starfit_Release_max_norm_wallenpaupack": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_Release_max_wallenpaupack",
-                1
-            ]
-        },
-        "starfit_Release_max_final_wallenpaupack": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_Release_max_norm_wallenpaupack",
-                "starfit_GRanD_MEANFLOW_MGD_wallenpaupack"
-            ]
-        },
-        "starfit_Release_min_norm_wallenpaupack": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_Release_min_wallenpaupack",
-                1
-            ]
-        },
-        "starfit_Release_min_final_wallenpaupack": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_Release_min_norm_wallenpaupack",
-                "starfit_GRanD_MEANFLOW_MGD_wallenpaupack"
-            ]
-        },
         "starfit_NORhi_sin_wallenpaupack": {
             "type": "aggregated",
             "agg_func": "product",
@@ -1934,6 +1902,14 @@
             "parameters": [
                 "starfit_NORlo_maxbound_wallenpaupack",
                 0.01
+            ]
+        },
+        "starfit_NORlo_final_unnorm_wallenpaupack": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_NORlo_final_wallenpaupack",
+                "starfit_GRanD_CAP_MG_wallenpaupack"
             ]
         },
         "starfit_neg_NORhi_final_unnorm_wallenpaupack": {
@@ -2055,11 +2031,52 @@
                 "starfit_GRanD_MEANFLOW_MGD_wallenpaupack"
             ]
         },
-        "starfit_belowNOR_final_wallenpaupack": {
+        "starfit_Release_min_norm_wallenpaupack": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "starfit_Release_min_wallenpaupack",
+                1
+            ]
+        },
+        "starfit_Release_min_final_wallenpaupack": {
             "type": "aggregated",
             "agg_func": "product",
             "parameters": [
+                "starfit_Release_min_norm_wallenpaupack",
+                "starfit_GRanD_MEANFLOW_MGD_wallenpaupack"
+            ]
+        },
+        "starfit_belowNOR_pt1_wallenpaupack": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_inNOR_final_wallenpaupack",
+                "starfit_belowNOR_frac_NORlo_wallenpaupack"
+            ]
+        },
+        "starfit_belowNOR_final_wallenpaupack": {
+            "type": "aggregated",
+            "agg_func": "max",
+            "parameters": [
+                "starfit_belowNOR_pt1_wallenpaupack",
                 "starfit_Release_min_final_wallenpaupack"
+            ]
+        },
+        "starfit_Release_max_norm_wallenpaupack": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "starfit_Release_max_wallenpaupack",
+                999999
+            ]
+        },
+        "starfit_Release_max_final_wallenpaupack": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_Release_max_norm_wallenpaupack",
+                "starfit_GRanD_MEANFLOW_MGD_wallenpaupack"
             ]
         },
         "starfit_target_pt2_wallenpaupack": {
@@ -2140,6 +2157,11 @@
             "type": "division",
             "numerator": "starfit_inNOR_inorm_pt1_wallenpaupack",
             "denominator": "starfit_GRanD_MEANFLOW_MGD_wallenpaupack"
+        },
+        "starfit_belowNOR_frac_NORlo_wallenpaupack": {
+            "type": "division",
+            "numerator": "volume_wallenpaupack",
+            "denominator": "starfit_NORlo_final_unnorm_wallenpaupack"
         },
         "starfit_level_wallenpaupack": {
             "type": "controlcurveindex",
@@ -2325,38 +2347,6 @@
             "index_col": "reservoir",
             "index": "prompton"
         },
-        "starfit_Release_max_norm_prompton": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_Release_max_prompton",
-                1
-            ]
-        },
-        "starfit_Release_max_final_prompton": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_Release_max_norm_prompton",
-                "starfit_GRanD_MEANFLOW_MGD_prompton"
-            ]
-        },
-        "starfit_Release_min_norm_prompton": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_Release_min_prompton",
-                1
-            ]
-        },
-        "starfit_Release_min_final_prompton": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_Release_min_norm_prompton",
-                "starfit_GRanD_MEANFLOW_MGD_prompton"
-            ]
-        },
         "starfit_NORhi_sin_prompton": {
             "type": "aggregated",
             "agg_func": "product",
@@ -2453,6 +2443,14 @@
             "parameters": [
                 "starfit_NORlo_maxbound_prompton",
                 0.01
+            ]
+        },
+        "starfit_NORlo_final_unnorm_prompton": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_NORlo_final_prompton",
+                "starfit_GRanD_CAP_MG_prompton"
             ]
         },
         "starfit_neg_NORhi_final_unnorm_prompton": {
@@ -2574,11 +2572,52 @@
                 "starfit_GRanD_MEANFLOW_MGD_prompton"
             ]
         },
-        "starfit_belowNOR_final_prompton": {
+        "starfit_Release_min_norm_prompton": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "starfit_Release_min_prompton",
+                1
+            ]
+        },
+        "starfit_Release_min_final_prompton": {
             "type": "aggregated",
             "agg_func": "product",
             "parameters": [
+                "starfit_Release_min_norm_prompton",
+                "starfit_GRanD_MEANFLOW_MGD_prompton"
+            ]
+        },
+        "starfit_belowNOR_pt1_prompton": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_inNOR_final_prompton",
+                "starfit_belowNOR_frac_NORlo_prompton"
+            ]
+        },
+        "starfit_belowNOR_final_prompton": {
+            "type": "aggregated",
+            "agg_func": "max",
+            "parameters": [
+                "starfit_belowNOR_pt1_prompton",
                 "starfit_Release_min_final_prompton"
+            ]
+        },
+        "starfit_Release_max_norm_prompton": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "starfit_Release_max_prompton",
+                999999
+            ]
+        },
+        "starfit_Release_max_final_prompton": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_Release_max_norm_prompton",
+                "starfit_GRanD_MEANFLOW_MGD_prompton"
             ]
         },
         "starfit_target_pt2_prompton": {
@@ -2659,6 +2698,11 @@
             "type": "division",
             "numerator": "starfit_inNOR_inorm_pt1_prompton",
             "denominator": "starfit_GRanD_MEANFLOW_MGD_prompton"
+        },
+        "starfit_belowNOR_frac_NORlo_prompton": {
+            "type": "division",
+            "numerator": "volume_prompton",
+            "denominator": "starfit_NORlo_final_unnorm_prompton"
         },
         "starfit_level_prompton": {
             "type": "controlcurveindex",
@@ -2844,38 +2888,6 @@
             "index_col": "reservoir",
             "index": "shoholaMarsh"
         },
-        "starfit_Release_max_norm_shoholaMarsh": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_Release_max_shoholaMarsh",
-                1
-            ]
-        },
-        "starfit_Release_max_final_shoholaMarsh": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_Release_max_norm_shoholaMarsh",
-                "starfit_GRanD_MEANFLOW_MGD_shoholaMarsh"
-            ]
-        },
-        "starfit_Release_min_norm_shoholaMarsh": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_Release_min_shoholaMarsh",
-                1
-            ]
-        },
-        "starfit_Release_min_final_shoholaMarsh": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_Release_min_norm_shoholaMarsh",
-                "starfit_GRanD_MEANFLOW_MGD_shoholaMarsh"
-            ]
-        },
         "starfit_NORhi_sin_shoholaMarsh": {
             "type": "aggregated",
             "agg_func": "product",
@@ -2972,6 +2984,14 @@
             "parameters": [
                 "starfit_NORlo_maxbound_shoholaMarsh",
                 0.01
+            ]
+        },
+        "starfit_NORlo_final_unnorm_shoholaMarsh": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_NORlo_final_shoholaMarsh",
+                "starfit_GRanD_CAP_MG_shoholaMarsh"
             ]
         },
         "starfit_neg_NORhi_final_unnorm_shoholaMarsh": {
@@ -3093,11 +3113,52 @@
                 "starfit_GRanD_MEANFLOW_MGD_shoholaMarsh"
             ]
         },
-        "starfit_belowNOR_final_shoholaMarsh": {
+        "starfit_Release_min_norm_shoholaMarsh": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "starfit_Release_min_shoholaMarsh",
+                1
+            ]
+        },
+        "starfit_Release_min_final_shoholaMarsh": {
             "type": "aggregated",
             "agg_func": "product",
             "parameters": [
+                "starfit_Release_min_norm_shoholaMarsh",
+                "starfit_GRanD_MEANFLOW_MGD_shoholaMarsh"
+            ]
+        },
+        "starfit_belowNOR_pt1_shoholaMarsh": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_inNOR_final_shoholaMarsh",
+                "starfit_belowNOR_frac_NORlo_shoholaMarsh"
+            ]
+        },
+        "starfit_belowNOR_final_shoholaMarsh": {
+            "type": "aggregated",
+            "agg_func": "max",
+            "parameters": [
+                "starfit_belowNOR_pt1_shoholaMarsh",
                 "starfit_Release_min_final_shoholaMarsh"
+            ]
+        },
+        "starfit_Release_max_norm_shoholaMarsh": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "starfit_Release_max_shoholaMarsh",
+                999999
+            ]
+        },
+        "starfit_Release_max_final_shoholaMarsh": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_Release_max_norm_shoholaMarsh",
+                "starfit_GRanD_MEANFLOW_MGD_shoholaMarsh"
             ]
         },
         "starfit_target_pt2_shoholaMarsh": {
@@ -3178,6 +3239,11 @@
             "type": "division",
             "numerator": "starfit_inNOR_inorm_pt1_shoholaMarsh",
             "denominator": "starfit_GRanD_MEANFLOW_MGD_shoholaMarsh"
+        },
+        "starfit_belowNOR_frac_NORlo_shoholaMarsh": {
+            "type": "division",
+            "numerator": "volume_shoholaMarsh",
+            "denominator": "starfit_NORlo_final_unnorm_shoholaMarsh"
         },
         "starfit_level_shoholaMarsh": {
             "type": "controlcurveindex",
@@ -3363,38 +3429,6 @@
             "index_col": "reservoir",
             "index": "mongaupeCombined"
         },
-        "starfit_Release_max_norm_mongaupeCombined": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_Release_max_mongaupeCombined",
-                1
-            ]
-        },
-        "starfit_Release_max_final_mongaupeCombined": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_Release_max_norm_mongaupeCombined",
-                "starfit_GRanD_MEANFLOW_MGD_mongaupeCombined"
-            ]
-        },
-        "starfit_Release_min_norm_mongaupeCombined": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_Release_min_mongaupeCombined",
-                1
-            ]
-        },
-        "starfit_Release_min_final_mongaupeCombined": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_Release_min_norm_mongaupeCombined",
-                "starfit_GRanD_MEANFLOW_MGD_mongaupeCombined"
-            ]
-        },
         "starfit_NORhi_sin_mongaupeCombined": {
             "type": "aggregated",
             "agg_func": "product",
@@ -3491,6 +3525,14 @@
             "parameters": [
                 "starfit_NORlo_maxbound_mongaupeCombined",
                 0.01
+            ]
+        },
+        "starfit_NORlo_final_unnorm_mongaupeCombined": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_NORlo_final_mongaupeCombined",
+                "starfit_GRanD_CAP_MG_mongaupeCombined"
             ]
         },
         "starfit_neg_NORhi_final_unnorm_mongaupeCombined": {
@@ -3612,11 +3654,52 @@
                 "starfit_GRanD_MEANFLOW_MGD_mongaupeCombined"
             ]
         },
-        "starfit_belowNOR_final_mongaupeCombined": {
+        "starfit_Release_min_norm_mongaupeCombined": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "starfit_Release_min_mongaupeCombined",
+                1
+            ]
+        },
+        "starfit_Release_min_final_mongaupeCombined": {
             "type": "aggregated",
             "agg_func": "product",
             "parameters": [
+                "starfit_Release_min_norm_mongaupeCombined",
+                "starfit_GRanD_MEANFLOW_MGD_mongaupeCombined"
+            ]
+        },
+        "starfit_belowNOR_pt1_mongaupeCombined": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_inNOR_final_mongaupeCombined",
+                "starfit_belowNOR_frac_NORlo_mongaupeCombined"
+            ]
+        },
+        "starfit_belowNOR_final_mongaupeCombined": {
+            "type": "aggregated",
+            "agg_func": "max",
+            "parameters": [
+                "starfit_belowNOR_pt1_mongaupeCombined",
                 "starfit_Release_min_final_mongaupeCombined"
+            ]
+        },
+        "starfit_Release_max_norm_mongaupeCombined": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "starfit_Release_max_mongaupeCombined",
+                999999
+            ]
+        },
+        "starfit_Release_max_final_mongaupeCombined": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_Release_max_norm_mongaupeCombined",
+                "starfit_GRanD_MEANFLOW_MGD_mongaupeCombined"
             ]
         },
         "starfit_target_pt2_mongaupeCombined": {
@@ -3697,6 +3780,11 @@
             "type": "division",
             "numerator": "starfit_inNOR_inorm_pt1_mongaupeCombined",
             "denominator": "starfit_GRanD_MEANFLOW_MGD_mongaupeCombined"
+        },
+        "starfit_belowNOR_frac_NORlo_mongaupeCombined": {
+            "type": "division",
+            "numerator": "volume_mongaupeCombined",
+            "denominator": "starfit_NORlo_final_unnorm_mongaupeCombined"
         },
         "starfit_level_mongaupeCombined": {
             "type": "controlcurveindex",
@@ -3882,38 +3970,6 @@
             "index_col": "reservoir",
             "index": "beltzvilleCombined"
         },
-        "starfit_Release_max_norm_beltzvilleCombined": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_Release_max_beltzvilleCombined",
-                1
-            ]
-        },
-        "starfit_Release_max_final_beltzvilleCombined": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_Release_max_norm_beltzvilleCombined",
-                "starfit_GRanD_MEANFLOW_MGD_beltzvilleCombined"
-            ]
-        },
-        "starfit_Release_min_norm_beltzvilleCombined": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_Release_min_beltzvilleCombined",
-                1
-            ]
-        },
-        "starfit_Release_min_final_beltzvilleCombined": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_Release_min_norm_beltzvilleCombined",
-                "starfit_GRanD_MEANFLOW_MGD_beltzvilleCombined"
-            ]
-        },
         "starfit_NORhi_sin_beltzvilleCombined": {
             "type": "aggregated",
             "agg_func": "product",
@@ -4010,6 +4066,14 @@
             "parameters": [
                 "starfit_NORlo_maxbound_beltzvilleCombined",
                 0.01
+            ]
+        },
+        "starfit_NORlo_final_unnorm_beltzvilleCombined": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_NORlo_final_beltzvilleCombined",
+                "starfit_GRanD_CAP_MG_beltzvilleCombined"
             ]
         },
         "starfit_neg_NORhi_final_unnorm_beltzvilleCombined": {
@@ -4131,11 +4195,52 @@
                 "starfit_GRanD_MEANFLOW_MGD_beltzvilleCombined"
             ]
         },
-        "starfit_belowNOR_final_beltzvilleCombined": {
+        "starfit_Release_min_norm_beltzvilleCombined": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "starfit_Release_min_beltzvilleCombined",
+                1
+            ]
+        },
+        "starfit_Release_min_final_beltzvilleCombined": {
             "type": "aggregated",
             "agg_func": "product",
             "parameters": [
+                "starfit_Release_min_norm_beltzvilleCombined",
+                "starfit_GRanD_MEANFLOW_MGD_beltzvilleCombined"
+            ]
+        },
+        "starfit_belowNOR_pt1_beltzvilleCombined": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_inNOR_final_beltzvilleCombined",
+                "starfit_belowNOR_frac_NORlo_beltzvilleCombined"
+            ]
+        },
+        "starfit_belowNOR_final_beltzvilleCombined": {
+            "type": "aggregated",
+            "agg_func": "max",
+            "parameters": [
+                "starfit_belowNOR_pt1_beltzvilleCombined",
                 "starfit_Release_min_final_beltzvilleCombined"
+            ]
+        },
+        "starfit_Release_max_norm_beltzvilleCombined": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "starfit_Release_max_beltzvilleCombined",
+                999999
+            ]
+        },
+        "starfit_Release_max_final_beltzvilleCombined": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_Release_max_norm_beltzvilleCombined",
+                "starfit_GRanD_MEANFLOW_MGD_beltzvilleCombined"
             ]
         },
         "starfit_target_pt2_beltzvilleCombined": {
@@ -4216,6 +4321,11 @@
             "type": "division",
             "numerator": "starfit_inNOR_inorm_pt1_beltzvilleCombined",
             "denominator": "starfit_GRanD_MEANFLOW_MGD_beltzvilleCombined"
+        },
+        "starfit_belowNOR_frac_NORlo_beltzvilleCombined": {
+            "type": "division",
+            "numerator": "volume_beltzvilleCombined",
+            "denominator": "starfit_NORlo_final_unnorm_beltzvilleCombined"
         },
         "starfit_level_beltzvilleCombined": {
             "type": "controlcurveindex",
@@ -4401,38 +4511,6 @@
             "index_col": "reservoir",
             "index": "fewalter"
         },
-        "starfit_Release_max_norm_fewalter": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_Release_max_fewalter",
-                1
-            ]
-        },
-        "starfit_Release_max_final_fewalter": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_Release_max_norm_fewalter",
-                "starfit_GRanD_MEANFLOW_MGD_fewalter"
-            ]
-        },
-        "starfit_Release_min_norm_fewalter": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_Release_min_fewalter",
-                1
-            ]
-        },
-        "starfit_Release_min_final_fewalter": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_Release_min_norm_fewalter",
-                "starfit_GRanD_MEANFLOW_MGD_fewalter"
-            ]
-        },
         "starfit_NORhi_sin_fewalter": {
             "type": "aggregated",
             "agg_func": "product",
@@ -4529,6 +4607,14 @@
             "parameters": [
                 "starfit_NORlo_maxbound_fewalter",
                 0.01
+            ]
+        },
+        "starfit_NORlo_final_unnorm_fewalter": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_NORlo_final_fewalter",
+                "starfit_GRanD_CAP_MG_fewalter"
             ]
         },
         "starfit_neg_NORhi_final_unnorm_fewalter": {
@@ -4650,11 +4736,52 @@
                 "starfit_GRanD_MEANFLOW_MGD_fewalter"
             ]
         },
-        "starfit_belowNOR_final_fewalter": {
+        "starfit_Release_min_norm_fewalter": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "starfit_Release_min_fewalter",
+                1
+            ]
+        },
+        "starfit_Release_min_final_fewalter": {
             "type": "aggregated",
             "agg_func": "product",
             "parameters": [
+                "starfit_Release_min_norm_fewalter",
+                "starfit_GRanD_MEANFLOW_MGD_fewalter"
+            ]
+        },
+        "starfit_belowNOR_pt1_fewalter": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_inNOR_final_fewalter",
+                "starfit_belowNOR_frac_NORlo_fewalter"
+            ]
+        },
+        "starfit_belowNOR_final_fewalter": {
+            "type": "aggregated",
+            "agg_func": "max",
+            "parameters": [
+                "starfit_belowNOR_pt1_fewalter",
                 "starfit_Release_min_final_fewalter"
+            ]
+        },
+        "starfit_Release_max_norm_fewalter": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "starfit_Release_max_fewalter",
+                999999
+            ]
+        },
+        "starfit_Release_max_final_fewalter": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_Release_max_norm_fewalter",
+                "starfit_GRanD_MEANFLOW_MGD_fewalter"
             ]
         },
         "starfit_target_pt2_fewalter": {
@@ -4735,6 +4862,11 @@
             "type": "division",
             "numerator": "starfit_inNOR_inorm_pt1_fewalter",
             "denominator": "starfit_GRanD_MEANFLOW_MGD_fewalter"
+        },
+        "starfit_belowNOR_frac_NORlo_fewalter": {
+            "type": "division",
+            "numerator": "volume_fewalter",
+            "denominator": "starfit_NORlo_final_unnorm_fewalter"
         },
         "starfit_level_fewalter": {
             "type": "controlcurveindex",
@@ -4920,38 +5052,6 @@
             "index_col": "reservoir",
             "index": "merrillCreek"
         },
-        "starfit_Release_max_norm_merrillCreek": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_Release_max_merrillCreek",
-                1
-            ]
-        },
-        "starfit_Release_max_final_merrillCreek": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_Release_max_norm_merrillCreek",
-                "starfit_GRanD_MEANFLOW_MGD_merrillCreek"
-            ]
-        },
-        "starfit_Release_min_norm_merrillCreek": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_Release_min_merrillCreek",
-                1
-            ]
-        },
-        "starfit_Release_min_final_merrillCreek": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_Release_min_norm_merrillCreek",
-                "starfit_GRanD_MEANFLOW_MGD_merrillCreek"
-            ]
-        },
         "starfit_NORhi_sin_merrillCreek": {
             "type": "aggregated",
             "agg_func": "product",
@@ -5048,6 +5148,14 @@
             "parameters": [
                 "starfit_NORlo_maxbound_merrillCreek",
                 0.01
+            ]
+        },
+        "starfit_NORlo_final_unnorm_merrillCreek": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_NORlo_final_merrillCreek",
+                "starfit_GRanD_CAP_MG_merrillCreek"
             ]
         },
         "starfit_neg_NORhi_final_unnorm_merrillCreek": {
@@ -5169,11 +5277,52 @@
                 "starfit_GRanD_MEANFLOW_MGD_merrillCreek"
             ]
         },
-        "starfit_belowNOR_final_merrillCreek": {
+        "starfit_Release_min_norm_merrillCreek": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "starfit_Release_min_merrillCreek",
+                1
+            ]
+        },
+        "starfit_Release_min_final_merrillCreek": {
             "type": "aggregated",
             "agg_func": "product",
             "parameters": [
+                "starfit_Release_min_norm_merrillCreek",
+                "starfit_GRanD_MEANFLOW_MGD_merrillCreek"
+            ]
+        },
+        "starfit_belowNOR_pt1_merrillCreek": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_inNOR_final_merrillCreek",
+                "starfit_belowNOR_frac_NORlo_merrillCreek"
+            ]
+        },
+        "starfit_belowNOR_final_merrillCreek": {
+            "type": "aggregated",
+            "agg_func": "max",
+            "parameters": [
+                "starfit_belowNOR_pt1_merrillCreek",
                 "starfit_Release_min_final_merrillCreek"
+            ]
+        },
+        "starfit_Release_max_norm_merrillCreek": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "starfit_Release_max_merrillCreek",
+                999999
+            ]
+        },
+        "starfit_Release_max_final_merrillCreek": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_Release_max_norm_merrillCreek",
+                "starfit_GRanD_MEANFLOW_MGD_merrillCreek"
             ]
         },
         "starfit_target_pt2_merrillCreek": {
@@ -5254,6 +5403,11 @@
             "type": "division",
             "numerator": "starfit_inNOR_inorm_pt1_merrillCreek",
             "denominator": "starfit_GRanD_MEANFLOW_MGD_merrillCreek"
+        },
+        "starfit_belowNOR_frac_NORlo_merrillCreek": {
+            "type": "division",
+            "numerator": "volume_merrillCreek",
+            "denominator": "starfit_NORlo_final_unnorm_merrillCreek"
         },
         "starfit_level_merrillCreek": {
             "type": "controlcurveindex",
@@ -5439,38 +5593,6 @@
             "index_col": "reservoir",
             "index": "hopatcong"
         },
-        "starfit_Release_max_norm_hopatcong": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_Release_max_hopatcong",
-                1
-            ]
-        },
-        "starfit_Release_max_final_hopatcong": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_Release_max_norm_hopatcong",
-                "starfit_GRanD_MEANFLOW_MGD_hopatcong"
-            ]
-        },
-        "starfit_Release_min_norm_hopatcong": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_Release_min_hopatcong",
-                1
-            ]
-        },
-        "starfit_Release_min_final_hopatcong": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_Release_min_norm_hopatcong",
-                "starfit_GRanD_MEANFLOW_MGD_hopatcong"
-            ]
-        },
         "starfit_NORhi_sin_hopatcong": {
             "type": "aggregated",
             "agg_func": "product",
@@ -5567,6 +5689,14 @@
             "parameters": [
                 "starfit_NORlo_maxbound_hopatcong",
                 0.01
+            ]
+        },
+        "starfit_NORlo_final_unnorm_hopatcong": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_NORlo_final_hopatcong",
+                "starfit_GRanD_CAP_MG_hopatcong"
             ]
         },
         "starfit_neg_NORhi_final_unnorm_hopatcong": {
@@ -5688,11 +5818,52 @@
                 "starfit_GRanD_MEANFLOW_MGD_hopatcong"
             ]
         },
-        "starfit_belowNOR_final_hopatcong": {
+        "starfit_Release_min_norm_hopatcong": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "starfit_Release_min_hopatcong",
+                1
+            ]
+        },
+        "starfit_Release_min_final_hopatcong": {
             "type": "aggregated",
             "agg_func": "product",
             "parameters": [
+                "starfit_Release_min_norm_hopatcong",
+                "starfit_GRanD_MEANFLOW_MGD_hopatcong"
+            ]
+        },
+        "starfit_belowNOR_pt1_hopatcong": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_inNOR_final_hopatcong",
+                "starfit_belowNOR_frac_NORlo_hopatcong"
+            ]
+        },
+        "starfit_belowNOR_final_hopatcong": {
+            "type": "aggregated",
+            "agg_func": "max",
+            "parameters": [
+                "starfit_belowNOR_pt1_hopatcong",
                 "starfit_Release_min_final_hopatcong"
+            ]
+        },
+        "starfit_Release_max_norm_hopatcong": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "starfit_Release_max_hopatcong",
+                999999
+            ]
+        },
+        "starfit_Release_max_final_hopatcong": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_Release_max_norm_hopatcong",
+                "starfit_GRanD_MEANFLOW_MGD_hopatcong"
             ]
         },
         "starfit_target_pt2_hopatcong": {
@@ -5773,6 +5944,11 @@
             "type": "division",
             "numerator": "starfit_inNOR_inorm_pt1_hopatcong",
             "denominator": "starfit_GRanD_MEANFLOW_MGD_hopatcong"
+        },
+        "starfit_belowNOR_frac_NORlo_hopatcong": {
+            "type": "division",
+            "numerator": "volume_hopatcong",
+            "denominator": "starfit_NORlo_final_unnorm_hopatcong"
         },
         "starfit_level_hopatcong": {
             "type": "controlcurveindex",
@@ -5958,38 +6134,6 @@
             "index_col": "reservoir",
             "index": "nockamixon"
         },
-        "starfit_Release_max_norm_nockamixon": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_Release_max_nockamixon",
-                1
-            ]
-        },
-        "starfit_Release_max_final_nockamixon": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_Release_max_norm_nockamixon",
-                "starfit_GRanD_MEANFLOW_MGD_nockamixon"
-            ]
-        },
-        "starfit_Release_min_norm_nockamixon": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_Release_min_nockamixon",
-                1
-            ]
-        },
-        "starfit_Release_min_final_nockamixon": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_Release_min_norm_nockamixon",
-                "starfit_GRanD_MEANFLOW_MGD_nockamixon"
-            ]
-        },
         "starfit_NORhi_sin_nockamixon": {
             "type": "aggregated",
             "agg_func": "product",
@@ -6086,6 +6230,14 @@
             "parameters": [
                 "starfit_NORlo_maxbound_nockamixon",
                 0.01
+            ]
+        },
+        "starfit_NORlo_final_unnorm_nockamixon": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_NORlo_final_nockamixon",
+                "starfit_GRanD_CAP_MG_nockamixon"
             ]
         },
         "starfit_neg_NORhi_final_unnorm_nockamixon": {
@@ -6207,11 +6359,52 @@
                 "starfit_GRanD_MEANFLOW_MGD_nockamixon"
             ]
         },
-        "starfit_belowNOR_final_nockamixon": {
+        "starfit_Release_min_norm_nockamixon": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "starfit_Release_min_nockamixon",
+                1
+            ]
+        },
+        "starfit_Release_min_final_nockamixon": {
             "type": "aggregated",
             "agg_func": "product",
             "parameters": [
+                "starfit_Release_min_norm_nockamixon",
+                "starfit_GRanD_MEANFLOW_MGD_nockamixon"
+            ]
+        },
+        "starfit_belowNOR_pt1_nockamixon": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_inNOR_final_nockamixon",
+                "starfit_belowNOR_frac_NORlo_nockamixon"
+            ]
+        },
+        "starfit_belowNOR_final_nockamixon": {
+            "type": "aggregated",
+            "agg_func": "max",
+            "parameters": [
+                "starfit_belowNOR_pt1_nockamixon",
                 "starfit_Release_min_final_nockamixon"
+            ]
+        },
+        "starfit_Release_max_norm_nockamixon": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "starfit_Release_max_nockamixon",
+                999999
+            ]
+        },
+        "starfit_Release_max_final_nockamixon": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_Release_max_norm_nockamixon",
+                "starfit_GRanD_MEANFLOW_MGD_nockamixon"
             ]
         },
         "starfit_target_pt2_nockamixon": {
@@ -6292,6 +6485,11 @@
             "type": "division",
             "numerator": "starfit_inNOR_inorm_pt1_nockamixon",
             "denominator": "starfit_GRanD_MEANFLOW_MGD_nockamixon"
+        },
+        "starfit_belowNOR_frac_NORlo_nockamixon": {
+            "type": "division",
+            "numerator": "volume_nockamixon",
+            "denominator": "starfit_NORlo_final_unnorm_nockamixon"
         },
         "starfit_level_nockamixon": {
             "type": "controlcurveindex",
@@ -6477,38 +6675,6 @@
             "index_col": "reservoir",
             "index": "assunpink"
         },
-        "starfit_Release_max_norm_assunpink": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_Release_max_assunpink",
-                1
-            ]
-        },
-        "starfit_Release_max_final_assunpink": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_Release_max_norm_assunpink",
-                "starfit_GRanD_MEANFLOW_MGD_assunpink"
-            ]
-        },
-        "starfit_Release_min_norm_assunpink": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_Release_min_assunpink",
-                1
-            ]
-        },
-        "starfit_Release_min_final_assunpink": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_Release_min_norm_assunpink",
-                "starfit_GRanD_MEANFLOW_MGD_assunpink"
-            ]
-        },
         "starfit_NORhi_sin_assunpink": {
             "type": "aggregated",
             "agg_func": "product",
@@ -6605,6 +6771,14 @@
             "parameters": [
                 "starfit_NORlo_maxbound_assunpink",
                 0.01
+            ]
+        },
+        "starfit_NORlo_final_unnorm_assunpink": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_NORlo_final_assunpink",
+                "starfit_GRanD_CAP_MG_assunpink"
             ]
         },
         "starfit_neg_NORhi_final_unnorm_assunpink": {
@@ -6726,11 +6900,52 @@
                 "starfit_GRanD_MEANFLOW_MGD_assunpink"
             ]
         },
-        "starfit_belowNOR_final_assunpink": {
+        "starfit_Release_min_norm_assunpink": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "starfit_Release_min_assunpink",
+                1
+            ]
+        },
+        "starfit_Release_min_final_assunpink": {
             "type": "aggregated",
             "agg_func": "product",
             "parameters": [
+                "starfit_Release_min_norm_assunpink",
+                "starfit_GRanD_MEANFLOW_MGD_assunpink"
+            ]
+        },
+        "starfit_belowNOR_pt1_assunpink": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_inNOR_final_assunpink",
+                "starfit_belowNOR_frac_NORlo_assunpink"
+            ]
+        },
+        "starfit_belowNOR_final_assunpink": {
+            "type": "aggregated",
+            "agg_func": "max",
+            "parameters": [
+                "starfit_belowNOR_pt1_assunpink",
                 "starfit_Release_min_final_assunpink"
+            ]
+        },
+        "starfit_Release_max_norm_assunpink": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "starfit_Release_max_assunpink",
+                999999
+            ]
+        },
+        "starfit_Release_max_final_assunpink": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_Release_max_norm_assunpink",
+                "starfit_GRanD_MEANFLOW_MGD_assunpink"
             ]
         },
         "starfit_target_pt2_assunpink": {
@@ -6811,6 +7026,11 @@
             "type": "division",
             "numerator": "starfit_inNOR_inorm_pt1_assunpink",
             "denominator": "starfit_GRanD_MEANFLOW_MGD_assunpink"
+        },
+        "starfit_belowNOR_frac_NORlo_assunpink": {
+            "type": "division",
+            "numerator": "volume_assunpink",
+            "denominator": "starfit_NORlo_final_unnorm_assunpink"
         },
         "starfit_level_assunpink": {
             "type": "controlcurveindex",
@@ -6996,38 +7216,6 @@
             "index_col": "reservoir",
             "index": "ontelaunee"
         },
-        "starfit_Release_max_norm_ontelaunee": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_Release_max_ontelaunee",
-                1
-            ]
-        },
-        "starfit_Release_max_final_ontelaunee": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_Release_max_norm_ontelaunee",
-                "starfit_GRanD_MEANFLOW_MGD_ontelaunee"
-            ]
-        },
-        "starfit_Release_min_norm_ontelaunee": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_Release_min_ontelaunee",
-                1
-            ]
-        },
-        "starfit_Release_min_final_ontelaunee": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_Release_min_norm_ontelaunee",
-                "starfit_GRanD_MEANFLOW_MGD_ontelaunee"
-            ]
-        },
         "starfit_NORhi_sin_ontelaunee": {
             "type": "aggregated",
             "agg_func": "product",
@@ -7124,6 +7312,14 @@
             "parameters": [
                 "starfit_NORlo_maxbound_ontelaunee",
                 0.01
+            ]
+        },
+        "starfit_NORlo_final_unnorm_ontelaunee": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_NORlo_final_ontelaunee",
+                "starfit_GRanD_CAP_MG_ontelaunee"
             ]
         },
         "starfit_neg_NORhi_final_unnorm_ontelaunee": {
@@ -7245,11 +7441,52 @@
                 "starfit_GRanD_MEANFLOW_MGD_ontelaunee"
             ]
         },
-        "starfit_belowNOR_final_ontelaunee": {
+        "starfit_Release_min_norm_ontelaunee": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "starfit_Release_min_ontelaunee",
+                1
+            ]
+        },
+        "starfit_Release_min_final_ontelaunee": {
             "type": "aggregated",
             "agg_func": "product",
             "parameters": [
+                "starfit_Release_min_norm_ontelaunee",
+                "starfit_GRanD_MEANFLOW_MGD_ontelaunee"
+            ]
+        },
+        "starfit_belowNOR_pt1_ontelaunee": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_inNOR_final_ontelaunee",
+                "starfit_belowNOR_frac_NORlo_ontelaunee"
+            ]
+        },
+        "starfit_belowNOR_final_ontelaunee": {
+            "type": "aggregated",
+            "agg_func": "max",
+            "parameters": [
+                "starfit_belowNOR_pt1_ontelaunee",
                 "starfit_Release_min_final_ontelaunee"
+            ]
+        },
+        "starfit_Release_max_norm_ontelaunee": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "starfit_Release_max_ontelaunee",
+                999999
+            ]
+        },
+        "starfit_Release_max_final_ontelaunee": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_Release_max_norm_ontelaunee",
+                "starfit_GRanD_MEANFLOW_MGD_ontelaunee"
             ]
         },
         "starfit_target_pt2_ontelaunee": {
@@ -7330,6 +7567,11 @@
             "type": "division",
             "numerator": "starfit_inNOR_inorm_pt1_ontelaunee",
             "denominator": "starfit_GRanD_MEANFLOW_MGD_ontelaunee"
+        },
+        "starfit_belowNOR_frac_NORlo_ontelaunee": {
+            "type": "division",
+            "numerator": "volume_ontelaunee",
+            "denominator": "starfit_NORlo_final_unnorm_ontelaunee"
         },
         "starfit_level_ontelaunee": {
             "type": "controlcurveindex",
@@ -7515,38 +7757,6 @@
             "index_col": "reservoir",
             "index": "stillCreek"
         },
-        "starfit_Release_max_norm_stillCreek": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_Release_max_stillCreek",
-                1
-            ]
-        },
-        "starfit_Release_max_final_stillCreek": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_Release_max_norm_stillCreek",
-                "starfit_GRanD_MEANFLOW_MGD_stillCreek"
-            ]
-        },
-        "starfit_Release_min_norm_stillCreek": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_Release_min_stillCreek",
-                1
-            ]
-        },
-        "starfit_Release_min_final_stillCreek": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_Release_min_norm_stillCreek",
-                "starfit_GRanD_MEANFLOW_MGD_stillCreek"
-            ]
-        },
         "starfit_NORhi_sin_stillCreek": {
             "type": "aggregated",
             "agg_func": "product",
@@ -7643,6 +7853,14 @@
             "parameters": [
                 "starfit_NORlo_maxbound_stillCreek",
                 0.01
+            ]
+        },
+        "starfit_NORlo_final_unnorm_stillCreek": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_NORlo_final_stillCreek",
+                "starfit_GRanD_CAP_MG_stillCreek"
             ]
         },
         "starfit_neg_NORhi_final_unnorm_stillCreek": {
@@ -7764,11 +7982,52 @@
                 "starfit_GRanD_MEANFLOW_MGD_stillCreek"
             ]
         },
-        "starfit_belowNOR_final_stillCreek": {
+        "starfit_Release_min_norm_stillCreek": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "starfit_Release_min_stillCreek",
+                1
+            ]
+        },
+        "starfit_Release_min_final_stillCreek": {
             "type": "aggregated",
             "agg_func": "product",
             "parameters": [
+                "starfit_Release_min_norm_stillCreek",
+                "starfit_GRanD_MEANFLOW_MGD_stillCreek"
+            ]
+        },
+        "starfit_belowNOR_pt1_stillCreek": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_inNOR_final_stillCreek",
+                "starfit_belowNOR_frac_NORlo_stillCreek"
+            ]
+        },
+        "starfit_belowNOR_final_stillCreek": {
+            "type": "aggregated",
+            "agg_func": "max",
+            "parameters": [
+                "starfit_belowNOR_pt1_stillCreek",
                 "starfit_Release_min_final_stillCreek"
+            ]
+        },
+        "starfit_Release_max_norm_stillCreek": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "starfit_Release_max_stillCreek",
+                999999
+            ]
+        },
+        "starfit_Release_max_final_stillCreek": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_Release_max_norm_stillCreek",
+                "starfit_GRanD_MEANFLOW_MGD_stillCreek"
             ]
         },
         "starfit_target_pt2_stillCreek": {
@@ -7849,6 +8108,11 @@
             "type": "division",
             "numerator": "starfit_inNOR_inorm_pt1_stillCreek",
             "denominator": "starfit_GRanD_MEANFLOW_MGD_stillCreek"
+        },
+        "starfit_belowNOR_frac_NORlo_stillCreek": {
+            "type": "division",
+            "numerator": "volume_stillCreek",
+            "denominator": "starfit_NORlo_final_unnorm_stillCreek"
         },
         "starfit_level_stillCreek": {
             "type": "controlcurveindex",
@@ -8034,38 +8298,6 @@
             "index_col": "reservoir",
             "index": "blueMarsh"
         },
-        "starfit_Release_max_norm_blueMarsh": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_Release_max_blueMarsh",
-                1
-            ]
-        },
-        "starfit_Release_max_final_blueMarsh": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_Release_max_norm_blueMarsh",
-                "starfit_GRanD_MEANFLOW_MGD_blueMarsh"
-            ]
-        },
-        "starfit_Release_min_norm_blueMarsh": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_Release_min_blueMarsh",
-                1
-            ]
-        },
-        "starfit_Release_min_final_blueMarsh": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_Release_min_norm_blueMarsh",
-                "starfit_GRanD_MEANFLOW_MGD_blueMarsh"
-            ]
-        },
         "starfit_NORhi_sin_blueMarsh": {
             "type": "aggregated",
             "agg_func": "product",
@@ -8162,6 +8394,14 @@
             "parameters": [
                 "starfit_NORlo_maxbound_blueMarsh",
                 0.01
+            ]
+        },
+        "starfit_NORlo_final_unnorm_blueMarsh": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_NORlo_final_blueMarsh",
+                "starfit_GRanD_CAP_MG_blueMarsh"
             ]
         },
         "starfit_neg_NORhi_final_unnorm_blueMarsh": {
@@ -8283,11 +8523,52 @@
                 "starfit_GRanD_MEANFLOW_MGD_blueMarsh"
             ]
         },
-        "starfit_belowNOR_final_blueMarsh": {
+        "starfit_Release_min_norm_blueMarsh": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "starfit_Release_min_blueMarsh",
+                1
+            ]
+        },
+        "starfit_Release_min_final_blueMarsh": {
             "type": "aggregated",
             "agg_func": "product",
             "parameters": [
+                "starfit_Release_min_norm_blueMarsh",
+                "starfit_GRanD_MEANFLOW_MGD_blueMarsh"
+            ]
+        },
+        "starfit_belowNOR_pt1_blueMarsh": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_inNOR_final_blueMarsh",
+                "starfit_belowNOR_frac_NORlo_blueMarsh"
+            ]
+        },
+        "starfit_belowNOR_final_blueMarsh": {
+            "type": "aggregated",
+            "agg_func": "max",
+            "parameters": [
+                "starfit_belowNOR_pt1_blueMarsh",
                 "starfit_Release_min_final_blueMarsh"
+            ]
+        },
+        "starfit_Release_max_norm_blueMarsh": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "starfit_Release_max_blueMarsh",
+                999999
+            ]
+        },
+        "starfit_Release_max_final_blueMarsh": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_Release_max_norm_blueMarsh",
+                "starfit_GRanD_MEANFLOW_MGD_blueMarsh"
             ]
         },
         "starfit_target_pt2_blueMarsh": {
@@ -8368,6 +8649,11 @@
             "type": "division",
             "numerator": "starfit_inNOR_inorm_pt1_blueMarsh",
             "denominator": "starfit_GRanD_MEANFLOW_MGD_blueMarsh"
+        },
+        "starfit_belowNOR_frac_NORlo_blueMarsh": {
+            "type": "division",
+            "numerator": "volume_blueMarsh",
+            "denominator": "starfit_NORlo_final_unnorm_blueMarsh"
         },
         "starfit_level_blueMarsh": {
             "type": "controlcurveindex",
@@ -8553,38 +8839,6 @@
             "index_col": "reservoir",
             "index": "greenLane"
         },
-        "starfit_Release_max_norm_greenLane": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_Release_max_greenLane",
-                1
-            ]
-        },
-        "starfit_Release_max_final_greenLane": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_Release_max_norm_greenLane",
-                "starfit_GRanD_MEANFLOW_MGD_greenLane"
-            ]
-        },
-        "starfit_Release_min_norm_greenLane": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_Release_min_greenLane",
-                1
-            ]
-        },
-        "starfit_Release_min_final_greenLane": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_Release_min_norm_greenLane",
-                "starfit_GRanD_MEANFLOW_MGD_greenLane"
-            ]
-        },
         "starfit_NORhi_sin_greenLane": {
             "type": "aggregated",
             "agg_func": "product",
@@ -8681,6 +8935,14 @@
             "parameters": [
                 "starfit_NORlo_maxbound_greenLane",
                 0.01
+            ]
+        },
+        "starfit_NORlo_final_unnorm_greenLane": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_NORlo_final_greenLane",
+                "starfit_GRanD_CAP_MG_greenLane"
             ]
         },
         "starfit_neg_NORhi_final_unnorm_greenLane": {
@@ -8802,11 +9064,52 @@
                 "starfit_GRanD_MEANFLOW_MGD_greenLane"
             ]
         },
-        "starfit_belowNOR_final_greenLane": {
+        "starfit_Release_min_norm_greenLane": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "starfit_Release_min_greenLane",
+                1
+            ]
+        },
+        "starfit_Release_min_final_greenLane": {
             "type": "aggregated",
             "agg_func": "product",
             "parameters": [
+                "starfit_Release_min_norm_greenLane",
+                "starfit_GRanD_MEANFLOW_MGD_greenLane"
+            ]
+        },
+        "starfit_belowNOR_pt1_greenLane": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_inNOR_final_greenLane",
+                "starfit_belowNOR_frac_NORlo_greenLane"
+            ]
+        },
+        "starfit_belowNOR_final_greenLane": {
+            "type": "aggregated",
+            "agg_func": "max",
+            "parameters": [
+                "starfit_belowNOR_pt1_greenLane",
                 "starfit_Release_min_final_greenLane"
+            ]
+        },
+        "starfit_Release_max_norm_greenLane": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "starfit_Release_max_greenLane",
+                999999
+            ]
+        },
+        "starfit_Release_max_final_greenLane": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_Release_max_norm_greenLane",
+                "starfit_GRanD_MEANFLOW_MGD_greenLane"
             ]
         },
         "starfit_target_pt2_greenLane": {
@@ -8887,6 +9190,11 @@
             "type": "division",
             "numerator": "starfit_inNOR_inorm_pt1_greenLane",
             "denominator": "starfit_GRanD_MEANFLOW_MGD_greenLane"
+        },
+        "starfit_belowNOR_frac_NORlo_greenLane": {
+            "type": "division",
+            "numerator": "volume_greenLane",
+            "denominator": "starfit_NORlo_final_unnorm_greenLane"
         },
         "starfit_level_greenLane": {
             "type": "controlcurveindex",
@@ -9072,38 +9380,6 @@
             "index_col": "reservoir",
             "index": "marshCreek"
         },
-        "starfit_Release_max_norm_marshCreek": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_Release_max_marshCreek",
-                1
-            ]
-        },
-        "starfit_Release_max_final_marshCreek": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_Release_max_norm_marshCreek",
-                "starfit_GRanD_MEANFLOW_MGD_marshCreek"
-            ]
-        },
-        "starfit_Release_min_norm_marshCreek": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "starfit_Release_min_marshCreek",
-                1
-            ]
-        },
-        "starfit_Release_min_final_marshCreek": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "starfit_Release_min_norm_marshCreek",
-                "starfit_GRanD_MEANFLOW_MGD_marshCreek"
-            ]
-        },
         "starfit_NORhi_sin_marshCreek": {
             "type": "aggregated",
             "agg_func": "product",
@@ -9200,6 +9476,14 @@
             "parameters": [
                 "starfit_NORlo_maxbound_marshCreek",
                 0.01
+            ]
+        },
+        "starfit_NORlo_final_unnorm_marshCreek": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_NORlo_final_marshCreek",
+                "starfit_GRanD_CAP_MG_marshCreek"
             ]
         },
         "starfit_neg_NORhi_final_unnorm_marshCreek": {
@@ -9321,11 +9605,52 @@
                 "starfit_GRanD_MEANFLOW_MGD_marshCreek"
             ]
         },
-        "starfit_belowNOR_final_marshCreek": {
+        "starfit_Release_min_norm_marshCreek": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "starfit_Release_min_marshCreek",
+                1
+            ]
+        },
+        "starfit_Release_min_final_marshCreek": {
             "type": "aggregated",
             "agg_func": "product",
             "parameters": [
+                "starfit_Release_min_norm_marshCreek",
+                "starfit_GRanD_MEANFLOW_MGD_marshCreek"
+            ]
+        },
+        "starfit_belowNOR_pt1_marshCreek": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_inNOR_final_marshCreek",
+                "starfit_belowNOR_frac_NORlo_marshCreek"
+            ]
+        },
+        "starfit_belowNOR_final_marshCreek": {
+            "type": "aggregated",
+            "agg_func": "max",
+            "parameters": [
+                "starfit_belowNOR_pt1_marshCreek",
                 "starfit_Release_min_final_marshCreek"
+            ]
+        },
+        "starfit_Release_max_norm_marshCreek": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "starfit_Release_max_marshCreek",
+                999999
+            ]
+        },
+        "starfit_Release_max_final_marshCreek": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "starfit_Release_max_norm_marshCreek",
+                "starfit_GRanD_MEANFLOW_MGD_marshCreek"
             ]
         },
         "starfit_target_pt2_marshCreek": {
@@ -9406,6 +9731,11 @@
             "type": "division",
             "numerator": "starfit_inNOR_inorm_pt1_marshCreek",
             "denominator": "starfit_GRanD_MEANFLOW_MGD_marshCreek"
+        },
+        "starfit_belowNOR_frac_NORlo_marshCreek": {
+            "type": "division",
+            "numerator": "volume_marshCreek",
+            "denominator": "starfit_NORlo_final_unnorm_marshCreek"
         },
         "starfit_level_marshCreek": {
             "type": "controlcurveindex",
