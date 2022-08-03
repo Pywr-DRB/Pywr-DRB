@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 from math import pi, sin, cos
 
+
 def starfit_reservoir_simulation(starfit_df, reservoir_name, inflow, S_initial):
     """
     Simulates reservoir storage and release using STARFIT parameters.
@@ -121,7 +122,11 @@ def starfit_reservoir_simulation(starfit_df, reservoir_name, inflow, S_initial):
         elif (S_hat > NOR_hi):
             target_R = min(S_cap * (S_hat - NOR_hi) + I_t, R_max)
         else:
-            target_R = R_min
+            #target_R = R_min
+
+            # EXPERIMENT
+            tR = (I_bar * (release_harmonic(time) + release_adjustment(S_hat, time)) + I_bar) * (1 - (NOR_lo - S_hat)/NOR_lo)
+            target_R = max(tR, R_min)
         return target_R
 
 

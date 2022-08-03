@@ -14,15 +14,28 @@ import matplotlib.pyplot as plt
 
 # Custom simulation and harmonic functions using STARFIT params
 
-from simulate_reservoir_daily import sim_starfit_reservoir_daily
+from simulate_reservoir_daily import starfit_reservoir_simulation
 from simulate_reservoir_daily import NOR_hi, NOR_lo, release_harmonic
 
 
+def error_calculation(obs, sim, error_type = 'NSE'):
+    if error_type == 'RMSE':
+        return np.sqrt(np.nanmean( (sim - obs)**2 ))
+    elif error_type == 'NSE':
+        return (1 - np.nansum((obs - sim)**2) / (np.nansum((obs - np.nanmean(obs))**2)))
+    else:
+        print('Incorrect error type specification.')
+        return
+
+
+
+
 ### Load STARFIT conus data for reservoirs in DRB
-starfit = pd.read_csv('../model_data/drb_model_istarf_conus.csv')
+starfit = pd.read_csv('drb_model_istarf_conus.csv')
 reservoirs = [res for res in starfit['reservoir']]
 reservoir_ids = [id for id in starfit['GRanD_ID']]
 reservoir_names = [name for name in starfit['GRanD_NAME']]
+
 
 
 
@@ -81,8 +94,6 @@ for i in [4]:
 
     # Select one of the inflow timeseries
     sim_inflow = resops_inflow
-    #inflow_lab = 'Constant Inflow: Historic Mean'
-    #inflow_lab = 'Random inflow: ~N(Mean, 200)'
     inflow_lab = 'ResOpsUS Most Recent Year'
 
     # Initialize vectors
@@ -105,10 +116,15 @@ for i in [4]:
     S_initial = resops_storage[0]
 
       
-    result = sim_starfit_reservoir_daily(starfit, reservoirs[i], sim_inflow, S_initial)
+    result = starfit_reservoir_simulation(starfit, reservoirs[i], sim_inflow, S_initial)
 
     S = result['storage']
     R = result['outflow']
+
+
+    # Calculate error
+    error = error_calculation(resops_outflow, R, error_type = 'RMSE')
+
 
     # Plot outputs
     x = np.arange(n_time)
@@ -142,8 +158,6 @@ for i in [4]:
 
     # Simulated storage with NOR
     plt.plot(x, S, label = 'Storage')
-    plt.plot(x, (S_cap * NOR_hi_harmonic/100), color = 'black', alpha = 0.3, label = 'NOR Bounds', linestyle = 'dashed')
-    plt.plot(x, (S_cap * NOR_lo_harmonic/100), color = 'black', alpha = 0.3, linestyle = 'dashed')
     plt.title(f'{reservoir_lab} Reservoir\nSimulated Storage:\n {inflow_lab}')
     plt.ylabel('Storage Volume (MG)')
     plt.xlabel(x_lab)
@@ -167,6 +181,9 @@ for i in [4]:
 
     plt.plot(x, R, label = 'Sim. R')
     plt.plot(range(len(resops_outflow)), resops_outflow, color = 'red', label = 'Observed', linestyle = 'dashed')
+    text_x_coord = 0.75 * len(resops_outflow)
+    text_y_coord = 0.75 * max(resops_outflow)
+    plt.text(text_x_coord, text_y_coord, str(f'RMSE: {error:.2f}'))
     plt.title(f'{reservoir_lab} Reservoir\nComparison between observed outflow and simulated releases')
     plt.xlabel(x_lab)
     plt.ylabel('Flow (MGD)')
@@ -178,8 +195,8 @@ for i in [4]:
 
     plt.plot(x, S, label = 'Sim. S')
     plt.plot(x, resops_storage, label = 'Obs. S', color = 'red', linestyle = 'dashed')
-    plt.plot(x, (S_cap * NOR_hi_harmonic/100), color = 'black', alpha = 0.3, label = 'NOR Bounds', linestyle = 'dashed')
-    plt.plot(x, (S_cap * NOR_lo_harmonic/100), color = 'black', alpha = 0.3, linestyle = 'dashed')
+    plt.plot(x, (NOR_hi_harmonic* S_cap), label = 'NOR Bounds', color = 'black', alpha = 0.2, linestyle='dashed')
+    plt.plot(x, (NOR_lo_harmonic*S_cap), color = 'black', alpha = 0.2, linestyle='dashed')
     plt.title(f'{reservoir_lab} Reservoir\nComparison between observed and simulated storage')
     plt.ylabel('Storage Volume (MG)')
     plt.xlabel(x_lab)
