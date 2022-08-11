@@ -2,12 +2,18 @@ node1,node2,type,notes
 catchment_cannonsville,reservoir_cannonsville,tributary,upper delaware
 reservoir_cannonsville,link_cannonsville_nyc,diversion,
 link_cannonsville_nyc,demand_nyc,diversion,tunnels to nyc
-reservoir_cannonsville,outflow_cannonsville,mainstem,
+reservoir_cannonsville,link_cannonsville_outflow_1,mainstem,
+reservoir_cannonsville,link_cannonsville_outflow_2,mainstem,
+link_cannonsville_outflow_1,outflow_cannonsville,mainstem,
+link_cannonsville_outflow_2,outflow_cannonsville,mainstem,
 outflow_cannonsville,link_delLordville,mainstem,
 catchment_pepacton,reservoir_pepacton,tributary,EB delaware
 reservoir_pepacton,link_pepacton_nyc,diversion,
 link_pepacton_nyc,demand_nyc,diversion,tunnels to nyc
-reservoir_pepacton,outflow_pepacton,tributary,
+reservoir_pepacton,link_pepacton_outflow_1,tributary,
+reservoir_pepacton,link_pepacton_outflow_2,tributary,
+link_pepacton_outflow_1,outflow_pepacton,tributary,
+link_pepacton_outflow_2,outflow_pepacton,tributary,
 outflow_pepacton,link_delLordville,tributary,
 catchment_delLordville,link_delLordville,mainstem,gain to delLordville gage minus cannonsville & pepacton releases
 link_delLordville,link_delMontague,mainstem,
@@ -26,7 +32,10 @@ outflow_mongaupeCombined,link_delMontague,tributary,
 catchment_neversink,reservoir_neversink,tributary,
 reservoir_neversink,link_neversink_nyc,diversion,
 link_neversink_nyc,demand_nyc,diversion,tunnels to nyc
-reservoir_neversink,outflow_neversink,tributary,
+reservoir_neversink,link_neversink_outflow_1,tributary,
+reservoir_neversink,link_neversink_outflow_2,tributary,
+link_neversink_outflow_1,outflow_neversink,tributary,
+link_neversink_outflow_2,outflow_neversink,tributary,
 outflow_neversink,link_delMontague,tributary,
 catchment_delMontague,link_delMontague,tributary,
 link_delMontague,outflow_montague,mainstem,
