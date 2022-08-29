@@ -12,7 +12,11 @@ import pandas as pd
 from math import pi, sin, cos
 
 
-def starfit_reservoir_simulation(starfit_df, reservoir_name, inflow, S_initial):
+def starfit_reservoir_simulation(starfit_df,
+                                reservoir_name,
+                                inflow,
+                                S_initial,
+                                start_month = 'Oct'):
     """
     Simulates reservoir storage and release using STARFIT parameters.
     NOTE: Data must begin on the Oct-1 (start of water year).
@@ -21,19 +25,20 @@ def starfit_reservoir_simulation(starfit_df, reservoir_name, inflow, S_initial):
     ----------
     starfit_df : DataFrame
         A dataframe containing all starfit data for reservoirs in the basin.
-    reservoir : str
+    reservoir_name : str
         The name of the reservoir to be simulated.
     inflow : array [1 x 365-days]
         An array containing a timeseries of inflow values into the reservoir;
         daily time-step.
     S_initial : float
         The initial storage in the reservoir.
+    start_month : str
+        The starting month of the simulation period. Options are 'Oct' or 'Jan'.
+        Default = 'Oct'
 
     Returns:
-    storage : array
-        An array of daily reservoir storage volumes.
-    releases : array
-        An array of daily reservoir release volumes.
+    result : pd.DataFrame
+        A data frame containing 'storage' and 'outflow' timeseries arrays.
     """
 
     # Find the index of the desired reservoir
@@ -53,24 +58,37 @@ def starfit_reservoir_simulation(starfit_df, reservoir_name, inflow, S_initial):
     I_bar = data['GRanD_MEANFLOW_MGD'].values
     S_cap = data['GRanD_CAP_MG'].values
 
+    def sinNpi(day, N, first_month = 'Oct'):
+        if first_month == 'Oct':
+            return sin(N * pi * (day)/52)
+        elif first_month == 'Jan':
+            return sin(N * pi * (day+39)/52)
+
+    def cosNpi(day, N, first_month = 'Oct'):
+        if first_month == 'Oct':
+            return cos(N * pi * (day)/52)
+        elif first_month == 'Jan':
+            return cos(N * pi * (day+39)/52)
+
+
     # Define the average daily release function
-    def release_harmonic(time, timestep = 'daily'):
+    def release_harmonic(time, timestep = 'daily', first_month = 'Oct'):
         if timestep == 'daily':
             time = time/7
-        R_avg_t = (data['Release_alpha1'] * sin(2 * pi * (time + 39)/52) +
-                 data['Release_alpha2'] * sin(4 * pi * (time + 39)/52) +
-                 data['Release_beta1'] * cos(2 * pi * (time + 39)/52) +
-                 data['Release_beta2'] * cos(4 * pi * (time + 39)/52))
+        R_avg_t = (data['Release_alpha1'] * sinNpi(time, 2, first_month = 'Oct') +
+                 data['Release_alpha2'] * sinNpi(time, 4, first_month = first_month) +
+                 data['Release_beta1'] * cosNpi(time, 2, first_month = first_month) +
+                 data['Release_beta2'] * cosNpi(time, 4, first_month = first_month))
         return R_avg_t.values[0]
 
     # Calculate daily values of the upper NOR bound
-    def calc_NOR_hi(time, timestep = 'daily'):
+    def calc_NOR_hi(time, timestep = 'daily', first_month = 'Oct'):
         # NOR harmonic is at weekly step
         if timestep == 'daily':
             time = time/7
 
-        NOR_hi = (data['NORhi_mu'] + data['NORhi_alpha'] * sin(2*pi*(time + 39)/52) +
-                     data['NORhi_beta'] * cos(2*pi*(time + 39)/52))
+        NOR_hi = (data['NORhi_mu'] + data['NORhi_alpha'] * sinNpi(time, 2, first_month = first_month) +
+                     data['NORhi_beta'] * cosNpi(time, 2, first_month = first_month))
 
         if (NOR_hi < data['NORhi_min']).bool():
             NOR_hi = data['NORhi_min']
@@ -79,13 +97,13 @@ def starfit_reservoir_simulation(starfit_df, reservoir_name, inflow, S_initial):
         return (NOR_hi.values/100)
 
     # Calculate daily values of the lower NOR bound
-    def calc_NOR_lo(time, timestep = 'daily'):
+    def calc_NOR_lo(time, timestep = 'daily', first_month = 'Oct'):
         # NOR harmonic is at weekly step
         if timestep == 'daily':
             time = time/7
 
-        NOR_lo = (data['NORlo_mu'] + data['NORlo_alpha'] * sin(2*pi*(time + 39)/52) +
-                     data['NORlo_beta'] * cos(2*pi*(time + 39)/52))
+        NOR_lo = (data['NORlo_mu'] + data['NORlo_alpha'] * sinNpi(time, 2, first_month = first_month) +
+                     data['NORlo_beta'] * cosNpi(time, 2, first_month = first_month))
 
         if (NOR_lo < data['NORlo_min']).bool():
             NOR_lo = data['NORlo_min']
@@ -102,8 +120,8 @@ def starfit_reservoir_simulation(starfit_df, reservoir_name, inflow, S_initial):
         return (S_t / S_cap)
 
     # Define the daily release adjustement function
-    def release_adjustment(S_hat, time, timestep = 'daily'):
-        A_t = (S_hat - calc_NOR_lo(time, timestep = timestep)) / (calc_NOR_hi(time, timestep = timestep) - calc_NOR_lo(time, timestep = timestep))
+    def release_adjustment(S_hat, time, timestep = 'daily', first_month = 'Oct'):
+        A_t = (S_hat - calc_NOR_lo(time, timestep = timestep, first_month = first_month)) / (calc_NOR_hi(time, timestep = timestep, first_month = first_month) - calc_NOR_lo(time, timestep = timestep, first_month = first_month))
         I_hat = standardize_inflow(inflow[time])
 
         epsilon = (data['Release_c'] + data['Release_p1']*A_t +
@@ -111,21 +129,20 @@ def starfit_reservoir_simulation(starfit_df, reservoir_name, inflow, S_initial):
         return epsilon.values
 
     # Calculate the conditional target release volume
-    def target_release(S_hat, I_t, time, R_previous):
-        NOR_hi = calc_NOR_hi(time)
-        NOR_lo = calc_NOR_lo(time)
+    def target_release(S_hat, I_t, time, R_previous, first_month = 'Oct'):
+        NOR_hi = calc_NOR_hi(time, first_month = first_month)
+        NOR_lo = calc_NOR_lo(time, first_month = first_month)
 
         if (S_hat <= NOR_hi) and (S_hat >= NOR_lo):
-            target_R = min(I_bar * (release_harmonic(time) +
-                                    release_adjustment(S_hat, time))
+            target_R = min(I_bar * (release_harmonic(time, first_month = first_month) +
+                                    release_adjustment(S_hat, time, first_month = first_month))
                            + I_bar, R_max)
         elif (S_hat > NOR_hi):
             target_R = min(S_cap * (S_hat - NOR_hi) + I_t, R_max)
         else:
             #target_R = R_min
 
-            # EXPERIMENT
-            tR = (I_bar * (release_harmonic(time) + release_adjustment(S_hat, time)) + I_bar) * (1 - (NOR_lo - S_hat)/NOR_lo)
+            tR = (I_bar * (release_harmonic(time, first_month = first_month) + release_adjustment(S_hat, time, first_month = first_month)) + I_bar) * (1 - (NOR_lo - S_hat)/NOR_lo)
             target_R = max(tR, R_min)
         return target_R
 
@@ -148,7 +165,7 @@ def starfit_reservoir_simulation(starfit_df, reservoir_name, inflow, S_initial):
 
         I = inflow[d]
         S_hat[d] = percent_storage(S[d])
-        target_R = target_release(S_hat[d], I, d, R[d-1])
+        target_R = target_release(S_hat[d], I, d, R[d-1], first_month = start_month)
         R[d] = actual_release(target_R, I, S[d])
 
         S[d + 1] = S[d] + I - R[d]
@@ -161,7 +178,6 @@ def starfit_reservoir_simulation(starfit_df, reservoir_name, inflow, S_initial):
 # Define release, and NOR harmonics for independent use
 ################################################################################
 
-
 # Define the average daily release function
 def release_harmonic(data, time, timestep = 'daily'):
     if timestep == 'daily':
@@ -171,6 +187,7 @@ def release_harmonic(data, time, timestep = 'daily'):
              data['Release_beta1'] * cos(2 * pi * (time + 39)/52) +
              data['Release_beta2'] * cos(4 * pi * (time + 39)/52))
     return R_avg_t
+
 
 # Calculate daily values of the upper NOR bound
 def NOR_hi(data, time, timestep = 'daily'):
