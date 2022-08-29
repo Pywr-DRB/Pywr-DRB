@@ -14,6 +14,10 @@ model = json.load(open(model_base_file, 'r'))
 starfit_remove_Rmax = True
 starfit_linear_below_NOR = True
 
+### specify inflow type
+inflow_type = 'WEAP_23Aug2022_gridmet'  ## obs_noScaled, obs_scaled, obs_scaled_2, nhmv10_noScaled, nhmv10_scaled, nwmv21_noScaled, nwmv21_scaled, WEAP_23Aug2022_gridmet
+backup_inflow_type = 'nhmv10_noScaled'  ## for WEAP inflow type, we dont have all reservoirs. use this secondary type for those.
+
 ### load nodes from spreadsheet & add elements as dict items
 sheet = 'nodes'
 df = pd.read_csv(model_sheets_start + sheet + '.csv')
@@ -237,7 +241,22 @@ for i in range(df.shape[0]):
         model[sheet][name] = {}
         for j, col in enumerate(df.columns[1:], start=1):
             val = df.iloc[i,j]
-            if isinstance(val, int):
+            ### if url is placeholder_inflow, fill in inflow data based on user specified inflow scenario
+            if col == 'url' and val == 'placeholder_inflow':
+                if 'WEAP' not in inflow_type:
+                    model[sheet][name][col] = f'../input_data/inflows_{inflow_type}.csv'
+                else:
+                    node = df['column'].iloc[i]
+                    if node in ['cannonsville', 'pepacton', 'neversink', 'wallenpaupack', 'promption',
+                                     'mongaupeCombined', 'beltzvilleCombined', 'blueMarsh', 'ontelaunee',
+                                     'nockamixon', 'assunpink']:
+                        model[sheet][name][col] = f'../input_data/inflows_{inflow_type}.csv'
+                    else:
+                        model[sheet][name][col] = f'../input_data/inflows_{backup_inflow_type}.csv'
+
+
+            ### fill in based on data type
+            elif isinstance(val, int):
                 model[sheet][name][col] = val
             elif isinstance(val, str):
                 ### if it's a list, need to convert from str to actual list

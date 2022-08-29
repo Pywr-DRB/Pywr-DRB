@@ -1,7 +1,7 @@
 node1,node2,type,notes
 catchment_cannonsville,reservoir_cannonsville,tributary,upper delaware
 reservoir_cannonsville,link_cannonsville_nyc,diversion,
-link_cannonsville_nyc,demand_nyc,diversion,tunnels to nyc
+link_cannonsville_nyc,delivery_nyc,diversion,tunnels to nyc
 reservoir_cannonsville,link_cannonsville_outflow_1,mainstem,
 reservoir_cannonsville,link_cannonsville_outflow_2,mainstem,
 link_cannonsville_outflow_1,outflow_cannonsville,mainstem,
@@ -9,7 +9,7 @@ link_cannonsville_outflow_2,outflow_cannonsville,mainstem,
 outflow_cannonsville,link_delLordville,mainstem,
 catchment_pepacton,reservoir_pepacton,tributary,EB delaware
 reservoir_pepacton,link_pepacton_nyc,diversion,
-link_pepacton_nyc,demand_nyc,diversion,tunnels to nyc
+link_pepacton_nyc,delivery_nyc,diversion,tunnels to nyc
 reservoir_pepacton,link_pepacton_outflow_1,tributary,
 reservoir_pepacton,link_pepacton_outflow_2,tributary,
 link_pepacton_outflow_1,outflow_pepacton,tributary,
@@ -31,7 +31,7 @@ reservoir_mongaupeCombined,outflow_mongaupeCombined,tributary,
 outflow_mongaupeCombined,link_delMontague,tributary,
 catchment_neversink,reservoir_neversink,tributary,
 reservoir_neversink,link_neversink_nyc,diversion,
-link_neversink_nyc,demand_nyc,diversion,tunnels to nyc
+link_neversink_nyc,delivery_nyc,diversion,tunnels to nyc
 reservoir_neversink,link_neversink_outflow_1,tributary,
 reservoir_neversink,link_neversink_outflow_2,tributary,
 link_neversink_outflow_1,outflow_neversink,tributary,
@@ -62,7 +62,7 @@ reservoir_assunpink,outflow_assunpink,tributary,
 outflow_assunpink,link_outletAssunpink,tributary,
 catchment_outletAssunpink,link_outletAssunpink,tributary,
 link_outletAssunpink,output_del,tributary,
-reservoir_assunpink,demand_nj,diversion,tunnel - see WEAP. need to figure out where this starts & goes exactly
+reservoir_assunpink,delivery_nj,diversion,tunnel - see WEAP. need to figure out where this starts & goes exactly
 catchment_ontelaunee,reservoir_ontelaunee,tributary,
 reservoir_ontelaunee,outflow_ontelaunee,tributary,
 outflow_ontelaunee,link_outletSchuylkill,tributary,

@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 import click
 
 MODEL_FILENAME = "model_data/drb_model_full.json"
-OUTPUT_FILENAME = "output_data/drb_output.hdf5"
+OUTPUT_FILENAME = "output_data/drb_output_WEAP_23Aug2022_gridmet_nhmv10_noScaled.hdf5"
 
 @click.group()
 def cli():
@@ -36,15 +36,16 @@ def run():
 def figures(ext, show):
 
     for name, df in TablesRecorder.generate_dataframes(OUTPUT_FILENAME):
-        df.columns = ["Very low", "Low", "Central", "High", "Very high"]
+        # df.columns = ["Very low", "Low", "Central", "High", "Very high"]
+        df.columns = ["Central"]
 
         # if name.split('_')[0] in ("reservoir"):
         # if name.split('_')[0] in ("reservoir", "outflow", "flow", "link", "flowtarget", "demand"):
         # if 'target' in name.split('_'):
-        # reservoir = 'neversink'
-        # if name in ('reservoir_'+reservoir, 'flow_'+reservoir, 'outflow_'+reservoir, 'link_'+reservoir+'_nyc'):
+        reservoir = 'neversink'
+        if name in ('reservoir_'+reservoir, 'flow_'+reservoir, 'outflow_'+reservoir, 'link_'+reservoir+'_nyc'):
         # if name in ('mrf_target_montague'):
-        if 'outflow_1' in name or 'outflow_2' in name:
+        # if 'outflow_1' in name or 'outflow_2' in name:
             fig, (ax1, ax2) = plt.subplots(
                 figsize=(12, 4), ncols=2, sharey="row", gridspec_kw={"width_ratios": [3, 1]}
             )

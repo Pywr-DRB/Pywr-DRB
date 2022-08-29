@@ -5,14 +5,14 @@
         "minimum_version": "0.4"
     },
     "timestepper": {
-        "start": "2008-01-01",
-        "end": "2015-12-31",
+        "start": "1999-06-01",
+        "end": "2010-05-31",
         "timestep": 1
     },
     "scenarios": [
         {
             "name": "inflow",
-            "size": 5
+            "size": 1
         }
     ],
     "nodes": [
@@ -140,144 +140,144 @@
             "name": "reservoir_cannonsville",
             "type": "storage",
             "max_volume": "max_volume_cannonsville",
-            "initial_volume": 73320.93863,
-            "initial_volume_pc": 0.5,
+            "initial_volume": 117313.5018,
+            "initial_volume_pc": 0.8,
             "cost": "storage_cost_cannonsville"
         },
         {
             "name": "reservoir_pepacton",
             "type": "storage",
             "max_volume": "max_volume_pepacton",
-            "initial_volume": 99341.88063,
-            "initial_volume_pc": 0.5,
+            "initial_volume": 158947.009,
+            "initial_volume_pc": 0.8,
             "cost": "storage_cost_pepacton"
         },
         {
             "name": "reservoir_neversink",
             "type": "storage",
             "max_volume": "max_volume_neversink",
-            "initial_volume": 23141.4672,
-            "initial_volume_pc": 0.5,
+            "initial_volume": 37026.34752,
+            "initial_volume_pc": 0.8,
             "cost": "storage_cost_neversink"
         },
         {
             "name": "reservoir_wallenpaupack",
             "type": "storage",
             "max_volume": "max_volume_wallenpaupack",
-            "initial_volume": 43984.638,
-            "initial_volume_pc": 0.5,
+            "initial_volume": 70375.4208,
+            "initial_volume_pc": 0.8,
             "cost": -10.0
         },
         {
             "name": "reservoir_prompton",
             "type": "storage",
             "max_volume": "max_volume_prompton",
-            "initial_volume": 1888.8298,
-            "initial_volume_pc": 0.5,
+            "initial_volume": 3022.12768,
+            "initial_volume_pc": 0.8,
             "cost": -10.0
         },
         {
             "name": "reservoir_shoholaMarsh",
             "type": "storage",
             "max_volume": "max_volume_shoholaMarsh",
-            "initial_volume": 4306.0036,
-            "initial_volume_pc": 0.5,
+            "initial_volume": 6889.60576,
+            "initial_volume_pc": 0.8,
             "cost": -10.0
         },
         {
             "name": "reservoir_mongaupeCombined",
             "type": "storage",
             "max_volume": "max_volume_mongaupeCombined",
-            "initial_volume": 14186.0364,
-            "initial_volume_pc": 0.5,
+            "initial_volume": 22697.65824,
+            "initial_volume_pc": 0.8,
             "cost": -10.0
         },
         {
             "name": "reservoir_beltzvilleCombined",
             "type": "storage",
             "max_volume": "max_volume_beltzvilleCombined",
-            "initial_volume": 24158.5294,
-            "initial_volume_pc": 0.5,
+            "initial_volume": 38653.64704,
+            "initial_volume_pc": 0.8,
             "cost": -10.0
         },
         {
             "name": "reservoir_fewalter",
             "type": "storage",
             "max_volume": "max_volume_fewalter",
-            "initial_volume": 1888.8298,
-            "initial_volume_pc": 0.5,
+            "initial_volume": 3022.12768,
+            "initial_volume_pc": 0.8,
             "cost": -10.0
         },
         {
             "name": "reservoir_merrillCreek",
             "type": "storage",
             "max_volume": "max_volume_merrillCreek",
-            "initial_volume": 7489.2762,
-            "initial_volume_pc": 0.5,
+            "initial_volume": 11982.84192,
+            "initial_volume_pc": 0.8,
             "cost": -10.0
         },
         {
             "name": "reservoir_hopatcong",
             "type": "storage",
             "max_volume": "max_volume_hopatcong",
-            "initial_volume": 7859.117,
-            "initial_volume_pc": 0.5,
+            "initial_volume": 12574.5872,
+            "initial_volume_pc": 0.8,
             "cost": -10.0
         },
         {
             "name": "reservoir_nockamixon",
             "type": "storage",
             "max_volume": "max_volume_nockamixon",
-            "initial_volume": 11570.7336,
-            "initial_volume_pc": 0.5,
+            "initial_volume": 18513.17376,
+            "initial_volume_pc": 0.8,
             "cost": -10.0
         },
         {
             "name": "reservoir_assunpink",
             "type": "storage",
             "max_volume": "max_volume_assunpink",
-            "initial_volume": 2060.5416,
-            "initial_volume_pc": 0.5,
+            "initial_volume": 3296.86656,
+            "initial_volume_pc": 0.8,
             "cost": -10.0
         },
         {
             "name": "reservoir_ontelaunee",
             "type": "storage",
             "max_volume": "max_volume_ontelaunee",
-            "initial_volume": 1888.8298,
-            "initial_volume_pc": 0.5,
+            "initial_volume": 3022.12768,
+            "initial_volume_pc": 0.8,
             "cost": -10.0
         },
         {
             "name": "reservoir_stillCreek",
             "type": "storage",
             "max_volume": "max_volume_stillCreek",
-            "initial_volume": 1888.8298,
-            "initial_volume_pc": 0.5,
+            "initial_volume": 3022.12768,
+            "initial_volume_pc": 0.8,
             "cost": -10.0
         },
         {
             "name": "reservoir_blueMarsh",
             "type": "storage",
             "max_volume": "max_volume_blueMarsh",
-            "initial_volume": 21160.1772,
-            "initial_volume_pc": 0.5,
+            "initial_volume": 33856.28352,
+            "initial_volume_pc": 0.8,
             "cost": -10.0
         },
         {
             "name": "reservoir_greenLane",
             "type": "storage",
             "max_volume": "max_volume_greenLane",
-            "initial_volume": 4094.666,
-            "initial_volume_pc": 0.5,
+            "initial_volume": 6551.4656,
+            "initial_volume_pc": 0.8,
             "cost": -10.0
         },
         {
             "name": "reservoir_marshCreek",
             "type": "storage",
             "max_volume": "max_volume_marshCreek",
-            "initial_volume": 1888.8298,
-            "initial_volume_pc": 0.5,
+            "initial_volume": 3022.12768,
+            "initial_volume_pc": 0.8,
             "cost": -10.0
         },
         {
@@ -407,19 +407,19 @@
             "name": "link_cannonsville_nyc",
             "type": "link",
             "cost": -500.0,
-            "max_flow": "volbalance_max_flow_demand_nyc_cannonsville"
+            "max_flow": "volbalance_max_flow_delivery_nyc_cannonsville"
         },
         {
             "name": "link_pepacton_nyc",
             "type": "link",
             "cost": -500.0,
-            "max_flow": "volbalance_max_flow_demand_nyc_pepacton"
+            "max_flow": "volbalance_max_flow_delivery_nyc_pepacton"
         },
         {
             "name": "link_neversink_nyc",
             "type": "link",
             "cost": -500.0,
-            "max_flow": "volbalance_max_flow_demand_nyc_neversink"
+            "max_flow": "volbalance_max_flow_delivery_nyc_neversink"
         },
         {
             "name": "link_cannonsville_outflow_1",
@@ -476,13 +476,13 @@
             "type": "link"
         },
         {
-            "name": "demand_nyc",
+            "name": "delivery_nyc",
             "type": "output",
             "cost": -500.0,
-            "max_flow": "demand_max_flow_nyc"
+            "max_flow": "max_flow_delivery_nyc"
         },
         {
-            "name": "demand_nj",
+            "name": "delivery_nj",
             "type": "output",
             "cost": -500.0,
             "max_flow": 100.0
@@ -503,7 +503,7 @@
         ],
         [
             "link_cannonsville_nyc",
-            "demand_nyc"
+            "delivery_nyc"
         ],
         [
             "reservoir_cannonsville",
@@ -535,7 +535,7 @@
         ],
         [
             "link_pepacton_nyc",
-            "demand_nyc"
+            "delivery_nyc"
         ],
         [
             "reservoir_pepacton",
@@ -623,7 +623,7 @@
         ],
         [
             "link_neversink_nyc",
-            "demand_nyc"
+            "delivery_nyc"
         ],
         [
             "reservoir_neversink",
@@ -747,7 +747,7 @@
         ],
         [
             "reservoir_assunpink",
-            "demand_nj"
+            "delivery_nj"
         ],
         [
             "catchment_ontelaunee",
@@ -831,30 +831,26 @@
             "type": "constantscenario",
             "scenario": "inflow",
             "values": [
-                0.75,
-                0.9,
-                1.0,
-                1.1,
-                1.25
+                1.0
             ]
         },
         "flow_base_cannonsville": {
             "type": "dataframe",
-            "url": "../input_data/inflows_obs_scaled_2.csv",
+            "url": "../input_data/inflows_WEAP_23Aug2022_gridmet.csv",
             "column": "cannonsville",
             "index_col": "datetime",
             "parse_dates": true
         },
         "flow_base_pepacton": {
             "type": "dataframe",
-            "url": "../input_data/inflows_obs_scaled_2.csv",
+            "url": "../input_data/inflows_WEAP_23Aug2022_gridmet.csv",
             "column": "pepacton",
             "index_col": "datetime",
             "parse_dates": true
         },
         "flow_base_neversink": {
             "type": "dataframe",
-            "url": "../input_data/inflows_obs_scaled_2.csv",
+            "url": "../input_data/inflows_WEAP_23Aug2022_gridmet.csv",
             "column": "neversink",
             "index_col": "datetime",
             "parse_dates": true
@@ -904,20 +900,34 @@
             "index_col": "reservoir",
             "index": "neversink"
         },
-        "demand_baseline_nyc": {
+        "demand_nyc": {
+            "type": "dataframe",
+            "url": "../input_data/deliveryNYC_WEAP_23Aug2022_gridmet.csv",
+            "column": "aggregate",
+            "index_col": "datetime",
+            "parse_dates": true
+        },
+        "max_flow_baseline_delivery_nyc": {
             "type": "constant",
             "url": "drb_model_constants.csv",
             "column": "value",
             "index_col": "parameter",
-            "index": "demand_baseline_nyc"
+            "index": "max_flow_delivery_nyc"
         },
-        "demand_max_flow_nyc": {
+        "max_flow_drought_delivery_nyc": {
             "type": "aggregated",
             "agg_func": "product",
             "parameters": [
-                "demand_baseline_nyc",
-                "demand_drought_factor_nyc",
-                "demand_growth_factor_nyc"
+                "max_flow_baseline_delivery_nyc",
+                "drought_factor_delivery_nyc"
+            ]
+        },
+        "max_flow_delivery_nyc": {
+            "type": "aggregated",
+            "agg_func": "min",
+            "parameters": [
+                "demand_nyc",
+                "max_flow_drought_delivery_nyc"
             ]
         },
         "level1b": {
@@ -956,7 +966,7 @@
             "index_col": "profile",
             "index": "level5"
         },
-        "demand_drought_level_nyc": {
+        "drought_level_delivery_nyc": {
             "type": "controlcurveindex",
             "storage_node": "reservoir_agg_nyc",
             "control_curves": [
@@ -968,74 +978,67 @@
                 "level5"
             ]
         },
-        "demand_drought_factor_nyc": {
+        "drought_factor_delivery_nyc": {
             "type": "indexedarray",
-            "index_parameter": "demand_drought_level_nyc",
+            "index_parameter": "drought_level_delivery_nyc",
             "params": [
-                "level1a_factor_demand_nyc",
-                "level1b_factor_demand_nyc",
-                "level1c_factor_demand_nyc",
-                "level2_factor_demand_nyc",
-                "level3_factor_demand_nyc",
-                "level4_factor_demand_nyc",
-                "level5_factor_demand_nyc"
+                "level1a_factor_delivery_nyc",
+                "level1b_factor_delivery_nyc",
+                "level1c_factor_delivery_nyc",
+                "level2_factor_delivery_nyc",
+                "level3_factor_delivery_nyc",
+                "level4_factor_delivery_nyc",
+                "level5_factor_delivery_nyc"
             ]
         },
-        "level1a_factor_demand_nyc": {
+        "level1a_factor_delivery_nyc": {
             "type": "constant",
             "url": "drb_model_constants.csv",
             "column": "value",
             "index_col": "parameter",
-            "index": "level1a_factor_demand_nyc"
+            "index": "level1a_factor_delivery_nyc"
         },
-        "level1b_factor_demand_nyc": {
+        "level1b_factor_delivery_nyc": {
             "type": "constant",
             "url": "drb_model_constants.csv",
             "column": "value",
             "index_col": "parameter",
-            "index": "level1b_factor_demand_nyc"
+            "index": "level1b_factor_delivery_nyc"
         },
-        "level1c_factor_demand_nyc": {
+        "level1c_factor_delivery_nyc": {
             "type": "constant",
             "url": "drb_model_constants.csv",
             "column": "value",
             "index_col": "parameter",
-            "index": "level1c_factor_demand_nyc"
+            "index": "level1c_factor_delivery_nyc"
         },
-        "level2_factor_demand_nyc": {
+        "level2_factor_delivery_nyc": {
             "type": "constant",
             "url": "drb_model_constants.csv",
             "column": "value",
             "index_col": "parameter",
-            "index": "level2_factor_demand_nyc"
+            "index": "level2_factor_delivery_nyc"
         },
-        "level3_factor_demand_nyc": {
+        "level3_factor_delivery_nyc": {
             "type": "constant",
             "url": "drb_model_constants.csv",
             "column": "value",
             "index_col": "parameter",
-            "index": "level3_factor_demand_nyc"
+            "index": "level3_factor_delivery_nyc"
         },
-        "level4_factor_demand_nyc": {
+        "level4_factor_delivery_nyc": {
             "type": "constant",
             "url": "drb_model_constants.csv",
             "column": "value",
             "index_col": "parameter",
-            "index": "level4_factor_demand_nyc"
+            "index": "level4_factor_delivery_nyc"
         },
-        "level5_factor_demand_nyc": {
+        "level5_factor_delivery_nyc": {
             "type": "constant",
             "url": "drb_model_constants.csv",
             "column": "value",
             "index_col": "parameter",
-            "index": "level5_factor_demand_nyc"
-        },
-        "demand_growth_factor_nyc": {
-            "type": "constant",
-            "url": "drb_model_constants.csv",
-            "column": "value",
-            "index_col": "parameter",
-            "index": "demand_growth_factor_nyc"
+            "index": "level5_factor_delivery_nyc"
         },
         "mrf_target_cannonsville": {
             "type": "aggregated",
@@ -1084,7 +1087,7 @@
         },
         "mrf_drought_factor_cannonsville": {
             "type": "indexedarray",
-            "index_parameter": "demand_drought_level_nyc",
+            "index_parameter": "drought_level_delivery_nyc",
             "params": [
                 "level1a_factor_mrf_cannonsville",
                 "level1b_factor_mrf_cannonsville",
@@ -1097,7 +1100,7 @@
         },
         "mrf_drought_factor_pepacton": {
             "type": "indexedarray",
-            "index_parameter": "demand_drought_level_nyc",
+            "index_parameter": "drought_level_delivery_nyc",
             "params": [
                 "level1a_factor_mrf_pepacton",
                 "level1b_factor_mrf_pepacton",
@@ -1110,7 +1113,7 @@
         },
         "mrf_drought_factor_neversink": {
             "type": "indexedarray",
-            "index_parameter": "demand_drought_level_nyc",
+            "index_parameter": "drought_level_delivery_nyc",
             "params": [
                 "level1a_factor_mrf_neversink",
                 "level1b_factor_mrf_neversink",
@@ -1364,155 +1367,155 @@
             "numerator": "max_volume_neversink",
             "denominator": "max_volume_agg_nyc"
         },
-        "volbalance_neg_demand_nyc": {
+        "volbalance_neg_delivery_nyc": {
             "type": "aggregated",
             "agg_func": "product",
             "parameters": [
-                "demand_max_flow_nyc",
+                "max_flow_delivery_nyc",
                 -1
             ]
         },
-        "volbalance_surplus_agg_demand_nyc": {
+        "volbalance_surplus_agg_delivery_nyc": {
             "type": "aggregated",
             "agg_func": "sum",
             "parameters": [
                 "volume_agg_nyc",
                 "flow_agg_nyc",
-                "volbalance_neg_demand_nyc"
+                "volbalance_neg_delivery_nyc"
             ]
         },
-        "volbalance_neg_fracSurplus_demand_nyc_cannonsville": {
+        "volbalance_neg_fracSurplus_delivery_nyc_cannonsville": {
             "type": "aggregated",
             "agg_func": "product",
             "parameters": [
                 -1,
                 "volbalance_fracStorage_cannonsville",
-                "volbalance_surplus_agg_demand_nyc"
+                "volbalance_surplus_agg_delivery_nyc"
             ]
         },
-        "volbalance_neg_fracSurplus_demand_nyc_pepacton": {
+        "volbalance_neg_fracSurplus_delivery_nyc_pepacton": {
             "type": "aggregated",
             "agg_func": "product",
             "parameters": [
                 -1,
                 "volbalance_fracStorage_pepacton",
-                "volbalance_surplus_agg_demand_nyc"
+                "volbalance_surplus_agg_delivery_nyc"
             ]
         },
-        "volbalance_neg_fracSurplus_demand_nyc_neversink": {
+        "volbalance_neg_fracSurplus_delivery_nyc_neversink": {
             "type": "aggregated",
             "agg_func": "product",
             "parameters": [
                 -1,
                 "volbalance_fracStorage_neversink",
-                "volbalance_surplus_agg_demand_nyc"
+                "volbalance_surplus_agg_delivery_nyc"
             ]
         },
-        "volbalance_target_max_flow_demand_nyc_cannonsville": {
+        "volbalance_target_max_flow_delivery_nyc_cannonsville": {
             "type": "aggregated",
             "agg_func": "sum",
             "parameters": [
                 "volume_cannonsville",
                 "flow_cannonsville",
-                "volbalance_neg_fracSurplus_demand_nyc_cannonsville"
+                "volbalance_neg_fracSurplus_delivery_nyc_cannonsville"
             ]
         },
-        "volbalance_target_max_flow_demand_nyc_pepacton": {
+        "volbalance_target_max_flow_delivery_nyc_pepacton": {
             "type": "aggregated",
             "agg_func": "sum",
             "parameters": [
                 "volume_pepacton",
                 "flow_pepacton",
-                "volbalance_neg_fracSurplus_demand_nyc_pepacton"
+                "volbalance_neg_fracSurplus_delivery_nyc_pepacton"
             ]
         },
-        "volbalance_target_max_flow_demand_nyc_neversink": {
+        "volbalance_target_max_flow_delivery_nyc_neversink": {
             "type": "aggregated",
             "agg_func": "sum",
             "parameters": [
                 "volume_neversink",
                 "flow_neversink",
-                "volbalance_neg_fracSurplus_demand_nyc_neversink"
+                "volbalance_neg_fracSurplus_delivery_nyc_neversink"
             ]
         },
-        "volbalance_target2_max_flow_demand_nyc_cannonsville": {
+        "volbalance_target2_max_flow_delivery_nyc_cannonsville": {
             "type": "aggregated",
             "agg_func": "max",
             "parameters": [
-                "volbalance_target_max_flow_demand_nyc_cannonsville",
+                "volbalance_target_max_flow_delivery_nyc_cannonsville",
                 0
             ]
         },
-        "volbalance_target2_max_flow_demand_nyc_pepacton": {
+        "volbalance_target2_max_flow_delivery_nyc_pepacton": {
             "type": "aggregated",
             "agg_func": "max",
             "parameters": [
-                "volbalance_target_max_flow_demand_nyc_pepacton",
+                "volbalance_target_max_flow_delivery_nyc_pepacton",
                 0
             ]
         },
-        "volbalance_target2_max_flow_demand_nyc_neversink": {
+        "volbalance_target2_max_flow_delivery_nyc_neversink": {
             "type": "aggregated",
             "agg_func": "max",
             "parameters": [
-                "volbalance_target_max_flow_demand_nyc_neversink",
+                "volbalance_target_max_flow_delivery_nyc_neversink",
                 0
             ]
         },
-        "volbalance_sum_target2_demand_nyc": {
+        "volbalance_sum_target2_delivery_nyc": {
             "type": "aggregated",
             "agg_func": "sum",
             "parameters": [
-                "volbalance_target2_max_flow_demand_nyc_cannonsville",
-                "volbalance_target2_max_flow_demand_nyc_pepacton",
-                "volbalance_target2_max_flow_demand_nyc_neversink"
+                "volbalance_target2_max_flow_delivery_nyc_cannonsville",
+                "volbalance_target2_max_flow_delivery_nyc_pepacton",
+                "volbalance_target2_max_flow_delivery_nyc_neversink"
             ]
         },
-        "volbalance_rescale_target2_demand_nyc": {
+        "volbalance_rescale_target2_delivery_nyc": {
             "type": "division",
-            "numerator": "demand_max_flow_nyc",
-            "denominator": "volbalance_sum_target2_demand_nyc"
+            "numerator": "max_flow_delivery_nyc",
+            "denominator": "volbalance_sum_target2_delivery_nyc"
         },
-        "volbalance_max_flow_demand_nyc_cannonsville": {
+        "volbalance_max_flow_delivery_nyc_cannonsville": {
             "type": "aggregated",
             "agg_func": "product",
             "parameters": [
-                "volbalance_target2_max_flow_demand_nyc_cannonsville",
-                "volbalance_rescale_target2_demand_nyc"
+                "volbalance_target2_max_flow_delivery_nyc_cannonsville",
+                "volbalance_rescale_target2_delivery_nyc"
             ]
         },
-        "volbalance_max_flow_demand_nyc_pepacton": {
+        "volbalance_max_flow_delivery_nyc_pepacton": {
             "type": "aggregated",
             "agg_func": "product",
             "parameters": [
-                "volbalance_target2_max_flow_demand_nyc_pepacton",
-                "volbalance_rescale_target2_demand_nyc"
+                "volbalance_target2_max_flow_delivery_nyc_pepacton",
+                "volbalance_rescale_target2_delivery_nyc"
             ]
         },
-        "volbalance_max_flow_demand_nyc_neversink": {
+        "volbalance_max_flow_delivery_nyc_neversink": {
             "type": "aggregated",
             "agg_func": "product",
             "parameters": [
-                "volbalance_target2_max_flow_demand_nyc_neversink",
-                "volbalance_rescale_target2_demand_nyc"
+                "volbalance_target2_max_flow_delivery_nyc_neversink",
+                "volbalance_rescale_target2_delivery_nyc"
             ]
         },
-        "volbalance_max_flow_demand_nyc_max": {
+        "volbalance_max_flow_delivery_nyc_max": {
             "type": "aggregated",
             "agg_func": "max",
             "parameters": [
-                "volbalance_max_flow_demand_nyc_cannonsville",
-                "volbalance_max_flow_demand_nyc_pepacton",
-                "volbalance_max_flow_demand_nyc_neversink"
+                "volbalance_max_flow_delivery_nyc_cannonsville",
+                "volbalance_max_flow_delivery_nyc_pepacton",
+                "volbalance_max_flow_delivery_nyc_neversink"
             ]
         },
-        "volbalance_max_flow_demand_nyc_min": {
+        "volbalance_max_flow_delivery_nyc_min": {
             "type": "aggregated",
             "agg_func": "min",
             "parameters": [
-                "volbalance_max_flow_demand_nyc_cannonsville",
-                "volbalance_max_flow_demand_nyc_pepacton",
-                "volbalance_max_flow_demand_nyc_neversink"
+                "volbalance_max_flow_delivery_nyc_cannonsville",
+                "volbalance_max_flow_delivery_nyc_pepacton",
+                "volbalance_max_flow_delivery_nyc_neversink"
             ]
         },
         "mrf_target_montague": {
@@ -1532,7 +1535,7 @@
         },
         "mrf_drought_factor_montague": {
             "type": "indexedarray",
-            "index_parameter": "demand_drought_level_nyc",
+            "index_parameter": "drought_level_delivery_nyc",
             "params": [
                 "level1a_factor_mrf_montague",
                 "level1b_factor_mrf_montague",
@@ -1822,105 +1825,105 @@
         },
         "flow_base_wallenpaupack": {
             "type": "dataframe",
-            "url": "../input_data/inflows_obs_scaled_2.csv",
+            "url": "../input_data/inflows_WEAP_23Aug2022_gridmet.csv",
             "column": "wallenpaupack",
             "index_col": "datetime",
             "parse_dates": true
         },
         "flow_base_prompton": {
             "type": "dataframe",
-            "url": "../input_data/inflows_obs_scaled_2.csv",
+            "url": "../input_data/inflows_nhmv10_noScaled.csv",
             "column": "prompton",
             "index_col": "datetime",
             "parse_dates": true
         },
         "flow_base_shoholaMarsh": {
             "type": "dataframe",
-            "url": "../input_data/inflows_obs_scaled_2.csv",
+            "url": "../input_data/inflows_nhmv10_noScaled.csv",
             "column": "shoholaMarsh",
             "index_col": "datetime",
             "parse_dates": true
         },
         "flow_base_mongaupeCombined": {
             "type": "dataframe",
-            "url": "../input_data/inflows_obs_scaled_2.csv",
+            "url": "../input_data/inflows_WEAP_23Aug2022_gridmet.csv",
             "column": "mongaupeCombined",
             "index_col": "datetime",
             "parse_dates": true
         },
         "flow_base_beltzvilleCombined": {
             "type": "dataframe",
-            "url": "../input_data/inflows_obs_scaled_2.csv",
+            "url": "../input_data/inflows_WEAP_23Aug2022_gridmet.csv",
             "column": "beltzvilleCombined",
             "index_col": "datetime",
             "parse_dates": true
         },
         "flow_base_fewalter": {
             "type": "dataframe",
-            "url": "../input_data/inflows_obs_scaled_2.csv",
+            "url": "../input_data/inflows_nhmv10_noScaled.csv",
             "column": "fewalter",
             "index_col": "datetime",
             "parse_dates": true
         },
         "flow_base_merrillCreek": {
             "type": "dataframe",
-            "url": "../input_data/inflows_obs_scaled_2.csv",
+            "url": "../input_data/inflows_nhmv10_noScaled.csv",
             "column": "merrillCreek",
             "index_col": "datetime",
             "parse_dates": true
         },
         "flow_base_hopatcong": {
             "type": "dataframe",
-            "url": "../input_data/inflows_obs_scaled_2.csv",
+            "url": "../input_data/inflows_nhmv10_noScaled.csv",
             "column": "hopatcong",
             "index_col": "datetime",
             "parse_dates": true
         },
         "flow_base_nockamixon": {
             "type": "dataframe",
-            "url": "../input_data/inflows_obs_scaled_2.csv",
+            "url": "../input_data/inflows_WEAP_23Aug2022_gridmet.csv",
             "column": "nockamixon",
             "index_col": "datetime",
             "parse_dates": true
         },
         "flow_base_assunpink": {
             "type": "dataframe",
-            "url": "../input_data/inflows_obs_scaled_2.csv",
+            "url": "../input_data/inflows_WEAP_23Aug2022_gridmet.csv",
             "column": "assunpink",
             "index_col": "datetime",
             "parse_dates": true
         },
         "flow_base_ontelaunee": {
             "type": "dataframe",
-            "url": "../input_data/inflows_obs_scaled_2.csv",
+            "url": "../input_data/inflows_WEAP_23Aug2022_gridmet.csv",
             "column": "ontelaunee",
             "index_col": "datetime",
             "parse_dates": true
         },
         "flow_base_stillCreek": {
             "type": "dataframe",
-            "url": "../input_data/inflows_obs_scaled_2.csv",
+            "url": "../input_data/inflows_nhmv10_noScaled.csv",
             "column": "stillCreek",
             "index_col": "datetime",
             "parse_dates": true
         },
         "flow_base_blueMarsh": {
             "type": "dataframe",
-            "url": "../input_data/inflows_obs_scaled_2.csv",
+            "url": "../input_data/inflows_WEAP_23Aug2022_gridmet.csv",
             "column": "blueMarsh",
             "index_col": "datetime",
             "parse_dates": true
         },
         "flow_base_greenLane": {
             "type": "dataframe",
-            "url": "../input_data/inflows_obs_scaled_2.csv",
+            "url": "../input_data/inflows_nhmv10_noScaled.csv",
             "column": "greenLane",
             "index_col": "datetime",
             "parse_dates": true
         },
         "flow_base_marshCreek": {
             "type": "dataframe",
-            "url": "../input_data/inflows_obs_scaled_2.csv",
+            "url": "../input_data/inflows_nhmv10_noScaled.csv",
             "column": "marshCreek",
             "index_col": "datetime",
             "parse_dates": true
@@ -10267,42 +10270,42 @@
         },
         "flow_base_delLordville": {
             "type": "dataframe",
-            "url": "../input_data/inflows_obs_scaled_2.csv",
+            "url": "../input_data/inflows_nhmv10_noScaled.csv",
             "column": "delLordville",
             "index_col": "datetime",
             "parse_dates": true
         },
         "flow_base_delMontague": {
             "type": "dataframe",
-            "url": "../input_data/inflows_obs_scaled_2.csv",
+            "url": "../input_data/inflows_nhmv10_noScaled.csv",
             "column": "delMontague",
             "index_col": "datetime",
             "parse_dates": true
         },
         "flow_base_delTrenton": {
             "type": "dataframe",
-            "url": "../input_data/inflows_obs_scaled_2.csv",
+            "url": "../input_data/inflows_nhmv10_noScaled.csv",
             "column": "delTrenton",
             "index_col": "datetime",
             "parse_dates": true
         },
         "flow_base_outletAssunpink": {
             "type": "dataframe",
-            "url": "../input_data/inflows_obs_scaled_2.csv",
+            "url": "../input_data/inflows_nhmv10_noScaled.csv",
             "column": "outletAssunpink",
             "index_col": "datetime",
             "parse_dates": true
         },
         "flow_base_outletSchuylkill": {
             "type": "dataframe",
-            "url": "../input_data/inflows_obs_scaled_2.csv",
+            "url": "../input_data/inflows_nhmv10_noScaled.csv",
             "column": "outletSchuylkill",
             "index_col": "datetime",
             "parse_dates": true
         },
         "flow_base_outletChristina": {
             "type": "dataframe",
-            "url": "../input_data/inflows_obs_scaled_2.csv",
+            "url": "../input_data/inflows_nhmv10_noScaled.csv",
             "column": "outletChristina",
             "index_col": "datetime",
             "parse_dates": true

@@ -5,14 +5,14 @@
         "minimum_version": "0.4"
     },
     "timestepper": {
-        "start": "2008-01-01",
-        "end": "2015-12-31",
+        "start": "1999-06-01",
+        "end": "2010-05-31",
         "timestep": 1
     },
     "scenarios": [
         {
             "name": "inflow",
-            "size": 5
+            "size": 1
         }
     ]
 }

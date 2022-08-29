@@ -23,24 +23,24 @@ catchment_greenLane,catchment,flow_greenLane,,,,,,,,,40.391341,-75.510177,,,"non
 catchment_outletSchuylkill,catchment,flow_outletSchuylkill,,,,,,,,,40.054921,-75.266056,,,flow: 01474500
 catchment_marshCreek,catchment,flow_marshCreek,,,,,,,,,40.093204,-75.735073,,,inflow: 01480675 to 1966
 catchment_outletChristina,catchment,flow_outletChristina,,,,,,,,,39.75727,-75.616599,,,flow: 01482100 to 1950 (note this is tidal & oscillatory)
-reservoir_cannonsville,storage,,max_volume_cannonsville,73320.93863,0.5,storage_cost_cannonsville,,,,,42.065872,-75.37462,,20401010207,outflow: 01425000 to 1952
-reservoir_pepacton,storage,,max_volume_pepacton,99341.88063,0.5,storage_cost_pepacton,,,,,42.073603,-74.965531,,20401020405,outflow: 01417000 to 1903
-reservoir_neversink,storage,,max_volume_neversink,23141.4672,0.5,storage_cost_neversink,,,,,41.821286,-74.643266,,20401040303,outflow: 01436000 to 1941
-reservoir_wallenpaupack,storage,,max_volume_wallenpaupack,43984.638,0.5,-10,,,,,41.460825,-75.18423,,20401030505,"none, but could approximate as (01432110 to 1949, ~10 miles downstream) minus (01431500 to 1908, lackawaxen right upstream of wallenpaupack junction)"
-reservoir_prompton,storage,,max_volume_prompton,1888.8298,0.5,-10,,,,,41.589961,-75.32768,,20401030103,outflow: 01429000 to 1942
-reservoir_shoholaMarsh,storage,,max_volume_shoholaMarsh,4306.0036,0.5,-10,,,,,41.392015,-74.96866,,20401040402,"none, there is only 01432495, but this is ~10 miles downstream and only to 2018"
-reservoir_mongaupeCombined,storage,,max_volume_mongaupeCombined,14186.0364,0.5,-10,,,,,41.478898,-74.755352,"mongaupe system includes many reservoirs, including mongaup falls, toronto, swinging bridge, rio, lebanon, cliff, st josephs, black, white, superior, swan. Rio is last in chain.",20401040107,outflow: 01433500 to 1939
-reservoir_beltzvilleCombined,storage,,max_volume_beltzvilleCombined,24158.5294,0.5,-10,,,,,40.851266,-75.638495,includes penn forest & wild creek reservoirs upstream,20401060404,outflow: 01449800 to 1967
-reservoir_fewalter,storage,,max_volume_fewalter,1888.8298,0.5,-10,,,,,41.113559,-75.720849,,20401060204,outflow: 01447800 to 1955
-reservoir_merrillCreek,storage,,max_volume_merrillCreek,7489.2762,0.5,-10,,,,,40.727174,-75.10281,,20401050402,none
-reservoir_hopatcong,storage,,max_volume_hopatcong,7859.117,0.5,-10,,,,,40.917661,-74.664516,,20401050501,outflow: 01455500 to 1928
-reservoir_nockamixon,storage,,max_volume_nockamixon,11570.7336,0.5,-10,,,,,40.471662,-75.184604,,20401050702,outflow: 01459500 to 1935
-reservoir_assunpink,storage,,max_volume_assunpink,2060.5416,0.5,-10,,,,,40.219222,-74.524199,also include mercer lake downstream in huc12,20401050801,"01463620 to 1963 (note this is ~8 miles downstream, & past another reservoir, Mercer Lake)"
-reservoir_ontelaunee,storage,,max_volume_ontelaunee,1888.8298,0.5,-10,,,,,40.447622,-75.933283,,20402030307,"outflow: 01470761, only back to 2020"
-reservoir_stillCreek,storage,,max_volume_stillCreek,1888.8298,0.5,-10,,,,,40.85809,-75.990719,huc12 also includes a couple other small lakes,20402030101,outflow: 01469500 to 1916 (note this is ~5 miles downstream)
-reservoir_blueMarsh,storage,,max_volume_blueMarsh,21160.1772,0.5,-10,,,,,40.379002,-76.031525,,20402030407,outflow: 01470960 to 1965
-reservoir_greenLane,storage,,max_volume_greenLane,4094.666,0.5,-10,,,,,40.332875,-75.481018,,20402030806,"outflow: 01473000 to 1914 (note this is ~7 miles downstream, past tribs)"
-reservoir_marshCreek,storage,,max_volume_marshCreek,1888.8298,0.5,-10,,,,,40.055435,-75.717303,,20402050101,outflow: 01480685 to 1973
+reservoir_cannonsville,storage,,max_volume_cannonsville,117313.5018,0.8,storage_cost_cannonsville,,,,,42.065872,-75.37462,,20401010207,outflow: 01425000 to 1952
+reservoir_pepacton,storage,,max_volume_pepacton,158947.009,0.8,storage_cost_pepacton,,,,,42.073603,-74.965531,,20401020405,outflow: 01417000 to 1903
+reservoir_neversink,storage,,max_volume_neversink,37026.34752,0.8,storage_cost_neversink,,,,,41.821286,-74.643266,,20401040303,outflow: 01436000 to 1941
+reservoir_wallenpaupack,storage,,max_volume_wallenpaupack,70375.4208,0.8,-10,,,,,41.460825,-75.18423,,20401030505,"none, but could approximate as (01432110 to 1949, ~10 miles downstream) minus (01431500 to 1908, lackawaxen right upstream of wallenpaupack junction)"
+reservoir_prompton,storage,,max_volume_prompton,3022.12768,0.8,-10,,,,,41.589961,-75.32768,,20401030103,outflow: 01429000 to 1942
+reservoir_shoholaMarsh,storage,,max_volume_shoholaMarsh,6889.60576,0.8,-10,,,,,41.392015,-74.96866,,20401040402,"none, there is only 01432495, but this is ~10 miles downstream and only to 2018"
+reservoir_mongaupeCombined,storage,,max_volume_mongaupeCombined,22697.65824,0.8,-10,,,,,41.478898,-74.755352,"mongaupe system includes many reservoirs, including mongaup falls, toronto, swinging bridge, rio, lebanon, cliff, st josephs, black, white, superior, swan. Rio is last in chain.",20401040107,outflow: 01433500 to 1939
+reservoir_beltzvilleCombined,storage,,max_volume_beltzvilleCombined,38653.64704,0.8,-10,,,,,40.851266,-75.638495,includes penn forest & wild creek reservoirs upstream,20401060404,outflow: 01449800 to 1967
+reservoir_fewalter,storage,,max_volume_fewalter,3022.12768,0.8,-10,,,,,41.113559,-75.720849,,20401060204,outflow: 01447800 to 1955
+reservoir_merrillCreek,storage,,max_volume_merrillCreek,11982.84192,0.8,-10,,,,,40.727174,-75.10281,,20401050402,none
+reservoir_hopatcong,storage,,max_volume_hopatcong,12574.5872,0.8,-10,,,,,40.917661,-74.664516,,20401050501,outflow: 01455500 to 1928
+reservoir_nockamixon,storage,,max_volume_nockamixon,18513.17376,0.8,-10,,,,,40.471662,-75.184604,,20401050702,outflow: 01459500 to 1935
+reservoir_assunpink,storage,,max_volume_assunpink,3296.86656,0.8,-10,,,,,40.219222,-74.524199,also include mercer lake downstream in huc12,20401050801,"01463620 to 1963 (note this is ~8 miles downstream, & past another reservoir, Mercer Lake)"
+reservoir_ontelaunee,storage,,max_volume_ontelaunee,3022.12768,0.8,-10,,,,,40.447622,-75.933283,,20402030307,"outflow: 01470761, only back to 2020"
+reservoir_stillCreek,storage,,max_volume_stillCreek,3022.12768,0.8,-10,,,,,40.85809,-75.990719,huc12 also includes a couple other small lakes,20402030101,outflow: 01469500 to 1916 (note this is ~5 miles downstream)
+reservoir_blueMarsh,storage,,max_volume_blueMarsh,33856.28352,0.8,-10,,,,,40.379002,-76.031525,,20402030407,outflow: 01470960 to 1965
+reservoir_greenLane,storage,,max_volume_greenLane,6551.4656,0.8,-10,,,,,40.332875,-75.481018,,20402030806,"outflow: 01473000 to 1914 (note this is ~7 miles downstream, past tribs)"
+reservoir_marshCreek,storage,,max_volume_marshCreek,3022.12768,0.8,-10,,,,,40.055435,-75.717303,,20402050101,outflow: 01480685 to 1973
 reservoir_agg_nyc,aggregatedstorage,,,,,,"['reservoir_cannonsville', 'reservoir_pepacton', 'reservoir_neversink']",,,,41.929537,-74.326084,,,
 outflow_cannonsville,rivergauge,,,,,,,,mrf_target_cannonsville,-1000,42.065872,-75.37462,,,
 outflow_pepacton,rivergauge,,,,,,,,mrf_target_pepacton,-1000,42.073603,-74.965531,,,
@@ -61,9 +61,9 @@ outflow_stillCreek,link,,,,,-500,,starfit_release_final_stillCreek,,,40.85809,-7
 outflow_blueMarsh,link,,,,,-500,,starfit_release_final_blueMarsh,,,40.379002,-76.031525,,,
 outflow_greenLane,link,,,,,-500,,starfit_release_final_greenLane,,,40.332875,-75.481018,,,
 outflow_marshCreek,link,,,,,-500,,starfit_release_final_marshCreek,,,40.055435,-75.717303,,,
-link_cannonsville_nyc,link,,,,,-500,,volbalance_max_flow_demand_nyc_cannonsville,,,41.929537,-74.326084,,,
-link_pepacton_nyc,link,,,,,-500,,volbalance_max_flow_demand_nyc_pepacton,,,41.929537,-74.326084,,,
-link_neversink_nyc,link,,,,,-500,,volbalance_max_flow_demand_nyc_neversink,,,41.929537,-74.326084,,,
+link_cannonsville_nyc,link,,,,,-500,,volbalance_max_flow_delivery_nyc_cannonsville,,,41.929537,-74.326084,,,
+link_pepacton_nyc,link,,,,,-500,,volbalance_max_flow_delivery_nyc_pepacton,,,41.929537,-74.326084,,,
+link_neversink_nyc,link,,,,,-500,,volbalance_max_flow_delivery_nyc_neversink,,,41.929537,-74.326084,,,
 link_cannonsville_outflow_1,link,,,,,,,volbalance_max_flow_montague_cannonsville,,,41.929537,-74.326084,,,
 link_pepacton_outflow_1,link,,,,,,,volbalance_max_flow_montague_pepacton,,,41.929537,-74.326084,,,
 link_neversink_outflow_1,link,,,,,,,volbalance_max_flow_montague_neversink,,,41.929537,-74.326084,,,
@@ -76,6 +76,6 @@ link_delTrenton,link,,,,,,,,,,40.221041,-74.780647,,20401050911,
 link_outletAssunpink,link,,,,,,,,,,40.217486,-74.76699,,,
 link_outletSchuylkill,link,,,,,,,,,,39.894148,-75.203456,,020402031008 (Schuylkill),
 link_outletChristina,link,,,,,,,,,,39.735611,-75.534213,,020402050505 (christina) ,
-demand_nyc,output,,,,,-500,,demand_max_flow_nyc,,,41.929537,-74.326084,,,
-demand_nj,output,,,,,-500,,100,,,40.341568,-74.643334,,,
+delivery_nyc,output,,,,,-500,,max_flow_delivery_nyc,,,41.929537,-74.326084,,,
+delivery_nj,output,,,,,-500,,100,,,40.341568,-74.643334,,,
 output_del,output,,,,,,,,,,39.649087,-75.558104,,,
