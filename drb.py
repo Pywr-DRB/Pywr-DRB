@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 import click
 
 MODEL_FILENAME = "model_data/drb_model_full.json"
-OUTPUT_FILENAME = "output_data/drb_output_WEAP_23Aug2022_gridmet_nhmv10_noScaled.hdf5"
+OUTPUT_FILENAME = "output_data/drb_output_nwmv21_noScaled.hdf5"
 
 @click.group()
 def cli():
