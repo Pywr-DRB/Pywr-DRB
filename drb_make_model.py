@@ -15,8 +15,8 @@ starfit_remove_Rmax = True
 starfit_linear_below_NOR = True
 
 ### specify inflow type
-inflow_type = 'nwmv21_noScaled'  ## obs_noScaled, obs_scaled, obs_scaled_2, nhmv10_noScaled, nhmv10_scaled, nwmv21_noScaled, nwmv21_scaled, WEAP_23Aug2022_gridmet
-backup_inflow_type = 'nwmv21_noScaled'  ## for WEAP inflow type, we dont have all reservoirs. use this secondary type for those.
+inflow_type = 'PUB_10172022'  ## obs_noScaled, obs_scaled, obs_scaled_2, nhmv10_noScaled, nhmv10_scaled, nwmv21_noScaled, nwmv21_scaled, WEAP_23Aug2022_gridmet, PUB_10172022
+backup_inflow_type = 'PUB_10172022'  ## for WEAP inflow type, we dont have all reservoirs. use this secondary type for those.
 
 ### load nodes from spreadsheet & add elements as dict items
 sheet = 'nodes'

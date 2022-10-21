@@ -12,7 +12,7 @@ FfmpNycRunningAvgParameter.register()  # register the name so it can be loaded f
 FfmpNjRunningAvgParameter.register()  # register the name so it can be loaded from JSON
 
 MODEL_FILENAME = "model_data/drb_model_full.json"
-OUTPUT_FILENAME = "output_data/drb_output_nwmv21_noScaled.hdf5"
+OUTPUT_FILENAME = "output_data/drb_output_PUB_10172022.hdf5"
 
 
 @click.group()
