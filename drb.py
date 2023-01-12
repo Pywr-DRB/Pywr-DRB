@@ -6,13 +6,15 @@ import numpy as np
 from matplotlib import pyplot as plt
 import click
 
-### import custom pywr params
-from custom_pywr import FfmpNycRunningAvgParameter, FfmpNjRunningAvgParameter
-FfmpNycRunningAvgParameter.register()  # register the name so it can be loaded from JSON
-FfmpNjRunningAvgParameter.register()  # register the name so it can be loaded from JSON
+### specify inflow type
+inflow_type = 'WEAP_23Aug2022_gridmet'  ### nhmv10, nwmv21, nwmv21_withLakes, obs, WEAP_23Aug2022_gridmet, PUB_10172022
+backup_inflow_type = 'nhcd ../mv10'  ## for WEAP inflow type, we dont have all reservoirs. use this secondary type for those.
 
-MODEL_FILENAME = "model_data/drb_model_full.json"
-OUTPUT_FILENAME = "output_data/drb_output_PUB_10172022.hdf5"
+model_filename = "model_data/drb_model_full.json"
+if 'WEAP' in inflow_type:
+    output_filename = f"output_data/drb_output_{inflow_type}_{backup_inflow_type}.hdf5"
+else:
+    output_filename = f"output_data/drb_output_{inflow_type}.hdf5"
 
 
 @click.group()
@@ -22,12 +24,21 @@ def cli():
 
 @cli.command()
 def run():
+    from drb_make_model import drb_make_model
+    from custom_pywr import FfmpNycRunningAvgParameter, FfmpNjRunningAvgParameter
+
+    ### import custom pywr params
+    FfmpNycRunningAvgParameter.register()  # register the name so it can be loaded from JSON
+    FfmpNjRunningAvgParameter.register()  # register the name so it can be loaded from JSON
+
+    ### make model json files
+    drb_make_model(inflow_type, backup_inflow_type)
 
     # Run the model
-    model = Model.load(MODEL_FILENAME)
+    model = Model.load(model_filename)
 
     # Add a storage recorder
-    TablesRecorder(model, OUTPUT_FILENAME, parameters=[p for p in model.parameters if p.name])
+    TablesRecorder(model, output_filename, parameters=[p for p in model.parameters if p.name])
 
     # Run the model
     stats = model.run()
@@ -40,7 +51,7 @@ def run():
 @click.option("--show/--no-show", default=False)
 def figures(ext, show):
 
-    for name, df in TablesRecorder.generate_dataframes(OUTPUT_FILENAME):
+    for name, df in TablesRecorder.generate_dataframes(output_filename):
         # df.columns = ["Very low", "Low", "Central", "High", "Very high"]
         df.columns = ["Central"]
 
