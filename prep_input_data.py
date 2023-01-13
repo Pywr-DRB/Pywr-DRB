@@ -1,5 +1,4 @@
 ### organize observed records (USGS gages) & modeled estimates (NHM, NWM, WEAP) into appropriate format for Pywr-DRB
-### reorganizing/consolidating code from explore_streamflows.ipynb
 
 import numpy as np
 import pandas as pd
@@ -229,7 +228,8 @@ for reservoir in reservoirs:
         else:
             storageObs[reservoir] = df['Observed']
     except:
-        print('no observed storage for ', reservoir)
+        # print('no observed storage for ', reservoir)
+        pass
 
 ### convert cubic meter to MG
 storageObs *= cm_to_mg
@@ -248,7 +248,8 @@ for reservoir in reservoirs:
         else:
             flow[reservoir] = df['Modeled']
     except:
-        print('no streamflow gage data for ', reservoir)
+        # print('no streamflow gage data for ', reservoir)
+        pass
 
 ### convert cubic meter to MG
 flow *= cm_to_mg
@@ -267,7 +268,8 @@ for reservoir in ['cannonsville', 'pepacton', 'neversink']:
         else:
             deliveryNYC[reservoir] = df['GridMet']
     except:
-        print('no streamflow gage data for ', reservoir)
+        # print('no streamflow gage data for ', reservoir)
+        pass
 
 ### convert cubic meter to MG
 deliveryNYC *= cm_to_mg

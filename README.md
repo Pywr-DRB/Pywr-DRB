@@ -1,4 +1,4 @@
-# Pywr model for Delaware River Basin
+# Pywr-DRB: a Pywr model for Delaware River Basin
 
 ***In development***
 
@@ -10,22 +10,8 @@ You will need Python 3 - I am running 3.8.10 and haven't done extensive compatab
 ### Geospatial analysis
 The ``DRB_spatial/`` directory contains the Jupyter Notebook ``DRB_spatial.ipynb`` that creates some (rudimentary for now) maps of the system, which can be helpful for visualizing the node network used in the pywr simulation. To recreate the maps, you will need to download additional geospatial data, as outlined in the separate README file in that directory.
 
-### Downloading streamflow data
-The ``get_usgs_inflows.py`` script downloads historical discharge timeseries for many streamflow gages associated with reservoirs and other important river reaches in the DRB. These are stored in the ``input_data/`` directory. *Note: this takes a while, USGS servers are slow.*
+### Prepping data, looping over simulations with different input files, and analyzing data
+Running ``drb_run_all.sh`` from the command line will do three things. First, it will run ``prep_input_data.py``, which preps input data files on observed streamflows, modeled flows from NHMv1.0, NWMv2.1, and WEAP (Aug 23, 2022, version), and saves data in Pywr-ready formats. Second, it loops over these four input data types and runs each through the Pywr model, using ``drb_run_sim.py``. Lastly, it analyzes the results and creates the figures from my 10/24/2023 USGS seminar plus some other close variants.
 
-### Prepping streamflow data
-The ``drb_inflow_prep.py`` script will loop through each input dataset, extract and clean up the desired information, and store all in a single file, ``input_data/inflows_clean.csv``. *Note: This is currently broken, need to go back and fix, but you can still use the inflows_clean.csv file. Also note that at present, I am just using constant streamflows for the 4 catchments in the simplified model, until I can verify that everything is working properly.*
-
-### Creating the "model" file
-Pywr builds the system model from a JSON file with a specific format. However, this format is rather difficult to read and develop for large, complex models. For this reason, the DRB model is mostly defined in a collection of CSV files in the ``model_data/`` directory, with different files for nodes, edges, parameters, rules curves, etc., e.g., ``model_data/drb_model_nodes.csv`` for the node information. The ``drb_make_model.py`` script is used to extract this information and transform it into the necessary JSON format, ``model_data/drb_model_full.json``. 
-
-This script also uses parametric information stored in the ``model_data/drb_model_istarf_conus.csv`` file to build pywr representations of the STARFIT data-driven control rules for many reservoirs. See Turner et al, "Water storage and release policies for all large reservoirs of conterminous United States", Journal of Hydrology, 2021.
-
-*Note: There seems to be an issue with my implementation of the STARFIT rules and/or unit inconsistencies, as I am getting strange results on our simple test problem at the moment.*
-
-### Running the model
-The ``drb.py`` script can be used to run the model by supplying the command line argument "run" (i.e. ``python3 drb.py run``). Results will be stored as ``output_data/drb_output.hdf5``.
-
-The same script can also be used to visualize the output, using the "figures" command line argument. Note that the types of data to visualize are currently hard-coded in line 42. 
-
+### More info forthcoming...
 
