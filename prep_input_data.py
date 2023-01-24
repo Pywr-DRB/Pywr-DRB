@@ -178,7 +178,7 @@ def get_WEAP_df(filename, datecolumn):
     df['datetime'] = df[datecolumn]
     df.index = pd.DatetimeIndex(df['datetime'])
     ### fill in leap days, assuming average of 2/28 and 3/1
-    df = df.resample('D').sum()
+    df = df.resample('D').sum(numeric_only = True)
     idxs = [i for i in range(df.shape[0]) if df.index[i].day == 29 and df.index[i].month == 2]
     for i in idxs:
         df.iloc[i, :] = (df.iloc[i - 1, :] + df.iloc[i + 1, :]) / 2
@@ -294,4 +294,3 @@ deliveryNJ[deliveryNJ < 0] = 0
 
 ### save
 deliveryNJ.to_csv(f'{input_dir}deliveryNJ_WEAP_23Aug2022_gridmet.csv')
-
