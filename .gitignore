@@ -10,3 +10,6 @@ __pycache__
 */*/.ipynb_checkpoints
 pywr_glpk_debug*
 *.log
+venv*
+/venv*
+/DRB_spatial/cache/*

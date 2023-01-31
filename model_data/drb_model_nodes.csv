@@ -1,4 +1,4 @@
-name,type,flow,max_volume,initial_volume,initial_volume_pc,cost,storage_nodes,max_flow,mrf,mrf_cost,long,lat,notes,huc12,gages,nwm_feature_id
+name,type,flow,max_volume,initial_volume,initial_volume_pc,cost,storage_nodes,max_flow,mrf,mrf_cost,lat,long,notes,huc12,gages,nwm_feature_id
 catchment_cannonsville,catchment,flow_cannonsville,,,,,,,,,42.128727,-75.278417,,,"inflows: 0142400103 to 1952, 01423000 to 1950",
 catchment_pepacton,catchment,flow_pepacton,,,,,,,,,42.12065,-74.672851,,,"inflows: 01415000 to 1937, 01414500 to 1937, 01414000 to 1941, 01413500 to 1937",
 catchment_neversink,catchment,flow_neversink,,,,,,,,,41.877839,-74.610214,,,inflow: 01435000 to 1937,
