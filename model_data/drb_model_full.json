@@ -137,6 +137,294 @@
             "flow": "flow_outletChristina"
         },
         {
+            "name": "catchmentWithdrawal_cannonsville",
+            "type": "link",
+            "cost": -15.0,
+            "max_flow": "max_flow_catchmentWithdrawal_cannonsville"
+        },
+        {
+            "name": "catchmentWithdrawal_pepacton",
+            "type": "link",
+            "cost": -15.0,
+            "max_flow": "max_flow_catchmentWithdrawal_pepacton"
+        },
+        {
+            "name": "catchmentWithdrawal_neversink",
+            "type": "link",
+            "cost": -15.0,
+            "max_flow": "max_flow_catchmentWithdrawal_neversink"
+        },
+        {
+            "name": "catchmentWithdrawal_delLordville",
+            "type": "link",
+            "cost": -15.0,
+            "max_flow": "max_flow_catchmentWithdrawal_delLordville"
+        },
+        {
+            "name": "catchmentWithdrawal_wallenpaupack",
+            "type": "link",
+            "cost": -15.0,
+            "max_flow": "max_flow_catchmentWithdrawal_wallenpaupack"
+        },
+        {
+            "name": "catchmentWithdrawal_prompton",
+            "type": "link",
+            "cost": -15.0,
+            "max_flow": "max_flow_catchmentWithdrawal_prompton"
+        },
+        {
+            "name": "catchmentWithdrawal_shoholaMarsh",
+            "type": "link",
+            "cost": -15.0,
+            "max_flow": "max_flow_catchmentWithdrawal_shoholaMarsh"
+        },
+        {
+            "name": "catchmentWithdrawal_mongaupeCombined",
+            "type": "link",
+            "cost": -15.0,
+            "max_flow": "max_flow_catchmentWithdrawal_mongaupeCombined"
+        },
+        {
+            "name": "catchmentWithdrawal_delMontague",
+            "type": "link",
+            "cost": -15.0,
+            "max_flow": "max_flow_catchmentWithdrawal_delMontague"
+        },
+        {
+            "name": "catchmentWithdrawal_beltzvilleCombined",
+            "type": "link",
+            "cost": -15.0,
+            "max_flow": "max_flow_catchmentWithdrawal_beltzvilleCombined"
+        },
+        {
+            "name": "catchmentWithdrawal_fewalter",
+            "type": "link",
+            "cost": -15.0,
+            "max_flow": "max_flow_catchmentWithdrawal_fewalter"
+        },
+        {
+            "name": "catchmentWithdrawal_merrillCreek",
+            "type": "link",
+            "cost": -15.0,
+            "max_flow": "max_flow_catchmentWithdrawal_merrillCreek"
+        },
+        {
+            "name": "catchmentWithdrawal_hopatcong",
+            "type": "link",
+            "cost": -15.0,
+            "max_flow": "max_flow_catchmentWithdrawal_hopatcong"
+        },
+        {
+            "name": "catchmentWithdrawal_nockamixon",
+            "type": "link",
+            "cost": -15.0,
+            "max_flow": "max_flow_catchmentWithdrawal_nockamixon"
+        },
+        {
+            "name": "catchmentWithdrawal_delTrenton",
+            "type": "link",
+            "cost": -15.0,
+            "max_flow": "max_flow_catchmentWithdrawal_delTrenton"
+        },
+        {
+            "name": "catchmentWithdrawal_assunpink",
+            "type": "link",
+            "cost": -15.0,
+            "max_flow": "max_flow_catchmentWithdrawal_assunpink"
+        },
+        {
+            "name": "catchmentWithdrawal_outletAssunpink",
+            "type": "link",
+            "cost": -15.0,
+            "max_flow": "max_flow_catchmentWithdrawal_outletAssunpink"
+        },
+        {
+            "name": "catchmentWithdrawal_ontelaunee",
+            "type": "link",
+            "cost": -15.0,
+            "max_flow": "max_flow_catchmentWithdrawal_ontelaunee"
+        },
+        {
+            "name": "catchmentWithdrawal_stillCreek",
+            "type": "link",
+            "cost": -15.0,
+            "max_flow": "max_flow_catchmentWithdrawal_stillCreek"
+        },
+        {
+            "name": "catchmentWithdrawal_blueMarsh",
+            "type": "link",
+            "cost": -15.0,
+            "max_flow": "max_flow_catchmentWithdrawal_blueMarsh"
+        },
+        {
+            "name": "catchmentWithdrawal_greenLane",
+            "type": "link",
+            "cost": -15.0,
+            "max_flow": "max_flow_catchmentWithdrawal_greenLane"
+        },
+        {
+            "name": "catchmentWithdrawal_outletSchuylkill",
+            "type": "link",
+            "cost": -15.0,
+            "max_flow": "max_flow_catchmentWithdrawal_outletSchuylkill"
+        },
+        {
+            "name": "catchmentWithdrawal_marshCreek",
+            "type": "link",
+            "cost": -15.0,
+            "max_flow": "max_flow_catchmentWithdrawal_marshCreek"
+        },
+        {
+            "name": "catchmentWithdrawal_outletChristina",
+            "type": "link",
+            "cost": -15.0,
+            "max_flow": "max_flow_catchmentWithdrawal_outletChristina"
+        },
+        {
+            "name": "catchmentConsumption_cannonsville",
+            "type": "output",
+            "cost": -200.0,
+            "max_flow": "max_flow_catchmentConsumption_cannonsville"
+        },
+        {
+            "name": "catchmentConsumption_pepacton",
+            "type": "output",
+            "cost": -200.0,
+            "max_flow": "max_flow_catchmentConsumption_pepacton"
+        },
+        {
+            "name": "catchmentConsumption_neversink",
+            "type": "output",
+            "cost": -200.0,
+            "max_flow": "max_flow_catchmentConsumption_neversink"
+        },
+        {
+            "name": "catchmentConsumption_delLordville",
+            "type": "output",
+            "cost": -200.0,
+            "max_flow": "max_flow_catchmentConsumption_delLordville"
+        },
+        {
+            "name": "catchmentConsumption_wallenpaupack",
+            "type": "output",
+            "cost": -200.0,
+            "max_flow": "max_flow_catchmentConsumption_wallenpaupack"
+        },
+        {
+            "name": "catchmentConsumption_prompton",
+            "type": "output",
+            "cost": -200.0,
+            "max_flow": "max_flow_catchmentConsumption_prompton"
+        },
+        {
+            "name": "catchmentConsumption_shoholaMarsh",
+            "type": "output",
+            "cost": -200.0,
+            "max_flow": "max_flow_catchmentConsumption_shoholaMarsh"
+        },
+        {
+            "name": "catchmentConsumption_mongaupeCombined",
+            "type": "output",
+            "cost": -200.0,
+            "max_flow": "max_flow_catchmentConsumption_mongaupeCombined"
+        },
+        {
+            "name": "catchmentConsumption_delMontague",
+            "type": "output",
+            "cost": -200.0,
+            "max_flow": "max_flow_catchmentConsumption_delMontague"
+        },
+        {
+            "name": "catchmentConsumption_beltzvilleCombined",
+            "type": "output",
+            "cost": -200.0,
+            "max_flow": "max_flow_catchmentConsumption_beltzvilleCombined"
+        },
+        {
+            "name": "catchmentConsumption_fewalter",
+            "type": "output",
+            "cost": -200.0,
+            "max_flow": "max_flow_catchmentConsumption_fewalter"
+        },
+        {
+            "name": "catchmentConsumption_merrillCreek",
+            "type": "output",
+            "cost": -200.0,
+            "max_flow": "max_flow_catchmentConsumption_merrillCreek"
+        },
+        {
+            "name": "catchmentConsumption_hopatcong",
+            "type": "output",
+            "cost": -200.0,
+            "max_flow": "max_flow_catchmentConsumption_hopatcong"
+        },
+        {
+            "name": "catchmentConsumption_nockamixon",
+            "type": "output",
+            "cost": -200.0,
+            "max_flow": "max_flow_catchmentConsumption_nockamixon"
+        },
+        {
+            "name": "catchmentConsumption_delTrenton",
+            "type": "output",
+            "cost": -200.0,
+            "max_flow": "max_flow_catchmentConsumption_delTrenton"
+        },
+        {
+            "name": "catchmentConsumption_assunpink",
+            "type": "output",
+            "cost": -200.0,
+            "max_flow": "max_flow_catchmentConsumption_assunpink"
+        },
+        {
+            "name": "catchmentConsumption_outletAssunpink",
+            "type": "output",
+            "cost": -200.0,
+            "max_flow": "max_flow_catchmentConsumption_outletAssunpink"
+        },
+        {
+            "name": "catchmentConsumption_ontelaunee",
+            "type": "output",
+            "cost": -200.0,
+            "max_flow": "max_flow_catchmentConsumption_ontelaunee"
+        },
+        {
+            "name": "catchmentConsumption_stillCreek",
+            "type": "output",
+            "cost": -200.0,
+            "max_flow": "max_flow_catchmentConsumption_stillCreek"
+        },
+        {
+            "name": "catchmentConsumption_blueMarsh",
+            "type": "output",
+            "cost": -200.0,
+            "max_flow": "max_flow_catchmentConsumption_blueMarsh"
+        },
+        {
+            "name": "catchmentConsumption_greenLane",
+            "type": "output",
+            "cost": -200.0,
+            "max_flow": "max_flow_catchmentConsumption_greenLane"
+        },
+        {
+            "name": "catchmentConsumption_outletSchuylkill",
+            "type": "output",
+            "cost": -200.0,
+            "max_flow": "max_flow_catchmentConsumption_outletSchuylkill"
+        },
+        {
+            "name": "catchmentConsumption_marshCreek",
+            "type": "output",
+            "cost": -200.0,
+            "max_flow": "max_flow_catchmentConsumption_marshCreek"
+        },
+        {
+            "name": "catchmentConsumption_outletChristina",
+            "type": "output",
+            "cost": -200.0,
+            "max_flow": "max_flow_catchmentConsumption_outletChristina"
+        },
+        {
             "name": "reservoir_cannonsville",
             "type": "storage",
             "max_volume": "max_volume_cannonsville",
@@ -504,6 +792,18 @@
             "reservoir_cannonsville"
         ],
         [
+            "catchment_cannonsville",
+            "catchmentWithdrawal_cannonsville"
+        ],
+        [
+            "catchmentWithdrawal_cannonsville",
+            "catchmentConsumption_cannonsville"
+        ],
+        [
+            "catchmentWithdrawal_cannonsville",
+            "reservoir_cannonsville"
+        ],
+        [
             "reservoir_cannonsville",
             "link_cannonsville_nyc"
         ],
@@ -533,6 +833,18 @@
         ],
         [
             "catchment_pepacton",
+            "reservoir_pepacton"
+        ],
+        [
+            "catchment_pepacton",
+            "catchmentWithdrawal_pepacton"
+        ],
+        [
+            "catchmentWithdrawal_pepacton",
+            "catchmentConsumption_pepacton"
+        ],
+        [
+            "catchmentWithdrawal_pepacton",
             "reservoir_pepacton"
         ],
         [
@@ -568,11 +880,35 @@
             "link_delLordville"
         ],
         [
+            "catchment_delLordville",
+            "catchmentWithdrawal_delLordville"
+        ],
+        [
+            "catchmentWithdrawal_delLordville",
+            "catchmentConsumption_delLordville"
+        ],
+        [
+            "catchmentWithdrawal_delLordville",
+            "link_delLordville"
+        ],
+        [
             "link_delLordville",
             "link_delMontague"
         ],
         [
             "catchment_prompton",
+            "reservoir_prompton"
+        ],
+        [
+            "catchment_prompton",
+            "catchmentWithdrawal_prompton"
+        ],
+        [
+            "catchmentWithdrawal_prompton",
+            "catchmentConsumption_prompton"
+        ],
+        [
+            "catchmentWithdrawal_prompton",
             "reservoir_prompton"
         ],
         [
@@ -588,6 +924,18 @@
             "reservoir_wallenpaupack"
         ],
         [
+            "catchment_wallenpaupack",
+            "catchmentWithdrawal_wallenpaupack"
+        ],
+        [
+            "catchmentWithdrawal_wallenpaupack",
+            "catchmentConsumption_wallenpaupack"
+        ],
+        [
+            "catchmentWithdrawal_wallenpaupack",
+            "reservoir_wallenpaupack"
+        ],
+        [
             "reservoir_wallenpaupack",
             "outflow_wallenpaupack"
         ],
@@ -597,6 +945,18 @@
         ],
         [
             "catchment_shoholaMarsh",
+            "reservoir_shoholaMarsh"
+        ],
+        [
+            "catchment_shoholaMarsh",
+            "catchmentWithdrawal_shoholaMarsh"
+        ],
+        [
+            "catchmentWithdrawal_shoholaMarsh",
+            "catchmentConsumption_shoholaMarsh"
+        ],
+        [
+            "catchmentWithdrawal_shoholaMarsh",
             "reservoir_shoholaMarsh"
         ],
         [
@@ -612,6 +972,18 @@
             "reservoir_mongaupeCombined"
         ],
         [
+            "catchment_mongaupeCombined",
+            "catchmentWithdrawal_mongaupeCombined"
+        ],
+        [
+            "catchmentWithdrawal_mongaupeCombined",
+            "catchmentConsumption_mongaupeCombined"
+        ],
+        [
+            "catchmentWithdrawal_mongaupeCombined",
+            "reservoir_mongaupeCombined"
+        ],
+        [
             "reservoir_mongaupeCombined",
             "outflow_mongaupeCombined"
         ],
@@ -621,6 +993,18 @@
         ],
         [
             "catchment_neversink",
+            "reservoir_neversink"
+        ],
+        [
+            "catchment_neversink",
+            "catchmentWithdrawal_neversink"
+        ],
+        [
+            "catchmentWithdrawal_neversink",
+            "catchmentConsumption_neversink"
+        ],
+        [
+            "catchmentWithdrawal_neversink",
             "reservoir_neversink"
         ],
         [
@@ -656,6 +1040,18 @@
             "link_delMontague"
         ],
         [
+            "catchment_delMontague",
+            "catchmentWithdrawal_delMontague"
+        ],
+        [
+            "catchmentWithdrawal_delMontague",
+            "catchmentConsumption_delMontague"
+        ],
+        [
+            "catchmentWithdrawal_delMontague",
+            "link_delMontague"
+        ],
+        [
             "link_delMontague",
             "outflow_montague"
         ],
@@ -665,6 +1061,18 @@
         ],
         [
             "catchment_beltzvilleCombined",
+            "reservoir_beltzvilleCombined"
+        ],
+        [
+            "catchment_beltzvilleCombined",
+            "catchmentWithdrawal_beltzvilleCombined"
+        ],
+        [
+            "catchmentWithdrawal_beltzvilleCombined",
+            "catchmentConsumption_beltzvilleCombined"
+        ],
+        [
+            "catchmentWithdrawal_beltzvilleCombined",
             "reservoir_beltzvilleCombined"
         ],
         [
@@ -680,6 +1088,18 @@
             "reservoir_fewalter"
         ],
         [
+            "catchment_fewalter",
+            "catchmentWithdrawal_fewalter"
+        ],
+        [
+            "catchmentWithdrawal_fewalter",
+            "catchmentConsumption_fewalter"
+        ],
+        [
+            "catchmentWithdrawal_fewalter",
+            "reservoir_fewalter"
+        ],
+        [
             "reservoir_fewalter",
             "outflow_fewalter"
         ],
@@ -689,6 +1109,18 @@
         ],
         [
             "catchment_merrillCreek",
+            "reservoir_merrillCreek"
+        ],
+        [
+            "catchment_merrillCreek",
+            "catchmentWithdrawal_merrillCreek"
+        ],
+        [
+            "catchmentWithdrawal_merrillCreek",
+            "catchmentConsumption_merrillCreek"
+        ],
+        [
+            "catchmentWithdrawal_merrillCreek",
             "reservoir_merrillCreek"
         ],
         [
@@ -704,6 +1136,18 @@
             "reservoir_hopatcong"
         ],
         [
+            "catchment_hopatcong",
+            "catchmentWithdrawal_hopatcong"
+        ],
+        [
+            "catchmentWithdrawal_hopatcong",
+            "catchmentConsumption_hopatcong"
+        ],
+        [
+            "catchmentWithdrawal_hopatcong",
+            "reservoir_hopatcong"
+        ],
+        [
             "reservoir_hopatcong",
             "outflow_hopatcong"
         ],
@@ -716,6 +1160,18 @@
             "reservoir_nockamixon"
         ],
         [
+            "catchment_nockamixon",
+            "catchmentWithdrawal_nockamixon"
+        ],
+        [
+            "catchmentWithdrawal_nockamixon",
+            "catchmentConsumption_nockamixon"
+        ],
+        [
+            "catchmentWithdrawal_nockamixon",
+            "reservoir_nockamixon"
+        ],
+        [
             "reservoir_nockamixon",
             "outflow_nockamixon"
         ],
@@ -725,6 +1181,18 @@
         ],
         [
             "catchment_delTrenton",
+            "link_delTrenton"
+        ],
+        [
+            "catchment_delTrenton",
+            "catchmentWithdrawal_delTrenton"
+        ],
+        [
+            "catchmentWithdrawal_delTrenton",
+            "catchmentConsumption_delTrenton"
+        ],
+        [
+            "catchmentWithdrawal_delTrenton",
             "link_delTrenton"
         ],
         [
@@ -744,6 +1212,18 @@
             "reservoir_assunpink"
         ],
         [
+            "catchment_assunpink",
+            "catchmentWithdrawal_assunpink"
+        ],
+        [
+            "catchmentWithdrawal_assunpink",
+            "catchmentConsumption_assunpink"
+        ],
+        [
+            "catchmentWithdrawal_assunpink",
+            "reservoir_assunpink"
+        ],
+        [
             "reservoir_assunpink",
             "outflow_assunpink"
         ],
@@ -756,11 +1236,35 @@
             "link_outletAssunpink"
         ],
         [
+            "catchment_outletAssunpink",
+            "catchmentWithdrawal_outletAssunpink"
+        ],
+        [
+            "catchmentWithdrawal_outletAssunpink",
+            "catchmentConsumption_outletAssunpink"
+        ],
+        [
+            "catchmentWithdrawal_outletAssunpink",
+            "link_outletAssunpink"
+        ],
+        [
             "link_outletAssunpink",
             "output_del"
         ],
         [
             "catchment_ontelaunee",
+            "reservoir_ontelaunee"
+        ],
+        [
+            "catchment_ontelaunee",
+            "catchmentWithdrawal_ontelaunee"
+        ],
+        [
+            "catchmentWithdrawal_ontelaunee",
+            "catchmentConsumption_ontelaunee"
+        ],
+        [
+            "catchmentWithdrawal_ontelaunee",
             "reservoir_ontelaunee"
         ],
         [
@@ -776,6 +1280,18 @@
             "reservoir_stillCreek"
         ],
         [
+            "catchment_stillCreek",
+            "catchmentWithdrawal_stillCreek"
+        ],
+        [
+            "catchmentWithdrawal_stillCreek",
+            "catchmentConsumption_stillCreek"
+        ],
+        [
+            "catchmentWithdrawal_stillCreek",
+            "reservoir_stillCreek"
+        ],
+        [
             "reservoir_stillCreek",
             "outflow_stillCreek"
         ],
@@ -785,6 +1301,18 @@
         ],
         [
             "catchment_blueMarsh",
+            "reservoir_blueMarsh"
+        ],
+        [
+            "catchment_blueMarsh",
+            "catchmentWithdrawal_blueMarsh"
+        ],
+        [
+            "catchmentWithdrawal_blueMarsh",
+            "catchmentConsumption_blueMarsh"
+        ],
+        [
+            "catchmentWithdrawal_blueMarsh",
             "reservoir_blueMarsh"
         ],
         [
@@ -800,6 +1328,18 @@
             "reservoir_greenLane"
         ],
         [
+            "catchment_greenLane",
+            "catchmentWithdrawal_greenLane"
+        ],
+        [
+            "catchmentWithdrawal_greenLane",
+            "catchmentConsumption_greenLane"
+        ],
+        [
+            "catchmentWithdrawal_greenLane",
+            "reservoir_greenLane"
+        ],
+        [
             "reservoir_greenLane",
             "outflow_greenLane"
         ],
@@ -812,11 +1352,35 @@
             "link_outletSchuylkill"
         ],
         [
+            "catchment_outletSchuylkill",
+            "catchmentWithdrawal_outletSchuylkill"
+        ],
+        [
+            "catchmentWithdrawal_outletSchuylkill",
+            "catchmentConsumption_outletSchuylkill"
+        ],
+        [
+            "catchmentWithdrawal_outletSchuylkill",
+            "link_outletSchuylkill"
+        ],
+        [
             "link_outletSchuylkill",
             "output_del"
         ],
         [
             "catchment_marshCreek",
+            "reservoir_marshCreek"
+        ],
+        [
+            "catchment_marshCreek",
+            "catchmentWithdrawal_marshCreek"
+        ],
+        [
+            "catchmentWithdrawal_marshCreek",
+            "catchmentConsumption_marshCreek"
+        ],
+        [
+            "catchmentWithdrawal_marshCreek",
             "reservoir_marshCreek"
         ],
         [
@@ -829,6 +1393,18 @@
         ],
         [
             "catchment_outletChristina",
+            "link_outletChristina"
+        ],
+        [
+            "catchment_outletChristina",
+            "catchmentWithdrawal_outletChristina"
+        ],
+        [
+            "catchmentWithdrawal_outletChristina",
+            "catchmentConsumption_outletChristina"
+        ],
+        [
+            "catchmentWithdrawal_outletChristina",
             "link_outletChristina"
         ],
         [
@@ -846,21 +1422,21 @@
         },
         "flow_base_cannonsville": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
+            "url": "../input_data/catchment_inflow_nhmv10.csv",
             "column": "cannonsville",
             "index_col": "datetime",
             "parse_dates": true
         },
         "flow_base_pepacton": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
+            "url": "../input_data/catchment_inflow_nhmv10.csv",
             "column": "pepacton",
             "index_col": "datetime",
             "parse_dates": true
         },
         "flow_base_neversink": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
+            "url": "../input_data/catchment_inflow_nhmv10.csv",
             "column": "neversink",
             "index_col": "datetime",
             "parse_dates": true
@@ -2329,7 +2905,7 @@
         },
         "flow_base_wallenpaupack": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
+            "url": "../input_data/catchment_inflow_nhmv10.csv",
             "column": "wallenpaupack",
             "index_col": "datetime",
             "parse_dates": true
@@ -2350,14 +2926,14 @@
         },
         "flow_base_mongaupeCombined": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
+            "url": "../input_data/catchment_inflow_nhmv10.csv",
             "column": "mongaupeCombined",
             "index_col": "datetime",
             "parse_dates": true
         },
         "flow_base_beltzvilleCombined": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
+            "url": "../input_data/catchment_inflow_nhmv10.csv",
             "column": "beltzvilleCombined",
             "index_col": "datetime",
             "parse_dates": true
@@ -2385,21 +2961,21 @@
         },
         "flow_base_nockamixon": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
+            "url": "../input_data/catchment_inflow_nhmv10.csv",
             "column": "nockamixon",
             "index_col": "datetime",
             "parse_dates": true
         },
         "flow_base_assunpink": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
+            "url": "../input_data/catchment_inflow_nhmv10.csv",
             "column": "assunpink",
             "index_col": "datetime",
             "parse_dates": true
         },
         "flow_base_ontelaunee": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
+            "url": "../input_data/catchment_inflow_nhmv10.csv",
             "column": "ontelaunee",
             "index_col": "datetime",
             "parse_dates": true
@@ -2413,7 +2989,7 @@
         },
         "flow_base_blueMarsh": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
+            "url": "../input_data/catchment_inflow_nhmv10.csv",
             "column": "blueMarsh",
             "index_col": "datetime",
             "parse_dates": true
@@ -10861,6 +11437,342 @@
                 "flow_base_outletChristina",
                 "flow_factor"
             ]
+        },
+        "max_flow_catchmentWithdrawal_cannonsville": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_WD_MGD",
+            "index_col": "node",
+            "index": "reservoir_cannonsville"
+        },
+        "max_flow_catchmentWithdrawal_pepacton": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_WD_MGD",
+            "index_col": "node",
+            "index": "reservoir_pepacton"
+        },
+        "max_flow_catchmentWithdrawal_neversink": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_WD_MGD",
+            "index_col": "node",
+            "index": "reservoir_neversink"
+        },
+        "max_flow_catchmentWithdrawal_delLordville": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_WD_MGD",
+            "index_col": "node",
+            "index": "link_delLordville"
+        },
+        "max_flow_catchmentWithdrawal_wallenpaupack": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_WD_MGD",
+            "index_col": "node",
+            "index": "reservoir_wallenpaupack"
+        },
+        "max_flow_catchmentWithdrawal_prompton": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_WD_MGD",
+            "index_col": "node",
+            "index": "reservoir_prompton"
+        },
+        "max_flow_catchmentWithdrawal_shoholaMarsh": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_WD_MGD",
+            "index_col": "node",
+            "index": "reservoir_shoholaMarsh"
+        },
+        "max_flow_catchmentWithdrawal_mongaupeCombined": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_WD_MGD",
+            "index_col": "node",
+            "index": "reservoir_mongaupeCombined"
+        },
+        "max_flow_catchmentWithdrawal_delMontague": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_WD_MGD",
+            "index_col": "node",
+            "index": "link_delMontague"
+        },
+        "max_flow_catchmentWithdrawal_beltzvilleCombined": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_WD_MGD",
+            "index_col": "node",
+            "index": "reservoir_beltzvilleCombined"
+        },
+        "max_flow_catchmentWithdrawal_fewalter": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_WD_MGD",
+            "index_col": "node",
+            "index": "reservoir_fewalter"
+        },
+        "max_flow_catchmentWithdrawal_merrillCreek": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_WD_MGD",
+            "index_col": "node",
+            "index": "reservoir_merrillCreek"
+        },
+        "max_flow_catchmentWithdrawal_hopatcong": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_WD_MGD",
+            "index_col": "node",
+            "index": "reservoir_hopatcong"
+        },
+        "max_flow_catchmentWithdrawal_nockamixon": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_WD_MGD",
+            "index_col": "node",
+            "index": "reservoir_nockamixon"
+        },
+        "max_flow_catchmentWithdrawal_delTrenton": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_WD_MGD",
+            "index_col": "node",
+            "index": "link_delTrenton"
+        },
+        "max_flow_catchmentWithdrawal_assunpink": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_WD_MGD",
+            "index_col": "node",
+            "index": "reservoir_assunpink"
+        },
+        "max_flow_catchmentWithdrawal_outletAssunpink": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_WD_MGD",
+            "index_col": "node",
+            "index": "link_outletAssunpink"
+        },
+        "max_flow_catchmentWithdrawal_ontelaunee": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_WD_MGD",
+            "index_col": "node",
+            "index": "reservoir_ontelaunee"
+        },
+        "max_flow_catchmentWithdrawal_stillCreek": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_WD_MGD",
+            "index_col": "node",
+            "index": "reservoir_stillCreek"
+        },
+        "max_flow_catchmentWithdrawal_blueMarsh": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_WD_MGD",
+            "index_col": "node",
+            "index": "reservoir_blueMarsh"
+        },
+        "max_flow_catchmentWithdrawal_greenLane": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_WD_MGD",
+            "index_col": "node",
+            "index": "reservoir_greenLane"
+        },
+        "max_flow_catchmentWithdrawal_outletSchuylkill": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_WD_MGD",
+            "index_col": "node",
+            "index": "link_outletSchuylkill"
+        },
+        "max_flow_catchmentWithdrawal_marshCreek": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_WD_MGD",
+            "index_col": "node",
+            "index": "reservoir_marshCreek"
+        },
+        "max_flow_catchmentWithdrawal_outletChristina": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_WD_MGD",
+            "index_col": "node",
+            "index": "link_outletChristina"
+        },
+        "max_flow_catchmentConsumption_cannonsville": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_CU_MGD",
+            "index_col": "node",
+            "index": "reservoir_cannonsville"
+        },
+        "max_flow_catchmentConsumption_pepacton": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_CU_MGD",
+            "index_col": "node",
+            "index": "reservoir_pepacton"
+        },
+        "max_flow_catchmentConsumption_neversink": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_CU_MGD",
+            "index_col": "node",
+            "index": "reservoir_neversink"
+        },
+        "max_flow_catchmentConsumption_delLordville": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_CU_MGD",
+            "index_col": "node",
+            "index": "link_delLordville"
+        },
+        "max_flow_catchmentConsumption_wallenpaupack": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_CU_MGD",
+            "index_col": "node",
+            "index": "reservoir_wallenpaupack"
+        },
+        "max_flow_catchmentConsumption_prompton": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_CU_MGD",
+            "index_col": "node",
+            "index": "reservoir_prompton"
+        },
+        "max_flow_catchmentConsumption_shoholaMarsh": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_CU_MGD",
+            "index_col": "node",
+            "index": "reservoir_shoholaMarsh"
+        },
+        "max_flow_catchmentConsumption_mongaupeCombined": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_CU_MGD",
+            "index_col": "node",
+            "index": "reservoir_mongaupeCombined"
+        },
+        "max_flow_catchmentConsumption_delMontague": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_CU_MGD",
+            "index_col": "node",
+            "index": "link_delMontague"
+        },
+        "max_flow_catchmentConsumption_beltzvilleCombined": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_CU_MGD",
+            "index_col": "node",
+            "index": "reservoir_beltzvilleCombined"
+        },
+        "max_flow_catchmentConsumption_fewalter": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_CU_MGD",
+            "index_col": "node",
+            "index": "reservoir_fewalter"
+        },
+        "max_flow_catchmentConsumption_merrillCreek": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_CU_MGD",
+            "index_col": "node",
+            "index": "reservoir_merrillCreek"
+        },
+        "max_flow_catchmentConsumption_hopatcong": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_CU_MGD",
+            "index_col": "node",
+            "index": "reservoir_hopatcong"
+        },
+        "max_flow_catchmentConsumption_nockamixon": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_CU_MGD",
+            "index_col": "node",
+            "index": "reservoir_nockamixon"
+        },
+        "max_flow_catchmentConsumption_delTrenton": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_CU_MGD",
+            "index_col": "node",
+            "index": "link_delTrenton"
+        },
+        "max_flow_catchmentConsumption_assunpink": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_CU_MGD",
+            "index_col": "node",
+            "index": "reservoir_assunpink"
+        },
+        "max_flow_catchmentConsumption_outletAssunpink": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_CU_MGD",
+            "index_col": "node",
+            "index": "link_outletAssunpink"
+        },
+        "max_flow_catchmentConsumption_ontelaunee": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_CU_MGD",
+            "index_col": "node",
+            "index": "reservoir_ontelaunee"
+        },
+        "max_flow_catchmentConsumption_stillCreek": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_CU_MGD",
+            "index_col": "node",
+            "index": "reservoir_stillCreek"
+        },
+        "max_flow_catchmentConsumption_blueMarsh": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_CU_MGD",
+            "index_col": "node",
+            "index": "reservoir_blueMarsh"
+        },
+        "max_flow_catchmentConsumption_greenLane": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_CU_MGD",
+            "index_col": "node",
+            "index": "reservoir_greenLane"
+        },
+        "max_flow_catchmentConsumption_outletSchuylkill": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_CU_MGD",
+            "index_col": "node",
+            "index": "link_outletSchuylkill"
+        },
+        "max_flow_catchmentConsumption_marshCreek": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_CU_MGD",
+            "index_col": "node",
+            "index": "reservoir_marshCreek"
+        },
+        "max_flow_catchmentConsumption_outletChristina": {
+            "type": "constant",
+            "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "column": "Total_CU_MGD",
+            "index_col": "node",
+            "index": "link_outletChristina"
         }
     }
 }
