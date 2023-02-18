@@ -77,8 +77,11 @@ def match_gages(df, dataset_label):
                               }
     ### list of lists, containing mainstem nodes, matching USGS gages, and upstream nodes to subtract
     site_matches_link = [['delLordville', ['01427207'], ['cannonsville', 'pepacton']],
-                         ['delMontague', ['01438500'], ['prompton', 'wallenpaupack', 'delLordville', 'shoholaMarsh', 'mongaupeCombined', 'neversink']],
-                         ['delTrenton', ['01463500'], ['delMontague', 'beltzvilleCombined', 'fewalter', 'merrillCreek', 'hopatcong', 'nockamixon']],
+                         ['delMontague', ['01438500'], ['cannonsville', 'pepacton', 'delLordville',
+                                                        'prompton', 'wallenpaupack', 'shoholaMarsh', 'mongaupeCombined', 'neversink']],
+                         ['delTrenton', ['01463500'], ['cannonsville', 'pepacton', 'delLordville',
+                                                        'prompton', 'wallenpaupack', 'shoholaMarsh', 'mongaupeCombined', 'neversink', 'delMontague',
+                                                       'beltzvilleCombined', 'fewalter', 'merrillCreek', 'hopatcong', 'nockamixon']],
                          ['outletAssunpink', ['01463620'], ['assunpink']], ## note, should get downstream junction, just using reservoir-adjacent gage for now
                          ['outletSchuylkill', ['01474500'], ['ontelaunee', 'stillCreek', 'blueMarsh', 'greenLane']],
                          ['outletChristina', ['01480685'], ['marshCreek']] ## note, should use ['01481500, 01480015, 01479000, 01478000'], but dont have yet. so use marsh creek gage for now.
@@ -171,7 +174,7 @@ df_nwm_withLakes = match_nwm_lakes(df_nwm, df_nwm_lakes, 'nwmv21_withLakes')
 ### organize WEAP results to use in Pywr-DRB
 reservoirs = ['cannonsville', 'pepacton', 'neversink', 'wallenpaupack', 'prompton', 'mongaupeCombined',
               'beltzvilleCombined', 'blueMarsh', 'nockamixon', 'ontelaunee', 'assunpink']
-
+major_flows = ['delLordville','delMontague','delTrenton','outletAssunpink','outletSchuylkill', 'outletChristina']
 
 def get_WEAP_df(filename, datecolumn):
     df = pd.read_csv(filename, header=3)
@@ -238,15 +241,15 @@ storageObs.to_csv(f'{input_dir}storageObs_WEAP_23Aug2022_gridmet.csv')
 
 ### now get flow gages
 filenames = glob.glob(f'{weap_dir}/*flowGage*')
-for reservoir in reservoirs:
+for node in reservoirs + major_flows:
     try:
-        filename = [f for f in filenames if reservoir in f][0]
+        filename = [f for f in filenames if node in f][0]
         df = get_WEAP_df(filename, 'Statistic')
 
-        if reservoir == 'cannonsville':
-            flow = pd.DataFrame({reservoir: df['Modeled']})
+        if node == 'cannonsville':
+            flow = pd.DataFrame({node: df['Modeled']})
         else:
-            flow[reservoir] = df['Modeled']
+            flow[node] = df['Modeled']
     except:
         # print('no streamflow gage data for ', reservoir)
         pass
