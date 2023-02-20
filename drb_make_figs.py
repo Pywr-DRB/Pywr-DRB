@@ -11,6 +11,8 @@ from scipy import stats
 ### I was having trouble with interactive console plotting in Pycharm for some reason - comment this out if you want to use that and not having issues
 mpl.use('TkAgg')
 
+rerun_all = False
+
 ### directories
 output_dir = 'output_data/'
 input_dir = 'input_data/'
@@ -187,29 +189,29 @@ def plot_3part_flows(results, models, node, colors=['0.5', '#67a9cf', '#ef8a62']
 
     # plt.show()
     if use2nd:
-        fig.savefig(f'{fig_dir}streamflow_3plots_{models[0]}_{models[1]}.png', bbox_inches='tight')
+        fig.savefig(f'{fig_dir}streamflow_3plots_{models[0]}_{models[1]}_{node}.png', bbox_inches='tight')
     else:
-        fig.savefig(f'{fig_dir}streamflow_3plots_{models[0]}.png', bbox_inches='tight')
+        fig.savefig(f'{fig_dir}streamflow_3plots_{models[0]}_{node}.png', bbox_inches='tight')
 
 
+if rerun_all:
+    ### nhm only - slides 36-39 in 10/24/2022 presentation
+    plot_3part_flows(res_releases, ['nhmv10'], 'pepacton')
 
-### nhm only - slides 36-39 in 10/24/2022 presentation
-plot_3part_flows(res_releases, ['nhmv10'], 'pepacton')
+    ### nhm vs nwm - slides 40-42 in 10/24/2022 presentation
+    plot_3part_flows(res_releases, ['nhmv10', 'nwmv21'], 'pepacton')
 
-### nhm vs nwm - slides 40-42 in 10/24/2022 presentation
-plot_3part_flows(res_releases, ['nhmv10', 'nwmv21'], 'pepacton')
+    ### nhm vs weap (with nhm backup) - slides 60-62 in 10/24/2022 presentation
+    plot_3part_flows(res_releases, ['nhmv10', 'WEAP_23Aug2022_gridmet'], 'pepacton')
 
-### nhm vs weap (with nhm backup) - slides 60-62 in 10/24/2022 presentation
-plot_3part_flows(res_releases, ['nhmv10', 'WEAP_23Aug2022_gridmet'], 'pepacton')
+    ### nhm vs pywr-nhm - slides 60-62 in 10/24/2022 presentation
+    plot_3part_flows(res_releases, ['nhmv10', 'pywr_nhmv10'], 'pepacton')
 
-### nhm vs pywr-nhm - slides 60-62 in 10/24/2022 presentation
-plot_3part_flows(res_releases, ['nhmv10', 'pywr_nhmv10'], 'pepacton')
+    ## nwm vs pywr-nwm
+    plot_3part_flows(res_releases, ['nwmv21', 'pywr_nwmv21'], 'pepacton')
 
-## nwm vs pywr-nwm
-plot_3part_flows(res_releases, ['nwmv21', 'pywr_nwmv21'], 'pepacton')
-
-## pywr-nwm vs pywr-nwm_withLakes
-plot_3part_flows(res_releases, ['pywr_nwmv21', 'pywr_nwmv21_withLakes'], 'pepacton')
+    ## pywr-nwm vs pywr-nwm_withLakes
+    plot_3part_flows(res_releases, ['pywr_nwmv21', 'pywr_nwmv21_withLakes'], 'pepacton')
 
 
 
@@ -275,29 +277,29 @@ def plot_weekly_flow_distributions(results, models, node, colors=['0.5', '#67a9c
 
     # plt.show()
     if use2nd:
-        fig.savefig(f'{fig_dir}streamflow_weekly_{models[0]}_{models[1]}.png', bbox_inches='tight')
+        fig.savefig(f'{fig_dir}streamflow_weekly_{models[0]}_{models[1]}_{node}.png', bbox_inches='tight')
     else:
-        fig.savefig(f'{fig_dir}streamflow_weekly_{models[0]}.png', bbox_inches='tight')
+        fig.savefig(f'{fig_dir}streamflow_weekly_{models[0]}_{node}.png', bbox_inches='tight')
 
 
+if rerun_all:
+    ### nhm only - slides 36-39 in 10/24/2022 presentation
+    plot_weekly_flow_distributions(res_releases, ['nhmv10'], 'pepacton')
 
-### nhm only - slides 36-39 in 10/24/2022 presentation
-plot_weekly_flow_distributions(res_releases, ['nhmv10'], 'pepacton')
+    ### nhm vs nwm - slides 35-37 in 10/24/2022 presentation
+    plot_weekly_flow_distributions(res_releases, ['nhmv10', 'nwmv21'], 'pepacton')
 
-### nhm vs nwm - slides 35-37 in 10/24/2022 presentation
-plot_weekly_flow_distributions(res_releases, ['nhmv10', 'nwmv21'], 'pepacton')
+    ### nhm vs weap (with nhm backup) - slides 68 in 10/24/2022 presentation
+    plot_weekly_flow_distributions(res_releases, ['nhmv10', 'WEAP_23Aug2022_gridmet'], 'pepacton')
 
-### nhm vs weap (with nhm backup) - slides 68 in 10/24/2022 presentation
-plot_weekly_flow_distributions(res_releases, ['nhmv10', 'WEAP_23Aug2022_gridmet'], 'pepacton')
+    ### nhm vs pywr-nhm - slides 68 in 10/24/2022 presentation
+    plot_weekly_flow_distributions(res_releases, ['nhmv10', 'pywr_nhmv10'], 'pepacton')
 
-### nhm vs pywr-nhm - slides 68 in 10/24/2022 presentation
-plot_weekly_flow_distributions(res_releases, ['nhmv10', 'pywr_nhmv10'], 'pepacton')
+    ## nwm vs pywr-nwm
+    plot_weekly_flow_distributions(res_releases, ['nwmv21', 'pywr_nwmv21'], 'pepacton')
 
-## nwm vs pywr-nwm
-plot_weekly_flow_distributions(res_releases, ['nwmv21', 'pywr_nwmv21'], 'pepacton')
-
-## pywr-nwm vs pywr-nwm_withLakes
-plot_weekly_flow_distributions(res_releases, ['pywr_nwmv21', 'pywr_nwmv21_withLakes'], 'pepacton')
+    ## pywr-nwm vs pywr-nwm_withLakes
+    plot_weekly_flow_distributions(res_releases, ['pywr_nwmv21', 'pywr_nwmv21_withLakes'], 'pepacton')
 
 
 
@@ -330,8 +332,7 @@ def get_error_metrics(results, models, nodes):
 
                 resultsdict = {'nse': nse[0], 'kge': kge[0], 'r': r[0], 'alpha': alpha[0], 'beta': beta[0],
                                'lognse': lognse[0], 'logkge': logkge[0], 'logr': logr[0], 'logalpha': logalpha[0],
-                               'logbeta': logbeta[0],
-                               'kss': kss} #'fdcArea': fdc_area,
+                               'logbeta': logbeta[0], 'kss': kss}
 
                 resultsdict['node'] = node
                 resultsdict['model'] = m
@@ -342,8 +343,6 @@ def get_error_metrics(results, models, nodes):
 
     results_metrics.reset_index(inplace=True, drop=True)
     return results_metrics
-
-res_release_metrics = get_error_metrics(res_releases, radial_models, nodes)
 
 
 ### radial plots across diff metrics/reservoirs/models.
@@ -500,56 +499,182 @@ def plot_radial_error_metrics(results_metrics, radial_models, nodes, useNonPep =
     fig.savefig(f'{fig_dir}/radialMetrics_{filename_mod}.png', bbox_inches='tight', dpi=300)
 
 
-### nhm vs nwm only, pepacton only - slides 48-54 in 10/24/2022 presentation
-plot_radial_error_metrics(res_release_metrics, radial_models, nodes, useNonPep = False, useweap = False, usepywr = False)
+if rerun_all:
+    res_release_metrics = get_error_metrics(res_releases, radial_models, nodes)
 
-### nhm vs nwm only, all reservoirs - slides 55-58 in 10/24/2022 presentation
-plot_radial_error_metrics(res_release_metrics, radial_models, nodes, useNonPep = True, useweap = False, usepywr = False)
+    ### nhm vs nwm only, pepacton only - slides 48-54 in 10/24/2022 presentation
+    plot_radial_error_metrics(res_release_metrics, radial_models, nodes, useNonPep = False, useweap = False, usepywr = False)
 
-### nhm vs nwm vs weap only, pepaction only - slides 69 in 10/24/2022 presentation
-plot_radial_error_metrics(res_release_metrics, radial_models, nodes, useNonPep = False, useweap = True, usepywr = False)
+    ### nhm vs nwm only, all reservoirs - slides 55-58 in 10/24/2022 presentation
+    plot_radial_error_metrics(res_release_metrics, radial_models, nodes, useNonPep = True, useweap = False, usepywr = False)
 
-### nhm vs nwm vs weap only, all reservoirs - slides 70 in 10/24/2022 presentation
-plot_radial_error_metrics(res_release_metrics, radial_models, nodes, useNonPep = True, useweap = True, usepywr = False)
+    ### nhm vs nwm vs weap only, pepaction only - slides 69 in 10/24/2022 presentation
+    plot_radial_error_metrics(res_release_metrics, radial_models, nodes, useNonPep = False, useweap = True, usepywr = False)
 
-### all models, pepaction only - slides 72-73 in 10/24/2022 presentation
-plot_radial_error_metrics(res_release_metrics, radial_models, nodes, useNonPep = False, useweap = True, usepywr = True)
+    ### nhm vs nwm vs weap only, all reservoirs - slides 70 in 10/24/2022 presentation
+    plot_radial_error_metrics(res_release_metrics, radial_models, nodes, useNonPep = True, useweap = True, usepywr = False)
 
-### all models, all reservoirs - slides 74-75 in 10/24/2022 presentation
-plot_radial_error_metrics(res_release_metrics, radial_models, nodes, useNonPep = True, useweap = True, usepywr = True)
+    ### all models, pepaction only - slides 72-73 in 10/24/2022 presentation
+    plot_radial_error_metrics(res_release_metrics, radial_models, nodes, useNonPep = False, useweap = True, usepywr = True)
 
-### all models, but using nwm_withLakes for pywr comparison. all reservoirs - slides 74-75 in 10/24/2022 presentation
-radial_models = ['nhmv10', 'nwmv21', 'WEAP_23Aug2022_gridmet', 'pywr_nhmv10', 'pywr_nwmv21_withLakes', 'pywr_WEAP_23Aug2022_gridmet_nhmv10']
-radial_models = radial_models[::-1]
-res_release_metrics = get_error_metrics(res_releases, radial_models, nodes)
-plot_radial_error_metrics(res_release_metrics, radial_models, nodes, useNonPep = True, useweap = True, usepywr = True)
+    ### all models, all reservoirs - slides 74-75 in 10/24/2022 presentation
+    plot_radial_error_metrics(res_release_metrics, radial_models, nodes, useNonPep = True, useweap = True, usepywr = True)
+
+    ### all models, but using nwm_withLakes for pywr comparison. all reservoirs - slides 74-75 in 10/24/2022 presentation
+    radial_models = ['nhmv10', 'nwmv21', 'WEAP_23Aug2022_gridmet', 'pywr_nhmv10', 'pywr_nwmv21_withLakes', 'pywr_WEAP_23Aug2022_gridmet_nhmv10']
+    radial_models = radial_models[::-1]
+    res_release_metrics = get_error_metrics(res_releases, radial_models, nodes)
+    plot_radial_error_metrics(res_release_metrics, radial_models, nodes, useNonPep = True, useweap = True, usepywr = True)
 
 
 
-### now do error metric fig for major flow locations
+### now do figs for major flow locations
 nodes = ['delMontague', 'delTrenton', 'outletAssunpink', 'outletSchuylkill']#, 'outletChristina', 'delLordville']
-major_flow_metrics = get_error_metrics(major_flows, radial_models, nodes)
-plot_radial_error_metrics(major_flow_metrics, radial_models, nodes, useNonPep = True, useweap = True, usepywr = True, usemajorflows=True)
+if rerun_all:
+    major_flow_metrics = get_error_metrics(major_flows, radial_models, nodes)
+    plot_radial_error_metrics(major_flow_metrics, radial_models, nodes, useNonPep = True, useweap = True, usepywr = True, usemajorflows=True)
 
 
 
-### plot montague & trenton flows
-# fig = plt.figure(figsize=(8,8))
-# plt.plot(major_flows['obs']['delMontague'], color='k')
-# plt.plot(major_flows['nhmv10']['delMontague'], color='b')
-# plt.plot(major_flows['pywr_nhmv10']['delMontague'], color='r')
-# plt.title('montague')
-# plt.show()
-#
-# fig = plt.figure(figsize=(8,8))
-# plt.plot(major_flows['obs']['delTrenton'], color='k')
-# plt.plot(major_flows['nhmv10']['delTrenton'], color='b')
-# plt.plot(major_flows['pywr_nhmv10']['delTrenton'], color='r')
-# plt.title('trenton')
-# plt.show()
-#
 # print('nhm montague', major_flows['nhmv10']['delMontague'].mean(), major_flows['nhmv10']['delMontague'].std(), major_flows['nhmv10']['delMontague'].max())
 # print('pywr montague', major_flows['pywr_nhmv10']['delMontague'].mean(), major_flows['pywr_nhmv10']['delMontague'].std(), major_flows['pywr_nhmv10']['delMontague'].max())
 # print('nhm trenton', major_flows['nhmv10']['delTrenton'].mean(), major_flows['nhmv10']['delTrenton'].std(), major_flows['nhmv10']['delTrenton'].max())
 # print('pywr trenton', major_flows['pywr_nhmv10']['delTrenton'].mean(), major_flows['pywr_nhmv10']['delTrenton'].std(), major_flows['pywr_nhmv10']['delTrenton'].max())
 
+
+### flow comparisons for major flow nodes
+if rerun_all:
+    plot_3part_flows(major_flows, ['nhmv10', 'nwmv21'], 'delMontague')
+    plot_3part_flows(major_flows, ['nhmv10', 'nwmv21'], 'delTrenton')
+    plot_3part_flows(major_flows, ['nhmv10', 'nwmv21'], 'outletSchuylkill')
+    plot_3part_flows(major_flows, ['nhmv10', 'pywr_nhmv10'], 'delMontague')
+    plot_3part_flows(major_flows, ['nhmv10', 'pywr_nhmv10'], 'delTrenton')
+    plot_3part_flows(major_flows, ['nhmv10', 'pywr_nhmv10'], 'outletSchuylkill')
+    plot_3part_flows(major_flows, ['nwmv21', 'pywr_nwmv21_withLakes'], 'delMontague')
+    plot_3part_flows(major_flows, ['nwmv21', 'pywr_nwmv21_withLakes'], 'delTrenton')
+    plot_3part_flows(major_flows, ['nwmv21', 'pywr_nwmv21_withLakes'], 'outletSchuylkill')
+    plot_3part_flows(major_flows, ['WEAP_23Aug2022_gridmet', 'pywr_WEAP_23Aug2022_gridmet_nhmv10'], 'delMontague')
+    plot_3part_flows(major_flows, ['WEAP_23Aug2022_gridmet', 'pywr_WEAP_23Aug2022_gridmet_nhmv10'], 'delTrenton')
+    plot_3part_flows(major_flows, ['WEAP_23Aug2022_gridmet', 'pywr_WEAP_23Aug2022_gridmet_nhmv10'], 'outletSchuylkill')
+
+
+    ### weekly flow comparison for major flow nodes
+    plot_weekly_flow_distributions(major_flows, ['nhmv10', 'nwmv21'], 'delMontague')
+    plot_weekly_flow_distributions(major_flows, ['nhmv10', 'nwmv21'], 'delTrenton')
+    plot_weekly_flow_distributions(major_flows, ['nhmv10', 'nwmv21'], 'outletSchuylkill')
+    plot_weekly_flow_distributions(major_flows, ['nhmv10', 'pywr_nhmv10'], 'delMontague')
+    plot_weekly_flow_distributions(major_flows, ['nhmv10', 'pywr_nhmv10'], 'delTrenton')
+    plot_weekly_flow_distributions(major_flows, ['nhmv10', 'pywr_nhmv10'], 'outletSchuylkill')
+    plot_weekly_flow_distributions(major_flows, ['nwmv21', 'pywr_nwmv21_withLakes'], 'delMontague')
+    plot_weekly_flow_distributions(major_flows, ['nwmv21', 'pywr_nwmv21_withLakes'], 'delTrenton')
+    plot_weekly_flow_distributions(major_flows, ['nwmv21', 'pywr_nwmv21_withLakes'], 'outletSchuylkill')
+    plot_weekly_flow_distributions(major_flows, ['WEAP_23Aug2022_gridmet', 'pywr_WEAP_23Aug2022_gridmet_nhmv10'], 'delMontague')
+    plot_weekly_flow_distributions(major_flows, ['WEAP_23Aug2022_gridmet', 'pywr_WEAP_23Aug2022_gridmet_nhmv10'], 'delTrenton')
+    plot_weekly_flow_distributions(major_flows, ['WEAP_23Aug2022_gridmet', 'pywr_WEAP_23Aug2022_gridmet_nhmv10'], 'outletSchuylkill')
+
+
+
+### get measures of reliability, resilience, and vulnerability from Hashimoto et al 1982, WRR
+def get_RRV_metrics(results, models, nodes):
+    thresholds = {'delMontague':1131.05, 'delTrenton':1938.950669} ### FFMP flow targets (MGD)
+    eps = 1e-9
+    thresholds = {k:v-eps for k,v in thresholds.items()}
+    for j, node in enumerate(nodes):
+        for i, m in enumerate(models):
+            modeled = results[m][node]
+
+            ### only do models with nonzero entries (eg remove some weap)
+            if np.sum(modeled) > 0:
+
+                ### reliability is the fraction of time steps above threshold
+                reliability = (modeled > thresholds[node]).mean()
+                ### resiliency is the probability of recovering to above threshold if currently under threshold
+                if reliability < 1- eps:
+                    resiliency = np.logical_and((modeled.iloc[:-1] < thresholds[node]).reset_index(drop=True), \
+                                                (modeled.iloc[1:] >= thresholds[node]).reset_index(drop=True)).mean() / \
+                                 (1 - reliability)
+                else:
+                    resiliency = np.nan
+                ### vulnerability is the expected maximum severity of a failure event
+                if reliability > eps:
+                    max_shortfalls = []
+                    max_shortfall = 0
+                    in_event = False
+                    for i in range(len(modeled)):
+                        v = modeled.iloc[i]
+                        if v < thresholds[node]:
+                            in_event = True
+                            s = thresholds[node] - v
+                            max_shortfall = max(max_shortfall, s)
+                        else:
+                            if in_event:
+                                max_shortfalls.append(max_shortfall)
+                                in_event = False
+                    vulnerability = np.mean(max_shortfalls)
+                else:
+                    vulnerability = np.nan
+
+                resultsdict = {'reliability': reliability, 'resiliency': resiliency, 'vulnerability': vulnerability}
+
+                resultsdict['node'] = node
+                resultsdict['model'] = m
+                try:
+                    rrv_metrics = rrv_metrics.append(pd.DataFrame(resultsdict, index=[0]))
+                except:
+                    rrv_metrics = pd.DataFrame(resultsdict, index=[0])
+
+    rrv_metrics.reset_index(inplace=True, drop=True)
+    return rrv_metrics
+
+
+
+### histogram of reliability, resiliency, & vulnerability for different models & nodes
+def plot_rrv_metrics(rrv_metrics, rrv_models, nodes):
+
+    fig, axs = plt.subplots(2, 3, figsize=(16, 8))
+
+    metrics = ['reliability','resiliency','vulnerability']
+
+    colordict = {'obs':'grey', 'nhmv10': '#66c2a5', 'nwmv21': '#8da0cb', 'nwmv21_withLakes': '#8da0cb', 'WEAP_23Aug2022_gridmet': '#fc8d62',
+                 'pywr_nhmv10': '#66c2a5', 'pywr_nwmv21': '#8da0cb', 'pywr_nwmv21_withLakes': '#8da0cb',
+                 'pywr_WEAP_23Aug2022_gridmet_nhmv10': '#fc8d62'}
+    hatchdict = {'obs':'', 'nhmv10': '', 'nwmv21': '', 'nwmv21_withLakes': '', 'WEAP_23Aug2022_gridmet': '', 'pywr_nhmv10': '///',
+                 'pywr_nwmv21': '///', 'pywr_nwmv21_withLakes': '///', 'pywr_WEAP_23Aug2022_gridmet_nhmv10': '///'}
+
+    for n, node in enumerate(nodes):
+        for k, metric in enumerate(metrics):
+            ax = axs[n, k]
+
+            colors = [colordict[model] for model in rrv_models]
+            hatches = [hatchdict[model] for model in rrv_models]
+            heights = [rrv_metrics[metric].loc[np.logical_and(rrv_metrics['node']==node, rrv_metrics['model']==model)].iloc[0] for model in rrv_models]
+            positions = range(len(heights))
+
+            ### Add bars
+            ax.bar(positions, heights, width=0.8, linewidth=0.5, color=colors, hatch=hatches, edgecolor='w', zorder=2)
+
+            ax.set_xlim([-0.5, positions[-1]+0.5])
+            if k == 0:
+                ax.set_ylim([0.8, 1.])
+            if n>0:
+                ax.set_xticks(positions, rrv_models, rotation=90)
+            else:
+                ax.set_xticks(positions, ['']*len(positions))
+                ax.set_title(metric)
+
+    legend_elements = []
+    legend_elements.append(Line2D([0], [0], color='none', label='models'))
+    for m in rrv_models:
+        legend_elements.append(Patch(facecolor=colordict[m], edgecolor='w', label=m, hatch=hatchdict[m]))
+    leg = plt.legend(handles=legend_elements, loc='center', bbox_to_anchor=(1.5, 1.1), frameon=False)
+
+    fig.savefig(f'{fig_dir}/rrv_comparison.png', bbox_inches='tight', dpi=300)
+    plt.show()
+
+
+
+rrv_models = ['obs', 'nhmv10', 'nwmv21', 'WEAP_23Aug2022_gridmet', 'pywr_nhmv10', 'pywr_nwmv21_withLakes', 'pywr_WEAP_23Aug2022_gridmet_nhmv10']
+nodes = ['delMontague','delTrenton']
+rrv_metrics = get_RRV_metrics(major_flows, rrv_models, nodes)
+
+plot_rrv_metrics(rrv_metrics, rrv_models, nodes)
