@@ -13,3 +13,6 @@ pywr_glpk_debug*
 venv*
 /venv*
 /DRB_spatial/cache/*
+DRB_spatial/drb_model_map_dark.html
+
+figs/
