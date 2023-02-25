@@ -294,6 +294,8 @@ def drb_make_model(inflow_type, backup_inflow_type):
         ### reservoir downstream node (via outflow node if one exists)
         if downstream_node in river_nodes:
             downstream_name = f'link_{downstream_node}'
+        elif downstream_node[0] == '0':
+            downstream_name = f'link_{downstream_node}'
         elif downstream_node == 'output_del':
             downstream_name = downstream_node
         else:
@@ -314,31 +316,38 @@ def drb_make_model(inflow_type, backup_inflow_type):
 
 
         ### now add standard parameters
-        ### inflows to catchment
-        if 'WEAP' not in inflow_type:
-            inflow_source = f'{input_dir}catchment_inflow_{inflow_type}.csv'
+
+        ### inflows to catchment - for now exclude gage nodes, since havent calculated demand yet
+        if name[0] == '0':
+            model['parameters'][f'flow_{name}'] = {
+                'type': 'constant',
+                'value': 0.
+            }
         else:
-            if name in ['cannonsville', 'pepacton', 'neversink', 'wallenpaupack', 'promption',
-                        'mongaupeCombined', 'beltzvilleCombined', 'blueMarsh', 'ontelaunee', 'nockamixon', 'assunpink']:
+            if 'WEAP' not in inflow_type:
                 inflow_source = f'{input_dir}catchment_inflow_{inflow_type}.csv'
             else:
-                inflow_source = f'{input_dir}catchment_inflow_{backup_inflow_type}.csv'
+                if name in ['cannonsville', 'pepacton', 'neversink', 'wallenpaupack', 'promption',
+                            'mongaupeCombined', 'beltzvilleCombined', 'blueMarsh', 'ontelaunee', 'nockamixon', 'assunpink']:
+                    inflow_source = f'{input_dir}catchment_inflow_{inflow_type}.csv'
+                else:
+                    inflow_source = f'{input_dir}catchment_inflow_{backup_inflow_type}.csv'
 
-        model['parameters'][f'flow_base_{name}'] = {
-            'type': 'dataframe',
-            'url': inflow_source,
-            'column': name,
-            'index_col': 'datetime',
-            'parse_dates': True
-        }
-        model['parameters'][f'flow_{name}'] = {
-            'type': 'aggregated',
-            'agg_func': 'product',
-            'parameters': [
-                f'flow_base_{name}',
-                'flow_factor'
-            ]
-        }
+            model['parameters'][f'flow_base_{name}'] = {
+                'type': 'dataframe',
+                'url': inflow_source,
+                'column': name,
+                'index_col': 'datetime',
+                'parse_dates': True
+            }
+            model['parameters'][f'flow_{name}'] = {
+                'type': 'aggregated',
+                'agg_func': 'product',
+                'parameters': [
+                    f'flow_base_{name}',
+                    'flow_factor'
+                ]
+            }
 
         ### max volume of reservoir, from GRanD database
         if node_type == 'reservoir':
@@ -354,23 +363,35 @@ def drb_make_model(inflow_type, backup_inflow_type):
         if outflow_type == 'starfit':
             model['parameters'] = create_starfit_params(model['parameters'], name)
 
-        ### get max flow for catchment withdrawal nodes based on DRBC data
-        model['parameters'][f'max_flow_catchmentWithdrawal_{name}'] = {
-            'type': 'constant',
-            'url': '../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv',
-            'column': 'Total_WD_MGD',
-            'index_col': 'node',
-            'index': node_name
-        }
+        ### get max flow for catchment withdrawal nodes based on DRBC data - for now exclude gage nodes, since havent calculated demand yet
+        if name[0] == '0':
+            model['parameters'][f'max_flow_catchmentWithdrawal_{name}'] = {
+                'type': 'constant',
+                'value': 0.
+            }
+        else:
+            model['parameters'][f'max_flow_catchmentWithdrawal_{name}'] = {
+                'type': 'constant',
+                'url': '../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv',
+                'column': 'Total_WD_MGD',
+                'index_col': 'node',
+                'index': node_name
+            }
 
-        ### get max flow for catchment consumption nodes based on DRBC data
-        model['parameters'][f'max_flow_catchmentConsumption_{name}'] = {
-            'type': 'constant',
-            'url': '../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv',
-            'column': 'Total_CU_MGD',
-            'index_col': 'node',
-            'index': node_name
-        }
+        ### get max flow for catchment consumption nodes based on DRBC data - for now exclude gage nodes, since havent calculated demand yet
+        if name[0] == '0':
+            model['parameters'][f'max_flow_catchmentConsumption_{name}'] = {
+                'type': 'constant',
+                'value': 0.
+            }
+        else:
+            model['parameters'][f'max_flow_catchmentConsumption_{name}'] = {
+                'type': 'constant',
+                'url': '../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv',
+                'column': 'Total_CU_MGD',
+                'index_col': 'node',
+                'index': node_name
+            }
 
 
 
@@ -383,26 +404,34 @@ def drb_make_model(inflow_type, backup_inflow_type):
     model['edges'] = []
     model['parameters'] = {}
     inflow_type = 'nhmv10'
-    model = add_major_node(model, 'cannonsville', 'reservoir', inflow_type, backup_inflow_type, 'regulatory', 'delLordville', 117313.5018, 0.8, True)
-    model = add_major_node(model, 'pepacton', 'reservoir', inflow_type, backup_inflow_type, 'regulatory', 'delLordville', 158947.009, 0.8, True)
+    model = add_major_node(model, 'cannonsville', 'reservoir', inflow_type, backup_inflow_type, 'regulatory', '01425000', 117313.5018, 0.8, True)
+    model = add_major_node(model, '01425000', 'river', inflow_type, backup_inflow_type, None, 'delLordville')
+    model = add_major_node(model, 'pepacton', 'reservoir', inflow_type, backup_inflow_type, 'regulatory', '01417000', 158947.009, 0.8, True)
+    model = add_major_node(model, '01417000', 'river', inflow_type, backup_inflow_type, None, 'delLordville')
     model = add_major_node(model, 'delLordville', 'river', inflow_type, backup_inflow_type, None, 'delMontague')
-    model = add_major_node(model, 'neversink', 'reservoir', inflow_type, backup_inflow_type, 'regulatory', 'delMontague', 37026.34752, 0.8, True)
+    model = add_major_node(model, 'neversink', 'reservoir', inflow_type, backup_inflow_type, 'regulatory', '01436000', 37026.34752, 0.8, True)
+    model = add_major_node(model, '01436000', 'river', inflow_type, backup_inflow_type, None, 'delMontague')
     model = add_major_node(model, 'wallenpaupack', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delMontague', 70375.4208, 0.8, False)
     model = add_major_node(model, 'prompton', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delMontague', 3022.12768, 0.8, False)
     model = add_major_node(model, 'shoholaMarsh', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delMontague', 6889.60576, 0.8, False)
-    model = add_major_node(model, 'mongaupeCombined', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delMontague', 22697.65824, 0.8, False)
+    model = add_major_node(model, 'mongaupeCombined', 'reservoir', inflow_type, backup_inflow_type, 'starfit', '01433500', 22697.65824, 0.8, False)
+    model = add_major_node(model, '01433500', 'river', inflow_type, backup_inflow_type, None, 'delMontague')
     model = add_major_node(model, 'delMontague', 'river', inflow_type, backup_inflow_type, 'regulatory', 'delTrenton')
-    model = add_major_node(model, 'beltzvilleCombined', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delTrenton', 38653.64704, 0.8, False)
-    model = add_major_node(model, 'fewalter', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delTrenton', 3022.12768, 0.8, False)
+    model = add_major_node(model, 'beltzvilleCombined', 'reservoir', inflow_type, backup_inflow_type, 'starfit', '01449800', 38653.64704, 0.8, False)
+    model = add_major_node(model, '01449800', 'river', inflow_type, backup_inflow_type, None, 'delTrenton')
+    model = add_major_node(model, 'fewalter', 'reservoir', inflow_type, backup_inflow_type, 'starfit', '01447800', 3022.12768, 0.8, False)
+    model = add_major_node(model, '01447800', 'river', inflow_type, backup_inflow_type, None, 'delTrenton')
     model = add_major_node(model, 'merrillCreek', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delTrenton', 11982.84192, 0.8, False)
     model = add_major_node(model, 'hopatcong', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delTrenton', 12574.5872, 0.8, False)
     model = add_major_node(model, 'nockamixon', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delTrenton', 18513.17376, 0.8, False)
     model = add_major_node(model, 'delTrenton', 'river', inflow_type, backup_inflow_type, 'regulatory', 'output_del')
-    model = add_major_node(model, 'assunpink', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'outletAssunpink', 3296.86656, 0.8, False)
+    model = add_major_node(model, 'assunpink', 'reservoir', inflow_type, backup_inflow_type, 'starfit', '01463620', 3296.86656, 0.8, False)
+    model = add_major_node(model, '01463620', 'river', inflow_type, backup_inflow_type, None, 'outletAssunpink')
     model = add_major_node(model, 'outletAssunpink', 'river', inflow_type, backup_inflow_type, None, 'output_del')
     model = add_major_node(model, 'ontelaunee', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'outletSchuylkill', 3022.12768, 0.8, False)
     model = add_major_node(model, 'stillCreek', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'outletSchuylkill', 3022.12768, 0.8, False)
-    model = add_major_node(model, 'blueMarsh', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'outletSchuylkill', 33856.28352, 0.8, False)
+    model = add_major_node(model, 'blueMarsh', 'reservoir', inflow_type, backup_inflow_type, 'starfit', '01470960', 33856.28352, 0.8, False)
+    model = add_major_node(model, '01470960', 'river', inflow_type, backup_inflow_type, None, 'outletSchuylkill')
     model = add_major_node(model, 'greenLane', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'outletSchuylkill', 6551.4656, 0.8, False)
     model = add_major_node(model, 'outletSchuylkill', 'river', inflow_type, backup_inflow_type, None, 'output_del')
     model = add_major_node(model, 'marshCreek', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'outletChristina', 3022.12768, 0.8, False)

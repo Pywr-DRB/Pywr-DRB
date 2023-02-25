@@ -669,7 +669,7 @@ def plot_rrv_metrics(rrv_metrics, rrv_models, nodes):
     leg = plt.legend(handles=legend_elements, loc='center', bbox_to_anchor=(1.5, 1.1), frameon=False)
 
     fig.savefig(f'{fig_dir}/rrv_comparison.png', bbox_inches='tight', dpi=300)
-    plt.show()
+    # plt.show()
 
 
 
