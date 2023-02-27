@@ -6,3 +6,4 @@ h5py
 matplotlib
 hydroeval
 scipy
+tkinter

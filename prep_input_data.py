@@ -49,12 +49,19 @@ df_nwm_lakes = read_modeled_estimates(f'{input_dir}modeled_gages/lakes_daily_197
                                     ',', 'UTC_date', 'feature_id', 'inflow', '1983/10/01', '2016/12/31')
 assert ((df_obs.index == df_nhm.index).mean() == 1) and ((df_nhm.index == df_nwm.index).mean() == 1) and ((df_nhm.index == df_nwm_lakes.index).mean() == 1)
 
-def match_gages(df, dataset_label):
+def match_gages(df, dataset_label, use_pub = False):
     '''Matches USGS gage sites to nodes in Pywr-DRB.
     For reservoirs, the matched gages are actually downstream, but assume this flows into reservoir from upstream catchment.
     For river nodes, upstream reservoir inflows are subtracted from the flow at mainstem USGS gage.
     For nodes related to USGS gages downstream of reservoirs, currently redundant flow with assumed inflow, so subtracted additional catchment flow will be 0 until this is updated.
     Saves csv file, & returns dataframe whose columns are names of Pywr-DRB nodes.'''
+
+    if use_pub:
+        df_pub = pd.read_csv(f'./input_data/modeled_gages/drb_pub_predicted_flows.csv', sep = ',')
+        df_pub.index = df.index
+
+    pub_reservoirs = ['wallenpaupack', 'shoholaMarsh', 'mongaupeCombined', 'merrillCreek', 'hopatcong', 'nockamixon',
+                'assunpink', 'ontelaunee', 'stillCreek', 'greenLane']
 
     ### dictionary matching gages to reservoir catchments
     site_matches_reservoir = {'cannonsville': '01425000',
@@ -62,20 +69,21 @@ def match_gages(df, dataset_label):
                               'neversink': '01436000',
                               'wallenpaupack': '01429000', ## Note, wanted to do 01431500 minus 01432110, but don't have latter from Aubrey, so use Prompton for now
                               'prompton': '01429000',
-                              'shoholaMarsh': '01429000', ## Note, should have 01432495, but not didnt get from Aubrey, so use Prompton for now
-                              'mongaupeCombined': '01433500',
-                              'beltzvilleCombined': '01449800',
+                              'shoholaMarsh': '01429000', ## Note, Shohola has no inlet gauge
+                              'mongaupeCombined': '01433500', # NOTE, this is an outlet.  TODO See:  01432900
+                              'beltzvilleCombined': '01449800',  ## NOTE, This is the outlet. TODO See: 01449360
                               'fewalter': '01447800',
                               'merrillCreek': '01459500', ## Merrill Creek doesnt have gage - use Nockamixon nearby to get flow shape
-                              'hopatcong': '01455500',
-                              'nockamixon': '01459500',
-                              'assunpink': '01463620',
+                              'hopatcong': '01455500',  ## NOTE, this is an outlet. There are inlet gauges with poor records
+                              'nockamixon': '01459500', ## NOTE, this is far downstream of outlet.
+                              'assunpink': '01463620',  ## Note, this is outlet of system.
                               'ontelaunee': '01470960', ## Note, should have 01470761, but didnt get from Aubrey, so use Blue Marsh for now
-                              'stillCreek': '01469500',
+                              'stillCreek': '01469500',  ## Note, this is downstream of reservoir and lakes
                               'blueMarsh': '01470960',
-                              'greenLane': '01473000',
-                              'marshCreek': '01480685'
+                              'greenLane': '01473000',  ## Note, this is far downstream of outlet.
+                              'marshCreek': '01480685' ## Note, this is an outlet. TODO See: 01480675
                               }
+
     ### list of lists, containing mainstem nodes, matching USGS gages, and upstream nodes to subtract
     site_matches_link = [['01425000', ['01425000'], ['cannonsville']],
                          ['01417000', ['01417000'], ['pepacton']],
@@ -106,6 +114,8 @@ def match_gages(df, dataset_label):
             inflow['datetime'] = inflow.index
             inflow.index = inflow['datetime']
             inflow = inflow.iloc[:, :-1]
+        elif (reservoir in pub_reservoirs) and use_pub and (dataset_label == 'obs_pub'):
+            inflow[reservoir] = df_pub.loc[:,f'flow_{reservoir}']*cms_to_mgd
         else:
             inflow[reservoir] = df[site]
 
@@ -128,7 +138,9 @@ def match_gages(df, dataset_label):
     return inflow
 
 ### match USGS gage sites to Pywr-DRB model nodes & save inflows to csv file in format expected by Pywr-DRB
+df_obs_copy = df_obs.copy()
 df_obs = match_gages(df_obs, 'obs')
+df_obs_pub = match_gages(df_obs_copy, 'obs_pub', use_pub = True)
 df_nhm = match_gages(df_nhm, 'nhmv10')
 df_nwm = match_gages(df_nwm, 'nwmv21')
 

@@ -403,7 +403,7 @@ def drb_make_model(inflow_type, backup_inflow_type):
     model['nodes'] = []
     model['edges'] = []
     model['parameters'] = {}
-    inflow_type = 'nhmv10'
+    #inflow_type = 'nhmv10'
     model = add_major_node(model, 'cannonsville', 'reservoir', inflow_type, backup_inflow_type, 'regulatory', '01425000', 117313.5018, 0.8, True)
     model = add_major_node(model, '01425000', 'river', inflow_type, backup_inflow_type, None, 'delLordville')
     model = add_major_node(model, 'pepacton', 'reservoir', inflow_type, backup_inflow_type, 'regulatory', '01417000', 158947.009, 0.8, True)
@@ -541,4 +541,3 @@ def drb_make_model(inflow_type, backup_inflow_type):
     ### save full model as json
     with open(model_full_file, 'w') as o:
         json.dump(model, o, indent=4)
-
