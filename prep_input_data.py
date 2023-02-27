@@ -52,7 +52,8 @@ assert ((df_obs.index == df_nhm.index).mean() == 1) and ((df_nhm.index == df_nwm
 def match_gages(df, dataset_label):
     '''Matches USGS gage sites to nodes in Pywr-DRB.
     For reservoirs, the matched gages are actually downstream, but assume this flows into reservoir from upstream catchment.
-    For mainstem nodes, upstream reservoir inflows are subtracted from the flow at mainstem USGS gage.
+    For river nodes, upstream reservoir inflows are subtracted from the flow at mainstem USGS gage.
+    For nodes related to USGS gages downstream of reservoirs, currently redundant flow with assumed inflow, so subtracted additional catchment flow will be 0 until this is updated.
     Saves csv file, & returns dataframe whose columns are names of Pywr-DRB nodes.'''
 
     ### dictionary matching gages to reservoir catchments
@@ -76,14 +77,23 @@ def match_gages(df, dataset_label):
                               'marshCreek': '01480685'
                               }
     ### list of lists, containing mainstem nodes, matching USGS gages, and upstream nodes to subtract
-    site_matches_link = [['delLordville', ['01427207'], ['cannonsville', 'pepacton']],
-                         ['delMontague', ['01438500'], ['cannonsville', 'pepacton', 'delLordville',
-                                                        'prompton', 'wallenpaupack', 'shoholaMarsh', 'mongaupeCombined', 'neversink']],
-                         ['delTrenton', ['01463500'], ['cannonsville', 'pepacton', 'delLordville',
-                                                        'prompton', 'wallenpaupack', 'shoholaMarsh', 'mongaupeCombined', 'neversink', 'delMontague',
-                                                       'beltzvilleCombined', 'fewalter', 'merrillCreek', 'hopatcong', 'nockamixon']],
-                         ['outletAssunpink', ['01463620'], ['assunpink']], ## note, should get downstream junction, just using reservoir-adjacent gage for now
-                         ['outletSchuylkill', ['01474500'], ['ontelaunee', 'stillCreek', 'blueMarsh', 'greenLane']],
+    site_matches_link = [['01425000', ['01425000'], ['cannonsville']],
+                         ['01417000', ['01417000'], ['pepacton']],
+                         ['delLordville', ['01427207'], ['cannonsville', 'pepacton', '01425000', '01417000']],
+                         # '01432055': '01432055',  ### lackawaxen river gage downstream of wallenpaupack & prompton
+                         ['01436000', ['01436000'], ['neversink']],
+                         ['01433500', ['01433500'], ['mongaupeCombined']],
+                         ['delMontague', ['01438500'], ['cannonsville', 'pepacton', '01425000', '01417000', 'delLordville',
+                                                        'prompton', 'wallenpaupack', 'shoholaMarsh', 'mongaupeCombined', 'neversink', '01436000', '01433500']],
+                         ['01449800', ['01449800'], ['beltzvilleCombined']],
+                         ['01447800', ['01447800'], ['fewalter']],
+                         ['delTrenton', ['01463500'], ['cannonsville', 'pepacton', '01425000', '01417000', 'delLordville',
+                                                        'prompton', 'wallenpaupack', 'shoholaMarsh', 'mongaupeCombined', 'neversink', '01436000', '01433500', 'delMontague',
+                                                       'beltzvilleCombined', 'fewalter', 'merrillCreek', 'hopatcong', 'nockamixon', '01449800', '01447800']],
+                         ['01463620', ['01463620'], ['assunpink']],
+                         ['outletAssunpink', ['01463620'], ['assunpink', '01463620']], ## note, should get downstream junction, just using reservoir-adjacent gage for now
+                         ['01470960', ['01470960'], ['blueMarsh']],
+                         ['outletSchuylkill', ['01474500'], ['ontelaunee', 'stillCreek', 'blueMarsh', 'greenLane', '01470960']],
                          ['outletChristina', ['01480685'], ['marshCreek']] ## note, should use ['01481500, 01480015, 01479000, 01478000'], but dont have yet. so use marsh creek gage for now.
                          ]
 
@@ -131,28 +141,36 @@ def match_nwm_lakes(df_nwm_USGSflow, df_nwm_lakeflow, dataset_label):
 
     ### dictionary matching gages to reservoir catchments
     site_matches_reservoir = {'cannonsville': '2613174',
+                              '01425000': 'none',
                               'pepacton': '1748473',
+                              '01417000': 'none',
+                              'delLordville': 'none',
                               'neversink': '4146742',
+                              '01436000': 'none',
                               'wallenpaupack': '2741600',
                               'prompton': '2739068',
                               'shoholaMarsh': '120052035',
                               'mongaupeCombined': '4148582',
+                              '01433500': 'none',
+                              'delMontague': 'none',
                               'beltzvilleCombined': '4186689',
+                              '01449800': 'none',
                               'fewalter': '4185065',
+                              '01447800': 'none',
                               'merrillCreek': 'none',
                               'hopatcong': '2585287',
                               'nockamixon': 'none',
+                              'delTrenton': 'none',
                               'assunpink': '2589015',
+                              '01463620': 'none',
+                              'outletAssunpink': 'none',
                               'ontelaunee': '4779981',
                               'stillCreek': '4778721',
                               'blueMarsh': '4782813',
+                              '01470960': 'none',
                               'greenLane': '4780087',
-                              'marshCreek': 'none',
-                              'delLordville': 'none',
-                              'delMontague': 'none',
-                              'delTrenton': 'none',
-                              'outletAssunpink': 'none',
                               'outletSchuylkill': 'none',
+                              'marshCreek': 'none',
                               'outletChristina': 'none'
                               }
     df_matched = df_nwm_USGSflow.copy()
