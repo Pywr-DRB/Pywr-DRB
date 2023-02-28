@@ -1743,7 +1743,7 @@
     "parameters": {
         "flow_base_cannonsville": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nhmv10.csv",
+            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
             "column": "cannonsville",
             "index_col": "datetime",
             "parse_dates": true
@@ -1791,7 +1791,7 @@
         },
         "flow_base_pepacton": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nhmv10.csv",
+            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
             "column": "pepacton",
             "index_col": "datetime",
             "parse_dates": true
@@ -1868,7 +1868,7 @@
         },
         "flow_base_neversink": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nhmv10.csv",
+            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
             "column": "neversink",
             "index_col": "datetime",
             "parse_dates": true
@@ -1916,7 +1916,7 @@
         },
         "flow_base_wallenpaupack": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nhmv10.csv",
+            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
             "column": "wallenpaupack",
             "index_col": "datetime",
             "parse_dates": true
@@ -3647,7 +3647,7 @@
         },
         "flow_base_mongaupeCombined": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nhmv10.csv",
+            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
             "column": "mongaupeCombined",
             "index_col": "datetime",
             "parse_dates": true
@@ -4265,7 +4265,7 @@
         },
         "flow_base_beltzvilleCombined": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nhmv10.csv",
+            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
             "column": "beltzvilleCombined",
             "index_col": "datetime",
             "parse_dates": true
@@ -6597,7 +6597,7 @@
         },
         "flow_base_nockamixon": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nhmv10.csv",
+            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
             "column": "nockamixon",
             "index_col": "datetime",
             "parse_dates": true
@@ -7203,7 +7203,7 @@
         },
         "flow_base_assunpink": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nhmv10.csv",
+            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
             "column": "assunpink",
             "index_col": "datetime",
             "parse_dates": true
@@ -7821,7 +7821,7 @@
         },
         "flow_base_ontelaunee": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nhmv10.csv",
+            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
             "column": "ontelaunee",
             "index_col": "datetime",
             "parse_dates": true
@@ -8975,7 +8975,7 @@
         },
         "flow_base_blueMarsh": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nhmv10.csv",
+            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
             "column": "blueMarsh",
             "index_col": "datetime",
             "parse_dates": true
@@ -11184,189 +11184,17 @@
                 "level5_factor_mrf_neversink"
             ]
         },
-        "mrf_drought_factor_combined_pt1_agg": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "drought_level_agg_nyc",
-                -2
-            ]
-        },
-        "mrf_drought_factor_combined_pt2_agg": {
-            "type": "aggregated",
-            "agg_func": "max",
-            "parameters": [
-                "mrf_drought_factor_combined_pt1_agg",
-                0
-            ]
-        },
-        "mrf_drought_factor_combined_pt3_agg": {
-            "type": "aggregated",
-            "agg_func": "min",
-            "parameters": [
-                "mrf_drought_factor_combined_pt2_agg",
-                1
-            ]
-        },
-        "mrf_drought_factor_combined_pt4_agg": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "drought_level_agg_nyc",
-                -1
-            ]
-        },
-        "mrf_drought_factor_combined_pt5_agg": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "mrf_drought_factor_combined_pt4_agg",
-                3
-            ]
-        },
-        "mrf_drought_factor_combined_pt6_agg": {
-            "type": "aggregated",
-            "agg_func": "max",
-            "parameters": [
-                "mrf_drought_factor_combined_pt5_agg",
-                0
-            ]
-        },
-        "mrf_drought_factor_combined_pt7_agg": {
-            "type": "aggregated",
-            "agg_func": "min",
-            "parameters": [
-                "mrf_drought_factor_combined_pt6_agg",
-                1
-            ]
-        },
-        "mrf_drought_factor_combined_pt1_cannonsville": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "mrf_drought_factor_combined_pt3_agg",
-                "mrf_drought_factor_agg_cannonsville"
-            ]
-        },
-        "mrf_drought_factor_combined_pt1_pepacton": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "mrf_drought_factor_combined_pt3_agg",
-                "mrf_drought_factor_agg_pepacton"
-            ]
-        },
-        "mrf_drought_factor_combined_pt1_neversink": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "mrf_drought_factor_combined_pt3_agg",
-                "mrf_drought_factor_agg_neversink"
-            ]
-        },
-        "mrf_drought_factor_combined_pt2_cannonsville": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "mrf_drought_factor_combined_pt7_agg",
-                "mrf_drought_factor_individual_cannonsville"
-            ]
-        },
-        "mrf_drought_factor_combined_pt2_pepacton": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "mrf_drought_factor_combined_pt7_agg",
-                "mrf_drought_factor_individual_pepacton"
-            ]
-        },
-        "mrf_drought_factor_combined_pt2_neversink": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "mrf_drought_factor_combined_pt7_agg",
-                "mrf_drought_factor_individual_neversink"
-            ]
-        },
         "mrf_drought_factor_combined_final_cannonsville": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "mrf_drought_factor_combined_pt1_cannonsville",
-                "mrf_drought_factor_combined_pt2_cannonsville"
-            ]
+            "type": "NYCCombinedReleaseFactor",
+            "node": "reservoir_cannonsville"
         },
         "mrf_drought_factor_combined_final_pepacton": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "mrf_drought_factor_combined_pt1_pepacton",
-                "mrf_drought_factor_combined_pt2_pepacton"
-            ]
+            "type": "NYCCombinedReleaseFactor",
+            "node": "reservoir_pepacton"
         },
         "mrf_drought_factor_combined_final_neversink": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "mrf_drought_factor_combined_pt1_neversink",
-                "mrf_drought_factor_combined_pt2_neversink"
-            ]
-        },
-        "mrf_drought_level_combined_pt1_agg": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "mrf_drought_factor_combined_pt3_agg",
-                "drought_level_agg_nyc"
-            ]
-        },
-        "mrf_drought_level_combined_pt2_cannonsville": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "mrf_drought_factor_combined_pt7_agg",
-                "drought_level_cannonsville"
-            ]
-        },
-        "mrf_drought_level_combined_pt2_pepacton": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "mrf_drought_factor_combined_pt7_agg",
-                "drought_level_pepacton"
-            ]
-        },
-        "mrf_drought_level_combined_pt2_neversink": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "mrf_drought_factor_combined_pt7_agg",
-                "drought_level_neversink"
-            ]
-        },
-        "mrf_drought_level_combined_final_cannonsville": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "mrf_drought_level_combined_pt1_agg",
-                "mrf_drought_level_combined_pt2_cannonsville"
-            ]
-        },
-        "mrf_drought_level_combined_final_pepacton": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "mrf_drought_level_combined_pt1_agg",
-                "mrf_drought_level_combined_pt2_pepacton"
-            ]
-        },
-        "mrf_drought_level_combined_final_neversink": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "mrf_drought_level_combined_pt1_agg",
-                "mrf_drought_level_combined_pt2_neversink"
-            ]
+            "type": "NYCCombinedReleaseFactor",
+            "node": "reservoir_neversink"
         },
         "level1a_factor_mrf_cannonsville": {
             "type": "dailyprofile",
@@ -11596,171 +11424,38 @@
                 "max_volume_neversink"
             ]
         },
-        "volbalance_fracStorage_cannonsville": {
-            "type": "division",
-            "numerator": "max_volume_cannonsville",
-            "denominator": "max_volume_agg_nyc"
-        },
-        "volbalance_fracStorage_pepacton": {
-            "type": "division",
-            "numerator": "max_volume_pepacton",
-            "denominator": "max_volume_agg_nyc"
-        },
-        "volbalance_fracStorage_neversink": {
-            "type": "division",
-            "numerator": "max_volume_neversink",
-            "denominator": "max_volume_agg_nyc"
-        },
-        "volbalance_neg_delivery_nyc": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "max_flow_delivery_nyc",
-                -1
-            ]
-        },
-        "volbalance_surplus_agg_delivery_nyc": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "volume_agg_nyc",
-                "flow_agg_nyc",
-                "volbalance_neg_delivery_nyc"
-            ]
-        },
-        "volbalance_neg_fracSurplus_delivery_nyc_cannonsville": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                -1,
-                "volbalance_fracStorage_cannonsville",
-                "volbalance_surplus_agg_delivery_nyc"
-            ]
-        },
-        "volbalance_neg_fracSurplus_delivery_nyc_pepacton": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                -1,
-                "volbalance_fracStorage_pepacton",
-                "volbalance_surplus_agg_delivery_nyc"
-            ]
-        },
-        "volbalance_neg_fracSurplus_delivery_nyc_neversink": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                -1,
-                "volbalance_fracStorage_neversink",
-                "volbalance_surplus_agg_delivery_nyc"
-            ]
-        },
         "volbalance_target_max_flow_delivery_nyc_cannonsville": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "volume_cannonsville",
-                "flow_cannonsville",
-                "volbalance_neg_fracSurplus_delivery_nyc_cannonsville"
-            ]
+            "type": "VolBalanceNYCDemandTarget",
+            "node": "reservoir_cannonsville"
         },
         "volbalance_target_max_flow_delivery_nyc_pepacton": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "volume_pepacton",
-                "flow_pepacton",
-                "volbalance_neg_fracSurplus_delivery_nyc_pepacton"
-            ]
+            "type": "VolBalanceNYCDemandTarget",
+            "node": "reservoir_pepacton"
         },
         "volbalance_target_max_flow_delivery_nyc_neversink": {
+            "type": "VolBalanceNYCDemandTarget",
+            "node": "reservoir_neversink"
+        },
+        "volbalance_target_max_flow_delivery_agg_nyc": {
             "type": "aggregated",
             "agg_func": "sum",
-            "parameters": [
-                "volume_neversink",
-                "flow_neversink",
-                "volbalance_neg_fracSurplus_delivery_nyc_neversink"
-            ]
-        },
-        "volbalance_target2_max_flow_delivery_nyc_cannonsville": {
-            "type": "aggregated",
-            "agg_func": "max",
             "parameters": [
                 "volbalance_target_max_flow_delivery_nyc_cannonsville",
-                0
-            ]
-        },
-        "volbalance_target2_max_flow_delivery_nyc_pepacton": {
-            "type": "aggregated",
-            "agg_func": "max",
-            "parameters": [
                 "volbalance_target_max_flow_delivery_nyc_pepacton",
-                0
+                "volbalance_target_max_flow_delivery_nyc_neversink"
             ]
-        },
-        "volbalance_target2_max_flow_delivery_nyc_neversink": {
-            "type": "aggregated",
-            "agg_func": "max",
-            "parameters": [
-                "volbalance_target_max_flow_delivery_nyc_neversink",
-                0
-            ]
-        },
-        "volbalance_sum_target2_delivery_nyc": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "volbalance_target2_max_flow_delivery_nyc_cannonsville",
-                "volbalance_target2_max_flow_delivery_nyc_pepacton",
-                "volbalance_target2_max_flow_delivery_nyc_neversink"
-            ]
-        },
-        "volbalance_rescale_target2_delivery_nyc": {
-            "type": "division",
-            "numerator": "max_flow_delivery_nyc",
-            "denominator": "volbalance_sum_target2_delivery_nyc"
         },
         "volbalance_max_flow_delivery_nyc_cannonsville": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "volbalance_target2_max_flow_delivery_nyc_cannonsville",
-                "volbalance_rescale_target2_delivery_nyc"
-            ]
+            "type": "VolBalanceNYCDemandFinal",
+            "node": "reservoir_cannonsville"
         },
         "volbalance_max_flow_delivery_nyc_pepacton": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "volbalance_target2_max_flow_delivery_nyc_pepacton",
-                "volbalance_rescale_target2_delivery_nyc"
-            ]
+            "type": "VolBalanceNYCDemandFinal",
+            "node": "reservoir_pepacton"
         },
         "volbalance_max_flow_delivery_nyc_neversink": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "volbalance_target2_max_flow_delivery_nyc_neversink",
-                "volbalance_rescale_target2_delivery_nyc"
-            ]
-        },
-        "volbalance_max_flow_delivery_nyc_max": {
-            "type": "aggregated",
-            "agg_func": "max",
-            "parameters": [
-                "volbalance_max_flow_delivery_nyc_cannonsville",
-                "volbalance_max_flow_delivery_nyc_pepacton",
-                "volbalance_max_flow_delivery_nyc_neversink"
-            ]
-        },
-        "volbalance_max_flow_delivery_nyc_min": {
-            "type": "aggregated",
-            "agg_func": "min",
-            "parameters": [
-                "volbalance_max_flow_delivery_nyc_cannonsville",
-                "volbalance_max_flow_delivery_nyc_pepacton",
-                "volbalance_max_flow_delivery_nyc_neversink"
-            ]
+            "type": "VolBalanceNYCDemandFinal",
+            "node": "reservoir_neversink"
         },
         "mrf_target_delMontague": {
             "type": "aggregated",
@@ -11902,7 +11597,7 @@
             "index_col": "profile",
             "index": "level5_factor_mrf_trenton"
         },
-        "volbalance_flow_agg_nonnyc_montague": {
+        "volbalance_flow_agg_nonnyc_delMontague": {
             "type": "aggregated",
             "agg_func": "sum",
             "parameters": [
@@ -11914,39 +11609,7 @@
                 "flow_delMontague"
             ]
         },
-        "volbalance_neg_flow_agg_nonnyc_montague": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                -1,
-                "volbalance_flow_agg_nonnyc_montague"
-            ]
-        },
-        "volbalance_relative_mrf_montague": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "mrf_target_delMontague",
-                "volbalance_neg_flow_agg_nonnyc_montague"
-            ]
-        },
-        "volbalance_nonneg_relative_mrf_montague": {
-            "type": "aggregated",
-            "agg_func": "max",
-            "parameters": [
-                "volbalance_relative_mrf_montague",
-                0
-            ]
-        },
-        "volbalance_neg_relative_mrf_montague": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                -1,
-                "volbalance_nonneg_relative_mrf_montague"
-            ]
-        },
-        "volbalance_flow_agg_nonnyc_trenton": {
+        "volbalance_flow_agg_nonnyc_delTrenton": {
             "type": "aggregated",
             "agg_func": "sum",
             "parameters": [
@@ -11958,197 +11621,41 @@
                 "flow_delTrenton"
             ]
         },
-        "volbalance_neg_flow_agg_nonnyc_trenton": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                -1,
-                "volbalance_flow_agg_nonnyc_trenton"
-            ]
-        },
-        "volbalance_relative_mrf_trenton": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "mrf_target_delTrenton",
-                "volbalance_neg_flow_agg_nonnyc_montague",
-                "volbalance_neg_flow_agg_nonnyc_trenton"
-            ]
-        },
-        "volbalance_nonneg_relative_mrf_trenton": {
-            "type": "aggregated",
-            "agg_func": "max",
-            "parameters": [
-                "volbalance_relative_mrf_trenton",
-                0
-            ]
-        },
-        "volbalance_neg_relative_mrf_trenton": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                -1,
-                "volbalance_nonneg_relative_mrf_trenton"
-            ]
-        },
-        "volbalance_nonneg_relative_mrf_montagueTrenton": {
-            "type": "aggregated",
-            "agg_func": "min",
-            "parameters": [
-                "volbalance_nonneg_relative_mrf_montague",
-                "volbalance_nonneg_relative_mrf_trenton"
-            ]
-        },
-        "volbalance_neg_relative_mrf_montagueTrenton": {
-            "type": "aggregated",
-            "agg_func": "min",
-            "parameters": [
-                "volbalance_neg_relative_mrf_montague",
-                "volbalance_neg_relative_mrf_trenton"
-            ]
-        },
-        "volbalance_surplus_agg_montagueTrenton": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "volume_agg_nyc",
-                "flow_agg_nyc",
-                "volbalance_neg_relative_mrf_montagueTrenton"
-            ]
-        },
-        "volbalance_neg_fracSurplus_montagueTrenton_cannonsville": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                -1,
-                "volbalance_fracStorage_cannonsville",
-                "volbalance_surplus_agg_montagueTrenton"
-            ]
-        },
-        "volbalance_neg_fracSurplus_montagueTrenton_pepacton": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                -1,
-                "volbalance_fracStorage_pepacton",
-                "volbalance_surplus_agg_montagueTrenton"
-            ]
-        },
-        "volbalance_neg_fracSurplus_montagueTrenton_neversink": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                -1,
-                "volbalance_fracStorage_neversink",
-                "volbalance_surplus_agg_montagueTrenton"
-            ]
+        "volbalance_relative_mrf_montagueTrenton": {
+            "type": "VolBalanceNYCDownstreamMRFTargetAgg"
         },
         "volbalance_target_max_flow_montagueTrenton_cannonsville": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "volume_cannonsville",
-                "flow_cannonsville",
-                "volbalance_neg_fracSurplus_montagueTrenton_cannonsville"
-            ]
+            "type": "VolBalanceNYCDownstreamMRFTarget",
+            "node": "reservoir_cannonsville"
         },
         "volbalance_target_max_flow_montagueTrenton_pepacton": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "volume_pepacton",
-                "flow_pepacton",
-                "volbalance_neg_fracSurplus_montagueTrenton_pepacton"
-            ]
+            "type": "VolBalanceNYCDownstreamMRFTarget",
+            "node": "reservoir_pepacton"
         },
         "volbalance_target_max_flow_montagueTrenton_neversink": {
+            "type": "VolBalanceNYCDownstreamMRFTarget",
+            "node": "reservoir_neversink"
+        },
+        "volbalance_target_max_flow_montagueTrenton_agg_nyc": {
             "type": "aggregated",
             "agg_func": "sum",
-            "parameters": [
-                "volume_neversink",
-                "flow_neversink",
-                "volbalance_neg_fracSurplus_montagueTrenton_neversink"
-            ]
-        },
-        "volbalance_target2_max_flow_montagueTrenton_cannonsville": {
-            "type": "aggregated",
-            "agg_func": "max",
             "parameters": [
                 "volbalance_target_max_flow_montagueTrenton_cannonsville",
-                0
-            ]
-        },
-        "volbalance_target2_max_flow_montagueTrenton_pepacton": {
-            "type": "aggregated",
-            "agg_func": "max",
-            "parameters": [
                 "volbalance_target_max_flow_montagueTrenton_pepacton",
-                0
+                "volbalance_target_max_flow_montagueTrenton_neversink"
             ]
-        },
-        "volbalance_target2_max_flow_montagueTrenton_neversink": {
-            "type": "aggregated",
-            "agg_func": "max",
-            "parameters": [
-                "volbalance_target_max_flow_montagueTrenton_neversink",
-                0
-            ]
-        },
-        "volbalance_sum_target2_montagueTrenton": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "volbalance_target2_max_flow_montagueTrenton_cannonsville",
-                "volbalance_target2_max_flow_montagueTrenton_pepacton",
-                "volbalance_target2_max_flow_montagueTrenton_neversink"
-            ]
-        },
-        "volbalance_rescale_target2_montagueTrenton": {
-            "type": "division",
-            "numerator": "volbalance_nonneg_relative_mrf_montagueTrenton",
-            "denominator": "volbalance_sum_target2_montagueTrenton"
         },
         "volbalance_max_flow_montagueTrenton_cannonsville": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "volbalance_target2_max_flow_montagueTrenton_cannonsville",
-                "volbalance_rescale_target2_montagueTrenton"
-            ]
+            "type": "VolBalanceNYCDownstreamMRFFinal",
+            "node": "reservoir_cannonsville"
         },
         "volbalance_max_flow_montagueTrenton_pepacton": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "volbalance_target2_max_flow_montagueTrenton_pepacton",
-                "volbalance_rescale_target2_montagueTrenton"
-            ]
+            "type": "VolBalanceNYCDownstreamMRFFinal",
+            "node": "reservoir_pepacton"
         },
         "volbalance_max_flow_montagueTrenton_neversink": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "volbalance_target2_max_flow_montagueTrenton_neversink",
-                "volbalance_rescale_target2_montagueTrenton"
-            ]
-        },
-        "volbalance_max_flow_montagueTrenton_max": {
-            "type": "aggregated",
-            "agg_func": "max",
-            "parameters": [
-                "volbalance_max_flow_montagueTrenton_cannonsville",
-                "volbalance_max_flow_montagueTrenton_pepacton",
-                "volbalance_max_flow_montagueTrenton_neversink"
-            ]
-        },
-        "volbalance_max_flow_montagueTrenton_min": {
-            "type": "aggregated",
-            "agg_func": "min",
-            "parameters": [
-                "volbalance_max_flow_montagueTrenton_cannonsville",
-                "volbalance_max_flow_montagueTrenton_pepacton",
-                "volbalance_max_flow_montagueTrenton_neversink"
-            ]
+            "type": "VolBalanceNYCDownstreamMRFFinal",
+            "node": "reservoir_neversink"
         },
         "sin_weekly": {
             "type": "weeklyprofile",

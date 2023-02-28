@@ -11,7 +11,7 @@ from scipy import stats
 ### I was having trouble with interactive console plotting in Pycharm for some reason - comment this out if you want to use that and not having issues
 mpl.use('TkAgg')
 
-rerun_all = False
+rerun_all = True
 
 ### directories
 output_dir = 'output_data/'
