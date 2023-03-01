@@ -5,8 +5,8 @@ m3_to_gal,264.17,
 mrf_baseline_cannonsville,122.8,mgd
 mrf_baseline_pepacton,64.63,mgd
 mrf_baseline_neversink,48.47,mgd
-mrf_baseline_montague,1131.05,mgd
-mrf_baseline_trenton,1938.950669,mgd
+mrf_baseline_delMontague,1131.05,mgd
+mrf_baseline_delTrenton,1938.950669,mgd
 max_flow_baseline_delivery_nyc,800,mgd
 level1a_factor_delivery_nyc,1000000,
 level1b_factor_delivery_nyc,1000000,

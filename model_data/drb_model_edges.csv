@@ -1,8 +1,0 @@
-node1,node2,type,notes
-reservoir_cannonsville,link_cannonsville_nyc,diversion,
-link_cannonsville_nyc,delivery_nyc,diversion,tunnels to nyc
-reservoir_pepacton,link_pepacton_nyc,diversion,
-link_pepacton_nyc,delivery_nyc,diversion,tunnels to nyc
-reservoir_neversink,link_neversink_nyc,diversion,
-link_neversink_nyc,delivery_nyc,diversion,tunnels to nyc
-link_delTrenton,delivery_nj,diversion,

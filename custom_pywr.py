@@ -49,6 +49,7 @@ class FfmpNycRunningAvgParameter(Parameter):
         max_avg_delivery = load_parameter(model, data.pop("max_avg_delivery"))
         return cls(model, node, max_avg_delivery, **data)
 
+FfmpNycRunningAvgParameter.register()
 
 
 
@@ -392,3 +393,12 @@ class NYCCombinedReleaseFactor(Parameter):
         mrf_drought_factor_individual_reservoir = load_parameter(model, f'mrf_drought_factor_individual_{reservoir}')
         return cls(model, node, drought_level_agg_nyc, mrf_drought_factor_agg_reservoir,
                    mrf_drought_factor_individual_reservoir, **data)
+
+
+FfmpNjRunningAvgParameter.register()
+VolBalanceNYCDemandTarget.register()
+VolBalanceNYCDemandFinal.register()
+VolBalanceNYCDownstreamMRFTargetAgg.register()
+VolBalanceNYCDownstreamMRFTarget.register()
+VolBalanceNYCDownstreamMRFFinal.register()
+NYCCombinedReleaseFactor.register()

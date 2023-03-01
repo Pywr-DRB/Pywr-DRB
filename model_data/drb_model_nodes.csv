@@ -1,8 +1,0 @@
-name,type,flow,max_volume,initial_volume,initial_volume_pc,cost,storage_nodes,max_flow,mrf,mrf_cost,lat,long,notes,huc12,gages,nwm_feature_id
-reservoir_agg_nyc,aggregatedstorage,,,,,,"['reservoir_cannonsville', 'reservoir_pepacton', 'reservoir_neversink']",,,,41.929537,-74.326084,,,,
-link_cannonsville_nyc,link,,,,,-500,,volbalance_max_flow_delivery_nyc_cannonsville,,,41.929537,-74.326084,,,,
-link_pepacton_nyc,link,,,,,-500,,volbalance_max_flow_delivery_nyc_pepacton,,,41.929537,-74.326084,,,,
-link_neversink_nyc,link,,,,,-500,,volbalance_max_flow_delivery_nyc_neversink,,,41.929537,-74.326084,,,,
-delivery_nyc,output,,,,,-500,,max_flow_delivery_nyc,,,41.929537,-74.326084,,,,
-delivery_nj,output,,,,,-500,,max_flow_delivery_nj,,,40.341568,-74.643334,,,,
-output_del,output,,,,,,,,,,39.649087,-75.558104,,,,
