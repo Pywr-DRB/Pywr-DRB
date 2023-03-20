@@ -1,0 +1,70 @@
+# Table of contents
+# Learn more at https://jupyterbook.org/customize/toc.html
+
+format: jb-book
+# =============== Landing Page =================
+root: intro.md
+parts:
+  - chapters:
+    # =============== Model & DRB description =================
+    - file: Overview/overview.md
+      sections:
+        - title: Delaware River Basin
+          file: Overview/DRB/drb_overview.md
+          sections:
+            - title: History
+              file: Overview/DRB/drb_history.md
+            - title: Hydrology
+              file: Overview/DRB/drb_hydrology.md
+            - title: Planning & Management
+              file: Overview/DRB/drb_planning_management.md
+        - title: Pywr-DRB Model
+          file: Overview/Model/pywr_drb_model.md
+          sections:
+            - title: Model Overview
+              file: Overview/Model/pywr_drb_overview.md
+    # =============== Getting Started =================
+    - file: Getting_Started/getting_started.md
+      sections:
+        - title: Setup Model
+          file: Getting_Started/setup_model.md
+        - title: Running Simulations
+          file: Getting_Started/Running_Simulations/running_simulations.md
+          sections:
+            - title: Run all simulations
+              file: Getting_Started/Running_Simulations/run_all_simulations.md
+            - title: Run historic simulation
+              file: Getting_Started/Running_Simulations/run_historic_simulation.md
+        - title: Interpret results
+          file: Getting_Started/Interpret_Results/interpret_results.md
+          sections:
+            - title: Model Outputs
+              file: Getting_Started/Interpret_Results/model_outputs.md
+            - title: Visualize Results
+              file: Getting_Started/Interpret_Results/output_figures.md
+    # =============== References =================
+    - file: API_References/api_references.md
+      sections:
+        - title: prep_input_data.py
+          file: API_References/prep_input_data.md
+        - title: drb_make_model.py
+          file: API_References/drb_make_model.md
+        - title: drb_run_sim.py
+          file: API_References/drb_run_sim.md
+        - title: drb_make_figs.py
+          file: API_References/drb_make_figs.md
+        - title: drb_run_all.sh
+          file: API_References/drb_run_all.md
+        - title: custom_pywr.py
+          file: API_References/custom_pywr.md
+        - title: Plotting Functions
+          file: API_References/plotting_functions.md
+    # =============== Supplemental  =================
+    - file: Supplemental/supplemental.md
+      sections:
+      - title: Data Summary
+        file: Supplemental/data_summary.md
+      - title: Streamflow Prediction in Ungauged Basins
+        file: Supplemental/pub.md
+      - title: Synthetic Streamflow Generation
+        file: Supplemental/synthetic_generation.md
