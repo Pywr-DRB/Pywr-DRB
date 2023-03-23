@@ -1743,7 +1743,7 @@
     "parameters": {
         "flow_base_cannonsville": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
+            "url": "../input_data/catchment_inflow_obs_pub.csv",
             "column": "cannonsville",
             "index_col": "datetime",
             "parse_dates": true
@@ -1791,7 +1791,7 @@
         },
         "flow_base_pepacton": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
+            "url": "../input_data/catchment_inflow_obs_pub.csv",
             "column": "pepacton",
             "index_col": "datetime",
             "parse_dates": true
@@ -1839,7 +1839,7 @@
         },
         "flow_base_delLordville": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nhmv10.csv",
+            "url": "../input_data/catchment_inflow_obs_pub.csv",
             "column": "delLordville",
             "index_col": "datetime",
             "parse_dates": true
@@ -1868,7 +1868,7 @@
         },
         "flow_base_neversink": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
+            "url": "../input_data/catchment_inflow_obs_pub.csv",
             "column": "neversink",
             "index_col": "datetime",
             "parse_dates": true
@@ -1916,7 +1916,7 @@
         },
         "flow_base_wallenpaupack": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
+            "url": "../input_data/catchment_inflow_obs_pub.csv",
             "column": "wallenpaupack",
             "index_col": "datetime",
             "parse_dates": true
@@ -2493,7 +2493,7 @@
         },
         "flow_base_prompton": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nhmv10.csv",
+            "url": "../input_data/catchment_inflow_obs_pub.csv",
             "column": "prompton",
             "index_col": "datetime",
             "parse_dates": true
@@ -3070,7 +3070,7 @@
         },
         "flow_base_shoholaMarsh": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nhmv10.csv",
+            "url": "../input_data/catchment_inflow_obs_pub.csv",
             "column": "shoholaMarsh",
             "index_col": "datetime",
             "parse_dates": true
@@ -3647,7 +3647,7 @@
         },
         "flow_base_mongaupeCombined": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
+            "url": "../input_data/catchment_inflow_obs_pub.csv",
             "column": "mongaupeCombined",
             "index_col": "datetime",
             "parse_dates": true
@@ -4236,7 +4236,7 @@
         },
         "flow_base_delMontague": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nhmv10.csv",
+            "url": "../input_data/catchment_inflow_obs_pub.csv",
             "column": "delMontague",
             "index_col": "datetime",
             "parse_dates": true
@@ -4265,7 +4265,7 @@
         },
         "flow_base_beltzvilleCombined": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
+            "url": "../input_data/catchment_inflow_obs_pub.csv",
             "column": "beltzvilleCombined",
             "index_col": "datetime",
             "parse_dates": true
@@ -4854,7 +4854,7 @@
         },
         "flow_base_fewalter": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nhmv10.csv",
+            "url": "../input_data/catchment_inflow_obs_pub.csv",
             "column": "fewalter",
             "index_col": "datetime",
             "parse_dates": true
@@ -5443,7 +5443,7 @@
         },
         "flow_base_merrillCreek": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nhmv10.csv",
+            "url": "../input_data/catchment_inflow_obs_pub.csv",
             "column": "merrillCreek",
             "index_col": "datetime",
             "parse_dates": true
@@ -6020,7 +6020,7 @@
         },
         "flow_base_hopatcong": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nhmv10.csv",
+            "url": "../input_data/catchment_inflow_obs_pub.csv",
             "column": "hopatcong",
             "index_col": "datetime",
             "parse_dates": true
@@ -6597,7 +6597,7 @@
         },
         "flow_base_nockamixon": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
+            "url": "../input_data/catchment_inflow_obs_pub.csv",
             "column": "nockamixon",
             "index_col": "datetime",
             "parse_dates": true
@@ -7174,7 +7174,7 @@
         },
         "flow_base_delTrenton": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nhmv10.csv",
+            "url": "../input_data/catchment_inflow_obs_pub.csv",
             "column": "delTrenton",
             "index_col": "datetime",
             "parse_dates": true
@@ -7203,7 +7203,7 @@
         },
         "flow_base_assunpink": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
+            "url": "../input_data/catchment_inflow_obs_pub.csv",
             "column": "assunpink",
             "index_col": "datetime",
             "parse_dates": true
@@ -7792,7 +7792,7 @@
         },
         "flow_base_outletAssunpink": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nhmv10.csv",
+            "url": "../input_data/catchment_inflow_obs_pub.csv",
             "column": "outletAssunpink",
             "index_col": "datetime",
             "parse_dates": true
@@ -7821,7 +7821,7 @@
         },
         "flow_base_ontelaunee": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
+            "url": "../input_data/catchment_inflow_obs_pub.csv",
             "column": "ontelaunee",
             "index_col": "datetime",
             "parse_dates": true
@@ -8398,7 +8398,7 @@
         },
         "flow_base_stillCreek": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nhmv10.csv",
+            "url": "../input_data/catchment_inflow_obs_pub.csv",
             "column": "stillCreek",
             "index_col": "datetime",
             "parse_dates": true
@@ -8975,7 +8975,7 @@
         },
         "flow_base_blueMarsh": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
+            "url": "../input_data/catchment_inflow_obs_pub.csv",
             "column": "blueMarsh",
             "index_col": "datetime",
             "parse_dates": true
@@ -9564,7 +9564,7 @@
         },
         "flow_base_greenLane": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nhmv10.csv",
+            "url": "../input_data/catchment_inflow_obs_pub.csv",
             "column": "greenLane",
             "index_col": "datetime",
             "parse_dates": true
@@ -10141,7 +10141,7 @@
         },
         "flow_base_outletSchuylkill": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nhmv10.csv",
+            "url": "../input_data/catchment_inflow_obs_pub.csv",
             "column": "outletSchuylkill",
             "index_col": "datetime",
             "parse_dates": true
@@ -10170,7 +10170,7 @@
         },
         "flow_base_marshCreek": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nhmv10.csv",
+            "url": "../input_data/catchment_inflow_obs_pub.csv",
             "column": "marshCreek",
             "index_col": "datetime",
             "parse_dates": true
@@ -10747,7 +10747,7 @@
         },
         "flow_base_outletChristina": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nhmv10.csv",
+            "url": "../input_data/catchment_inflow_obs_pub.csv",
             "column": "outletChristina",
             "index_col": "datetime",
             "parse_dates": true
