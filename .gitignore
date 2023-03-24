@@ -15,13 +15,13 @@ venv*
 /DRB_spatial/cache/*
 DRB_spatial/drb_model_map_dark.html
 
-figs/*.png
-figs\*
-figs/*
+#figs/*.png
+#figs\*
+#figs/*
 
 local/*
-*.png
-figs/*.png
-./figs/*
+#*.png
+#figs/*.png
+#./figs/*
 
 old/
