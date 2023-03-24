@@ -48,16 +48,6 @@
             "mrf_cost": -1000.0
         },
         {
-            "name": "link_cannonsville_outflow_1",
-            "type": "link",
-            "max_flow": "volbalance_max_flow_montagueTrenton_cannonsville"
-        },
-        {
-            "name": "link_cannonsville_outflow_2",
-            "type": "link",
-            "cost": 100.0
-        },
-        {
             "name": "link_01425000",
             "type": "link"
         },
@@ -110,16 +100,6 @@
             "mrf_cost": -1000.0
         },
         {
-            "name": "link_pepacton_outflow_1",
-            "type": "link",
-            "max_flow": "volbalance_max_flow_montagueTrenton_pepacton"
-        },
-        {
-            "name": "link_pepacton_outflow_2",
-            "type": "link",
-            "cost": 100.0
-        },
-        {
             "name": "link_01417000",
             "type": "link"
         },
@@ -162,6 +142,11 @@
             "max_flow": "max_flow_catchmentConsumption_delLordville"
         },
         {
+            "name": "delay_delLordville",
+            "type": "DelayNode",
+            "days": 2
+        },
+        {
             "name": "reservoir_neversink",
             "type": "storage",
             "max_volume": "max_volume_neversink",
@@ -193,16 +178,6 @@
             "mrf_cost": -1000.0
         },
         {
-            "name": "link_neversink_outflow_1",
-            "type": "link",
-            "max_flow": "volbalance_max_flow_montagueTrenton_neversink"
-        },
-        {
-            "name": "link_neversink_outflow_2",
-            "type": "link",
-            "cost": 100.0
-        },
-        {
             "name": "link_01436000",
             "type": "link"
         },
@@ -222,6 +197,11 @@
             "type": "output",
             "cost": -200.0,
             "max_flow": "max_flow_catchmentConsumption_01436000"
+        },
+        {
+            "name": "delay_01436000",
+            "type": "DelayNode",
+            "days": 1
         },
         {
             "name": "reservoir_wallenpaupack",
@@ -255,6 +235,11 @@
             "max_flow": "starfit_release_final_wallenpaupack"
         },
         {
+            "name": "delay_wallenpaupack",
+            "type": "DelayNode",
+            "days": 1
+        },
+        {
             "name": "reservoir_prompton",
             "type": "storage",
             "max_volume": "max_volume_prompton",
@@ -286,6 +271,11 @@
             "max_flow": "starfit_release_final_prompton"
         },
         {
+            "name": "delay_prompton",
+            "type": "DelayNode",
+            "days": 1
+        },
+        {
             "name": "reservoir_shoholaMarsh",
             "type": "storage",
             "max_volume": "max_volume_shoholaMarsh",
@@ -315,6 +305,11 @@
             "type": "link",
             "cost": -500.0,
             "max_flow": "starfit_release_final_shoholaMarsh"
+        },
+        {
+            "name": "delay_shoholaMarsh",
+            "type": "DelayNode",
+            "days": 1
         },
         {
             "name": "reservoir_mongaupeCombined",
@@ -396,6 +391,11 @@
             "mrf_cost": -1000.0
         },
         {
+            "name": "delay_delMontague",
+            "type": "DelayNode",
+            "days": 2
+        },
+        {
             "name": "reservoir_beltzvilleCombined",
             "type": "storage",
             "max_volume": "max_volume_beltzvilleCombined",
@@ -446,6 +446,11 @@
             "type": "output",
             "cost": -200.0,
             "max_flow": "max_flow_catchmentConsumption_01449800"
+        },
+        {
+            "name": "delay_01449800",
+            "type": "DelayNode",
+            "days": 2
         },
         {
             "name": "reservoir_fewalter",
@@ -500,6 +505,11 @@
             "max_flow": "max_flow_catchmentConsumption_01447800"
         },
         {
+            "name": "delay_01447800",
+            "type": "DelayNode",
+            "days": 2
+        },
+        {
             "name": "reservoir_merrillCreek",
             "type": "storage",
             "max_volume": "max_volume_merrillCreek",
@@ -531,6 +541,11 @@
             "max_flow": "starfit_release_final_merrillCreek"
         },
         {
+            "name": "delay_merrillCreek",
+            "type": "DelayNode",
+            "days": 1
+        },
+        {
             "name": "reservoir_hopatcong",
             "type": "storage",
             "max_volume": "max_volume_hopatcong",
@@ -560,6 +575,11 @@
             "type": "link",
             "cost": -500.0,
             "max_flow": "starfit_release_final_hopatcong"
+        },
+        {
+            "name": "delay_hopatcong",
+            "type": "DelayNode",
+            "days": 1
         },
         {
             "name": "reservoir_nockamixon",
@@ -618,6 +638,11 @@
             "type": "rivergauge",
             "mrf": "mrf_target_delTrenton",
             "mrf_cost": -1000.0
+        },
+        {
+            "name": "delay_delTrenton",
+            "type": "DelayNode",
+            "days": 1
         },
         {
             "name": "reservoir_assunpink",
@@ -724,6 +749,11 @@
             "max_flow": "starfit_release_final_ontelaunee"
         },
         {
+            "name": "delay_ontelaunee",
+            "type": "DelayNode",
+            "days": 2
+        },
+        {
             "name": "reservoir_stillCreek",
             "type": "storage",
             "max_volume": "max_volume_stillCreek",
@@ -753,6 +783,11 @@
             "type": "link",
             "cost": -500.0,
             "max_flow": "starfit_release_final_stillCreek"
+        },
+        {
+            "name": "delay_stillCreek",
+            "type": "DelayNode",
+            "days": 2
         },
         {
             "name": "reservoir_blueMarsh",
@@ -807,6 +842,11 @@
             "max_flow": "max_flow_catchmentConsumption_01470960"
         },
         {
+            "name": "delay_01470960",
+            "type": "DelayNode",
+            "days": 2
+        },
+        {
             "name": "reservoir_greenLane",
             "type": "storage",
             "max_volume": "max_volume_greenLane",
@@ -836,6 +876,11 @@
             "type": "link",
             "cost": -500.0,
             "max_flow": "starfit_release_final_greenLane"
+        },
+        {
+            "name": "delay_greenLane",
+            "type": "DelayNode",
+            "days": 1
         },
         {
             "name": "link_outletSchuylkill",
@@ -973,18 +1018,6 @@
         ],
         [
             "reservoir_cannonsville",
-            "link_cannonsville_outflow_1"
-        ],
-        [
-            "reservoir_cannonsville",
-            "link_cannonsville_outflow_2"
-        ],
-        [
-            "link_cannonsville_outflow_1",
-            "outflow_cannonsville"
-        ],
-        [
-            "link_cannonsville_outflow_2",
             "outflow_cannonsville"
         ],
         [
@@ -1029,18 +1062,6 @@
         ],
         [
             "reservoir_pepacton",
-            "link_pepacton_outflow_1"
-        ],
-        [
-            "reservoir_pepacton",
-            "link_pepacton_outflow_2"
-        ],
-        [
-            "link_pepacton_outflow_1",
-            "outflow_pepacton"
-        ],
-        [
-            "link_pepacton_outflow_2",
             "outflow_pepacton"
         ],
         [
@@ -1085,6 +1106,10 @@
         ],
         [
             "link_delLordville",
+            "delay_delLordville"
+        ],
+        [
+            "delay_delLordville",
             "link_delMontague"
         ],
         [
@@ -1105,18 +1130,6 @@
         ],
         [
             "reservoir_neversink",
-            "link_neversink_outflow_1"
-        ],
-        [
-            "reservoir_neversink",
-            "link_neversink_outflow_2"
-        ],
-        [
-            "link_neversink_outflow_1",
-            "outflow_neversink"
-        ],
-        [
-            "link_neversink_outflow_2",
             "outflow_neversink"
         ],
         [
@@ -1141,6 +1154,10 @@
         ],
         [
             "link_01436000",
+            "delay_01436000"
+        ],
+        [
+            "delay_01436000",
             "link_delMontague"
         ],
         [
@@ -1165,6 +1182,10 @@
         ],
         [
             "outflow_wallenpaupack",
+            "delay_wallenpaupack"
+        ],
+        [
+            "delay_wallenpaupack",
             "link_delMontague"
         ],
         [
@@ -1189,6 +1210,10 @@
         ],
         [
             "outflow_prompton",
+            "delay_prompton"
+        ],
+        [
+            "delay_prompton",
             "link_delMontague"
         ],
         [
@@ -1213,6 +1238,10 @@
         ],
         [
             "outflow_shoholaMarsh",
+            "delay_shoholaMarsh"
+        ],
+        [
+            "delay_shoholaMarsh",
             "link_delMontague"
         ],
         [
@@ -1281,6 +1310,10 @@
         ],
         [
             "outflow_delMontague",
+            "delay_delMontague"
+        ],
+        [
+            "delay_delMontague",
             "link_delTrenton"
         ],
         [
@@ -1325,6 +1358,10 @@
         ],
         [
             "link_01449800",
+            "delay_01449800"
+        ],
+        [
+            "delay_01449800",
             "link_delTrenton"
         ],
         [
@@ -1369,6 +1406,10 @@
         ],
         [
             "link_01447800",
+            "delay_01447800"
+        ],
+        [
+            "delay_01447800",
             "link_delTrenton"
         ],
         [
@@ -1393,6 +1434,10 @@
         ],
         [
             "outflow_merrillCreek",
+            "delay_merrillCreek"
+        ],
+        [
+            "delay_merrillCreek",
             "link_delTrenton"
         ],
         [
@@ -1417,6 +1462,10 @@
         ],
         [
             "outflow_hopatcong",
+            "delay_hopatcong"
+        ],
+        [
+            "delay_hopatcong",
             "link_delTrenton"
         ],
         [
@@ -1465,6 +1514,10 @@
         ],
         [
             "outflow_delTrenton",
+            "delay_delTrenton"
+        ],
+        [
+            "delay_delTrenton",
             "output_del"
         ],
         [
@@ -1553,6 +1606,10 @@
         ],
         [
             "outflow_ontelaunee",
+            "delay_ontelaunee"
+        ],
+        [
+            "delay_ontelaunee",
             "link_outletSchuylkill"
         ],
         [
@@ -1577,6 +1634,10 @@
         ],
         [
             "outflow_stillCreek",
+            "delay_stillCreek"
+        ],
+        [
+            "delay_stillCreek",
             "link_outletSchuylkill"
         ],
         [
@@ -1621,6 +1682,10 @@
         ],
         [
             "link_01470960",
+            "delay_01470960"
+        ],
+        [
+            "delay_01470960",
             "link_outletSchuylkill"
         ],
         [
@@ -1645,6 +1710,10 @@
         ],
         [
             "outflow_greenLane",
+            "delay_greenLane"
+        ],
+        [
+            "delay_greenLane",
             "link_outletSchuylkill"
         ],
         [
@@ -1743,7 +1812,7 @@
     "parameters": {
         "flow_base_cannonsville": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_obs_pub.csv",
+            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
             "column": "cannonsville",
             "index_col": "datetime",
             "parse_dates": true
@@ -1791,7 +1860,7 @@
         },
         "flow_base_pepacton": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_obs_pub.csv",
+            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
             "column": "pepacton",
             "index_col": "datetime",
             "parse_dates": true
@@ -1839,7 +1908,7 @@
         },
         "flow_base_delLordville": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_obs_pub.csv",
+            "url": "../input_data/catchment_inflow_nhmv10.csv",
             "column": "delLordville",
             "index_col": "datetime",
             "parse_dates": true
@@ -1868,7 +1937,7 @@
         },
         "flow_base_neversink": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_obs_pub.csv",
+            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
             "column": "neversink",
             "index_col": "datetime",
             "parse_dates": true
@@ -1916,7 +1985,7 @@
         },
         "flow_base_wallenpaupack": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_obs_pub.csv",
+            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
             "column": "wallenpaupack",
             "index_col": "datetime",
             "parse_dates": true
@@ -2493,7 +2562,7 @@
         },
         "flow_base_prompton": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_obs_pub.csv",
+            "url": "../input_data/catchment_inflow_nhmv10.csv",
             "column": "prompton",
             "index_col": "datetime",
             "parse_dates": true
@@ -3070,7 +3139,7 @@
         },
         "flow_base_shoholaMarsh": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_obs_pub.csv",
+            "url": "../input_data/catchment_inflow_nhmv10.csv",
             "column": "shoholaMarsh",
             "index_col": "datetime",
             "parse_dates": true
@@ -3647,7 +3716,7 @@
         },
         "flow_base_mongaupeCombined": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_obs_pub.csv",
+            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
             "column": "mongaupeCombined",
             "index_col": "datetime",
             "parse_dates": true
@@ -4236,7 +4305,7 @@
         },
         "flow_base_delMontague": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_obs_pub.csv",
+            "url": "../input_data/catchment_inflow_nhmv10.csv",
             "column": "delMontague",
             "index_col": "datetime",
             "parse_dates": true
@@ -4265,7 +4334,7 @@
         },
         "flow_base_beltzvilleCombined": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_obs_pub.csv",
+            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
             "column": "beltzvilleCombined",
             "index_col": "datetime",
             "parse_dates": true
@@ -4854,7 +4923,7 @@
         },
         "flow_base_fewalter": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_obs_pub.csv",
+            "url": "../input_data/catchment_inflow_nhmv10.csv",
             "column": "fewalter",
             "index_col": "datetime",
             "parse_dates": true
@@ -5443,7 +5512,7 @@
         },
         "flow_base_merrillCreek": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_obs_pub.csv",
+            "url": "../input_data/catchment_inflow_nhmv10.csv",
             "column": "merrillCreek",
             "index_col": "datetime",
             "parse_dates": true
@@ -6020,7 +6089,7 @@
         },
         "flow_base_hopatcong": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_obs_pub.csv",
+            "url": "../input_data/catchment_inflow_nhmv10.csv",
             "column": "hopatcong",
             "index_col": "datetime",
             "parse_dates": true
@@ -6597,7 +6666,7 @@
         },
         "flow_base_nockamixon": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_obs_pub.csv",
+            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
             "column": "nockamixon",
             "index_col": "datetime",
             "parse_dates": true
@@ -7174,7 +7243,7 @@
         },
         "flow_base_delTrenton": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_obs_pub.csv",
+            "url": "../input_data/catchment_inflow_nhmv10.csv",
             "column": "delTrenton",
             "index_col": "datetime",
             "parse_dates": true
@@ -7203,7 +7272,7 @@
         },
         "flow_base_assunpink": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_obs_pub.csv",
+            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
             "column": "assunpink",
             "index_col": "datetime",
             "parse_dates": true
@@ -7792,7 +7861,7 @@
         },
         "flow_base_outletAssunpink": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_obs_pub.csv",
+            "url": "../input_data/catchment_inflow_nhmv10.csv",
             "column": "outletAssunpink",
             "index_col": "datetime",
             "parse_dates": true
@@ -7821,7 +7890,7 @@
         },
         "flow_base_ontelaunee": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_obs_pub.csv",
+            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
             "column": "ontelaunee",
             "index_col": "datetime",
             "parse_dates": true
@@ -8398,7 +8467,7 @@
         },
         "flow_base_stillCreek": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_obs_pub.csv",
+            "url": "../input_data/catchment_inflow_nhmv10.csv",
             "column": "stillCreek",
             "index_col": "datetime",
             "parse_dates": true
@@ -8975,7 +9044,7 @@
         },
         "flow_base_blueMarsh": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_obs_pub.csv",
+            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
             "column": "blueMarsh",
             "index_col": "datetime",
             "parse_dates": true
@@ -9564,7 +9633,7 @@
         },
         "flow_base_greenLane": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_obs_pub.csv",
+            "url": "../input_data/catchment_inflow_nhmv10.csv",
             "column": "greenLane",
             "index_col": "datetime",
             "parse_dates": true
@@ -10141,7 +10210,7 @@
         },
         "flow_base_outletSchuylkill": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_obs_pub.csv",
+            "url": "../input_data/catchment_inflow_nhmv10.csv",
             "column": "outletSchuylkill",
             "index_col": "datetime",
             "parse_dates": true
@@ -10170,7 +10239,7 @@
         },
         "flow_base_marshCreek": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_obs_pub.csv",
+            "url": "../input_data/catchment_inflow_nhmv10.csv",
             "column": "marshCreek",
             "index_col": "datetime",
             "parse_dates": true
@@ -10747,7 +10816,7 @@
         },
         "flow_base_outletChristina": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_obs_pub.csv",
+            "url": "../input_data/catchment_inflow_nhmv10.csv",
             "column": "outletChristina",
             "index_col": "datetime",
             "parse_dates": true
@@ -11345,7 +11414,7 @@
             "type": "NYCCombinedReleaseFactor",
             "node": "reservoir_neversink"
         },
-        "mrf_target_cannonsville": {
+        "mrf_target_individual_cannonsville": {
             "type": "aggregated",
             "agg_func": "product",
             "parameters": [
@@ -11353,7 +11422,7 @@
                 "mrf_drought_factor_combined_final_cannonsville"
             ]
         },
-        "mrf_target_pepacton": {
+        "mrf_target_individual_pepacton": {
             "type": "aggregated",
             "agg_func": "product",
             "parameters": [
@@ -11361,7 +11430,7 @@
                 "mrf_drought_factor_combined_final_pepacton"
             ]
         },
-        "mrf_target_neversink": {
+        "mrf_target_individual_neversink": {
             "type": "aggregated",
             "agg_func": "product",
             "parameters": [
@@ -11708,6 +11777,30 @@
             "parameters": [
                 "mrf_baseline_delTrenton",
                 "mrf_drought_factor_delTrenton"
+            ]
+        },
+        "mrf_target_cannonsville": {
+            "type": "aggregated",
+            "agg_func": "max",
+            "parameters": [
+                "mrf_target_individual_cannonsville",
+                "volbalance_max_flow_montagueTrenton_cannonsville"
+            ]
+        },
+        "mrf_target_pepacton": {
+            "type": "aggregated",
+            "agg_func": "max",
+            "parameters": [
+                "mrf_target_individual_pepacton",
+                "volbalance_max_flow_montagueTrenton_pepacton"
+            ]
+        },
+        "mrf_target_neversink": {
+            "type": "aggregated",
+            "agg_func": "max",
+            "parameters": [
+                "mrf_target_individual_neversink",
+                "volbalance_max_flow_montagueTrenton_neversink"
             ]
         }
     }

@@ -1,12 +1,7 @@
 import json
-import ast
-import numpy as np
-import pandas as pd
-import sys
 
 input_dir = '../input_data/'
 model_sheets_dir = 'model_data/'
-model_base_file = model_sheets_dir + 'drb_model_base.json'
 model_full_file = model_sheets_dir + 'drb_model_full.json'
 model_sheets_start = model_sheets_dir + 'drb_model_'
 
@@ -165,7 +160,7 @@ def create_starfit_params(d, r):
 
 ### create standard model node structures
 def add_major_node(model, name, node_type, inflow_type, backup_inflow_type=None, outflow_type=None, downstream_node=None,
-                   initial_volume=None, initial_volume_perc=None, variable_cost=None):
+                   downstream_lag=0, initial_volume=None, initial_volume_perc=None, variable_cost=None):
     '''
     Add a major node to the model. Major nodes types include reservoir & river.
     This function will add the major node and all standard minor nodes that belong to each major node
@@ -178,6 +173,7 @@ def add_major_node(model, name, node_type, inflow_type, backup_inflow_type=None,
     :param backup_inflow_type: 'nhmv10', etc. only active if inflow_type is a WEAP series - backup used to fill inflows for non-WEAP reservoirs.
     :param outflow_type: define what type of outflow node to use (if any) - either 'starfit' or 'regulatory'
     :param downstream_node: name of node directly downstream, for writing edge network.
+    :param downstream_lag: travel time (in days) between flow leaving a node and reaching its downstream node
     :param initial_volume: (reservoirs only) starting volume of reservoir in MG. Must correspond to "initial_volume_perc" times
                            total volume, as pywr doesnt calculate this automatically in time step 0
     :param initial_volume_perc: (reservoirs only) fraction full for reservoir initially
@@ -260,21 +256,15 @@ def add_major_node(model, name, node_type, inflow_type, backup_inflow_type=None,
         }
         model['nodes'].append(outflow)
 
-    ### NYC reservoirs have additional 2 link nodes between reservoir and outflow, to account for storage balancing rules
-    if is_NYC_reservoir:
-        outflow_link1 = {
-            'name': f'link_{name}_outflow_1',
-            'type': 'link',
-            'max_flow': f'volbalance_max_flow_montagueTrenton_{name}'
+    ### add Delay node to account for flow travel time between nodes. Lag unit is days.
+    if downstream_lag>0:
+        delay = {
+            'name': f'delay_{name}',
+            'type': 'DelayNode',
+            'days': downstream_lag
         }
-        model['nodes'].append(outflow_link1)
+        model['nodes'].append(delay)
 
-        outflow_link2 = {
-            'name': f'link_{name}_outflow_2',
-            'type': 'link',
-            'cost': 100.0
-        }
-        model['nodes'].append(outflow_link2)
 
     ### now add edges of model flow network
     ### catchment to reservoir
@@ -295,19 +285,23 @@ def add_major_node(model, name, node_type, inflow_type, backup_inflow_type=None,
     else:
         downstream_name = f'reservoir_{downstream_node}'
     if has_outflow_node:
-        if not is_NYC_reservoir:
-            model['edges'].append([node_name, f'outflow_{name}'])
+        model['edges'].append([node_name, f'outflow_{name}'])
+        if downstream_lag > 0:
+            model['edges'].append([f'outflow_{name}', f'delay_{name}'])
+            model['edges'].append([f'delay_{name}', downstream_name])
         else:
-            ### NYC reservoirs have additional two links between reservoir and outflow to acct for storage balancing rules
-            model['edges'].append([node_name, f'link_{name}_outflow_1'])
-            model['edges'].append([node_name, f'link_{name}_outflow_2'])
-            model['edges'].append([f'link_{name}_outflow_1', f'outflow_{name}'])
-            model['edges'].append([f'link_{name}_outflow_2', f'outflow_{name}'])
-        model['edges'].append([f'outflow_{name}', downstream_name])
-    else:
-        model['edges'].append([node_name, downstream_name])
+            model['edges'].append([f'outflow_{name}', downstream_name])
 
+    else:
+        if downstream_lag > 0:
+            model['edges'].append([node_name, f'delay_{name}'])
+            model['edges'].append([f'delay_{name}', downstream_name])
+        else:
+            model['edges'].append([node_name, downstream_name])
+
+    ################################################################
     ### now add standard parameters
+    ################################################################
 
     ### inflows to catchment - for now exclude gage nodes, since havent calculated demand yet
     if name[0] == '0':
@@ -431,38 +425,40 @@ def drb_make_model(inflow_type, backup_inflow_type, start_date, end_date, use_hi
     #######################################################################
     ### add major nodes (e.g., reservoirs) to model, along with corresponding minor nodes (e.g., withdrawals), edges, & parameters
     #######################################################################
-    model = add_major_node(model, 'cannonsville', 'reservoir', inflow_type, backup_inflow_type, 'regulatory', '01425000', 117313.5018, 0.8, True)
-    model = add_major_node(model, '01425000', 'river', inflow_type, backup_inflow_type, None, 'delLordville')
-    model = add_major_node(model, 'pepacton', 'reservoir', inflow_type, backup_inflow_type, 'regulatory', '01417000', 158947.009, 0.8, True)
-    model = add_major_node(model, '01417000', 'river', inflow_type, backup_inflow_type, None, 'delLordville')
-    model = add_major_node(model, 'delLordville', 'river', inflow_type, backup_inflow_type, None, 'delMontague')
-    model = add_major_node(model, 'neversink', 'reservoir', inflow_type, backup_inflow_type, 'regulatory', '01436000', 37026.34752, 0.8, True)
-    model = add_major_node(model, '01436000', 'river', inflow_type, backup_inflow_type, None, 'delMontague')
-    model = add_major_node(model, 'wallenpaupack', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delMontague', 70375.4208, 0.8, False)
-    model = add_major_node(model, 'prompton', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delMontague', 3022.12768, 0.8, False)
-    model = add_major_node(model, 'shoholaMarsh', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delMontague', 6889.60576, 0.8, False)
-    model = add_major_node(model, 'mongaupeCombined', 'reservoir', inflow_type, backup_inflow_type, 'starfit', '01433500', 22697.65824, 0.8, False)
-    model = add_major_node(model, '01433500', 'river', inflow_type, backup_inflow_type, None, 'delMontague')
-    model = add_major_node(model, 'delMontague', 'river', inflow_type, backup_inflow_type, 'regulatory', 'delTrenton')
-    model = add_major_node(model, 'beltzvilleCombined', 'reservoir', inflow_type, backup_inflow_type, 'starfit', '01449800', 38653.64704, 0.8, False)
-    model = add_major_node(model, '01449800', 'river', inflow_type, backup_inflow_type, None, 'delTrenton')
-    model = add_major_node(model, 'fewalter', 'reservoir', inflow_type, backup_inflow_type, 'starfit', '01447800', 3022.12768, 0.8, False)
-    model = add_major_node(model, '01447800', 'river', inflow_type, backup_inflow_type, None, 'delTrenton')
-    model = add_major_node(model, 'merrillCreek', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delTrenton', 11982.84192, 0.8, False)
-    model = add_major_node(model, 'hopatcong', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delTrenton', 12574.5872, 0.8, False)
-    model = add_major_node(model, 'nockamixon', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delTrenton', 18513.17376, 0.8, False)
-    model = add_major_node(model, 'delTrenton', 'river', inflow_type, backup_inflow_type, 'regulatory', 'output_del')
-    model = add_major_node(model, 'assunpink', 'reservoir', inflow_type, backup_inflow_type, 'starfit', '01463620', 3296.86656, 0.8, False)
-    model = add_major_node(model, '01463620', 'river', inflow_type, backup_inflow_type, None, 'outletAssunpink')
-    model = add_major_node(model, 'outletAssunpink', 'river', inflow_type, backup_inflow_type, None, 'output_del')
-    model = add_major_node(model, 'ontelaunee', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'outletSchuylkill', 3022.12768, 0.8, False)
-    model = add_major_node(model, 'stillCreek', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'outletSchuylkill', 3022.12768, 0.8, False)
-    model = add_major_node(model, 'blueMarsh', 'reservoir', inflow_type, backup_inflow_type, 'starfit', '01470960', 33856.28352, 0.8, False)
-    model = add_major_node(model, '01470960', 'river', inflow_type, backup_inflow_type, None, 'outletSchuylkill')
-    model = add_major_node(model, 'greenLane', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'outletSchuylkill', 6551.4656, 0.8, False)
-    model = add_major_node(model, 'outletSchuylkill', 'river', inflow_type, backup_inflow_type, None, 'output_del')
-    model = add_major_node(model, 'marshCreek', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'outletChristina', 3022.12768, 0.8, False)
-    model = add_major_node(model, 'outletChristina', 'river', inflow_type, backup_inflow_type, None, 'output_del')
+    model = add_major_node(model, 'cannonsville', 'reservoir', inflow_type, backup_inflow_type, 'regulatory', '01425000', 0, 117313.5018, 0.8, True)
+    model = add_major_node(model, '01425000', 'river', inflow_type, backup_inflow_type, None, 'delLordville', 0)
+    model = add_major_node(model, 'pepacton', 'reservoir', inflow_type, backup_inflow_type, 'regulatory', '01417000', 0, 158947.009, 0.8, True)
+    model = add_major_node(model, '01417000', 'river', inflow_type, backup_inflow_type, None, 'delLordville', 0)
+    model = add_major_node(model, 'delLordville', 'river', inflow_type, backup_inflow_type, None, 'delMontague', 2)
+    model = add_major_node(model, 'neversink', 'reservoir', inflow_type, backup_inflow_type, 'regulatory', '01436000', 0, 37026.34752, 0.8, True)
+    model = add_major_node(model, '01436000', 'river', inflow_type, backup_inflow_type, None, 'delMontague', 1)
+    model = add_major_node(model, 'wallenpaupack', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delMontague', 1, 70375.4208, 0.8, False)
+    model = add_major_node(model, 'prompton', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delMontague', 1, 3022.12768, 0.8, False)
+    model = add_major_node(model, 'shoholaMarsh', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delMontague', 1, 6889.60576, 0.8, False)
+    model = add_major_node(model, 'mongaupeCombined', 'reservoir', inflow_type, backup_inflow_type, 'starfit', '01433500', 0, 22697.65824, 0.8, False)
+    model = add_major_node(model, '01433500', 'river', inflow_type, backup_inflow_type, None, 'delMontague', 0)
+    model = add_major_node(model, 'delMontague', 'river', inflow_type, backup_inflow_type, 'regulatory', 'delTrenton', 2)
+    model = add_major_node(model, 'beltzvilleCombined', 'reservoir', inflow_type, backup_inflow_type, 'starfit', '01449800', 0, 38653.64704, 0.8, False)
+    model = add_major_node(model, '01449800', 'river', inflow_type, backup_inflow_type, None, 'delTrenton', 2)
+    model = add_major_node(model, 'fewalter', 'reservoir', inflow_type, backup_inflow_type, 'starfit', '01447800', 0, 3022.12768, 0.8, False)
+    model = add_major_node(model, '01447800', 'river', inflow_type, backup_inflow_type, None, 'delTrenton', 2)
+    model = add_major_node(model, 'merrillCreek', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delTrenton', 1, 11982.84192, 0.8, False)
+    model = add_major_node(model, 'hopatcong', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delTrenton', 1, 12574.5872, 0.8, False)
+    model = add_major_node(model, 'nockamixon', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delTrenton', 0, 18513.17376, 0.8, False)
+    model = add_major_node(model, 'delTrenton', 'river', inflow_type, backup_inflow_type, 'regulatory', 'output_del', 1)
+    model = add_major_node(model, 'assunpink', 'reservoir', inflow_type, backup_inflow_type, 'starfit', '01463620', 0, 3296.86656, 0.8, False)
+    model = add_major_node(model, '01463620', 'river', inflow_type, backup_inflow_type, None, 'outletAssunpink', 0)
+    model = add_major_node(model, 'outletAssunpink', 'river', inflow_type, backup_inflow_type, None, 'output_del', 0)
+    model = add_major_node(model, 'ontelaunee', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'outletSchuylkill', 2, 3022.12768, 0.8, False)
+    model = add_major_node(model, 'stillCreek', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'outletSchuylkill', 2, 3022.12768, 0.8, False)
+    model = add_major_node(model, 'blueMarsh', 'reservoir', inflow_type, backup_inflow_type, 'starfit', '01470960', 0, 33856.28352, 0.8, False)
+    model = add_major_node(model, '01470960', 'river', inflow_type, backup_inflow_type, None, 'outletSchuylkill', 2)
+    model = add_major_node(model, 'greenLane', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'outletSchuylkill', 1, 6551.4656, 0.8, False)
+    model = add_major_node(model, 'outletSchuylkill', 'river', inflow_type, backup_inflow_type, None, 'output_del', 0)
+    model = add_major_node(model, 'marshCreek', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'outletChristina', 0, 3022.12768, 0.8, False)
+    model = add_major_node(model, 'outletChristina', 'river', inflow_type, backup_inflow_type, None, 'output_del', 0)
+
+
 
     #######################################################################
     ### Add additional nodes beyond those associated with major nodes above
@@ -740,7 +736,7 @@ def drb_make_model(inflow_type, backup_inflow_type, start_date, end_date, use_hi
 
     ### FFMP mandated releases from NYC reservoirs
     for reservoir in nyc_reservoirs:
-        model['parameters'][f'mrf_target_{reservoir}'] = {
+        model['parameters'][f'mrf_target_individual_{reservoir}'] = {
             'type': 'aggregated',
             'agg_func': 'product',
             'parameters': [
@@ -895,6 +891,14 @@ def drb_make_model(inflow_type, backup_inflow_type, start_date, end_date, use_hi
                 'node': f'reservoir_{reservoir}'
             }
 
+    ### finally, get final effective mandated release from each NYC reservoir, which is the max of its
+    ###    individually-mandated release from FFMP and its individual contribution to the Montague/Trenton targets
+    for reservoir in nyc_reservoirs:
+        model['parameters'][f'mrf_target_{reservoir}'] = {
+            'type': 'aggregated',
+            'agg_func': 'max',
+            'parameters': [f'mrf_target_individual_{reservoir}', f'volbalance_max_flow_montagueTrenton_{reservoir}']
+        }
 
     #######################################################################
     ### save full model as json
