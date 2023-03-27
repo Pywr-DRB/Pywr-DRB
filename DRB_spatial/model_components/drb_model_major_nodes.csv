@@ -1,0 +1,65 @@
+﻿name,type,lat,long,capacity,comid,reachcode,start_data,end_date,description
+reservoir_cannonsville,reservoir,42.065872,-75.37462,117313.5018,2614136,2.04E+12,,,Cannonsville Reservoir <br> One of three major NYC reservoirs.
+reservoir_pepacton,reservoir,42.073603,-74.965531,158947.009,1748727,2.04E+12,,,Pepacton Reservoir <br> One of three major NYC reservoirs.
+reservoir_neversink,reservoir,41.821286,-74.643266,37026.34752,4147432,2.04E+12,,,Neversink Reservoir <br> One of three major NYC reservoirs.
+reservoir_wallenpaupack,reservoir,41.460825,-75.18423,70375.4208,2742586,2.04E+12,,,Wallenpaupack Reservoir
+reservoir_prompton,reservoir,41.589961,-75.32768,3022.12768,2739772,2.04E+12,,,Prompton Reservoir
+reservoir_shoholaMarsh,reservoir,41.392015,-74.96866,6889.60576,4150530,2.04E+12,,,Shohola Marsh Reservoir
+reservoir_mongaupeCombined,reservoir,41.478898,-74.755352,22697.65824,4151958,2.04E+12,,,"The Mongaupe Reservoir system. <br>Three smaller reservoirs compose this system, however it is treated as a single reservoir in the Pywr-DRB model."
+reservoir_beltzvilleCombined,reservoir,40.851266,-75.638495,38653.64704,4188143,2.04E+12,,,Beltzville Reservoir
+reservoir_fewalter,reservoir,41.113559,-75.720849,3022.12768,4186391,2.04E+12,,,FE Walter Reservoir
+reservoir_merrillCreek,reservoir,40.727174,-75.10281,11982.84192,2588031,2.04E+12,,,Merrill Creek Reservoir
+reservoir_hopatcong,reservoir,40.917661,-74.664516,12574.5872,2586785,2.04E+12,,,Hopatcog Reservoir
+reservoir_nockamixon,reservoir,40.471662,-75.184604,18513.17376,2591099,2.04E+12,,,Nockamixon Reservoir
+reservoir_assunpink,reservoir,40.219222,-74.524199,3296.86656,2590255,2.04E+12,,,Assunpink Reservoir
+reservoir_ontelaunee,reservoir,40.447622,-75.933283,3022.12768,4782243,2.04E+12,,,Ontalaunee Reservoir
+reservoir_stillCreek,reservoir,40.85809,-75.990719,3022.12768,4779123,2.04E+12,,,Still Creek Reservoir
+reservoir_blueMarsh,reservoir,40.379002,-76.031525,33856.28352,4783213,2.04E+12,,,Blue Marsh Reservoir <br> A flood control reservoir operated by ACE.
+reservoir_greenLane,reservoir,40.332875,-75.481018,6551.4656,4780955,2.04E+12,,,Geen Lane Reservoir
+reservoir_marshCreek,reservoir,40.055435,-75.717303,3022.12768,4648728,2.04E+12,,,Marsh Creek Reservoir
+link_delLordville,river,41.867528,-75.21417,,2617364,2.04E+12,,,Flow in the Delaware River at Lordville.
+link_delMontague,regulatory,41.30916667,-74.79527778,,4151628,2.04E+12,,,"Montague Gauge Site <br> Streamflow at this location is considered when making releases from NYC reservoirs. <br>Flow at this location should exceed 1,750 CFS during normal operation."
+link_delTrenton,regulatory,40.221041,-74.780647,,2590277,2.04E+12,,,"Trenton Gauge Site <br> Maintaining high flow at this location is important to keep the salt front away from Philadelphia, and is used to guide water releases at NYC reservoirs . <br>Flow at this location should exceed 3,000 CFS during normal operation."
+link_outletAssunpink,river,40.217486,-74.76699,,2590137,2.04E+12,,,Outlet of the Assunpink river into the Delaware mainstem.
+link_outletSchuylkill,river,39.894148,-75.203456,,4784841,2.04E+12,,,Outlet of the Schuylkill river into the Delaware mainstem.
+link_outletChristina,river,39.735611,-75.534213,,4652144,2.04E+12,,,Outlet of the Christina river into the Delaware mainstem.
+link_01425000,river,42.07491667,-75.3958056,,,,7/1/1952,1/22/2023,
+link_01417000,river,42.07502778,-74.97627778,,,,7/1/1941,1/22/2023,
+link_01436000,river,41.82,-74.6355556,,,,10/1/1941,1/22/2023,
+link_01433500,river,41.4612222,-74.75877778,,,,8/15/1939,1/22/2023,
+link_01449800,river,40.84564756,-75.6457437,,,,8/1/1967,1/22/2023,
+link_01447800,river,41.1048062,-75.7321362,,,,10/1/1957,1/22/2023,
+link_01463620,river,40.2697222,-74.6719444,,,,9/22/1972,1/22/2023,
+link_01470960,river,40.3706482,-76.0252159,,,,5/1/1965,1/22/2023,
+link_cannonsville_nyc,link,41.929537,-74.326084,,,,,,
+link_pepacton_nyc,link,41.929537,-74.326084,,,,,,
+link_neversink_nyc,link,41.929537,-74.326084,,,,,,
+link_cannonsville_outflow_1,link,41.929537,-74.326084,,,,,,
+link_pepacton_outflow_1,link,41.929537,-74.326084,,,,,,
+link_neversink_outflow_1,link,41.929537,-74.326084,,,,,,
+link_cannonsville_outflow_2,link,41.929537,-74.326084,,,,,,
+link_pepacton_outflow_2,link,41.929537,-74.326084,,,,,,
+link_neversink_outflow_2,link,41.929537,-74.326084,,,,,,
+delivery_nyc,output,41.929537,-74.326084,,,,,,Water supplies are diverted out of the DRB to New York City. The Pywr-DRB model simulates these daily deliveries.
+delivery_nj,output,40.341568,-74.643334,,,,,,Water supplies are diverted out of the DRB to New Jersey. The Pywr-DRB model simulates these daily deliveries.
+output_del,output,39.649087,-75.558104,,,,,,The final output of the Delware River into the estuary.
+outflow_cannonsville,rivergauge,42.065872,-75.37462,,,,,,
+outflow_pepacton,rivergauge,42.073603,-74.965531,,,,,,
+outflow_neversink,rivergauge,41.821286,-74.643266,,,,,,
+outflow_montague,rivergauge,41.30916667,-74.79527778,,,,,,
+outflow_trenton,rivergauge,40.221041,-74.780647,,,,,,
+outflow_wallenpaupack,link,41.460825,-75.18423,,,,,,
+outflow_prompton,link,41.589961,-75.32768,,,,,,
+outflow_shoholaMarsh,link,41.392015,-74.96866,,,,,,
+outflow_mongaupeCombined,link,41.478898,-74.755352,,,,,,
+outflow_beltzvilleCombined,link,40.851266,-75.638495,,,,,,
+outflow_fewalter,link,41.113559,-75.720849,,,,,,
+outflow_merrillCreek,link,40.727174,-75.10281,,,,,,
+outflow_hopatcong,link,40.917661,-74.664516,,,,,,
+outflow_nockamixon,link,40.471662,-75.184604,,,,,,
+outflow_assunpink,link,40.219222,-74.524199,,,,,,
+outflow_ontelaunee,link,40.447622,-75.933283,,,,,,
+outflow_stillCreek,link,40.85809,-75.990719,,,,,,
+outflow_blueMarsh,link,40.379002,-76.031525,,,,,,
+outflow_greenLane,link,40.332875,-75.481018,,,,,,
+outflow_marshCreek,link,40.055435,-75.717303,,,,,,
