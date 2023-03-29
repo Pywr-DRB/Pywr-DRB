@@ -104,7 +104,8 @@ def plot_3part_flows(results, models, node, colors=['0.5', '#67a9cf', '#ef8a62']
         fig.savefig(f'{fig_dir}streamflow_3plots_{models[0]}_{models[1]}_{node}.png', bbox_inches='tight')
     else:
         fig.savefig(f'{fig_dir}streamflow_3plots_{models[0]}_{node}.png', bbox_inches='tight')
-
+    plt.close()
+    return
 
 
 ### plot distributions of weekly flows, with & without log scale
@@ -170,7 +171,8 @@ def plot_weekly_flow_distributions(results, models, node, colors=['0.5', '#67a9c
         fig.savefig(f'{fig_dir}streamflow_weekly_{models[0]}_{models[1]}_{node}.png', bbox_inches='tight')
     else:
         fig.savefig(f'{fig_dir}streamflow_weekly_{models[0]}_{node}.png', bbox_inches='tight')
-
+    plt.close()
+    return
 
 ### radial plots across diff metrics/reservoirs/models.
 ### following galleries here https://www.python-graph-gallery.com/circular-barplot-with-groups
@@ -180,13 +182,13 @@ def plot_radial_error_metrics(results_metrics, radial_models, nodes, useNonPep =
 
     metrics = ['nse', 'kge', 'r', 'alpha', 'beta', 'kss', 'lognse', 'logkge']
 
-    colordict = {'nhmv10': '#66c2a5', 'nwmv21': '#8da0cb', 'nwmv21_withLakes': '#8da0cb', 'WEAP_23Aug2022_gridmet': '#fc8d62',
-                 'pywr_nhmv10': '#66c2a5', 'pywr_nwmv21': '#8da0cb', 'pywr_nwmv21_withLakes': '#8da0cb',
+    colordict = {'obs_pub':'#097320', 'nhmv10': '#66c2a5', 'nwmv21': '#8da0cb', 'nwmv21_withLakes': '#8da0cb', 'WEAP_23Aug2022_gridmet': '#fc8d62',
+                 'pywr_obs_pub':'#097320', 'pywr_nhmv10': '#66c2a5', 'pywr_nwmv21': '#8da0cb', 'pywr_nwmv21_withLakes': '#8da0cb',
                  'pywr_WEAP_23Aug2022_gridmet_nhmv10': '#fc8d62'}
-    hatchdict = {'nhmv10': '', 'nwmv21': '', 'nwmv21_withLakes': '', 'WEAP_23Aug2022_gridmet': '', 'pywr_nhmv10': '///',
-                 'pywr_nwmv21': '///', 'pywr_nwmv21_withLakes': '///', 'pywr_WEAP_23Aug2022_gridmet_nhmv10': '///'}
-    edgedict = {'nhmv10': 'w', 'nwmv21': 'w', 'nwmv21_withLakes': 'w', 'WEAP_23Aug2022_gridmet': 'w',
-                'pywr_nhmv10': 'w', 'pywr_nwmv21': 'w', 'pywr_nwmv21_withLakes': 'w', 'pywr_WEAP_23Aug2022_gridmet_nhmv10': 'w'}
+    hatchdict = {'obs_pub': '', 'nhmv10': '', 'nwmv21': '', 'nwmv21_withLakes': '', 'WEAP_23Aug2022_gridmet': '', 'pywr_nhmv10': '///',
+                 'pywr_obs_pub': '///', 'pywr_nwmv21': '///', 'pywr_nwmv21_withLakes': '///', 'pywr_WEAP_23Aug2022_gridmet_nhmv10': '///'}
+    edgedict = {'obs_pub':'w', 'nhmv10': 'w', 'nwmv21': 'w', 'nwmv21_withLakes': 'w', 'WEAP_23Aug2022_gridmet': 'w',
+                'pywr_obs_pub':'w', 'pywr_nhmv10': 'w', 'pywr_nwmv21': 'w', 'pywr_nwmv21_withLakes': 'w', 'pywr_WEAP_23Aug2022_gridmet_nhmv10': 'w'}
     nodelabeldict = {'pepacton': 'Pep', 'cannonsville': 'Can', 'neversink': 'Nev', 'prompton': 'Pro',\
                     'beltzvilleCombined': 'Bel', 'blueMarsh': 'Blu',\
                     'delLordville':'Lor', 'delMontague':'Mon', 'delTrenton':'Tre', 'outletAssunpink':'Asp', 'outletSchuylkill':'Sch','outletChristina':'Chr'}
@@ -324,7 +326,8 @@ def plot_radial_error_metrics(results_metrics, radial_models, nodes, useNonPep =
 
     # plt.show()
     fig.savefig(f'{fig_dir}/radialMetrics_{filename_mod}.png', bbox_inches='tight', dpi=300)
-
+    plt.close()
+    return
 
 
 ### histogram of reliability, resiliency, & vulnerability for different models & nodes
@@ -333,12 +336,12 @@ def plot_rrv_metrics(rrv_metrics, rrv_models, nodes, fig_dir = 'figs/'):
     fig, axs = plt.subplots(2, 3, figsize=(16, 8))
 
     metrics = ['reliability','resiliency','vulnerability']
-
-    colordict = {'obs':'grey', 'nhmv10': '#66c2a5', 'nwmv21': '#8da0cb', 'nwmv21_withLakes': '#8da0cb', 'WEAP_23Aug2022_gridmet': '#fc8d62',
-                 'pywr_nhmv10': '#66c2a5', 'pywr_nwmv21': '#8da0cb', 'pywr_nwmv21_withLakes': '#8da0cb',
+    
+    colordict = {'obs':'grey', 'obs_pub':'#097320', 'nhmv10': '#66c2a5', 'nwmv21': '#8da0cb', 'nwmv21_withLakes': '#8da0cb', 'WEAP_23Aug2022_gridmet': '#fc8d62',
+                 'pywr_obs_pub':'#097320', 'pywr_nhmv10': '#66c2a5', 'pywr_nwmv21': '#8da0cb', 'pywr_nwmv21_withLakes': '#8da0cb',
                  'pywr_WEAP_23Aug2022_gridmet_nhmv10': '#fc8d62'}
-    hatchdict = {'obs':'', 'nhmv10': '', 'nwmv21': '', 'nwmv21_withLakes': '', 'WEAP_23Aug2022_gridmet': '', 'pywr_nhmv10': '///',
-                 'pywr_nwmv21': '///', 'pywr_nwmv21_withLakes': '///', 'pywr_WEAP_23Aug2022_gridmet_nhmv10': '///'}
+    hatchdict = {'obs':'', 'obs_pub': '', 'nhmv10': '', 'nwmv21': '', 'nwmv21_withLakes': '', 'WEAP_23Aug2022_gridmet': '', 'pywr_nhmv10': '///',
+                 'pywr_obs_pub': '///', 'pywr_nwmv21': '///', 'pywr_nwmv21_withLakes': '///', 'pywr_WEAP_23Aug2022_gridmet_nhmv10': '///'}
 
     for n, node in enumerate(nodes):
         for k, metric in enumerate(metrics):
@@ -368,7 +371,8 @@ def plot_rrv_metrics(rrv_metrics, rrv_models, nodes, fig_dir = 'figs/'):
     leg = plt.legend(handles=legend_elements, loc='center', bbox_to_anchor=(1.5, 1.1), frameon=False)
 
     fig.savefig(f'{fig_dir}/rrv_comparison.png', bbox_inches='tight', dpi=300)
-    # plt.show()
+    plt.close()
+    return
 
 def plot_flow_contributions(res_releases, major_flows,
                             model, node,
@@ -430,7 +434,14 @@ def plot_flow_contributions(res_releases, major_flows,
         upper_basin_main_inflows = [c for c in contributing if (c in major_flows[model].columns) and (c not in [node])]
 
     # Account for mainstem inflows
-    inflows = pd.read_csv(f'{input_dir}catchment_inflow_{model}.csv', sep = ',', index_col = 0)
+    if model.split('_')[0] == 'pywr':
+        if len(model.split('_'))==3:
+            m = f'{model.split("_")[1]}_{model.split("_")[2]}'
+        else:
+            m = f'{model.split("_")[1]}'
+    else:
+        m = model
+    inflows = pd.read_csv(f'{input_dir}catchment_inflow_{m}.csv', sep = ',', index_col = 0)
     inflows.index = pd.to_datetime(inflows.index)
     inflows = inflows.loc[inflows.index >= res_releases[model].index[0]]
     inflows = inflows.loc[inflows.index <= res_releases[model].index[-1]]
@@ -439,9 +450,10 @@ def plot_flow_contributions(res_releases, major_flows,
     contributions[node] = inflows[node]
 
     if percentage_flow:
-        contributions = contributions.divide(major_flows[model][node], axis =0)
+        total_node_flow = major_flows['obs'][node]
+        contributions = contributions.divide(total_node_flow, axis =0)
         contributions[contributions<0] = 0
-        ymax = 1.0
+        ymax = 1.25
         title = f'{title}_percentage'
     else:
         title = f'{title}_absolute'
@@ -494,7 +506,9 @@ def plot_flow_contributions(res_releases, major_flows,
         plt.ylabel('Flow contributions (MGD)')
     plt.title(title_text)
     plt.ylim([0,ymax])
+    plt.xlim([contributions.index[0], contributions.index[-1]])
     plt.xlabel('Date')
     plt.legend(loc='center left', bbox_to_anchor=(1.05, 0.8))
     plt.savefig(f'{title}.png', bbox_inches='tight', dpi=300)
+    plt.close()
     return

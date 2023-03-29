@@ -37,6 +37,9 @@ def read_modeled_estimates(filename, sep, date_label, site_label, streamflow_lab
 
     return df_gages
 
+
+
+
 ### read in observed, NHM, & NWM data at gages downstream of reservoirs, as well as NWM inflows to lake objects.
 ### use same set of dates for all.
 df_obs = read_modeled_estimates(f'{input_dir}modeled_gages/streamflow_daily_nhmv10.txt',
@@ -57,12 +60,32 @@ def match_gages(df, dataset_label, use_pub = False):
     Saves csv file, & returns dataframe whose columns are names of Pywr-DRB nodes.'''
 
     if use_pub:
-        df_pub = pd.read_csv(f'./input_data/modeled_gages/drb_pub_predicted_flows.csv', sep = ',')
-        df_pub.index = df.index
+        df_pub = pd.read_csv(f'./input_data/modeled_gages/drb_pub_predicted_flows.csv', sep = ',', index_col=0)
+        df_pub.index = pd.to_datetime(df_pub.index)
+        df_pub = df_pub.loc[df.index.intersection(df_pub.index),:]
 
-    pub_reservoirs = ['wallenpaupack', 'shoholaMarsh', 'mongaupeCombined', 'merrillCreek', 'hopatcong', 'nockamixon',
-                'assunpink', 'ontelaunee', 'stillCreek', 'greenLane']
-
+    pub_reservoirs = ['cannonsville',
+                        'pepacton',
+                        'neversink',
+                        'wallenpaupack', ## Note, wanted to do 01431500 minus 01432110, but don't have latter from Aubrey, so use Prompton for now
+                        'prompton',
+                        'shoholaMarsh', ## Note, Shohola has no inlet gauge
+                        'mongaupeCombined', # NOTE, this is an outlet.  TODO See:  01432900
+                        'beltzvilleCombined',  ## NOTE, This is the outlet. TODO See: 01449360
+                        'fewalter',
+                        'merrillCreek', ## Merrill Creek doesnt have gage - use Nockamixon nearby to get flow shape
+                        'hopatcong',  ## NOTE, this is an outlet. There are inlet gauges with poor records
+                        'nockamixon', ## NOTE, this is far downstream of outlet.
+                        'assunpink', 
+                        'ontelaunee',
+                        'stillCreek', 
+                        'blueMarsh',
+                        'greenLane',
+                        'marshCreek']
+    
+    pub_nodes = ['01425000', '01417000', '01436000', '01433500', '01449800', '01447800','01463620','01470960']
+                              
+                            
     ### dictionary matching gages to reservoir catchments
     site_matches_reservoir = {'cannonsville': '01425000',
                               'pepacton': '01417000',
@@ -107,21 +130,31 @@ def match_gages(df, dataset_label, use_pub = False):
 
     ### first match inflows for reservoirs
     for reservoir, site in site_matches_reservoir.items():
-        if reservoir == 'cannonsville':
+        if reservoir == 'cannonsville' and not use_pub:
             inflow = pd.DataFrame(df.loc[:, site])
             inflow.columns = [reservoir]
             ## reset date column to be 'datetime'
             inflow['datetime'] = inflow.index
             inflow.index = inflow['datetime']
             inflow = inflow.iloc[:, :-1]
+        elif reservoir == 'cannonsville' and use_pub:
+            inflow = pd.DataFrame(df_pub.loc[:, reservoir]*cms_to_mgd)
+            inflow.columns = [reservoir]
+            ## reset date column to be 'datetime'
+            inflow['datetime'] = inflow.index
+            inflow.index = inflow['datetime']
+            inflow = inflow.iloc[:, :-1]
         elif (reservoir in pub_reservoirs) and use_pub and (dataset_label == 'obs_pub'):
-            inflow[reservoir] = df_pub.loc[:,f'flow_{reservoir}']*cms_to_mgd
+            inflow[reservoir] = df_pub.loc[:,f'{reservoir}']*cms_to_mgd
         else:
             inflow[reservoir] = df[site]
 
     ## now setup inflows for mainstem nodes
     for node, sites, upstreams in site_matches_link:
-        inflow[node] = df.loc[:, sites].sum(axis=1)
+        if node in pub_nodes and use_pub:
+            inflow[node] = df_pub.loc[:,f'link_{node}']*cms_to_mgd
+        else:
+            inflow[node] = df.loc[:, sites].sum(axis=1)
 
     ## save full flow version of data to csv -> for downstream nodes, this represents the full flow for results comparison
     inflow.to_csv(f'{input_dir}gage_flow_{dataset_label}.csv')

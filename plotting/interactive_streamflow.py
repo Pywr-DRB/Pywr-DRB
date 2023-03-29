@@ -118,4 +118,8 @@ def plot_interactive_streamflow_stack(node, model,
         ).add_selection(selection).properties(width=600, height = 300).interactive()
 
     viz.save(f'{fig_dir}{model}_streamflow_stack_{filenameadd}.html')
-    return release_contributions, inflow_contributions
+    return_contributions = False
+    if return_contributions:
+        return release_contributions, inflow_contributions
+    else:
+        return

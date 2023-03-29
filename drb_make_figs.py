@@ -189,13 +189,12 @@ def get_RRV_metrics(results, models, nodes):
     rrv_metrics.reset_index(inplace=True, drop=True)
     return rrv_metrics
 
-
-
-
+rerun_all = False
 
 if __name__ == "__main__":
 
     # Load pywr models
+    print('Retrieving simulation data.')
     pywr_models = ['obs_pub', 'nhmv10', 'nwmv21', 'nwmv21_withLakes', 'WEAP_23Aug2022_gridmet_nhmv10']
     res_releases = {}
     major_flows = {}
@@ -216,10 +215,12 @@ if __name__ == "__main__":
         assert ((r.index == datetime_index).mean() == 1)
     for r in major_flows.values():
         assert ((r.index == datetime_index).mean() == 1)
-    print(f'successfully loaded {len(base_models)} base model results & {len(pywr_models)} pywr model results')
+    print(f'Successfully loaded {len(base_models)} base model results & {len(pywr_models)} pywr model results')
 
 
     if rerun_all:
+        
+        print('Plotting 3-part flows at reservoirs.')
         ### nhm only - slides 36-39 in 10/24/2022 presentation
         plot_3part_flows(res_releases, ['nhmv10'], 'pepacton')
         ### nhm vs nwm - slides 40-42 in 10/24/2022 presentation
@@ -232,9 +233,17 @@ if __name__ == "__main__":
         plot_3part_flows(res_releases, ['nwmv21', 'pywr_nwmv21'], 'pepacton')
         ## pywr-nwm vs pywr-nwm_withLakes
         plot_3part_flows(res_releases, ['pywr_nwmv21', 'pywr_nwmv21_withLakes'], 'pepacton')
+        ## obs-pub only
+        plot_3part_flows(res_releases, ['obs_pub'], 'pepacton')
+        plot_3part_flows(res_releases, ['pywr_obs_pub'], 'pepacton')
+        plot_3part_flows(res_releases, ['obs_pub', 'nhmv10'], 'pepacton')
+        plot_3part_flows(res_releases, ['pywr_obs_pub', 'pywr_nhmv10'], 'pepacton')
+        plot_3part_flows(res_releases, ['obs_pub', 'nhmv10'], 'cannonsville')
+        plot_3part_flows(res_releases, ['pywr_obs_pub', 'pywr_nhmv10'], 'neversink')
 
 
     if rerun_all:
+        print('Plotting weekly flow distributions at reservoir.')
         ### nhm only - slides 36-39 in 10/24/2022 presentation
         plot_weekly_flow_distributions(res_releases, ['nhmv10'], 'pepacton')
         ### nhm vs nwm - slides 35-37 in 10/24/2022 presentation
@@ -247,7 +256,14 @@ if __name__ == "__main__":
         plot_weekly_flow_distributions(res_releases, ['nwmv21', 'pywr_nwmv21'], 'pepacton')
         ## pywr-nwm vs pywr-nwm_withLakes
         plot_weekly_flow_distributions(res_releases, ['pywr_nwmv21', 'pywr_nwmv21_withLakes'], 'pepacton')
-
+        ## obs_pub
+        plot_weekly_flow_distributions(res_releases, ['obs_pub'], 'pepacton')
+        plot_weekly_flow_distributions(res_releases, ['nhmv10', 'obs_pub'], 'pepacton')
+        plot_weekly_flow_distributions(res_releases, ['pywr_nhmv10', 'pywr_obs_pub'], 'pepacton')
+        plot_weekly_flow_distributions(res_releases, ['pywr_nhmv10', 'pywr_obs_pub'], 'cannonsville')
+        plot_weekly_flow_distributions(res_releases, ['pywr_nhmv10', 'pywr_obs_pub'], 'neversink')
+            
+        
 
     ### compile error metrics across models/nodes/metrics
     nodes = ['cannonsville', 'pepacton', 'neversink', 'prompton', 'beltzvilleCombined', 'blueMarsh']
@@ -256,6 +272,7 @@ if __name__ == "__main__":
 
     if rerun_all:
         res_release_metrics = get_error_metrics(res_releases, radial_models, nodes)
+        print('Plotting radial figures for reservoir releases')
         ### nhm vs nwm only, pepacton only - slides 48-54 in 10/24/2022 presentation
         plot_radial_error_metrics(res_release_metrics, radial_models, nodes, useNonPep = False, useweap = False, usepywr = False)
         ### nhm vs nwm only, all reservoirs - slides 55-58 in 10/24/2022 presentation
@@ -275,6 +292,13 @@ if __name__ == "__main__":
         res_release_metrics = get_error_metrics(res_releases, radial_models, nodes)
         plot_radial_error_metrics(res_release_metrics, radial_models, nodes, useNonPep = True, useweap = True, usepywr = True)
 
+        ## obs_pub
+        radial_models = ['obs_pub', 'nhmv10', 'nwmv21', 'WEAP_23Aug2022_gridmet', 'pywr_obs_pub', 'pywr_nhmv10', 'pywr_nwmv21_withLakes', 'pywr_WEAP_23Aug2022_gridmet_nhmv10']
+        radial_models = radial_models[::-1]
+        res_release_metrics = get_error_metrics(res_releases, radial_models, nodes)
+        plot_radial_error_metrics(res_release_metrics, radial_models, nodes, useNonPep = True, useweap = True, usepywr = True)
+
+
     ### now do figs for major flow locations
     nodes = ['delMontague', 'delTrenton', 'outletAssunpink', 'outletSchuylkill']#, 'outletChristina', 'delLordville']
     if rerun_all:
@@ -284,6 +308,7 @@ if __name__ == "__main__":
 
     ### flow comparisons for major flow nodes
     if rerun_all:
+        print('Plotting 3-part flows at main nodes.')
         plot_3part_flows(major_flows, ['nhmv10', 'nwmv21'], 'delMontague')
         plot_3part_flows(major_flows, ['nhmv10', 'nwmv21'], 'delTrenton')
         plot_3part_flows(major_flows, ['nhmv10', 'nwmv21'], 'outletSchuylkill')
@@ -296,8 +321,14 @@ if __name__ == "__main__":
         plot_3part_flows(major_flows, ['WEAP_23Aug2022_gridmet', 'pywr_WEAP_23Aug2022_gridmet_nhmv10'], 'delMontague')
         plot_3part_flows(major_flows, ['WEAP_23Aug2022_gridmet', 'pywr_WEAP_23Aug2022_gridmet_nhmv10'], 'delTrenton')
         plot_3part_flows(major_flows, ['WEAP_23Aug2022_gridmet', 'pywr_WEAP_23Aug2022_gridmet_nhmv10'], 'outletSchuylkill')
+        plot_3part_flows(major_flows, ['obs_pub', 'pywr_obs_pub'], 'delMontague')
+        plot_3part_flows(major_flows, ['obs_pub', 'pywr_obs_pub'], 'delTrenton')
+        plot_3part_flows(major_flows, ['obs_pub', 'pywr_obs_pub'], 'outletSchuylkill')
+        plot_3part_flows(major_flows, ['pywr_obs_pub', 'pywr_nhmv10'], 'delTrenton')
+        plot_3part_flows(major_flows, ['pywr_obs_pub', 'pywr_nhmv10'], 'delMontague')
 
         ### weekly flow comparison for major flow nodes
+        print('Plotting weekly flow distributions at main nodes.')
         plot_weekly_flow_distributions(major_flows, ['nhmv10', 'nwmv21'], 'delMontague')
         plot_weekly_flow_distributions(major_flows, ['nhmv10', 'nwmv21'], 'delTrenton')
         plot_weekly_flow_distributions(major_flows, ['nhmv10', 'nwmv21'], 'outletSchuylkill')
@@ -310,24 +341,31 @@ if __name__ == "__main__":
         plot_weekly_flow_distributions(major_flows, ['WEAP_23Aug2022_gridmet', 'pywr_WEAP_23Aug2022_gridmet_nhmv10'], 'delMontague')
         plot_weekly_flow_distributions(major_flows, ['WEAP_23Aug2022_gridmet', 'pywr_WEAP_23Aug2022_gridmet_nhmv10'], 'delTrenton')
         plot_weekly_flow_distributions(major_flows, ['WEAP_23Aug2022_gridmet', 'pywr_WEAP_23Aug2022_gridmet_nhmv10'], 'outletSchuylkill')
+        plot_weekly_flow_distributions(major_flows, ['obs_pub', 'pywr_obs_pub'], 'delMontague')
+        plot_weekly_flow_distributions(major_flows, ['obs_pub', 'pywr_obs_pub'], 'delTrenton')
+        plot_weekly_flow_distributions(major_flows, ['obs_pub', 'pywr_obs_pub'], 'outletSchuylkill')
+        plot_weekly_flow_distributions(major_flows, ['pywr_obs_pub','pywr_nhmv10'], 'delMontague')
+        plot_weekly_flow_distributions(major_flows, ['pywr_obs_pub','pywr_nhmv10'], 'delTrenton')
 
-
-    rrv_models = ['obs', 'nhmv10', 'nwmv21', 'WEAP_23Aug2022_gridmet', 'pywr_nhmv10', 'pywr_nwmv21_withLakes', 'pywr_WEAP_23Aug2022_gridmet_nhmv10']
+    print('Plotting RRV figure.')
+    rrv_models = ['obs', 'obs_pub', 'nhmv10', 'nwmv21', 'WEAP_23Aug2022_gridmet', 'pywr_obs_pub', 'pywr_nhmv10', 'pywr_nwmv21_withLakes', 'pywr_WEAP_23Aug2022_gridmet_nhmv10']
     nodes = ['delMontague','delTrenton']
     rrv_metrics = get_RRV_metrics(major_flows, rrv_models, nodes)
-
     plot_rrv_metrics(rrv_metrics, rrv_models, nodes)
 
     # Plot flow contributions at Trenton
     node = 'delTrenton'
     separate_pub_contributions = True
-    base_models = ['obs', 'obs_pub', 'nhmv10', 'nwmv21']
+    base_models = ['pywr_obs_pub', 'pywr_nhmv10', 'pywr_nwmv21', 'obs_pub', 'nhmv10', 'nwmv21']
     for model in base_models:
+        print('Plotting flow contributions at major nodes.')
         plot_flow_contributions(res_releases, major_flows, model, node,
-                                separate_pub_contributions = True,
-                                percentage_flow = False,
-                                plot_target = True)
-        plot_flow_contributions(res_releases, major_flows, model, node,
-                                separate_pub_contributions = True,
+                                separate_pub_contributions = False,
                                 percentage_flow = True,
                                 plot_target = False)
+        plot_flow_contributions(res_releases, major_flows, model, node,
+                        separate_pub_contributions = False,
+                        percentage_flow = False,
+                        plot_target = True)
+    
+    print(f'Done! Check the {fig_dir} folder.')
