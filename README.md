@@ -17,7 +17,7 @@ A graphical representation of the Pywr-DRB model is shown below:
 Pywr-DRB requires an installation of Python 3+. To clone a copy of the Pywr-DRB model repository to your local machine, run the following command:
 
 ```
-git clone https://github.com/Pywr-DRB/Pywr-DRB.git
+git clone https://github.com/Pywr-DRB/Pywr-DRB
 ```
 
 This project requires several dependencies, listed in [`requirements.txt`](https://github.com/DRB_water_managment/requirements.txt), including:
