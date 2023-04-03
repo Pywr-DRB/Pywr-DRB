@@ -11,6 +11,7 @@ __pycache__
 pywr_glpk_debug*
 *.log
 venv*
+wsl_venv*
 /venv*
 /DRB_spatial/cache/*
 DRB_spatial/drb_model_map_dark.html
