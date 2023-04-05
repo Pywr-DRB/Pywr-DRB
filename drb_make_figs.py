@@ -52,7 +52,7 @@ def get_pywr_results(output_dir, model, results_set='all', scenario = 0):
             if results_set == 'all':
                 results[k] = f[k][:,scenario]
             elif results_set == 'res_release':
-                if k.split('_')[0] == 'flow' and k.split('_')[1] in reservoir_list:
+                if k.split('_')[0] == 'outflow' and k.split('_')[1] in reservoir_list:
                     results[k.split('_')[1]] = f[k][:, scenario]
             elif results_set == 'res_storage':
                 if k.split('_')[0] == 'volume' and k.split('_')[1] in reservoir_list:
@@ -189,7 +189,7 @@ def get_RRV_metrics(results, models, nodes):
     rrv_metrics.reset_index(inplace=True, drop=True)
     return rrv_metrics
 
-rerun_all = False
+rerun_all = True
 
 if __name__ == "__main__":
 
@@ -238,6 +238,7 @@ if __name__ == "__main__":
         plot_3part_flows(res_releases, ['pywr_obs_pub'], 'pepacton')
         plot_3part_flows(res_releases, ['obs_pub', 'nhmv10'], 'pepacton')
         plot_3part_flows(res_releases, ['pywr_obs_pub', 'pywr_nhmv10'], 'pepacton')
+        plot_3part_flows(res_releases, ['nhmv10', 'pywr_obs_pub'], 'pepacton')
         plot_3part_flows(res_releases, ['obs_pub', 'nhmv10'], 'cannonsville')
         plot_3part_flows(res_releases, ['pywr_obs_pub', 'pywr_nhmv10'], 'neversink')
 
@@ -326,6 +327,7 @@ if __name__ == "__main__":
         plot_3part_flows(major_flows, ['obs_pub', 'pywr_obs_pub'], 'outletSchuylkill')
         plot_3part_flows(major_flows, ['pywr_obs_pub', 'pywr_nhmv10'], 'delTrenton')
         plot_3part_flows(major_flows, ['pywr_obs_pub', 'pywr_nhmv10'], 'delMontague')
+        plot_3part_flows(major_flows, ['nhmv10', 'pywr_obs_pub'], 'delMontague')
 
         ### weekly flow comparison for major flow nodes
         print('Plotting weekly flow distributions at main nodes.')
