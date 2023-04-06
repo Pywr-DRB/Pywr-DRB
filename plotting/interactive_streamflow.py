@@ -121,6 +121,7 @@ def plot_interactive_streamflow_stack(node, model,
     total_flows = pd.concat([total_observed, total_simulated], axis=1)
     total_flows.columns = ['Observed Flow (MGD)', 'Simulated Flow (MGD)']
 
+
     total_flows_stacked = total_flows.stack().reset_index()
     total_flows_stacked.columns = ['Date', 'Data Source', 'Flow']
 
@@ -171,7 +172,8 @@ def plot_interactive_streamflow_stack(node, model,
     contribution_plot = alt.Chart(sim_percentages, width = plot_width, height = lower_plot_height).mark_area().encode(
         alt.X('Date:T', scale = alt.Scale(domain = zoom)),
         alt.Y('sum(Flow):Q', title = 'Percentage of Total Observed Flow', scale = alt.Scale(domain=[0, 120])),
-        alt.Color('Source:N', scale=alt.Scale(scheme='dark2'), legend = alt.Legend(values = percent_contributions.columns.to_list())),
+        alt.Color('Source:N', scale=alt.Scale(scheme='dark2'),
+                  legend = alt.Legend(values = percent_contributions.columns.to_list())),
         opacity = alt.condition(selection, alt.value(1), alt.value(0.2))
     ).add_selection(selection)
     
@@ -188,3 +190,7 @@ def plot_interactive_streamflow_stack(node, model,
         return release_contributions, inflow_contributions
     else:
         return
+    
+"""
+, legend = alt.Legend(values = percent_contributions.columns.to_list())
+"""
