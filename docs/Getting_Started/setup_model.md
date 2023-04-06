@@ -7,7 +7,7 @@ Begin by copying or downloading the project repository from GitHub, available [h
 To clone a copy of the repository to your local machine, run the following command:
 
 ```
-git clone https://github.com/DRB_water_managment
+git clone https://github.com/DRB_water_management
 ```
 
 The folder contains the following content, see the [References](../../API_References/api_references.md) for detail on component modules and functions:

@@ -8,13 +8,7 @@ The Delaware River Basin has been inhabited by indigenous peoples for thousands 
 ## Water Management and Planning
 Throughout the 20th century, the Delaware River Basin became increasingly industrialized, urbanized, and populated, leading to growing demands for water resources. In response, various management and planning actions were taken, including the formation of the Delaware River Basin Commission in 1961. This interstate compact agency is responsible for managing the basin's water resources, including water quality, quantity, and allocation.
 
-```{figure} ../../images/drb_water_supply_graphic.png
-:name: drb-population
-:height: 550
 
-Population served by DRB water based on population estimates for 2016.
-```
-Figure source: [DRBC Water Resources Program FY 2023-2025 Report](https://www.nj.gov/drbc/library/documents/WRPFY23-25.pdf)
 
 ## Regulation and Key Events
 Several key events in history have shaped water management and regulation in the Delaware River Basin. In 1965, the Federal Water Pollution Control Act was passed, which established regulations to control water pollution in the basin and throughout the country. The passage of the Clean Water Act in 1972 further strengthened these regulations, leading to significant improvements in water quality in the basin.
@@ -31,8 +25,3 @@ The formation of the DRBC and the Delaware River Basin Compact marked a signific
 
 One notable example of this coordinated approach is the Flexible Flow Management Program (FFMP), which was established by the DRBC in 2006. The FFMP is a voluntary program that allows water managers to adjust water releases from reservoirs in response to changing environmental and water supply conditions. This flexible approach to water management helps to balance the needs of different stakeholders, including water supply, hydroelectric power generation, recreation, and ecosystem health.
 
-## Resources
-
-- [*Water Management and Science in the DRB*](https://labs.waterdata.usgs.gov/visualizations/delaware-basin-story/index.html#/)
-- [*How We **Monitor** Stream Temperature in the DRB*](https://labs.waterdata.usgs.gov/visualizations/temperature-prediction/index.html#/monitoring)
-- [*How We **Model** Stream Temperature in the DRB*](https://labs.waterdata.usgs.gov/visualizations/temperature-prediction/index.html#/modeling)

@@ -12,8 +12,6 @@ parts:
         - title: Delaware River Basin
           file: Overview/DRB/drb_overview.md
           sections:
-            - title: History
-              file: Overview/DRB/drb_history.md
             - title: Hydrology
               file: Overview/DRB/drb_hydrology.md
             - title: Planning & Management
@@ -23,25 +21,24 @@ parts:
           sections:
             - title: Model Overview
               file: Overview/Model/pywr_drb_overview.md
+            - title: Model Nodes
+              file: Overview/Model/pywr_drb_model_nodes.md
     # =============== Getting Started =================
     - file: Getting_Started/getting_started.md
       sections:
         - title: Setup Model
           file: Getting_Started/setup_model.md
         - title: Running Simulations
-          file: Getting_Started/Running_Simulations/running_simulations.md
-          sections:
-            - title: Run all simulations
-              file: Getting_Started/Running_Simulations/run_all_simulations.md
-            - title: Run historic simulation
-              file: Getting_Started/Running_Simulations/run_historic_simulation.md
+          file: Getting_Started/Running_Simulations/run_all_simulations.md
         - title: Interpret results
           file: Getting_Started/Interpret_Results/interpret_results.md
           sections:
             - title: Model Outputs
               file: Getting_Started/Interpret_Results/model_outputs.md
-            - title: Visualize Results
+            - title: Diagnostic Figures
               file: Getting_Started/Interpret_Results/output_figures.md
+            - title: Visualize Streamflows
+              file: Getting_Started/Interpret_Results/visualize_streamflows.md
     # =============== References =================
     - file: API_References/api_references.md
       sections:
@@ -64,6 +61,8 @@ parts:
       sections:
       - title: Data Summary
         file: Supplemental/data_summary.md
+      - title: Pywr-DRB Node List
+        file: Supplemental/node_list.md
       - title: Streamflow Prediction in Ungauged Basins
         file: Supplemental/pub.md
       - title: Synthetic Streamflow Generation
