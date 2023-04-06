@@ -135,8 +135,14 @@ const thebe_selector_output = ".output, .cell_output"
   
   
   
+    
+    
+      
+    
+    
+    <img src="_static/logo.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="_static/logo.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
   
-    <p class="title logo__title">Pywr-DRB Integrated Water Resource Management Model</p>
   
 </a></div>
         <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
@@ -152,32 +158,29 @@ const thebe_selector_output = ".output, .cell_output"
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="Overview/overview.html">Pywr-DRB Overview</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="Overview/DRB/drb_overview.html">Delaware River Basin</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="Overview/DRB/drb_history.html">History</a></li>
 <li class="toctree-l3"><a class="reference internal" href="Overview/DRB/drb_hydrology.html">Hydrology</a></li>
 <li class="toctree-l3"><a class="reference internal" href="Overview/DRB/drb_planning_management.html">Planning &amp; Management</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="Overview/Model/pywr_drb_model.html">Pywr-DRB Model</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="Overview/Model/pywr_drb_overview.html">Model Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Overview/Model/pywr_drb_model_nodes.html">Model Nodes</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="Getting_Started/getting_started.html">Getting Started</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="Getting_Started/setup_model.html">Setup Model</a></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="Getting_Started/Running_Simulations/running_simulations.html">Running Simulations</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="Getting_Started/Running_Simulations/run_all_simulations.html">Run all simulations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Getting_Started/Running_Simulations/run_historic_simulation.html">Run historic simulation</a></li>
-</ul>
-</li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="Getting_Started/Interpret_Results/interpret_results.html">Interpret results</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="Getting_Started/Running_Simulations/run_all_simulations.html">Running Simulations</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="Getting_Started/Interpret_Results/interpret_results.html">Interpret results</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="Getting_Started/Interpret_Results/model_outputs.html">Model Outputs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Getting_Started/Interpret_Results/output_figures.html">Visualize Results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Getting_Started/Interpret_Results/output_figures.html">Diagnostic Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Getting_Started/Interpret_Results/visualize_streamflows.html">Visualize Streamflows</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="API_References/api_references.html">API References</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="API_References/api_references.html">API References</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="API_References/prep_input_data.html">prep_input_data.py</a></li>
 <li class="toctree-l2"><a class="reference internal" href="API_References/drb_make_model.html">drb_make_model.py</a></li>
 <li class="toctree-l2"><a class="reference internal" href="API_References/drb_run_sim.html">drb_run_sim.py</a></li>
@@ -187,8 +190,9 @@ const thebe_selector_output = ".output, .cell_output"
 <li class="toctree-l2"><a class="reference internal" href="API_References/plotting_functions.html">Plotting Functions</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="Supplemental/supplemental.html">Supplemental Material</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-8"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="Supplemental/supplemental.html">Supplemental Material</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="Supplemental/data_summary.html">Data Summary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Supplemental/node_list.html">Pywr-DRB Node List</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Supplemental/pub.html">Streamflow Prediction in Ungauged Basins</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Supplemental/synthetic_generation.html">Synthetic Streamflow Generation</a></li>
 </ul>
@@ -402,35 +406,38 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="pywr-drb">
 <h1>Pywr-DRB<a class="headerlink" href="#pywr-drb" title="Permalink to this heading">#</a></h1>
 <p>Pywr-DRB is an integrated water resource model of the Delaware River Basin (DRB) designed to assist in water resource decision making within the basin.</p>
-<p>A graphical representation of the model is shown below:</p>
-<iframe id="serviceFrameSend" src="drb_model_map.html" height = "500" width = "800" title = "Graphical Representation of Pywr-DRB Model"></iframe>
+<p>A graphical representation of the Pywr-DRB model is shown below:</p>
+<div style="padding-bottom:75%; position:relative; display:block; width: 100%">
+  <iframe src="drb_model_map.html"
+  height = "100%" width = "100%"
+  title = "Graphical Representation of Pywr-DRB Model"
+  frameborder="0" allowfullscreen="" style="position:absolute; top:0; left: 0">
+  </iframe>
+</div>
 <section id="contents">
 <h2>Contents<a class="headerlink" href="#contents" title="Permalink to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="Overview/overview.html">Pywr-DRB Overview</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="Overview/DRB/drb_overview.html">Delaware River Basin</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Overview/DRB/drb_history.html">History</a></li>
 <li class="toctree-l3"><a class="reference internal" href="Overview/DRB/drb_hydrology.html">Hydrology</a></li>
 <li class="toctree-l3"><a class="reference internal" href="Overview/DRB/drb_planning_management.html">Planning &amp; Management</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="Overview/Model/pywr_drb_model.html">Pywr-DRB Model</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="Overview/Model/pywr_drb_overview.html">Model Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Overview/Model/pywr_drb_model_nodes.html">Model Nodes</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="Getting_Started/getting_started.html">Getting Started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="Getting_Started/setup_model.html">Setup Model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Getting_Started/Running_Simulations/running_simulations.html">Running Simulations</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Getting_Started/Running_Simulations/run_all_simulations.html">Run all simulations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Getting_Started/Running_Simulations/run_historic_simulation.html">Run historic simulation</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="Getting_Started/Running_Simulations/run_all_simulations.html">Running Simulations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Getting_Started/Interpret_Results/interpret_results.html">Interpret results</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="Getting_Started/Interpret_Results/model_outputs.html">Model Outputs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Getting_Started/Interpret_Results/output_figures.html">Visualize Results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Getting_Started/Interpret_Results/output_figures.html">Diagnostic Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Getting_Started/Interpret_Results/visualize_streamflows.html">Visualize Streamflows</a></li>
 </ul>
 </li>
 </ul>
@@ -447,6 +454,7 @@ document.write(`
 </li>
 <li class="toctree-l1"><a class="reference internal" href="Supplemental/supplemental.html">Supplemental Material</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="Supplemental/data_summary.html">Data Summary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Supplemental/node_list.html">Pywr-DRB Node List</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Supplemental/pub.html">Streamflow Prediction in Ungauged Basins</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Supplemental/synthetic_generation.html">Synthetic Streamflow Generation</a></li>
 </ul>
@@ -456,7 +464,7 @@ document.write(`
 </section>
 <section id="acknowledgments">
 <h2>Acknowledgments<a class="headerlink" href="#acknowledgments" title="Permalink to this heading">#</a></h2>
-<p>This work is done in partnership with the United States Geologic Survey (USGS) with the goal of supporting their <a class="reference external" href="https://www.usgs.gov/mission-areas/water-resources/science/integrated-water-availability-assessments-iwaas">Integrated Water Availability Assessments</a>. The project is an interagency collaboration effort with contributors from Cornell University, NCAR, PNNL, and LBNL.</p>
+<p>This work is done in partnership with the United States Geologic Survey (USGS) with the goal of supporting their <strong>Predictive Understanding of Multiscale Processes (PUMP)</strong> project within the <a class="reference external" href="https://www.usgs.gov/mission-areas/water-resources/science/integrated-water-prediction-iwp#overview"><strong>Integrated Water Prediction (IWP)</strong></a> program.</p>
 </section>
 </section>
 
