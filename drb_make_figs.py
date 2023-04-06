@@ -1,17 +1,16 @@
 import numpy as np
 import pandas as pd
 import h5py
-import matplotlib as mpl
 import hydroeval as he
 from scipy import stats
+import sys
 
 from plotting.plotting_functions import plot_3part_flows, plot_weekly_flow_distributions
 from plotting.plotting_functions import plot_radial_error_metrics, plot_rrv_metrics, plot_flow_contributions
+from plotting.plotting_functions import compare_inflow_data
 
 ### I was having trouble with interactive console plotting in Pycharm for some reason - comment this out if you want to use that and not having issues
-mpl.use('TkAgg')
-
-rerun_all = True
+#mpl.use('TkAgg')
 
 ### directories
 output_dir = 'output_data/'
@@ -28,7 +27,19 @@ cfs_to_mgd = 0.0283 * 22824465.32 / 1e6
 reservoir_list = ['cannonsville', 'pepacton', 'neversink', 'wallenpaupack', 'prompton', 'shoholaMarsh', \
                    'mongaupeCombined', 'beltzvilleCombined', 'fewalter', 'merrillCreek', 'hopatcong', 'nockamixon', \
                    'assunpink', 'ontelaunee', 'stillCreek', 'blueMarsh', 'greenLane', 'marshCreek']
-majorflow_list = ['delLordville', 'delMontague', 'delTrenton', 'outletAssunpink', 'outletSchuylkill', 'outletChristina']
+
+majorflow_list = ['delLordville', 'delMontague', 'delTrenton', 'outletAssunpink', 'outletSchuylkill', 'outletChristina',
+                  '01425000', '01417000', '01436000', '01433500', '01449800',
+                  '01447800', '01463620', '01470960']
+
+reservoir_link_pairs = {'cannonsville': '01425000',
+                           'pepacton': '01417000',
+                           'neversink': '01436000',
+                           'mongaupeCombined': '01433500',
+                           'beltzvilleCombined': '01449800',
+                           'fewalter': '01447800',
+                           'assunpink': '01463620',
+                           'blueMarsh': '01470960'}
 
 
 def get_pywr_results(output_dir, model, results_set='all', scenario = 0):
@@ -89,9 +100,11 @@ def get_base_results(input_dir, model, datetime_index, results_set='all'):
     gage_flow.index = pd.DatetimeIndex(gage_flow['datetime'])
     gage_flow = gage_flow.drop('datetime', axis=1)
     if results_set == 'res_release':
-        for c in gage_flow.columns:
-            if c not in reservoir_list:
-                gage_flow = gage_flow.drop(c, axis=1)
+        available_release_data = gage_flow.columns.intersection(reservoir_link_pairs.values())
+        #reservoirs_with_data = [[k for k,v in reservoir_link_pairs.items() if v == site][0] for site in available_release_data]
+        reservoirs_with_data = [list(filter(lambda x: reservoir_link_pairs[x] == site, reservoir_link_pairs))[0] for site in available_release_data]
+        gage_flow = gage_flow.loc[:, available_release_data]
+        gage_flow.columns = reservoirs_with_data
     elif results_set == 'major_flow':
         for c in gage_flow.columns:
             if c not in majorflow_list:
@@ -101,6 +114,16 @@ def get_base_results(input_dir, model, datetime_index, results_set='all'):
 
 
 def get_error_metrics(results, models, nodes):
+    """Generate error metrics (NSE, KGE, correlation, bias, etc.) for a specific model and node.
+
+    Args:
+        results (dict): Dictionary containing dataframes of results.
+        models (list): List of model names (str).
+        nodes (list): List of node names (str).
+
+    Returns:
+        pd.DataFrame: Dataframe containing all error metrics.
+    """
     ### compile error across models/nodes/metrics
     for j, node in enumerate(nodes):
         obs = results['obs'][node]
@@ -189,37 +212,46 @@ def get_RRV_metrics(results, models, nodes):
     rrv_metrics.reset_index(inplace=True, drop=True)
     return rrv_metrics
 
-rerun_all = True
 
+
+
+## Execution - Generate all figures
 if __name__ == "__main__":
 
-    # Load pywr models
+    ## System inputs
+    rerun_all = True
+    # User-specified date range, or default to full simulation period
+    start_date = sys.argv[1] if len(sys.argv) > 1 else '1999-06-01' 
+    end_date = sys.argv[2] if len(sys.argv) > 2 else '2010-05-31'
+
+    ## Load data    
+    # Load Pywr-DRB simulation models
     print('Retrieving simulation data.')
     pywr_models = ['obs_pub', 'nhmv10', 'nwmv21', 'nwmv21_withLakes', 'WEAP_23Aug2022_gridmet_nhmv10']
     res_releases = {}
     major_flows = {}
+    
     for model in pywr_models:
-        res_releases[f'pywr_{model}'] = get_pywr_results(output_dir, model, 'res_release')
-        major_flows[f'pywr_{model}'] = get_pywr_results(output_dir, model, 'major_flow')
+        res_releases[f'pywr_{model}'] = get_pywr_results(output_dir, model, 'res_release').loc[start_date:end_date,:]
+        major_flows[f'pywr_{model}'] = get_pywr_results(output_dir, model, 'major_flow').loc[start_date:end_date,:]
     pywr_models = [f'pywr_{m}' for m in pywr_models]
 
     # Load base (non-pywr) models
     base_models = ['obs', 'obs_pub', 'nhmv10', 'nwmv21', 'WEAP_23Aug2022_gridmet']
     datetime_index = list(res_releases.values())[0].index
     for model in base_models:
-        res_releases[model] = get_base_results(input_dir, model, datetime_index, 'res_release')
-        major_flows[model] = get_base_results(input_dir, model, datetime_index, 'major_flow')
+        res_releases[model] = get_base_results(input_dir, model, datetime_index, 'res_release').loc[start_date:end_date,:]
+        major_flows[model] = get_base_results(input_dir, model, datetime_index, 'major_flow').loc[start_date:end_date,:]
 
-    ### verify that all datasets have same datetime index
+    # Verify that all datasets have same datetime index
     for r in res_releases.values():
         assert ((r.index == datetime_index).mean() == 1)
     for r in major_flows.values():
         assert ((r.index == datetime_index).mean() == 1)
     print(f'Successfully loaded {len(base_models)} base model results & {len(pywr_models)} pywr model results')
 
-
+    ## 3-part flow figures with releases
     if rerun_all:
-        
         print('Plotting 3-part flows at reservoirs.')
         ### nhm only - slides 36-39 in 10/24/2022 presentation
         plot_3part_flows(res_releases, ['nhmv10'], 'pepacton')
@@ -238,13 +270,14 @@ if __name__ == "__main__":
         plot_3part_flows(res_releases, ['pywr_obs_pub'], 'pepacton')
         plot_3part_flows(res_releases, ['obs_pub', 'nhmv10'], 'pepacton')
         plot_3part_flows(res_releases, ['pywr_obs_pub', 'pywr_nhmv10'], 'pepacton')
-        plot_3part_flows(res_releases, ['nhmv10', 'pywr_obs_pub'], 'pepacton')
+
         plot_3part_flows(res_releases, ['obs_pub', 'nhmv10'], 'cannonsville')
+        plot_3part_flows(res_releases, ['pywr_obs_pub', 'pywr_nhmv10'], 'cannonsville')
         plot_3part_flows(res_releases, ['pywr_obs_pub', 'pywr_nhmv10'], 'neversink')
 
 
     if rerun_all:
-        print('Plotting weekly flow distributions at reservoir.')
+        print('Plotting weekly flow distributions at reservoirs.')
         ### nhm only - slides 36-39 in 10/24/2022 presentation
         plot_weekly_flow_distributions(res_releases, ['nhmv10'], 'pepacton')
         ### nhm vs nwm - slides 35-37 in 10/24/2022 presentation
@@ -260,22 +293,23 @@ if __name__ == "__main__":
         ## obs_pub
         plot_weekly_flow_distributions(res_releases, ['obs_pub'], 'pepacton')
         plot_weekly_flow_distributions(res_releases, ['nhmv10', 'obs_pub'], 'pepacton')
-        plot_weekly_flow_distributions(res_releases, ['pywr_nhmv10', 'pywr_obs_pub'], 'pepacton')
-        plot_weekly_flow_distributions(res_releases, ['pywr_nhmv10', 'pywr_obs_pub'], 'cannonsville')
-        plot_weekly_flow_distributions(res_releases, ['pywr_nhmv10', 'pywr_obs_pub'], 'neversink')
+        plot_weekly_flow_distributions(res_releases, ['pywr_obs_pub', 'pywr_nhmv10'], 'pepacton')
+        plot_weekly_flow_distributions(res_releases, ['pywr_obs_pub', 'pywr_nhmv10'], 'cannonsville')
+        plot_weekly_flow_distributions(res_releases, ['pywr_obs_pub', 'pywr_nhmv10'], 'neversink')
             
         
 
     ### compile error metrics across models/nodes/metrics
-    nodes = ['cannonsville', 'pepacton', 'neversink', 'prompton', 'beltzvilleCombined', 'blueMarsh']
+    nodes = ['cannonsville', 'pepacton', 'neversink', 'assunpink', 'beltzvilleCombined', 'blueMarsh']
     radial_models = ['nhmv10', 'nwmv21', 'WEAP_23Aug2022_gridmet', 'pywr_nhmv10', 'pywr_nwmv21', 'pywr_WEAP_23Aug2022_gridmet_nhmv10']
     radial_models = radial_models[::-1]
 
     if rerun_all:
-        res_release_metrics = get_error_metrics(res_releases, radial_models, nodes)
         print('Plotting radial figures for reservoir releases')
+
+        res_release_metrics = get_error_metrics(res_releases, radial_models, nodes)        
         ### nhm vs nwm only, pepacton only - slides 48-54 in 10/24/2022 presentation
-        plot_radial_error_metrics(res_release_metrics, radial_models, nodes, useNonPep = False, useweap = False, usepywr = False)
+        #plot_radial_error_metrics(res_release_metrics, radial_models, nodes, useNonPep = False, useweap = False, usepywr = False)
         ### nhm vs nwm only, all reservoirs - slides 55-58 in 10/24/2022 presentation
         plot_radial_error_metrics(res_release_metrics, radial_models, nodes, useNonPep = True, useweap = False, usepywr = False)
         ### nhm vs nwm vs weap only, pepaction only - slides 69 in 10/24/2022 presentation
@@ -303,13 +337,14 @@ if __name__ == "__main__":
     ### now do figs for major flow locations
     nodes = ['delMontague', 'delTrenton', 'outletAssunpink', 'outletSchuylkill']#, 'outletChristina', 'delLordville']
     if rerun_all:
+        print('Plotting radial error metrics for major flows.')
         major_flow_metrics = get_error_metrics(major_flows, radial_models, nodes)
         plot_radial_error_metrics(major_flow_metrics, radial_models, nodes, useNonPep = True, useweap = True, usepywr = True, usemajorflows=True)
 
 
     ### flow comparisons for major flow nodes
     if rerun_all:
-        print('Plotting 3-part flows at main nodes.')
+        print('Plotting 3-part flows at major nodes.')
         plot_3part_flows(major_flows, ['nhmv10', 'nwmv21'], 'delMontague')
         plot_3part_flows(major_flows, ['nhmv10', 'nwmv21'], 'delTrenton')
         plot_3part_flows(major_flows, ['nhmv10', 'nwmv21'], 'outletSchuylkill')
@@ -330,7 +365,7 @@ if __name__ == "__main__":
         plot_3part_flows(major_flows, ['nhmv10', 'pywr_obs_pub'], 'delMontague')
 
         ### weekly flow comparison for major flow nodes
-        print('Plotting weekly flow distributions at main nodes.')
+        print('Plotting weekly flow distributions at major nodes.')
         plot_weekly_flow_distributions(major_flows, ['nhmv10', 'nwmv21'], 'delMontague')
         plot_weekly_flow_distributions(major_flows, ['nhmv10', 'nwmv21'], 'delTrenton')
         plot_weekly_flow_distributions(major_flows, ['nhmv10', 'nwmv21'], 'outletSchuylkill')
@@ -349,25 +384,34 @@ if __name__ == "__main__":
         plot_weekly_flow_distributions(major_flows, ['pywr_obs_pub','pywr_nhmv10'], 'delMontague')
         plot_weekly_flow_distributions(major_flows, ['pywr_obs_pub','pywr_nhmv10'], 'delTrenton')
 
-    print('Plotting RRV figure.')
-    rrv_models = ['obs', 'obs_pub', 'nhmv10', 'nwmv21', 'WEAP_23Aug2022_gridmet', 'pywr_obs_pub', 'pywr_nhmv10', 'pywr_nwmv21_withLakes', 'pywr_WEAP_23Aug2022_gridmet_nhmv10']
-    nodes = ['delMontague','delTrenton']
-    rrv_metrics = get_RRV_metrics(major_flows, rrv_models, nodes)
-    plot_rrv_metrics(rrv_metrics, rrv_models, nodes)
+    ## RRV metrics
+    if rerun_all:
+        print('Plotting RRV metrics.')
+        rrv_models = ['obs', 'obs_pub', 'nhmv10', 'nwmv21', 'WEAP_23Aug2022_gridmet', 'pywr_obs_pub', 'pywr_nhmv10', 'pywr_nwmv21_withLakes', 'pywr_WEAP_23Aug2022_gridmet_nhmv10']
+        nodes = ['delMontague','delTrenton']
+        rrv_metrics = get_RRV_metrics(major_flows, rrv_models, nodes)
+        plot_rrv_metrics(rrv_metrics, rrv_models, nodes)
 
-    # Plot flow contributions at Trenton
-    node = 'delTrenton'
-    separate_pub_contributions = True
-    base_models = ['pywr_obs_pub', 'pywr_nhmv10', 'pywr_nwmv21', 'obs_pub', 'nhmv10', 'nwmv21']
-    for model in base_models:
+    ## Plot flow contributions at Trenton
+    if rerun_all:
         print('Plotting flow contributions at major nodes.')
-        plot_flow_contributions(res_releases, major_flows, model, node,
-                                separate_pub_contributions = False,
-                                percentage_flow = True,
-                                plot_target = False)
-        plot_flow_contributions(res_releases, major_flows, model, node,
-                        separate_pub_contributions = False,
-                        percentage_flow = False,
-                        plot_target = True)
-    
+        
+        node = 'delTrenton'
+        models = ['pywr_obs_pub', 'pywr_nhmv10', 'pywr_nwmv21']
+        for model in models:  
+            plot_flow_contributions(res_releases, major_flows, model, node,
+                                    separate_pub_contributions = False,
+                                    percentage_flow = True,
+                                    plot_target = False)
+            plot_flow_contributions(res_releases, major_flows, model, node,
+                                    separate_pub_contributions = False,
+                                    percentage_flow = False,
+                                    plot_target = True)
+    ## Plot inflow comparison
+    inflows = {}
+    inflow_comparison_models = ['obs_pub', 'nhmv10', 'nwmv21']
+    for model in inflow_comparison_models:
+        inflows[model] = get_pywr_results(output_dir, model, results_set='inflow')
+    compare_inflow_data(inflows, nodes = reservoir_list)
+        
     print(f'Done! Check the {fig_dir} folder.')

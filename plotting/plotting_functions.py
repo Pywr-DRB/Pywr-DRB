@@ -5,13 +5,13 @@ Contains all plotting functions used for Pywr-DRB model assessments, including:
 """
 import numpy as np
 import pandas as pd
-import h5py
 import matplotlib as mpl
+import seaborn as sns
 from matplotlib import pyplot as plt
 from matplotlib.patches import Patch
 from matplotlib.lines import Line2D
 import hydroeval as he
-from scipy import stats
+
 
 
 # Constants
@@ -19,10 +19,21 @@ cms_to_mgd = 22.82
 cm_to_mg = 264.17/1e6
 cfs_to_mgd = 0.0283 * 22824465.32 / 1e6
 
+# The USGS gage data available downstream of reservoirs
+reservoir_link_pairs = {'cannonsville': '01425000',
+                           'pepacton': '01417000',
+                           'neversink': '01436000',
+                           'mongaupeCombined': '01433500',
+                           'beltzvilleCombined': '01449800',
+                           'fewalter': '01447800',
+                           'assunpink': '01463620',
+                           'blueMarsh': '01470960'}
+
+
 ### 3-part figure to visualize flow: timeseries, scatter plot, & flow duration curve. Can plot observed plus 1 or 2 modeled series.
 def plot_3part_flows(results, models, node, colors=['0.5', '#67a9cf', '#ef8a62'], uselog=False, fig_dir = 'figs/'):
+    
     use2nd = True if len(models) > 1 else False
-
     fig = plt.figure(figsize=(16, 4))
     gs = fig.add_gridspec(1, 3, width_ratios=(2, 1, 1), wspace=0.25, hspace=0.3)
 
@@ -118,6 +129,7 @@ def plot_weekly_flow_distributions(results, models, node, colors=['0.5', '#67a9c
     obs = results['obs'][node]
 
     obs_resample = obs.resample('W').sum()
+    nx = len(obs_resample.groupby(obs_resample.index.week).max())
     ymax = obs_resample.groupby(obs_resample.index.week).max().max()
     ymin = obs_resample.groupby(obs_resample.index.week).min().min()
     for i, m in enumerate(models):
@@ -125,19 +137,19 @@ def plot_weekly_flow_distributions(results, models, node, colors=['0.5', '#67a9c
         modeled_resample = modeled.resample('W').sum()
         ymax = max(ymax, modeled_resample.groupby(modeled_resample.index.week).max().max())
         ymin = min(ymin, modeled_resample.groupby(modeled_resample.index.week).min().min())
-
+    
     ### first plot time series of observed vs modeled, real scale
     for i, m in enumerate(models):
         color = colors[i + 1]
         if i == 0:
             ax = fig.add_subplot(gs[0, 0])
-            ax.fill_between(np.arange(1, 54), obs_resample.groupby(obs_resample.index.week).max(),
+            ax.fill_between(np.arange(1, (nx+1)), obs_resample.groupby(obs_resample.index.week).max(),
                             obs_resample.groupby(obs_resample.index.week).min(), color=colors[0], alpha=0.4)
             ax.plot(obs_resample.groupby(obs_resample.index.week).mean(), label='observed', color=colors[0])
 
         modeled = results[m][node]
         modeled_resample = modeled.resample('W').sum()
-        ax.fill_between(np.arange(1, 54), modeled_resample.groupby(modeled_resample.index.week).max(),
+        ax.fill_between(np.arange(1, (nx+1)), modeled_resample.groupby(modeled_resample.index.week).max(),
                         modeled_resample.groupby(modeled_resample.index.week).min(), color=color, alpha=0.4)
         ax.plot(modeled_resample.groupby(modeled_resample.index.week).mean(), label=m, color=color)
 
@@ -151,13 +163,13 @@ def plot_weekly_flow_distributions(results, models, node, colors=['0.5', '#67a9c
         color = colors[i + 1]
         if i == 0:
             ax = fig.add_subplot(gs[0, 1])
-            ax.fill_between(np.arange(1, 54), obs_resample.groupby(obs_resample.index.week).max(),
+            ax.fill_between(np.arange(1, (nx+1)), obs_resample.groupby(obs_resample.index.week).max(),
                             obs_resample.groupby(obs_resample.index.week).min(), color=colors[0], alpha=0.4)
             ax.plot(obs_resample.groupby(obs_resample.index.week).mean(), label='observed', color=colors[0])
 
         modeled = results[m][node]
         modeled_resample = modeled.resample('W').sum()
-        ax.fill_between(np.arange(1, 54), modeled_resample.groupby(modeled_resample.index.week).max(),
+        ax.fill_between(np.arange(1, (nx+1)), modeled_resample.groupby(modeled_resample.index.week).max(),
                         modeled_resample.groupby(modeled_resample.index.week).min(), color=color, alpha=0.4)
         ax.plot(modeled_resample.groupby(modeled_resample.index.week).mean(), label=m, color=color)
 
@@ -189,8 +201,8 @@ def plot_radial_error_metrics(results_metrics, radial_models, nodes, useNonPep =
                  'pywr_obs_pub': '///', 'pywr_nwmv21': '///', 'pywr_nwmv21_withLakes': '///', 'pywr_WEAP_23Aug2022_gridmet_nhmv10': '///'}
     edgedict = {'obs_pub':'w', 'nhmv10': 'w', 'nwmv21': 'w', 'nwmv21_withLakes': 'w', 'WEAP_23Aug2022_gridmet': 'w',
                 'pywr_obs_pub':'w', 'pywr_nhmv10': 'w', 'pywr_nwmv21': 'w', 'pywr_nwmv21_withLakes': 'w', 'pywr_WEAP_23Aug2022_gridmet_nhmv10': 'w'}
-    nodelabeldict = {'pepacton': 'Pep', 'cannonsville': 'Can', 'neversink': 'Nev', 'prompton': 'Pro',\
-                    'beltzvilleCombined': 'Bel', 'blueMarsh': 'Blu',\
+    nodelabeldict = {'pepacton': 'Pep', 'cannonsville': 'Can', 'neversink': 'Nev', 'prompton': 'Pro', 'assunpink': 'AspRes',\
+                    'beltzvilleCombined': 'Bel', 'blueMarsh': 'Blu', 'mongaupeCombined': 'MonGop',\
                     'delLordville':'Lor', 'delMontague':'Mon', 'delTrenton':'Tre', 'outletAssunpink':'Asp', 'outletSchuylkill':'Sch','outletChristina':'Chr'}
     titledict = {'nse': 'NSE', 'kge': 'KGE', 'r': 'Correlation', 'alpha': 'Relative STD', 'beta': 'Relative Bias',
                  'kss': 'K-S Statistic', 'lognse': 'LogNSE', 'logkge': 'LogKGE'}
@@ -374,6 +386,8 @@ def plot_rrv_metrics(rrv_metrics, rrv_models, nodes, fig_dir = 'figs/'):
     plt.close()
     return
 
+
+
 def plot_flow_contributions(res_releases, major_flows,
                             model, node,
                             separate_pub_contributions = False,
@@ -511,4 +525,48 @@ def plot_flow_contributions(res_releases, major_flows,
     plt.legend(loc='center left', bbox_to_anchor=(1.05, 0.8))
     plt.savefig(f'{title}.png', bbox_inches='tight', dpi=300)
     plt.close()
+    return
+
+
+
+def compare_inflow_data(inflow_data, nodes,
+                        fig_dir = 'figs/'):
+    """Generates a boxplot comparison of inflows are specific nodes for different datasets.
+
+    Args:
+        inflow_data (dict): Dictionary containing pd.DataFrames with inflow data. 
+        nodes (list): List of nodes with inflows.
+        fig_dir (str, optional): Folder to save figures. Defaults to 'figs/'.
+    """
+    
+    pub_df = inflow_data['obs_pub'].loc[:,nodes]
+    nhm_df = inflow_data['nhmv10'].loc[:,nodes]
+    nwm_df = inflow_data['nwmv21'].loc[:,nodes]
+    #weap_df = inflow_data['WEAP_23Aug2022_gridmet_nhmv10']  
+    
+    pub_df= pub_df.assign(Dataset='PUB')
+    nhm_df=nhm_df.assign(Dataset='NHMv10')
+    nwm_df=nwm_df.assign(Dataset='NWMv21')
+
+    cdf = pd.concat([pub_df, nhm_df, nwm_df])    
+    mdf = pd.melt(cdf, id_vars=['Dataset'], var_name=['Node'])
+    mdf.value.name = "Inflow (MGD)"
+    
+    plt.figure(figsize=(15,7))
+    ax = sns.boxplot(x="Node", y="value", hue="Dataset", data=mdf, 
+                    showfliers=False, linewidth=1.2, saturation=0.8)
+    ax.set(ylim=(1, 100000))
+    ax.tick_params(axis='x', rotation=90)    
+    for patch in ax.artists:
+        r,g,b,a = patch.get_facecolor()
+        patch.set_edgecolor((0,0,0,.0))
+        patch.set_facecolor((r,g,b,.0))
+    plt.yscale('log')
+    plt.savefig(f'{fig_dir}inflow_comparison_boxplot.png')
+    plt.show()
+    return
+
+
+## TODO
+def plot_nyc_storage():
     return

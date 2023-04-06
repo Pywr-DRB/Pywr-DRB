@@ -18,58 +18,60 @@ on:
 jobs:
   # This job deploys the example book
   deploy-example-book:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        python-version: [3.8]
-    steps:
-    - uses: actions/checkout@v2
+    # Only run if "[build]" is in the commit message
+    if: "contains(github.event.head_commit.message, '[build]')"
+      runs-on: ${{ matrix.os }}
+      strategy:
+        matrix:
+          os: [ubuntu-latest]
+          python-version: [3.8]
+      steps:
+      - uses: actions/checkout@v2
 
-    # Install python
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v1
-      with:
-        python-version: ${{ matrix.python-version }}
+      # Install python
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
 
-    # install virtual environment with caching, so only updates when requirements.txt changes,
-    # based on https://github.com/marketplace/actions/restore-or-create-a-python-virtualenv#custom_virtualenv_dir
-    # Note: virtual environment by default will be created under ~/venv
-    - uses: syphar/restore-virtualenv@v1
-      id: cache-virtualenv
-      with:
-        requirement_files: docs/requirements.txt
-    - uses: syphar/restore-pip-download-cache@v1
-      if: steps.cache-virtualenv.outputs.cache-hit != 'true'
+      # install virtual environment with caching, so only updates when requirements.txt changes,
+      # based on https://github.com/marketplace/actions/restore-or-create-a-python-virtualenv#custom_virtualenv_dir
+      # Note: virtual environment by default will be created under ~/venv
+      - uses: syphar/restore-virtualenv@v1
+        id: cache-virtualenv
+        with:
+          requirement_files: docs/requirements.txt
+      - uses: syphar/restore-pip-download-cache@v1
+        if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
-    # install python dependencies
-    - name: Install python dependencies
-      run: pip install -r docs/requirements.txt
-      if: steps.cache-virtualenv.outputs.cache-hit != 'true'
+      # install python dependencies
+      - name: Install python dependencies
+        run: pip install -r docs/requirements.txt
+        if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
-    # Build the example book
-    - name: Build book
-      run: jupyter-book build --all docs/
+      # Build the example book
+      - name: Build book
+        run: jupyter-book build --all docs/
 
-    # Generate folium map and copy file to _build
-    - name: copy map
-      uses: canastro/copy-file-action@master
-      with:
-        source: "docs/drb_model_map.html"
-        target: "docs/_build/html/drb_model_map.html"
+      # Generate folium map and copy file to _build
+      - name: copy map
+        uses: canastro/copy-file-action@master
+        with:
+          source: "docs/drb_model_map.html"
+          target: "docs/_build/html/drb_model_map.html"
 
-    # Copy images to build
-    - name: copy images
-      uses: canastro/copy-file-action@master
-      with:
-        source: docs/images/.
-        target: docs/_build/html/_images/
-        flags: '-r'
+      # Copy images to build
+      - name: copy images
+        uses: canastro/copy-file-action@master
+        with:
+          source: docs/images/.
+          target: docs/_build/html/_images/
+          flags: '-r'
 
-    # Deploy html to gh-pages
-    - name: GitHub Pages action
-      uses: peaceiris/actions-gh-pages@v3.6.1
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: docs/_build/html
-        publish_branch: gh-pages
+      # Deploy html to gh-pages
+      - name: GitHub Pages action
+        uses: peaceiris/actions-gh-pages@v3.6.1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/_build/html
+          publish_branch: gh-pages
