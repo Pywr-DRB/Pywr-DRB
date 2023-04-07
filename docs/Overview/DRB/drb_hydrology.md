@@ -33,7 +33,7 @@ The Pywr-DRB model simulates streamflow across the reservoirs throughout the Bas
 
 ```{figure} ../../images/drb_reservoir_schematic.png
 :name: drb-reservoir-schematic
-:scale: 55%
+:scale: 45%
 :alt: A graphic which shows a network of reservoirs in the DRB and how they are connected. 
 
 Representative illustration of reservoirs within the DRB. **Figure source:** [Delaware River Basin Commission](https://www.nj.gov/drbc/basin/map/)
@@ -49,7 +49,7 @@ Water from these reservoirs is conveyed to New York City through the Delaware Aq
 
 ```{figure} ../../images/nyc_reservoirs.png
 :name: nyc-reservoirs
-:scale: 40%
+:scale: 30%
 
 Graphical depiction of NYC water supplies, showing contribution from upper DRB reservoirs. **Figure source:** [New York City Environmental Protection](https://www.nyc.gov/site/dep/water/reservoir-levels.page)
 ```

@@ -3,7 +3,13 @@
 
 ## Executables
 
-### [`prep_input_data.py`](../API_References/prep_input_data.md)
+There are three primary executables that are used in the Pywr-DRB simulation workflow:
+- `prep_input_data.py`
+- `drb_run_sim.py`
+- `drb_make_figs.py`
+
+
+### [`prep_input_data.py`](../../API_References/prep_input_data.md)
 
 This module prepares input-streamflow data files from different potential sources, and saves data in Pywr-ready formats. Sources include observed streamflows, modeled flows from a reconstructed historic period using [prediction in ungauged basins,](../Supplemental/pub.md) NHMv1.0, NWMv2.1, and WEAP (Aug 23, 2022, version) modeled streamflow data. For more information on different inflow datasets, see the [Data Summary page.](../Supplemental/data_summary.md)
 
@@ -15,7 +21,7 @@ python3 -W ignore prep_input_data.py
 
 All of the processed data will be stored in `Pywr-DRB/input_data/`.
 
-### [`drb_run_sim.py`](../API_References/drb_run_sim.md)
+### [`drb_run_sim.py`](../../API_References/drb_run_sim.md)
 
 The `drb_run_sim.py` script is used to run a simulation of the Pywr-DRB model using a specified streamflow input data type. After data has been prepared, the [`drb_make_model()`](../API_References/drb_make_model.md) function constructs a JSON file defining the Pywr-DRB model (`Pywr-DRB/drb_model_full.json`). 
 
@@ -29,10 +35,10 @@ Example:
 python3 -W ignore drb_sun_sim.py <inflow_type> 
 ```
 
-Once the model is constructed, the simulation is run and the simulation results will be stored in `Pywr-DRB/output_data/drb_output_<inflow_type>.hdf5`. See [Model Outputs](../Interpret_Results/model_outputs.md) for a description of the data contained within the output.
+Once the model is constructed, the simulation is run and the simulation results will be stored in `Pywr-DRB/output_data/drb_output_<inflow_type>.hdf5`. See [Model Outputs](../Interpret_Results/explore_model_outputs.ipynb) for a description of the data contained within the output.
 
 
-### [`drb_make_figs.py`](../API_References/api_references.md)
+### [`drb_make_figs.py`](../../API_References/api_references.md)
 
 This script uses several plotting functions (stored in `Pywr-DRB.plotting`) to generate comparative figures for analysis. Executing this script after performing a simulation will result in figures being generated and stored in `Pywr-DRB/figs/`.
 
