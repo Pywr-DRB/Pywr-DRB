@@ -53,7 +53,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Quick-Start:Run all simulations
+## Quick-Start: Run all simulations
 
 Pywr-DRB is set up with quick-start bash executabe that will:
 1. Prepare model input data using all [available inflow datasets](../Supplemental/data_summary.md)
