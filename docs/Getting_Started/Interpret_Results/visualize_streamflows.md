@@ -56,7 +56,7 @@ Notice how the relative streamflow contributions from the NYC reservoirs is grea
 ```{tab-item} WEAP
 :sync: key_weap
 
-<div style="padding-bottom:60%; position:relative; display:block; width: 100%">
+<div style="padding-bottom:75%; position:relative; display:block; width: 100%">
   <iframe src="../../_images/WEAP_23Aug2022_gridmet_nhmv10_interactive_streamflow_stack.html"
   height = "100%" width = "100%"
   title = "Percentage flow contributions at Trenton"
