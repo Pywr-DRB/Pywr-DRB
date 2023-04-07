@@ -26,17 +26,15 @@ parts:
     # =============== Getting Started =================
     - file: Getting_Started/getting_started.md
       sections:
-        - title: Setup Model
-          file: Getting_Started/setup_model.md
+        - title: Quick-Start
+          file: Getting_Started/quick_start.md
         - title: Running Simulations
           file: Getting_Started/Running_Simulations/run_all_simulations.md
         - title: Interpret results
           file: Getting_Started/Interpret_Results/interpret_results.md
           sections:
             - title: Model Outputs
-              file: Getting_Started/Interpret_Results/model_outputs.md
-            - title: Diagnostic Figures
-              file: Getting_Started/Interpret_Results/output_figures.md
+              file: Getting_Started/Interpret_Results/explore_model_outputs.ipynb
             - title: Visualize Streamflows
               file: Getting_Started/Interpret_Results/visualize_streamflows.md
     # =============== References =================

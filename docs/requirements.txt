@@ -5,3 +5,7 @@ pandas
 seaborn
 rpy2
 ghp-import
+h5py
+hydroeval
+scipy
+seaborn

@@ -115,13 +115,12 @@ def plot_interactive_streamflow_stack(node, model,
     
     # Get total simulated and obs flow at the node
     total_simulated = flow_data[node]
-    
     total_observed = base_flow[node]
     
     total_flows = pd.concat([total_observed, total_simulated], axis=1)
-    total_flows.columns = ['Observed Flow (MGD)', 'Simulated Flow (MGD)']
-
-
+    total_flows.columns = ['Observed Flow', 'Simulated Flow']
+    total_flows['Minimum Target Flow'] = target
+    
     total_flows_stacked = total_flows.stack().reset_index()
     total_flows_stacked.columns = ['Date', 'Data Source', 'Flow']
 
@@ -149,37 +148,44 @@ def plot_interactive_streamflow_stack(node, model,
     
     
     ## PLOTTING via altair
-    filenameadd = 'percent'
-    upper_plot_height = 100
+    upper_plot_height = 200
     lower_plot_height = 300
     plot_width = 600
+    obs_flow_color = '#023047'
+    sim_flow_color = '#e76f51'
+    nyc_reservoir_color = '#264653'
+    other_reservoir_color = '#2a9d8f'
+    unmanaged_flow_color = '#e9c46a'
     
     # Setup interactive selection via legend and zooom functionality
     selection = alt.selection_multi(fields=['Source'], bind='legend')
-    zoom = alt.selection_interval(encodings=['x'])
+    zoom = alt.selection_interval(encodings=['x', 'y'], bind = 'scales')
 
     # Generate plot
-    total_flow_plot = alt.Chart(total_flows_stacked, width = plot_width, height = upper_plot_height).mark_line(strokeWidth = 0.5).encode(
-        x = alt.X('Date:T', axis=alt.Axis(labels=False)),
+    total_flow_plot = alt.Chart(total_flows_stacked, title = 'Delaware River Streamflow at Trenton, PA', width = plot_width, height = upper_plot_height).mark_line(strokeWidth = 1).encode(
+        x = alt.X('Date:T', axis=alt.Axis(title=None)),
         y = alt.Y('Flow:Q', title = 'Flow (MGD)', scale = alt.Scale(type = 'log', domain = [1000, 100000])),
         color = alt.Color('Data Source:N', scale = alt.Scale(
-            domain = ['Observed Flow (MGD)', 'Simulated Flow (MGD)'],
-            range = ['teal', 'maroon']), legend = alt.Legend(values = total_flows.columns.to_list()))
+            domain = ['Observed Flow', 'Simulated Flow', 'Minimum Target Flow', 'NYC Reservoir Releases', 'Other Reservoir Releases', 'Unmanaged Flows Upstream'],
+            range = [obs_flow_color, sim_flow_color, 'black', nyc_reservoir_color, other_reservoir_color, unmanaged_flow_color]),legend = alt.Legend(values = total_flows.columns.to_list()))
     ).add_selection(zoom)
     
-    target_line = alt.Chart(pd.DataFrame({'Flow Target': [target]})).mark_rule().encode(y='Flow Target')
+    total_flow_plot.configure_title(
+        fontSize = 14,
+        subtitlePadding = 25
+    )
+    #target_line = alt.Chart(pd.DataFrame({'Flow Target': [target]})).mark_rule().encode(y='Flow Target')
     
-    contribution_plot = alt.Chart(sim_percentages, width = plot_width, height = lower_plot_height).mark_area().encode(
-        alt.X('Date:T', scale = alt.Scale(domain = zoom)),
+    contribution_plot = alt.Chart(sim_percentages, width = plot_width, height = lower_plot_height).mark_area(strokeWidth = 0).encode(
+        alt.X('Date:T', scale = alt.Scale(domain = {'selection': zoom.name, 'encoding': 'x'})),
         alt.Y('sum(Flow):Q', title = 'Percentage of Total Observed Flow', scale = alt.Scale(domain=[0, 120])),
-        alt.Color('Source:N', scale=alt.Scale(scheme='dark2'),
-                  legend = alt.Legend(values = percent_contributions.columns.to_list())),
+        alt.Color('Source:N', scale=alt.Scale(scheme = 'accent'), legend = alt.Legend(values = ['NYC Reservoir Releases', 'Other Reservoir Releases', 'Unmanaged Flows Upstream'])),
         opacity = alt.condition(selection, alt.value(1), alt.value(0.2))
     ).add_selection(selection)
     
     ideal_line = alt.Chart(pd.DataFrame({'Ideal': [100]})).mark_rule().encode(y='Ideal')
 
-    plot = alt.vconcat((total_flow_plot + target_line), (contribution_plot + ideal_line)).configure_axis(
+    plot = alt.vconcat(total_flow_plot, (contribution_plot + ideal_line)).configure_axis(
         labelFontSize= 12,
         titleFontSize= 14).resolve_legend(color = 'independent')
 
@@ -192,5 +198,7 @@ def plot_interactive_streamflow_stack(node, model,
         return
     
 """
+            domain = ['NYC Reservoir Releases', 'Other Reservoir Releases', 'Unmanaged Flows Upstream'],
+            range = ['red', 'green', 'blue']
 , legend = alt.Legend(values = percent_contributions.columns.to_list())
 """

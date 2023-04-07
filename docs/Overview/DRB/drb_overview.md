@@ -1,3 +1,3 @@
-# Overview of the Delaware River Basin (DRB)
+# Overview of the Delaware River Basin
 ```{tableofcontents}
 ```

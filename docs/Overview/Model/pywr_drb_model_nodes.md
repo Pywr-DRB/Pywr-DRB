@@ -6,7 +6,7 @@ More information about the default Pywr node classes can be found [in the Pywr d
 
 ## Major nodes
 
-Each major node in the Pywr-DRB model is created using the [`add_major_node()`](../../API_References/drb_make_model.md) function. This function adds the major node to the model (stored in `./model_data/drb_model_full.json`) and also constructs five corresponding *minor* nodes connected to the major node representing: withdrawals, consumption, outflow, and a link which connects to the downstream node. These minor nodes are described in {ref}`reservoir-node-table`.
+Each major node in the Pywr-DRB model is created using the [`add_major_node()`](../../API_References/drb_make_model.md) function. This function adds the major node to the model (stored in `./model_data/drb_model_full.json`) and also constructs five corresponding *minor* nodes connected to the major node representing: withdrawals, consumption, outflow, and a link which connects to the downstream node. These minor nodes are described in {numref}`reservoir-node-table`
 
 Major nodes in the Pywr-DRB model are classified as either `"reservoir"` or `"river"` types.
 
@@ -17,7 +17,7 @@ Reservoir nodes are defined as `"storage"` node classes in `pywr` and contain in
 :name: reservoir-node-table
 
 * - Representation
-  - Node Name<br>(`{name}` is the node name)
+  - Node Name
   - Description
 * - Major Node
   - `reservoir_{name}` or `link_{name}`
@@ -41,17 +41,13 @@ Reservoir nodes are defined as `"storage"` node classes in `pywr` and contain in
 
 ### Reservoir nodes
 
-Each reservoir in the model is defined as a major node, using the `add_major_node()` function, and is also assigned the five corresponding minor nodes outlined in {ref}`reservoir-node-table`.
+Each reservoir in the model is defined as a major node, using the `add_major_node()` function, and is also assigned the five corresponding minor nodes outlined in {numref}`reservoir-node-table`.
 
 The figure below shows the relationship between a reservoir node and its corresponding minor nodes:
 
 ```{figure} ../../images/reservoir_node_schematic.png
 :name: reservoir-node-schematic
-:scale: 120%
+:scale: 50%
 
 Graphical representation of reservoir nodes and corresponding minor nodes used in the Pywr-DRB model.
 ```
-
-### River nodes
-
-Each major river node in the model is also defined using the `add_major_node()` function and is assigned the five corresponding minor nodes outlined in {ref}`reservoir-node-table`. Additionally, {ref}`reservoir-node-schematic` is the same for a reservoir and river node, although the river node does not contain any storage or release information.

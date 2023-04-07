@@ -6,7 +6,10 @@ import sys
 
 ### specify inflow type from command line args
 inflow_type = sys.argv[1]
-backup_inflow_type = sys.argv[2]
+if len(sys.argv) >=2:
+    backup_inflow_type = sys.argv[2]
+else:
+    backup_inflow_type = 'nhmv10'
 
 # inflow_type = 'nhmv10'  ### nhmv10, nwmv21, nwmv21_withLakes, obs, obs_pub, WEAP_23Aug2022_gridmet
 # backup_inflow_type = 'nhmv10'  ## for WEAP inflow type, we dont have all reservoirs. use this secondary type for missing.
