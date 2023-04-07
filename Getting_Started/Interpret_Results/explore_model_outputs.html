@@ -1,0 +1,804 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Model Outputs &#8212; Pywr-DRB Integrated Water Resource Management Model</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../_static/togglebutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="../../_static/sphinx-thebe.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'Getting_Started/Interpret_Results/explore_model_outputs';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Visualize Streamflows" href="visualize_streamflows.html" />
+    <link rel="prev" title="Interpret Results" href="interpret_results.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+  
+
+<a class="navbar-brand logo" href="../../intro.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../../_static/logo.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../intro.html">
+                    Pywr-DRB
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../Overview/overview.html">Pywr-DRB Overview</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../Overview/DRB/drb_overview.html">Delaware River Basin</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../Overview/DRB/drb_hydrology.html">Hydrology</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../Overview/DRB/drb_planning_management.html">Planning &amp; Management</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../Overview/Model/pywr_drb_model.html">Pywr-DRB Model</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../Overview/Model/pywr_drb_overview.html">Model Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../Overview/Model/pywr_drb_model_nodes.html">Model Nodes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../getting_started.html">Getting Started</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../quick_start.html">Quick-Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Running_Simulations/run_all_simulations.html">Running Simulations</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="interpret_results.html">Interpret results</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">Model Outputs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="visualize_streamflows.html">Visualize Streamflows</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../API_References/api_references.html">API References</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../API_References/prep_input_data.html">prep_input_data.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../API_References/drb_make_model.html">drb_make_model.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../API_References/drb_run_sim.html">drb_run_sim.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../API_References/drb_make_figs.html">drb_make_figs.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../API_References/drb_run_all.html">drb_run_all.sh</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../API_References/custom_pywr.html">custom_pywr.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../API_References/plotting_functions.html">Plotting Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../Supplemental/supplemental.html">Supplemental Material</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../Supplemental/data_summary.html">Data Summary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Supplemental/node_list.html">Pywr-DRB Node List</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Supplemental/pub.html">Streamflow Prediction in Ungauged Basins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Supplemental/synthetic_generation.html">Synthetic Streamflow Generation</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/ahamilton144/DRB_water_management" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/ahamilton144/DRB_water_management/issues/new?title=Issue%20on%20page%20%2FGetting_Started/Interpret_Results/explore_model_outputs.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/Getting_Started/Interpret_Results/explore_model_outputs.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script>
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Model Outputs</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="model-outputs">
+<h1>Model Outputs<a class="headerlink" href="#model-outputs" title="Permalink to this heading">#</a></h1>
+<p>After <a class="reference internal" href="../Running_Simulations/run_all_simulations.html"><span class="doc std std-doc">runing a Pywr-DRB simulation</span></a> the simulation data will be stored in <code class="docutils literal notranslate"><span class="pre">Pywr-DRB/output_data/drb_output_&lt;inflow_type&gt;.hdf5</span></code> where <code class="docutils literal notranslate"><span class="pre">inflow_type</span></code> corresponds to one of the naming conventions listed in <a class="reference internal" href="../../Supplemental/data_summary.html"><span class="doc std std-doc">Data Summary</span></a>.</p>
+<p>This file contains daily simulated values for every node in the model.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">h5py</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s1">&#39;../../../&#39;</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">drb_make_figs</span> <span class="kn">import</span> <span class="n">get_pywr_results</span><span class="p">,</span> <span class="n">get_base_results</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Open the file and read the variable names (keys)</span>
+<span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;./output_data/drb_output_obs_pub.hdf5&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">stored_keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;There are </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">stored_keys</span><span class="p">)</span><span class="si">}</span><span class="s1"> variables stored in this file!&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">FileNotFoundError</span><span class="g g-Whitespace">                         </span>Traceback (most recent call last)
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">line</span> <span class="mi">2</span>
+<span class="g g-Whitespace">      </span><span class="mi">1</span> <span class="c1"># Open the file and read the variable names (keys)</span>
+<span class="ne">----&gt; </span><span class="mi">2</span> <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;./output_data/drb_output_obs_pub.hdf5&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<span class="g g-Whitespace">      </span><span class="mi">3</span>     <span class="n">stored_keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="g g-Whitespace">      </span><span class="mi">5</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;There are </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">stored_keys</span><span class="p">)</span><span class="si">}</span><span class="s1"> variables stored in this file!&#39;</span><span class="p">)</span>
+
+<span class="nn">File ~/.virtualenvs/.venv/lib/python3.8/site-packages/h5py/_hl/files.py:567,</span> in <span class="ni">File.__init__</span><span class="nt">(self, name, mode, driver, libver, userblock_size, swmr, rdcc_nslots, rdcc_nbytes, rdcc_w0, track_order, fs_strategy, fs_persist, fs_threshold, fs_page_size, page_buf_size, min_meta_keep, min_raw_keep, locking, alignment_threshold, alignment_interval, meta_block_size, **kwds)</span>
+<span class="g g-Whitespace">    </span><span class="mi">558</span>     <span class="n">fapl</span> <span class="o">=</span> <span class="n">make_fapl</span><span class="p">(</span><span class="n">driver</span><span class="p">,</span> <span class="n">libver</span><span class="p">,</span> <span class="n">rdcc_nslots</span><span class="p">,</span> <span class="n">rdcc_nbytes</span><span class="p">,</span> <span class="n">rdcc_w0</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">559</span>                      <span class="n">locking</span><span class="p">,</span> <span class="n">page_buf_size</span><span class="p">,</span> <span class="n">min_meta_keep</span><span class="p">,</span> <span class="n">min_raw_keep</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">560</span>                      <span class="n">alignment_threshold</span><span class="o">=</span><span class="n">alignment_threshold</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">561</span>                      <span class="n">alignment_interval</span><span class="o">=</span><span class="n">alignment_interval</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">562</span>                      <span class="n">meta_block_size</span><span class="o">=</span><span class="n">meta_block_size</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">563</span>                      <span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">564</span>     <span class="n">fcpl</span> <span class="o">=</span> <span class="n">make_fcpl</span><span class="p">(</span><span class="n">track_order</span><span class="o">=</span><span class="n">track_order</span><span class="p">,</span> <span class="n">fs_strategy</span><span class="o">=</span><span class="n">fs_strategy</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">565</span>                      <span class="n">fs_persist</span><span class="o">=</span><span class="n">fs_persist</span><span class="p">,</span> <span class="n">fs_threshold</span><span class="o">=</span><span class="n">fs_threshold</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">566</span>                      <span class="n">fs_page_size</span><span class="o">=</span><span class="n">fs_page_size</span><span class="p">)</span>
+<span class="ne">--&gt; </span><span class="mi">567</span>     <span class="n">fid</span> <span class="o">=</span> <span class="n">make_fid</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">userblock_size</span><span class="p">,</span> <span class="n">fapl</span><span class="p">,</span> <span class="n">fcpl</span><span class="p">,</span> <span class="n">swmr</span><span class="o">=</span><span class="n">swmr</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">569</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">libver</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+<span class="g g-Whitespace">    </span><span class="mi">570</span>     <span class="bp">self</span><span class="o">.</span><span class="n">_libver</span> <span class="o">=</span> <span class="n">libver</span>
+
+<span class="nn">File ~/.virtualenvs/.venv/lib/python3.8/site-packages/h5py/_hl/files.py:231,</span> in <span class="ni">make_fid</span><span class="nt">(name, mode, userblock_size, fapl, fcpl, swmr)</span>
+<span class="g g-Whitespace">    </span><span class="mi">229</span>     <span class="k">if</span> <span class="n">swmr</span> <span class="ow">and</span> <span class="n">swmr_support</span><span class="p">:</span>
+<span class="g g-Whitespace">    </span><span class="mi">230</span>         <span class="n">flags</span> <span class="o">|=</span> <span class="n">h5f</span><span class="o">.</span><span class="n">ACC_SWMR_READ</span>
+<span class="ne">--&gt; </span><span class="mi">231</span>     <span class="n">fid</span> <span class="o">=</span> <span class="n">h5f</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">flags</span><span class="p">,</span> <span class="n">fapl</span><span class="o">=</span><span class="n">fapl</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">232</span> <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;r+&#39;</span><span class="p">:</span>
+<span class="g g-Whitespace">    </span><span class="mi">233</span>     <span class="n">fid</span> <span class="o">=</span> <span class="n">h5f</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">h5f</span><span class="o">.</span><span class="n">ACC_RDWR</span><span class="p">,</span> <span class="n">fapl</span><span class="o">=</span><span class="n">fapl</span><span class="p">)</span>
+
+<span class="nn">File h5py/_objects.pyx:54,</span> in <span class="ni">h5py._objects.with_phil.wrapper</span><span class="nt">()</span>
+
+<span class="nn">File h5py/_objects.pyx:55,</span> in <span class="ni">h5py._objects.with_phil.wrapper</span><span class="nt">()</span>
+
+<span class="nn">File h5py/h5f.pyx:106,</span> in <span class="ni">h5py.h5f.open</span><span class="nt">()</span>
+
+<span class="ne">FileNotFoundError</span>: [Errno 2] Unable to open file (unable to open file: name = &#39;./output_data/drb_output_obs_pub.hdf5&#39;, errno = 2, error message = &#39;No such file or directory&#39;, flags = 0, o_flags = 0)
+</pre></div>
+</div>
+</div>
+</div>
+<p>The majority of the variables stored in the <code class="docutils literal notranslate"><span class="pre">hdf5</span></code> file will not be of interest when assessing the system; we want to focus on the data at the 32 major nodes in model.</p>
+<p>The function <a class="reference internal" href="../../API_References/drb_make_figs.html"><span class="doc std std-doc"><code class="docutils literal notranslate"><span class="pre">get_pywr_results()</span></code></span></a> is designed to extract variables of interest from the <code class="docutils literal notranslate"><span class="pre">hdf5</span></code> file and returns a pandas DataFrame.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">get_pywr_results()</span></code> function takes three inputs:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">output_dir</span></code> (str): The relative path to the output data folder.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">model</span></code> (str): The indicator name for the dataset of interest. See the <span class="xref myst">Data Summary</span> page for more info.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">results_set</span></code> (str): Specify which types of model nodes to retrieve from the output file. Options for <code class="docutils literal notranslate"><span class="pre">results_set</span></code> are:</p>
+<ul>
+<li><p>‘all’: For reservoir releases and flow data at all nodes.</p></li>
+<li><p>‘res_releases’: Only reservoir release data.</p></li>
+<li><p>‘major_flow’: Streamflow data at only the major nodes.</p></li>
+<li><p>‘res_storage’: Only reservoir storage data.</p></li>
+<li><p>‘inflow’: Catchment inflow data at each major node.</p></li>
+</ul>
+</li>
+</ul>
+<p>Here is an example usage of <code class="docutils literal notranslate"><span class="pre">get_pywr_results</span></code> to retrieve the simulated streamflow at each of the major nodes in the model:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load Pywr-DRB simulation flow results at major nodes</span>
+<span class="n">simulated_flows</span> <span class="o">=</span> <span class="n">get_pywr_results</span><span class="p">(</span><span class="s1">&#39;./output_data/&#39;</span><span class="p">,</span> 
+                                   <span class="n">model</span> <span class="o">=</span> <span class="s1">&#39;obs_pub&#39;</span><span class="p">,</span> 
+                                   <span class="n">results_set</span> <span class="o">=</span> <span class="s1">&#39;major_flow&#39;</span><span class="p">)</span>
+
+<span class="c1"># Report the size of the retrieved data</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The resulting dataframe has </span><span class="si">{</span><span class="n">simulated_flows</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1"> days of data at </span><span class="si">{</span><span class="n">simulated_flows</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1"> different nodes.&#39;</span><span class="p">)</span>
+
+<span class="c1"># Display the data</span>
+<span class="n">simulated_flows</span><span class="o">.</span><span class="n">tail</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The resulting dataframe has 4018 days of data at 14 different nodes.
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>01417000</th>
+      <th>01425000</th>
+      <th>01433500</th>
+      <th>01436000</th>
+      <th>01447800</th>
+      <th>01449800</th>
+      <th>01463620</th>
+      <th>01470960</th>
+      <th>delLordville</th>
+      <th>delMontague</th>
+      <th>delTrenton</th>
+      <th>outletAssunpink</th>
+      <th>outletChristina</th>
+      <th>outletSchuylkill</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2010-05-30</th>
+      <td>51.704</td>
+      <td>103.410526</td>
+      <td>110.505094</td>
+      <td>38.776</td>
+      <td>162.988043</td>
+      <td>35.863012</td>
+      <td>28.470559</td>
+      <td>113.557583</td>
+      <td>385.826303</td>
+      <td>1330.162720</td>
+      <td>3745.722246</td>
+      <td>28.470559</td>
+      <td>11.996494</td>
+      <td>1192.19984</td>
+    </tr>
+    <tr>
+      <th>2010-05-31</th>
+      <td>51.704</td>
+      <td>103.410526</td>
+      <td>105.172921</td>
+      <td>38.776</td>
+      <td>139.504039</td>
+      <td>31.962111</td>
+      <td>22.956278</td>
+      <td>113.781775</td>
+      <td>362.175733</td>
+      <td>1552.511097</td>
+      <td>3498.675639</td>
+      <td>22.956278</td>
+      <td>14.236330</td>
+      <td>1119.99031</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>Additionally, the <span class="xref myst"><code class="docutils literal notranslate"><span class="pre">get_base_results()</span></code></span> function is designed to retrieve the similar sets of variables, but which have not been processed through the Pywr-DRB model. This function pulls from the <code class="docutils literal notranslate"><span class="pre">gage_flow_&lt;model&gt;.csv</span></code> generated by <code class="docutils literal notranslate"><span class="pre">prep_input_date.py</span></code>, and returns a DataFrame which matches the formatting of the data produced by <code class="docutils literal notranslate"><span class="pre">get_pywr_results</span></code>.</p>
+<p>When <code class="docutils literal notranslate"><span class="pre">get_base_results</span></code> is used with one of the modeled inflow datasets (NHM, NWM, or WEAP), these flows correspond to the modeled natural flows at these locations, unaffected by reservoirs.</p>
+<p>When <code class="docutils literal notranslate"><span class="pre">get_base_results</span></code> is used with the <code class="docutils literal notranslate"><span class="pre">obs</span></code> or <code class="docutils literal notranslate"><span class="pre">obs_pub</span></code> datasets, these flows correspond to the actual <strong>observed</strong> flows at these locations.</p>
+<p>Below, I access the observed flows at the major node locations:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">observed_flows</span> <span class="o">=</span> <span class="n">get_base_results</span><span class="p">(</span><span class="s1">&#39;./input_data/&#39;</span><span class="p">,</span> 
+                                        <span class="n">model</span> <span class="o">=</span> <span class="s1">&#39;obs&#39;</span><span class="p">,</span> 
+                                        <span class="n">datetime_index</span> <span class="o">=</span> <span class="n">simulated_flows</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                                        <span class="n">results_set</span> <span class="o">=</span> <span class="s1">&#39;major_flow&#39;</span><span class="p">)</span>
+
+<span class="n">observed_flows</span><span class="o">.</span><span class="n">tail</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>01425000</th>
+      <th>01417000</th>
+      <th>delLordville</th>
+      <th>01436000</th>
+      <th>01433500</th>
+      <th>delMontague</th>
+      <th>01449800</th>
+      <th>01447800</th>
+      <th>delTrenton</th>
+      <th>01463620</th>
+      <th>outletAssunpink</th>
+      <th>01470960</th>
+      <th>outletSchuylkill</th>
+      <th>outletChristina</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2010-05-30</th>
+      <td>175.763799</td>
+      <td>76.250472</td>
+      <td>511.782828</td>
+      <td>56.606282</td>
+      <td>0.0</td>
+      <td>1453.928488</td>
+      <td>67.849996</td>
+      <td>313.402363</td>
+      <td>3870.680731</td>
+      <td>19.644189</td>
+      <td>19.644189</td>
+      <td>98.867137</td>
+      <td>1260.071356</td>
+      <td>15.508571</td>
+    </tr>
+    <tr>
+      <th>2010-05-31</th>
+      <td>176.409990</td>
+      <td>76.896662</td>
+      <td>478.180925</td>
+      <td>57.058616</td>
+      <td>0.0</td>
+      <td>1576.704672</td>
+      <td>67.849996</td>
+      <td>130.530469</td>
+      <td>3799.599783</td>
+      <td>24.361380</td>
+      <td>24.361380</td>
+      <td>98.867137</td>
+      <td>1201.914217</td>
+      <td>17.834856</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>The two functions <code class="docutils literal notranslate"><span class="pre">get_pywr_results()</span></code> and <code class="docutils literal notranslate"><span class="pre">get_base_results()</span></code> provide access to all simulated and non-simulated flows at each of the major nodes in the model and return organized pandas DataFrames with matching node names and date ranges.</p>
+<p>The data can then be studied further.  Below, I end this section by plotting a comparison of the observed versus simulated streamflow values at six of the major nodes in the network using the simulation results from the historic reconstruction dataset (<code class="docutils literal notranslate"><span class="pre">obs_pub</span></code>).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Specify nodes of interest</span>
+<span class="n">plot_flows</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;outletAssunpink&#39;</span><span class="p">,</span> <span class="s1">&#39;outletSchuylkill&#39;</span><span class="p">,</span> <span class="s1">&#39;outletChristina&#39;</span><span class="p">,</span> <span class="s1">&#39;delLordville&#39;</span><span class="p">,</span> <span class="s1">&#39;delMontague&#39;</span><span class="p">,</span> <span class="s1">&#39;delTrenton&#39;</span><span class="p">]</span>
+<span class="n">start_date</span> <span class="o">=</span> <span class="s1">&#39;2000-01-01&#39;</span>
+
+<span class="c1"># Construct scatter plot of observed vs simulated flows</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">cmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colormaps</span><span class="p">[</span><span class="s1">&#39;tab20&#39;</span><span class="p">]</span>
+<span class="n">min_flow</span> <span class="o">=</span> <span class="n">simulated_flows</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+<span class="n">max_flow</span> <span class="o">=</span> <span class="n">simulated_flows</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axline</span><span class="p">((</span><span class="n">min_flow</span><span class="p">,</span> <span class="n">min_flow</span><span class="p">),</span> <span class="p">(</span><span class="n">max_flow</span><span class="p">,</span> <span class="n">max_flow</span><span class="p">),</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">linestyle</span> <span class="o">=</span> <span class="s1">&#39;dashed&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">col</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">plot_flows</span><span class="p">):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">simulated_flows</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">start_date</span><span class="p">:,</span> <span class="n">col</span><span class="p">],</span> <span class="n">observed_flows</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">start_date</span><span class="p">:,</span><span class="n">col</span><span class="p">],</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="n">cmap</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">label</span> <span class="o">=</span> <span class="n">col</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Simualted Flow (MGD)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Observed Flow (MGD)&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Simulated vs Observed Flows at Different Nodes in Pywr-DRB&#39;</span><span class="p">)</span>
+
+<span class="n">legend</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">handle</span> <span class="ow">in</span> <span class="n">legend</span><span class="o">.</span><span class="n">legend_handles</span><span class="p">:</span>
+    <span class="n">handle</span><span class="o">.</span><span class="n">set_alpha</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">([</span><span class="n">min_flow</span><span class="p">,</span> <span class="n">max_flow</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">([</span><span class="n">min_flow</span><span class="p">,</span> <span class="n">max_flow</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../../_images/5a57360f0be23cd738b386c6e241a5f285b7d74073fd2deb603e64d655029450.png" src="../../_images/5a57360f0be23cd738b386c6e241a5f285b7d74073fd2deb603e64d655029450.png" />
+</div>
+</div>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./Getting_Started/Interpret_Results"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+                <footer class="bd-footer-article">
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="interpret_results.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Interpret Results</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="visualize_streamflows.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Visualize Streamflows</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div></div>
+  
+</div>
+
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The Reed Group at Cornell CEE in Collaboration with USGS
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  <p class="copyright">
+    
+      © Copyright 2022.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

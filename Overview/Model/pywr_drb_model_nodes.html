@@ -171,11 +171,10 @@ const thebe_selector_output = ".output, .cell_output"
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../Getting_Started/getting_started.html">Getting Started</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../Getting_Started/setup_model.html">Setup Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Getting_Started/quick_start.html">Quick-Start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../Getting_Started/Running_Simulations/run_all_simulations.html">Running Simulations</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../Getting_Started/Interpret_Results/interpret_results.html">Interpret results</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../Getting_Started/Interpret_Results/model_outputs.html">Model Outputs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../Getting_Started/Interpret_Results/output_figures.html">Diagnostic Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../Getting_Started/Interpret_Results/explore_model_outputs.html">Model Outputs</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../Getting_Started/Interpret_Results/visualize_streamflows.html">Visualize Streamflows</a></li>
 </ul>
 </li>
@@ -393,7 +392,6 @@ document.write(`
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#major-nodes">Major nodes</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#reservoir-nodes">Reservoir nodes</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#river-nodes">River nodes</a></li>
 </ul>
 </li>
 </ul>
@@ -413,14 +411,14 @@ document.write(`
 <p>More information about the default Pywr node classes can be found <a class="reference external" href="https://pywr.github.io/pywr/api/pywr.nodes.html#nodes-classes">in the Pywr documentation.</a></p>
 <section id="major-nodes">
 <h2>Major nodes<a class="headerlink" href="#major-nodes" title="Permalink to this heading">#</a></h2>
-<p>Each major node in the Pywr-DRB model is created using the <a class="reference internal" href="../../API_References/drb_make_model.html"><span class="doc std std-doc"><code class="docutils literal notranslate"><span class="pre">add_major_node()</span></code></span></a> function. This function adds the major node to the model (stored in <code class="docutils literal notranslate"><span class="pre">./model_data/drb_model_full.json</span></code>) and also constructs five corresponding <em>minor</em> nodes connected to the major node representing: withdrawals, consumption, outflow, and a link which connects to the downstream node. These minor nodes are described in <a class="reference internal" href="#reservoir-node-table"><span class="std std-ref">Summary of major nodes and corresponding minor nodes.</span></a>.</p>
+<p>Each major node in the Pywr-DRB model is created using the <a class="reference internal" href="../../API_References/drb_make_model.html"><span class="doc std std-doc"><code class="docutils literal notranslate"><span class="pre">add_major_node()</span></code></span></a> function. This function adds the major node to the model (stored in <code class="docutils literal notranslate"><span class="pre">./model_data/drb_model_full.json</span></code>) and also constructs five corresponding <em>minor</em> nodes connected to the major node representing: withdrawals, consumption, outflow, and a link which connects to the downstream node. These minor nodes are described in <a class="reference internal" href="#reservoir-node-table"><span class="std std-numref">Table 1</span></a></p>
 <p>Major nodes in the Pywr-DRB model are classified as either <code class="docutils literal notranslate"><span class="pre">&quot;reservoir&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;river&quot;</span></code> types.</p>
 <p>Reservoir nodes are defined as <code class="docutils literal notranslate"><span class="pre">&quot;storage&quot;</span></code> node classes in <code class="docutils literal notranslate"><span class="pre">pywr</span></code> and contain information about the volume of storage in the reservoir at each timestep along with the reservoir release policy. River nodes are defined as <code class="docutils literal notranslate"><span class="pre">&quot;link&quot;</span></code> classes in <code class="docutils literal notranslate"><span class="pre">pywr</span></code> and record simulated streamflow timeseries at that location.</p>
 <table class="table" id="reservoir-node-table">
 <caption><span class="caption-number">Table 1 </span><span class="caption-text">Summary of major nodes and corresponding minor nodes.</span><a class="headerlink" href="#reservoir-node-table" title="Permalink to this table">#</a></caption>
 <thead>
 <tr class="row-odd"><th class="head"><p>Representation</p></th>
-<th class="head"><p>Node Name<br>(<code class="docutils literal notranslate"><span class="pre">{name}</span></code> is the node name)</p></th>
+<th class="head"><p>Node Name</p></th>
 <th class="head"><p>Description</p></th>
 </tr>
 </thead>
@@ -453,18 +451,14 @@ document.write(`
 </table>
 <section id="reservoir-nodes">
 <h3>Reservoir nodes<a class="headerlink" href="#reservoir-nodes" title="Permalink to this heading">#</a></h3>
-<p>Each reservoir in the model is defined as a major node, using the <code class="docutils literal notranslate"><span class="pre">add_major_node()</span></code> function, and is also assigned the five corresponding minor nodes outlined in <a class="reference internal" href="#reservoir-node-table"><span class="std std-ref">Summary of major nodes and corresponding minor nodes.</span></a>.</p>
+<p>Each reservoir in the model is defined as a major node, using the <code class="docutils literal notranslate"><span class="pre">add_major_node()</span></code> function, and is also assigned the five corresponding minor nodes outlined in <a class="reference internal" href="#reservoir-node-table"><span class="std std-numref">Table 1</span></a>.</p>
 <p>The figure below shows the relationship between a reservoir node and its corresponding minor nodes:</p>
 <figure class="align-default" id="reservoir-node-schematic">
-<a class="reference internal image-reference" href="../../_images/reservoir_node_schematic.png"><img alt="../../_images/reservoir_node_schematic.png" src="../../_images/reservoir_node_schematic.png" style="width: 788.4px; height: 1179.6px;" /></a>
+<a class="reference internal image-reference" href="../../_images/reservoir_node_schematic.png"><img alt="../../_images/reservoir_node_schematic.png" src="../../_images/reservoir_node_schematic.png" style="width: 328.5px; height: 491.5px;" /></a>
 <figcaption>
 <p><span class="caption-number">Fig. 6 </span><span class="caption-text">Graphical representation of reservoir nodes and corresponding minor nodes used in the Pywr-DRB model.</span><a class="headerlink" href="#reservoir-node-schematic" title="Permalink to this image">#</a></p>
 </figcaption>
 </figure>
-</section>
-<section id="river-nodes">
-<h3>River nodes<a class="headerlink" href="#river-nodes" title="Permalink to this heading">#</a></h3>
-<p>Each major river node in the model is also defined using the <code class="docutils literal notranslate"><span class="pre">add_major_node()</span></code> function and is assigned the five corresponding minor nodes outlined in <a class="reference internal" href="#reservoir-node-table"><span class="std std-ref">Summary of major nodes and corresponding minor nodes.</span></a>. Additionally, <a class="reference internal" href="#reservoir-node-schematic"><span class="std std-ref">Graphical representation of reservoir nodes and corresponding minor nodes used in the Pywr-DRB model.</span></a> is the same for a reservoir and river node, although the river node does not contain any storage or release information.</p>
 </section>
 </section>
 </section>
@@ -538,7 +532,6 @@ document.write(`
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#major-nodes">Major nodes</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#reservoir-nodes">Reservoir nodes</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#river-nodes">River nodes</a></li>
 </ul>
 </li>
 </ul>

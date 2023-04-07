@@ -65,7 +65,7 @@ const thebe_selector_output = ".output, .cell_output"
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="DRB Planning &amp; Management" href="drb_planning_management.html" />
-    <link rel="prev" title="Overview of the Delaware River Basin (DRB)" href="drb_overview.html" />
+    <link rel="prev" title="Overview of the Delaware River Basin" href="drb_overview.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -171,11 +171,10 @@ const thebe_selector_output = ".output, .cell_output"
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../Getting_Started/getting_started.html">Getting Started</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../Getting_Started/setup_model.html">Setup Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Getting_Started/quick_start.html">Quick-Start</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../Getting_Started/Running_Simulations/run_all_simulations.html">Running Simulations</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../Getting_Started/Interpret_Results/interpret_results.html">Interpret results</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../Getting_Started/Interpret_Results/model_outputs.html">Model Outputs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../Getting_Started/Interpret_Results/output_figures.html">Diagnostic Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../Getting_Started/Interpret_Results/explore_model_outputs.html">Model Outputs</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../Getting_Started/Interpret_Results/visualize_streamflows.html">Visualize Streamflows</a></li>
 </ul>
 </li>
@@ -396,10 +395,8 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#salinity-intrusion">Salinity Intrusion</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#major-out-of-basin-diversions">Major Out of Basin Diversions</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reservoirs">Reservoirs</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#reservoirs-that-provide-water-to-new-york-city">Reservoirs that Provide Water to New York City</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#non-nyc-reservoirs">Non-NYC Reservoirs</a></li>
 </ul>
 </li>
 </ul>
@@ -415,56 +412,50 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="hydrology-of-the-delaware-river-basin">
 <h1>Hydrology of the Delaware River Basin<a class="headerlink" href="#hydrology-of-the-delaware-river-basin" title="Permalink to this heading">#</a></h1>
-<p>The Delaware River Basin is a complex system that spans over four states and provides water for millions of people, industries, and ecosystems. Understanding the hydrology of the basin is essential for effective water management and environmental protection.</p>
+<p>The Delaware River Basin is a complex system that spans over four states and provides water for millions of people, industries, and ecosystems. Understanding the hydrology of the Basin is essential for effective water management and environmental protection.</p>
 <section id="environmental-challenges">
 <h2>Environmental Challenges<a class="headerlink" href="#environmental-challenges" title="Permalink to this heading">#</a></h2>
 <p>The Delaware River Basin faces numerous environmental challenges, including water pollution, habitat loss, and climate change. The potential impacts of climate change are of particular concern as changes in precipitation patterns, increasing temperatures, and increased frequency of extreme weather events may pose challenges for the water supply system.</p>
 <section id="sensitive-ecosystems">
 <h3>Sensitive Ecosystems<a class="headerlink" href="#sensitive-ecosystems" title="Permalink to this heading">#</a></h3>
-<p>The Delaware River Basin contains a wide range of sensitive ecosystems. Aquatic species are particularly vulnerable to changes in the hydrologic cycle in the basin.</p>
-<p>Historically, the estuary in the lower basin has been impacted by low dissolved oxygen levels in the river, causing harm to aquatic species. Higher up in the basin, cold-water fish species are vulnerable to rising stream temperatures at times of low-flow and high temperature.</p>
+<p>The Delaware River Basin contains a wide range of sensitive ecosystems. Aquatic species are particularly vulnerable to changes in the hydrologic cycle in the Basin. For example, cold-water fish species are vulnerable to rising stream temperatures at times of low-flow and high temperature.</p>
+<p>To learn more about how the US Geologic Survey is working understand temperature impacts in the Basin, take a look at their dataviz narrative on the topic: <a class="reference external" href="https://labs.waterdata.usgs.gov/visualizations/temperature-prediction/index.html#/monitoring"><em>How We Monitor Stream Temperature in the DRB</em> (USGS).</a></p>
 </section>
 <section id="salinity-intrusion">
 <h3>Salinity Intrusion<a class="headerlink" href="#salinity-intrusion" title="Permalink to this heading">#</a></h3>
 <p>As sea levels rise in the DRB estuary, salt water is able to push further up-stream along the river, particularly during low-flow periods.</p>
 <figure class="align-default" id="philadelphia-sea-level">
-<a class="reference internal image-reference" href="../../_images/phili_sea_level.png"><img alt="../../_images/phili_sea_level.png" src="../../_images/phili_sea_level.png" style="width: 1000.0px; height: 400.0px;" /></a>
+<a class="reference internal image-reference" href="../../_images/phili_sea_level.png"><img alt="../../_images/phili_sea_level.png" src="../../_images/phili_sea_level.png" style="width: 750.0px; height: 300.0px;" /></a>
 <figcaption>
 <p><span class="caption-number">Fig. 1 </span><span class="caption-text">Relative sea level trend at Philadelphia, PA. <strong>Figure source:</strong> <a class="reference external" href="https://tidesandcurrents.noaa.gov/sltrends/sltrends_station.shtml?id=8545240">National Oceanic and Atmospheric Administration (2023)</a></span><a class="headerlink" href="#philadelphia-sea-level" title="Permalink to this image">#</a></p>
 </figcaption>
 </figure>
-<p>Monitoring and managing the salinity intrusion is necessary to ensure that salt water does not reach the Philadelphia water treatment plant.</p>
+<p>Monitoring and managing salinity intrusion is necessary to ensure that salt water does not reach urban drinking water treatment plants upstream. To do this, managers coordinate water releases from the different reservoirs within the Basin to try and maintain sufficient streamflow at the estuary and repell the salt front down out of the basin.</p>
 </section>
-</section>
-<section id="major-out-of-basin-diversions">
-<h2>Major Out of Basin Diversions<a class="headerlink" href="#major-out-of-basin-diversions" title="Permalink to this heading">#</a></h2>
-<p>The Delaware River Basin is subject to several out-of-basin diversions, with the largest being the New York City Water Supply System, which diverts water from the Delaware River Basin to New York City. Other significant diversions include those for industrial and agricultural purposes.</p>
 </section>
 <section id="reservoirs">
 <h2>Reservoirs<a class="headerlink" href="#reservoirs" title="Permalink to this heading">#</a></h2>
-<p>The Delaware River Basin is home to several large reservoirs that play a critical role in managing the basin’s water resources. These reservoirs are primarily used for water supply, flood control, and power generation, and they are located throughout the basin.</p>
+<p>The Delaware River Basin is home to several large reservoirs that play a critical role in managing the Basin’s water resources. These reservoirs are used for a variety of purposes including water supply, flood control, and power generation, and they are located throughout the Basin.</p>
+<p>The Pywr-DRB model simulates streamflow across the reservoirs throughout the Basin, and attempts to capture their impact on the downstream streamflow conditions.</p>
+<figure class="align-default" id="drb-reservoir-schematic">
+<a class="reference internal image-reference" href="../../_images/drb_reservoir_schematic.png"><img alt="A graphic which shows a network of reservoirs in the DRB and how they are connected." src="../../_images/drb_reservoir_schematic.png" style="width: 655.0500000000001px; height: 492.80000000000007px;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 2 </span><span class="caption-text">Representative illustration of reservoirs within the DRB. <strong>Figure source:</strong> <a class="reference external" href="https://www.nj.gov/drbc/basin/map/">Delaware River Basin Commission</a></span><a class="headerlink" href="#drb-reservoir-schematic" title="Permalink to this image">#</a></p>
+</figcaption>
+</figure>
+<p>The reservoirs shown in the above illustration have been represented within the Pywr-DRB model, allowing for thier relative impacts on downstream flow conditions to be assessed.</p>
 <section id="reservoirs-that-provide-water-to-new-york-city">
 <h3>Reservoirs that Provide Water to New York City<a class="headerlink" href="#reservoirs-that-provide-water-to-new-york-city" title="Permalink to this heading">#</a></h3>
-<p>The NYCDEP owns and operates three large reservoirs in the Delaware River Basin that provide water to New York City: the Cannonsville Reservoir, the Pepacton Reservoir, and the Neversink Reservoir. These reservoirs, located primarily in the upper basin, have a combined storage capacity of over 570 billion gallons of water.</p>
+<p>The New York City Department of Environmental Protection owns and operates three large reservoirs in the DRB that provide water to New York City: the Cannonsville Reservoir, the Pepacton Reservoir, and the Neversink Reservoir. These reservoirs, located primarily in the upper basin, have a combined storage capacity of over 570 billion gallons of water.</p>
 <p>Water from these reservoirs is conveyed to New York City through the Delaware Aqueduct, which is the longest tunnel in the world. The aqueduct spans over 85 miles and can deliver up to 600 million gallons of water per day to the city.</p>
 <figure class="align-default" id="nyc-reservoirs">
-<a class="reference internal image-reference" href="../../_images/nyc_reservoirs.png"><img alt="../../_images/nyc_reservoirs.png" src="../../_images/nyc_reservoirs.png" style="width: 1750.0px; height: 2242.5px;" /></a>
+<a class="reference internal image-reference" href="../../_images/nyc_reservoirs.png"><img alt="../../_images/nyc_reservoirs.png" src="../../_images/nyc_reservoirs.png" style="width: 560.0px; height: 717.6px;" /></a>
 <figcaption>
-<p><span class="caption-number">Fig. 2 </span><span class="caption-text">Graphical depiction of NYC water supplies, showing contribution from upper DRB reservoirs. <strong>Figure source:</strong> <a class="reference external" href="https://www.nyc.gov/site/dep/water/reservoir-levels.page">New York City Environmental Protection</a></span><a class="headerlink" href="#nyc-reservoirs" title="Permalink to this image">#</a></p>
+<p><span class="caption-number">Fig. 3 </span><span class="caption-text">Graphical depiction of NYC water supplies, showing contribution from upper DRB reservoirs. <strong>Figure source:</strong> <a class="reference external" href="https://www.nyc.gov/site/dep/water/reservoir-levels.page">New York City Environmental Protection</a></span><a class="headerlink" href="#nyc-reservoirs" title="Permalink to this image">#</a></p>
 </figcaption>
 </figure>
-</section>
-<section id="non-nyc-reservoirs">
-<h3>Non-NYC Reservoirs<a class="headerlink" href="#non-nyc-reservoirs" title="Permalink to this heading">#</a></h3>
-<p>The DRBC operates several large reservoirs in the basin, including the Beltzville Reservoir, the Blue Marsh Reservoir, and the Francis E. Walter Reservoir. These reservoirs provide water for municipal and industrial uses, as well as for recreation.</p>
-<p>The U.S. Army Corps of Engineers operates several flood control reservoirs in the basin, including the Round Valley Reservoir and the Lake Wallenpaupack Reservoir. These reservoirs help to mitigate flooding during periods of high water flow.</p>
-<figure class="align-default" id="drb-watercolor">
-<img alt="../../_images/drb_watercolor_viz.png" src="../../_images/drb_watercolor_viz.png" />
-<figcaption>
-<p><span class="caption-number">Fig. 3 </span><span class="caption-text">Management Initiatives in the DRB.</span><a class="headerlink" href="#drb-watercolor" title="Permalink to this image">#</a></p>
-</figcaption>
-</figure>
-<p>Figure source: <a class="reference external" href="https://labs.waterdata.usgs.gov/visualizations/delaware-basin-story/index.html#/">USGS</a></p>
+<p>In addition to the New York City water supply, an average of 1 million gallons per day are diverted out of the Basin to New Jersey during normal conditions.</p>
+<p>The amount of water diverted out of the Basin is subject to regulatory oversight, and changes depending upon hydrologic conditions in the Basin. For more information about the water management regulation in the Basin, see <a class="reference internal" href="drb_planning_management.html"><span class="doc std std-doc">Planning &amp; Management.</span></a></p>
 </section>
 </section>
 </section>
@@ -506,7 +497,7 @@ document.write(`
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Overview of the Delaware River Basin (DRB)</p>
+        <p class="prev-next-title">Overview of the Delaware River Basin</p>
       </div>
     </a>
     <a class="right-next"
@@ -541,10 +532,8 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#salinity-intrusion">Salinity Intrusion</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#major-out-of-basin-diversions">Major Out of Basin Diversions</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reservoirs">Reservoirs</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#reservoirs-that-provide-water-to-new-york-city">Reservoirs that Provide Water to New York City</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#non-nyc-reservoirs">Non-NYC Reservoirs</a></li>
 </ul>
 </li>
 </ul>

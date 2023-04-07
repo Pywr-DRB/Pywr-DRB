@@ -21,7 +21,7 @@ The Pywr-DRB model is designed to receive streamflow timeseries at 18 upstream c
 :name: pywr-structure
 :height: 350
 
-Graphical representation of Pywr model structure; not specific to the Delaware River Basin. Figure source: Tomlinson, Arnott, & Harou (2020)
+Graphical representation of Pywr model structure; not specific to the Delaware River Basin. **Figure source:** Tomlinson, Arnott, & Harou (2020)
 ```
 
 ### Represented components
@@ -34,4 +34,3 @@ The Pywr-DRB model includes representation of the following:
 - Reservoirs across the basin
 - Regulation governing reservoir operations
 
-## References
