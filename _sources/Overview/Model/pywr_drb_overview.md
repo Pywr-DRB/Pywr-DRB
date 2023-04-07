@@ -26,7 +26,7 @@ Graphical representation of Pywr model structure; not specific to the Delaware R
 
 ### Represented components
 
-The Pywr-DRB model includes representation of the following:
+The Pywr-DRB model includes representation of the following aspects of the Basin:
 
 - Historic and future streamflow throughout the basin
 - Distributed water deliveries within the basin

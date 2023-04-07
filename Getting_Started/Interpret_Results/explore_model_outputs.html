@@ -396,6 +396,23 @@ document.write(`
 <h1>Model Outputs<a class="headerlink" href="#model-outputs" title="Permalink to this heading">#</a></h1>
 <p>After <a class="reference internal" href="../Running_Simulations/run_all_simulations.html"><span class="doc std std-doc">runing a Pywr-DRB simulation</span></a> the simulation data will be stored in <code class="docutils literal notranslate"><span class="pre">Pywr-DRB/output_data/drb_output_&lt;inflow_type&gt;.hdf5</span></code> where <code class="docutils literal notranslate"><span class="pre">inflow_type</span></code> corresponds to one of the naming conventions listed in <a class="reference internal" href="../../Supplemental/data_summary.html"><span class="doc std std-doc">Data Summary</span></a>.</p>
 <p>This file contains daily simulated values for every node in the model.</p>
+<p>The majority of the variables stored in the <code class="docutils literal notranslate"><span class="pre">hdf5</span></code> file will not be of interest when assessing the system; we want to focus on the data at the 32 major nodes in model.</p>
+<p>The function <a class="reference internal" href="../../API_References/drb_make_figs.html"><span class="doc std std-doc"><code class="docutils literal notranslate"><span class="pre">get_pywr_results()</span></code></span></a> is designed to extract variables of interest from the <code class="docutils literal notranslate"><span class="pre">hdf5</span></code> file and returns a pandas DataFrame.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">get_pywr_results()</span></code> function takes three inputs:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">output_dir</span></code> (str): The relative path to the output data folder.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">model</span></code> (str): The indicator name for the dataset of interest. See the <span class="xref myst">Data Summary</span> page for more info.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">results_set</span></code> (str): Specify which types of model nodes to retrieve from the output file. Options for <code class="docutils literal notranslate"><span class="pre">results_set</span></code> are:</p>
+<ul>
+<li><p>‘all’: For reservoir releases and flow data at all nodes.</p></li>
+<li><p>‘res_releases’: Only reservoir release data.</p></li>
+<li><p>‘major_flow’: Streamflow data at only the major nodes.</p></li>
+<li><p>‘res_storage’: Only reservoir storage data.</p></li>
+<li><p>‘inflow’: Catchment inflow data at each major node.</p></li>
+</ul>
+</li>
+</ul>
+<p>Here is an example usage of <code class="docutils literal notranslate"><span class="pre">get_pywr_results</span></code> to retrieve the simulated streamflow at each of the major nodes in the model:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
@@ -410,11 +427,16 @@ document.write(`
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Open the file and read the variable names (keys)</span>
-<span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;./output_data/drb_output_obs_pub.hdf5&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-    <span class="n">stored_keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load Pywr-DRB simulation flow results at major nodes</span>
+<span class="n">simulated_flows</span> <span class="o">=</span> <span class="n">get_pywr_results</span><span class="p">(</span><span class="s1">&#39;./output_data/&#39;</span><span class="p">,</span> 
+                                   <span class="n">model</span> <span class="o">=</span> <span class="s1">&#39;obs_pub&#39;</span><span class="p">,</span> 
+                                   <span class="n">results_set</span> <span class="o">=</span> <span class="s1">&#39;major_flow&#39;</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;There are </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">stored_keys</span><span class="p">)</span><span class="si">}</span><span class="s1"> variables stored in this file!&#39;</span><span class="p">)</span>
+<span class="c1"># Report the size of the retrieved data</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The resulting dataframe has </span><span class="si">{</span><span class="n">simulated_flows</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1"> days of data at </span><span class="si">{</span><span class="n">simulated_flows</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1"> different nodes.&#39;</span><span class="p">)</span>
+
+<span class="c1"># Display the data</span>
+<span class="n">simulated_flows</span><span class="o">.</span><span class="n">tail</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -422,10 +444,24 @@ document.write(`
 <div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
 <span class="ne">FileNotFoundError</span><span class="g g-Whitespace">                         </span>Traceback (most recent call last)
 <span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">line</span> <span class="mi">2</span>
-<span class="g g-Whitespace">      </span><span class="mi">1</span> <span class="c1"># Open the file and read the variable names (keys)</span>
-<span class="ne">----&gt; </span><span class="mi">2</span> <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;./output_data/drb_output_obs_pub.hdf5&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-<span class="g g-Whitespace">      </span><span class="mi">3</span>     <span class="n">stored_keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-<span class="g g-Whitespace">      </span><span class="mi">5</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;There are </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">stored_keys</span><span class="p">)</span><span class="si">}</span><span class="s1"> variables stored in this file!&#39;</span><span class="p">)</span>
+<span class="g g-Whitespace">      </span><span class="mi">1</span> <span class="c1"># Load Pywr-DRB simulation flow results at major nodes</span>
+<span class="ne">----&gt; </span><span class="mi">2</span> <span class="n">simulated_flows</span> <span class="o">=</span> <span class="n">get_pywr_results</span><span class="p">(</span><span class="s1">&#39;./output_data/&#39;</span><span class="p">,</span> 
+<span class="g g-Whitespace">      </span><span class="mi">3</span>                                    <span class="n">model</span> <span class="o">=</span> <span class="s1">&#39;obs_pub&#39;</span><span class="p">,</span> 
+<span class="g g-Whitespace">      </span><span class="mi">4</span>                                    <span class="n">results_set</span> <span class="o">=</span> <span class="s1">&#39;major_flow&#39;</span><span class="p">)</span>
+<span class="g g-Whitespace">      </span><span class="mi">6</span> <span class="c1"># Report the size of the retrieved data</span>
+<span class="g g-Whitespace">      </span><span class="mi">7</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The resulting dataframe has </span><span class="si">{</span><span class="n">simulated_flows</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1"> days of data at </span><span class="si">{</span><span class="n">simulated_flows</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1"> different nodes.&#39;</span><span class="p">)</span>
+
+<span class="nn">File ~/work/Pywr-DRB/Pywr-DRB/drb_make_figs.py:58,</span> in <span class="ni">get_pywr_results</span><span class="nt">(output_dir, model, results_set, scenario)</span>
+<span class="g g-Whitespace">     </span><span class="mi">45</span> <span class="k">def</span> <span class="nf">get_pywr_results</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">results_set</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="n">scenario</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+<span class="g g-Whitespace">     </span><span class="mi">46</span><span class="w">     </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="g g-Whitespace">     </span><span class="mi">47</span><span class="sd">     Gathers simulation results from Pywr model run and returns a pd.DataFrame. </span>
+<span class="g g-Whitespace">     </span><span class="mi">48</span><span class="sd">     </span>
+<span class="sd">   (...)</span>
+<span class="g g-Whitespace">     </span><span class="mi">56</span><span class="sd">     :return:</span>
+<span class="g g-Whitespace">     </span><span class="mi">57</span><span class="sd">     &#39;&#39;&#39;</span>
+<span class="ne">---&gt; </span><span class="mi">58</span>     <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">output_dir</span><span class="si">}</span><span class="s1">drb_output_</span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1">.hdf5&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<span class="g g-Whitespace">     </span><span class="mi">59</span>         <span class="n">keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="g g-Whitespace">     </span><span class="mi">60</span>         <span class="n">first</span> <span class="o">=</span> <span class="mi">0</span>
 
 <span class="nn">File ~/.virtualenvs/.venv/lib/python3.8/site-packages/h5py/_hl/files.py:567,</span> in <span class="ni">File.__init__</span><span class="nt">(self, name, mode, driver, libver, userblock_size, swmr, rdcc_nslots, rdcc_nbytes, rdcc_w0, track_order, fs_strategy, fs_persist, fs_threshold, fs_page_size, page_buf_size, min_meta_keep, min_raw_keep, locking, alignment_threshold, alignment_interval, meta_block_size, **kwds)</span>
 <span class="g g-Whitespace">    </span><span class="mi">558</span>     <span class="n">fapl</span> <span class="o">=</span> <span class="n">make_fapl</span><span class="p">(</span><span class="n">driver</span><span class="p">,</span> <span class="n">libver</span><span class="p">,</span> <span class="n">rdcc_nslots</span><span class="p">,</span> <span class="n">rdcc_nbytes</span><span class="p">,</span> <span class="n">rdcc_w0</span><span class="p">,</span>
@@ -458,115 +494,6 @@ document.write(`
 </pre></div>
 </div>
 </div>
-</div>
-<p>The majority of the variables stored in the <code class="docutils literal notranslate"><span class="pre">hdf5</span></code> file will not be of interest when assessing the system; we want to focus on the data at the 32 major nodes in model.</p>
-<p>The function <a class="reference internal" href="../../API_References/drb_make_figs.html"><span class="doc std std-doc"><code class="docutils literal notranslate"><span class="pre">get_pywr_results()</span></code></span></a> is designed to extract variables of interest from the <code class="docutils literal notranslate"><span class="pre">hdf5</span></code> file and returns a pandas DataFrame.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">get_pywr_results()</span></code> function takes three inputs:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">output_dir</span></code> (str): The relative path to the output data folder.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">model</span></code> (str): The indicator name for the dataset of interest. See the <span class="xref myst">Data Summary</span> page for more info.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">results_set</span></code> (str): Specify which types of model nodes to retrieve from the output file. Options for <code class="docutils literal notranslate"><span class="pre">results_set</span></code> are:</p>
-<ul>
-<li><p>‘all’: For reservoir releases and flow data at all nodes.</p></li>
-<li><p>‘res_releases’: Only reservoir release data.</p></li>
-<li><p>‘major_flow’: Streamflow data at only the major nodes.</p></li>
-<li><p>‘res_storage’: Only reservoir storage data.</p></li>
-<li><p>‘inflow’: Catchment inflow data at each major node.</p></li>
-</ul>
-</li>
-</ul>
-<p>Here is an example usage of <code class="docutils literal notranslate"><span class="pre">get_pywr_results</span></code> to retrieve the simulated streamflow at each of the major nodes in the model:</p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load Pywr-DRB simulation flow results at major nodes</span>
-<span class="n">simulated_flows</span> <span class="o">=</span> <span class="n">get_pywr_results</span><span class="p">(</span><span class="s1">&#39;./output_data/&#39;</span><span class="p">,</span> 
-                                   <span class="n">model</span> <span class="o">=</span> <span class="s1">&#39;obs_pub&#39;</span><span class="p">,</span> 
-                                   <span class="n">results_set</span> <span class="o">=</span> <span class="s1">&#39;major_flow&#39;</span><span class="p">)</span>
-
-<span class="c1"># Report the size of the retrieved data</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The resulting dataframe has </span><span class="si">{</span><span class="n">simulated_flows</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1"> days of data at </span><span class="si">{</span><span class="n">simulated_flows</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1"> different nodes.&#39;</span><span class="p">)</span>
-
-<span class="c1"># Display the data</span>
-<span class="n">simulated_flows</span><span class="o">.</span><span class="n">tail</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The resulting dataframe has 4018 days of data at 14 different nodes.
-</pre></div>
-</div>
-<div class="output text_html"><div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>01417000</th>
-      <th>01425000</th>
-      <th>01433500</th>
-      <th>01436000</th>
-      <th>01447800</th>
-      <th>01449800</th>
-      <th>01463620</th>
-      <th>01470960</th>
-      <th>delLordville</th>
-      <th>delMontague</th>
-      <th>delTrenton</th>
-      <th>outletAssunpink</th>
-      <th>outletChristina</th>
-      <th>outletSchuylkill</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>2010-05-30</th>
-      <td>51.704</td>
-      <td>103.410526</td>
-      <td>110.505094</td>
-      <td>38.776</td>
-      <td>162.988043</td>
-      <td>35.863012</td>
-      <td>28.470559</td>
-      <td>113.557583</td>
-      <td>385.826303</td>
-      <td>1330.162720</td>
-      <td>3745.722246</td>
-      <td>28.470559</td>
-      <td>11.996494</td>
-      <td>1192.19984</td>
-    </tr>
-    <tr>
-      <th>2010-05-31</th>
-      <td>51.704</td>
-      <td>103.410526</td>
-      <td>105.172921</td>
-      <td>38.776</td>
-      <td>139.504039</td>
-      <td>31.962111</td>
-      <td>22.956278</td>
-      <td>113.781775</td>
-      <td>362.175733</td>
-      <td>1552.511097</td>
-      <td>3498.675639</td>
-      <td>22.956278</td>
-      <td>14.236330</td>
-      <td>1119.99031</td>
-    </tr>
-  </tbody>
-</table>
-</div></div></div>
 </div>
 <p>Additionally, the <span class="xref myst"><code class="docutils literal notranslate"><span class="pre">get_base_results()</span></code></span> function is designed to retrieve the similar sets of variables, but which have not been processed through the Pywr-DRB model. This function pulls from the <code class="docutils literal notranslate"><span class="pre">gage_flow_&lt;model&gt;.csv</span></code> generated by <code class="docutils literal notranslate"><span class="pre">prep_input_date.py</span></code>, and returns a DataFrame which matches the formatting of the data produced by <code class="docutils literal notranslate"><span class="pre">get_pywr_results</span></code>.</p>
 <p>When <code class="docutils literal notranslate"><span class="pre">get_base_results</span></code> is used with one of the modeled inflow datasets (NHM, NWM, or WEAP), these flows correspond to the modeled natural flows at these locations, unaffected by reservoirs.</p>
