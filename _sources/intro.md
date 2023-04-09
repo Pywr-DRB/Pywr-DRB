@@ -20,4 +20,4 @@ A graphical representation of the Pywr-DRB model is shown below, where every oct
 
 ## Acknowledgments
 
-This work is done in partnership with the United States Geologic Survey (USGS) with the goal of supporting their **Predictive Understanding of Multiscale Processes (PUMP)** project within the [**Integrated Water Prediction (IWP)**](https://www.usgs.gov/mission-areas/water-resources/science/integrated-water-prediction-iwp#overview) program.
+This model is developed in partnership with the United States Geologic Survey (USGS) and the National Center for Atmospheric Research (NCAR) in support of the Predictive Understanding of Multiscale Processes (PUMP) project within the [Integrated Water Prediction (IWP)](https://www.usgs.gov/mission-areas/water-resources/science/integrated-water-prediction-iwp#overview) program.

@@ -24,6 +24,8 @@ Relative sea level trend at Philadelphia, PA. **Figure source:** [National Ocean
 
 Monitoring and managing salinity intrusion is necessary to ensure that salt water does not reach urban drinking water treatment plants upstream. To do this, managers coordinate water releases from the different reservoirs within the Basin to try and maintain sufficient streamflow at the estuary and repell the salt front down out of the basin.
 
+### The 1960's Drought of Record
+Info on 60's drought
 
 ## Reservoirs
 
@@ -43,9 +45,9 @@ The reservoirs shown in the above illustration have been represented within the 
 
 
 ### Reservoirs that Provide Water to New York City
-The New York City Department of Environmental Protection owns and operates three large reservoirs in the DRB that provide water to New York City: the Cannonsville Reservoir, the Pepacton Reservoir, and the Neversink Reservoir. These reservoirs, located primarily in the upper basin, have a combined storage capacity of over 570 billion gallons of water.
+The New York City Department of Environmental Protection owns and operates three large reservoirs in the DRB that provide water to New York City: the Cannonsville Reservoir, the Pepacton Reservoir, and the Neversink Reservoir. These reservoirs, located in the upper basin, have a combined storage capacity of over 570 billion gallons of water.
 
-Water from these reservoirs is conveyed to New York City through the Delaware Aqueduct, which is the longest tunnel in the world. The aqueduct spans over 85 miles and can deliver up to 600 million gallons of water per day to the city.
+Water from these reservoirs is conveyed to New York City through the Delaware Aqueduct, which is the longest tunnel in the world. The aqueduct spans over 85 miles and delivers 500-600 million gallons per day on average, roughly half of the city's water supply.
 
 ```{figure} ../../images/nyc_reservoirs.png
 :name: nyc-reservoirs
@@ -54,6 +56,6 @@ Water from these reservoirs is conveyed to New York City through the Delaware Aq
 Graphical depiction of NYC water supplies, showing contribution from upper DRB reservoirs. **Figure source:** [New York City Environmental Protection](https://www.nyc.gov/site/dep/water/reservoir-levels.page)
 ```
 
-In addition to the New York City water supply, an average of 1 million gallons per day are diverted out of the Basin to New Jersey during normal conditions. 
+In addition to New York City, New Jersey can divert roughly 100 million gallons per day out of the Basin during normal conditions to meet its water supply needs. 
 
 The amount of water diverted out of the Basin is subject to regulatory oversight, and changes depending upon hydrologic conditions in the Basin. For more information about the water management regulation in the Basin, see [Planning & Management.](./drb_planning_management.md)
