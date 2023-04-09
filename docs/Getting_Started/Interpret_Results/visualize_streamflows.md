@@ -1,8 +1,8 @@
 # Visualize Streamflows
 
-The figures below provide for interactive visualization of the Pywr-DRB simulated streamflow timeseries at Trenton resulting for each of the different inflow datasets. Click on the tabs above the figure to change the dataset being shown.
+The figures below provide  interactive visualization of the Pywr-DRB simulated streamflow timeseries at Trenton resulting for each of the different inflow datasets. Click on the tabs above the figure to change the dataset being shown.
 
-The upper-panel of the figure shows the total observed and Pywr-DRB simulated streamflows in the Delaware River at Trenton. The [Flexible Flow Management Program (FFMP)](../../Overview/DRB/drb_planning_management.md) is designed to ensure that streamflow at this location remains above 1,614 MGD, which is indicated by the black line in the top panel.
+The upper-panel of the figure shows the total observed and Pywr-DRB simulated streamflows in the Delaware River at Trenton. The [Flexible Flow Management Program (FFMP)](../../Overview/DRB/drb_planning_management.md) is designed to ensure that streamflow at this location remains above 1,614 MGD under normal conditions, which is indicated by the black line in the top panel.
 
 The lower panel in the figure shows Pywr-DRB simulated **percentage of total observed flow at Trenton** based upon where the relative flow contribution was provided by (1) NYC reservoir releases, (2) releases from other reservoirs in the Basin, or (3) if the flow did not pass through any of the reservoirs in the Basin (labeled "Unmanaged Flows Upstream").
 

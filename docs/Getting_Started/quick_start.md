@@ -67,5 +67,5 @@ source venv/bin/activate
 sh drb_run_all.sh
 ```
 
-Alternatively, the user can perform each of the steps listed above individually using individual executables as described in [Running Simulations](./Running_Simulations/run_all_simulations.md), and detailed in the [API References.](../API_References/api_references.md)
+Alternatively, the user can perform each of the steps listed above individually using individual Python scripts as described in [Running Simulations](./Running_Simulations/run_all_simulations.md), and detailed in the [API References.](../API_References/api_references.md)
 

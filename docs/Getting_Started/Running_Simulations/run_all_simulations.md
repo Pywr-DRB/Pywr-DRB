@@ -1,9 +1,9 @@
 # Running Pywr-DRB Simulations
 
 
-## Executables
+## Scripts
 
-There are three primary executables that are used in the Pywr-DRB simulation workflow:
+There are three primary Python scripts that are used in the Pywr-DRB simulation workflow:
 - `prep_input_data.py`
 - `drb_run_sim.py`
 - `drb_make_figs.py`
@@ -13,7 +13,7 @@ There are three primary executables that are used in the Pywr-DRB simulation wor
 
 This module prepares input-streamflow data files from different potential sources, and saves data in Pywr-ready formats. Sources include observed streamflows, modeled flows from a reconstructed historic period using [prediction in ungauged basins,](../Supplemental/pub.md) NHMv1.0, NWMv2.1, and WEAP (Aug 23, 2022, version) modeled streamflow data. For more information on different inflow datasets, see the [Data Summary page.](../Supplemental/data_summary.md)
 
-Example:
+Running this script:
 
 ```bash
 python3 -W ignore prep_input_data.py
@@ -29,10 +29,10 @@ The model is run by calling the `drb_run_sim.py` file from the command line foll
 
 The inflow type options are `obs_pub`, `nhmv10`, `nwmv21`, `nwmv21_withLakes`, and `WEAP_23Aug2022_gridmet`. For descriptions of these different inflow data, see the [Data Summary](../../Supplemental/data_summary.md) page.
 
-Example:
+Running this script:
 
 ```bash
-python3 -W ignore drb_sun_sim.py <inflow_type> 
+python3 -W ignore drb_sun_sim.py <inflow_type> <backup_inflow_type>
 ```
 
 Once the model is constructed, the simulation is run and the simulation results will be stored in `Pywr-DRB/output_data/drb_output_<inflow_type>.hdf5`. See [Model Outputs](../Interpret_Results/explore_model_outputs.ipynb) for a description of the data contained within the output.
@@ -40,7 +40,13 @@ Once the model is constructed, the simulation is run and the simulation results 
 
 ### [`drb_make_figs.py`](../../API_References/api_references.md)
 
-This script uses several plotting functions (stored in `Pywr-DRB.plotting`) to generate comparative figures for analysis. Executing this script after performing a simulation will result in figures being generated and stored in `Pywr-DRB/figs/`.
+This script uses several plotting functions (stored in `Pywr-DRB/plotting`) to generate comparative figures for analysis. Executing this script after performing a simulation will result in figures being generated and stored in `Pywr-DRB/figs/`.
+
+Running this script:
+
+```bash
+python3 -W ignore drb_make_figs.py
+```
 
 ```{note}
 The `drb_make_figs.py` script will only work if simulations have successfully been completed each of the four inflow datasets.

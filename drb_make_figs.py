@@ -50,7 +50,7 @@ def get_pywr_results(output_dir, model, results_set='all', scenario = 0):
     :param model:
     :param results_set: can be "all" to return all results,
                             "res_release" to return reservoir releases (downstream gage comparison),
-                            "res_stroage" to return resrvoir storages,
+                            "res_storage" to return resrvoir storages,
                             "major_flow" to return flow at major flow points of interest,
                             "inflow" to return the inflow at each catchment.
     :return:
