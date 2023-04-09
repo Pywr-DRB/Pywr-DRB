@@ -2,7 +2,7 @@
 
 The module is used to execute a simulation of the Pywr-DRB model.
 
-Two command line arguments set the `inflow_type` and `backup_inflow_type` variables. These variables are used to specify the data source and backup data source for the inflow data used in the model. For more information on available inflow data, see the [Data Summary page.](../Supplemental/data_summary.md)
+Two command line arguments set the `inflow_type` and `backup_inflow_type` variables. These variables are used to specify the data source and backup data source for the inflow data used in the model. For more information on available inflow data, see the [Inflow Scenarios page.](../Model/pywr_drb_inflow_scenarios.md)
 
 The code then imports some custom parameters for the model and generates a JSON file with model data using the `drb_make_model` function. The model is then loaded from the JSON file using the `Model.load` method.
 

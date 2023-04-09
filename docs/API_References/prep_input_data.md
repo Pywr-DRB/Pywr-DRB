@@ -1,6 +1,6 @@
 # `prep_input_data.py`
 
-This script is used to prepare all of the necessary inflow datasets used in Pywr-DRB. For more information on different inflow datasets, see the [Data Summary page.](../Supplemental/data_summary.md)
+This script is used to prepare all of the necessary inflow datasets used in Pywr-DRB. For more information on different inflow datasets, see the [Inflow Scenarios page.](../Model/pywr_drb_inflow_scenarios.md)
 
 **Functions:**
 - `read_modeled_estimates()`

@@ -59,8 +59,8 @@ parts:
     # =============== Supplemental  =================
     - file: Supplemental/supplemental.md
       sections:
-      - title: Data Summary
-        file: Supplemental/data_summary.md
+              #      - title: Data Summary
+              #        file: Supplemental/data_summary.md
       - title: Pywr-DRB Node List
         file: Supplemental/node_list.md
       - title: Streamflow Prediction in Ungauged Basins
