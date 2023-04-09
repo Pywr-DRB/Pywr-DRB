@@ -15,7 +15,7 @@ To learn more about how the US Geologic Survey is working understand temperature
 
 As sea levels rise in the DRB estuary, salt water is able to push further up-stream along the river, particularly during low-flow periods. 
 
-```{figure} ../../images/phili_sea_level.png
+```{figure} ../images/phili_sea_level.png
 :scale: 75%
 :name: philadelphia-sea-level
 
@@ -33,7 +33,7 @@ The Delaware River Basin is home to several large reservoirs that play a critica
 
 The Pywr-DRB model simulates streamflow across the reservoirs throughout the Basin, and attempts to capture their impact on the downstream streamflow conditions.
 
-```{figure} ../../images/drb_reservoir_schematic.png
+```{figure} ../images/drb_reservoir_schematic.png
 :name: drb-reservoir-schematic
 :scale: 45%
 :alt: A graphic which shows a network of reservoirs in the DRB and how they are connected. 

@@ -2,6 +2,8 @@
 
 There are 32 major internal nodes in the Pywr-DRB model consisting of 18 reservoirs and 14 locations along the across the stream network. Each node is connected to one or more other nodes via an *edge*.
 
+For a list of all major nodes in the model, refer to the Supplemental [Pywr-DRB Node List](../Model/pywr_drb_inflow_scenarios.md) page.
+
 More information about the default Pywr node classes can be found [in the Pywr documentation.](https://pywr.github.io/pywr/api/pywr.nodes.html#nodes-classes)
 
 ## Major nodes
@@ -45,7 +47,7 @@ Each reservoir in the model is defined as a major node, using the `add_major_nod
 
 The figure below shows the relationship between a reservoir node and its corresponding minor nodes:
 
-```{figure} ../../images/reservoir_node_schematic.png
+```{figure} ../images/reservoir_node_schematic.png
 :name: reservoir-node-schematic
 :scale: 50%
 

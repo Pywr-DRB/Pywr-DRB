@@ -17,7 +17,7 @@ The Pywr-DRB model was constructed with the following goals:
 The Pywr-DRB model is designed to receive streamflow timeseries at 18 upstream catchments and 3 mainstem locations as inputs. The model simulates and outputs water supply deliveries, reservoir releases and storage levels, and streamflow volumes throughout the basin on a daily timestep.
 
 
-```{figure} ../../images/pywr_structure.jpg
+```{figure} ../images/pywr_structure.jpg
 :name: pywr-structure
 :height: 350
 

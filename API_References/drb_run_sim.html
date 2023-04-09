@@ -186,7 +186,6 @@ const thebe_selector_output = ".output, .cell_output"
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../Supplemental/supplemental.html">Supplemental Material</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../Supplemental/data_summary.html">Data Summary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../Supplemental/node_list.html">Pywr-DRB Node List</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../Supplemental/pub.html">Streamflow Prediction in Ungauged Basins</a></li>
 </ul>
@@ -399,7 +398,7 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="drb-run-sim-py">
 <h1><code class="docutils literal notranslate"><span class="pre">drb_run_sim.py</span></code><a class="headerlink" href="#drb-run-sim-py" title="Permalink to this heading">#</a></h1>
 <p>The module is used to execute a simulation of the Pywr-DRB model.</p>
-<p>Two command line arguments set the <code class="docutils literal notranslate"><span class="pre">inflow_type</span></code> and <code class="docutils literal notranslate"><span class="pre">backup_inflow_type</span></code> variables. These variables are used to specify the data source and backup data source for the inflow data used in the model. For more information on available inflow data, see the <a class="reference internal" href="../Supplemental/data_summary.html"><span class="doc std std-doc">Data Summary page.</span></a></p>
+<p>Two command line arguments set the <code class="docutils literal notranslate"><span class="pre">inflow_type</span></code> and <code class="docutils literal notranslate"><span class="pre">backup_inflow_type</span></code> variables. These variables are used to specify the data source and backup data source for the inflow data used in the model. For more information on available inflow data, see the <a class="reference internal" href="../Model/pywr_drb_inflow_scenarios.html"><span class="doc std std-doc">Inflow Scenarios page.</span></a></p>
 <p>The code then imports some custom parameters for the model and generates a JSON file with model data using the <code class="docutils literal notranslate"><span class="pre">drb_make_model</span></code> function. The model is then loaded from the JSON file using the <code class="docutils literal notranslate"><span class="pre">Model.load</span></code> method.</p>
 <p>A <code class="docutils literal notranslate"><span class="pre">TablesRecorder</span></code> is added to the model to record the results of the model run to an output file specified by the <code class="docutils literal notranslate"><span class="pre">output_filename</span></code> variable. Finally, the model is run and the resulting statistics are converted to a pandas DataFrame.</p>
 <section id="function-calls">

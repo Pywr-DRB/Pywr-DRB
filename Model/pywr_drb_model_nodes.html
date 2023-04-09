@@ -186,7 +186,6 @@ const thebe_selector_output = ".output, .cell_output"
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../Supplemental/supplemental.html">Supplemental Material</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../Supplemental/data_summary.html">Data Summary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../Supplemental/node_list.html">Pywr-DRB Node List</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../Supplemental/pub.html">Streamflow Prediction in Ungauged Basins</a></li>
 </ul>
@@ -402,6 +401,7 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="pywr-drb-model-nodes">
 <h1>Pywr-DRB Model nodes<a class="headerlink" href="#pywr-drb-model-nodes" title="Permalink to this heading">#</a></h1>
 <p>There are 32 major internal nodes in the Pywr-DRB model consisting of 18 reservoirs and 14 locations along the across the stream network. Each node is connected to one or more other nodes via an <em>edge</em>.</p>
+<p>For a list of all major nodes in the model, refer to the Supplemental <a class="reference internal" href="pywr_drb_inflow_scenarios.html"><span class="doc std std-doc">Pywr-DRB Node List</span></a> page.</p>
 <p>More information about the default Pywr node classes can be found <a class="reference external" href="https://pywr.github.io/pywr/api/pywr.nodes.html#nodes-classes">in the Pywr documentation.</a></p>
 <section id="major-nodes">
 <h2>Major nodes<a class="headerlink" href="#major-nodes" title="Permalink to this heading">#</a></h2>
@@ -448,7 +448,7 @@ document.write(`
 <p>Each reservoir in the model is defined as a major node, using the <code class="docutils literal notranslate"><span class="pre">add_major_node()</span></code> function, and is also assigned the five corresponding minor nodes outlined in <a class="reference internal" href="#reservoir-node-table"><span class="std std-numref">Table 1</span></a>.</p>
 <p>The figure below shows the relationship between a reservoir node and its corresponding minor nodes:</p>
 <figure class="align-default" id="reservoir-node-schematic">
-<a class="reference internal image-reference" href="../images/reservoir_node_schematic.png"><img alt="../images/reservoir_node_schematic.png" src="../images/reservoir_node_schematic.png" /></a>
+<a class="reference internal image-reference" href="../_images/reservoir_node_schematic.png"><img alt="../_images/reservoir_node_schematic.png" src="../_images/reservoir_node_schematic.png" style="width: 328.5px; height: 491.5px;" /></a>
 <figcaption>
 <p><span class="caption-number">Fig. 6 </span><span class="caption-text">Graphical representation of reservoir nodes and corresponding minor nodes used in the Pywr-DRB model.</span><a class="headerlink" href="#reservoir-node-schematic" title="Permalink to this image">#</a></p>
 </figcaption>

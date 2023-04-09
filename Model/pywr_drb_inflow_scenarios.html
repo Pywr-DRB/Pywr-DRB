@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>Available Inflow Scenarios &#8212; Pywr-DRB Integrated Water Resource Management Model</title>
+    <title>Available inflow scenarios &#8212; Pywr-DRB Integrated Water Resource Management Model</title>
   
   
   
@@ -186,7 +186,6 @@ const thebe_selector_output = ".output, .cell_output"
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../Supplemental/supplemental.html">Supplemental Material</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../Supplemental/data_summary.html">Data Summary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../Supplemental/node_list.html">Pywr-DRB Node List</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../Supplemental/pub.html">Streamflow Prediction in Ungauged Basins</a></li>
 </ul>
@@ -361,7 +360,9 @@ document.write(`
   </button>
 `);
 </script>
-
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
 </div></div>
       
     </div>
@@ -372,11 +373,27 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Available Inflow Scenarios</h1>
+    <h1>Available inflow scenarios</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
             
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-data-requirements">Model data requirements</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#data-sources">Data sources</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#reconstructed-historic-record">Reconstructed historic record</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#national-water-model-nwm">National Water Model (NWM)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#national-hydrologic-model-nhm">National Hydrologic Model (NHM)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#water-evaluation-and-planning-system-weap-streamflows">Water Evaluation and Planning System (WEAP) Streamflows</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#data-availability">Data Availability</a></li>
+</ul>
+            </nav>
         </div>
     </div>
 </div>
@@ -387,7 +404,61 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section class="tex2jax_ignore mathjax_ignore" id="available-inflow-scenarios">
-<h1>Available Inflow Scenarios<a class="headerlink" href="#available-inflow-scenarios" title="Permalink to this heading">#</a></h1>
+<h1>Available inflow scenarios<a class="headerlink" href="#available-inflow-scenarios" title="Permalink to this heading">#</a></h1>
+<section id="model-data-requirements">
+<h2>Model data requirements<a class="headerlink" href="#model-data-requirements" title="Permalink to this heading">#</a></h2>
+<p>The Pywr-DRB model is designed to receive streamflow timeseries at 18 upstream catchments and 3 mainstem locations as inputs.</p>
+</section>
+<section id="data-sources">
+<h2>Data sources<a class="headerlink" href="#data-sources" title="Permalink to this heading">#</a></h2>
+<table class="table" id="id1">
+<caption><span class="caption-number">Table 2 </span><span class="caption-text">Streamflow Data Sources Available</span><a class="headerlink" href="#id1" title="Permalink to this table">#</a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>Data Source</p></th>
+<th class="head"><p>Reference Name</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Reconstructed Historic</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">obs_pub</span></code></p></td>
+<td><p>A combination of historic streamflow observations from USGS gauge stations and predictions of streamflow at ungauged locations. For more detail on ungauged predictions, see <span class="xref myst">Supplemental: Streamflow Prediction in Ungauged Basins.</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>National Water Model (NWM)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">nwmv21</span></code>, <code class="docutils literal notranslate"><span class="pre">nwmv21_withLakes</span></code></p></td>
+<td><p>The NWM is a forecasting system developed by the National Oceanic and Atmospheric Administration (NOAA) that predicts water availability, movement, and flooding across the United States.</p></td>
+</tr>
+<tr class="row-even"><td><p>National Hydrological Model (NHM)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">nhmv10</span></code></p></td>
+<td><p>The NHM is a hydrological model developed by the US Geological Survey (USGS) that simulates water movement and availability across the United States.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Water Evaluation and Planning (WEAP) Model</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">WEAP_gridmet</span></code></p></td>
+<td><p>Streamflows throughout the basin are generated within a <a class="reference external" href="https://www.weap21.org/index.asp">WEAP model</a> model of the basin. These streamflows have been gathered from the model and are available as comparative inputs.</p></td>
+</tr>
+</tbody>
+</table>
+<section id="reconstructed-historic-record">
+<h3>Reconstructed historic record<a class="headerlink" href="#reconstructed-historic-record" title="Permalink to this heading">#</a></h3>
+<p>A combination of historic streamflow observations from USGS gauge stations and predictions of streamflow at ungauged locations. For more detail on ungauged predictions, see <span class="xref myst">Supplemental: Streamflow Prediction in Ungauged Basins.</span></p>
+</section>
+<section id="national-water-model-nwm">
+<h3><a class="reference external" href="https://water.noaa.gov/about/nwm">National Water Model (NWM)</a><a class="headerlink" href="#national-water-model-nwm" title="Permalink to this heading">#</a></h3>
+<p>The NWM is a forecasting system developed by the National Oceanic and Atmospheric Administration (NOAA) that predicts water availability, movement, and flooding across the United States.</p>
+</section>
+<section id="national-hydrologic-model-nhm">
+<h3><a class="reference external" href="https://www.sciencebase.gov/catalog/item/4f4e4773e4b07f02db47e234">National Hydrologic Model (NHM)</a><a class="headerlink" href="#national-hydrologic-model-nhm" title="Permalink to this heading">#</a></h3>
+<p>The NHM is a hydrological model developed by the US Geological Survey (USGS) that simulates water movement and availability across the United States.</p>
+</section>
+<section id="water-evaluation-and-planning-system-weap-streamflows">
+<h3><a class="reference external" href="https://www.weap21.org/">Water Evaluation and Planning System (WEAP)</a> Streamflows<a class="headerlink" href="#water-evaluation-and-planning-system-weap-streamflows" title="Permalink to this heading">#</a></h3>
+<p>Streamflows throughout the basin are generated within a <a class="reference external" href="https://www.weap21.org/index.asp">WEAP model</a> model of the basin. These streamflows have been gathered from the model and are available as comparative inputs.</p>
+</section>
+</section>
+<section id="data-availability">
+<h2>Data Availability<a class="headerlink" href="#data-availability" title="Permalink to this heading">#</a></h2>
+<p>Streamflow data needed to run the Pywr-DRB model is available in the <a class="reference external" href="https://github.com/ahamilton144/DRB_water_management/tree/master/input_data"><code class="docutils literal notranslate"><span class="pre">input_data/</span></code> folder within the project repository.</a></p>
+</section>
 </section>
 
     <script type="text/x-thebe-config">
@@ -448,6 +519,28 @@ document.write(`
             </div>
             
             
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-data-requirements">Model data requirements</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#data-sources">Data sources</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#reconstructed-historic-record">Reconstructed historic record</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#national-water-model-nwm">National Water Model (NWM)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#national-hydrologic-model-nhm">National Hydrologic Model (NHM)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#water-evaluation-and-planning-system-weap-streamflows">Water Evaluation and Planning System (WEAP) Streamflows</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#data-availability">Data Availability</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>

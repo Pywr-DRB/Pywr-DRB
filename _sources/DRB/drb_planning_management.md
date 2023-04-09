@@ -6,7 +6,7 @@ The Delaware River Basin is a critical water resource in the United States, serv
 
 The Delaware River Basin is home to a wide variety of water users, including residential, agricultural, industrial, and recreational stakeholders. The basin provides drinking water to over 13.5 million people, supports a thriving agricultural sector, and sustains numerous manufacturing and energy production facilities.
 
-```{figure} ../../images/drb_water_supply_graphic.png
+```{figure} ../images/drb_water_supply_graphic.png
 :name: drb-population
 :scale: 70%
 :alt: A map which references the different populations which recieve water supplies from the Delaware River Basin.
