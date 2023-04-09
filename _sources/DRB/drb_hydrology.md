@@ -31,8 +31,6 @@ Info on 60's drought
 
 The Delaware River Basin is home to several large reservoirs that play a critical role in managing the Basin's water resources. These reservoirs are used for a variety of purposes including water supply, flood control, and power generation, and they are located throughout the Basin.
 
-The Pywr-DRB model simulates streamflow across the reservoirs throughout the Basin, and attempts to capture their impact on the downstream streamflow conditions.
-
 ```{figure} ../images/drb_reservoir_schematic.png
 :name: drb-reservoir-schematic
 :scale: 45%
@@ -49,7 +47,7 @@ The New York City Department of Environmental Protection owns and operates three
 
 Water from these reservoirs is conveyed to New York City through the Delaware Aqueduct, which is the longest tunnel in the world. The aqueduct spans over 85 miles and delivers 500-600 million gallons per day on average, roughly half of the city's water supply.
 
-```{figure} ../../images/nyc_reservoirs.png
+```{figure} ../images/nyc_reservoirs.png
 :name: nyc-reservoirs
 :scale: 30%
 

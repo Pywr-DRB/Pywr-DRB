@@ -402,7 +402,7 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="pywr-drb-model-structure">
 <h1>Pywr-DRB Model Structure<a class="headerlink" href="#pywr-drb-model-structure" title="Permalink to this heading">#</a></h1>
 <p>Pywr-DRB is an integrated water resource model of the Delaware River Basin (DRB) designed to assist in water resource decision making within the basin.</p>
-<p>The model is build using <a class="reference external" href="https://pywr.github.io/pywr/index.html">Pywr</a>, a opensource Python package for constructing resource allocation models.</p>
+<p>The model is build using <a class="reference external" href="https://pywr.github.io/pywr/index.html">Pywr</a>, an open-source Python package for constructing resource allocation models.</p>
 <section id="model-goals">
 <h2>Model Goals<a class="headerlink" href="#model-goals" title="Permalink to this heading">#</a></h2>
 <p>The Pywr-DRB model was constructed with the following goals:</p>
@@ -413,7 +413,7 @@ document.write(`
 </section>
 <section id="model-design">
 <h2>Model design<a class="headerlink" href="#model-design" title="Permalink to this heading">#</a></h2>
-<p>The Pywr-DRB model is designed to receive streamflow timeseries at 18 upstream catchments and 3 mainstem locations as inputs. The model simulates and outputs water supply deliveries, reservoir releases and storage levels, and streamflow volumes throughout the basin on a daily timestep.</p>
+<p>The Pywr-DRB model is designed to receive catchment inflow timeseries for 18 reservoirs and 14 other locations of interest such as USGS gages, minimum flow targets, and tributaries. The model simulates and outputs water supply diversions, reservoir releases and storage levels, and streamflows throughout the basin on a daily timestep.</p>
 <figure class="align-default" id="pywr-structure">
 <a class="reference internal image-reference" href="../_images/pywr_structure.jpg"><img alt="../_images/pywr_structure.jpg" src="../_images/pywr_structure.jpg" style="height: 350px;" /></a>
 <figcaption>
