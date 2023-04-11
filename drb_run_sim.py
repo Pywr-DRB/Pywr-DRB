@@ -12,7 +12,18 @@ else:
     backup_inflow_type = 'nhmv10'
 
 # inflow_type = 'nhmv10'  ### nhmv10, nwmv21, nwmv21_withLakes, obs, obs_pub, WEAP_23Aug2022_gridmet
-# backup_inflow_type = 'nhmv10'  ## for WEAP inflow type, we dont have all reservoirs. use this secondary type for missing.
+# backup_inflow_type = 'obs-pub'  ## for WEAP inflow type, we dont have all reservoirs. use this secondary type for missing.
+
+# ### assume we want to run the full range for each dataset
+# if inflow_type in ('nwmv21', 'nwmv21_withLakes', 'nhmv10'):
+#     start_date = '1983-10-01'
+#     end_date = '2016-12-31'
+# elif 'WEAP' in inflow_type:
+#     start_date = '1999-06-01'
+#     end_date = '2010-05-31'
+# elif inflow_type == 'obs_pub':
+#     start_date = '1999-01-01'
+#     end_date = '2016-12-31'
 
 start_date = '1999-06-01'
 end_date = '2010-05-31'
@@ -23,14 +34,6 @@ if 'WEAP' in inflow_type:
 else:
     output_filename = f'output_data/drb_output_{inflow_type}.hdf5'
 
-### import custom pywr params - register the name so it can be loaded from JSON
-# FfmpNjRunningAvgParameter.register()
-# VolBalanceNYCDemandTarget.register()
-# VolBalanceNYCDemandFinal.register()
-# VolBalanceNYCDownstreamMRFTargetAgg.register()
-# VolBalanceNYCDownstreamMRFTarget.register()
-# VolBalanceNYCDownstreamMRFFinal.register()
-# NYCCombinedReleaseFactor.register()
 
 ### make model json files
 drb_make_model(inflow_type, backup_inflow_type, start_date, end_date)

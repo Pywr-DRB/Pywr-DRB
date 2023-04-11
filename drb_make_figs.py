@@ -220,7 +220,7 @@ if __name__ == "__main__":
 
     ## System inputs
     rerun_all = True
-    # User-specified date range, or default to full simulation period
+    # User-specified date range, or default to minimum overlapping period across models
     start_date = sys.argv[1] if len(sys.argv) > 1 else '1999-06-01' 
     end_date = sys.argv[2] if len(sys.argv) > 2 else '2010-05-31'
 

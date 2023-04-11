@@ -57,7 +57,7 @@ def read_usgs_observations(filename, start_date, end_date, units = 'cms'):
 def match_gages(df, dataset_label):
     '''Matches USGS gage sites to nodes in Pywr-DRB.
     For reservoirs, the matched gages are actually downstream, but assume this flows into reservoir from upstream catchment.
-    For river nodes, upstream reservoir inflows are subtracted from the flow at mainstem USGS gage.
+    For river nodes, upstream reservoir inflows are subtracted from the flow at river node USGS gage.
     For nodes related to USGS gages downstream of reservoirs, currently redundant flow with assumed inflow, so subtracted additional catchment flow will be 0 until this is updated.
     Saves csv file, & returns dataframe whose columns are names of Pywr-DRB nodes.'''
 
