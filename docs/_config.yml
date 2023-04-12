@@ -2,7 +2,7 @@
 # Learn more at https://jupyterbook.org/customize/config.html
 
 title: Pywr-DRB Integrated Water Resource Management Model
-author: The Reed Group at Cornell CEE in Collaboration with USGS
+author: The Reed Group at Cornell CEE
 logo: logo.png
 
 # Force re-execution of notebooks on each build.
