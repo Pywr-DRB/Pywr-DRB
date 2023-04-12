@@ -12,12 +12,11 @@ A graphical representation of the Pywr-DRB model is shown below, where every oct
   </iframe>
 </div>
 
-## License
-This program is licensed under the MIT License. See the full license [here](https://github.com/Pywr-DRB/Pywr-DRB/blob/master/LICENSE).
-
-Copyright (c) 2023 Andrew Hamilton, Trevor Amestoy, Patrick Reed
-
 ## Contents
 ```{tableofcontents}
 ```
 
+## License
+This program is licensed under the MIT License. See the full license [here](https://github.com/Pywr-DRB/Pywr-DRB/blob/master/LICENSE).
+
+Copyright (c) 2023 Andrew Hamilton, Trevor Amestoy, Patrick Reed
