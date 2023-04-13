@@ -10900,14 +10900,14 @@
         },
         "demand_nyc": {
             "type": "dataframe",
-            "url": "../input_data/deliveryNYC_WEAP_23Aug2022_gridmet.csv",
+            "url": "../input_data/deliveryNYC_ODRM_extrapolated.csv",
             "column": "aggregate",
             "index_col": "datetime",
             "parse_dates": true
         },
         "demand_nj": {
             "type": "dataframe",
-            "url": "../input_data/deliveryNJ_WEAP_23Aug2022_gridmet.csv",
+            "url": "../input_data/deliveryNJ_WEAP_23Aug2022_gridmet_extrapolated.csv",
             "index_col": "datetime",
             "parse_dates": true
         },

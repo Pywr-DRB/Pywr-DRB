@@ -537,7 +537,7 @@ def drb_make_model(inflow_type, backup_inflow_type, start_date, end_date, use_hi
         ### if this flag is True, we assume demand is equal to historical deliveries timeseries
         model['parameters'][f'demand_nyc'] = {
             'type': 'dataframe',
-            'url': f'{input_dir}deliveryNYC_WEAP_23Aug2022_gridmet.csv',
+            'url': f'{input_dir}deliveryNYC_ODRM_extrapolated.csv',
             'column': 'aggregate',
             'index_col': 'datetime',
             'parse_dates': True
@@ -557,7 +557,7 @@ def drb_make_model(inflow_type, backup_inflow_type, start_date, end_date, use_hi
         ### if this flag is True, we assume demand is equal to historical deliveries timeseries
         model['parameters'][f'demand_nj'] = {
             'type': 'dataframe',
-            'url': f'{input_dir}deliveryNJ_WEAP_23Aug2022_gridmet.csv',
+            'url': f'{input_dir}deliveryNJ_WEAP_23Aug2022_gridmet_extrapolated.csv',
             'index_col': 'datetime',
             'parse_dates': True
         }

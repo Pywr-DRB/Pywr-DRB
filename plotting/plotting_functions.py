@@ -17,7 +17,7 @@ import hydroeval as he
 # Constants
 cms_to_mgd = 22.82
 cm_to_mg = 264.17/1e6
-cfs_to_mgd = 0.0283 * 22824465.32 / 1e6
+cfs_to_mgd = 0.645932368556
 
 # The USGS gage data available downstream of reservoirs
 reservoir_link_pairs = {'cannonsville': '01425000',
@@ -563,7 +563,7 @@ def compare_inflow_data(inflow_data, nodes,
         patch.set_facecolor((r,g,b,.0))
     plt.yscale('log')
     plt.savefig(f'{fig_dir}inflow_comparison_boxplot.png')
-    plt.show()
+    plt.close()
     return
 
 
