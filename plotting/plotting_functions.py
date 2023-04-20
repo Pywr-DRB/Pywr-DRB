@@ -11,6 +11,10 @@ from matplotlib import pyplot as plt
 from matplotlib.patches import Patch
 from matplotlib.lines import Line2D
 import hydroeval as he
+import h5py
+from scipy import stats
+
+
 
 
 
@@ -18,6 +22,15 @@ import hydroeval as he
 cms_to_mgd = 22.82
 cm_to_mg = 264.17/1e6
 cfs_to_mgd = 0.645932368556
+
+
+reservoir_list = ['cannonsville', 'pepacton', 'neversink', 'wallenpaupack', 'prompton', 'shoholaMarsh', \
+                   'mongaupeCombined', 'beltzvilleCombined', 'fewalter', 'merrillCreek', 'hopatcong', 'nockamixon', \
+                   'assunpink', 'ontelaunee', 'stillCreek', 'blueMarsh', 'greenLane', 'marshCreek']
+
+majorflow_list = ['delLordville', 'delMontague', 'delTrenton', 'outletAssunpink', 'outletSchuylkill', 'outletChristina',
+                  '01425000', '01417000', '01436000', '01433500', '01449800',
+                  '01447800', '01463620', '01470960']
 
 # The USGS gage data available downstream of reservoirs
 reservoir_link_pairs = {'cannonsville': '01425000',
@@ -28,6 +41,89 @@ reservoir_link_pairs = {'cannonsville': '01425000',
                            'fewalter': '01447800',
                            'assunpink': '01463620',
                            'blueMarsh': '01470960'}
+
+
+def get_pywr_results(output_dir, model, results_set='all', scenario=0):
+    '''
+    Gathers simulation results from Pywr model run and returns a pd.DataFrame.
+
+    :param output_dir:
+    :param model:
+    :param results_set: can be "all" to return all results,
+                            "res_release" to return reservoir releases (downstream gage comparison),
+                            "res_storage" to return resrvoir storages,
+                            "major_flow" to return flow at major flow points of interest,
+                            "inflow" to return the inflow at each catchment.
+    :return:
+    '''
+    with h5py.File(f'{output_dir}drb_output_{model}.hdf5', 'r') as f:
+        keys = list(f.keys())
+        first = 0
+        results = pd.DataFrame()
+        for k in keys:
+            if results_set == 'all':
+                results[k] = f[k][:, scenario]
+            elif results_set == 'res_release':
+                if k.split('_')[0] == 'outflow' and k.split('_')[1] in reservoir_list:
+                    results[k.split('_')[1]] = f[k][:, scenario]
+            elif results_set == 'res_storage':
+                if k.split('_')[0] == 'volume' and k.split('_')[1] in reservoir_list:
+                    results[k.split('_')[1]] = f[k][:, scenario]
+            elif results_set == 'major_flow':
+                if k.split('_')[0] == 'link' and k.split('_')[1] in majorflow_list:
+                    results[k.split('_')[1]] = f[k][:, scenario]
+            elif results_set == 'inflow':
+                if k.split('_')[0] == 'catchment':
+                    results[k.split('_')[1]] = f[k][:, scenario]
+            elif results_set == 'withdrawal':
+                if k.split('_')[0] == 'catchmentWithdrawal':
+                    results[k.split('_')[1]] = f[k][:, scenario]
+            elif results_set == 'consumption':
+                if k.split('_')[0] == 'catchmentConsumption':
+                    results[k.split('_')[1]] = f[k][:, scenario]
+            elif results_set in ('prev_flow_catchmentWithdrawal', 'max_flow_catchmentWithdrawal', 'max_flow_catchmentConsumption'):
+                if results_set in k:
+                    results[k.split('_')[-1]] = f[k][:, scenario]
+
+        day = [f['time'][i][0] for i in range(len(f['time']))]
+        month = [f['time'][i][2] for i in range(len(f['time']))]
+        year = [f['time'][i][3] for i in range(len(f['time']))]
+        date = [f'{y}-{m}-{d}' for y, m, d in zip(year, month, day)]
+        date = pd.to_datetime(date)
+        results.index = date
+        return results
+
+
+### load other flow estimates. each column represents modeled flow at USGS gage downstream of reservoir or gage on mainstem
+def get_base_results(input_dir, model, datetime_index, results_set='all'):
+    '''
+    function for retreiving & organizing results from non-pywr results (NHM, NWM, WEAP)
+    :param input_dir:
+    :param model:
+    :param datetime_index:
+    :param results_set: can be "all" to return all results,
+                            "res_release" to return reservoir releases (downstream gage comparison),
+                            "major_flow" to return flow at major flow points of interest
+    :return:
+    '''
+    gage_flow = pd.read_csv(f'{input_dir}gage_flow_{model}.csv')
+    gage_flow.index = pd.DatetimeIndex(gage_flow['datetime'])
+    gage_flow = gage_flow.drop('datetime', axis=1)
+    if results_set == 'res_release':
+        available_release_data = gage_flow.columns.intersection(reservoir_link_pairs.values())
+        # reservoirs_with_data = [[k for k,v in reservoir_link_pairs.items() if v == site][0] for site in available_release_data]
+        reservoirs_with_data = [list(filter(lambda x: reservoir_link_pairs[x] == site, reservoir_link_pairs))[0] for
+                                site in available_release_data]
+        gage_flow = gage_flow.loc[:, available_release_data]
+        gage_flow.columns = reservoirs_with_data
+    elif results_set == 'major_flow':
+        for c in gage_flow.columns:
+            if c not in majorflow_list:
+                gage_flow = gage_flow.drop(c, axis=1)
+    gage_flow = gage_flow.loc[datetime_index, :]
+    return gage_flow
+
+
 
 
 ### 3-part figure to visualize flow: timeseries, scatter plot, & flow duration curve. Can plot observed plus 1 or 2 modeled series.
@@ -186,6 +282,56 @@ def plot_weekly_flow_distributions(results, models, node, colors=['0.5', '#67a9c
     plt.close()
     return
 
+
+
+def get_error_metrics(results, models, nodes):
+    """Generate error metrics (NSE, KGE, correlation, bias, etc.) for a specific model and node.
+
+    Args:
+        results (dict): Dictionary containing dataframes of results.
+        models (list): List of model names (str).
+        nodes (list): List of node names (str).
+
+    Returns:
+        pd.DataFrame: Dataframe containing all error metrics.
+    """
+    ### compile error across models/nodes/metrics
+    for j, node in enumerate(nodes):
+        obs = results['obs'][node]
+        for i, m in enumerate(models):
+            # print(node, m)
+            # print(results[m])
+            modeled = results[m][node]
+
+            ### only do models with nonzero entries (eg remove some weap)
+            if np.sum(modeled) > 0:
+                ### get kge & nse
+                kge, r, alpha, beta = he.evaluator(he.kge, modeled, obs)
+                nse = he.evaluator(he.nse, modeled, obs)
+                logkge, logr, logalpha, logbeta = he.evaluator(he.kge, modeled, obs, transform='log')
+                lognse = he.evaluator(he.nse, modeled, obs, transform='log')
+
+                ### get Kolmogorov-Smirnov Statistic, & metric is 1 minus this (1 in ideal case, 0 in worst case)
+                kss, _ = stats.ks_2samp(modeled, obs)
+                kss = 1 - kss
+
+                resultsdict = {'nse': nse[0], 'kge': kge[0], 'r': r[0], 'alpha': alpha[0], 'beta': beta[0],
+                               'lognse': lognse[0], 'logkge': logkge[0], 'logr': logr[0], 'logalpha': logalpha[0],
+                               'logbeta': logbeta[0], 'kss': kss}
+
+                resultsdict['node'] = node
+                resultsdict['model'] = m
+                if i == 0 and j == 0:
+                    results_metrics = pd.DataFrame(resultsdict, index=[0])
+                else:
+                    results_metrics = results_metrics.append(pd.DataFrame(resultsdict, index=[0]))
+
+    results_metrics.reset_index(inplace=True, drop=True)
+    return results_metrics
+
+
+
+
 ### radial plots across diff metrics/reservoirs/models.
 ### following galleries here https://www.python-graph-gallery.com/circular-barplot-with-groups
 def plot_radial_error_metrics(results_metrics, radial_models, nodes, useNonPep = True, useweap = True, usepywr = True, usemajorflows=False, fig_dir = 'figs/'):
@@ -194,16 +340,18 @@ def plot_radial_error_metrics(results_metrics, radial_models, nodes, useNonPep =
 
     metrics = ['nse', 'kge', 'r', 'alpha', 'beta', 'kss', 'lognse', 'logkge']
 
-    colordict = {'obs_pub':'#097320', 'nhmv10': '#66c2a5', 'nwmv21': '#8da0cb', 'nwmv21_withLakes': '#8da0cb', 'WEAP_23Aug2022_gridmet': '#fc8d62',
-                 'pywr_obs_pub':'#097320', 'pywr_nhmv10': '#66c2a5', 'pywr_nwmv21': '#8da0cb', 'pywr_nwmv21_withLakes': '#8da0cb',
+    colordict = {'obs_pub':'#fc8d62', 'pywr_obs_pub':'#fc8d62', #'#097320',
+                 'nhmv10': '#66c2a5', 'nwmv21': '#8da0cb', 'nwmv21_withLakes': '#8da0cb', 'WEAP_23Aug2022_gridmet': '#fc8d62',
+                  'pywr_nhmv10': '#66c2a5', 'pywr_nwmv21': '#8da0cb', 'pywr_nwmv21_withLakes': '#8da0cb',
                  'pywr_WEAP_23Aug2022_gridmet_nhmv10': '#fc8d62'}
     hatchdict = {'obs_pub': '', 'nhmv10': '', 'nwmv21': '', 'nwmv21_withLakes': '', 'WEAP_23Aug2022_gridmet': '', 'pywr_nhmv10': '///',
                  'pywr_obs_pub': '///', 'pywr_nwmv21': '///', 'pywr_nwmv21_withLakes': '///', 'pywr_WEAP_23Aug2022_gridmet_nhmv10': '///'}
     edgedict = {'obs_pub':'w', 'nhmv10': 'w', 'nwmv21': 'w', 'nwmv21_withLakes': 'w', 'WEAP_23Aug2022_gridmet': 'w',
                 'pywr_obs_pub':'w', 'pywr_nhmv10': 'w', 'pywr_nwmv21': 'w', 'pywr_nwmv21_withLakes': 'w', 'pywr_WEAP_23Aug2022_gridmet_nhmv10': 'w'}
     nodelabeldict = {'pepacton': 'Pep', 'cannonsville': 'Can', 'neversink': 'Nev', 'prompton': 'Pro', 'assunpink': 'AspRes',\
-                    'beltzvilleCombined': 'Bel', 'blueMarsh': 'Blu', 'mongaupeCombined': 'MonGop',\
-                    'delLordville':'Lor', 'delMontague':'Mon', 'delTrenton':'Tre', 'outletAssunpink':'Asp', 'outletSchuylkill':'Sch','outletChristina':'Chr'}
+                    'beltzvilleCombined': 'Bel', 'blueMarsh': 'Blu', 'mongaupeCombined': 'Mgp', 'fewalter': 'FEW',\
+                    'delLordville':'Lor', 'delMontague':'Mtg', 'delTrenton':'Tre', 'outletAssunpink':'Asp', \
+                     'outletSchuylkill':'Sch','outletChristina':'Chr'}
     titledict = {'nse': 'NSE', 'kge': 'KGE', 'r': 'Correlation', 'alpha': 'Relative STD', 'beta': 'Relative Bias',
                  'kss': 'K-S Statistic', 'lognse': 'LogNSE', 'logkge': 'LogKGE'}
 
@@ -276,10 +424,7 @@ def plot_radial_error_metrics(results_metrics, radial_models, nodes, useNonPep =
             ax.plot([angle, angle], [yrings[0], yrings[-1] + 0.1], color='0.8', zorder=1)
 
         ### Add bars
-        ax.bar(
-            angles[idxs], values, width=width, linewidth=0.5,
-            color=colors, hatch=hatches, edgecolor=edges, zorder=2,
-        )
+        ax.bar(angles[idxs], values, width=width, linewidth=0.5, color=colors, hatch=hatches, edgecolor=edges, zorder=2)
 
         ### customization to add group annotations
         offset = 0
@@ -340,6 +485,62 @@ def plot_radial_error_metrics(results_metrics, radial_models, nodes, useNonPep =
     fig.savefig(f'{fig_dir}/radialMetrics_{filename_mod}.png', bbox_inches='tight', dpi=300)
     plt.close()
     return
+
+
+
+### get measures of reliability, resilience, and vulnerability from Hashimoto et al 1982, WRR
+def get_RRV_metrics(results, models, nodes):
+    thresholds = {'delMontague': 1131.05, 'delTrenton': 1938.950669}  ### FFMP flow targets (MGD)
+    eps = 1e-9
+    thresholds = {k: v - eps for k, v in thresholds.items()}
+    for j, node in enumerate(nodes):
+        for i, m in enumerate(models):
+            modeled = results[m][node]
+
+            ### only do models with nonzero entries (eg remove some weap)
+            if np.sum(modeled) > 0:
+
+                ### reliability is the fraction of time steps above threshold
+                reliability = (modeled > thresholds[node]).mean()
+                ### resiliency is the probability of recovering to above threshold if currently under threshold
+                if reliability < 1 - eps:
+                    resiliency = np.logical_and((modeled.iloc[:-1] < thresholds[node]).reset_index(drop=True), \
+                                                (modeled.iloc[1:] >= thresholds[node]).reset_index(drop=True)).mean() / \
+                                 (1 - reliability)
+                else:
+                    resiliency = np.nan
+                ### vulnerability is the expected maximum severity of a failure event
+                if reliability > eps:
+                    max_shortfalls = []
+                    max_shortfall = 0
+                    in_event = False
+                    for i in range(len(modeled)):
+                        v = modeled.iloc[i]
+                        if v < thresholds[node]:
+                            in_event = True
+                            s = thresholds[node] - v
+                            max_shortfall = max(max_shortfall, s)
+                        else:
+                            if in_event:
+                                max_shortfalls.append(max_shortfall)
+                                in_event = False
+                    vulnerability = np.mean(max_shortfalls)
+                else:
+                    vulnerability = np.nan
+
+                resultsdict = {'reliability': reliability, 'resiliency': resiliency, 'vulnerability': vulnerability}
+
+                resultsdict['node'] = node
+                resultsdict['model'] = m
+                try:
+                    rrv_metrics = rrv_metrics.append(pd.DataFrame(resultsdict, index=[0]))
+                except:
+                    rrv_metrics = pd.DataFrame(resultsdict, index=[0])
+
+    rrv_metrics.reset_index(inplace=True, drop=True)
+    return rrv_metrics
+
+
 
 
 ### histogram of reliability, resiliency, & vulnerability for different models & nodes
@@ -541,7 +742,7 @@ def compare_inflow_data(inflow_data, nodes,
     
     pub_df = inflow_data['obs_pub'].loc[:,nodes]
     nhm_df = inflow_data['nhmv10'].loc[:,nodes]
-    nwm_df = inflow_data['nwmv21'].loc[:,nodes]
+    nwm_df = inflow_data['nwmv21_withLakes'].loc[:,nodes]
     #weap_df = inflow_data['WEAP_23Aug2022_gridmet_nhmv10']  
     
     pub_df= pub_df.assign(Dataset='PUB')

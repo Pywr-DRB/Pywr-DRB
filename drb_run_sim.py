@@ -15,18 +15,16 @@ else:
 # backup_inflow_type = 'obs-pub'  ## for WEAP inflow type, we dont have all reservoirs. use this secondary type for missing.
 
 ### assume we want to run the full range for each dataset
-if inflow_type in ('nwmv21', 'nwmv21_withLakes', 'nhmv10'):
-    start_date = '1983-10-01'
-    end_date = '2016-12-31'
-elif 'WEAP' in inflow_type:
-    start_date = '1999-06-01'
-    end_date = '2010-05-31'
-elif inflow_type == 'obs_pub':
-    start_date = '1999-01-01'
-    end_date = '2016-12-31'
+# if inflow_type in ('nwmv21', 'nwmv21_withLakes', 'nhmv10', 'obs_pub'):
+#     start_date = '1983-10-01'
+#     end_date = '2016-12-31'
+# elif 'WEAP' in inflow_type:
+#     start_date = '1999-06-01'
+#     end_date = '2010-05-31'
 
-# start_date = '1999-06-01'
-# end_date = '2010-05-31'
+
+start_date = '1999-06-01'
+end_date = '2010-05-31'
 
 model_filename = 'model_data/drb_model_full.json'
 if 'WEAP' in inflow_type:

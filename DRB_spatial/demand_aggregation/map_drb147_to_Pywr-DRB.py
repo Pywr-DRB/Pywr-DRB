@@ -9,10 +9,10 @@ DRB_data_dir = '../DRB_shapefiles/'
 input_data_dir = '../../input_data/'
 
 ### catchments from model
-g1 = gpd.GeoDataFrame.from_file('../node_basin_geometries.shp')
+g1 = gpd.GeoDataFrame.from_file(f'{DRB_data_dir}node_basin_geometries.shp')
 
 ### drop gages where more than one listed for a node
-g1 = g1.iloc[[i for i in g1.index if g1['station'].iloc[i] not in ['01432110', '01480015', '01479000', '01478000']],:]
+# g1 = g1.iloc[[i for i in g1.index if g1['station'].iloc[i] not in ['01432110', '01480015', '01479000', '01478000']],:]
 
 ### correct name for montague
 g1['node'] = [s if s != 'link_delMontague_dsDelaware' else 'link_delMontague' for s in g1['node']]
@@ -150,6 +150,12 @@ sw_model.columns = sw_model.columns.to_flat_index()
 sw_model.columns = [l[0] + '_' + l[1] for l in sw_model.columns]
 gw_model.columns = gw_model.columns.to_flat_index()
 gw_model.columns = [l[0] + '_' + l[1] for l in gw_model.columns]
+
+
+
+### get ratio of consumption to withdrawal
+sw_model['Total_CU_WD_Ratio'] = sw_model['Total_CU_MGD'] / sw_model['Total_WD_MGD']
+gw_model['Total_CU_WD_Ratio'] = gw_model['Total_CU_MGD'] / gw_model['Total_WD_MGD']
 
 ### we don't have a USGS gauge for Merrill Creek so it doesn't show up in this aggregation.
 ### Set demands as zero for now, but need to come back to the question of

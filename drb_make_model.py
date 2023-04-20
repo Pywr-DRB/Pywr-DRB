@@ -371,12 +371,25 @@ def add_major_node(model, name, node_type, inflow_type, backup_inflow_type=None,
             'value': 0.
         }
     else:
-        model['parameters'][f'max_flow_catchmentConsumption_{name}'] = {
+        ### assume the consumption_t = R * withdrawal_{t-1}, where R is the ratio of avg consumption to withdrawal from DRBC data
+        model['parameters'][f'catchmentConsumptionRatio_{name}'] = {
             'type': 'constant',
             'url': '../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv',
-            'column': 'Total_CU_MGD',
+            'column': 'Total_CU_WD_Ratio',
             'index_col': 'node',
             'index': node_name
+        }
+        model['parameters'][f'prev_flow_catchmentWithdrawal_{name}'] = {
+            'type': 'flow',
+            'node': f'catchmentWithdrawal_{name}'
+        }
+        model['parameters'][f'max_flow_catchmentConsumption_{name}'] = {
+            'type': 'aggregated',
+            'agg_func': 'product',
+            'parameters': [
+                f'catchmentConsumptionRatio_{name}',
+                f'prev_flow_catchmentWithdrawal_{name}'
+            ]
         }
 
     return model

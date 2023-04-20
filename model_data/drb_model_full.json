@@ -1839,12 +1839,24 @@
             "index_col": "node",
             "index": "reservoir_cannonsville"
         },
-        "max_flow_catchmentConsumption_cannonsville": {
+        "catchmentConsumptionRatio_cannonsville": {
             "type": "constant",
             "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
-            "column": "Total_CU_MGD",
+            "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "reservoir_cannonsville"
+        },
+        "prev_flow_catchmentWithdrawal_cannonsville": {
+            "type": "flow",
+            "node": "catchmentWithdrawal_cannonsville"
+        },
+        "max_flow_catchmentConsumption_cannonsville": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "catchmentConsumptionRatio_cannonsville",
+                "prev_flow_catchmentWithdrawal_cannonsville"
+            ]
         },
         "flow_01425000": {
             "type": "constant",
@@ -1887,12 +1899,24 @@
             "index_col": "node",
             "index": "reservoir_pepacton"
         },
-        "max_flow_catchmentConsumption_pepacton": {
+        "catchmentConsumptionRatio_pepacton": {
             "type": "constant",
             "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
-            "column": "Total_CU_MGD",
+            "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "reservoir_pepacton"
+        },
+        "prev_flow_catchmentWithdrawal_pepacton": {
+            "type": "flow",
+            "node": "catchmentWithdrawal_pepacton"
+        },
+        "max_flow_catchmentConsumption_pepacton": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "catchmentConsumptionRatio_pepacton",
+                "prev_flow_catchmentWithdrawal_pepacton"
+            ]
         },
         "flow_01417000": {
             "type": "constant",
@@ -1928,12 +1952,24 @@
             "index_col": "node",
             "index": "link_delLordville"
         },
-        "max_flow_catchmentConsumption_delLordville": {
+        "catchmentConsumptionRatio_delLordville": {
             "type": "constant",
             "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
-            "column": "Total_CU_MGD",
+            "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "link_delLordville"
+        },
+        "prev_flow_catchmentWithdrawal_delLordville": {
+            "type": "flow",
+            "node": "catchmentWithdrawal_delLordville"
+        },
+        "max_flow_catchmentConsumption_delLordville": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "catchmentConsumptionRatio_delLordville",
+                "prev_flow_catchmentWithdrawal_delLordville"
+            ]
         },
         "flow_base_neversink": {
             "type": "dataframe",
@@ -1964,12 +2000,24 @@
             "index_col": "node",
             "index": "reservoir_neversink"
         },
-        "max_flow_catchmentConsumption_neversink": {
+        "catchmentConsumptionRatio_neversink": {
             "type": "constant",
             "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
-            "column": "Total_CU_MGD",
+            "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "reservoir_neversink"
+        },
+        "prev_flow_catchmentWithdrawal_neversink": {
+            "type": "flow",
+            "node": "catchmentWithdrawal_neversink"
+        },
+        "max_flow_catchmentConsumption_neversink": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "catchmentConsumptionRatio_neversink",
+                "prev_flow_catchmentWithdrawal_neversink"
+            ]
         },
         "flow_01436000": {
             "type": "constant",
@@ -2553,12 +2601,24 @@
             "index_col": "node",
             "index": "reservoir_wallenpaupack"
         },
-        "max_flow_catchmentConsumption_wallenpaupack": {
+        "catchmentConsumptionRatio_wallenpaupack": {
             "type": "constant",
             "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
-            "column": "Total_CU_MGD",
+            "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "reservoir_wallenpaupack"
+        },
+        "prev_flow_catchmentWithdrawal_wallenpaupack": {
+            "type": "flow",
+            "node": "catchmentWithdrawal_wallenpaupack"
+        },
+        "max_flow_catchmentConsumption_wallenpaupack": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "catchmentConsumptionRatio_wallenpaupack",
+                "prev_flow_catchmentWithdrawal_wallenpaupack"
+            ]
         },
         "flow_base_prompton": {
             "type": "dataframe",
@@ -3130,12 +3190,24 @@
             "index_col": "node",
             "index": "reservoir_prompton"
         },
-        "max_flow_catchmentConsumption_prompton": {
+        "catchmentConsumptionRatio_prompton": {
             "type": "constant",
             "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
-            "column": "Total_CU_MGD",
+            "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "reservoir_prompton"
+        },
+        "prev_flow_catchmentWithdrawal_prompton": {
+            "type": "flow",
+            "node": "catchmentWithdrawal_prompton"
+        },
+        "max_flow_catchmentConsumption_prompton": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "catchmentConsumptionRatio_prompton",
+                "prev_flow_catchmentWithdrawal_prompton"
+            ]
         },
         "flow_base_shoholaMarsh": {
             "type": "dataframe",
@@ -3707,12 +3779,24 @@
             "index_col": "node",
             "index": "reservoir_shoholaMarsh"
         },
-        "max_flow_catchmentConsumption_shoholaMarsh": {
+        "catchmentConsumptionRatio_shoholaMarsh": {
             "type": "constant",
             "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
-            "column": "Total_CU_MGD",
+            "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "reservoir_shoholaMarsh"
+        },
+        "prev_flow_catchmentWithdrawal_shoholaMarsh": {
+            "type": "flow",
+            "node": "catchmentWithdrawal_shoholaMarsh"
+        },
+        "max_flow_catchmentConsumption_shoholaMarsh": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "catchmentConsumptionRatio_shoholaMarsh",
+                "prev_flow_catchmentWithdrawal_shoholaMarsh"
+            ]
         },
         "flow_base_mongaupeCombined": {
             "type": "dataframe",
@@ -4284,12 +4368,24 @@
             "index_col": "node",
             "index": "reservoir_mongaupeCombined"
         },
-        "max_flow_catchmentConsumption_mongaupeCombined": {
+        "catchmentConsumptionRatio_mongaupeCombined": {
             "type": "constant",
             "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
-            "column": "Total_CU_MGD",
+            "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "reservoir_mongaupeCombined"
+        },
+        "prev_flow_catchmentWithdrawal_mongaupeCombined": {
+            "type": "flow",
+            "node": "catchmentWithdrawal_mongaupeCombined"
+        },
+        "max_flow_catchmentConsumption_mongaupeCombined": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "catchmentConsumptionRatio_mongaupeCombined",
+                "prev_flow_catchmentWithdrawal_mongaupeCombined"
+            ]
         },
         "flow_01433500": {
             "type": "constant",
@@ -4325,12 +4421,24 @@
             "index_col": "node",
             "index": "link_delMontague"
         },
-        "max_flow_catchmentConsumption_delMontague": {
+        "catchmentConsumptionRatio_delMontague": {
             "type": "constant",
             "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
-            "column": "Total_CU_MGD",
+            "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "link_delMontague"
+        },
+        "prev_flow_catchmentWithdrawal_delMontague": {
+            "type": "flow",
+            "node": "catchmentWithdrawal_delMontague"
+        },
+        "max_flow_catchmentConsumption_delMontague": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "catchmentConsumptionRatio_delMontague",
+                "prev_flow_catchmentWithdrawal_delMontague"
+            ]
         },
         "flow_base_beltzvilleCombined": {
             "type": "dataframe",
@@ -4902,12 +5010,24 @@
             "index_col": "node",
             "index": "reservoir_beltzvilleCombined"
         },
-        "max_flow_catchmentConsumption_beltzvilleCombined": {
+        "catchmentConsumptionRatio_beltzvilleCombined": {
             "type": "constant",
             "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
-            "column": "Total_CU_MGD",
+            "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "reservoir_beltzvilleCombined"
+        },
+        "prev_flow_catchmentWithdrawal_beltzvilleCombined": {
+            "type": "flow",
+            "node": "catchmentWithdrawal_beltzvilleCombined"
+        },
+        "max_flow_catchmentConsumption_beltzvilleCombined": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "catchmentConsumptionRatio_beltzvilleCombined",
+                "prev_flow_catchmentWithdrawal_beltzvilleCombined"
+            ]
         },
         "flow_01449800": {
             "type": "constant",
@@ -5491,12 +5611,24 @@
             "index_col": "node",
             "index": "reservoir_fewalter"
         },
-        "max_flow_catchmentConsumption_fewalter": {
+        "catchmentConsumptionRatio_fewalter": {
             "type": "constant",
             "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
-            "column": "Total_CU_MGD",
+            "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "reservoir_fewalter"
+        },
+        "prev_flow_catchmentWithdrawal_fewalter": {
+            "type": "flow",
+            "node": "catchmentWithdrawal_fewalter"
+        },
+        "max_flow_catchmentConsumption_fewalter": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "catchmentConsumptionRatio_fewalter",
+                "prev_flow_catchmentWithdrawal_fewalter"
+            ]
         },
         "flow_01447800": {
             "type": "constant",
@@ -6080,12 +6212,24 @@
             "index_col": "node",
             "index": "reservoir_merrillCreek"
         },
-        "max_flow_catchmentConsumption_merrillCreek": {
+        "catchmentConsumptionRatio_merrillCreek": {
             "type": "constant",
             "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
-            "column": "Total_CU_MGD",
+            "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "reservoir_merrillCreek"
+        },
+        "prev_flow_catchmentWithdrawal_merrillCreek": {
+            "type": "flow",
+            "node": "catchmentWithdrawal_merrillCreek"
+        },
+        "max_flow_catchmentConsumption_merrillCreek": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "catchmentConsumptionRatio_merrillCreek",
+                "prev_flow_catchmentWithdrawal_merrillCreek"
+            ]
         },
         "flow_base_hopatcong": {
             "type": "dataframe",
@@ -6657,12 +6801,24 @@
             "index_col": "node",
             "index": "reservoir_hopatcong"
         },
-        "max_flow_catchmentConsumption_hopatcong": {
+        "catchmentConsumptionRatio_hopatcong": {
             "type": "constant",
             "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
-            "column": "Total_CU_MGD",
+            "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "reservoir_hopatcong"
+        },
+        "prev_flow_catchmentWithdrawal_hopatcong": {
+            "type": "flow",
+            "node": "catchmentWithdrawal_hopatcong"
+        },
+        "max_flow_catchmentConsumption_hopatcong": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "catchmentConsumptionRatio_hopatcong",
+                "prev_flow_catchmentWithdrawal_hopatcong"
+            ]
         },
         "flow_base_nockamixon": {
             "type": "dataframe",
@@ -7234,12 +7390,24 @@
             "index_col": "node",
             "index": "reservoir_nockamixon"
         },
-        "max_flow_catchmentConsumption_nockamixon": {
+        "catchmentConsumptionRatio_nockamixon": {
             "type": "constant",
             "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
-            "column": "Total_CU_MGD",
+            "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "reservoir_nockamixon"
+        },
+        "prev_flow_catchmentWithdrawal_nockamixon": {
+            "type": "flow",
+            "node": "catchmentWithdrawal_nockamixon"
+        },
+        "max_flow_catchmentConsumption_nockamixon": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "catchmentConsumptionRatio_nockamixon",
+                "prev_flow_catchmentWithdrawal_nockamixon"
+            ]
         },
         "flow_base_delTrenton": {
             "type": "dataframe",
@@ -7263,12 +7431,24 @@
             "index_col": "node",
             "index": "link_delTrenton"
         },
-        "max_flow_catchmentConsumption_delTrenton": {
+        "catchmentConsumptionRatio_delTrenton": {
             "type": "constant",
             "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
-            "column": "Total_CU_MGD",
+            "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "link_delTrenton"
+        },
+        "prev_flow_catchmentWithdrawal_delTrenton": {
+            "type": "flow",
+            "node": "catchmentWithdrawal_delTrenton"
+        },
+        "max_flow_catchmentConsumption_delTrenton": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "catchmentConsumptionRatio_delTrenton",
+                "prev_flow_catchmentWithdrawal_delTrenton"
+            ]
         },
         "flow_base_assunpink": {
             "type": "dataframe",
@@ -7840,12 +8020,24 @@
             "index_col": "node",
             "index": "reservoir_assunpink"
         },
-        "max_flow_catchmentConsumption_assunpink": {
+        "catchmentConsumptionRatio_assunpink": {
             "type": "constant",
             "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
-            "column": "Total_CU_MGD",
+            "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "reservoir_assunpink"
+        },
+        "prev_flow_catchmentWithdrawal_assunpink": {
+            "type": "flow",
+            "node": "catchmentWithdrawal_assunpink"
+        },
+        "max_flow_catchmentConsumption_assunpink": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "catchmentConsumptionRatio_assunpink",
+                "prev_flow_catchmentWithdrawal_assunpink"
+            ]
         },
         "flow_01463620": {
             "type": "constant",
@@ -7881,12 +8073,24 @@
             "index_col": "node",
             "index": "link_outletAssunpink"
         },
-        "max_flow_catchmentConsumption_outletAssunpink": {
+        "catchmentConsumptionRatio_outletAssunpink": {
             "type": "constant",
             "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
-            "column": "Total_CU_MGD",
+            "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "link_outletAssunpink"
+        },
+        "prev_flow_catchmentWithdrawal_outletAssunpink": {
+            "type": "flow",
+            "node": "catchmentWithdrawal_outletAssunpink"
+        },
+        "max_flow_catchmentConsumption_outletAssunpink": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "catchmentConsumptionRatio_outletAssunpink",
+                "prev_flow_catchmentWithdrawal_outletAssunpink"
+            ]
         },
         "flow_base_ontelaunee": {
             "type": "dataframe",
@@ -8458,12 +8662,24 @@
             "index_col": "node",
             "index": "reservoir_ontelaunee"
         },
-        "max_flow_catchmentConsumption_ontelaunee": {
+        "catchmentConsumptionRatio_ontelaunee": {
             "type": "constant",
             "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
-            "column": "Total_CU_MGD",
+            "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "reservoir_ontelaunee"
+        },
+        "prev_flow_catchmentWithdrawal_ontelaunee": {
+            "type": "flow",
+            "node": "catchmentWithdrawal_ontelaunee"
+        },
+        "max_flow_catchmentConsumption_ontelaunee": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "catchmentConsumptionRatio_ontelaunee",
+                "prev_flow_catchmentWithdrawal_ontelaunee"
+            ]
         },
         "flow_base_stillCreek": {
             "type": "dataframe",
@@ -9035,12 +9251,24 @@
             "index_col": "node",
             "index": "reservoir_stillCreek"
         },
-        "max_flow_catchmentConsumption_stillCreek": {
+        "catchmentConsumptionRatio_stillCreek": {
             "type": "constant",
             "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
-            "column": "Total_CU_MGD",
+            "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "reservoir_stillCreek"
+        },
+        "prev_flow_catchmentWithdrawal_stillCreek": {
+            "type": "flow",
+            "node": "catchmentWithdrawal_stillCreek"
+        },
+        "max_flow_catchmentConsumption_stillCreek": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "catchmentConsumptionRatio_stillCreek",
+                "prev_flow_catchmentWithdrawal_stillCreek"
+            ]
         },
         "flow_base_blueMarsh": {
             "type": "dataframe",
@@ -9612,12 +9840,24 @@
             "index_col": "node",
             "index": "reservoir_blueMarsh"
         },
-        "max_flow_catchmentConsumption_blueMarsh": {
+        "catchmentConsumptionRatio_blueMarsh": {
             "type": "constant",
             "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
-            "column": "Total_CU_MGD",
+            "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "reservoir_blueMarsh"
+        },
+        "prev_flow_catchmentWithdrawal_blueMarsh": {
+            "type": "flow",
+            "node": "catchmentWithdrawal_blueMarsh"
+        },
+        "max_flow_catchmentConsumption_blueMarsh": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "catchmentConsumptionRatio_blueMarsh",
+                "prev_flow_catchmentWithdrawal_blueMarsh"
+            ]
         },
         "flow_01470960": {
             "type": "constant",
@@ -10201,12 +10441,24 @@
             "index_col": "node",
             "index": "reservoir_greenLane"
         },
-        "max_flow_catchmentConsumption_greenLane": {
+        "catchmentConsumptionRatio_greenLane": {
             "type": "constant",
             "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
-            "column": "Total_CU_MGD",
+            "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "reservoir_greenLane"
+        },
+        "prev_flow_catchmentWithdrawal_greenLane": {
+            "type": "flow",
+            "node": "catchmentWithdrawal_greenLane"
+        },
+        "max_flow_catchmentConsumption_greenLane": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "catchmentConsumptionRatio_greenLane",
+                "prev_flow_catchmentWithdrawal_greenLane"
+            ]
         },
         "flow_base_outletSchuylkill": {
             "type": "dataframe",
@@ -10230,12 +10482,24 @@
             "index_col": "node",
             "index": "link_outletSchuylkill"
         },
-        "max_flow_catchmentConsumption_outletSchuylkill": {
+        "catchmentConsumptionRatio_outletSchuylkill": {
             "type": "constant",
             "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
-            "column": "Total_CU_MGD",
+            "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "link_outletSchuylkill"
+        },
+        "prev_flow_catchmentWithdrawal_outletSchuylkill": {
+            "type": "flow",
+            "node": "catchmentWithdrawal_outletSchuylkill"
+        },
+        "max_flow_catchmentConsumption_outletSchuylkill": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "catchmentConsumptionRatio_outletSchuylkill",
+                "prev_flow_catchmentWithdrawal_outletSchuylkill"
+            ]
         },
         "flow_base_marshCreek": {
             "type": "dataframe",
@@ -10807,12 +11071,24 @@
             "index_col": "node",
             "index": "reservoir_marshCreek"
         },
-        "max_flow_catchmentConsumption_marshCreek": {
+        "catchmentConsumptionRatio_marshCreek": {
             "type": "constant",
             "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
-            "column": "Total_CU_MGD",
+            "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "reservoir_marshCreek"
+        },
+        "prev_flow_catchmentWithdrawal_marshCreek": {
+            "type": "flow",
+            "node": "catchmentWithdrawal_marshCreek"
+        },
+        "max_flow_catchmentConsumption_marshCreek": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "catchmentConsumptionRatio_marshCreek",
+                "prev_flow_catchmentWithdrawal_marshCreek"
+            ]
         },
         "flow_base_outletChristina": {
             "type": "dataframe",
@@ -10836,12 +11112,24 @@
             "index_col": "node",
             "index": "link_outletChristina"
         },
-        "max_flow_catchmentConsumption_outletChristina": {
+        "catchmentConsumptionRatio_outletChristina": {
             "type": "constant",
             "url": "../input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
-            "column": "Total_CU_MGD",
+            "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "link_outletChristina"
+        },
+        "prev_flow_catchmentWithdrawal_outletChristina": {
+            "type": "flow",
+            "node": "catchmentWithdrawal_outletChristina"
+        },
+        "max_flow_catchmentConsumption_outletChristina": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "catchmentConsumptionRatio_outletChristina",
+                "prev_flow_catchmentWithdrawal_outletChristina"
+            ]
         },
         "flow_factor": {
             "type": "constantscenario",
