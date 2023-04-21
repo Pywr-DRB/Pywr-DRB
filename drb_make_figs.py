@@ -5,7 +5,7 @@ import sys
 from plotting.plotting_functions import *
 
 ### I was having trouble with interactive console plotting in Pycharm for some reason - comment this out if you want to use that and not having issues
-mpl.use('TkAgg')
+#mpl.use('TkAgg')
 
 ### directories
 output_dir = 'output_data/'
@@ -43,7 +43,7 @@ reservoir_link_pairs = {'cannonsville': '01425000',
 if __name__ == "__main__":
 
     ## System inputs
-    rerun_all = False
+    rerun_all = True
     use_WEAP = False
 
     # User-specified date range, or default to minimum overlapping period across models
@@ -140,7 +140,7 @@ if __name__ == "__main__":
     if use_WEAP:
         radial_models = ['nhmv10', 'nwmv21', 'WEAP_23Aug2022_gridmet', 'pywr_nhmv10', 'pywr_nwmv21_withLakes', 'pywr_WEAP_23Aug2022_gridmet_nhmv10']
     else:
-        radial_models = ['nhmv10', 'nwmv21', 'pywr_nhmv10', 'pywr_nwmv21_withLakes', 'pywr_obs_pub']
+        radial_models = ['nhmv10', 'nwmv21', 'obs_pub', 'pywr_nhmv10', 'pywr_nwmv21_withLakes', 'pywr_obs_pub']
     radial_models = radial_models[::-1]
 
     ### compile error metrics across models/nodes/metrics
@@ -255,7 +255,6 @@ if __name__ == "__main__":
 
 
     ###
-
 
         
     print(f'Done! Check the {fig_dir} folder.')

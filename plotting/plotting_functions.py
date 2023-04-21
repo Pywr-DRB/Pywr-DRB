@@ -15,9 +15,6 @@ import h5py
 from scipy import stats
 
 
-
-
-
 # Constants
 cms_to_mgd = 22.82
 cm_to_mg = 264.17/1e6
@@ -64,7 +61,12 @@ def get_pywr_results(output_dir, model, results_set='all', scenario=0):
             if results_set == 'all':
                 results[k] = f[k][:, scenario]
             elif results_set == 'res_release':
-                if k.split('_')[0] == 'outflow' and k.split('_')[1] in reservoir_list:
+                ## Need to pull flow data for link_ downstream of reservoirs instead of simulated outflows
+                if k.split('_')[0] == 'link' and k.split('_')[1] in reservoir_link_pairs.values():
+                    res_name = [res for res, link in reservoir_link_pairs.items() if link == k.split('_')[1]][0]
+                    results[res_name] = f[k][:, scenario]
+                # Now pull simulated relases from un-observed reservoirs
+                elif k.split('_')[0] == 'outflow' and k.split('_')[1] in reservoir_list:
                     results[k.split('_')[1]] = f[k][:, scenario]
             elif results_set == 'res_storage':
                 if k.split('_')[0] == 'volume' and k.split('_')[1] in reservoir_list:
@@ -111,7 +113,6 @@ def get_base_results(input_dir, model, datetime_index, results_set='all'):
     gage_flow = gage_flow.drop('datetime', axis=1)
     if results_set == 'res_release':
         available_release_data = gage_flow.columns.intersection(reservoir_link_pairs.values())
-        # reservoirs_with_data = [[k for k,v in reservoir_link_pairs.items() if v == site][0] for site in available_release_data]
         reservoirs_with_data = [list(filter(lambda x: reservoir_link_pairs[x] == site, reservoir_link_pairs))[0] for
                                 site in available_release_data]
         gage_flow = gage_flow.loc[:, available_release_data]
@@ -208,9 +209,9 @@ def plot_3part_flows(results, models, node, colors=['0.5', '#67a9cf', '#ef8a62']
 
     # plt.show()
     if use2nd:
-        fig.savefig(f'{fig_dir}streamflow_3plots_{models[0]}_{models[1]}_{node}.png', bbox_inches='tight')
+        fig.savefig(f'{fig_dir}streamflow_3plots_{models[0]}_{models[1]}_{node}.png', bbox_inches='tight', dpi = 250)
     else:
-        fig.savefig(f'{fig_dir}streamflow_3plots_{models[0]}_{node}.png', bbox_inches='tight')
+        fig.savefig(f'{fig_dir}streamflow_3plots_{models[0]}_{node}.png', bbox_inches='tight', dpi = 250)
     plt.close()
     return
 
@@ -276,9 +277,9 @@ def plot_weekly_flow_distributions(results, models, node, colors=['0.5', '#67a9c
 
     # plt.show()
     if use2nd:
-        fig.savefig(f'{fig_dir}streamflow_weekly_{models[0]}_{models[1]}_{node}.png', bbox_inches='tight')
+        fig.savefig(f'{fig_dir}streamflow_weekly_{models[0]}_{models[1]}_{node}.png', bbox_inches='tight', dpi = 250)
     else:
-        fig.savefig(f'{fig_dir}streamflow_weekly_{models[0]}_{node}.png', bbox_inches='tight')
+        fig.savefig(f'{fig_dir}streamflow_weekly_{models[0]}_{node}.png', bbox_inches='tight', dpi = 250)
     plt.close()
     return
 
@@ -763,7 +764,7 @@ def compare_inflow_data(inflow_data, nodes,
         patch.set_edgecolor((0,0,0,.0))
         patch.set_facecolor((r,g,b,.0))
     plt.yscale('log')
-    plt.savefig(f'{fig_dir}inflow_comparison_boxplot.png')
+    plt.savefig(f'{fig_dir}inflow_comparison_boxplot.png', bbox_inches='tight', dpi=250)
     plt.close()
     return
 
