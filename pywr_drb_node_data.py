@@ -137,37 +137,72 @@ nhm_site_matches = {'cannonsville': ['1562'],
                     }
 
 ## NWM data IDs are either COMIDs or USGS-IDs (USGS-IDs start with 0)
-nwm_site_matches = {'cannonsville': ['01425000'],
-                    'pepacton': ['01417000'],
-                    'neversink': ['01436000'],
-                    'wallenpaupack': ['01429000'], ## Note, wanted to do 01431500 minus 01432110, but don't have latter from Aubrey, so use Prompton for now
-                    'prompton': ['01429000'],
-                    'shoholaMarsh': ['01429000'], ## Note, Shohola has no inlet gauge
-                    'mongaupeCombined': ['01433500'], # NOTE, this is an outlet.  TODO See:  01432900
-                    'beltzvilleCombined': ['01449800'],  ## NOTE, This is the outlet. TODO See: 01449360
-                    'fewalter': ['01447800'],
-                    'merrillCreek': ['01459500'], ## Merrill Creek doesnt have gage - use Nockamixon nearby to get flow shape
-                    'hopatcong': ['01455500'],  ## NOTE, this is an outlet. There are inlet gauges with poor records
-                    'nockamixon': ['01459500'], ## NOTE, this is far downstream of outlet.
-                    'assunpink': ['01463620'],  ## Note, this is outlet of system.
-                    'ontelaunee': ['01470960'], ## Note, should have 01470761, but didnt get from Aubrey, so use Blue Marsh for now
-                    'stillCreek': ['01469500'],  ## Note, this is downstream of reservoir and lakes
-                    'blueMarsh': ['01470960'],
-                    'greenLane': ['01473000'],  ## Note, this is far downstream of outlet.
-                    'marshCreek': ['01480685'], ## Note, this is an outlet. TODO See: 01480675
+nwm_site_matches = {'cannonsville': ['2613174'], # '2614136' is TYPEL = 1; Using lake inflow
+                    'pepacton': ['1748473'], # '1748727' has flows equal to downstream link, use lake inflows
+                    'neversink': ['4146742'], # '4147432' has flows equal to downstream link, use lake inflows
+                    'wallenpaupack': ['2742586'],
+                    'prompton': ['2739772'],
+                    'shoholaMarsh': ['4150530'],
+                    'mongaupeCombined': ['4151958'], 
+                    'beltzvilleCombined': ['4188143'],  # TYPEL = 1
+                    'fewalter': ['4185065'],  # '4186391' is TYPEL = 3 (inside lake body); Using lake inflow instead  
+                    'merrillCreek': ['2588031'], 
+                    'hopatcong': ['2586785'],  
+                    'nockamixon': ['2591099'],
+                    'assunpink': ['2589015'],  # '2590255' is TYPEL = 1; Using lake inflow
+                    'ontelaunee': ['4779981'], # '4782243' is TYPEL = 1; Using lake inflow
+                    'stillCreek': ['4778721'], # '4779123' is TYPEL = 1; Using lake inflow
+                    'blueMarsh': ['4782813'],  # '4783213' has flows equal to downstream link, use lake inflows
+                    'greenLane': ['4780955'], 
+                    'marshCreek': ['4648728'], 
                     '01425000': ['01425000'],
                     '01417000': ['01417000'],
-                    'delLordville': ['01427207'],
+                    'delLordville': ['2617364'],
                     '01436000': ['01436000'],
                     '01433500': ['01433500'],
-                    'delMontague': ['01438500'],
+                    'delMontague': ['4151628'],
                     '01449800': ['01449800'],
                     '01447800': ['01447800'],
-                    'delTrenton': ['01463500'],
+                    'delTrenton': ['2590277'],
                     '01463620': ['01463620'],
-                    'outletAssunpink': ['01463620'],  ## Should be '01464000' but don't have NWM data currently for this location
+                    'outletAssunpink': ['2590137'],
                     '01470960': ['01470960'],
-                    'outletSchuylkill': ['01474500'],
-                    'outletChristina': ['01480685'],
+                    'outletSchuylkill': ['4784841'],
+                    'outletChristina': ['4652144'],
                     }
 
+
+### NWM inflows corresponding to lake objects
+nwm_lake_site_matches = {'cannonsville': '2613174',
+                            '01425000': 'none',
+                            'pepacton': '1748473',
+                            '01417000': 'none',
+                            'delLordville': 'none',
+                            'neversink': '4146742',
+                            '01436000': 'none',
+                            'wallenpaupack': '2741600',
+                            'prompton': '2739068',
+                            'shoholaMarsh': '120052035',
+                            'mongaupeCombined': '4148582',
+                            '01433500': 'none',
+                            'delMontague': 'none',
+                            'beltzvilleCombined': '4186689',
+                            '01449800': 'none',
+                            'fewalter': '4185065',
+                            '01447800': 'none',
+                            'merrillCreek': 'none',
+                            'hopatcong': '2585287',
+                            'nockamixon': 'none',
+                            'delTrenton': 'none',
+                            'assunpink': '2589015',
+                            '01463620': 'none',
+                            'outletAssunpink': 'none',
+                            'ontelaunee': '4779981',
+                            'stillCreek': '4778721',
+                            'blueMarsh': '4782813',
+                            '01470960': 'none',
+                            'greenLane': '4780087',
+                            'outletSchuylkill': 'none',
+                            'marshCreek': 'none',
+                            'outletChristina': 'none'
+                            }

@@ -14,7 +14,7 @@ parts:
           file: DRB/drb_hydrology.md
         - title: Planning & Management
           file: DRB/drb_planning_management.md
-    - title: Pywr-DRB Overveiw
+    - title: Pywr-DRB Overview
       file: Model/pywr_drb.md
       sections:
         - title: Model Overview

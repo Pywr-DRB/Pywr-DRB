@@ -390,8 +390,8 @@ if __name__ == "__main__":
 
     df_nhm = read_csv_data(f'{input_dir}modeled_gages/streamflow_daily_nhmv10_mgd.csv', start_date, end_date, units = 'mgd', source = 'nhm')
 
-    df_nwm = read_modeled_estimates(f'{input_dir}modeled_gages/streamflow_daily_nwmv21.txt',
-                                    '\t', 'UTC_date', 'site_no', 'q_cms_mod', start_date, end_date)
+    df_nwm = read_csv_data(f'{input_dir}modeled_gages/streamflow_daily_nwmv21_mgd.csv', start_date, end_date, units = 'mgd', source = 'nwmv21')
+
     df_nwm_lakes = read_modeled_estimates(f'{input_dir}modeled_gages/lakes_daily_1979_2020_nwmv21.csv',
                                         ',', 'UTC_date', 'feature_id', 'inflow', start_date, end_date)
     assert ((df_obs.index == df_nhm.index).mean() == 1) and ((df_nhm.index == df_nwm.index).mean() == 1) and ((df_nhm.index == df_nwm_lakes.index).mean() == 1)
@@ -399,8 +399,10 @@ if __name__ == "__main__":
 
     ### match USGS gage sites to Pywr-DRB model nodes & save inflows to csv file in format expected by Pywr-DRB
     df_nhm = match_gages(df_nhm, 'nhmv10', site_matches_id= nhm_site_matches, site_matches_link= site_matches_link)
+    
     df_obs_copy = df_obs.copy()
     df_obs = match_gages(df_obs, 'obs', site_matches_id= obs_site_matches, site_matches_link= site_matches_link)
+    
     df_obs_pub = match_gages(df_obs_copy, 'obs_pub', site_matches_id= obs_pub_site_matches, site_matches_link= site_matches_link)
     
     df_nwm = match_gages(df_nwm, 'nwmv21', site_matches_id= nwm_site_matches, site_matches_link= site_matches_link)
