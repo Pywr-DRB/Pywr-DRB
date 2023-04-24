@@ -137,24 +137,24 @@ nhm_site_matches = {'cannonsville': ['1562'],
                     }
 
 ## NWM data IDs are either COMIDs or USGS-IDs (USGS-IDs start with 0)
-nwm_site_matches = {'cannonsville': ['2613174'], # '2614136' is TYPEL = 1; Using lake inflow
-                    'pepacton': ['1748473'], # '1748727' has flows equal to downstream link, use lake inflows
-                    'neversink': ['4146742'], # '4147432' has flows equal to downstream link, use lake inflows
-                    'wallenpaupack': ['2742586'],
-                    'prompton': ['2739772'],
-                    'shoholaMarsh': ['4150530'],
-                    'mongaupeCombined': ['4151958'], 
-                    'beltzvilleCombined': ['4188143'],  # TYPEL = 1
-                    'fewalter': ['4185065'],  # '4186391' is TYPEL = 3 (inside lake body); Using lake inflow instead  
-                    'merrillCreek': ['2588031'], 
-                    'hopatcong': ['2586785'],  
-                    'nockamixon': ['2591099'],
-                    'assunpink': ['2589015'],  # '2590255' is TYPEL = 1; Using lake inflow
-                    'ontelaunee': ['4779981'], # '4782243' is TYPEL = 1; Using lake inflow
-                    'stillCreek': ['4778721'], # '4779123' is TYPEL = 1; Using lake inflow
-                    'blueMarsh': ['4782813'],  # '4783213' has flows equal to downstream link, use lake inflows
-                    'greenLane': ['4780955'], 
-                    'marshCreek': ['4648728'], 
+nwm_site_matches = {'cannonsville': ['2613174'],    # Lake inflow
+                    'pepacton': ['1748473'],        # Lake inflow
+                    'neversink': ['4146742'],       # Lake inflow
+                    'wallenpaupack': ['2741600'],   # Lake inflow
+                    'prompton': ['2739068'],        # Lake inflow
+                    'shoholaMarsh': ['120052035'],  # Lake inflow
+                    'mongaupeCombined': ['4148582'],    # Lake inflow
+                    'beltzvilleCombined': ['4186689'],  # Lake inflow
+                    'fewalter': ['4185065'],        # Lake inflow
+                    'merrillCreek': ['2588031'],    # No NWM lake; using available segment flow
+                    'hopatcong': ['2585287'],       # Lake inflow
+                    'nockamixon': ['2591099'],      # No NWM lake; using available segment flow
+                    'assunpink': ['2589015'],       # Lake inflow
+                    'ontelaunee': ['4779981'],      # Lake inflow
+                    'stillCreek': ['4778721'],      # Lake inflow
+                    'blueMarsh': ['4782813'],       # Lake inflow
+                    'greenLane': ['4780087'],       # Lake inflow 
+                    'marshCreek': ['4648728'],      # No NWM lake; using available segment flow
                     '01425000': ['01425000'],
                     '01417000': ['01417000'],
                     'delLordville': ['2617364'],
