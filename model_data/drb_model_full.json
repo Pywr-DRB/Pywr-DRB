@@ -20,7 +20,7 @@
             "name": "reservoir_cannonsville",
             "type": "storage",
             "max_volume": "max_volume_cannonsville",
-            "initial_volume": 117313.5018,
+            "initial_volume": 74400.0,
             "initial_volume_pc": 0.8,
             "cost": "storage_cost_cannonsville"
         },
@@ -72,7 +72,7 @@
             "name": "reservoir_pepacton",
             "type": "storage",
             "max_volume": "max_volume_pepacton",
-            "initial_volume": 158947.009,
+            "initial_volume": 112000.0,
             "initial_volume_pc": 0.8,
             "cost": "storage_cost_pepacton"
         },
@@ -150,7 +150,7 @@
             "name": "reservoir_neversink",
             "type": "storage",
             "max_volume": "max_volume_neversink",
-            "initial_volume": 37026.34752,
+            "initial_volume": 27600.0,
             "initial_volume_pc": 0.8,
             "cost": "storage_cost_neversink"
         },
@@ -315,7 +315,7 @@
             "name": "reservoir_mongaupeCombined",
             "type": "storage",
             "max_volume": "max_volume_mongaupeCombined",
-            "initial_volume": 22697.65824,
+            "initial_volume": 22697.658240000004,
             "initial_volume_pc": 0.8,
             "cost": -10.0
         },
@@ -549,7 +549,7 @@
             "name": "reservoir_hopatcong",
             "type": "storage",
             "max_volume": "max_volume_hopatcong",
-            "initial_volume": 12574.5872,
+            "initial_volume": 12574.587200000002,
             "initial_volume_pc": 0.8,
             "cost": -10.0
         },
@@ -648,7 +648,7 @@
             "name": "reservoir_assunpink",
             "type": "storage",
             "max_volume": "max_volume_assunpink",
-            "initial_volume": 3296.86656,
+            "initial_volume": 3296.8665600000004,
             "initial_volume_pc": 0.8,
             "cost": -10.0
         },
@@ -1812,7 +1812,7 @@
     "parameters": {
         "flow_base_cannonsville": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nwmv21.csv",
+            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
             "column": "cannonsville",
             "index_col": "datetime",
             "parse_dates": true
@@ -1828,7 +1828,7 @@
         "max_volume_cannonsville": {
             "type": "constant",
             "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_CAP_MG",
+            "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": "cannonsville"
         },
@@ -1872,7 +1872,7 @@
         },
         "flow_base_pepacton": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nwmv21.csv",
+            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
             "column": "pepacton",
             "index_col": "datetime",
             "parse_dates": true
@@ -1888,7 +1888,7 @@
         "max_volume_pepacton": {
             "type": "constant",
             "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_CAP_MG",
+            "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": "pepacton"
         },
@@ -1932,7 +1932,7 @@
         },
         "flow_base_delLordville": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nwmv21.csv",
+            "url": "../input_data/catchment_inflow_nhmv10.csv",
             "column": "delLordville",
             "index_col": "datetime",
             "parse_dates": true
@@ -1973,7 +1973,7 @@
         },
         "flow_base_neversink": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nwmv21.csv",
+            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
             "column": "neversink",
             "index_col": "datetime",
             "parse_dates": true
@@ -1989,7 +1989,7 @@
         "max_volume_neversink": {
             "type": "constant",
             "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_CAP_MG",
+            "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": "neversink"
         },
@@ -2033,7 +2033,7 @@
         },
         "flow_base_wallenpaupack": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nwmv21.csv",
+            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
             "column": "wallenpaupack",
             "index_col": "datetime",
             "parse_dates": true
@@ -2049,7 +2049,7 @@
         "max_volume_wallenpaupack": {
             "type": "constant",
             "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_CAP_MG",
+            "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": "wallenpaupack"
         },
@@ -2186,10 +2186,10 @@
             "index_col": "reservoir",
             "index": "wallenpaupack"
         },
-        "starfit_GRanD_CAP_MG_wallenpaupack": {
+        "starfit_Adjusted_CAP_MG_wallenpaupack": {
             "type": "constant",
             "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_CAP_MG",
+            "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": "wallenpaupack"
         },
@@ -2303,7 +2303,7 @@
             "agg_func": "product",
             "parameters": [
                 "starfit_NORlo_final_wallenpaupack",
-                "starfit_GRanD_CAP_MG_wallenpaupack"
+                "starfit_Adjusted_CAP_MG_wallenpaupack"
             ]
         },
         "starfit_neg_NORhi_final_unnorm_wallenpaupack": {
@@ -2311,7 +2311,7 @@
             "agg_func": "product",
             "parameters": [
                 "starfit_neg_NORhi_final_wallenpaupack",
-                "starfit_GRanD_CAP_MG_wallenpaupack"
+                "starfit_Adjusted_CAP_MG_wallenpaupack"
             ]
         },
         "starfit_aboveNOR_sum_wallenpaupack": {
@@ -2510,7 +2510,7 @@
             "agg_func": "sum",
             "parameters": [
                 "starfit_release_pt1_wallenpaupack",
-                "starfit_neg_GRanD_CAP_MG_wallenpaupack"
+                "starfit_neg_Adjusted_CAP_MG_wallenpaupack"
             ]
         },
         "starfit_release_final_wallenpaupack": {
@@ -2533,14 +2533,14 @@
             "type": "negative",
             "parameter": "starfit_GRanD_MEANFLOW_MGD_wallenpaupack"
         },
-        "starfit_neg_GRanD_CAP_MG_wallenpaupack": {
+        "starfit_neg_Adjusted_CAP_MG_wallenpaupack": {
             "type": "negative",
-            "parameter": "starfit_GRanD_CAP_MG_wallenpaupack"
+            "parameter": "starfit_Adjusted_CAP_MG_wallenpaupack"
         },
         "starfit_inNOR_fracvol_wallenpaupack": {
             "type": "division",
             "numerator": "volume_wallenpaupack",
-            "denominator": "starfit_GRanD_CAP_MG_wallenpaupack"
+            "denominator": "starfit_Adjusted_CAP_MG_wallenpaupack"
         },
         "starfit_inNOR_p1a_div_wallenpaupack": {
             "type": "division",
@@ -2576,12 +2576,12 @@
         "volume_wallenpaupack": {
             "type": "interpolatedvolume",
             "values": [
-                0,
+                -1e-10,
                 1000000
             ],
             "node": "reservoir_wallenpaupack",
             "volumes": [
-                0,
+                -1e-10,
                 1000000
             ]
         },
@@ -2622,7 +2622,7 @@
         },
         "flow_base_prompton": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nwmv21.csv",
+            "url": "../input_data/catchment_inflow_nhmv10.csv",
             "column": "prompton",
             "index_col": "datetime",
             "parse_dates": true
@@ -2638,7 +2638,7 @@
         "max_volume_prompton": {
             "type": "constant",
             "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_CAP_MG",
+            "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": "prompton"
         },
@@ -2775,10 +2775,10 @@
             "index_col": "reservoir",
             "index": "prompton"
         },
-        "starfit_GRanD_CAP_MG_prompton": {
+        "starfit_Adjusted_CAP_MG_prompton": {
             "type": "constant",
             "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_CAP_MG",
+            "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": "prompton"
         },
@@ -2892,7 +2892,7 @@
             "agg_func": "product",
             "parameters": [
                 "starfit_NORlo_final_prompton",
-                "starfit_GRanD_CAP_MG_prompton"
+                "starfit_Adjusted_CAP_MG_prompton"
             ]
         },
         "starfit_neg_NORhi_final_unnorm_prompton": {
@@ -2900,7 +2900,7 @@
             "agg_func": "product",
             "parameters": [
                 "starfit_neg_NORhi_final_prompton",
-                "starfit_GRanD_CAP_MG_prompton"
+                "starfit_Adjusted_CAP_MG_prompton"
             ]
         },
         "starfit_aboveNOR_sum_prompton": {
@@ -3099,7 +3099,7 @@
             "agg_func": "sum",
             "parameters": [
                 "starfit_release_pt1_prompton",
-                "starfit_neg_GRanD_CAP_MG_prompton"
+                "starfit_neg_Adjusted_CAP_MG_prompton"
             ]
         },
         "starfit_release_final_prompton": {
@@ -3122,14 +3122,14 @@
             "type": "negative",
             "parameter": "starfit_GRanD_MEANFLOW_MGD_prompton"
         },
-        "starfit_neg_GRanD_CAP_MG_prompton": {
+        "starfit_neg_Adjusted_CAP_MG_prompton": {
             "type": "negative",
-            "parameter": "starfit_GRanD_CAP_MG_prompton"
+            "parameter": "starfit_Adjusted_CAP_MG_prompton"
         },
         "starfit_inNOR_fracvol_prompton": {
             "type": "division",
             "numerator": "volume_prompton",
-            "denominator": "starfit_GRanD_CAP_MG_prompton"
+            "denominator": "starfit_Adjusted_CAP_MG_prompton"
         },
         "starfit_inNOR_p1a_div_prompton": {
             "type": "division",
@@ -3165,12 +3165,12 @@
         "volume_prompton": {
             "type": "interpolatedvolume",
             "values": [
-                0,
+                -1e-10,
                 1000000
             ],
             "node": "reservoir_prompton",
             "volumes": [
-                0,
+                -1e-10,
                 1000000
             ]
         },
@@ -3211,7 +3211,7 @@
         },
         "flow_base_shoholaMarsh": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nwmv21.csv",
+            "url": "../input_data/catchment_inflow_nhmv10.csv",
             "column": "shoholaMarsh",
             "index_col": "datetime",
             "parse_dates": true
@@ -3227,7 +3227,7 @@
         "max_volume_shoholaMarsh": {
             "type": "constant",
             "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_CAP_MG",
+            "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": "shoholaMarsh"
         },
@@ -3364,10 +3364,10 @@
             "index_col": "reservoir",
             "index": "shoholaMarsh"
         },
-        "starfit_GRanD_CAP_MG_shoholaMarsh": {
+        "starfit_Adjusted_CAP_MG_shoholaMarsh": {
             "type": "constant",
             "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_CAP_MG",
+            "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": "shoholaMarsh"
         },
@@ -3481,7 +3481,7 @@
             "agg_func": "product",
             "parameters": [
                 "starfit_NORlo_final_shoholaMarsh",
-                "starfit_GRanD_CAP_MG_shoholaMarsh"
+                "starfit_Adjusted_CAP_MG_shoholaMarsh"
             ]
         },
         "starfit_neg_NORhi_final_unnorm_shoholaMarsh": {
@@ -3489,7 +3489,7 @@
             "agg_func": "product",
             "parameters": [
                 "starfit_neg_NORhi_final_shoholaMarsh",
-                "starfit_GRanD_CAP_MG_shoholaMarsh"
+                "starfit_Adjusted_CAP_MG_shoholaMarsh"
             ]
         },
         "starfit_aboveNOR_sum_shoholaMarsh": {
@@ -3688,7 +3688,7 @@
             "agg_func": "sum",
             "parameters": [
                 "starfit_release_pt1_shoholaMarsh",
-                "starfit_neg_GRanD_CAP_MG_shoholaMarsh"
+                "starfit_neg_Adjusted_CAP_MG_shoholaMarsh"
             ]
         },
         "starfit_release_final_shoholaMarsh": {
@@ -3711,14 +3711,14 @@
             "type": "negative",
             "parameter": "starfit_GRanD_MEANFLOW_MGD_shoholaMarsh"
         },
-        "starfit_neg_GRanD_CAP_MG_shoholaMarsh": {
+        "starfit_neg_Adjusted_CAP_MG_shoholaMarsh": {
             "type": "negative",
-            "parameter": "starfit_GRanD_CAP_MG_shoholaMarsh"
+            "parameter": "starfit_Adjusted_CAP_MG_shoholaMarsh"
         },
         "starfit_inNOR_fracvol_shoholaMarsh": {
             "type": "division",
             "numerator": "volume_shoholaMarsh",
-            "denominator": "starfit_GRanD_CAP_MG_shoholaMarsh"
+            "denominator": "starfit_Adjusted_CAP_MG_shoholaMarsh"
         },
         "starfit_inNOR_p1a_div_shoholaMarsh": {
             "type": "division",
@@ -3754,12 +3754,12 @@
         "volume_shoholaMarsh": {
             "type": "interpolatedvolume",
             "values": [
-                0,
+                -1e-10,
                 1000000
             ],
             "node": "reservoir_shoholaMarsh",
             "volumes": [
-                0,
+                -1e-10,
                 1000000
             ]
         },
@@ -3800,7 +3800,7 @@
         },
         "flow_base_mongaupeCombined": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nwmv21.csv",
+            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
             "column": "mongaupeCombined",
             "index_col": "datetime",
             "parse_dates": true
@@ -3816,7 +3816,7 @@
         "max_volume_mongaupeCombined": {
             "type": "constant",
             "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_CAP_MG",
+            "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": "mongaupeCombined"
         },
@@ -3953,10 +3953,10 @@
             "index_col": "reservoir",
             "index": "mongaupeCombined"
         },
-        "starfit_GRanD_CAP_MG_mongaupeCombined": {
+        "starfit_Adjusted_CAP_MG_mongaupeCombined": {
             "type": "constant",
             "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_CAP_MG",
+            "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": "mongaupeCombined"
         },
@@ -4070,7 +4070,7 @@
             "agg_func": "product",
             "parameters": [
                 "starfit_NORlo_final_mongaupeCombined",
-                "starfit_GRanD_CAP_MG_mongaupeCombined"
+                "starfit_Adjusted_CAP_MG_mongaupeCombined"
             ]
         },
         "starfit_neg_NORhi_final_unnorm_mongaupeCombined": {
@@ -4078,7 +4078,7 @@
             "agg_func": "product",
             "parameters": [
                 "starfit_neg_NORhi_final_mongaupeCombined",
-                "starfit_GRanD_CAP_MG_mongaupeCombined"
+                "starfit_Adjusted_CAP_MG_mongaupeCombined"
             ]
         },
         "starfit_aboveNOR_sum_mongaupeCombined": {
@@ -4277,7 +4277,7 @@
             "agg_func": "sum",
             "parameters": [
                 "starfit_release_pt1_mongaupeCombined",
-                "starfit_neg_GRanD_CAP_MG_mongaupeCombined"
+                "starfit_neg_Adjusted_CAP_MG_mongaupeCombined"
             ]
         },
         "starfit_release_final_mongaupeCombined": {
@@ -4300,14 +4300,14 @@
             "type": "negative",
             "parameter": "starfit_GRanD_MEANFLOW_MGD_mongaupeCombined"
         },
-        "starfit_neg_GRanD_CAP_MG_mongaupeCombined": {
+        "starfit_neg_Adjusted_CAP_MG_mongaupeCombined": {
             "type": "negative",
-            "parameter": "starfit_GRanD_CAP_MG_mongaupeCombined"
+            "parameter": "starfit_Adjusted_CAP_MG_mongaupeCombined"
         },
         "starfit_inNOR_fracvol_mongaupeCombined": {
             "type": "division",
             "numerator": "volume_mongaupeCombined",
-            "denominator": "starfit_GRanD_CAP_MG_mongaupeCombined"
+            "denominator": "starfit_Adjusted_CAP_MG_mongaupeCombined"
         },
         "starfit_inNOR_p1a_div_mongaupeCombined": {
             "type": "division",
@@ -4343,12 +4343,12 @@
         "volume_mongaupeCombined": {
             "type": "interpolatedvolume",
             "values": [
-                0,
+                -1e-10,
                 1000000
             ],
             "node": "reservoir_mongaupeCombined",
             "volumes": [
-                0,
+                -1e-10,
                 1000000
             ]
         },
@@ -4401,7 +4401,7 @@
         },
         "flow_base_delMontague": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nwmv21.csv",
+            "url": "../input_data/catchment_inflow_nhmv10.csv",
             "column": "delMontague",
             "index_col": "datetime",
             "parse_dates": true
@@ -4442,7 +4442,7 @@
         },
         "flow_base_beltzvilleCombined": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nwmv21.csv",
+            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
             "column": "beltzvilleCombined",
             "index_col": "datetime",
             "parse_dates": true
@@ -4458,7 +4458,7 @@
         "max_volume_beltzvilleCombined": {
             "type": "constant",
             "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_CAP_MG",
+            "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": "beltzvilleCombined"
         },
@@ -4595,10 +4595,10 @@
             "index_col": "reservoir",
             "index": "beltzvilleCombined"
         },
-        "starfit_GRanD_CAP_MG_beltzvilleCombined": {
+        "starfit_Adjusted_CAP_MG_beltzvilleCombined": {
             "type": "constant",
             "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_CAP_MG",
+            "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": "beltzvilleCombined"
         },
@@ -4712,7 +4712,7 @@
             "agg_func": "product",
             "parameters": [
                 "starfit_NORlo_final_beltzvilleCombined",
-                "starfit_GRanD_CAP_MG_beltzvilleCombined"
+                "starfit_Adjusted_CAP_MG_beltzvilleCombined"
             ]
         },
         "starfit_neg_NORhi_final_unnorm_beltzvilleCombined": {
@@ -4720,7 +4720,7 @@
             "agg_func": "product",
             "parameters": [
                 "starfit_neg_NORhi_final_beltzvilleCombined",
-                "starfit_GRanD_CAP_MG_beltzvilleCombined"
+                "starfit_Adjusted_CAP_MG_beltzvilleCombined"
             ]
         },
         "starfit_aboveNOR_sum_beltzvilleCombined": {
@@ -4919,7 +4919,7 @@
             "agg_func": "sum",
             "parameters": [
                 "starfit_release_pt1_beltzvilleCombined",
-                "starfit_neg_GRanD_CAP_MG_beltzvilleCombined"
+                "starfit_neg_Adjusted_CAP_MG_beltzvilleCombined"
             ]
         },
         "starfit_release_final_beltzvilleCombined": {
@@ -4942,14 +4942,14 @@
             "type": "negative",
             "parameter": "starfit_GRanD_MEANFLOW_MGD_beltzvilleCombined"
         },
-        "starfit_neg_GRanD_CAP_MG_beltzvilleCombined": {
+        "starfit_neg_Adjusted_CAP_MG_beltzvilleCombined": {
             "type": "negative",
-            "parameter": "starfit_GRanD_CAP_MG_beltzvilleCombined"
+            "parameter": "starfit_Adjusted_CAP_MG_beltzvilleCombined"
         },
         "starfit_inNOR_fracvol_beltzvilleCombined": {
             "type": "division",
             "numerator": "volume_beltzvilleCombined",
-            "denominator": "starfit_GRanD_CAP_MG_beltzvilleCombined"
+            "denominator": "starfit_Adjusted_CAP_MG_beltzvilleCombined"
         },
         "starfit_inNOR_p1a_div_beltzvilleCombined": {
             "type": "division",
@@ -4985,12 +4985,12 @@
         "volume_beltzvilleCombined": {
             "type": "interpolatedvolume",
             "values": [
-                0,
+                -1e-10,
                 1000000
             ],
             "node": "reservoir_beltzvilleCombined",
             "volumes": [
-                0,
+                -1e-10,
                 1000000
             ]
         },
@@ -5043,7 +5043,7 @@
         },
         "flow_base_fewalter": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nwmv21.csv",
+            "url": "../input_data/catchment_inflow_nhmv10.csv",
             "column": "fewalter",
             "index_col": "datetime",
             "parse_dates": true
@@ -5059,7 +5059,7 @@
         "max_volume_fewalter": {
             "type": "constant",
             "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_CAP_MG",
+            "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": "fewalter"
         },
@@ -5196,10 +5196,10 @@
             "index_col": "reservoir",
             "index": "fewalter"
         },
-        "starfit_GRanD_CAP_MG_fewalter": {
+        "starfit_Adjusted_CAP_MG_fewalter": {
             "type": "constant",
             "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_CAP_MG",
+            "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": "fewalter"
         },
@@ -5313,7 +5313,7 @@
             "agg_func": "product",
             "parameters": [
                 "starfit_NORlo_final_fewalter",
-                "starfit_GRanD_CAP_MG_fewalter"
+                "starfit_Adjusted_CAP_MG_fewalter"
             ]
         },
         "starfit_neg_NORhi_final_unnorm_fewalter": {
@@ -5321,7 +5321,7 @@
             "agg_func": "product",
             "parameters": [
                 "starfit_neg_NORhi_final_fewalter",
-                "starfit_GRanD_CAP_MG_fewalter"
+                "starfit_Adjusted_CAP_MG_fewalter"
             ]
         },
         "starfit_aboveNOR_sum_fewalter": {
@@ -5520,7 +5520,7 @@
             "agg_func": "sum",
             "parameters": [
                 "starfit_release_pt1_fewalter",
-                "starfit_neg_GRanD_CAP_MG_fewalter"
+                "starfit_neg_Adjusted_CAP_MG_fewalter"
             ]
         },
         "starfit_release_final_fewalter": {
@@ -5543,14 +5543,14 @@
             "type": "negative",
             "parameter": "starfit_GRanD_MEANFLOW_MGD_fewalter"
         },
-        "starfit_neg_GRanD_CAP_MG_fewalter": {
+        "starfit_neg_Adjusted_CAP_MG_fewalter": {
             "type": "negative",
-            "parameter": "starfit_GRanD_CAP_MG_fewalter"
+            "parameter": "starfit_Adjusted_CAP_MG_fewalter"
         },
         "starfit_inNOR_fracvol_fewalter": {
             "type": "division",
             "numerator": "volume_fewalter",
-            "denominator": "starfit_GRanD_CAP_MG_fewalter"
+            "denominator": "starfit_Adjusted_CAP_MG_fewalter"
         },
         "starfit_inNOR_p1a_div_fewalter": {
             "type": "division",
@@ -5586,12 +5586,12 @@
         "volume_fewalter": {
             "type": "interpolatedvolume",
             "values": [
-                0,
+                -1e-10,
                 1000000
             ],
             "node": "reservoir_fewalter",
             "volumes": [
-                0,
+                -1e-10,
                 1000000
             ]
         },
@@ -5644,7 +5644,7 @@
         },
         "flow_base_merrillCreek": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nwmv21.csv",
+            "url": "../input_data/catchment_inflow_nhmv10.csv",
             "column": "merrillCreek",
             "index_col": "datetime",
             "parse_dates": true
@@ -5660,7 +5660,7 @@
         "max_volume_merrillCreek": {
             "type": "constant",
             "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_CAP_MG",
+            "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": "merrillCreek"
         },
@@ -5797,10 +5797,10 @@
             "index_col": "reservoir",
             "index": "merrillCreek"
         },
-        "starfit_GRanD_CAP_MG_merrillCreek": {
+        "starfit_Adjusted_CAP_MG_merrillCreek": {
             "type": "constant",
             "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_CAP_MG",
+            "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": "merrillCreek"
         },
@@ -5914,7 +5914,7 @@
             "agg_func": "product",
             "parameters": [
                 "starfit_NORlo_final_merrillCreek",
-                "starfit_GRanD_CAP_MG_merrillCreek"
+                "starfit_Adjusted_CAP_MG_merrillCreek"
             ]
         },
         "starfit_neg_NORhi_final_unnorm_merrillCreek": {
@@ -5922,7 +5922,7 @@
             "agg_func": "product",
             "parameters": [
                 "starfit_neg_NORhi_final_merrillCreek",
-                "starfit_GRanD_CAP_MG_merrillCreek"
+                "starfit_Adjusted_CAP_MG_merrillCreek"
             ]
         },
         "starfit_aboveNOR_sum_merrillCreek": {
@@ -6121,7 +6121,7 @@
             "agg_func": "sum",
             "parameters": [
                 "starfit_release_pt1_merrillCreek",
-                "starfit_neg_GRanD_CAP_MG_merrillCreek"
+                "starfit_neg_Adjusted_CAP_MG_merrillCreek"
             ]
         },
         "starfit_release_final_merrillCreek": {
@@ -6144,14 +6144,14 @@
             "type": "negative",
             "parameter": "starfit_GRanD_MEANFLOW_MGD_merrillCreek"
         },
-        "starfit_neg_GRanD_CAP_MG_merrillCreek": {
+        "starfit_neg_Adjusted_CAP_MG_merrillCreek": {
             "type": "negative",
-            "parameter": "starfit_GRanD_CAP_MG_merrillCreek"
+            "parameter": "starfit_Adjusted_CAP_MG_merrillCreek"
         },
         "starfit_inNOR_fracvol_merrillCreek": {
             "type": "division",
             "numerator": "volume_merrillCreek",
-            "denominator": "starfit_GRanD_CAP_MG_merrillCreek"
+            "denominator": "starfit_Adjusted_CAP_MG_merrillCreek"
         },
         "starfit_inNOR_p1a_div_merrillCreek": {
             "type": "division",
@@ -6187,12 +6187,12 @@
         "volume_merrillCreek": {
             "type": "interpolatedvolume",
             "values": [
-                0,
+                -1e-10,
                 1000000
             ],
             "node": "reservoir_merrillCreek",
             "volumes": [
-                0,
+                -1e-10,
                 1000000
             ]
         },
@@ -6233,7 +6233,7 @@
         },
         "flow_base_hopatcong": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nwmv21.csv",
+            "url": "../input_data/catchment_inflow_nhmv10.csv",
             "column": "hopatcong",
             "index_col": "datetime",
             "parse_dates": true
@@ -6249,7 +6249,7 @@
         "max_volume_hopatcong": {
             "type": "constant",
             "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_CAP_MG",
+            "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": "hopatcong"
         },
@@ -6386,10 +6386,10 @@
             "index_col": "reservoir",
             "index": "hopatcong"
         },
-        "starfit_GRanD_CAP_MG_hopatcong": {
+        "starfit_Adjusted_CAP_MG_hopatcong": {
             "type": "constant",
             "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_CAP_MG",
+            "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": "hopatcong"
         },
@@ -6503,7 +6503,7 @@
             "agg_func": "product",
             "parameters": [
                 "starfit_NORlo_final_hopatcong",
-                "starfit_GRanD_CAP_MG_hopatcong"
+                "starfit_Adjusted_CAP_MG_hopatcong"
             ]
         },
         "starfit_neg_NORhi_final_unnorm_hopatcong": {
@@ -6511,7 +6511,7 @@
             "agg_func": "product",
             "parameters": [
                 "starfit_neg_NORhi_final_hopatcong",
-                "starfit_GRanD_CAP_MG_hopatcong"
+                "starfit_Adjusted_CAP_MG_hopatcong"
             ]
         },
         "starfit_aboveNOR_sum_hopatcong": {
@@ -6710,7 +6710,7 @@
             "agg_func": "sum",
             "parameters": [
                 "starfit_release_pt1_hopatcong",
-                "starfit_neg_GRanD_CAP_MG_hopatcong"
+                "starfit_neg_Adjusted_CAP_MG_hopatcong"
             ]
         },
         "starfit_release_final_hopatcong": {
@@ -6733,14 +6733,14 @@
             "type": "negative",
             "parameter": "starfit_GRanD_MEANFLOW_MGD_hopatcong"
         },
-        "starfit_neg_GRanD_CAP_MG_hopatcong": {
+        "starfit_neg_Adjusted_CAP_MG_hopatcong": {
             "type": "negative",
-            "parameter": "starfit_GRanD_CAP_MG_hopatcong"
+            "parameter": "starfit_Adjusted_CAP_MG_hopatcong"
         },
         "starfit_inNOR_fracvol_hopatcong": {
             "type": "division",
             "numerator": "volume_hopatcong",
-            "denominator": "starfit_GRanD_CAP_MG_hopatcong"
+            "denominator": "starfit_Adjusted_CAP_MG_hopatcong"
         },
         "starfit_inNOR_p1a_div_hopatcong": {
             "type": "division",
@@ -6776,12 +6776,12 @@
         "volume_hopatcong": {
             "type": "interpolatedvolume",
             "values": [
-                0,
+                -1e-10,
                 1000000
             ],
             "node": "reservoir_hopatcong",
             "volumes": [
-                0,
+                -1e-10,
                 1000000
             ]
         },
@@ -6822,7 +6822,7 @@
         },
         "flow_base_nockamixon": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nwmv21.csv",
+            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
             "column": "nockamixon",
             "index_col": "datetime",
             "parse_dates": true
@@ -6838,7 +6838,7 @@
         "max_volume_nockamixon": {
             "type": "constant",
             "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_CAP_MG",
+            "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": "nockamixon"
         },
@@ -6975,10 +6975,10 @@
             "index_col": "reservoir",
             "index": "nockamixon"
         },
-        "starfit_GRanD_CAP_MG_nockamixon": {
+        "starfit_Adjusted_CAP_MG_nockamixon": {
             "type": "constant",
             "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_CAP_MG",
+            "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": "nockamixon"
         },
@@ -7092,7 +7092,7 @@
             "agg_func": "product",
             "parameters": [
                 "starfit_NORlo_final_nockamixon",
-                "starfit_GRanD_CAP_MG_nockamixon"
+                "starfit_Adjusted_CAP_MG_nockamixon"
             ]
         },
         "starfit_neg_NORhi_final_unnorm_nockamixon": {
@@ -7100,7 +7100,7 @@
             "agg_func": "product",
             "parameters": [
                 "starfit_neg_NORhi_final_nockamixon",
-                "starfit_GRanD_CAP_MG_nockamixon"
+                "starfit_Adjusted_CAP_MG_nockamixon"
             ]
         },
         "starfit_aboveNOR_sum_nockamixon": {
@@ -7299,7 +7299,7 @@
             "agg_func": "sum",
             "parameters": [
                 "starfit_release_pt1_nockamixon",
-                "starfit_neg_GRanD_CAP_MG_nockamixon"
+                "starfit_neg_Adjusted_CAP_MG_nockamixon"
             ]
         },
         "starfit_release_final_nockamixon": {
@@ -7322,14 +7322,14 @@
             "type": "negative",
             "parameter": "starfit_GRanD_MEANFLOW_MGD_nockamixon"
         },
-        "starfit_neg_GRanD_CAP_MG_nockamixon": {
+        "starfit_neg_Adjusted_CAP_MG_nockamixon": {
             "type": "negative",
-            "parameter": "starfit_GRanD_CAP_MG_nockamixon"
+            "parameter": "starfit_Adjusted_CAP_MG_nockamixon"
         },
         "starfit_inNOR_fracvol_nockamixon": {
             "type": "division",
             "numerator": "volume_nockamixon",
-            "denominator": "starfit_GRanD_CAP_MG_nockamixon"
+            "denominator": "starfit_Adjusted_CAP_MG_nockamixon"
         },
         "starfit_inNOR_p1a_div_nockamixon": {
             "type": "division",
@@ -7365,12 +7365,12 @@
         "volume_nockamixon": {
             "type": "interpolatedvolume",
             "values": [
-                0,
+                -1e-10,
                 1000000
             ],
             "node": "reservoir_nockamixon",
             "volumes": [
-                0,
+                -1e-10,
                 1000000
             ]
         },
@@ -7411,7 +7411,7 @@
         },
         "flow_base_delTrenton": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nwmv21.csv",
+            "url": "../input_data/catchment_inflow_nhmv10.csv",
             "column": "delTrenton",
             "index_col": "datetime",
             "parse_dates": true
@@ -7452,7 +7452,7 @@
         },
         "flow_base_assunpink": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nwmv21.csv",
+            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
             "column": "assunpink",
             "index_col": "datetime",
             "parse_dates": true
@@ -7468,7 +7468,7 @@
         "max_volume_assunpink": {
             "type": "constant",
             "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_CAP_MG",
+            "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": "assunpink"
         },
@@ -7605,10 +7605,10 @@
             "index_col": "reservoir",
             "index": "assunpink"
         },
-        "starfit_GRanD_CAP_MG_assunpink": {
+        "starfit_Adjusted_CAP_MG_assunpink": {
             "type": "constant",
             "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_CAP_MG",
+            "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": "assunpink"
         },
@@ -7722,7 +7722,7 @@
             "agg_func": "product",
             "parameters": [
                 "starfit_NORlo_final_assunpink",
-                "starfit_GRanD_CAP_MG_assunpink"
+                "starfit_Adjusted_CAP_MG_assunpink"
             ]
         },
         "starfit_neg_NORhi_final_unnorm_assunpink": {
@@ -7730,7 +7730,7 @@
             "agg_func": "product",
             "parameters": [
                 "starfit_neg_NORhi_final_assunpink",
-                "starfit_GRanD_CAP_MG_assunpink"
+                "starfit_Adjusted_CAP_MG_assunpink"
             ]
         },
         "starfit_aboveNOR_sum_assunpink": {
@@ -7929,7 +7929,7 @@
             "agg_func": "sum",
             "parameters": [
                 "starfit_release_pt1_assunpink",
-                "starfit_neg_GRanD_CAP_MG_assunpink"
+                "starfit_neg_Adjusted_CAP_MG_assunpink"
             ]
         },
         "starfit_release_final_assunpink": {
@@ -7952,14 +7952,14 @@
             "type": "negative",
             "parameter": "starfit_GRanD_MEANFLOW_MGD_assunpink"
         },
-        "starfit_neg_GRanD_CAP_MG_assunpink": {
+        "starfit_neg_Adjusted_CAP_MG_assunpink": {
             "type": "negative",
-            "parameter": "starfit_GRanD_CAP_MG_assunpink"
+            "parameter": "starfit_Adjusted_CAP_MG_assunpink"
         },
         "starfit_inNOR_fracvol_assunpink": {
             "type": "division",
             "numerator": "volume_assunpink",
-            "denominator": "starfit_GRanD_CAP_MG_assunpink"
+            "denominator": "starfit_Adjusted_CAP_MG_assunpink"
         },
         "starfit_inNOR_p1a_div_assunpink": {
             "type": "division",
@@ -7995,12 +7995,12 @@
         "volume_assunpink": {
             "type": "interpolatedvolume",
             "values": [
-                0,
+                -1e-10,
                 1000000
             ],
             "node": "reservoir_assunpink",
             "volumes": [
-                0,
+                -1e-10,
                 1000000
             ]
         },
@@ -8053,7 +8053,7 @@
         },
         "flow_base_outletAssunpink": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nwmv21.csv",
+            "url": "../input_data/catchment_inflow_nhmv10.csv",
             "column": "outletAssunpink",
             "index_col": "datetime",
             "parse_dates": true
@@ -8094,7 +8094,7 @@
         },
         "flow_base_ontelaunee": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nwmv21.csv",
+            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
             "column": "ontelaunee",
             "index_col": "datetime",
             "parse_dates": true
@@ -8110,7 +8110,7 @@
         "max_volume_ontelaunee": {
             "type": "constant",
             "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_CAP_MG",
+            "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": "ontelaunee"
         },
@@ -8247,10 +8247,10 @@
             "index_col": "reservoir",
             "index": "ontelaunee"
         },
-        "starfit_GRanD_CAP_MG_ontelaunee": {
+        "starfit_Adjusted_CAP_MG_ontelaunee": {
             "type": "constant",
             "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_CAP_MG",
+            "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": "ontelaunee"
         },
@@ -8364,7 +8364,7 @@
             "agg_func": "product",
             "parameters": [
                 "starfit_NORlo_final_ontelaunee",
-                "starfit_GRanD_CAP_MG_ontelaunee"
+                "starfit_Adjusted_CAP_MG_ontelaunee"
             ]
         },
         "starfit_neg_NORhi_final_unnorm_ontelaunee": {
@@ -8372,7 +8372,7 @@
             "agg_func": "product",
             "parameters": [
                 "starfit_neg_NORhi_final_ontelaunee",
-                "starfit_GRanD_CAP_MG_ontelaunee"
+                "starfit_Adjusted_CAP_MG_ontelaunee"
             ]
         },
         "starfit_aboveNOR_sum_ontelaunee": {
@@ -8571,7 +8571,7 @@
             "agg_func": "sum",
             "parameters": [
                 "starfit_release_pt1_ontelaunee",
-                "starfit_neg_GRanD_CAP_MG_ontelaunee"
+                "starfit_neg_Adjusted_CAP_MG_ontelaunee"
             ]
         },
         "starfit_release_final_ontelaunee": {
@@ -8594,14 +8594,14 @@
             "type": "negative",
             "parameter": "starfit_GRanD_MEANFLOW_MGD_ontelaunee"
         },
-        "starfit_neg_GRanD_CAP_MG_ontelaunee": {
+        "starfit_neg_Adjusted_CAP_MG_ontelaunee": {
             "type": "negative",
-            "parameter": "starfit_GRanD_CAP_MG_ontelaunee"
+            "parameter": "starfit_Adjusted_CAP_MG_ontelaunee"
         },
         "starfit_inNOR_fracvol_ontelaunee": {
             "type": "division",
             "numerator": "volume_ontelaunee",
-            "denominator": "starfit_GRanD_CAP_MG_ontelaunee"
+            "denominator": "starfit_Adjusted_CAP_MG_ontelaunee"
         },
         "starfit_inNOR_p1a_div_ontelaunee": {
             "type": "division",
@@ -8637,12 +8637,12 @@
         "volume_ontelaunee": {
             "type": "interpolatedvolume",
             "values": [
-                0,
+                -1e-10,
                 1000000
             ],
             "node": "reservoir_ontelaunee",
             "volumes": [
-                0,
+                -1e-10,
                 1000000
             ]
         },
@@ -8683,7 +8683,7 @@
         },
         "flow_base_stillCreek": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nwmv21.csv",
+            "url": "../input_data/catchment_inflow_nhmv10.csv",
             "column": "stillCreek",
             "index_col": "datetime",
             "parse_dates": true
@@ -8699,7 +8699,7 @@
         "max_volume_stillCreek": {
             "type": "constant",
             "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_CAP_MG",
+            "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": "stillCreek"
         },
@@ -8836,10 +8836,10 @@
             "index_col": "reservoir",
             "index": "stillCreek"
         },
-        "starfit_GRanD_CAP_MG_stillCreek": {
+        "starfit_Adjusted_CAP_MG_stillCreek": {
             "type": "constant",
             "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_CAP_MG",
+            "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": "stillCreek"
         },
@@ -8953,7 +8953,7 @@
             "agg_func": "product",
             "parameters": [
                 "starfit_NORlo_final_stillCreek",
-                "starfit_GRanD_CAP_MG_stillCreek"
+                "starfit_Adjusted_CAP_MG_stillCreek"
             ]
         },
         "starfit_neg_NORhi_final_unnorm_stillCreek": {
@@ -8961,7 +8961,7 @@
             "agg_func": "product",
             "parameters": [
                 "starfit_neg_NORhi_final_stillCreek",
-                "starfit_GRanD_CAP_MG_stillCreek"
+                "starfit_Adjusted_CAP_MG_stillCreek"
             ]
         },
         "starfit_aboveNOR_sum_stillCreek": {
@@ -9160,7 +9160,7 @@
             "agg_func": "sum",
             "parameters": [
                 "starfit_release_pt1_stillCreek",
-                "starfit_neg_GRanD_CAP_MG_stillCreek"
+                "starfit_neg_Adjusted_CAP_MG_stillCreek"
             ]
         },
         "starfit_release_final_stillCreek": {
@@ -9183,14 +9183,14 @@
             "type": "negative",
             "parameter": "starfit_GRanD_MEANFLOW_MGD_stillCreek"
         },
-        "starfit_neg_GRanD_CAP_MG_stillCreek": {
+        "starfit_neg_Adjusted_CAP_MG_stillCreek": {
             "type": "negative",
-            "parameter": "starfit_GRanD_CAP_MG_stillCreek"
+            "parameter": "starfit_Adjusted_CAP_MG_stillCreek"
         },
         "starfit_inNOR_fracvol_stillCreek": {
             "type": "division",
             "numerator": "volume_stillCreek",
-            "denominator": "starfit_GRanD_CAP_MG_stillCreek"
+            "denominator": "starfit_Adjusted_CAP_MG_stillCreek"
         },
         "starfit_inNOR_p1a_div_stillCreek": {
             "type": "division",
@@ -9226,12 +9226,12 @@
         "volume_stillCreek": {
             "type": "interpolatedvolume",
             "values": [
-                0,
+                -1e-10,
                 1000000
             ],
             "node": "reservoir_stillCreek",
             "volumes": [
-                0,
+                -1e-10,
                 1000000
             ]
         },
@@ -9272,7 +9272,7 @@
         },
         "flow_base_blueMarsh": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nwmv21.csv",
+            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
             "column": "blueMarsh",
             "index_col": "datetime",
             "parse_dates": true
@@ -9288,7 +9288,7 @@
         "max_volume_blueMarsh": {
             "type": "constant",
             "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_CAP_MG",
+            "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": "blueMarsh"
         },
@@ -9425,10 +9425,10 @@
             "index_col": "reservoir",
             "index": "blueMarsh"
         },
-        "starfit_GRanD_CAP_MG_blueMarsh": {
+        "starfit_Adjusted_CAP_MG_blueMarsh": {
             "type": "constant",
             "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_CAP_MG",
+            "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": "blueMarsh"
         },
@@ -9542,7 +9542,7 @@
             "agg_func": "product",
             "parameters": [
                 "starfit_NORlo_final_blueMarsh",
-                "starfit_GRanD_CAP_MG_blueMarsh"
+                "starfit_Adjusted_CAP_MG_blueMarsh"
             ]
         },
         "starfit_neg_NORhi_final_unnorm_blueMarsh": {
@@ -9550,7 +9550,7 @@
             "agg_func": "product",
             "parameters": [
                 "starfit_neg_NORhi_final_blueMarsh",
-                "starfit_GRanD_CAP_MG_blueMarsh"
+                "starfit_Adjusted_CAP_MG_blueMarsh"
             ]
         },
         "starfit_aboveNOR_sum_blueMarsh": {
@@ -9749,7 +9749,7 @@
             "agg_func": "sum",
             "parameters": [
                 "starfit_release_pt1_blueMarsh",
-                "starfit_neg_GRanD_CAP_MG_blueMarsh"
+                "starfit_neg_Adjusted_CAP_MG_blueMarsh"
             ]
         },
         "starfit_release_final_blueMarsh": {
@@ -9772,14 +9772,14 @@
             "type": "negative",
             "parameter": "starfit_GRanD_MEANFLOW_MGD_blueMarsh"
         },
-        "starfit_neg_GRanD_CAP_MG_blueMarsh": {
+        "starfit_neg_Adjusted_CAP_MG_blueMarsh": {
             "type": "negative",
-            "parameter": "starfit_GRanD_CAP_MG_blueMarsh"
+            "parameter": "starfit_Adjusted_CAP_MG_blueMarsh"
         },
         "starfit_inNOR_fracvol_blueMarsh": {
             "type": "division",
             "numerator": "volume_blueMarsh",
-            "denominator": "starfit_GRanD_CAP_MG_blueMarsh"
+            "denominator": "starfit_Adjusted_CAP_MG_blueMarsh"
         },
         "starfit_inNOR_p1a_div_blueMarsh": {
             "type": "division",
@@ -9815,12 +9815,12 @@
         "volume_blueMarsh": {
             "type": "interpolatedvolume",
             "values": [
-                0,
+                -1e-10,
                 1000000
             ],
             "node": "reservoir_blueMarsh",
             "volumes": [
-                0,
+                -1e-10,
                 1000000
             ]
         },
@@ -9873,7 +9873,7 @@
         },
         "flow_base_greenLane": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nwmv21.csv",
+            "url": "../input_data/catchment_inflow_nhmv10.csv",
             "column": "greenLane",
             "index_col": "datetime",
             "parse_dates": true
@@ -9889,7 +9889,7 @@
         "max_volume_greenLane": {
             "type": "constant",
             "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_CAP_MG",
+            "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": "greenLane"
         },
@@ -10026,10 +10026,10 @@
             "index_col": "reservoir",
             "index": "greenLane"
         },
-        "starfit_GRanD_CAP_MG_greenLane": {
+        "starfit_Adjusted_CAP_MG_greenLane": {
             "type": "constant",
             "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_CAP_MG",
+            "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": "greenLane"
         },
@@ -10143,7 +10143,7 @@
             "agg_func": "product",
             "parameters": [
                 "starfit_NORlo_final_greenLane",
-                "starfit_GRanD_CAP_MG_greenLane"
+                "starfit_Adjusted_CAP_MG_greenLane"
             ]
         },
         "starfit_neg_NORhi_final_unnorm_greenLane": {
@@ -10151,7 +10151,7 @@
             "agg_func": "product",
             "parameters": [
                 "starfit_neg_NORhi_final_greenLane",
-                "starfit_GRanD_CAP_MG_greenLane"
+                "starfit_Adjusted_CAP_MG_greenLane"
             ]
         },
         "starfit_aboveNOR_sum_greenLane": {
@@ -10350,7 +10350,7 @@
             "agg_func": "sum",
             "parameters": [
                 "starfit_release_pt1_greenLane",
-                "starfit_neg_GRanD_CAP_MG_greenLane"
+                "starfit_neg_Adjusted_CAP_MG_greenLane"
             ]
         },
         "starfit_release_final_greenLane": {
@@ -10373,14 +10373,14 @@
             "type": "negative",
             "parameter": "starfit_GRanD_MEANFLOW_MGD_greenLane"
         },
-        "starfit_neg_GRanD_CAP_MG_greenLane": {
+        "starfit_neg_Adjusted_CAP_MG_greenLane": {
             "type": "negative",
-            "parameter": "starfit_GRanD_CAP_MG_greenLane"
+            "parameter": "starfit_Adjusted_CAP_MG_greenLane"
         },
         "starfit_inNOR_fracvol_greenLane": {
             "type": "division",
             "numerator": "volume_greenLane",
-            "denominator": "starfit_GRanD_CAP_MG_greenLane"
+            "denominator": "starfit_Adjusted_CAP_MG_greenLane"
         },
         "starfit_inNOR_p1a_div_greenLane": {
             "type": "division",
@@ -10416,12 +10416,12 @@
         "volume_greenLane": {
             "type": "interpolatedvolume",
             "values": [
-                0,
+                -1e-10,
                 1000000
             ],
             "node": "reservoir_greenLane",
             "volumes": [
-                0,
+                -1e-10,
                 1000000
             ]
         },
@@ -10462,7 +10462,7 @@
         },
         "flow_base_outletSchuylkill": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nwmv21.csv",
+            "url": "../input_data/catchment_inflow_nhmv10.csv",
             "column": "outletSchuylkill",
             "index_col": "datetime",
             "parse_dates": true
@@ -10503,7 +10503,7 @@
         },
         "flow_base_marshCreek": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nwmv21.csv",
+            "url": "../input_data/catchment_inflow_nhmv10.csv",
             "column": "marshCreek",
             "index_col": "datetime",
             "parse_dates": true
@@ -10519,7 +10519,7 @@
         "max_volume_marshCreek": {
             "type": "constant",
             "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_CAP_MG",
+            "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": "marshCreek"
         },
@@ -10656,10 +10656,10 @@
             "index_col": "reservoir",
             "index": "marshCreek"
         },
-        "starfit_GRanD_CAP_MG_marshCreek": {
+        "starfit_Adjusted_CAP_MG_marshCreek": {
             "type": "constant",
             "url": "drb_model_istarf_conus.csv",
-            "column": "GRanD_CAP_MG",
+            "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": "marshCreek"
         },
@@ -10773,7 +10773,7 @@
             "agg_func": "product",
             "parameters": [
                 "starfit_NORlo_final_marshCreek",
-                "starfit_GRanD_CAP_MG_marshCreek"
+                "starfit_Adjusted_CAP_MG_marshCreek"
             ]
         },
         "starfit_neg_NORhi_final_unnorm_marshCreek": {
@@ -10781,7 +10781,7 @@
             "agg_func": "product",
             "parameters": [
                 "starfit_neg_NORhi_final_marshCreek",
-                "starfit_GRanD_CAP_MG_marshCreek"
+                "starfit_Adjusted_CAP_MG_marshCreek"
             ]
         },
         "starfit_aboveNOR_sum_marshCreek": {
@@ -10980,7 +10980,7 @@
             "agg_func": "sum",
             "parameters": [
                 "starfit_release_pt1_marshCreek",
-                "starfit_neg_GRanD_CAP_MG_marshCreek"
+                "starfit_neg_Adjusted_CAP_MG_marshCreek"
             ]
         },
         "starfit_release_final_marshCreek": {
@@ -11003,14 +11003,14 @@
             "type": "negative",
             "parameter": "starfit_GRanD_MEANFLOW_MGD_marshCreek"
         },
-        "starfit_neg_GRanD_CAP_MG_marshCreek": {
+        "starfit_neg_Adjusted_CAP_MG_marshCreek": {
             "type": "negative",
-            "parameter": "starfit_GRanD_CAP_MG_marshCreek"
+            "parameter": "starfit_Adjusted_CAP_MG_marshCreek"
         },
         "starfit_inNOR_fracvol_marshCreek": {
             "type": "division",
             "numerator": "volume_marshCreek",
-            "denominator": "starfit_GRanD_CAP_MG_marshCreek"
+            "denominator": "starfit_Adjusted_CAP_MG_marshCreek"
         },
         "starfit_inNOR_p1a_div_marshCreek": {
             "type": "division",
@@ -11046,12 +11046,12 @@
         "volume_marshCreek": {
             "type": "interpolatedvolume",
             "values": [
-                0,
+                -1e-10,
                 1000000
             ],
             "node": "reservoir_marshCreek",
             "volumes": [
-                0,
+                -1e-10,
                 1000000
             ]
         },
@@ -11092,7 +11092,7 @@
         },
         "flow_base_outletChristina": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nwmv21.csv",
+            "url": "../input_data/catchment_inflow_nhmv10.csv",
             "column": "outletChristina",
             "index_col": "datetime",
             "parse_dates": true
@@ -11734,8 +11734,8 @@
             ],
             "node": "reservoir_cannonsville",
             "volumes": [
-                0,
-                146641.8772
+                -1e-10,
+                93000.0000000001
             ]
         },
         "storage_cost_pepacton": {
@@ -11746,8 +11746,8 @@
             ],
             "node": "reservoir_pepacton",
             "volumes": [
-                0,
-                198683.7612
+                -1e-10,
+                140000.0000000001
             ]
         },
         "storage_cost_neversink": {
@@ -11758,55 +11758,55 @@
             ],
             "node": "reservoir_neversink",
             "volumes": [
-                0,
-                46282.9344
+                -1e-10,
+                34500.0000000001
             ]
         },
         "volume_cannonsville": {
             "type": "interpolatedvolume",
             "values": [
-                0,
+                -1e-10,
                 1000000
             ],
             "node": "reservoir_cannonsville",
             "volumes": [
-                0,
+                -1e-10,
                 1000000
             ]
         },
         "volume_pepacton": {
             "type": "interpolatedvolume",
             "values": [
-                0,
+                -1e-10,
                 1000000
             ],
             "node": "reservoir_pepacton",
             "volumes": [
-                0,
+                -1e-10,
                 1000000
             ]
         },
         "volume_neversink": {
             "type": "interpolatedvolume",
             "values": [
-                0,
+                -1e-10,
                 1000000
             ],
             "node": "reservoir_neversink",
             "volumes": [
-                0,
+                -1e-10,
                 1000000
             ]
         },
         "volume_agg_nyc": {
             "type": "interpolatedvolume",
             "values": [
-                0,
+                -1e-10,
                 1000000
             ],
             "node": "reservoir_agg_nyc",
             "volumes": [
-                0,
+                -1e-10,
                 1000000
             ]
         },

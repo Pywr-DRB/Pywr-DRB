@@ -1,9 +1,12 @@
 import json
+import pandas as pd
 
 input_dir = '../input_data/'
 model_sheets_dir = 'model_data/'
 model_full_file = model_sheets_dir + 'drb_model_full.json'
 model_sheets_start = model_sheets_dir + 'drb_model_'
+
+EPS = 1e-10
 
 ### function for writing all relevant parameters to simulate starfit reservoir
 def create_starfit_params(d, r):
@@ -18,7 +21,7 @@ def create_starfit_params(d, r):
               'NORlo_alpha', 'NORlo_beta', 'NORlo_max', 'NORlo_min', 'NORlo_mu',
               'Release_alpha1', 'Release_alpha2', 'Release_beta1', 'Release_beta2',
               'Release_c', 'Release_max', 'Release_min', 'Release_p1', 'Release_p2',
-              'GRanD_CAP_MG', 'GRanD_MEANFLOW_MGD']:
+              'Adjusted_CAP_MG', 'GRanD_MEANFLOW_MGD']:
         name = 'starfit_' + s + '_' + r
         d[name] = {}
         d[name]['type'] = 'constant'
@@ -40,8 +43,8 @@ def create_starfit_params(d, r):
                       ('NORlo_minbound', 'max', ['NORlo_sum', 'NORlo_min']),
                       ('NORlo_maxbound', 'min', ['NORlo_minbound', 'NORlo_max']),
                       ('NORlo_final', 'product', ['NORlo_maxbound', 0.01]),
-                      ('NORlo_final_unnorm', 'product', ['NORlo_final', 'GRanD_CAP_MG']),
-                      ('neg_NORhi_final_unnorm', 'product', ['neg_NORhi_final', 'GRanD_CAP_MG']),
+                      ('NORlo_final_unnorm', 'product', ['NORlo_final', 'Adjusted_CAP_MG']),
+                      ('neg_NORhi_final_unnorm', 'product', ['neg_NORhi_final', 'Adjusted_CAP_MG']),
                       ('aboveNOR_sum', 'sum', ['volume', 'neg_NORhi_final_unnorm', 'flow_weekly']),
                       ('aboveNOR_final', 'product', ['aboveNOR_sum', 1 / 7]),
                       ('inNOR_sin', 'product', ['sin_weekly', 'Release_alpha1']),
@@ -81,7 +84,7 @@ def create_starfit_params(d, r):
                        ('target_final', 'min', ['target_pt2', 'Release_max_final']),
                        ('release_pt1', 'sum', ['flow', 'volume']),
                        ('release_pt2', 'min', ['release_pt1', 'target_final']),
-                       ('release_pt3', 'sum', ['release_pt1', 'neg_GRanD_CAP_MG']),
+                       ('release_pt3', 'sum', ['release_pt1', 'neg_Adjusted_CAP_MG']),
                        ('release_final', 'max', ['release_pt2', 'release_pt3'])]
 
     ### loop over agg params, add to pywr dictionary/json
@@ -108,14 +111,14 @@ def create_starfit_params(d, r):
             d[name]['parameters'].append(param)
 
     ### negative params
-    for s in ['NORhi_final', 'NORlo_final', 'GRanD_MEANFLOW_MGD', 'GRanD_CAP_MG']:
+    for s in ['NORhi_final', 'NORlo_final', 'GRanD_MEANFLOW_MGD', 'Adjusted_CAP_MG']:
         name = 'starfit_neg_' + s + '_' + r
         d[name] = {}
         d[name]['type'] = 'negative'
         d[name]['parameter'] = 'starfit_' + s + '_' + r
 
     ### division params
-    for s, num, denom in [('inNOR_fracvol', 'volume', 'GRanD_CAP_MG'),
+    for s, num, denom in [('inNOR_fracvol', 'volume', 'Adjusted_CAP_MG'),
                           ('inNOR_p1a_div', 'inNOR_p1a_num', 'inNOR_p1a_denom'),
                           ('inNOR_inorm_final', 'inNOR_inorm_pt1', 'GRanD_MEANFLOW_MGD'),
                           ('belowNOR_frac_NORlo', 'volume', 'NORlo_final_unnorm')]:
@@ -142,9 +145,9 @@ def create_starfit_params(d, r):
                                                        'starfit_NORlo_final_' + r]},
              'flow_weekly_' + r: {'type': 'aggregated', 'agg_func': 'product', 'parameters': ['flow_' + r, 7]},
              'volume_' + r: {'type': 'interpolatedvolume',
-                             'values': [0, 1000000],
+                             'values': [-EPS, 1000000],
                              'node': 'reservoir_' + r,
-                             'volumes': [0, 1000000]},
+                             'volumes': [-EPS, 1000000]},
              'starfit_target_pt1_' + r: {'type': 'indexedarray',
                                          'index_parameter': 'starfit_level_' + r,
                                          'params': ['starfit_aboveNOR_final_' + r,
@@ -160,7 +163,7 @@ def create_starfit_params(d, r):
 
 ### create standard model node structures
 def add_major_node(model, name, node_type, inflow_type, backup_inflow_type=None, outflow_type=None, downstream_node=None,
-                   downstream_lag=0, initial_volume=None, initial_volume_perc=None, variable_cost=None):
+                   downstream_lag=0, capacity=None, initial_volume_frac=None, variable_cost=None):
     '''
     Add a major node to the model. Major nodes types include reservoir & river.
     This function will add the major node and all standard minor nodes that belong to each major node
@@ -174,10 +177,9 @@ def add_major_node(model, name, node_type, inflow_type, backup_inflow_type=None,
     :param outflow_type: define what type of outflow node to use (if any) - either 'starfit' or 'regulatory'
     :param downstream_node: name of node directly downstream, for writing edge network.
     :param downstream_lag: travel time (in days) between flow leaving a node and reaching its downstream node
-    :param initial_volume: (reservoirs only) starting volume of reservoir in MG. Must correspond to "initial_volume_perc" times
-                           total volume, as pywr doesnt calculate this automatically in time step 0
-    :param initial_volume_perc: (reservoirs only) fraction full for reservoir initially
-                           (note this is fraction, not percent, a confusing pywr convention)
+    :param capacity: (reservoirs only) capacity of reservoir in MG.
+    :param initial_volume_frac: (reservoirs only) fraction full for reservoir initially
+                           (note this is fraction, not percent, despite that it must be named "initial_volume_pc" for pywr json by convention)
     :param variable_cost: (reservoirs only) If False, cost is fixed throughout simulation.
                            If True, it varies according to state-dependent parameter.
     :return: model
@@ -194,12 +196,13 @@ def add_major_node(model, name, node_type, inflow_type, backup_inflow_type=None,
     ### first add major node to dict
     if node_type == 'reservoir':
         node_name = f'reservoir_{name}'
+        initial_volume = capacity * initial_volume_frac
         reservoir = {
             'name': node_name,
             'type': 'storage',
             'max_volume': f'max_volume_{name}',
             'initial_volume': initial_volume,
-            'initial_volume_pc': initial_volume_perc,
+            'initial_volume_pc': initial_volume_frac,
             'cost': -10.0 if not variable_cost else f'storage_cost_{name}'
         }
         model['nodes'].append(reservoir)
@@ -335,12 +338,12 @@ def add_major_node(model, name, node_type, inflow_type, backup_inflow_type=None,
             ]
         }
 
-    ### max volume of reservoir, from GRanD database
+    ### max volume of reservoir, from GRanD database except where adjusted from other sources (eg NYC)
     if node_type == 'reservoir':
         model['parameters'][f'max_volume_{name}'] = {
             'type': 'constant',
             'url': 'drb_model_istarf_conus.csv',
-            'column': 'GRanD_CAP_MG',
+            'column': 'Adjusted_CAP_MG',
             'index_col': 'reservoir',
             'index': name
         }
@@ -438,37 +441,44 @@ def drb_make_model(inflow_type, backup_inflow_type, start_date, end_date, use_hi
     #######################################################################
     ### add major nodes (e.g., reservoirs) to model, along with corresponding minor nodes (e.g., withdrawals), edges, & parameters
     #######################################################################
-    model = add_major_node(model, 'cannonsville', 'reservoir', inflow_type, backup_inflow_type, 'regulatory', '01425000', 0, 117313.5018, 0.8, True)
+
+    ### get initial reservoir storages as 80% of capacity
+    istarf = pd.read_csv('model_data/drb_model_istarf_conus.csv')
+    initial_volume_frac = 0.8
+    def get_reservoir_capacity(reservoir):
+        return float(istarf['Adjusted_CAP_MG'].loc[istarf['reservoir'] == reservoir].iloc[0])
+
+    model = add_major_node(model, 'cannonsville', 'reservoir', inflow_type, backup_inflow_type, 'regulatory', '01425000', 0, get_reservoir_capacity('cannonsville'), initial_volume_frac, True)
     model = add_major_node(model, '01425000', 'river', inflow_type, backup_inflow_type, None, 'delLordville', 0)
-    model = add_major_node(model, 'pepacton', 'reservoir', inflow_type, backup_inflow_type, 'regulatory', '01417000', 0, 158947.009, 0.8, True)
+    model = add_major_node(model, 'pepacton', 'reservoir', inflow_type, backup_inflow_type, 'regulatory', '01417000', 0, get_reservoir_capacity('pepacton'), initial_volume_frac, True)
     model = add_major_node(model, '01417000', 'river', inflow_type, backup_inflow_type, None, 'delLordville', 0)
     model = add_major_node(model, 'delLordville', 'river', inflow_type, backup_inflow_type, None, 'delMontague', 2)
-    model = add_major_node(model, 'neversink', 'reservoir', inflow_type, backup_inflow_type, 'regulatory', '01436000', 0, 37026.34752, 0.8, True)
+    model = add_major_node(model, 'neversink', 'reservoir', inflow_type, backup_inflow_type, 'regulatory', '01436000', 0, get_reservoir_capacity('neversink'), initial_volume_frac, True)
     model = add_major_node(model, '01436000', 'river', inflow_type, backup_inflow_type, None, 'delMontague', 1)
-    model = add_major_node(model, 'wallenpaupack', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delMontague', 1, 70375.4208, 0.8, False)
-    model = add_major_node(model, 'prompton', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delMontague', 1, 3022.12768, 0.8, False)
-    model = add_major_node(model, 'shoholaMarsh', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delMontague', 1, 6889.60576, 0.8, False)
-    model = add_major_node(model, 'mongaupeCombined', 'reservoir', inflow_type, backup_inflow_type, 'starfit', '01433500', 0, 22697.65824, 0.8, False)
+    model = add_major_node(model, 'wallenpaupack', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delMontague', 1, get_reservoir_capacity('wallenpaupack'), initial_volume_frac, False)
+    model = add_major_node(model, 'prompton', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delMontague', 1, get_reservoir_capacity('prompton'), initial_volume_frac, False)
+    model = add_major_node(model, 'shoholaMarsh', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delMontague', 1, get_reservoir_capacity('shoholaMarsh'), initial_volume_frac, False)
+    model = add_major_node(model, 'mongaupeCombined', 'reservoir', inflow_type, backup_inflow_type, 'starfit', '01433500', 0, get_reservoir_capacity('mongaupeCombined'), initial_volume_frac, False)
     model = add_major_node(model, '01433500', 'river', inflow_type, backup_inflow_type, None, 'delMontague', 0)
     model = add_major_node(model, 'delMontague', 'river', inflow_type, backup_inflow_type, 'regulatory', 'delTrenton', 2)
-    model = add_major_node(model, 'beltzvilleCombined', 'reservoir', inflow_type, backup_inflow_type, 'starfit', '01449800', 0, 38653.64704, 0.8, False)
+    model = add_major_node(model, 'beltzvilleCombined', 'reservoir', inflow_type, backup_inflow_type, 'starfit', '01449800', 0, get_reservoir_capacity('beltzvilleCombined'), initial_volume_frac, False)
     model = add_major_node(model, '01449800', 'river', inflow_type, backup_inflow_type, None, 'delTrenton', 2)
-    model = add_major_node(model, 'fewalter', 'reservoir', inflow_type, backup_inflow_type, 'starfit', '01447800', 0, 3022.12768, 0.8, False)
+    model = add_major_node(model, 'fewalter', 'reservoir', inflow_type, backup_inflow_type, 'starfit', '01447800', 0, get_reservoir_capacity('fewalter'), initial_volume_frac, False)
     model = add_major_node(model, '01447800', 'river', inflow_type, backup_inflow_type, None, 'delTrenton', 2)
-    model = add_major_node(model, 'merrillCreek', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delTrenton', 1, 11982.84192, 0.8, False)
-    model = add_major_node(model, 'hopatcong', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delTrenton', 1, 12574.5872, 0.8, False)
-    model = add_major_node(model, 'nockamixon', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delTrenton', 0, 18513.17376, 0.8, False)
+    model = add_major_node(model, 'merrillCreek', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delTrenton', 1, get_reservoir_capacity('merrillCreek'), initial_volume_frac, False)
+    model = add_major_node(model, 'hopatcong', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delTrenton', 1, get_reservoir_capacity('hopatcong'), initial_volume_frac, False)
+    model = add_major_node(model, 'nockamixon', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delTrenton', 0, get_reservoir_capacity('nockamixon'), initial_volume_frac, False)
     model = add_major_node(model, 'delTrenton', 'river', inflow_type, backup_inflow_type, 'regulatory', 'output_del', 1)
-    model = add_major_node(model, 'assunpink', 'reservoir', inflow_type, backup_inflow_type, 'starfit', '01463620', 0, 3296.86656, 0.8, False)
+    model = add_major_node(model, 'assunpink', 'reservoir', inflow_type, backup_inflow_type, 'starfit', '01463620', 0, get_reservoir_capacity('assunpink'), initial_volume_frac, False)
     model = add_major_node(model, '01463620', 'river', inflow_type, backup_inflow_type, None, 'outletAssunpink', 0)
     model = add_major_node(model, 'outletAssunpink', 'river', inflow_type, backup_inflow_type, None, 'output_del', 0)
-    model = add_major_node(model, 'ontelaunee', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'outletSchuylkill', 2, 3022.12768, 0.8, False)
-    model = add_major_node(model, 'stillCreek', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'outletSchuylkill', 2, 3022.12768, 0.8, False)
-    model = add_major_node(model, 'blueMarsh', 'reservoir', inflow_type, backup_inflow_type, 'starfit', '01470960', 0, 33856.28352, 0.8, False)
+    model = add_major_node(model, 'ontelaunee', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'outletSchuylkill', 2, get_reservoir_capacity('ontelaunee'), initial_volume_frac, False)
+    model = add_major_node(model, 'stillCreek', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'outletSchuylkill', 2, get_reservoir_capacity('stillCreek'), initial_volume_frac, False)
+    model = add_major_node(model, 'blueMarsh', 'reservoir', inflow_type, backup_inflow_type, 'starfit', '01470960', 0, get_reservoir_capacity('blueMarsh'), initial_volume_frac, False)
     model = add_major_node(model, '01470960', 'river', inflow_type, backup_inflow_type, None, 'outletSchuylkill', 2)
-    model = add_major_node(model, 'greenLane', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'outletSchuylkill', 1, 6551.4656, 0.8, False)
+    model = add_major_node(model, 'greenLane', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'outletSchuylkill', 1, get_reservoir_capacity('greenLane'), initial_volume_frac, False)
     model = add_major_node(model, 'outletSchuylkill', 'river', inflow_type, backup_inflow_type, None, 'output_del', 0)
-    model = add_major_node(model, 'marshCreek', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'outletChristina', 0, 3022.12768, 0.8, False)
+    model = add_major_node(model, 'marshCreek', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'outletChristina', 0, get_reservoir_capacity('marshCreek'), initial_volume_frac, False)
     model = add_major_node(model, 'outletChristina', 'river', inflow_type, backup_inflow_type, None, 'output_del', 0)
 
 
@@ -760,22 +770,24 @@ def drb_make_model(inflow_type, backup_inflow_type, start_date, end_date, use_hi
 
     ### variable storage cost for each reservoir, based on its fractional storage
     ### Note: may not need this anymore now that we have volume balancing rules. but maybe makes sense to leave in for extra protection.
-    volumes = {'cannonsville': 146641.8772, 'pepacton':  198683.7612, 'neversink': 46282.9344}
+    volumes = {'cannonsville': get_reservoir_capacity('cannonsville'),
+               'pepacton':  get_reservoir_capacity('pepacton'),
+               'neversink': get_reservoir_capacity('neversink')}
     for reservoir in nyc_reservoirs:
         model['parameters'][f'storage_cost_{reservoir}'] = {
             'type': 'interpolatedvolume',
             'values': [-100,-1],
             'node': f'reservoir_{reservoir}',
-            'volumes': [0, volumes[reservoir]]
+            'volumes': [-EPS, volumes[reservoir] + EPS]
         }
 
     ### current volume stored in each reservoir, plus the aggregated storage node
     for reservoir in nyc_reservoirs + ['agg_nyc']:
         model['parameters'][f'volume_{reservoir}'] = {
             'type': 'interpolatedvolume',
-            'values': [0, 1000000],
+            'values': [-EPS, 1000000],
             'node': f'reservoir_{reservoir}',
-            'volumes': [0, 1000000]
+            'volumes': [-EPS, 1000000]
         }
 
     ### aggregated inflows to NYC reservoirs
