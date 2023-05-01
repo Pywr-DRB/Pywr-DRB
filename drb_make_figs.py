@@ -46,16 +46,16 @@ if __name__ == "__main__":
     rerun_all = True
     use_WEAP = False
 
-    # User-specified date range, or default to minimum overlapping period across models
-    # if use_WEAP:
-    #     start_date = sys.argv[1] if len(sys.argv) > 1 else '1999-06-01'
-    #     end_date = sys.argv[2] if len(sys.argv) > 2 else '2010-05-31'
-    # else:
-    #     start_date = sys.argv[1] if len(sys.argv) > 1 else '1983-10-01'
-    #     end_date = sys.argv[2] if len(sys.argv) > 2 else '2017-01-01'
+    ### User-specified date range, or default to minimum overlapping period across models
+    if use_WEAP:
+        start_date = sys.argv[1] if len(sys.argv) > 1 else '1999-06-01'
+        end_date = sys.argv[2] if len(sys.argv) > 2 else '2010-05-31'
+    else:
+        start_date = sys.argv[1] if len(sys.argv) > 1 else '1983-10-01'
+        end_date = sys.argv[2] if len(sys.argv) > 2 else '2017-01-01'
 
-    start_date = sys.argv[1] if len(sys.argv) > 1 else '1999-06-01'
-    end_date = sys.argv[2] if len(sys.argv) > 2 else '2010-05-31'
+    # start_date = sys.argv[1] if len(sys.argv) > 1 else '1999-06-01'
+    # end_date = sys.argv[2] if len(sys.argv) > 2 else '2010-05-31'
 
     ## Load data    
     # Load Pywr-DRB simulation models

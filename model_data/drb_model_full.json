@@ -5,8 +5,8 @@
         "minimum_version": "0.4"
     },
     "timestepper": {
-        "start": "1999-06-01",
-        "end": "2010-05-31",
+        "start": "1983-10-01",
+        "end": "2016-12-31",
         "timestep": 1
     },
     "scenarios": [
@@ -20,7 +20,7 @@
             "name": "reservoir_cannonsville",
             "type": "storage",
             "max_volume": "max_volume_cannonsville",
-            "initial_volume": 74400.0,
+            "initial_volume": 76560.0,
             "initial_volume_pc": 0.8,
             "cost": "storage_cost_cannonsville"
         },
@@ -72,7 +72,7 @@
             "name": "reservoir_pepacton",
             "type": "storage",
             "max_volume": "max_volume_pepacton",
-            "initial_volume": 112000.0,
+            "initial_volume": 112160.0,
             "initial_volume_pc": 0.8,
             "cost": "storage_cost_pepacton"
         },
@@ -150,7 +150,7 @@
             "name": "reservoir_neversink",
             "type": "storage",
             "max_volume": "max_volume_neversink",
-            "initial_volume": 27600.0,
+            "initial_volume": 27920.0,
             "initial_volume_pc": 0.8,
             "cost": "storage_cost_neversink"
         },
@@ -1812,7 +1812,7 @@
     "parameters": {
         "flow_base_cannonsville": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
+            "url": "../input_data/catchment_inflow_nwmv21_withLakes.csv",
             "column": "cannonsville",
             "index_col": "datetime",
             "parse_dates": true
@@ -1872,7 +1872,7 @@
         },
         "flow_base_pepacton": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
+            "url": "../input_data/catchment_inflow_nwmv21_withLakes.csv",
             "column": "pepacton",
             "index_col": "datetime",
             "parse_dates": true
@@ -1932,7 +1932,7 @@
         },
         "flow_base_delLordville": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nhmv10.csv",
+            "url": "../input_data/catchment_inflow_nwmv21_withLakes.csv",
             "column": "delLordville",
             "index_col": "datetime",
             "parse_dates": true
@@ -1973,7 +1973,7 @@
         },
         "flow_base_neversink": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
+            "url": "../input_data/catchment_inflow_nwmv21_withLakes.csv",
             "column": "neversink",
             "index_col": "datetime",
             "parse_dates": true
@@ -2033,7 +2033,7 @@
         },
         "flow_base_wallenpaupack": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
+            "url": "../input_data/catchment_inflow_nwmv21_withLakes.csv",
             "column": "wallenpaupack",
             "index_col": "datetime",
             "parse_dates": true
@@ -2576,12 +2576,12 @@
         "volume_wallenpaupack": {
             "type": "interpolatedvolume",
             "values": [
-                -1e-10,
+                -1e-08,
                 1000000
             ],
             "node": "reservoir_wallenpaupack",
             "volumes": [
-                -1e-10,
+                -1e-08,
                 1000000
             ]
         },
@@ -2622,7 +2622,7 @@
         },
         "flow_base_prompton": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nhmv10.csv",
+            "url": "../input_data/catchment_inflow_nwmv21_withLakes.csv",
             "column": "prompton",
             "index_col": "datetime",
             "parse_dates": true
@@ -3165,12 +3165,12 @@
         "volume_prompton": {
             "type": "interpolatedvolume",
             "values": [
-                -1e-10,
+                -1e-08,
                 1000000
             ],
             "node": "reservoir_prompton",
             "volumes": [
-                -1e-10,
+                -1e-08,
                 1000000
             ]
         },
@@ -3211,7 +3211,7 @@
         },
         "flow_base_shoholaMarsh": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nhmv10.csv",
+            "url": "../input_data/catchment_inflow_nwmv21_withLakes.csv",
             "column": "shoholaMarsh",
             "index_col": "datetime",
             "parse_dates": true
@@ -3754,12 +3754,12 @@
         "volume_shoholaMarsh": {
             "type": "interpolatedvolume",
             "values": [
-                -1e-10,
+                -1e-08,
                 1000000
             ],
             "node": "reservoir_shoholaMarsh",
             "volumes": [
-                -1e-10,
+                -1e-08,
                 1000000
             ]
         },
@@ -3800,7 +3800,7 @@
         },
         "flow_base_mongaupeCombined": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
+            "url": "../input_data/catchment_inflow_nwmv21_withLakes.csv",
             "column": "mongaupeCombined",
             "index_col": "datetime",
             "parse_dates": true
@@ -4343,12 +4343,12 @@
         "volume_mongaupeCombined": {
             "type": "interpolatedvolume",
             "values": [
-                -1e-10,
+                -1e-08,
                 1000000
             ],
             "node": "reservoir_mongaupeCombined",
             "volumes": [
-                -1e-10,
+                -1e-08,
                 1000000
             ]
         },
@@ -4401,7 +4401,7 @@
         },
         "flow_base_delMontague": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nhmv10.csv",
+            "url": "../input_data/catchment_inflow_nwmv21_withLakes.csv",
             "column": "delMontague",
             "index_col": "datetime",
             "parse_dates": true
@@ -4442,7 +4442,7 @@
         },
         "flow_base_beltzvilleCombined": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
+            "url": "../input_data/catchment_inflow_nwmv21_withLakes.csv",
             "column": "beltzvilleCombined",
             "index_col": "datetime",
             "parse_dates": true
@@ -4985,12 +4985,12 @@
         "volume_beltzvilleCombined": {
             "type": "interpolatedvolume",
             "values": [
-                -1e-10,
+                -1e-08,
                 1000000
             ],
             "node": "reservoir_beltzvilleCombined",
             "volumes": [
-                -1e-10,
+                -1e-08,
                 1000000
             ]
         },
@@ -5043,7 +5043,7 @@
         },
         "flow_base_fewalter": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nhmv10.csv",
+            "url": "../input_data/catchment_inflow_nwmv21_withLakes.csv",
             "column": "fewalter",
             "index_col": "datetime",
             "parse_dates": true
@@ -5586,12 +5586,12 @@
         "volume_fewalter": {
             "type": "interpolatedvolume",
             "values": [
-                -1e-10,
+                -1e-08,
                 1000000
             ],
             "node": "reservoir_fewalter",
             "volumes": [
-                -1e-10,
+                -1e-08,
                 1000000
             ]
         },
@@ -5644,7 +5644,7 @@
         },
         "flow_base_merrillCreek": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nhmv10.csv",
+            "url": "../input_data/catchment_inflow_nwmv21_withLakes.csv",
             "column": "merrillCreek",
             "index_col": "datetime",
             "parse_dates": true
@@ -6187,12 +6187,12 @@
         "volume_merrillCreek": {
             "type": "interpolatedvolume",
             "values": [
-                -1e-10,
+                -1e-08,
                 1000000
             ],
             "node": "reservoir_merrillCreek",
             "volumes": [
-                -1e-10,
+                -1e-08,
                 1000000
             ]
         },
@@ -6233,7 +6233,7 @@
         },
         "flow_base_hopatcong": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nhmv10.csv",
+            "url": "../input_data/catchment_inflow_nwmv21_withLakes.csv",
             "column": "hopatcong",
             "index_col": "datetime",
             "parse_dates": true
@@ -6776,12 +6776,12 @@
         "volume_hopatcong": {
             "type": "interpolatedvolume",
             "values": [
-                -1e-10,
+                -1e-08,
                 1000000
             ],
             "node": "reservoir_hopatcong",
             "volumes": [
-                -1e-10,
+                -1e-08,
                 1000000
             ]
         },
@@ -6822,7 +6822,7 @@
         },
         "flow_base_nockamixon": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
+            "url": "../input_data/catchment_inflow_nwmv21_withLakes.csv",
             "column": "nockamixon",
             "index_col": "datetime",
             "parse_dates": true
@@ -7365,12 +7365,12 @@
         "volume_nockamixon": {
             "type": "interpolatedvolume",
             "values": [
-                -1e-10,
+                -1e-08,
                 1000000
             ],
             "node": "reservoir_nockamixon",
             "volumes": [
-                -1e-10,
+                -1e-08,
                 1000000
             ]
         },
@@ -7411,7 +7411,7 @@
         },
         "flow_base_delTrenton": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nhmv10.csv",
+            "url": "../input_data/catchment_inflow_nwmv21_withLakes.csv",
             "column": "delTrenton",
             "index_col": "datetime",
             "parse_dates": true
@@ -7452,7 +7452,7 @@
         },
         "flow_base_assunpink": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
+            "url": "../input_data/catchment_inflow_nwmv21_withLakes.csv",
             "column": "assunpink",
             "index_col": "datetime",
             "parse_dates": true
@@ -7995,12 +7995,12 @@
         "volume_assunpink": {
             "type": "interpolatedvolume",
             "values": [
-                -1e-10,
+                -1e-08,
                 1000000
             ],
             "node": "reservoir_assunpink",
             "volumes": [
-                -1e-10,
+                -1e-08,
                 1000000
             ]
         },
@@ -8053,7 +8053,7 @@
         },
         "flow_base_outletAssunpink": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nhmv10.csv",
+            "url": "../input_data/catchment_inflow_nwmv21_withLakes.csv",
             "column": "outletAssunpink",
             "index_col": "datetime",
             "parse_dates": true
@@ -8094,7 +8094,7 @@
         },
         "flow_base_ontelaunee": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
+            "url": "../input_data/catchment_inflow_nwmv21_withLakes.csv",
             "column": "ontelaunee",
             "index_col": "datetime",
             "parse_dates": true
@@ -8637,12 +8637,12 @@
         "volume_ontelaunee": {
             "type": "interpolatedvolume",
             "values": [
-                -1e-10,
+                -1e-08,
                 1000000
             ],
             "node": "reservoir_ontelaunee",
             "volumes": [
-                -1e-10,
+                -1e-08,
                 1000000
             ]
         },
@@ -8683,7 +8683,7 @@
         },
         "flow_base_stillCreek": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nhmv10.csv",
+            "url": "../input_data/catchment_inflow_nwmv21_withLakes.csv",
             "column": "stillCreek",
             "index_col": "datetime",
             "parse_dates": true
@@ -9226,12 +9226,12 @@
         "volume_stillCreek": {
             "type": "interpolatedvolume",
             "values": [
-                -1e-10,
+                -1e-08,
                 1000000
             ],
             "node": "reservoir_stillCreek",
             "volumes": [
-                -1e-10,
+                -1e-08,
                 1000000
             ]
         },
@@ -9272,7 +9272,7 @@
         },
         "flow_base_blueMarsh": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_WEAP_23Aug2022_gridmet.csv",
+            "url": "../input_data/catchment_inflow_nwmv21_withLakes.csv",
             "column": "blueMarsh",
             "index_col": "datetime",
             "parse_dates": true
@@ -9815,12 +9815,12 @@
         "volume_blueMarsh": {
             "type": "interpolatedvolume",
             "values": [
-                -1e-10,
+                -1e-08,
                 1000000
             ],
             "node": "reservoir_blueMarsh",
             "volumes": [
-                -1e-10,
+                -1e-08,
                 1000000
             ]
         },
@@ -9873,7 +9873,7 @@
         },
         "flow_base_greenLane": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nhmv10.csv",
+            "url": "../input_data/catchment_inflow_nwmv21_withLakes.csv",
             "column": "greenLane",
             "index_col": "datetime",
             "parse_dates": true
@@ -10416,12 +10416,12 @@
         "volume_greenLane": {
             "type": "interpolatedvolume",
             "values": [
-                -1e-10,
+                -1e-08,
                 1000000
             ],
             "node": "reservoir_greenLane",
             "volumes": [
-                -1e-10,
+                -1e-08,
                 1000000
             ]
         },
@@ -10462,7 +10462,7 @@
         },
         "flow_base_outletSchuylkill": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nhmv10.csv",
+            "url": "../input_data/catchment_inflow_nwmv21_withLakes.csv",
             "column": "outletSchuylkill",
             "index_col": "datetime",
             "parse_dates": true
@@ -10503,7 +10503,7 @@
         },
         "flow_base_marshCreek": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nhmv10.csv",
+            "url": "../input_data/catchment_inflow_nwmv21_withLakes.csv",
             "column": "marshCreek",
             "index_col": "datetime",
             "parse_dates": true
@@ -11046,12 +11046,12 @@
         "volume_marshCreek": {
             "type": "interpolatedvolume",
             "values": [
-                -1e-10,
+                -1e-08,
                 1000000
             ],
             "node": "reservoir_marshCreek",
             "volumes": [
-                -1e-10,
+                -1e-08,
                 1000000
             ]
         },
@@ -11092,7 +11092,7 @@
         },
         "flow_base_outletChristina": {
             "type": "dataframe",
-            "url": "../input_data/catchment_inflow_nhmv10.csv",
+            "url": "../input_data/catchment_inflow_nwmv21_withLakes.csv",
             "column": "outletChristina",
             "index_col": "datetime",
             "parse_dates": true
@@ -11734,8 +11734,8 @@
             ],
             "node": "reservoir_cannonsville",
             "volumes": [
-                -1e-10,
-                93000.0000000001
+                -1e-08,
+                95700.00000001
             ]
         },
         "storage_cost_pepacton": {
@@ -11746,8 +11746,8 @@
             ],
             "node": "reservoir_pepacton",
             "volumes": [
-                -1e-10,
-                140000.0000000001
+                -1e-08,
+                140200.00000001
             ]
         },
         "storage_cost_neversink": {
@@ -11758,55 +11758,55 @@
             ],
             "node": "reservoir_neversink",
             "volumes": [
-                -1e-10,
-                34500.0000000001
+                -1e-08,
+                34900.00000001
             ]
         },
         "volume_cannonsville": {
             "type": "interpolatedvolume",
             "values": [
-                -1e-10,
+                -1e-08,
                 1000000
             ],
             "node": "reservoir_cannonsville",
             "volumes": [
-                -1e-10,
+                -1e-08,
                 1000000
             ]
         },
         "volume_pepacton": {
             "type": "interpolatedvolume",
             "values": [
-                -1e-10,
+                -1e-08,
                 1000000
             ],
             "node": "reservoir_pepacton",
             "volumes": [
-                -1e-10,
+                -1e-08,
                 1000000
             ]
         },
         "volume_neversink": {
             "type": "interpolatedvolume",
             "values": [
-                -1e-10,
+                -1e-08,
                 1000000
             ],
             "node": "reservoir_neversink",
             "volumes": [
-                -1e-10,
+                -1e-08,
                 1000000
             ]
         },
         "volume_agg_nyc": {
             "type": "interpolatedvolume",
             "values": [
-                -1e-10,
+                -1e-08,
                 1000000
             ],
             "node": "reservoir_agg_nyc",
             "volumes": [
-                -1e-10,
+                -1e-08,
                 1000000
             ]
         },

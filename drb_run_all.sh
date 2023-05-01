@@ -5,7 +5,7 @@ echo Prepping data...
 time python3 -W ignore prep_input_data.py
 
 ### run simulation using multiple inpu data sources
-for inflow_type in obs_pub nhmv10 nwmv21_withLakes WEAP_23Aug2022_gridmet
+for inflow_type in obs_pub nhmv10 nwmv21_withLakes #WEAP_23Aug2022_gridmet
 do
 	backup_inflow_type=nhmv10
 	echo Running simulation with $inflow_type ...

@@ -6,7 +6,7 @@ model_sheets_dir = 'model_data/'
 model_full_file = model_sheets_dir + 'drb_model_full.json'
 model_sheets_start = model_sheets_dir + 'drb_model_'
 
-EPS = 1e-10
+EPS = 1e-8
 
 ### function for writing all relevant parameters to simulate starfit reservoir
 def create_starfit_params(d, r):

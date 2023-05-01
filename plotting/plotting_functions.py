@@ -86,6 +86,10 @@ def get_pywr_results(output_dir, model, results_set='all', scenario=0):
             elif results_set in ('prev_flow_catchmentWithdrawal', 'max_flow_catchmentWithdrawal', 'max_flow_catchmentConsumption'):
                 if results_set in k:
                     results[k.split('_')[-1]] = f[k][:, scenario]
+            elif results_set in ('res_level'):
+                if 'drought_level' in k:
+                    results[k.split('_')[-1]] = f[k][:, scenario]
+
 
         day = [f['time'][i][0] for i in range(len(f['time']))]
         month = [f['time'][i][2] for i in range(len(f['time']))]
@@ -128,7 +132,7 @@ def get_base_results(input_dir, model, datetime_index, results_set='all'):
 
 
 ### 3-part figure to visualize flow: timeseries, scatter plot, & flow duration curve. Can plot observed plus 1 or 2 modeled series.
-def plot_3part_flows(results, models, node, colors=['0.5', '#67a9cf', '#ef8a62'], uselog=False, fig_dir = 'figs/'):
+def plot_3part_flows(results, models, node, colors=['0.5', '#67a9cf', '#ef8a62'], uselog=False, save_fig=True, fig_dir = 'figs/'):
     
     use2nd = True if len(models) > 1 else False
     fig = plt.figure(figsize=(16, 4))
@@ -208,11 +212,13 @@ def plot_3part_flows(results, models, node, colors=['0.5', '#67a9cf', '#ef8a62']
             plot_exceedance(modeled, ax, color)
 
     # plt.show()
-    if use2nd:
-        fig.savefig(f'{fig_dir}streamflow_3plots_{models[0]}_{models[1]}_{node}.png', bbox_inches='tight', dpi = 250)
-    else:
-        fig.savefig(f'{fig_dir}streamflow_3plots_{models[0]}_{node}.png', bbox_inches='tight', dpi = 250)
-    plt.close()
+    if save_fig:
+        if use2nd:
+            fig.savefig(f'{fig_dir}streamflow_3plots_{models[0]}_{models[1]}_{node}.png', bbox_inches='tight', dpi = 250)
+        else:
+            fig.savefig(f'{fig_dir}streamflow_3plots_{models[0]}_{node}.png', bbox_inches='tight', dpi = 250)
+        plt.close()
+
     return
 
 
