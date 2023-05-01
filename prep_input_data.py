@@ -117,55 +117,6 @@ def match_gages(df, dataset_label, site_matches_id, site_matches_link):
     return inflow
 
 
-### match NWM lake objects to Pywr-DRB model nodes. For nodes with no NWM lake object, default to NWM downstream flow (df_nwm)
-def match_nwm_lakes(df_nwm_USGSflow, df_nwm_lakeflow, dataset_label):
-    '''Matches NWM lakes to nodes in Pywr-DRB, based on nwm_feature_id. Where no lake object exists, use NWM downstream flow.
-    Saves csv file, & returns dataframe whose columns are names of Pywr-DRB nodes.'''
-
-    ### dictionary matching gages to reservoir catchments
-    site_matches_reservoir = {'cannonsville': '2613174',
-                              '01425000': 'none',
-                              'pepacton': '1748473',
-                              '01417000': 'none',
-                              'delLordville': 'none',
-                              'neversink': '4146742',
-                              '01436000': 'none',
-                              'wallenpaupack': '2741600',
-                              'prompton': '2739068',
-                              'shoholaMarsh': '120052035',
-                              'mongaupeCombined': '4148582',
-                              '01433500': 'none',
-                              'delMontague': 'none',
-                              'beltzvilleCombined': '4186689',
-                              '01449800': 'none',
-                              'fewalter': '4185065',
-                              '01447800': 'none',
-                              'merrillCreek': 'none',
-                              'hopatcong': '2585287',
-                              'nockamixon': 'none',
-                              'delTrenton': 'none',
-                              'assunpink': '2589015',
-                              '01463620': 'none',
-                              'outletAssunpink': 'none',
-                              'ontelaunee': '4779981',
-                              'stillCreek': '4778721',
-                              'blueMarsh': '4782813',
-                              '01470960': 'none',
-                              'greenLane': '4780087',
-                              'outletSchuylkill': 'none',
-                              'marshCreek': 'none',
-                              'outletChristina': 'none'
-                              }
-    df_matched = df_nwm_USGSflow.copy()
-    for c in df_matched.columns:
-        k = site_matches_reservoir[c]
-        if k != 'none':
-            df_matched[c] = df_nwm_lakeflow[int(k)]
-
-    ## save catchment inflow version of data to csv -> for downstream nodes, this represents the catchment inflow with upstream node inflows subtracted
-    df_matched.to_csv(f'{input_dir}catchment_inflow_{dataset_label}.csv')
-
-    return df_matched
 
 
 def get_WEAP_df(filename, datecolumn):
@@ -383,7 +334,7 @@ def extrapolate_NYC_NJ_diversions(loc):
 
 if __name__ == "__main__":
     
-    ### read in observed, NHM, & NWM data at gages downstream of reservoirs, as well as NWM inflows to lake objects.
+    ### read in observed, NHM, & NWM data at gages downstream of reservoirs
     ### use same set of dates for all.
 
     df_obs = read_csv_data(f'{input_dir}usgs_gages/streamflow_daily_usgs.csv', start_date, end_date, units = 'cms', source = 'USGS')
@@ -392,9 +343,7 @@ if __name__ == "__main__":
 
     df_nwm = read_csv_data(f'{input_dir}modeled_gages/streamflow_daily_nwmv21_mgd.csv', start_date, end_date, units = 'mgd', source = 'nwmv21')
 
-    df_nwm_lakes = read_modeled_estimates(f'{input_dir}modeled_gages/lakes_daily_1979_2020_nwmv21.csv',
-                                        ',', 'UTC_date', 'feature_id', 'inflow', start_date, end_date)
-    assert ((df_obs.index == df_nhm.index).mean() == 1) and ((df_nhm.index == df_nwm.index).mean() == 1) and ((df_nhm.index == df_nwm_lakes.index).mean() == 1)
+    assert ((df_obs.index == df_nhm.index).mean() == 1) and ((df_nhm.index == df_nwm.index).mean() == 1)
 
 
     ### match USGS gage sites to Pywr-DRB model nodes & save inflows to csv file in format expected by Pywr-DRB
@@ -406,9 +355,6 @@ if __name__ == "__main__":
     df_obs_pub = match_gages(df_obs_copy, 'obs_pub', site_matches_id= obs_pub_site_matches, site_matches_link= site_matches_link)
     
     df_nwm = match_gages(df_nwm, 'nwmv21', site_matches_id= nwm_site_matches, site_matches_link= site_matches_link)
-
-    df_nwm_withLakes = match_nwm_lakes(df_nwm, df_nwm_lakes, 'nwmv21_withLakes')
-    # print(df_nwm_withLakes.mean(axis=0)/df_nwm.mean(axis=0))
 
 
     ### organize WEAP results to use in Pywr-DRB

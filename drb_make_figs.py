@@ -61,9 +61,9 @@ if __name__ == "__main__":
     # Load Pywr-DRB simulation models
     print('Retrieving simulation data.')
     if use_WEAP:
-        pywr_models = ['obs_pub', 'nhmv10', 'nwmv21_withLakes', 'WEAP_23Aug2022_gridmet_nhmv10']
+        pywr_models = ['obs_pub', 'nhmv10', 'nwmv21', 'WEAP_23Aug2022_gridmet_nhmv10']
     else:
-        pywr_models = ['obs_pub', 'nhmv10', 'nwmv21_withLakes']
+        pywr_models = ['obs_pub', 'nhmv10', 'nwmv21']
 
     res_releases = {}
     major_flows = {}
@@ -138,9 +138,9 @@ if __name__ == "__main__":
 
     nodes = ['cannonsville', 'pepacton', 'neversink', 'fewalter', 'beltzvilleCombined', 'blueMarsh']
     if use_WEAP:
-        radial_models = ['nhmv10', 'nwmv21', 'WEAP_23Aug2022_gridmet', 'pywr_nhmv10', 'pywr_nwmv21_withLakes', 'pywr_WEAP_23Aug2022_gridmet_nhmv10']
+        radial_models = ['nhmv10', 'nwmv21', 'WEAP_23Aug2022_gridmet', 'pywr_nhmv10', 'pywr_nwmv21', 'pywr_WEAP_23Aug2022_gridmet_nhmv10']
     else:
-        radial_models = ['nhmv10', 'nwmv21', 'obs_pub', 'pywr_nhmv10', 'pywr_nwmv21_withLakes', 'pywr_obs_pub']
+        radial_models = ['nhmv10', 'nwmv21', 'obs_pub', 'pywr_nhmv10', 'pywr_nwmv21', 'pywr_obs_pub']
     radial_models = radial_models[::-1]
 
     ### compile error metrics across models/nodes/metrics
@@ -181,9 +181,9 @@ if __name__ == "__main__":
         plot_3part_flows(major_flows, ['nhmv10', 'pywr_nhmv10'], 'delMontague')
         plot_3part_flows(major_flows, ['nhmv10', 'pywr_nhmv10'], 'delTrenton')
         plot_3part_flows(major_flows, ['nhmv10', 'pywr_nhmv10'], 'outletSchuylkill')
-        plot_3part_flows(major_flows, ['nwmv21', 'pywr_nwmv21_withLakes'], 'delMontague')
-        plot_3part_flows(major_flows, ['nwmv21', 'pywr_nwmv21_withLakes'], 'delTrenton')
-        plot_3part_flows(major_flows, ['nwmv21', 'pywr_nwmv21_withLakes'], 'outletSchuylkill')
+        plot_3part_flows(major_flows, ['nwmv21', 'pywr_nwmv21'], 'delMontague')
+        plot_3part_flows(major_flows, ['nwmv21', 'pywr_nwmv21'], 'delTrenton')
+        plot_3part_flows(major_flows, ['nwmv21', 'pywr_nwmv21'], 'outletSchuylkill')
         if use_WEAP:
             plot_3part_flows(major_flows, ['WEAP_23Aug2022_gridmet', 'pywr_WEAP_23Aug2022_gridmet_nhmv10'], 'delMontague')
             plot_3part_flows(major_flows, ['WEAP_23Aug2022_gridmet', 'pywr_WEAP_23Aug2022_gridmet_nhmv10'], 'delTrenton')
@@ -203,9 +203,9 @@ if __name__ == "__main__":
         plot_weekly_flow_distributions(major_flows, ['nhmv10', 'pywr_nhmv10'], 'delMontague')
         plot_weekly_flow_distributions(major_flows, ['nhmv10', 'pywr_nhmv10'], 'delTrenton')
         plot_weekly_flow_distributions(major_flows, ['nhmv10', 'pywr_nhmv10'], 'outletSchuylkill')
-        plot_weekly_flow_distributions(major_flows, ['nwmv21', 'pywr_nwmv21_withLakes'], 'delMontague')
-        plot_weekly_flow_distributions(major_flows, ['nwmv21', 'pywr_nwmv21_withLakes'], 'delTrenton')
-        plot_weekly_flow_distributions(major_flows, ['nwmv21', 'pywr_nwmv21_withLakes'], 'outletSchuylkill')
+        plot_weekly_flow_distributions(major_flows, ['nwmv21', 'pywr_nwmv21'], 'delMontague')
+        plot_weekly_flow_distributions(major_flows, ['nwmv21', 'pywr_nwmv21'], 'delTrenton')
+        plot_weekly_flow_distributions(major_flows, ['nwmv21', 'pywr_nwmv21'], 'outletSchuylkill')
         if use_WEAP:
             plot_weekly_flow_distributions(major_flows, ['WEAP_23Aug2022_gridmet', 'pywr_WEAP_23Aug2022_gridmet_nhmv10'], 'delMontague')
             plot_weekly_flow_distributions(major_flows, ['WEAP_23Aug2022_gridmet', 'pywr_WEAP_23Aug2022_gridmet_nhmv10'], 'delTrenton')
@@ -220,9 +220,9 @@ if __name__ == "__main__":
     if rerun_all:
         print('Plotting RRV metrics.')
         if use_WEAP:
-            rrv_models = ['obs', 'obs_pub', 'nhmv10', 'nwmv21', 'WEAP_23Aug2022_gridmet', 'pywr_obs_pub', 'pywr_nhmv10', 'pywr_nwmv21_withLakes', 'pywr_WEAP_23Aug2022_gridmet_nhmv10']
+            rrv_models = ['obs', 'obs_pub', 'nhmv10', 'nwmv21', 'WEAP_23Aug2022_gridmet', 'pywr_obs_pub', 'pywr_nhmv10', 'pywr_nwmv21', 'pywr_WEAP_23Aug2022_gridmet_nhmv10']
         else:
-            rrv_models = ['obs', 'obs_pub', 'nhmv10', 'nwmv21', 'pywr_obs_pub', 'pywr_nhmv10', 'pywr_nwmv21_withLakes']
+            rrv_models = ['obs', 'obs_pub', 'nhmv10', 'nwmv21', 'pywr_obs_pub', 'pywr_nhmv10', 'pywr_nwmv21']
 
         nodes = ['delMontague','delTrenton']
         rrv_metrics = get_RRV_metrics(major_flows, rrv_models, nodes)
@@ -233,7 +233,7 @@ if __name__ == "__main__":
         print('Plotting flow contributions at major nodes.')
         
         node = 'delTrenton'
-        models = ['pywr_obs_pub', 'pywr_nhmv10', 'pywr_nwmv21_withLakes']
+        models = ['pywr_obs_pub', 'pywr_nhmv10', 'pywr_nwmv21']
         for model in models:  
             plot_flow_contributions(res_releases, major_flows, model, node,
                                     separate_pub_contributions = False,
@@ -248,7 +248,7 @@ if __name__ == "__main__":
     ## Plot inflow comparison
     if rerun_all:
         inflows = {}
-        inflow_comparison_models = ['obs_pub', 'nhmv10', 'nwmv21_withLakes']
+        inflow_comparison_models = ['obs_pub', 'nhmv10', 'nwmv21']
         for model in inflow_comparison_models:
             inflows[model] = get_pywr_results(output_dir, model, results_set='inflow')
         compare_inflow_data(inflows, nodes = reservoir_list)
