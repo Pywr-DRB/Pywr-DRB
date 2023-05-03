@@ -1,4 +1,10 @@
-### custom parameters for pywr
+"""
+This file contains different class objects which are used to construct custom Pywr parameters.
+
+The parameters created here are used to implement the flexible flow management program (FFMP)
+for the three NYC reservoirs.
+"""
+
 import numpy as np
 import pandas as pd
 from pywr.parameters import Parameter, load_parameter
@@ -123,7 +129,7 @@ class FfmpNjRunningAvgParameter(Parameter):
 
 
 
-
+###
 
 
 class VolBalanceNYCDemandTarget(Parameter):
@@ -402,3 +408,6 @@ VolBalanceNYCDownstreamMRFTargetAgg.register()
 VolBalanceNYCDownstreamMRFTarget.register()
 VolBalanceNYCDownstreamMRFFinal.register()
 NYCCombinedReleaseFactor.register()
+
+
+

@@ -33,7 +33,7 @@ site_matches_link = {'01425000': ['cannonsville'],
 
 
 obs_pub_site_matches = {'cannonsville': None,  # ['01423000'] is on the mainstem but biased low
-                    'pepacton': ['01415000', '01414500', '01414000', '01413500'], # '01414000' doesnt start until 1996; likely underestimate before
+                    'pepacton': None, # ['01415000', '01414500', '01414000', '01413500'], # '01414000' doesnt start until 1996; likely underestimate before
                     'neversink': ['01435000'],
                     'wallenpaupack': None, 
                     'prompton': None,       ## PUB #TODO: PUB till 1986-09-30 then '01428750' observation start
