@@ -637,7 +637,7 @@ def compare_inflow_data(inflow_data, nodes,
     
     pub_df = inflow_data['obs_pub'].loc[:,nodes]
     nhm_df = inflow_data['nhmv10'].loc[:,nodes]
-    nwm_df = inflow_data['nwmv21_withLakes'].loc[:,nodes]
+    nwm_df = inflow_data['nwmv21'].loc[:,nodes]
     #weap_df = inflow_data['WEAP_23Aug2022_gridmet_nhmv10']  
     
     pub_df= pub_df.assign(Dataset='PUB')
