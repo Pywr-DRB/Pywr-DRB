@@ -10,21 +10,17 @@ import pandas as pd
 import glob
 import statsmodels.api as sm
 
+
 from pywr_drb_node_data import obs_site_matches, obs_pub_site_matches, nhm_site_matches, nwm_site_matches, site_matches_link
+from utils.constants import cfs_to_mgd, cms_to_mgd, cm_to_mg
+from utils.directories import input_dir
 
 # Date range
 start_date = '1983/10/01'
 end_date = '2016/12/31'
 
 # Directories
-fig_dir = 'figs/'
-input_dir = 'input_data/'
 weap_dir = input_dir + 'WEAP_23Aug2022_gridmet/'
-
-# Constants
-cms_to_mgd = 22.82
-cm_to_mg = 264.17/1e6
-cfs_to_mgd = 0.0283 * 22824465.32 / 1e6
 
 
 def read_modeled_estimates(filename, sep, date_label, site_label, streamflow_label, start_date, end_date):

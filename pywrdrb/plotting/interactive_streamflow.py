@@ -9,7 +9,10 @@ Stacked streamgraph here.
 import pandas as pd
 import numpy as np
 import altair as alt
-from drb_make_figs import get_pywr_results, get_base_results, reservoir_list, majorflow_list
+
+from ..utils.lists import reservoir_list
+from ..utils.processing import get_base_results, get_pywr_results 
+from ..utils.constants import cfs_to_mgd
 
 lags_to_delTrenton = {}
 
@@ -59,23 +62,19 @@ contributing_nodes = site_matches_link[2][2]
 
 def plot_interactive_streamflow_stack(node, model, 
                                       group_flow = True,
-                                    output_dir = 'output_data/', 
-                                    fig_dir = 'figs/' , 
+                                    output_dir = '../output_data/', 
+                                    fig_dir = '../figs/' , 
                                     plot_target = False):
     """
     Generates an HTML based interactive stacked timeseries plot of the contributing streamflows at a node of interest.
     
     WARNING: Currently only known to be accurate for Trenton.
     """
-    
-    cms_to_mgd = 22.82
-    cm_to_mg = 264.17/1e6
-    cfs_to_mgd = 0.0283 * 22824465.32 / 1e6
 
     flow_data = get_pywr_results(output_dir, model, results_set='major_flow')
     release_data = get_pywr_results(output_dir, model, results_set='res_release')
     inflow_data = get_pywr_results(output_dir, model, results_set='inflow')
-    base_flow = get_base_results('input_data/','obs', release_data.index, results_set='major_flow')
+    base_flow = get_base_results('../input_data/','obs', release_data.index, results_set='major_flow')
 
     ### Find contributions
     contributing = []
