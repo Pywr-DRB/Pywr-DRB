@@ -1,5 +1,5 @@
 
-from plotting.interactive_streamflow import plot_interactive_streamflow_stack
+from interactive_streamflow import plot_interactive_streamflow_stack
 
 node = 'delTrenton'
 all_models = ['obs_pub', 'nhmv10', 'WEAP_23Aug2022_gridmet_nhmv10', 'nwmv21']

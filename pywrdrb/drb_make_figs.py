@@ -3,39 +3,13 @@ import pandas as pd
 import sys
 
 from plotting.plotting_functions import *
+from utils.lists import reservoir_list, majorflow_list, reservoir_link_pairs
+from utils.constants import cms_to_mgd, cm_to_mg, cfs_to_mgd
+from utils.processing import get_base_results, get_pywr_results
+from utils.directories import input_dir, output_dir, fig_dir
 
 ### I was having trouble with interactive console plotting in Pycharm for some reason - comment this out if you want to use that and not having issues
 #mpl.use('TkAgg')
-
-### directories
-output_dir = 'output_data/'
-input_dir = 'input_data/'
-fig_dir = 'figs/'
-
-# Constants
-cms_to_mgd = 22.82
-cm_to_mg = 264.17/1e6
-cfs_to_mgd = 0.0283 * 22824465.32 / 1e6
-
-
-### list of reservoirs and major flow points to compare across models
-reservoir_list = ['cannonsville', 'pepacton', 'neversink', 'wallenpaupack', 'prompton', 'shoholaMarsh', \
-                   'mongaupeCombined', 'beltzvilleCombined', 'fewalter', 'merrillCreek', 'hopatcong', 'nockamixon', \
-                   'assunpink', 'ontelaunee', 'stillCreek', 'blueMarsh', 'greenLane', 'marshCreek']
-
-majorflow_list = ['delLordville', 'delMontague', 'delTrenton', 'outletAssunpink', 'outletSchuylkill', 'outletChristina',
-                  '01425000', '01417000', '01436000', '01433500', '01449800',
-                  '01447800', '01463620', '01470960']
-
-reservoir_link_pairs = {'cannonsville': '01425000',
-                           'pepacton': '01417000',
-                           'neversink': '01436000',
-                           'mongaupeCombined': '01433500',
-                           'beltzvilleCombined': '01449800',
-                           'fewalter': '01447800',
-                           'assunpink': '01463620',
-                           'blueMarsh': '01470960'}
-
 
 
 
@@ -54,12 +28,12 @@ if __name__ == "__main__":
         start_date = sys.argv[1] if len(sys.argv) > 1 else '1983-10-01'
         end_date = sys.argv[2] if len(sys.argv) > 2 else '2017-01-01'
 
-    # start_date = sys.argv[1] if len(sys.argv) > 1 else '1999-06-01'
-    # end_date = sys.argv[2] if len(sys.argv) > 2 else '2010-05-31'
-
+    start_date = pd.to_datetime(start_date)
+    end_date = pd.to_datetime(end_date)
+    
     ## Load data    
     # Load Pywr-DRB simulation models
-    print('Retrieving simulation data.')
+    print(f'Retrieving simulation data from {start_date} to {end_date}.')
     if use_WEAP:
         pywr_models = ['obs_pub', 'nhmv10', 'nwmv21', 'WEAP_23Aug2022_gridmet_nhmv10']
     else:
@@ -86,8 +60,10 @@ if __name__ == "__main__":
 
     # Verify that all datasets have same datetime index
     for r in res_releases.values():
+        print(f'len r: {len(r.index)} and dt: {len(datetime_index)}')
         assert ((r.index == datetime_index).mean() == 1)
     for r in major_flows.values():
+        print(f'len r: {len(r.index)} and dt: {len(datetime_index)}')
         assert ((r.index == datetime_index).mean() == 1)
     print(f'Successfully loaded {len(base_models)} base model results & {len(pywr_models)} pywr model results')
 

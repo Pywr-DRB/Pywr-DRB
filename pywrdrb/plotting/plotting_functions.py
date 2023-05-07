@@ -14,125 +14,13 @@ import hydroeval as he
 import h5py
 from scipy import stats
 
-
-# Constants
-cms_to_mgd = 22.82
-cm_to_mg = 264.17/1e6
-cfs_to_mgd = 0.645932368556
-
-
-reservoir_list = ['cannonsville', 'pepacton', 'neversink', 'wallenpaupack', 'prompton', 'shoholaMarsh', \
-                   'mongaupeCombined', 'beltzvilleCombined', 'fewalter', 'merrillCreek', 'hopatcong', 'nockamixon', \
-                   'assunpink', 'ontelaunee', 'stillCreek', 'blueMarsh', 'greenLane', 'marshCreek']
-
-majorflow_list = ['delLordville', 'delMontague', 'delTrenton', 'outletAssunpink', 'outletSchuylkill', 'outletChristina',
-                  '01425000', '01417000', '01436000', '01433500', '01449800',
-                  '01447800', '01463620', '01470960']
-
-# The USGS gage data available downstream of reservoirs
-reservoir_link_pairs = {'cannonsville': '01425000',
-                           'pepacton': '01417000',
-                           'neversink': '01436000',
-                           'mongaupeCombined': '01433500',
-                           'beltzvilleCombined': '01449800',
-                           'fewalter': '01447800',
-                           'assunpink': '01463620',
-                           'blueMarsh': '01470960'}
-
-
-def get_pywr_results(output_dir, model, results_set='all', scenario=0):
-    '''
-    Gathers simulation results from Pywr model run and returns a pd.DataFrame.
-
-    :param output_dir:
-    :param model:
-    :param results_set: can be "all" to return all results,
-                            "res_release" to return reservoir releases (downstream gage comparison),
-                            "res_storage" to return resrvoir storages,
-                            "major_flow" to return flow at major flow points of interest,
-                            "inflow" to return the inflow at each catchment.
-    :return:
-    '''
-    with h5py.File(f'{output_dir}drb_output_{model}.hdf5', 'r') as f:
-        keys = list(f.keys())
-        first = 0
-        results = pd.DataFrame()
-        for k in keys:
-            if results_set == 'all':
-                results[k] = f[k][:, scenario]
-            elif results_set == 'res_release':
-                ## Need to pull flow data for link_ downstream of reservoirs instead of simulated outflows
-                if k.split('_')[0] == 'link' and k.split('_')[1] in reservoir_link_pairs.values():
-                    res_name = [res for res, link in reservoir_link_pairs.items() if link == k.split('_')[1]][0]
-                    results[res_name] = f[k][:, scenario]
-                # Now pull simulated relases from un-observed reservoirs
-                elif k.split('_')[0] == 'outflow' and k.split('_')[1] in reservoir_list:
-                    results[k.split('_')[1]] = f[k][:, scenario]
-            elif results_set == 'res_storage':
-                if k.split('_')[0] == 'volume' and k.split('_')[1] in reservoir_list:
-                    results[k.split('_')[1]] = f[k][:, scenario]
-            elif results_set == 'major_flow':
-                if k.split('_')[0] == 'link' and k.split('_')[1] in majorflow_list:
-                    results[k.split('_')[1]] = f[k][:, scenario]
-            elif results_set == 'inflow':
-                if k.split('_')[0] == 'catchment':
-                    results[k.split('_')[1]] = f[k][:, scenario]
-            elif results_set == 'withdrawal':
-                if k.split('_')[0] == 'catchmentWithdrawal':
-                    results[k.split('_')[1]] = f[k][:, scenario]
-            elif results_set == 'consumption':
-                if k.split('_')[0] == 'catchmentConsumption':
-                    results[k.split('_')[1]] = f[k][:, scenario]
-            elif results_set in ('prev_flow_catchmentWithdrawal', 'max_flow_catchmentWithdrawal', 'max_flow_catchmentConsumption'):
-                if results_set in k:
-                    results[k.split('_')[-1]] = f[k][:, scenario]
-            elif results_set in ('res_level'):
-                if 'drought_level' in k:
-                    results[k.split('_')[-1]] = f[k][:, scenario]
-
-
-        day = [f['time'][i][0] for i in range(len(f['time']))]
-        month = [f['time'][i][2] for i in range(len(f['time']))]
-        year = [f['time'][i][3] for i in range(len(f['time']))]
-        date = [f'{y}-{m}-{d}' for y, m, d in zip(year, month, day)]
-        date = pd.to_datetime(date)
-        results.index = date
-        return results
-
-
-### load other flow estimates. each column represents modeled flow at USGS gage downstream of reservoir or gage on mainstem
-def get_base_results(input_dir, model, datetime_index, results_set='all'):
-    '''
-    function for retreiving & organizing results from non-pywr results (NHM, NWM, WEAP)
-    :param input_dir:
-    :param model:
-    :param datetime_index:
-    :param results_set: can be "all" to return all results,
-                            "res_release" to return reservoir releases (downstream gage comparison),
-                            "major_flow" to return flow at major flow points of interest
-    :return:
-    '''
-    gage_flow = pd.read_csv(f'{input_dir}gage_flow_{model}.csv')
-    gage_flow.index = pd.DatetimeIndex(gage_flow['datetime'])
-    gage_flow = gage_flow.drop('datetime', axis=1)
-    if results_set == 'res_release':
-        available_release_data = gage_flow.columns.intersection(reservoir_link_pairs.values())
-        reservoirs_with_data = [list(filter(lambda x: reservoir_link_pairs[x] == site, reservoir_link_pairs))[0] for
-                                site in available_release_data]
-        gage_flow = gage_flow.loc[:, available_release_data]
-        gage_flow.columns = reservoirs_with_data
-    elif results_set == 'major_flow':
-        for c in gage_flow.columns:
-            if c not in majorflow_list:
-                gage_flow = gage_flow.drop(c, axis=1)
-    gage_flow = gage_flow.loc[datetime_index, :]
-    return gage_flow
-
-
+from utils.constants import cms_to_mgd, cm_to_mg, cfs_to_mgd
+from utils.lists import reservoir_list, majorflow_list, reservoir_link_pairs
+from utils.directories import input_dir, fig_dir
 
 
 ### 3-part figure to visualize flow: timeseries, scatter plot, & flow duration curve. Can plot observed plus 1 or 2 modeled series.
-def plot_3part_flows(results, models, node, colors=['0.5', '#67a9cf', '#ef8a62'], uselog=False, save_fig=True, fig_dir = 'figs/'):
+def plot_3part_flows(results, models, node, colors=['0.5', '#67a9cf', '#ef8a62'], uselog=False, save_fig=True, fig_dir = fig_dir):
     
     use2nd = True if len(models) > 1 else False
     fig = plt.figure(figsize=(16, 4))
@@ -223,7 +111,7 @@ def plot_3part_flows(results, models, node, colors=['0.5', '#67a9cf', '#ef8a62']
 
 
 ### plot distributions of weekly flows, with & without log scale
-def plot_weekly_flow_distributions(results, models, node, colors=['0.5', '#67a9cf', '#ef8a62'], fig_dir = 'figs/'):
+def plot_weekly_flow_distributions(results, models, node, colors=['0.5', '#67a9cf', '#ef8a62'], fig_dir = fig_dir):
     use2nd = True if len(models) > 1 else False
 
     fig = plt.figure(figsize=(16, 4))
@@ -341,7 +229,7 @@ def get_error_metrics(results, models, nodes):
 
 ### radial plots across diff metrics/reservoirs/models.
 ### following galleries here https://www.python-graph-gallery.com/circular-barplot-with-groups
-def plot_radial_error_metrics(results_metrics, radial_models, nodes, useNonPep = True, useweap = True, usepywr = True, usemajorflows=False, fig_dir = 'figs/'):
+def plot_radial_error_metrics(results_metrics, radial_models, nodes, useNonPep = True, useweap = True, usepywr = True, usemajorflows=False, fig_dir = fig_dir):
 
     fig, axs = plt.subplots(2, 4, figsize=(16, 8), subplot_kw={"projection": "polar"})
 
@@ -551,7 +439,7 @@ def get_RRV_metrics(results, models, nodes):
 
 
 ### histogram of reliability, resiliency, & vulnerability for different models & nodes
-def plot_rrv_metrics(rrv_metrics, rrv_models, nodes, fig_dir = 'figs/'):
+def plot_rrv_metrics(rrv_metrics, rrv_models, nodes, fig_dir = fig_dir):
 
     fig, axs = plt.subplots(2, 3, figsize=(16, 8))
 
@@ -601,8 +489,8 @@ def plot_flow_contributions(res_releases, major_flows,
                             separate_pub_contributions = False,
                             percentage_flow = True,
                             plot_target = False, 
-                            fig_dir = 'figs/',
-                            input_dir = 'input_data/'):
+                            fig_dir = fig_dir,
+                            input_dir = input_dir):
 
     title = f'{fig_dir}/flow_contributions_{node}_{model}'
 
@@ -738,7 +626,7 @@ def plot_flow_contributions(res_releases, major_flows,
 
 
 def compare_inflow_data(inflow_data, nodes,
-                        fig_dir = 'figs/'):
+                        fig_dir = fig_dir):
     """Generates a boxplot comparison of inflows are specific nodes for different datasets.
 
     Args:
