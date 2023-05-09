@@ -1,7 +1,9 @@
 import json
 import pandas as pd
+import sys
+sys.path.append('..')
 
-from utils.directories import input_dir, model_data_dir
+from pywrdrb.utils.directories import input_dir, model_data_dir
 
 model_full_file = model_data_dir + 'drb_model_full.json'
 model_sheets_start = model_data_dir + 'drb_model_'
