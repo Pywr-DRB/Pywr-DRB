@@ -14,4 +14,4 @@ done
 
 ### analyze results, make figures
 echo Analyzing results...
-time python3 -W ignore pywrdrb/drb_make_figs.py 
+time python3 -W ignore ./pywrdrb/drb_make_figs.py 

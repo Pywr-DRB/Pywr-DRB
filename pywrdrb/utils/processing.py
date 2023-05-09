@@ -46,7 +46,7 @@ def get_pywr_results(output_dir, model, results_set='all', scenario=0):
                 elif k.split('_')[0] == 'outflow' and k.split('_')[1] in reservoir_list:
                     results[k.split('_')[1]] = f[k][:, scenario]
             elif results_set == 'res_storage':
-                if k.split('_')[0] == 'volume' and k.split('_')[1] in reservoir_list:
+                if k.split('_')[0] == 'reservoir' and k.split('_')[1] in reservoir_list:
                     results[k.split('_')[1]] = f[k][:, scenario]
             elif results_set == 'major_flow':
                 if k.split('_')[0] == 'link' and k.split('_')[1] in majorflow_list:

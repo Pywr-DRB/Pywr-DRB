@@ -21,3 +21,8 @@ reservoir_link_pairs = {'cannonsville': '01425000',
                            'fewalter': '01447800',
                            'assunpink': '01463620',
                            'blueMarsh': '01470960'}
+
+starfit_reservoir_list = ['wallenpaupack', 'prompton', 'shoholaMarsh', 
+                          'mongaupeCombined', 'beltzvilleCombined', 'fewalter', 
+                          'merrillCreek', 'hopatcong', 'nockamixon', 
+                          'assunpink', 'ontelaunee', 'stillCreek', 'blueMarsh', 'greenLane', 'marshCreek']
