@@ -1858,9 +1858,20 @@
                 "prev_flow_catchmentWithdrawal_cannonsville"
             ]
         },
+        "flow_base_01425000": {
+            "type": "dataframe",
+            "url": "/mnt/c/Users/tjame/Desktop/Research/DRB/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
+            "column": "01425000",
+            "index_col": "datetime",
+            "parse_dates": true
+        },
         "flow_01425000": {
-            "type": "constant",
-            "value": 0.0
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "flow_base_01425000",
+                "flow_factor"
+            ]
         },
         "max_flow_catchmentWithdrawal_01425000": {
             "type": "constant",
@@ -1918,9 +1929,20 @@
                 "prev_flow_catchmentWithdrawal_pepacton"
             ]
         },
+        "flow_base_01417000": {
+            "type": "dataframe",
+            "url": "/mnt/c/Users/tjame/Desktop/Research/DRB/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
+            "column": "01417000",
+            "index_col": "datetime",
+            "parse_dates": true
+        },
         "flow_01417000": {
-            "type": "constant",
-            "value": 0.0
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "flow_base_01417000",
+                "flow_factor"
+            ]
         },
         "max_flow_catchmentWithdrawal_01417000": {
             "type": "constant",
@@ -2019,9 +2041,20 @@
                 "prev_flow_catchmentWithdrawal_neversink"
             ]
         },
+        "flow_base_01436000": {
+            "type": "dataframe",
+            "url": "/mnt/c/Users/tjame/Desktop/Research/DRB/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
+            "column": "01436000",
+            "index_col": "datetime",
+            "parse_dates": true
+        },
         "flow_01436000": {
-            "type": "constant",
-            "value": 0.0
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "flow_base_01436000",
+                "flow_factor"
+            ]
         },
         "max_flow_catchmentWithdrawal_01436000": {
             "type": "constant",
@@ -2239,9 +2272,20 @@
                 "prev_flow_catchmentWithdrawal_mongaupeCombined"
             ]
         },
+        "flow_base_01433500": {
+            "type": "dataframe",
+            "url": "/mnt/c/Users/tjame/Desktop/Research/DRB/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
+            "column": "01433500",
+            "index_col": "datetime",
+            "parse_dates": true
+        },
         "flow_01433500": {
-            "type": "constant",
-            "value": 0.0
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "flow_base_01433500",
+                "flow_factor"
+            ]
         },
         "max_flow_catchmentWithdrawal_01433500": {
             "type": "constant",
@@ -2344,9 +2388,20 @@
                 "prev_flow_catchmentWithdrawal_beltzvilleCombined"
             ]
         },
+        "flow_base_01449800": {
+            "type": "dataframe",
+            "url": "/mnt/c/Users/tjame/Desktop/Research/DRB/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
+            "column": "01449800",
+            "index_col": "datetime",
+            "parse_dates": true
+        },
         "flow_01449800": {
-            "type": "constant",
-            "value": 0.0
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "flow_base_01449800",
+                "flow_factor"
+            ]
         },
         "max_flow_catchmentWithdrawal_01449800": {
             "type": "constant",
@@ -2408,9 +2463,20 @@
                 "prev_flow_catchmentWithdrawal_fewalter"
             ]
         },
+        "flow_base_01447800": {
+            "type": "dataframe",
+            "url": "/mnt/c/Users/tjame/Desktop/Research/DRB/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
+            "column": "01447800",
+            "index_col": "datetime",
+            "parse_dates": true
+        },
         "flow_01447800": {
-            "type": "constant",
-            "value": 0.0
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "flow_base_01447800",
+                "flow_factor"
+            ]
         },
         "max_flow_catchmentWithdrawal_01447800": {
             "type": "constant",
@@ -2669,9 +2735,20 @@
                 "prev_flow_catchmentWithdrawal_assunpink"
             ]
         },
+        "flow_base_01463620": {
+            "type": "dataframe",
+            "url": "/mnt/c/Users/tjame/Desktop/Research/DRB/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
+            "column": "01463620",
+            "index_col": "datetime",
+            "parse_dates": true
+        },
         "flow_01463620": {
-            "type": "constant",
-            "value": 0.0
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "flow_base_01463620",
+                "flow_factor"
+            ]
         },
         "max_flow_catchmentWithdrawal_01463620": {
             "type": "constant",
@@ -2878,9 +2955,20 @@
                 "prev_flow_catchmentWithdrawal_blueMarsh"
             ]
         },
+        "flow_base_01470960": {
+            "type": "dataframe",
+            "url": "/mnt/c/Users/tjame/Desktop/Research/DRB/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
+            "column": "01470960",
+            "index_col": "datetime",
+            "parse_dates": true
+        },
         "flow_01470960": {
-            "type": "constant",
-            "value": 0.0
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "flow_base_01470960",
+                "flow_factor"
+            ]
         },
         "max_flow_catchmentWithdrawal_01470960": {
             "type": "constant",

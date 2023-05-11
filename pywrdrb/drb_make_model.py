@@ -157,38 +157,32 @@ def add_major_node(model, name, node_type, inflow_type, backup_inflow_type=None,
     ### now add standard parameters
     ################################################################
 
-    ###TODO: inflows to catchment - for now exclude gage nodes, since havent calculated demand yet
-     
-    if name[0] == '0':
-        model['parameters'][f'flow_{name}'] = {
-            'type': 'constant',
-            'value': 0.
-        }
+    ### Assign inflows to nodes
+    if 'WEAP' not in inflow_type:
+        inflow_source = f'{input_dir}catchment_inflow_{inflow_type}.csv'
     else:
-        if 'WEAP' not in inflow_type:
+        if name in ['cannonsville', 'pepacton', 'neversink', 'wallenpaupack', 'promption',
+                    'mongaupeCombined', 'beltzvilleCombined', 'blueMarsh', 'ontelaunee', 'nockamixon', 'assunpink']:
             inflow_source = f'{input_dir}catchment_inflow_{inflow_type}.csv'
         else:
-            if name in ['cannonsville', 'pepacton', 'neversink', 'wallenpaupack', 'promption',
-                        'mongaupeCombined', 'beltzvilleCombined', 'blueMarsh', 'ontelaunee', 'nockamixon', 'assunpink']:
-                inflow_source = f'{input_dir}catchment_inflow_{inflow_type}.csv'
-            else:
-                inflow_source = f'{input_dir}catchment_inflow_{backup_inflow_type}.csv'
+            inflow_source = f'{input_dir}catchment_inflow_{backup_inflow_type}.csv'
 
-        model['parameters'][f'flow_base_{name}'] = {
-            'type': 'dataframe',
-            'url': inflow_source,
-            'column': name,
-            'index_col': 'datetime',
-            'parse_dates': True
-        }
-        model['parameters'][f'flow_{name}'] = {
-            'type': 'aggregated',
-            'agg_func': 'product',
-            'parameters': [
-                f'flow_base_{name}',
-                'flow_factor'
-            ]
-        }
+    model['parameters'][f'flow_base_{name}'] = {
+        'type': 'dataframe',
+        'url': inflow_source,
+        'column': name,
+        'index_col': 'datetime',
+        'parse_dates': True
+    }
+    
+    model['parameters'][f'flow_{name}'] = {
+        'type': 'aggregated',
+        'agg_func': 'product',
+        'parameters': [
+            f'flow_base_{name}',
+            'flow_factor'
+        ]
+    }
 
     ### max volume of reservoir, from GRanD database except where adjusted from other sources (eg NYC)
     if node_type == 'reservoir':
