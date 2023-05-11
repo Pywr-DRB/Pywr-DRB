@@ -66,8 +66,8 @@ def get_pywr_results(output_dir, model, results_set='all', scenario=0):
             elif results_set in ('res_level'):
                 if 'drought_level' in k:
                     results[k.split('_')[-1]] = f[k][:, scenario]
-
-
+        
+        # Format datetime index
         day = [f['time'][i][0] for i in range(len(f['time']))]
         month = [f['time'][i][2] for i in range(len(f['time']))]
         year = [f['time'][i][3] for i in range(len(f['time']))]
