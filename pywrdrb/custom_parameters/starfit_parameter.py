@@ -11,7 +11,7 @@ import math
 from pywr.parameters import Parameter, load_parameter
 from pywr.parameters import AnnualHarmonicSeriesParameter
 
-from pywrdrb.utils.directories import model_data_dir
+from utils.directories import model_data_dir
 
 ### Load STARFIT parameter values
 starfit_params = pd.read_csv(f'{model_data_dir}drb_model_istarf_conus.csv', sep = ',', index_col=0)

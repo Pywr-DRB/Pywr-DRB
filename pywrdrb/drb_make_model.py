@@ -157,7 +157,8 @@ def add_major_node(model, name, node_type, inflow_type, backup_inflow_type=None,
     ### now add standard parameters
     ################################################################
 
-    ### inflows to catchment - for now exclude gage nodes, since havent calculated demand yet
+    ###TODO: inflows to catchment - for now exclude gage nodes, since havent calculated demand yet
+     
     if name[0] == '0':
         model['parameters'][f'flow_{name}'] = {
             'type': 'constant',
@@ -403,16 +404,6 @@ def drb_make_model(inflow_type, backup_inflow_type, start_date, end_date, use_hi
             'scenario': 'inflow',
             'values': [1.0]
         }
-
-    ### seasonal sinusoids for use with STARFIT
-    for func in ['sin','cos','sin2x','cos2x']:
-        for ts in ['weekly','daily']:
-            model['parameters'][f'{func}_{ts}'] = {
-                'type': f'{ts}profile',
-                'url': f'drb_model_{ts}Profiles.csv',
-                'index_col': 'profile',
-                'index': f'{func}_{ts}'
-            }
 
     ### demand for NYC
     if use_hist_NycNjDeliveries:

@@ -13,10 +13,12 @@ from matplotlib.lines import Line2D
 import hydroeval as he
 import h5py
 from scipy import stats
+import sys
 
-from utils.constants import cms_to_mgd, cm_to_mg, cfs_to_mgd
-from utils.lists import reservoir_list, majorflow_list, reservoir_link_pairs
-from utils.directories import input_dir, fig_dir
+sys.path.append('../')
+from ..utils.constants import cms_to_mgd, cm_to_mg, cfs_to_mgd
+from ..utils.lists import reservoir_list, majorflow_list, reservoir_link_pairs
+from ..utils.directories import input_dir, fig_dir
 
 
 ### 3-part figure to visualize flow: timeseries, scatter plot, & flow duration curve. Can plot observed plus 1 or 2 modeled series.
