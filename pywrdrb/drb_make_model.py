@@ -161,7 +161,7 @@ def add_major_node(model, name, node_type, inflow_type, backup_inflow_type=None,
     if 'WEAP' not in inflow_type:
         inflow_source = f'{input_dir}catchment_inflow_{inflow_type}.csv'
     else:
-        if name in ['cannonsville', 'pepacton', 'neversink', 'wallenpaupack', 'promption',
+        if name in ['cannonsville', 'pepacton', 'neversink', 'wallenpaupack', 'prompton',
                     'mongaupeCombined', 'beltzvilleCombined', 'blueMarsh', 'ontelaunee', 'nockamixon', 'assunpink']:
             inflow_source = f'{input_dir}catchment_inflow_{inflow_type}.csv'
         else:
