@@ -10,8 +10,7 @@ import os
 # Absolute directory to the pywrdrb folder
 ROOT_DIR = os.path.realpath(os.path.join(os.path.dirname(__file__), '../'))
 
-input_dir = f'{ROOT_DIR}/../input_data/'
-output_dir = f'{ROOT_DIR}/../output_data/'
-fig_dir = f'{ROOT_DIR}/../figs/'
-
-model_data_dir = f'{ROOT_DIR}/model_data/'
+input_dir = os.path.realpath(os.path.join(ROOT_DIR, '../input_data/')) + '/'
+output_dir = os.path.realpath(os.path.join(ROOT_DIR, '../output_data/')) + '/'
+fig_dir = os.path.realpath(os.path.join(ROOT_DIR, '../figs/')) + '/'
+model_data_dir = os.path.realpath(os.path.join(ROOT_DIR, 'model_data/')) + '/'

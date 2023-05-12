@@ -26,7 +26,7 @@ class STARFITReservoirRelease(Parameter):
     '''
     def __init__(self, model, storage_node, flow_parameter, **kwargs):
         super().__init__(model, **kwargs)
-        
+
         self.node = storage_node
         self.name = storage_node.name.split('_')[1]
         self.inflow = flow_parameter
@@ -36,12 +36,15 @@ class STARFITReservoirRelease(Parameter):
         
         # Modifications to
         self.remove_R_max = True
-        self.linear_below_NOR = True
+        self.linear_below_NOR = False
         use_adjusted_storage = True
+        self.WATER_YEAR_OFFSET = 0
         
         # Pull data from node
-        self.S_cap = starfit_params.loc[self.name, 'Adjusted_CAP_MG']
-        
+        if use_adjusted_storage:
+            self.S_cap = starfit_params.loc[self.name, 'Adjusted_CAP_MG']
+        else:
+            self.S_cap = starfit_params.loc[self.name, 'GRanD_CAP_MG']
         
         # Store STARFIT parameters
         self.NORhi_mu = starfit_params.loc[self.name, 'NORhi_mu']
@@ -70,13 +73,11 @@ class STARFITReservoirRelease(Parameter):
         self.R_max = 999999 if self.remove_R_max else ((starfit_params.loc[self.name, 'Release_max']+1)*self.I_bar)
         self.R_min = (starfit_params.loc[self.name, 'Release_min'] +1)* self.I_bar
 
-        
     def setup(self):
         ### allocate an array to hold the parameter state
         super().setup()
-        num_scenarios = len(self.model.scenarios.combinations)
-        self.target_release = np.empty([num_scenarios], np.float64)
-        self.actual_release = np.empty([num_scenarios], np.float64)
+        self.N_SCENARIOS = len(self.model.scenarios.combinations)
+        self.releases = np.empty([self.N_SCENARIOS], np.float64)
         
     def standardize_inflow(self, inflow):
         return (inflow - self.I_bar) / self.I_bar        
@@ -85,8 +86,7 @@ class STARFITReservoirRelease(Parameter):
         return (storage / self.S_cap)
     
     def get_NORhi(self, timestep):
-        ##TODO: Modify this to be water-year
-        c = math.pi*timestep.dayofyear/365
+        c = math.pi*(timestep.dayofyear + self.WATER_YEAR_OFFSET)/365  
         NORhi = (self.NORhi_mu + self.NORhi_alpha * math.sin(2*c) +
                  self.NORhi_beta * math.cos(2*c))
         if (NORhi <= self.NORhi_max) and (NORhi >= self.NORhi_min):
@@ -97,8 +97,7 @@ class STARFITReservoirRelease(Parameter):
             return self.NORhi_min/100
         
     def get_NORlo(self, timestep):
-        ##TODO: Modify this to be water-year
-        c = math.pi*timestep.dayofyear/365
+        c = math.pi*(timestep.dayofyear + self.WATER_YEAR_OFFSET)/365
         NORlo = (self.NORlo_mu + self.NORlo_alpha * math.sin(2*c) +
                  self.NORlo_beta * math.cos(2*c))
         if (NORlo <= self.NORlo_max) and (NORlo >= self.NORlo_min):
@@ -109,8 +108,7 @@ class STARFITReservoirRelease(Parameter):
             return self.NORlo_min/100 
         
     def get_harmonic_release(self, timestep):
-        ##TODO: Modify this to be water-year
-        c = math.pi*timestep.dayofyear/365
+        c = math.pi*(timestep.dayofyear + self.WATER_YEAR_OFFSET)/365
         R_avg_t = self.Release_alpha1*math.sin(2*c) + self.Release_alpha2*math.sin(4*c) + self.Release_beta1*math.cos(2*c) + self.Release_beta2*math.cos(4*c)
         return R_avg_t
 
@@ -128,7 +126,7 @@ class STARFITReservoirRelease(Parameter):
         if (S_hat <= NORhi) and (S_hat >= NORlo):
             target = min((self.I_bar * (harmonic_release + epsilon) + self.I_bar), self.R_max)
         elif (S_hat > NORhi):
-            target = min((self.S_cap * (S_hat - NORhi) + I), self.R_max)
+            target = min((self.S_cap * (S_hat - NORhi) + I*7)/7, self.R_max)
         else:
             if self.linear_below_NOR:
                 target = (self.I_bar * (harmonic_release + epsilon) + self.I_bar) * (1 - (NORlo - S_hat)/NORlo)
@@ -139,11 +137,11 @@ class STARFITReservoirRelease(Parameter):
         
     def value(self, timestep, scenario_index):
         # Get current storage and inflow conditions
-        inflow_t = self.inflow.get_value(scenario_index)
-        storage_t = self.node.volume
+        I_t = self.inflow.get_value(scenario_index)
+        S_t = self.node.volume[scenario_index.indices]
         
-        S_hat_t = self.calculate_percent_storage(storage_t)
-        I_hat_t = self.standardize_inflow(inflow_t)
+        I_hat_t = self.standardize_inflow(I_t)
+        S_hat_t = self.calculate_percent_storage(S_t)
         
         NORhi_t = self.get_NORhi(timestep)
         NORlo_t = self.get_NORlo(timestep)
@@ -151,22 +149,24 @@ class STARFITReservoirRelease(Parameter):
         seasonal_release_t = self.get_harmonic_release(timestep)
             
         # Get adjustment from seasonal release
-        epsilon_t = self.calculate_release_adjustment(S_hat_t, I_hat_t, NORhi_t, NORlo_t)
+        epsilon_t = self.calculate_release_adjustment(S_hat_t, 
+                                                      I_hat_t, 
+                                                      NORhi_t, NORlo_t)
         
         # Get target release
-        target_release = self.calculate_target_release(S_hat = S_hat_t,
-                                                       I = inflow_t,
-                                                       NORhi=NORhi_t,
-                                                       NORlo=NORlo_t,
-                                                       epsilon=epsilon_t,
-                                                       harmonic_release=seasonal_release_t)
         
+        target_release = self.calculate_target_release(S_hat = S_hat_t,
+                                                    I = I_t,
+                                                    NORhi=NORhi_t,
+                                                    NORlo=NORlo_t,
+                                                    epsilon=epsilon_t,
+                                                    harmonic_release=seasonal_release_t)
+    
         # Get actual release subject to constraints
-        release = max(min(target_release, inflow_t + storage_t), (inflow_t + storage_t - self.S_cap)) 
-        if (S_hat_t <= 0.01) or (storage_t < 50):
-            print(f'{self.node.name} Going to zero storage')
-        #print(f'{self.node.name} S_hat: {S_hat_t}; S_t {storage_t}; I_t {inflow_t} R_t: {release}; Rtarget:{target_release}; NORlo: {NORlo_t} and NORhi: {NORhi_t}')
-        return release
+        release_t = max(min(target_release, I_t + S_t), (I_t + S_t - self.S_cap)) 
+        #if (S_hat_t <= 0.01) or (S_t < 50):
+            #    print(f'{self.node.name} Going to zero storage')
+        return  max(0, release_t)
         
         
     @classmethod

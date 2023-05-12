@@ -41,10 +41,13 @@ if __name__ == "__main__":
 
     res_releases = {}
     major_flows = {}
+    storages = {}
     
     for model in pywr_models:
         res_releases[f'pywr_{model}'] = get_pywr_results(output_dir, model, 'res_release').loc[start_date:end_date,:]
         major_flows[f'pywr_{model}'] = get_pywr_results(output_dir, model, 'major_flow').loc[start_date:end_date,:]
+        storages[f'pywr_{model}'] = get_pywr_results(output_dir, model, 'res_storage')
+    
     pywr_models = [f'pywr_{m}' for m in pywr_models]
 
     # Load base (non-pywr) models
@@ -230,7 +233,8 @@ if __name__ == "__main__":
         compare_inflow_data(inflows, nodes = reservoir_list)
 
 
-    ###
-
+    print('Plotting NYC reservoir operations')
+    plot_combined_nyc_storage(storages, res_releases, pywr_models, start_date='2000-01-01', end_date='2004-01-01')
+    plot_combined_nyc_storage(storages, res_releases, pywr_models, start_date='2000-01-01', end_date='2010-01-01')
         
     print(f'Done! Check the {fig_dir} folder.')

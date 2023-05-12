@@ -10,17 +10,31 @@ import seaborn as sns
 from matplotlib import pyplot as plt
 from matplotlib.patches import Patch
 from matplotlib.lines import Line2D
+from matplotlib.colors import ListedColormap
+from matplotlib import gridspec
+from scipy import stats
+import sys
+
 import hydroeval as he
 import h5py
-from scipy import stats
+import datetime as dt
 
-from utils.constants import cms_to_mgd, cm_to_mg, cfs_to_mgd
-from utils.lists import reservoir_list, majorflow_list, reservoir_link_pairs
-from utils.directories import input_dir, fig_dir
+sys.path.append('..')
+
+# Custom modules
+from pywrdrb.utils.processing import get_base_results, get_pywr_results
+from pywrdrb.utils.constants import cms_to_mgd, cm_to_mg, cfs_to_mgd
+from pywrdrb.utils.lists import reservoir_list, majorflow_list, reservoir_link_pairs
+from pywrdrb.utils.directories import input_dir, fig_dir, output_dir
+
+from pywrdrb.plotting.styles import base_model_colors, model_hatch_styles, paired_model_colors, scatter_model_markers
 
 
 ### 3-part figure to visualize flow: timeseries, scatter plot, & flow duration curve. Can plot observed plus 1 or 2 modeled series.
-def plot_3part_flows(results, models, node, colors=['0.5', '#67a9cf', '#ef8a62'], uselog=False, save_fig=True, fig_dir = fig_dir):
+def plot_3part_flows(results, models, node, 
+                     colordict = paired_model_colors, 
+                     markerdict = scatter_model_markers, 
+                     uselog=False, save_fig=True, fig_dir = fig_dir):
     
     use2nd = True if len(models) > 1 else False
     fig = plt.figure(figsize=(16, 4))
@@ -36,9 +50,8 @@ def plot_3part_flows(results, models, node, colors=['0.5', '#67a9cf', '#ef8a62']
             modeled = results[m][node]
 
             if i == 0:
-                ax.plot(obs, label='observed', color=colors[0])
-            color = colors[i + 1]
-            ax.plot(modeled, label=m, color=color)
+                ax.plot(obs, label='observed', color=colordict['obs'])
+            ax.plot(modeled, label=m, color=colordict[m])
 
             ### get error metrics
             if uselog:
@@ -55,7 +68,7 @@ def plot_3part_flows(results, models, node, colors=['0.5', '#67a9cf', '#ef8a62']
             else:
                 coords = (0.04, 0.88)
             ax.annotate(f'NSE={nse}; KGE={kge}: r={r}, relvar={alpha}, bias={beta}', xy=coords, xycoords=ax.transAxes,
-                        color=color)
+                        color=colordict[m])
             ax.legend(loc='right')
             ax.set_ylabel('Daily flow (MGD)')
             ax.set_xlabel('Date')
@@ -70,8 +83,7 @@ def plot_3part_flows(results, models, node, colors=['0.5', '#67a9cf', '#ef8a62']
             ### first plot time series of observed vs modeled
             modeled = results[m][node]
 
-            color = colors[i + 1]
-            ax.scatter(obs, modeled, alpha=0.2, zorder=2, color=color)
+            ax.scatter(obs, modeled, alpha=0.25, zorder=2, color=colordict[m], marker=markerdict[m])
             diagmax = min(ax.get_xlim()[1], ax.get_ylim()[1])
             ax.plot([0, diagmax], [0, diagmax], color='k', ls='--')
             if uselog:
@@ -91,13 +103,12 @@ def plot_3part_flows(results, models, node, colors=['0.5', '#67a9cf', '#ef8a62']
 
             modeled = results[m][node]
 
-            color = colors[i + 1]
-            plot_exceedance(obs, ax, colors[0])
+            plot_exceedance(obs, ax, color = colordict['obs'])
             ax.semilogy()
             ax.set_xlabel('Non-exceedence')
             ax.set_ylabel('Daily flow (log scale, MGD)')
 
-            plot_exceedance(modeled, ax, color)
+            plot_exceedance(modeled, ax, color = colordict[m])
 
     # plt.show()
     if save_fig:
@@ -106,12 +117,11 @@ def plot_3part_flows(results, models, node, colors=['0.5', '#67a9cf', '#ef8a62']
         else:
             fig.savefig(f'{fig_dir}streamflow_3plots_{models[0]}_{node}.png', bbox_inches='tight', dpi = 250)
         plt.close()
-
     return
 
 
 ### plot distributions of weekly flows, with & without log scale
-def plot_weekly_flow_distributions(results, models, node, colors=['0.5', '#67a9cf', '#ef8a62'], fig_dir = fig_dir):
+def plot_weekly_flow_distributions(results, models, node, colordict= paired_model_colors, fig_dir = fig_dir):
     use2nd = True if len(models) > 1 else False
 
     fig = plt.figure(figsize=(16, 4))
@@ -131,18 +141,18 @@ def plot_weekly_flow_distributions(results, models, node, colors=['0.5', '#67a9c
     
     ### first plot time series of observed vs modeled, real scale
     for i, m in enumerate(models):
-        color = colors[i + 1]
+        
         if i == 0:
             ax = fig.add_subplot(gs[0, 0])
             ax.fill_between(np.arange(1, (nx+1)), obs_resample.groupby(obs_resample.index.week).max(),
-                            obs_resample.groupby(obs_resample.index.week).min(), color=colors[0], alpha=0.4)
-            ax.plot(obs_resample.groupby(obs_resample.index.week).mean(), label='observed', color=colors[0])
+                            obs_resample.groupby(obs_resample.index.week).min(), color=colordict['obs'], alpha=0.4)
+            ax.plot(obs_resample.groupby(obs_resample.index.week).mean(), label='observed', color=colordict['obs'])
 
         modeled = results[m][node]
         modeled_resample = modeled.resample('W').sum()
         ax.fill_between(np.arange(1, (nx+1)), modeled_resample.groupby(modeled_resample.index.week).max(),
-                        modeled_resample.groupby(modeled_resample.index.week).min(), color=color, alpha=0.4)
-        ax.plot(modeled_resample.groupby(modeled_resample.index.week).mean(), label=m, color=color)
+                        modeled_resample.groupby(modeled_resample.index.week).min(), color=colordict[m], alpha=0.4)
+        ax.plot(modeled_resample.groupby(modeled_resample.index.week).mean(), label=m, color=colordict[m])
 
         ax.legend(loc='upper right')
         ax.set_ylabel('Weekly flow (MGW)')
@@ -151,18 +161,17 @@ def plot_weekly_flow_distributions(results, models, node, colors=['0.5', '#67a9c
 
     ### now repeat, log scale
     for i, m in enumerate(models):
-        color = colors[i + 1]
         if i == 0:
             ax = fig.add_subplot(gs[0, 1])
             ax.fill_between(np.arange(1, (nx+1)), obs_resample.groupby(obs_resample.index.week).max(),
-                            obs_resample.groupby(obs_resample.index.week).min(), color=colors[0], alpha=0.4)
-            ax.plot(obs_resample.groupby(obs_resample.index.week).mean(), label='observed', color=colors[0])
+                            obs_resample.groupby(obs_resample.index.week).min(), color=colordict['obs'], alpha=0.4)
+            ax.plot(obs_resample.groupby(obs_resample.index.week).mean(), label='observed', color=colordict['obs'])
 
         modeled = results[m][node]
         modeled_resample = modeled.resample('W').sum()
         ax.fill_between(np.arange(1, (nx+1)), modeled_resample.groupby(modeled_resample.index.week).max(),
-                        modeled_resample.groupby(modeled_resample.index.week).min(), color=color, alpha=0.4)
-        ax.plot(modeled_resample.groupby(modeled_resample.index.week).mean(), label=m, color=color)
+                        modeled_resample.groupby(modeled_resample.index.week).min(), color=colordict[m], alpha=0.4)
+        ax.plot(modeled_resample.groupby(modeled_resample.index.week).mean(), label=m, color=colordict[m])
 
         ax.set_ylim([max(ymin * 0.5, 0.01), ymax * 1.5])
         ax.set_xlabel('Week')
@@ -229,18 +238,13 @@ def get_error_metrics(results, models, nodes):
 
 ### radial plots across diff metrics/reservoirs/models.
 ### following galleries here https://www.python-graph-gallery.com/circular-barplot-with-groups
-def plot_radial_error_metrics(results_metrics, radial_models, nodes, useNonPep = True, useweap = True, usepywr = True, usemajorflows=False, fig_dir = fig_dir):
+def plot_radial_error_metrics(results_metrics, radial_models, nodes, useNonPep = True, useweap = True, usepywr = True, usemajorflows=False, fig_dir = fig_dir,
+                              colordict = base_model_colors, hatchdict = model_hatch_styles):
 
     fig, axs = plt.subplots(2, 4, figsize=(16, 8), subplot_kw={"projection": "polar"})
 
     metrics = ['nse', 'kge', 'r', 'alpha', 'beta', 'kss', 'lognse', 'logkge']
 
-    colordict = {'obs_pub':'#fc8d62', 'pywr_obs_pub':'#fc8d62', #'#097320',
-                 'nhmv10': '#66c2a5', 'nwmv21': '#8da0cb', 'nwmv21_withLakes': '#8da0cb', 'WEAP_23Aug2022_gridmet': '#fc8d62',
-                  'pywr_nhmv10': '#66c2a5', 'pywr_nwmv21': '#8da0cb', 'pywr_nwmv21_withLakes': '#8da0cb',
-                 'pywr_WEAP_23Aug2022_gridmet_nhmv10': '#fc8d62'}
-    hatchdict = {'obs_pub': '', 'nhmv10': '', 'nwmv21': '', 'nwmv21_withLakes': '', 'WEAP_23Aug2022_gridmet': '', 'pywr_nhmv10': '///',
-                 'pywr_obs_pub': '///', 'pywr_nwmv21': '///', 'pywr_nwmv21_withLakes': '///', 'pywr_WEAP_23Aug2022_gridmet_nhmv10': '///'}
     edgedict = {'obs_pub':'w', 'nhmv10': 'w', 'nwmv21': 'w', 'nwmv21_withLakes': 'w', 'WEAP_23Aug2022_gridmet': 'w',
                 'pywr_obs_pub':'w', 'pywr_nhmv10': 'w', 'pywr_nwmv21': 'w', 'pywr_nwmv21_withLakes': 'w', 'pywr_WEAP_23Aug2022_gridmet_nhmv10': 'w'}
     nodelabeldict = {'pepacton': 'Pep', 'cannonsville': 'Can', 'neversink': 'Nev', 'prompton': 'Pro', 'assunpink': 'AspRes',\
@@ -439,18 +443,13 @@ def get_RRV_metrics(results, models, nodes):
 
 
 ### histogram of reliability, resiliency, & vulnerability for different models & nodes
-def plot_rrv_metrics(rrv_metrics, rrv_models, nodes, fig_dir = fig_dir):
+def plot_rrv_metrics(rrv_metrics, rrv_models, nodes, fig_dir = fig_dir,
+                     colordict = base_model_colors, hatchdict = model_hatch_styles):
 
     fig, axs = plt.subplots(2, 3, figsize=(16, 8))
 
     metrics = ['reliability','resiliency','vulnerability']
     
-    colordict = {'obs':'grey', 'obs_pub':'#097320', 'nhmv10': '#66c2a5', 'nwmv21': '#8da0cb', 'nwmv21_withLakes': '#8da0cb', 'WEAP_23Aug2022_gridmet': '#fc8d62',
-                 'pywr_obs_pub':'#097320', 'pywr_nhmv10': '#66c2a5', 'pywr_nwmv21': '#8da0cb', 'pywr_nwmv21_withLakes': '#8da0cb',
-                 'pywr_WEAP_23Aug2022_gridmet_nhmv10': '#fc8d62'}
-    hatchdict = {'obs':'', 'obs_pub': '', 'nhmv10': '', 'nwmv21': '', 'nwmv21_withLakes': '', 'WEAP_23Aug2022_gridmet': '', 'pywr_nhmv10': '///',
-                 'pywr_obs_pub': '///', 'pywr_nwmv21': '///', 'pywr_nwmv21_withLakes': '///', 'pywr_WEAP_23Aug2022_gridmet_nhmv10': '///'}
-
     for n, node in enumerate(nodes):
         for k, metric in enumerate(metrics):
             ax = axs[n, k]
@@ -662,7 +661,110 @@ def compare_inflow_data(inflow_data, nodes,
     plt.close()
     return
 
+def plot_combined_nyc_storage(storages, releases, models, 
+                      start_date = '1999-10-01',
+                      end_date = '2010-05-31',
+                      colordict = base_model_colors,
+                      use_percent = True,
+                      plot_drought_levels = True, 
+                      plot_releases = True):
+    """
+    Plots of simulated & observed NYC combined reservoir storage.
+    
+    Parameters:
+    storages : dictionary of storage results from `get_pywr_results`
+    models : list of models to plot
+    reservoir_list : list of reservoirs to plot
+    """
 
-## TODO
-def plot_nyc_storage():
+    ffmp_min_releases = 95*cfs_to_mgd # Combined min release during drought level 5
+    
+    ffmp_level_colors = ['blue', 'blue', 'blue', 'cornflowerblue', 'green', 'darkorange', 'maroon']
+    drought_cmap = ListedColormap(ffmp_level_colors)
+
+    reservoir_list = ['cannonsville', 'pepacton', 'neversink']
+    capacities = {'cannonsville': 93000,
+                  'pepacton': 140000,
+                  'neversink': 34500,
+                  'combined': 267500}
+    
+    historic_storage = pd.read_csv(f'../input_data/historic_storages/NYC_storage_daily_2000-2021.csv', sep=',', index_col=0)
+    historic_storage.index = pd.to_datetime(historic_storage.index)
+    historic_storage = historic_storage.loc[start_date:end_date]
+    
+    model_names = [m[5:] for m in models]
+    drought_levels = pd.DataFrame(index= historic_storage.index, columns = model_names)
+    for model in model_names:
+        drought_levels[model] = get_pywr_results(output_dir, model, results_set='res_level').loc[start_date:end_date, ['nyc']]
+    drought_levels.index = pd.to_datetime(historic_storage.index)
+    
+    # Create figure with m subplots
+    n_subplots = 3 if plot_releases else 2
+    
+    fig = plt.figure(figsize=(8, 5), dpi=200)
+    gs = gridspec.GridSpec(nrows=n_subplots, ncols=2, width_ratios=[15, 1], height_ratios=[1, 3, 2], wspace=0.05)
+
+    # Plot drought levels
+    if plot_drought_levels:
+        ax1 = fig.add_subplot(gs[0, 0])
+        ax_cbar = fig.add_subplot(gs[0, 1])
+        sns.heatmap(drought_levels.transpose(), cmap = drought_cmap,  
+                    ax = ax1,
+                    cbar_ax = ax_cbar, cbar_kws = dict(use_gridspec=False))
+        ax1.set_xticklabels([])
+        ax1.set_xticks([])
+        ax1.set_ylabel('FFMP\nLevel', fontsize=12)
+
+    # Plot combined storage
+    ax2 = fig.add_subplot(gs[1, 0])
+    for m in models:
+        if use_percent:
+            sim_data = storages[m][reservoir_list].sum(axis=1).loc[start_date:end_date]/capacities['combined']*100
+            hist_data = historic_storage.loc[start_date:end_date, 'Total']/capacities['combined']*100
+            ylab = f'Storage\n(% Useable)'
+        else:
+            sim_data = storages[m][reservoir_list].sum(axis=1).loc[start_date:end_date]
+            hist_data = historic_storage.loc[start_date:end_date, 'Total']
+            ylab = f'Combined NYC Reservoir Storage (MG)'
+        ax2.plot(sim_data, color=colordict[m], label=f'{m}')
+    ax2.plot(hist_data, color=colordict['obs'], label=f'Observed')
+    datetime = sim_data.index
+    
+    ax2.set_ylabel(ylab, fontsize = 12)
+    ax2.yaxis.set_label_coords(-0.1, 0.5) # Set y-axis label position
+    ax2.grid(True, which='major', axis='y')
+    ax2.set_ylim([0, 110])
+    ax2.set_xticklabels([])
+    
+    # Plot releases
+    ax3 = fig.add_subplot(gs[2,0])
+    for m in models:
+        sim_data = releases[m][reservoir_list].sum(axis=1).loc[start_date:end_date]
+        sim_data.index = datetime
+        ax3.plot(sim_data.index, sim_data, color = colordict[m], label = m, lw = 1)
+    
+    releases['obs']['ffmp_min_release'] = np.ones(len(releases['obs'].index))*ffmp_min_releases
+    hist_data = releases['obs'][reservoir_list].sum(axis=1).loc[start_date:end_date]
+    min_releases = releases['obs'].loc[start_date:end_date, ['ffmp_min_release']]
+    
+    ax3.plot(hist_data, color = colordict['obs'], label=f'Observed', lw = 1)
+    ax3.plot(min_releases, color ='black', ls =':', label = f'FFMP Min. Allowable Combined Release\nAt Drought Level 5 ({int(ffmp_min_releases)} MGD)')
+    ax3.set_yscale('log')
+    ax3.yaxis.set_label_coords(-0.1, 0.5)
+    ax3.set_ylabel('Releases\n(MGD)', fontsize = 12)
+    ax3.set_xlabel('Date', fontsize = 12)
+    
+    #plt.legend()
+    plt.xlabel('Date')
+    
+    # Create colorbar outside of subplots
+    if ax_cbar is not None:
+        cbar = ax_cbar.collections[0].colorbar
+        #cbar.ax.tick_params(labelsize=12)
+        #cbar.ax.set_ylabel('FFMP Level', fontsize=12, rotation=270, labelpad=15)
+        #cbar.ax.yaxis.set_label_coords(4.5, 0.5)
+    plt.legend(loc = 'upper left', bbox_to_anchor=(0., -0.5), ncols=2)
+    plt.suptitle('Combined NYC Reservoir Operations\nSimulated & Observed')
+    plt.savefig(f'{fig_dir}combined_NYC_reservoir_operations_{start_date}_{end_date}.png', dpi=250)
+    plt.show()
     return
