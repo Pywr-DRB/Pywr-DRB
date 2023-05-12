@@ -24,7 +24,7 @@ def get_pywr_results(output_dir, model, results_set='all', scenario=0):
     :param output_dir:
     :param model:
     :param results_set: can be "all" to return all results,
-                            "res_release" to return reservoir releases (downstream gage comparison),
+                            "reservoir_downstream_gage" to return downstream gage flow below reservoir,
                             "res_storage" to return resrvoir storages,
                             "major_flow" to return flow at major flow points of interest,
                             "inflow" to return the inflow at each catchment.
@@ -37,7 +37,7 @@ def get_pywr_results(output_dir, model, results_set='all', scenario=0):
         for k in keys:
             if results_set == 'all':
                 results[k] = f[k][:, scenario]
-            elif results_set == 'res_release':
+            elif results_set == 'reservoir_downstream_gage':
                 ## Need to pull flow data for link_ downstream of reservoirs instead of simulated outflows
                 if k.split('_')[0] == 'link' and k.split('_')[1] in reservoir_link_pairs.values():
                     res_name = [res for res, link in reservoir_link_pairs.items() if link == k.split('_')[1]][0]
@@ -50,6 +50,9 @@ def get_pywr_results(output_dir, model, results_set='all', scenario=0):
                     results[k.split('_')[1]] = f[k][:, scenario]
             elif results_set == 'major_flow':
                 if k.split('_')[0] == 'link' and k.split('_')[1] in majorflow_list:
+                    results[k.split('_')[1]] = f[k][:, scenario]
+            elif results_set == 'res_release':
+                if k.split('_')[0] == 'outflow' and k.split('_')[1] in reservoir_list:
                     results[k.split('_')[1]] = f[k][:, scenario]
             elif results_set == 'inflow':
                 if k.split('_')[0] == 'catchment':
@@ -66,6 +69,9 @@ def get_pywr_results(output_dir, model, results_set='all', scenario=0):
             elif results_set in ('res_level'):
                 if 'drought_level' in k:
                     results[k.split('_')[-1]] = f[k][:, scenario]
+            elif results_set == 'mrf_target':
+                if results_set in k:
+                    results[k.split('mrf_target_')[1]] = f[k][:, scenario]
         
         # Format datetime index
         day = [f['time'][i][0] for i in range(len(f['time']))]
@@ -85,14 +91,14 @@ def get_base_results(input_dir, model, datetime_index, results_set='all'):
     :param model:
     :param datetime_index:
     :param results_set: can be "all" to return all results,
-                            "res_release" to return reservoir releases (downstream gage comparison),
+                            "reservoir_downstream_gage" to return downstream gage flow below reservoir,
                             "major_flow" to return flow at major flow points of interest
     :return:
     '''
     gage_flow = pd.read_csv(f'{input_dir}gage_flow_{model}.csv')
     gage_flow.index = pd.DatetimeIndex(gage_flow['datetime'])
     gage_flow = gage_flow.drop('datetime', axis=1)
-    if results_set == 'res_release':
+    if results_set == 'reservoir_downstream_gage':
         available_release_data = gage_flow.columns.intersection(reservoir_link_pairs.values())
         reservoirs_with_data = [list(filter(lambda x: reservoir_link_pairs[x] == site, reservoir_link_pairs))[0] for
                                 site in available_release_data]

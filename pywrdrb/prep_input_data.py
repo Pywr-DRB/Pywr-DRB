@@ -141,7 +141,7 @@ def extrapolate_NYC_NJ_diversions(loc):
 
     ### get historical diversion data
     if loc == 'nyc':
-        diversion = pd.read_excel(f'{input_dir}historical_diversions/Pep_Can_Nev_diversions_daily_2000-2021.xlsx', index_col=0)
+        diversion = pd.read_excel(f'{input_dir}historic_NYC/Pep_Can_Nev_diversions_daily_2000-2021.xlsx', index_col=0)
         diversion = diversion.iloc[:, :3]
         diversion.index = pd.to_datetime(diversion.index)
         diversion['aggregate'] = diversion.sum(axis=1)
@@ -293,7 +293,7 @@ def extrapolate_NYC_NJ_diversions(loc):
 
     ### Now reload historical diversion dataset, & add extrapolated data for the dates we don't have
     if loc == 'nyc':
-        diversion = pd.read_excel(f'{input_dir}historical_diversions/Pep_Can_Nev_diversions_daily_2000-2021.xlsx', index_col=0)
+        diversion = pd.read_excel(f'{input_dir}historic_NYC/Pep_Can_Nev_diversions_daily_2000-2021.xlsx', index_col=0)
         diversion = diversion.iloc[:,:3]
         diversion.index = pd.to_datetime(diversion.index)
         diversion['aggregate'] = diversion.sum(axis=1)

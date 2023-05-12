@@ -22,12 +22,12 @@ import datetime as dt
 sys.path.append('..')
 
 # Custom modules
-from pywrdrb.utils.processing import get_base_results, get_pywr_results
-from pywrdrb.utils.constants import cms_to_mgd, cm_to_mg, cfs_to_mgd
-from pywrdrb.utils.lists import reservoir_list, majorflow_list, reservoir_link_pairs
-from pywrdrb.utils.directories import input_dir, fig_dir, output_dir
+from utils.processing import get_base_results, get_pywr_results
+from utils.constants import cms_to_mgd, cm_to_mg, cfs_to_mgd
+from utils.lists import reservoir_list, majorflow_list, reservoir_link_pairs
+from utils.directories import input_dir, fig_dir, output_dir, model_data_dir
 
-from pywrdrb.plotting.styles import base_model_colors, model_hatch_styles, paired_model_colors, scatter_model_markers
+from plotting.styles import base_model_colors, model_hatch_styles, paired_model_colors, scatter_model_markers
 
 
 ### 3-part figure to visualize flow: timeseries, scatter plot, & flow duration curve. Can plot observed plus 1 or 2 modeled series.
@@ -483,7 +483,7 @@ def plot_rrv_metrics(rrv_metrics, rrv_models, nodes, fig_dir = fig_dir,
 
 
 
-def plot_flow_contributions(res_releases, major_flows,
+def plot_flow_contributions(reservoir_downstream_gages, major_flows,
                             model, node,
                             separate_pub_contributions = False,
                             percentage_flow = True,
@@ -526,9 +526,9 @@ def plot_flow_contributions(res_releases, major_flows,
         print('Invalid node specification.')
 
     # Pull just contributing data
-    use_releases = [i for i in contributing if i in res_releases[model].columns]
+    use_releases = [i for i in contributing if i in reservoir_downstream_gages[model].columns]
     use_flows = [i for i in contributing if (i not in use_releases) and (i in major_flows[model].columns)]
-    release_contributions = res_releases[model][use_releases]
+    release_contributions = reservoir_downstream_gages[model][use_releases]
     flow_contributions = major_flows[model][use_flows]
     contributions = pd.concat([release_contributions, flow_contributions], axis=1)
 
@@ -552,8 +552,8 @@ def plot_flow_contributions(res_releases, major_flows,
         m = model
     inflows = pd.read_csv(f'{input_dir}catchment_inflow_{m}.csv', sep = ',', index_col = 0)
     inflows.index = pd.to_datetime(inflows.index)
-    inflows = inflows.loc[inflows.index >= res_releases[model].index[0]]
-    inflows = inflows.loc[inflows.index <= res_releases[model].index[-1]]
+    inflows = inflows.loc[inflows.index >= reservoir_downstream_gages[model].index[0]]
+    inflows = inflows.loc[inflows.index <= reservoir_downstream_gages[model].index[-1]]
 
     contributions[upper_basin_main_inflows] = inflows[upper_basin_main_inflows]
     contributions[node] = inflows[node]
@@ -677,21 +677,34 @@ def plot_combined_nyc_storage(storages, releases, models,
     reservoir_list : list of reservoirs to plot
     """
 
-    ffmp_min_releases = 95*cfs_to_mgd # Combined min release during drought level 5
-    
+
     ffmp_level_colors = ['blue', 'blue', 'blue', 'cornflowerblue', 'green', 'darkorange', 'maroon']
     drought_cmap = ListedColormap(ffmp_level_colors)
 
     reservoir_list = ['cannonsville', 'pepacton', 'neversink']
-    capacities = {'cannonsville': 93000,
-                  'pepacton': 140000,
-                  'neversink': 34500,
-                  'combined': 267500}
-    
-    historic_storage = pd.read_csv(f'../input_data/historic_storages/NYC_storage_daily_2000-2021.csv', sep=',', index_col=0)
+
+    ### get reservoir storage capacities
+    istarf = pd.read_csv(f'{model_data_dir}drb_model_istarf_conus.csv')
+    def get_reservoir_capacity(reservoir):
+        return float(istarf['Adjusted_CAP_MG'].loc[istarf['reservoir'] == reservoir].iloc[0])
+    capacities = {r: get_reservoir_capacity(r) for r in reservoir_list}
+    capacities['combined'] = sum([capacities[r] for r in reservoir_list])
+
+    historic_storage = pd.read_csv(f'{input_dir}/historic_NYC/NYC_storage_daily_2000-2021.csv', sep=',', index_col=0)
     historic_storage.index = pd.to_datetime(historic_storage.index)
     historic_storage = historic_storage.loc[start_date:end_date]
-    
+
+    historic_release = pd.read_excel(f'{input_dir}/historic_NYC/Pep_Can_Nev_releases_daily_2000-2021.xlsx', index_col=0)
+    historic_release.index = pd.to_datetime(historic_release.index)
+    historic_release = historic_release.iloc[:,:3]
+    historic_release = historic_release.loc[start_date:end_date] * cfs_to_mgd
+    historic_release.columns = ['pepacton','cannonsville','neversink']
+    historic_release['Total'] = historic_release.sum(axis=1)
+
+    ### add seasonal min FFMP releases (table 3 https://webapps.usgs.gov/odrm/documents/ffmp/Appendix_A_FFMP-20180716-Final.pdf)
+    historic_release['FFMP_min_release'] = 95 * cfs_to_mgd
+    historic_release['FFMP_min_release'].loc[[m in (6,7,8) for m in historic_release.index.month]] = 190 * cfs_to_mgd
+
     model_names = [m[5:] for m in models]
     drought_levels = pd.DataFrame(index= historic_storage.index, columns = model_names)
     for model in model_names:
@@ -742,13 +755,9 @@ def plot_combined_nyc_storage(storages, releases, models,
         sim_data = releases[m][reservoir_list].sum(axis=1).loc[start_date:end_date]
         sim_data.index = datetime
         ax3.plot(sim_data.index, sim_data, color = colordict[m], label = m, lw = 1)
-    
-    releases['obs']['ffmp_min_release'] = np.ones(len(releases['obs'].index))*ffmp_min_releases
-    hist_data = releases['obs'][reservoir_list].sum(axis=1).loc[start_date:end_date]
-    min_releases = releases['obs'].loc[start_date:end_date, ['ffmp_min_release']]
-    
-    ax3.plot(hist_data, color = colordict['obs'], label=f'Observed', lw = 1)
-    ax3.plot(min_releases, color ='black', ls =':', label = f'FFMP Min. Allowable Combined Release\nAt Drought Level 5 ({int(ffmp_min_releases)} MGD)')
+
+    ax3.plot(historic_release['Total'], color = colordict['obs'], label=f'Observed', lw = 1)
+    ax3.plot(historic_release['FFMP_min_release'], color ='black', ls =':', label = f'FFMP Min. Allowable Combined Release\nAt Drought Level 5')
     ax3.set_yscale('log')
     ax3.yaxis.set_label_coords(-0.1, 0.5)
     ax3.set_ylabel('Releases\n(MGD)', fontsize = 12)
@@ -766,5 +775,5 @@ def plot_combined_nyc_storage(storages, releases, models,
     plt.legend(loc = 'upper left', bbox_to_anchor=(0., -0.5), ncols=2)
     plt.suptitle('Combined NYC Reservoir Operations\nSimulated & Observed')
     plt.savefig(f'{fig_dir}combined_NYC_reservoir_operations_{start_date}_{end_date}.png', dpi=250)
-    plt.show()
+    # plt.show()
     return

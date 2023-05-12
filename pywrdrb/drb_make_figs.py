@@ -39,15 +39,16 @@ if __name__ == "__main__":
     else:
         pywr_models = ['obs_pub', 'nhmv10', 'nwmv21']
 
-    res_releases = {}
+    reservoir_downstream_gages = {}
     major_flows = {}
     storages = {}
-    
+    reservoir_releases = {}
+
     for model in pywr_models:
-        res_releases[f'pywr_{model}'] = get_pywr_results(output_dir, model, 'res_release').loc[start_date:end_date,:]
+        reservoir_downstream_gages[f'pywr_{model}'] = get_pywr_results(output_dir, model, 'reservoir_downstream_gage').loc[start_date:end_date,:]
         major_flows[f'pywr_{model}'] = get_pywr_results(output_dir, model, 'major_flow').loc[start_date:end_date,:]
         storages[f'pywr_{model}'] = get_pywr_results(output_dir, model, 'res_storage')
-    
+        reservoir_releases[f'pywr_{model}'] = get_pywr_results(output_dir, model, 'res_releases').loc[start_date:end_date,:]
     pywr_models = [f'pywr_{m}' for m in pywr_models]
 
     # Load base (non-pywr) models
@@ -56,17 +57,17 @@ if __name__ == "__main__":
     else:
         base_models = ['obs', 'obs_pub', 'nhmv10', 'nwmv21']
 
-    datetime_index = list(res_releases.values())[0].index
+    datetime_index = list(reservoir_downstream_gages.values())[0].index
     for model in base_models:
-        res_releases[model] = get_base_results(input_dir, model, datetime_index, 'res_release').loc[start_date:end_date,:]
+        reservoir_downstream_gages[model] = get_base_results(input_dir, model, datetime_index, 'reservoir_downstream_gage').loc[start_date:end_date,:]
         major_flows[model] = get_base_results(input_dir, model, datetime_index, 'major_flow').loc[start_date:end_date,:]
 
     # Verify that all datasets have same datetime index
-    for r in res_releases.values():
-        print(f'len r: {len(r.index)} and dt: {len(datetime_index)}')
+    for r in reservoir_downstream_gages.values():
+        # print(f'len r: {len(r.index)} and dt: {len(datetime_index)}')
         assert ((r.index == datetime_index).mean() == 1)
     for r in major_flows.values():
-        print(f'len r: {len(r.index)} and dt: {len(datetime_index)}')
+        # print(f'len r: {len(r.index)} and dt: {len(datetime_index)}')
         assert ((r.index == datetime_index).mean() == 1)
     print(f'Successfully loaded {len(base_models)} base model results & {len(pywr_models)} pywr model results')
 
@@ -74,43 +75,43 @@ if __name__ == "__main__":
     if rerun_all:
         print('Plotting 3-part flows at reservoirs.')
         ### nhm only - slides 36-39 in 10/24/2022 presentation
-        plot_3part_flows(res_releases, ['nhmv10'], 'pepacton')
+        plot_3part_flows(reservoir_downstream_gages, ['nhmv10'], 'pepacton')
         ### nhm vs nwm - slides 40-42 in 10/24/2022 presentation
-        plot_3part_flows(res_releases, ['nhmv10', 'nwmv21'], 'pepacton')
+        plot_3part_flows(reservoir_downstream_gages, ['nhmv10', 'nwmv21'], 'pepacton')
         if use_WEAP:
             ### nhm vs weap (with nhm backup) - slides 60-62 in 10/24/2022 presentation
-            plot_3part_flows(res_releases, ['nhmv10', 'WEAP_23Aug2022_gridmet'], 'pepacton')
+            plot_3part_flows(reservoir_downstream_gages, ['nhmv10', 'WEAP_23Aug2022_gridmet'], 'pepacton')
         ### nhm vs pywr-nhm - slides 60-62 in 10/24/2022 presentation
-        plot_3part_flows(res_releases, ['nhmv10', 'pywr_nhmv10'], 'pepacton')
+        plot_3part_flows(reservoir_downstream_gages, ['nhmv10', 'pywr_nhmv10'], 'pepacton')
         ## obs-pub only
-        plot_3part_flows(res_releases, ['obs_pub'], 'pepacton')
-        plot_3part_flows(res_releases, ['pywr_obs_pub'], 'pepacton')
-        plot_3part_flows(res_releases, ['obs_pub', 'nhmv10'], 'pepacton')
-        plot_3part_flows(res_releases, ['pywr_obs_pub', 'pywr_nhmv10'], 'pepacton')
+        plot_3part_flows(reservoir_downstream_gages, ['obs_pub'], 'pepacton')
+        plot_3part_flows(reservoir_downstream_gages, ['pywr_obs_pub'], 'pepacton')
+        plot_3part_flows(reservoir_downstream_gages, ['obs_pub', 'nhmv10'], 'pepacton')
+        plot_3part_flows(reservoir_downstream_gages, ['pywr_obs_pub', 'pywr_nhmv10'], 'pepacton')
 
-        plot_3part_flows(res_releases, ['obs_pub', 'nhmv10'], 'cannonsville')
-        plot_3part_flows(res_releases, ['pywr_obs_pub', 'pywr_nhmv10'], 'cannonsville')
-        plot_3part_flows(res_releases, ['pywr_obs_pub', 'pywr_nhmv10'], 'neversink')
+        plot_3part_flows(reservoir_downstream_gages, ['obs_pub', 'nhmv10'], 'cannonsville')
+        plot_3part_flows(reservoir_downstream_gages, ['pywr_obs_pub', 'pywr_nhmv10'], 'cannonsville')
+        plot_3part_flows(reservoir_downstream_gages, ['pywr_obs_pub', 'pywr_nhmv10'], 'neversink')
 
 
     if rerun_all:
         print('Plotting weekly flow distributions at reservoirs.')
         ### nhm only - slides 36-39 in 10/24/2022 presentation
-        plot_weekly_flow_distributions(res_releases, ['nhmv10'], 'pepacton')
+        plot_weekly_flow_distributions(reservoir_downstream_gages, ['nhmv10'], 'pepacton')
         ### nhm vs nwm - slides 35-37 in 10/24/2022 presentation
-        plot_weekly_flow_distributions(res_releases, ['nhmv10', 'nwmv21'], 'pepacton')
+        plot_weekly_flow_distributions(reservoir_downstream_gages, ['nhmv10', 'nwmv21'], 'pepacton')
         if use_WEAP:
             ### nhm vs weap (with nhm backup) - slides 68 in 10/24/2022 presentation
-            plot_weekly_flow_distributions(res_releases, ['nhmv10', 'WEAP_23Aug2022_gridmet'], 'pepacton')
+            plot_weekly_flow_distributions(reservoir_downstream_gages, ['nhmv10', 'WEAP_23Aug2022_gridmet'], 'pepacton')
         ### nhm vs pywr-nhm - slides 68 in 10/24/2022 presentation
-        plot_weekly_flow_distributions(res_releases, ['nhmv10', 'pywr_nhmv10'], 'pepacton')
+        plot_weekly_flow_distributions(reservoir_downstream_gages, ['nhmv10', 'pywr_nhmv10'], 'pepacton')
 
         ## obs_pub
-        plot_weekly_flow_distributions(res_releases, ['obs_pub'], 'pepacton')
-        plot_weekly_flow_distributions(res_releases, ['nhmv10', 'obs_pub'], 'pepacton')
-        plot_weekly_flow_distributions(res_releases, ['pywr_obs_pub', 'pywr_nhmv10'], 'pepacton')
-        plot_weekly_flow_distributions(res_releases, ['pywr_obs_pub', 'pywr_nhmv10'], 'cannonsville')
-        plot_weekly_flow_distributions(res_releases, ['pywr_obs_pub', 'pywr_nhmv10'], 'neversink')
+        plot_weekly_flow_distributions(reservoir_downstream_gages, ['obs_pub'], 'pepacton')
+        plot_weekly_flow_distributions(reservoir_downstream_gages, ['nhmv10', 'obs_pub'], 'pepacton')
+        plot_weekly_flow_distributions(reservoir_downstream_gages, ['pywr_obs_pub', 'pywr_nhmv10'], 'pepacton')
+        plot_weekly_flow_distributions(reservoir_downstream_gages, ['pywr_obs_pub', 'pywr_nhmv10'], 'cannonsville')
+        plot_weekly_flow_distributions(reservoir_downstream_gages, ['pywr_obs_pub', 'pywr_nhmv10'], 'neversink')
 
         
 
@@ -127,19 +128,19 @@ if __name__ == "__main__":
 
         print('Plotting radial figures for reservoir releases')
 
-        res_release_metrics = get_error_metrics(res_releases, radial_models, nodes)
+        reservoir_downstream_gage_metrics = get_error_metrics(reservoir_downstream_gages, radial_models, nodes)
         ### nhm vs nwm only, pepacton only - slides 48-54 in 10/24/2022 presentation
-        #plot_radial_error_metrics(res_release_metrics, radial_models, nodes, useNonPep = False, useweap = False, usepywr = False)
+        #plot_radial_error_metrics(reservoir_downstream_gage_metrics, radial_models, nodes, useNonPep = False, useweap = False, usepywr = False)
         ### nhm vs nwm only, all reservoirs - slides 55-58 in 10/24/2022 presentation
-        plot_radial_error_metrics(res_release_metrics, radial_models, nodes, useNonPep = True, useweap = False, usepywr = False)
+        plot_radial_error_metrics(reservoir_downstream_gage_metrics, radial_models, nodes, useNonPep = True, useweap = False, usepywr = False)
         ### nhm vs nwm vs weap only, pepaction only - slides 69 in 10/24/2022 presentation
-        plot_radial_error_metrics(res_release_metrics, radial_models, nodes, useNonPep = False, useweap = True, usepywr = False)
+        plot_radial_error_metrics(reservoir_downstream_gage_metrics, radial_models, nodes, useNonPep = False, useweap = True, usepywr = False)
         ### nhm vs nwm vs weap only, all reservoirs - slides 70 in 10/24/2022 presentation
-        plot_radial_error_metrics(res_release_metrics, radial_models, nodes, useNonPep = True, useweap = True, usepywr = False)
+        plot_radial_error_metrics(reservoir_downstream_gage_metrics, radial_models, nodes, useNonPep = True, useweap = True, usepywr = False)
         ### all models, pepaction only - slides 72-73 in 10/24/2022 presentation
-        plot_radial_error_metrics(res_release_metrics, radial_models, nodes, useNonPep = False, useweap = True, usepywr = True)
+        plot_radial_error_metrics(reservoir_downstream_gage_metrics, radial_models, nodes, useNonPep = False, useweap = True, usepywr = True)
         ### all models, all reservoirs - slides 74-75 in 10/24/2022 presentation
-        plot_radial_error_metrics(res_release_metrics, radial_models, nodes, useNonPep = True, useweap = True, usepywr = True)
+        plot_radial_error_metrics(reservoir_downstream_gage_metrics, radial_models, nodes, useNonPep = True, useweap = True, usepywr = True)
 
 
 
@@ -214,11 +215,11 @@ if __name__ == "__main__":
         node = 'delTrenton'
         models = ['pywr_obs_pub', 'pywr_nhmv10', 'pywr_nwmv21']
         for model in models:  
-            plot_flow_contributions(res_releases, major_flows, model, node,
+            plot_flow_contributions(reservoir_downstream_gages, major_flows, model, node,
                                     separate_pub_contributions = False,
                                     percentage_flow = True,
                                     plot_target = False)
-            plot_flow_contributions(res_releases, major_flows, model, node,
+            plot_flow_contributions(reservoir_downstream_gages, major_flows, model, node,
                                     separate_pub_contributions = False,
                                     percentage_flow = False,
                                     plot_target = True)
@@ -233,8 +234,11 @@ if __name__ == "__main__":
         compare_inflow_data(inflows, nodes = reservoir_list)
 
 
-    print('Plotting NYC reservoir operations')
-    plot_combined_nyc_storage(storages, res_releases, pywr_models, start_date='2000-01-01', end_date='2004-01-01')
-    plot_combined_nyc_storage(storages, res_releases, pywr_models, start_date='2000-01-01', end_date='2010-01-01')
-        
+    ### plot NYC reservoir comparison
+    if rerun_all:
+        print('Plotting NYC reservoir operations')
+        plot_combined_nyc_storage(storages, reservoir_downstream_gages, pywr_models, start_date='2000-01-01', end_date='2004-01-01')
+        plot_combined_nyc_storage(storages, reservoir_downstream_gages, pywr_models, start_date='2000-01-01', end_date='2010-01-01')
+        plot_combined_nyc_storage(storages, reservoir_downstream_gages, pywr_models, start_date=start_date, end_date=end_date)
+
     print(f'Done! Check the {fig_dir} folder.')
