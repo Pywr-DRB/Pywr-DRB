@@ -10,26 +10,27 @@ There are unique node source matches depending on whether the dataset is:
 - WEAP
 """
 
-## A dictionary describing Pywr-DRB nodes and corresponding upstream nodes
-site_matches_link = {'01425000': ['cannonsville'],
-                     '01417000': ['pepacton'],
-                     'delLordville': ['cannonsville', 'pepacton', '01425000', '01417000'],
-                     '01436000': ['neversink'],
-                     '01433500': ['mongaupeCombined'],
-                     'delMontague': ['cannonsville', 'pepacton', '01425000', '01417000', 'delLordville',
-                                     'prompton', 'wallenpaupack', 'shoholaMarsh', 'mongaupeCombined', 
-                                     'neversink', '01436000', '01433500'],
-                     '01449800': ['beltzvilleCombined'],
-                     '01447800': ['fewalter'],
-                     'delTrenton': ['cannonsville', 'pepacton', '01425000', '01417000', 'delLordville',
-                                    'prompton', 'wallenpaupack', 'shoholaMarsh', 'mongaupeCombined', 'neversink', '01436000', '01433500', 'delMontague',
-                                    'beltzvilleCombined', 'fewalter', 'merrillCreek', 'hopatcong', 'nockamixon', '01449800', '01447800'],
-                     '01463620': ['assunpink'],
-                     'outletAssunpink': ['assunpink', '01463620'],
-                     '01470960': ['blueMarsh'],
-                     'outletSchuylkill': ['ontelaunee', 'stillCreek', 'blueMarsh', 'greenLane', '01470960'],
-                     'outletChristina': ['marshCreek']
-                     }
+## Set of all upstream nodes for every downstream node
+upstream_nodes_dict = {'01425000': ['cannonsville'],
+                       '01417000': ['pepacton'],
+                       'delLordville': ['cannonsville', 'pepacton', '01425000', '01417000'],
+                       '01436000': ['neversink'],
+                       '01433500': ['mongaupeCombined'],
+                       'delMontague': ['cannonsville', 'pepacton', '01425000', '01417000', 'delLordville',
+                                       'prompton', 'wallenpaupack', 'shoholaMarsh', 'mongaupeCombined',
+                                       'neversink', '01436000', '01433500'],
+                       '01449800': ['beltzvilleCombined'],
+                       '01447800': ['fewalter'],
+                       'delTrenton': ['cannonsville', 'pepacton', '01425000', '01417000', 'delLordville',
+                                      'prompton', 'wallenpaupack', 'shoholaMarsh', 'mongaupeCombined', 'neversink', '01436000', '01433500', 'delMontague',
+                                      'beltzvilleCombined', 'fewalter', 'merrillCreek', 'hopatcong', 'nockamixon', '01449800', '01447800'],
+                       '01463620': ['assunpink'],
+                       'outletAssunpink': ['assunpink', '01463620'],
+                       '01470960': ['blueMarsh'],
+                       'outletSchuylkill': ['ontelaunee', 'stillCreek', 'blueMarsh', 'greenLane', '01470960'],
+                       'outletChristina': ['marshCreek']
+                       }
+
 
 
 obs_pub_site_matches = {'cannonsville': None,  # ['01423000'] is on the mainstem but biased low

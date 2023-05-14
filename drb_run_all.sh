@@ -4,7 +4,7 @@
 echo Prepping data...
 time python3 -W ignore ./pywrdrb/prep_input_data.py
 
-### run simulation using multiple inpu data sources
+#### run simulation using multiple inpu data sources
 for inflow_type in obs_pub nhmv10 nwmv21 #WEAP_23Aug2022_gridmet
 do
 	backup_inflow_type=nhmv10
@@ -14,4 +14,4 @@ done
 
 ### analyze results, make figures
 echo Analyzing results...
-time python3 -W ignore ./pywrdrb/drb_make_figs.py 
+time python3 -W ignore ./pywrdrb/drb_make_figs.py

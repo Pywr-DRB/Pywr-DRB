@@ -10,10 +10,10 @@ import pandas as pd
 import glob
 import statsmodels.api as sm
 
-
-from pywr_drb_node_data import obs_site_matches, obs_pub_site_matches, nhm_site_matches, nwm_site_matches, site_matches_link
+from pywr_drb_node_data import obs_site_matches, obs_pub_site_matches, nhm_site_matches, nwm_site_matches, upstream_nodes_dict
 from utils.constants import cfs_to_mgd, cms_to_mgd, cm_to_mg
 from utils.directories import input_dir
+from utils.disaggregate_DRBC_demands import disaggregate_DRBC_demands
 
 # Date range
 start_date = '1983/10/01'
@@ -63,7 +63,7 @@ def read_csv_data(filename, start_date, end_date, units = 'cms', source = 'USGS'
     return df
 
 
-def match_gages(df, dataset_label, site_matches_id, site_matches_link):
+def match_gages(df, dataset_label, site_matches_id, upstream_nodes_dict):
     '''Matches USGS gage sites to nodes in Pywr-DRB.
     For reservoirs, the matched gages are actually downstream, but assume this flows into reservoir from upstream catchment.
     For river nodes, upstream reservoir inflows are subtracted from the flow at river node USGS gage.
@@ -103,7 +103,7 @@ def match_gages(df, dataset_label, site_matches_id, site_matches_link):
 
     ### 2. Subtract flows into upstream nodes from mainstem nodes
     # This represents only the catchment inflows
-    for node, upstreams in site_matches_link.items():
+    for node, upstreams in upstream_nodes_dict.items():
         inflow[node] -= inflow.loc[:, upstreams].sum(axis=1)
         inflow[node].loc[inflow[node] < 0] = 0
 
@@ -343,14 +343,14 @@ if __name__ == "__main__":
 
 
     ### match USGS gage sites to Pywr-DRB model nodes & save inflows to csv file in format expected by Pywr-DRB
-    df_nhm = match_gages(df_nhm, 'nhmv10', site_matches_id= nhm_site_matches, site_matches_link= site_matches_link)
-    
+    df_nhm = match_gages(df_nhm, 'nhmv10', site_matches_id= nhm_site_matches, upstream_nodes_dict= upstream_nodes_dict)
+
     df_obs_copy = df_obs.copy()
-    df_obs = match_gages(df_obs, 'obs', site_matches_id= obs_site_matches, site_matches_link= site_matches_link)
-    
-    df_obs_pub = match_gages(df_obs_copy, 'obs_pub', site_matches_id= obs_pub_site_matches, site_matches_link= site_matches_link)
-    
-    df_nwm = match_gages(df_nwm, 'nwmv21', site_matches_id= nwm_site_matches, site_matches_link= site_matches_link)
+    df_obs = match_gages(df_obs, 'obs', site_matches_id= obs_site_matches, upstream_nodes_dict= upstream_nodes_dict)
+
+    df_obs_pub = match_gages(df_obs_copy, 'obs_pub', site_matches_id= obs_pub_site_matches, upstream_nodes_dict= upstream_nodes_dict)
+
+    df_nwm = match_gages(df_nwm, 'nwmv21', site_matches_id= nwm_site_matches, upstream_nodes_dict= upstream_nodes_dict)
 
 
     ### organize WEAP results to use in Pywr-DRB
@@ -439,3 +439,9 @@ if __name__ == "__main__":
     ### now get NJ diversions. for time periods we dont have historical record, extrapolate by seasonal relationship to flow.
     nj_diversion = extrapolate_NYC_NJ_diversions('nj')
     nj_diversion.to_csv(f'{input_dir}deliveryNJ_WEAP_23Aug2022_gridmet_extrapolated.csv', index=False)
+
+
+    ### get catchment demands based on DRBC data
+    sw_demand = disaggregate_DRBC_demands()
+    sw_demand.to_csv(f'{input_dir}sw_avg_wateruse_Pywr-DRB_Catchments.csv', index_label='node')
+

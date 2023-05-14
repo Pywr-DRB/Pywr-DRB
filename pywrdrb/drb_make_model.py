@@ -2,6 +2,7 @@ import json
 import pandas as pd
 
 from utils.directories import input_dir, model_data_dir
+from pywr_drb_node_data import upstream_nodes_dict
 
 model_full_file = model_data_dir + 'drb_model_full.json'
 model_sheets_start = model_data_dir + 'drb_model_'
@@ -202,48 +203,36 @@ def add_major_node(model, name, node_type, inflow_type, backup_inflow_type=None,
         }
 
 
-    ### get max flow for catchment withdrawal nodes based on DRBC data - for now exclude gage nodes, since havent calculated demand yet
-    if name[0] == '0':
-        model['parameters'][f'max_flow_catchmentWithdrawal_{name}'] = {
-            'type': 'constant',
-            'value': 0.
-        }
-    else:
-        model['parameters'][f'max_flow_catchmentWithdrawal_{name}'] = {
-            'type': 'constant',
-            'url': f'{input_dir}sw_avg_wateruse_Pywr-DRB_Catchments.csv',
-            'column': 'Total_WD_MGD',
-            'index_col': 'node',
-            'index': node_name
-        }
+    ### get max flow for catchment withdrawal nodes based on DRBC data
+    model['parameters'][f'max_flow_catchmentWithdrawal_{name}'] = {
+        'type': 'constant',
+        'url': f'{input_dir}sw_avg_wateruse_Pywr-DRB_Catchments.csv',
+        'column': 'Total_WD_MGD',
+        'index_col': 'node',
+        'index': node_name
+    }
 
-    ### get max flow for catchment consumption nodes based on DRBC data - for now exclude gage nodes, since havent calculated demand yet
-    if name[0] == '0':
-        model['parameters'][f'max_flow_catchmentConsumption_{name}'] = {
-            'type': 'constant',
-            'value': 0.
-        }
-    else:
-        ### assume the consumption_t = R * withdrawal_{t-1}, where R is the ratio of avg consumption to withdrawal from DRBC data
-        model['parameters'][f'catchmentConsumptionRatio_{name}'] = {
-            'type': 'constant',
-            'url': f'{input_dir}sw_avg_wateruse_Pywr-DRB_Catchments.csv',
-            'column': 'Total_CU_WD_Ratio',
-            'index_col': 'node',
-            'index': node_name
-        }
-        model['parameters'][f'prev_flow_catchmentWithdrawal_{name}'] = {
-            'type': 'flow',
-            'node': f'catchmentWithdrawal_{name}'
-        }
-        model['parameters'][f'max_flow_catchmentConsumption_{name}'] = {
-            'type': 'aggregated',
-            'agg_func': 'product',
-            'parameters': [
-                f'catchmentConsumptionRatio_{name}',
-                f'prev_flow_catchmentWithdrawal_{name}'
-            ]
-        }
+    ### get max flow for catchment consumption nodes based on DRBC data
+    ### assume the consumption_t = R * withdrawal_{t-1}, where R is the ratio of avg consumption to withdrawal from DRBC data
+    model['parameters'][f'catchmentConsumptionRatio_{name}'] = {
+        'type': 'constant',
+        'url': f'{input_dir}sw_avg_wateruse_Pywr-DRB_Catchments.csv',
+        'column': 'Total_CU_WD_Ratio',
+        'index_col': 'node',
+        'index': node_name
+    }
+    model['parameters'][f'prev_flow_catchmentWithdrawal_{name}'] = {
+        'type': 'flow',
+        'node': f'catchmentWithdrawal_{name}'
+    }
+    model['parameters'][f'max_flow_catchmentConsumption_{name}'] = {
+        'type': 'aggregated',
+        'agg_func': 'product',
+        'parameters': [
+            f'catchmentConsumptionRatio_{name}',
+            f'prev_flow_catchmentWithdrawal_{name}'
+        ]
+    }
 
     return model
 
@@ -715,15 +704,14 @@ def drb_make_model(inflow_type, backup_inflow_type, start_date, end_date, use_hi
         }
 
         ### total non-NYC inflows to Montague & Trenton
-        upstream_nodes = ['prompton', 'wallenpaupack', 'shoholaMarsh', 'mongaupeCombined',  'delLordville', 'delMontague']
-                          # 'delTrenton': ['beltzvilleCombined', 'fewalter', 'merrillCreek', 'hopatcong', 'nockamixon']}
+        upstream_nodes = upstream_nodes_dict['delMontague']
         model['parameters'][f'volbalance_flow_agg_nonnyc_delMontague'] = {
                 'type': 'aggregated',
                 'agg_func': 'sum',
                 'parameters': [f'flow_{node}' for node in upstream_nodes]
             }
-        upstream_nodes = ['prompton', 'wallenpaupack', 'shoholaMarsh', 'mongaupeCombined',  'delLordville', 'delMontague', \
-                          'beltzvilleCombined', 'fewalter', 'merrillCreek', 'hopatcong', 'nockamixon', 'delTrenton']
+
+        upstream_nodes = upstream_nodes_dict['delTrenton']
         model['parameters'][f'volbalance_flow_agg_nonnyc_delTrenton'] = {
                 'type': 'aggregated',
                 'agg_func': 'sum',
