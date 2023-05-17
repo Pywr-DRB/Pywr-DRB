@@ -2,7 +2,7 @@ import json
 import pandas as pd
 
 from utils.directories import input_dir, model_data_dir
-from utils.lists import majorflow_list
+from utils.lists import majorflow_list, reservoir_list, reservoir_list_nyc
 from pywr_drb_node_data import upstream_nodes_dict
 
 model_full_file = model_data_dir + 'drb_model_full.json'
@@ -15,7 +15,7 @@ EPS = 1e-8
 ##########################################################################################
 
 def add_major_node(model, name, node_type, inflow_type, backup_inflow_type=None, outflow_type=None, downstream_node=None,
-                   downstream_lag=0, capacity=None, initial_volume_frac=None, variable_cost=None):
+                   downstream_lag=0, capacity=None, initial_volume_frac=None, variable_cost=None, has_catchment=True):
     '''
     Add a major node to the model. Major nodes types include reservoir & river.
     This function will add the major node and all standard minor nodes that belong to each major node
@@ -34,6 +34,7 @@ def add_major_node(model, name, node_type, inflow_type, backup_inflow_type=None,
                            (note this is fraction, not percent, despite that it must be named "initial_volume_pc" for pywr json by convention)
     :param variable_cost: (reservoirs only) If False, cost is fixed throughout simulation.
                            If True, it varies according to state-dependent parameter.
+    :param has_catchment: True if node has a catchment with inflows and withdrawal/consumption. False for artificial nodes that are coincident with another (eg  delTrenton, which shares catchment with delDRCanal)
     :return: model
     '''
 
@@ -63,31 +64,32 @@ def add_major_node(model, name, node_type, inflow_type, backup_inflow_type=None,
         }
         model['nodes'].append(river)
 
-    ### add catchment node that sends inflows to reservoir
-    catchment = {
-        'name': f'catchment_{name}',
-        'type': 'catchment',
-        'flow': f'flow_{name}'
-    }
-    model['nodes'].append(catchment)
+    if has_catchment:
+        ### add catchment node that sends inflows to reservoir
+        catchment = {
+            'name': f'catchment_{name}',
+            'type': 'catchment',
+            'flow': f'flow_{name}'
+        }
+        model['nodes'].append(catchment)
 
-    ### add withdrawal node that withdraws flow from catchment for human use
-    withdrawal = {
-        'name': f'catchmentWithdrawal_{name}',
-        'type': 'link',
-        'cost': -15.0,
-        'max_flow': f'max_flow_catchmentWithdrawal_{name}'
-    }
-    model['nodes'].append(withdrawal)
+        ### add withdrawal node that withdraws flow from catchment for human use
+        withdrawal = {
+            'name': f'catchmentWithdrawal_{name}',
+            'type': 'link',
+            'cost': -15.0,
+            'max_flow': f'max_flow_catchmentWithdrawal_{name}'
+        }
+        model['nodes'].append(withdrawal)
 
-    ### add consumption node that removes flow from model - the rest of withdrawals return back to reservoir
-    consumption = {
-        'name': f'catchmentConsumption_{name}',
-        'type': 'output',
-        'cost': -200.0,
-        'max_flow': f'max_flow_catchmentConsumption_{name}'
-    }
-    model['nodes'].append(consumption)
+        ### add consumption node that removes flow from model - the rest of withdrawals return back to reservoir
+        consumption = {
+            'name': f'catchmentConsumption_{name}',
+            'type': 'output',
+            'cost': -200.0,
+            'max_flow': f'max_flow_catchmentConsumption_{name}'
+        }
+        model['nodes'].append(consumption)
 
     ### add outflow node (if any), either using STARFIT rules or regulatory targets.
     ### Note reservoirs must have either starfit or regulatory, river nodes have either regulatory or None
@@ -120,14 +122,15 @@ def add_major_node(model, name, node_type, inflow_type, backup_inflow_type=None,
 
 
     ### now add edges of model flow network
-    ### catchment to reservoir
-    model['edges'].append([f'catchment_{name}', node_name])
-    ### catchment to withdrawal
-    model['edges'].append([f'catchment_{name}', f'catchmentWithdrawal_{name}'])
-    ### withdrawal to consumption
-    model['edges'].append([f'catchmentWithdrawal_{name}', f'catchmentConsumption_{name}'])
-    ### withdrawal to reservoir
-    model['edges'].append([f'catchmentWithdrawal_{name}', node_name])
+    if has_catchment:
+        ### catchment to reservoir
+        model['edges'].append([f'catchment_{name}', node_name])
+        ### catchment to withdrawal
+        model['edges'].append([f'catchment_{name}', f'catchmentWithdrawal_{name}'])
+        ### withdrawal to consumption
+        model['edges'].append([f'catchmentWithdrawal_{name}', f'catchmentConsumption_{name}'])
+        ### withdrawal to reservoir
+        model['edges'].append([f'catchmentWithdrawal_{name}', node_name])
     ### reservoir downstream node (via outflow node if one exists)
     if downstream_node in majorflow_list:
         downstream_name = f'link_{downstream_node}'
@@ -153,34 +156,6 @@ def add_major_node(model, name, node_type, inflow_type, backup_inflow_type=None,
     ################################################################
     ### now add standard parameters
     ################################################################
-
-    ### Assign inflows to nodes
-    if 'WEAP' not in inflow_type:
-        inflow_source = f'{input_dir}catchment_inflow_{inflow_type}.csv'
-    else:
-        if name in ['cannonsville', 'pepacton', 'neversink', 'wallenpaupack', 'prompton',
-                    'mongaupeCombined', 'beltzvilleCombined', 'blueMarsh', 'ontelaunee', 'nockamixon', 'assunpink']:
-            inflow_source = f'{input_dir}catchment_inflow_{inflow_type}.csv'
-        else:
-            inflow_source = f'{input_dir}catchment_inflow_{backup_inflow_type}.csv'
-
-    model['parameters'][f'flow_base_{name}'] = {
-        'type': 'dataframe',
-        'url': inflow_source,
-        'column': name,
-        'index_col': 'datetime',
-        'parse_dates': True
-    }
-    
-    model['parameters'][f'flow_{name}'] = {
-        'type': 'aggregated',
-        'agg_func': 'product',
-        'parameters': [
-            f'flow_base_{name}',
-            'flow_factor'
-        ]
-    }
-
     ### max volume of reservoir, from GRanD database except where adjusted from other sources (eg NYC)
     if node_type == 'reservoir':
         model['parameters'][f'max_volume_{name}'] = {
@@ -199,36 +174,65 @@ def add_major_node(model, name, node_type, inflow_type, backup_inflow_type=None,
         }
 
 
-    ### get max flow for catchment withdrawal nodes based on DRBC data
-    model['parameters'][f'max_flow_catchmentWithdrawal_{name}'] = {
-        'type': 'constant',
-        'url': f'{input_dir}sw_avg_wateruse_Pywr-DRB_Catchments.csv',
-        'column': 'Total_WD_MGD',
-        'index_col': 'node',
-        'index': node_name
-    }
 
-    ### get max flow for catchment consumption nodes based on DRBC data
-    ### assume the consumption_t = R * withdrawal_{t-1}, where R is the ratio of avg consumption to withdrawal from DRBC data
-    model['parameters'][f'catchmentConsumptionRatio_{name}'] = {
-        'type': 'constant',
-        'url': f'{input_dir}sw_avg_wateruse_Pywr-DRB_Catchments.csv',
-        'column': 'Total_CU_WD_Ratio',
-        'index_col': 'node',
-        'index': node_name
-    }
-    model['parameters'][f'prev_flow_catchmentWithdrawal_{name}'] = {
-        'type': 'flow',
-        'node': f'catchmentWithdrawal_{name}'
-    }
-    model['parameters'][f'max_flow_catchmentConsumption_{name}'] = {
-        'type': 'aggregated',
-        'agg_func': 'product',
-        'parameters': [
-            f'catchmentConsumptionRatio_{name}',
-            f'prev_flow_catchmentWithdrawal_{name}'
-        ]
-    }
+    if has_catchment:
+        ### Assign inflows to nodes
+        if 'WEAP' not in inflow_type:
+            inflow_source = f'{input_dir}catchment_inflow_{inflow_type}.csv'
+        else:
+            if name in ['cannonsville', 'pepacton', 'neversink', 'wallenpaupack', 'prompton',
+                        'mongaupeCombined', 'beltzvilleCombined', 'blueMarsh', 'ontelaunee', 'nockamixon', 'assunpink']:
+                inflow_source = f'{input_dir}catchment_inflow_{inflow_type}.csv'
+            else:
+                inflow_source = f'{input_dir}catchment_inflow_{backup_inflow_type}.csv'
+
+        model['parameters'][f'flow_base_{name}'] = {
+            'type': 'dataframe',
+            'url': inflow_source,
+            'column': name,
+            'index_col': 'datetime',
+            'parse_dates': True
+        }
+
+        model['parameters'][f'flow_{name}'] = {
+            'type': 'aggregated',
+            'agg_func': 'product',
+            'parameters': [
+                f'flow_base_{name}',
+                'flow_factor'
+            ]
+        }
+
+        ### get max flow for catchment withdrawal nodes based on DRBC data
+        model['parameters'][f'max_flow_catchmentWithdrawal_{name}'] = {
+            'type': 'constant',
+            'url': f'{input_dir}sw_avg_wateruse_Pywr-DRB_Catchments.csv',
+            'column': 'Total_WD_MGD',
+            'index_col': 'node',
+            'index': node_name
+        }
+
+        ### get max flow for catchment consumption nodes based on DRBC data
+        ### assume the consumption_t = R * withdrawal_{t-1}, where R is the ratio of avg consumption to withdrawal from DRBC data
+        model['parameters'][f'catchmentConsumptionRatio_{name}'] = {
+            'type': 'constant',
+            'url': f'{input_dir}sw_avg_wateruse_Pywr-DRB_Catchments.csv',
+            'column': 'Total_CU_WD_Ratio',
+            'index_col': 'node',
+            'index': node_name
+        }
+        model['parameters'][f'prev_flow_catchmentWithdrawal_{name}'] = {
+            'type': 'flow',
+            'node': f'catchmentWithdrawal_{name}'
+        }
+        model['parameters'][f'max_flow_catchmentConsumption_{name}'] = {
+            'type': 'aggregated',
+            'agg_func': 'product',
+            'parameters': [
+                f'catchmentConsumptionRatio_{name}',
+                f'prev_flow_catchmentWithdrawal_{name}'
+            ]
+        }
 
     return model
 
@@ -299,15 +303,16 @@ def drb_make_model(inflow_type, backup_inflow_type, start_date, end_date, use_hi
     model = add_major_node(model, 'shoholaMarsh', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delMontague', 1, get_reservoir_capacity('shoholaMarsh'), initial_volume_frac, False)
     model = add_major_node(model, 'mongaupeCombined', 'reservoir', inflow_type, backup_inflow_type, 'starfit', '01433500', 0, get_reservoir_capacity('mongaupeCombined'), initial_volume_frac, False)
     model = add_major_node(model, '01433500', 'river', inflow_type, backup_inflow_type, None, 'delMontague', 0)
-    model = add_major_node(model, 'delMontague', 'river', inflow_type, backup_inflow_type, 'regulatory', 'delTrenton', 2)
+    model = add_major_node(model, 'delMontague', 'river', inflow_type, backup_inflow_type, 'regulatory', 'delDRCanal', 2)
     model = add_major_node(model, 'beltzvilleCombined', 'reservoir', inflow_type, backup_inflow_type, 'starfit', '01449800', 0, get_reservoir_capacity('beltzvilleCombined'), initial_volume_frac, False)
-    model = add_major_node(model, '01449800', 'river', inflow_type, backup_inflow_type, None, 'delTrenton', 2)
+    model = add_major_node(model, '01449800', 'river', inflow_type, backup_inflow_type, None, 'delDRCanal', 2)
     model = add_major_node(model, 'fewalter', 'reservoir', inflow_type, backup_inflow_type, 'starfit', '01447800', 0, get_reservoir_capacity('fewalter'), initial_volume_frac, False)
-    model = add_major_node(model, '01447800', 'river', inflow_type, backup_inflow_type, None, 'delTrenton', 2)
-    model = add_major_node(model, 'merrillCreek', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delTrenton', 1, get_reservoir_capacity('merrillCreek'), initial_volume_frac, False)
-    model = add_major_node(model, 'hopatcong', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delTrenton', 1, get_reservoir_capacity('hopatcong'), initial_volume_frac, False)
-    model = add_major_node(model, 'nockamixon', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delTrenton', 0, get_reservoir_capacity('nockamixon'), initial_volume_frac, False)
-    model = add_major_node(model, 'delTrenton', 'river', inflow_type, backup_inflow_type, 'regulatory', 'output_del', 1)
+    model = add_major_node(model, '01447800', 'river', inflow_type, backup_inflow_type, None, 'delDRCanal', 2)
+    model = add_major_node(model, 'merrillCreek', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delDRCanal', 1, get_reservoir_capacity('merrillCreek'), initial_volume_frac, False)
+    model = add_major_node(model, 'hopatcong', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delDRCanal', 1, get_reservoir_capacity('hopatcong'), initial_volume_frac, False)
+    model = add_major_node(model, 'nockamixon', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delDRCanal', 0, get_reservoir_capacity('nockamixon'), initial_volume_frac, False)
+    model = add_major_node(model, 'delDRCanal', 'river', inflow_type, backup_inflow_type, None, 'delTrenton', 1)
+    model = add_major_node(model, 'delTrenton', 'river', inflow_type, backup_inflow_type, 'regulatory', 'output_del', 0, has_catchment=False)
     model = add_major_node(model, 'assunpink', 'reservoir', inflow_type, backup_inflow_type, 'starfit', '01463620', 0, get_reservoir_capacity('assunpink'), initial_volume_frac, False)
     model = add_major_node(model, '01463620', 'river', inflow_type, backup_inflow_type, None, 'outletAssunpink', 0)
     model = add_major_node(model, 'outletAssunpink', 'river', inflow_type, backup_inflow_type, None, 'output_del', 0)
@@ -368,8 +373,8 @@ def drb_make_model(inflow_type, backup_inflow_type, start_date, end_date, use_hi
         model['edges'].append([f'reservoir_{r}', f'link_{r}_nyc'])
         model['edges'].append([f'link_{r}_nyc', 'delivery_nyc'])
 
-    ### Edge linking Delaware River at Trenton to NJ deliveries
-    model['edges'].append(['link_delTrenton', 'delivery_nj'])
+    ### Edge linking Delaware River at DRCanal to NJ deliveries
+    model['edges'].append(['link_delDRCanal', 'delivery_nj'])
 
 
 
@@ -699,50 +704,53 @@ def drb_make_model(inflow_type, backup_inflow_type, start_date, end_date, use_hi
             ]
         }
 
-        ### total non-NYC inflows to Montague & Trenton
-        inflow_nodes = upstream_nodes_dict['delMontague'] + ['delMontague']
-        model['parameters'][f'volbalance_flow_agg_nonnyc_delMontague'] = {
-                'type': 'aggregated',
-                'agg_func': 'sum',
-                'parameters': [f'flow_{node}' for node in inflow_nodes]
-            }
-
-        inflow_nodes = upstream_nodes_dict['delTrenton'] + ['delTrenton']
-        model['parameters'][f'volbalance_flow_agg_nonnyc_delTrenton'] = {
-                'type': 'aggregated',
-                'agg_func': 'sum',
-                'parameters': [f'flow_{node}' for node in inflow_nodes]
-            }
-
-        ### Get total release needed from NYC reservoirs to satisfy Montague & Trenton flow targets.
-        ### Uses custom Pywr parameter.
-        model['parameters']['volbalance_relative_mrf_montagueTrenton'] = {
-            'type': 'VolBalanceNYCDownstreamMRFTargetAgg'
-        }
-
-        ### Target release from each NYC reservoir to satisfy Montague & Trenton flow targets - part 1.
-        ### Uses custom Pywr parameter.
-        for reservoir in nyc_reservoirs:
-            model['parameters'][f'volbalance_target_max_flow_montagueTrenton_{reservoir}'] = {
-                'type': 'VolBalanceNYCDownstreamMRFTarget',
-                'node': f'reservoir_{reservoir}'
-            }
-
-        ### Sum of target releases from step above
-        model['parameters'][f'volbalance_target_max_flow_montagueTrenton_agg_nyc'] = {
+    ### total non-NYC inflows to Montague & Trenton
+    inflow_nodes = upstream_nodes_dict['delMontague'] + ['delMontague']
+    inflow_nodes = [n for n in inflow_nodes if n not in reservoir_list_nyc]
+    model['parameters'][f'volbalance_flow_agg_nonnyc_delMontague'] = {
             'type': 'aggregated',
             'agg_func': 'sum',
-            'parameters': [f'volbalance_target_max_flow_montagueTrenton_{reservoir}' for reservoir in nyc_reservoirs]
+            'parameters': [f'flow_{node}' for node in inflow_nodes]
         }
 
-        ### Target release from each NYC reservoir to satisfy Montague & Trenton flow targets - part 2,
-        ### rescaling to make sure total contribution across 3 reservoirs is equal to total flow requirement.
-        ### Uses custom Pywr parameter.
-        for reservoir in nyc_reservoirs:
-            model['parameters'][f'volbalance_max_flow_montagueTrenton_{reservoir}'] = {
-                'type': 'VolBalanceNYCDownstreamMRFFinal',
-                'node': f'reservoir_{reservoir}'
-            }
+    inflow_nodes = upstream_nodes_dict['delTrenton'] ### note: dont include delTrenton in this because it doesnt have catchment -> catchment inflows go to delDRCanal
+    inflow_nodes = [n for n in inflow_nodes if n not in reservoir_list_nyc]
+    model['parameters'][f'volbalance_flow_agg_nonnyc_delTrenton'] = {
+            'type': 'aggregated',
+            'agg_func': 'sum',
+            'parameters': [f'flow_{node}' for node in inflow_nodes]
+        }
+
+
+    ### Get total release needed from NYC reservoirs to satisfy Montague & Trenton flow targets, after accting for non-NYC inflows and NJ diversions
+    ### Uses custom Pywr parameter.
+    model['parameters']['volbalance_relative_mrf_montagueTrenton'] = {
+        'type': 'VolBalanceNYCDownstreamMRFTargetAgg'
+    }
+
+    ### Target release from each NYC reservoir to satisfy Montague & Trenton flow targets - part 1.
+    ### Uses custom Pywr parameter.
+    for reservoir in nyc_reservoirs:
+        model['parameters'][f'volbalance_target_max_flow_montagueTrenton_{reservoir}'] = {
+            'type': 'VolBalanceNYCDownstreamMRFTarget',
+            'node': f'reservoir_{reservoir}'
+        }
+
+    ### Sum of target releases from step above
+    model['parameters'][f'volbalance_target_max_flow_montagueTrenton_agg_nyc'] = {
+        'type': 'aggregated',
+        'agg_func': 'sum',
+        'parameters': [f'volbalance_target_max_flow_montagueTrenton_{reservoir}' for reservoir in nyc_reservoirs]
+    }
+
+    ### Target release from each NYC reservoir to satisfy Montague & Trenton flow targets - part 2,
+    ### rescaling to make sure total contribution across 3 reservoirs is equal to total flow requirement.
+    ### Uses custom Pywr parameter.
+    for reservoir in nyc_reservoirs:
+        model['parameters'][f'volbalance_max_flow_montagueTrenton_{reservoir}'] = {
+            'type': 'VolBalanceNYCDownstreamMRFFinal',
+            'node': f'reservoir_{reservoir}'
+        }
 
     ### finally, get final effective mandated release from each NYC reservoir, which is the max of its
     ###    individually-mandated release from FFMP and its individual contribution to the Montague/Trenton targets

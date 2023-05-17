@@ -220,7 +220,7 @@ def extrapolate_NYC_NJ_diversions(loc):
                                 'y': flow.index.year,
                                 'q': [get_quarter(m) for m in flow.index.month]})
     elif loc == 'nj':
-        df_long = pd.DataFrame({'flow_log': np.log(flow[trenton_catchments].sum(axis=1)),
+        df_long = pd.DataFrame({'flow_log': np.log(flow[inflow_nodes].sum(axis=1)),
                                 'm': flow.index.month,
                                 'y': flow.index.year,
                                 'q': [get_quarter(m) for m in flow.index.month]})
@@ -352,83 +352,83 @@ if __name__ == "__main__":
     df_nwm = match_gages(df_nwm, 'nwmv21', site_matches_id= nwm_site_matches, upstream_nodes_dict= upstream_nodes_dict)
 
 
-    ### organize WEAP results to use in Pywr-DRB
-    reservoirs = ['cannonsville', 'pepacton', 'neversink', 'wallenpaupack', 'prompton', 'mongaupeCombined',
-                'beltzvilleCombined', 'blueMarsh', 'nockamixon', 'ontelaunee', 'assunpink']
-    major_flows = ['delLordville', 'delMontague', 'delTrenton', 'outletAssunpink', 'outletSchuylkill', 'outletChristina',
-                  '01425000', '01417000', '01436000', '01433500', '01449800',
-                  '01447800', '01463620', '01470960']
-
-    ### first get reservoir inflows and outflows from WEAP
-    for reservoir in reservoirs:
-        filename = f'{weap_dir}WEAP_DRB_23Aug2022_gridmet_ResInOut_{reservoir}.csv'
-        df = get_WEAP_df(filename, 'Sources and Destinations')
-
-        if reservoir == 'cannonsville':
-            inflows = pd.DataFrame({reservoir: df['Inflow from Upstream']})
-            releases = pd.DataFrame({reservoir: np.abs(df['Outflow to Downstream'])})
-        else:
-            inflows[reservoir] = df['Inflow from Upstream']
-            releases[reservoir] = np.abs(df['Outflow to Downstream'])
-    ### convert cubic meter to MG
-    inflows *= cm_to_mg
-    releases *= cm_to_mg
-    ### save
-    inflows.to_csv(f'{input_dir}catchment_inflow_WEAP_23Aug2022_gridmet.csv')
-    releases.to_csv(f'{input_dir}releases_WEAP_23Aug2022_gridmet.csv')
-
-    ### now get modeled reservoir storages
-    for reservoir in reservoirs:
-        filename = f'{weap_dir}/WEAP_DRB_23Aug2022_gridmet_ResStoreZones_{reservoir}.csv'
-        df = get_WEAP_df(filename, 'Variable')
-
-        if reservoir == 'cannonsville':
-            storage = pd.DataFrame({reservoir: df['Storage Volume']})
-        else:
-            storage[reservoir] = df['Storage Volume']
-    ### convert cubic meter to MG
-    storage *= cm_to_mg
-    ### save
-    storage.to_csv(f'{input_dir}storages_WEAP_23Aug2022_gridmet.csv')
-
-    ### now get observed reservoir storages
-    for reservoir in reservoirs:
-        try:
-            filename = f'{weap_dir}/WEAP_DRB_23Aug2022_gridmet_ResStorGage_{reservoir}.csv'
-            df = get_WEAP_df(filename, 'Variable')
-
-            if reservoir == 'cannonsville':
-                storageObs = pd.DataFrame({reservoir: df['Observed']})
-            else:
-                storageObs[reservoir] = df['Observed']
-        except:
-            # print('no observed storage for ', reservoir)
-            pass
-
-    ### convert cubic meter to MG
-    storageObs *= cm_to_mg
-    ### save
-    storageObs.to_csv(f'{input_dir}storageObs_WEAP_23Aug2022_gridmet.csv')
-
-    ### now get flow gages
-    filenames = glob.glob(f'{weap_dir}/*flowGage*')
-    for node in reservoirs + major_flows:
-        try:
-            filename = [f for f in filenames if node in f][0]
-            df = get_WEAP_df(filename, 'Statistic')
-
-            if node == 'cannonsville':
-                flow = pd.DataFrame({node: df['Modeled']})
-            else:
-                flow[node] = df['Modeled']
-        except:
-            # print('no streamflow gage data for ', reservoir)
-            pass
-
-    ### convert cubic meter to MG
-    flow *= cm_to_mg
-    ### save
-    flow.to_csv(f'{input_dir}gage_flow_WEAP_23Aug2022_gridmet.csv')
+    # ### organize WEAP results to use in Pywr-DRB
+    # reservoirs = ['cannonsville', 'pepacton', 'neversink', 'wallenpaupack', 'prompton', 'mongaupeCombined',
+    #             'beltzvilleCombined', 'blueMarsh', 'nockamixon', 'ontelaunee', 'assunpink']
+    # major_flows = ['delLordville', 'delMontague', 'delDRCanal', 'delTrenton', 'outletAssunpink', 'outletSchuylkill', 'outletChristina',
+    #               '01425000', '01417000', '01436000', '01433500', '01449800',
+    #               '01447800', '01463620', '01470960']
+    #
+    # ### first get reservoir inflows and outflows from WEAP
+    # for reservoir in reservoirs:
+    #     filename = f'{weap_dir}WEAP_DRB_23Aug2022_gridmet_ResInOut_{reservoir}.csv'
+    #     df = get_WEAP_df(filename, 'Sources and Destinations')
+    #
+    #     if reservoir == 'cannonsville':
+    #         inflows = pd.DataFrame({reservoir: df['Inflow from Upstream']})
+    #         releases = pd.DataFrame({reservoir: np.abs(df['Outflow to Downstream'])})
+    #     else:
+    #         inflows[reservoir] = df['Inflow from Upstream']
+    #         releases[reservoir] = np.abs(df['Outflow to Downstream'])
+    # ### convert cubic meter to MG
+    # inflows *= cm_to_mg
+    # releases *= cm_to_mg
+    # ### save
+    # inflows.to_csv(f'{input_dir}catchment_inflow_WEAP_23Aug2022_gridmet.csv')
+    # releases.to_csv(f'{input_dir}releases_WEAP_23Aug2022_gridmet.csv')
+    #
+    # ### now get modeled reservoir storages
+    # for reservoir in reservoirs:
+    #     filename = f'{weap_dir}/WEAP_DRB_23Aug2022_gridmet_ResStoreZones_{reservoir}.csv'
+    #     df = get_WEAP_df(filename, 'Variable')
+    #
+    #     if reservoir == 'cannonsville':
+    #         storage = pd.DataFrame({reservoir: df['Storage Volume']})
+    #     else:
+    #         storage[reservoir] = df['Storage Volume']
+    # ### convert cubic meter to MG
+    # storage *= cm_to_mg
+    # ### save
+    # storage.to_csv(f'{input_dir}storages_WEAP_23Aug2022_gridmet.csv')
+    #
+    # ### now get observed reservoir storages
+    # for reservoir in reservoirs:
+    #     try:
+    #         filename = f'{weap_dir}/WEAP_DRB_23Aug2022_gridmet_ResStorGage_{reservoir}.csv'
+    #         df = get_WEAP_df(filename, 'Variable')
+    #
+    #         if reservoir == 'cannonsville':
+    #             storageObs = pd.DataFrame({reservoir: df['Observed']})
+    #         else:
+    #             storageObs[reservoir] = df['Observed']
+    #     except:
+    #         # print('no observed storage for ', reservoir)
+    #         pass
+    #
+    # ### convert cubic meter to MG
+    # storageObs *= cm_to_mg
+    # ### save
+    # storageObs.to_csv(f'{input_dir}storageObs_WEAP_23Aug2022_gridmet.csv')
+    #
+    # ### now get flow gages
+    # filenames = glob.glob(f'{weap_dir}/*flowGage*')
+    # for node in reservoirs + major_flows:
+    #     try:
+    #         filename = [f for f in filenames if node in f][0]
+    #         df = get_WEAP_df(filename, 'Statistic')
+    #
+    #         if node == 'cannonsville':
+    #             flow = pd.DataFrame({node: df['Modeled']})
+    #         else:
+    #             flow[node] = df['Modeled']
+    #     except:
+    #         # print('no streamflow gage data for ', reservoir)
+    #         pass
+    #
+    # ### convert cubic meter to MG
+    # flow *= cm_to_mg
+    # ### save
+    # flow.to_csv(f'{input_dir}gage_flow_WEAP_23Aug2022_gridmet.csv')
 
 
     ### now get NYC diversions. for time periods we dont have historical record, extrapolate by seasonal relationship to flow.

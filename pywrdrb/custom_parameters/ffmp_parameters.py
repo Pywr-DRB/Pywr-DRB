@@ -227,24 +227,31 @@ class VolBalanceNYCDemandFinal(Parameter):
 class VolBalanceNYCDownstreamMRFTargetAgg(Parameter):
     '''
     Custom Pywr parameter class. This parameter calculates the total releases from NYC reservoirs needed to meet
-    the Montague and Trenton flow targets, after subtracting out flows from the rest of the basin.
+    the Montague and Trenton flow targets, after subtracting out flows from the rest of the basin, and adding max deliveries to NJ.
     '''
     def __init__(self, model, volbalance_flow_agg_nonnyc_delMontague, mrf_target_delMontague,\
-                   volbalance_flow_agg_nonnyc_delTrenton, mrf_target_delTrenton, **kwargs):
+                   volbalance_flow_agg_nonnyc_delTrenton, max_flow_delivery_nj, mrf_target_delTrenton, **kwargs):
         super().__init__(model, **kwargs)
         self.volbalance_flow_agg_nonnyc_delMontague = volbalance_flow_agg_nonnyc_delMontague
         self.mrf_target_delMontague = mrf_target_delMontague
         self.volbalance_flow_agg_nonnyc_delTrenton = volbalance_flow_agg_nonnyc_delTrenton
+        self.max_flow_delivery_nj = max_flow_delivery_nj
         self.mrf_target_delTrenton = mrf_target_delTrenton
         self.children.add(volbalance_flow_agg_nonnyc_delMontague)
         self.children.add(mrf_target_delMontague)
         self.children.add(volbalance_flow_agg_nonnyc_delTrenton)
+        self.children.add(max_flow_delivery_nj)
         self.children.add(mrf_target_delTrenton)
 
     def value(self, timestep, scenario_index):
         ### provide the total flow needed from NYC reservoirs to meet Montague & Trenton targets
-        req_delMontague = max(self.mrf_target_delMontague.get_value(scenario_index) - self.volbalance_flow_agg_nonnyc_delMontague.get_value(scenario_index), 0.)
-        req_delTrenton = max(self.mrf_target_delTrenton.get_value(scenario_index) - self.volbalance_flow_agg_nonnyc_delTrenton.get_value(scenario_index), 0.)
+        req_delMontague = max(self.mrf_target_delMontague.get_value(scenario_index) -
+                              self.volbalance_flow_agg_nonnyc_delMontague.get_value(scenario_index),
+                              0.)
+        req_delTrenton = max(self.mrf_target_delTrenton.get_value(scenario_index) -
+                             self.volbalance_flow_agg_nonnyc_delTrenton.get_value(scenario_index) +
+                             self.max_flow_delivery_nj.get_value(scenario_index),
+                             0.)
         return max(req_delMontague, req_delTrenton)
 
     @classmethod
@@ -252,10 +259,11 @@ class VolBalanceNYCDownstreamMRFTargetAgg(Parameter):
         volbalance_flow_agg_nonnyc_delMontague = load_parameter(model, 'volbalance_flow_agg_nonnyc_delMontague')
         mrf_target_delMontague = load_parameter(model, 'mrf_target_delMontague')
         volbalance_flow_agg_nonnyc_delTrenton = load_parameter(model, 'volbalance_flow_agg_nonnyc_delTrenton')
+        max_flow_delivery_nj = load_parameter(model, 'max_flow_delivery_nj')
         mrf_target_delTrenton = load_parameter(model, 'mrf_target_delTrenton')
 
         return cls(model, volbalance_flow_agg_nonnyc_delMontague, mrf_target_delMontague,\
-                   volbalance_flow_agg_nonnyc_delTrenton, mrf_target_delTrenton, **data)
+                   volbalance_flow_agg_nonnyc_delTrenton, max_flow_delivery_nj, mrf_target_delTrenton, **data)
 
 
 

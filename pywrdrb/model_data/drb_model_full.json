@@ -613,36 +613,40 @@
             "max_flow": "starfit_release_nockamixon"
         },
         {
-            "name": "link_delTrenton",
+            "name": "link_delDRCanal",
             "type": "link"
         },
         {
-            "name": "catchment_delTrenton",
+            "name": "catchment_delDRCanal",
             "type": "catchment",
-            "flow": "flow_delTrenton"
+            "flow": "flow_delDRCanal"
         },
         {
-            "name": "catchmentWithdrawal_delTrenton",
+            "name": "catchmentWithdrawal_delDRCanal",
             "type": "link",
             "cost": -15.0,
-            "max_flow": "max_flow_catchmentWithdrawal_delTrenton"
+            "max_flow": "max_flow_catchmentWithdrawal_delDRCanal"
         },
         {
-            "name": "catchmentConsumption_delTrenton",
+            "name": "catchmentConsumption_delDRCanal",
             "type": "output",
             "cost": -200.0,
-            "max_flow": "max_flow_catchmentConsumption_delTrenton"
+            "max_flow": "max_flow_catchmentConsumption_delDRCanal"
+        },
+        {
+            "name": "delay_delDRCanal",
+            "type": "DelayNode",
+            "days": 1
+        },
+        {
+            "name": "link_delTrenton",
+            "type": "link"
         },
         {
             "name": "outflow_delTrenton",
             "type": "rivergauge",
             "mrf": "mrf_target_delTrenton",
             "mrf_cost": -1000.0
-        },
-        {
-            "name": "delay_delTrenton",
-            "type": "DelayNode",
-            "days": 1
         },
         {
             "name": "reservoir_assunpink",
@@ -1314,7 +1318,7 @@
         ],
         [
             "delay_delMontague",
-            "link_delTrenton"
+            "link_delDRCanal"
         ],
         [
             "catchment_beltzvilleCombined",
@@ -1362,7 +1366,7 @@
         ],
         [
             "delay_01449800",
-            "link_delTrenton"
+            "link_delDRCanal"
         ],
         [
             "catchment_fewalter",
@@ -1410,7 +1414,7 @@
         ],
         [
             "delay_01447800",
-            "link_delTrenton"
+            "link_delDRCanal"
         ],
         [
             "catchment_merrillCreek",
@@ -1438,7 +1442,7 @@
         ],
         [
             "delay_merrillCreek",
-            "link_delTrenton"
+            "link_delDRCanal"
         ],
         [
             "catchment_hopatcong",
@@ -1466,7 +1470,7 @@
         ],
         [
             "delay_hopatcong",
-            "link_delTrenton"
+            "link_delDRCanal"
         ],
         [
             "catchment_nockamixon",
@@ -1490,22 +1494,30 @@
         ],
         [
             "outflow_nockamixon",
-            "link_delTrenton"
+            "link_delDRCanal"
         ],
         [
-            "catchment_delTrenton",
-            "link_delTrenton"
+            "catchment_delDRCanal",
+            "link_delDRCanal"
         ],
         [
-            "catchment_delTrenton",
-            "catchmentWithdrawal_delTrenton"
+            "catchment_delDRCanal",
+            "catchmentWithdrawal_delDRCanal"
         ],
         [
-            "catchmentWithdrawal_delTrenton",
-            "catchmentConsumption_delTrenton"
+            "catchmentWithdrawal_delDRCanal",
+            "catchmentConsumption_delDRCanal"
         ],
         [
-            "catchmentWithdrawal_delTrenton",
+            "catchmentWithdrawal_delDRCanal",
+            "link_delDRCanal"
+        ],
+        [
+            "link_delDRCanal",
+            "delay_delDRCanal"
+        ],
+        [
+            "delay_delDRCanal",
             "link_delTrenton"
         ],
         [
@@ -1514,10 +1526,6 @@
         ],
         [
             "outflow_delTrenton",
-            "delay_delTrenton"
-        ],
-        [
-            "delay_delTrenton",
             "output_del"
         ],
         [
@@ -1805,11 +1813,18 @@
             "delivery_nyc"
         ],
         [
-            "link_delTrenton",
+            "link_delDRCanal",
             "delivery_nj"
         ]
     ],
     "parameters": {
+        "max_volume_cannonsville": {
+            "type": "constant",
+            "url": "drb_model_istarf_conus.csv",
+            "column": "Adjusted_CAP_MG",
+            "index_col": "reservoir",
+            "index": "cannonsville"
+        },
         "flow_base_cannonsville": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
@@ -1824,13 +1839,6 @@
                 "flow_base_cannonsville",
                 "flow_factor"
             ]
-        },
-        "max_volume_cannonsville": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "Adjusted_CAP_MG",
-            "index_col": "reservoir",
-            "index": "cannonsville"
         },
         "max_flow_catchmentWithdrawal_cannonsville": {
             "type": "constant",
@@ -1899,6 +1907,13 @@
                 "prev_flow_catchmentWithdrawal_01425000"
             ]
         },
+        "max_volume_pepacton": {
+            "type": "constant",
+            "url": "drb_model_istarf_conus.csv",
+            "column": "Adjusted_CAP_MG",
+            "index_col": "reservoir",
+            "index": "pepacton"
+        },
         "flow_base_pepacton": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
@@ -1913,13 +1928,6 @@
                 "flow_base_pepacton",
                 "flow_factor"
             ]
-        },
-        "max_volume_pepacton": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "Adjusted_CAP_MG",
-            "index_col": "reservoir",
-            "index": "pepacton"
         },
         "max_flow_catchmentWithdrawal_pepacton": {
             "type": "constant",
@@ -2029,6 +2037,13 @@
                 "prev_flow_catchmentWithdrawal_delLordville"
             ]
         },
+        "max_volume_neversink": {
+            "type": "constant",
+            "url": "drb_model_istarf_conus.csv",
+            "column": "Adjusted_CAP_MG",
+            "index_col": "reservoir",
+            "index": "neversink"
+        },
         "flow_base_neversink": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
@@ -2043,13 +2058,6 @@
                 "flow_base_neversink",
                 "flow_factor"
             ]
-        },
-        "max_volume_neversink": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "Adjusted_CAP_MG",
-            "index_col": "reservoir",
-            "index": "neversink"
         },
         "max_flow_catchmentWithdrawal_neversink": {
             "type": "constant",
@@ -2118,6 +2126,17 @@
                 "prev_flow_catchmentWithdrawal_01436000"
             ]
         },
+        "max_volume_wallenpaupack": {
+            "type": "constant",
+            "url": "drb_model_istarf_conus.csv",
+            "column": "Adjusted_CAP_MG",
+            "index_col": "reservoir",
+            "index": "wallenpaupack"
+        },
+        "starfit_release_wallenpaupack": {
+            "type": "STARFITReservoirRelease",
+            "node": "wallenpaupack"
+        },
         "flow_base_wallenpaupack": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
@@ -2132,17 +2151,6 @@
                 "flow_base_wallenpaupack",
                 "flow_factor"
             ]
-        },
-        "max_volume_wallenpaupack": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "Adjusted_CAP_MG",
-            "index_col": "reservoir",
-            "index": "wallenpaupack"
-        },
-        "starfit_release_wallenpaupack": {
-            "type": "STARFITReservoirRelease",
-            "node": "wallenpaupack"
         },
         "max_flow_catchmentWithdrawal_wallenpaupack": {
             "type": "constant",
@@ -2170,6 +2178,17 @@
                 "prev_flow_catchmentWithdrawal_wallenpaupack"
             ]
         },
+        "max_volume_prompton": {
+            "type": "constant",
+            "url": "drb_model_istarf_conus.csv",
+            "column": "Adjusted_CAP_MG",
+            "index_col": "reservoir",
+            "index": "prompton"
+        },
+        "starfit_release_prompton": {
+            "type": "STARFITReservoirRelease",
+            "node": "prompton"
+        },
         "flow_base_prompton": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
@@ -2184,17 +2203,6 @@
                 "flow_base_prompton",
                 "flow_factor"
             ]
-        },
-        "max_volume_prompton": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "Adjusted_CAP_MG",
-            "index_col": "reservoir",
-            "index": "prompton"
-        },
-        "starfit_release_prompton": {
-            "type": "STARFITReservoirRelease",
-            "node": "prompton"
         },
         "max_flow_catchmentWithdrawal_prompton": {
             "type": "constant",
@@ -2222,6 +2230,17 @@
                 "prev_flow_catchmentWithdrawal_prompton"
             ]
         },
+        "max_volume_shoholaMarsh": {
+            "type": "constant",
+            "url": "drb_model_istarf_conus.csv",
+            "column": "Adjusted_CAP_MG",
+            "index_col": "reservoir",
+            "index": "shoholaMarsh"
+        },
+        "starfit_release_shoholaMarsh": {
+            "type": "STARFITReservoirRelease",
+            "node": "shoholaMarsh"
+        },
         "flow_base_shoholaMarsh": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
@@ -2236,17 +2255,6 @@
                 "flow_base_shoholaMarsh",
                 "flow_factor"
             ]
-        },
-        "max_volume_shoholaMarsh": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "Adjusted_CAP_MG",
-            "index_col": "reservoir",
-            "index": "shoholaMarsh"
-        },
-        "starfit_release_shoholaMarsh": {
-            "type": "STARFITReservoirRelease",
-            "node": "shoholaMarsh"
         },
         "max_flow_catchmentWithdrawal_shoholaMarsh": {
             "type": "constant",
@@ -2274,6 +2282,17 @@
                 "prev_flow_catchmentWithdrawal_shoholaMarsh"
             ]
         },
+        "max_volume_mongaupeCombined": {
+            "type": "constant",
+            "url": "drb_model_istarf_conus.csv",
+            "column": "Adjusted_CAP_MG",
+            "index_col": "reservoir",
+            "index": "mongaupeCombined"
+        },
+        "starfit_release_mongaupeCombined": {
+            "type": "STARFITReservoirRelease",
+            "node": "mongaupeCombined"
+        },
         "flow_base_mongaupeCombined": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
@@ -2288,17 +2307,6 @@
                 "flow_base_mongaupeCombined",
                 "flow_factor"
             ]
-        },
-        "max_volume_mongaupeCombined": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "Adjusted_CAP_MG",
-            "index_col": "reservoir",
-            "index": "mongaupeCombined"
-        },
-        "starfit_release_mongaupeCombined": {
-            "type": "STARFITReservoirRelease",
-            "node": "mongaupeCombined"
         },
         "max_flow_catchmentWithdrawal_mongaupeCombined": {
             "type": "constant",
@@ -2408,6 +2416,17 @@
                 "prev_flow_catchmentWithdrawal_delMontague"
             ]
         },
+        "max_volume_beltzvilleCombined": {
+            "type": "constant",
+            "url": "drb_model_istarf_conus.csv",
+            "column": "Adjusted_CAP_MG",
+            "index_col": "reservoir",
+            "index": "beltzvilleCombined"
+        },
+        "starfit_release_beltzvilleCombined": {
+            "type": "STARFITReservoirRelease",
+            "node": "beltzvilleCombined"
+        },
         "flow_base_beltzvilleCombined": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
@@ -2422,17 +2441,6 @@
                 "flow_base_beltzvilleCombined",
                 "flow_factor"
             ]
-        },
-        "max_volume_beltzvilleCombined": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "Adjusted_CAP_MG",
-            "index_col": "reservoir",
-            "index": "beltzvilleCombined"
-        },
-        "starfit_release_beltzvilleCombined": {
-            "type": "STARFITReservoirRelease",
-            "node": "beltzvilleCombined"
         },
         "max_flow_catchmentWithdrawal_beltzvilleCombined": {
             "type": "constant",
@@ -2501,6 +2509,17 @@
                 "prev_flow_catchmentWithdrawal_01449800"
             ]
         },
+        "max_volume_fewalter": {
+            "type": "constant",
+            "url": "drb_model_istarf_conus.csv",
+            "column": "Adjusted_CAP_MG",
+            "index_col": "reservoir",
+            "index": "fewalter"
+        },
+        "starfit_release_fewalter": {
+            "type": "STARFITReservoirRelease",
+            "node": "fewalter"
+        },
         "flow_base_fewalter": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
@@ -2515,17 +2534,6 @@
                 "flow_base_fewalter",
                 "flow_factor"
             ]
-        },
-        "max_volume_fewalter": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "Adjusted_CAP_MG",
-            "index_col": "reservoir",
-            "index": "fewalter"
-        },
-        "starfit_release_fewalter": {
-            "type": "STARFITReservoirRelease",
-            "node": "fewalter"
         },
         "max_flow_catchmentWithdrawal_fewalter": {
             "type": "constant",
@@ -2594,6 +2602,17 @@
                 "prev_flow_catchmentWithdrawal_01447800"
             ]
         },
+        "max_volume_merrillCreek": {
+            "type": "constant",
+            "url": "drb_model_istarf_conus.csv",
+            "column": "Adjusted_CAP_MG",
+            "index_col": "reservoir",
+            "index": "merrillCreek"
+        },
+        "starfit_release_merrillCreek": {
+            "type": "STARFITReservoirRelease",
+            "node": "merrillCreek"
+        },
         "flow_base_merrillCreek": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
@@ -2608,17 +2627,6 @@
                 "flow_base_merrillCreek",
                 "flow_factor"
             ]
-        },
-        "max_volume_merrillCreek": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "Adjusted_CAP_MG",
-            "index_col": "reservoir",
-            "index": "merrillCreek"
-        },
-        "starfit_release_merrillCreek": {
-            "type": "STARFITReservoirRelease",
-            "node": "merrillCreek"
         },
         "max_flow_catchmentWithdrawal_merrillCreek": {
             "type": "constant",
@@ -2646,6 +2654,17 @@
                 "prev_flow_catchmentWithdrawal_merrillCreek"
             ]
         },
+        "max_volume_hopatcong": {
+            "type": "constant",
+            "url": "drb_model_istarf_conus.csv",
+            "column": "Adjusted_CAP_MG",
+            "index_col": "reservoir",
+            "index": "hopatcong"
+        },
+        "starfit_release_hopatcong": {
+            "type": "STARFITReservoirRelease",
+            "node": "hopatcong"
+        },
         "flow_base_hopatcong": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
@@ -2660,17 +2679,6 @@
                 "flow_base_hopatcong",
                 "flow_factor"
             ]
-        },
-        "max_volume_hopatcong": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "Adjusted_CAP_MG",
-            "index_col": "reservoir",
-            "index": "hopatcong"
-        },
-        "starfit_release_hopatcong": {
-            "type": "STARFITReservoirRelease",
-            "node": "hopatcong"
         },
         "max_flow_catchmentWithdrawal_hopatcong": {
             "type": "constant",
@@ -2698,6 +2706,17 @@
                 "prev_flow_catchmentWithdrawal_hopatcong"
             ]
         },
+        "max_volume_nockamixon": {
+            "type": "constant",
+            "url": "drb_model_istarf_conus.csv",
+            "column": "Adjusted_CAP_MG",
+            "index_col": "reservoir",
+            "index": "nockamixon"
+        },
+        "starfit_release_nockamixon": {
+            "type": "STARFITReservoirRelease",
+            "node": "nockamixon"
+        },
         "flow_base_nockamixon": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
@@ -2712,17 +2731,6 @@
                 "flow_base_nockamixon",
                 "flow_factor"
             ]
-        },
-        "max_volume_nockamixon": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "Adjusted_CAP_MG",
-            "index_col": "reservoir",
-            "index": "nockamixon"
-        },
-        "starfit_release_nockamixon": {
-            "type": "STARFITReservoirRelease",
-            "node": "nockamixon"
         },
         "max_flow_catchmentWithdrawal_nockamixon": {
             "type": "constant",
@@ -2750,46 +2758,57 @@
                 "prev_flow_catchmentWithdrawal_nockamixon"
             ]
         },
-        "flow_base_delTrenton": {
+        "flow_base_delDRCanal": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
-            "column": "delTrenton",
+            "column": "delDRCanal",
             "index_col": "datetime",
             "parse_dates": true
         },
-        "flow_delTrenton": {
+        "flow_delDRCanal": {
             "type": "aggregated",
             "agg_func": "product",
             "parameters": [
-                "flow_base_delTrenton",
+                "flow_base_delDRCanal",
                 "flow_factor"
             ]
         },
-        "max_flow_catchmentWithdrawal_delTrenton": {
+        "max_flow_catchmentWithdrawal_delDRCanal": {
             "type": "constant",
             "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
-            "index": "link_delTrenton"
+            "index": "link_delDRCanal"
         },
-        "catchmentConsumptionRatio_delTrenton": {
+        "catchmentConsumptionRatio_delDRCanal": {
             "type": "constant",
             "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_CU_WD_Ratio",
             "index_col": "node",
-            "index": "link_delTrenton"
+            "index": "link_delDRCanal"
         },
-        "prev_flow_catchmentWithdrawal_delTrenton": {
+        "prev_flow_catchmentWithdrawal_delDRCanal": {
             "type": "flow",
-            "node": "catchmentWithdrawal_delTrenton"
+            "node": "catchmentWithdrawal_delDRCanal"
         },
-        "max_flow_catchmentConsumption_delTrenton": {
+        "max_flow_catchmentConsumption_delDRCanal": {
             "type": "aggregated",
             "agg_func": "product",
             "parameters": [
-                "catchmentConsumptionRatio_delTrenton",
-                "prev_flow_catchmentWithdrawal_delTrenton"
+                "catchmentConsumptionRatio_delDRCanal",
+                "prev_flow_catchmentWithdrawal_delDRCanal"
             ]
+        },
+        "max_volume_assunpink": {
+            "type": "constant",
+            "url": "drb_model_istarf_conus.csv",
+            "column": "Adjusted_CAP_MG",
+            "index_col": "reservoir",
+            "index": "assunpink"
+        },
+        "starfit_release_assunpink": {
+            "type": "STARFITReservoirRelease",
+            "node": "assunpink"
         },
         "flow_base_assunpink": {
             "type": "dataframe",
@@ -2805,17 +2824,6 @@
                 "flow_base_assunpink",
                 "flow_factor"
             ]
-        },
-        "max_volume_assunpink": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "Adjusted_CAP_MG",
-            "index_col": "reservoir",
-            "index": "assunpink"
-        },
-        "starfit_release_assunpink": {
-            "type": "STARFITReservoirRelease",
-            "node": "assunpink"
         },
         "max_flow_catchmentWithdrawal_assunpink": {
             "type": "constant",
@@ -2925,6 +2933,17 @@
                 "prev_flow_catchmentWithdrawal_outletAssunpink"
             ]
         },
+        "max_volume_ontelaunee": {
+            "type": "constant",
+            "url": "drb_model_istarf_conus.csv",
+            "column": "Adjusted_CAP_MG",
+            "index_col": "reservoir",
+            "index": "ontelaunee"
+        },
+        "starfit_release_ontelaunee": {
+            "type": "STARFITReservoirRelease",
+            "node": "ontelaunee"
+        },
         "flow_base_ontelaunee": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
@@ -2939,17 +2958,6 @@
                 "flow_base_ontelaunee",
                 "flow_factor"
             ]
-        },
-        "max_volume_ontelaunee": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "Adjusted_CAP_MG",
-            "index_col": "reservoir",
-            "index": "ontelaunee"
-        },
-        "starfit_release_ontelaunee": {
-            "type": "STARFITReservoirRelease",
-            "node": "ontelaunee"
         },
         "max_flow_catchmentWithdrawal_ontelaunee": {
             "type": "constant",
@@ -2977,6 +2985,17 @@
                 "prev_flow_catchmentWithdrawal_ontelaunee"
             ]
         },
+        "max_volume_stillCreek": {
+            "type": "constant",
+            "url": "drb_model_istarf_conus.csv",
+            "column": "Adjusted_CAP_MG",
+            "index_col": "reservoir",
+            "index": "stillCreek"
+        },
+        "starfit_release_stillCreek": {
+            "type": "STARFITReservoirRelease",
+            "node": "stillCreek"
+        },
         "flow_base_stillCreek": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
@@ -2991,17 +3010,6 @@
                 "flow_base_stillCreek",
                 "flow_factor"
             ]
-        },
-        "max_volume_stillCreek": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "Adjusted_CAP_MG",
-            "index_col": "reservoir",
-            "index": "stillCreek"
-        },
-        "starfit_release_stillCreek": {
-            "type": "STARFITReservoirRelease",
-            "node": "stillCreek"
         },
         "max_flow_catchmentWithdrawal_stillCreek": {
             "type": "constant",
@@ -3029,6 +3037,17 @@
                 "prev_flow_catchmentWithdrawal_stillCreek"
             ]
         },
+        "max_volume_blueMarsh": {
+            "type": "constant",
+            "url": "drb_model_istarf_conus.csv",
+            "column": "Adjusted_CAP_MG",
+            "index_col": "reservoir",
+            "index": "blueMarsh"
+        },
+        "starfit_release_blueMarsh": {
+            "type": "STARFITReservoirRelease",
+            "node": "blueMarsh"
+        },
         "flow_base_blueMarsh": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
@@ -3043,17 +3062,6 @@
                 "flow_base_blueMarsh",
                 "flow_factor"
             ]
-        },
-        "max_volume_blueMarsh": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "Adjusted_CAP_MG",
-            "index_col": "reservoir",
-            "index": "blueMarsh"
-        },
-        "starfit_release_blueMarsh": {
-            "type": "STARFITReservoirRelease",
-            "node": "blueMarsh"
         },
         "max_flow_catchmentWithdrawal_blueMarsh": {
             "type": "constant",
@@ -3122,6 +3130,17 @@
                 "prev_flow_catchmentWithdrawal_01470960"
             ]
         },
+        "max_volume_greenLane": {
+            "type": "constant",
+            "url": "drb_model_istarf_conus.csv",
+            "column": "Adjusted_CAP_MG",
+            "index_col": "reservoir",
+            "index": "greenLane"
+        },
+        "starfit_release_greenLane": {
+            "type": "STARFITReservoirRelease",
+            "node": "greenLane"
+        },
         "flow_base_greenLane": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
@@ -3136,17 +3155,6 @@
                 "flow_base_greenLane",
                 "flow_factor"
             ]
-        },
-        "max_volume_greenLane": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "Adjusted_CAP_MG",
-            "index_col": "reservoir",
-            "index": "greenLane"
-        },
-        "starfit_release_greenLane": {
-            "type": "STARFITReservoirRelease",
-            "node": "greenLane"
         },
         "max_flow_catchmentWithdrawal_greenLane": {
             "type": "constant",
@@ -3215,6 +3223,17 @@
                 "prev_flow_catchmentWithdrawal_outletSchuylkill"
             ]
         },
+        "max_volume_marshCreek": {
+            "type": "constant",
+            "url": "drb_model_istarf_conus.csv",
+            "column": "Adjusted_CAP_MG",
+            "index_col": "reservoir",
+            "index": "marshCreek"
+        },
+        "starfit_release_marshCreek": {
+            "type": "STARFITReservoirRelease",
+            "node": "marshCreek"
+        },
         "flow_base_marshCreek": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
@@ -3229,17 +3248,6 @@
                 "flow_base_marshCreek",
                 "flow_factor"
             ]
-        },
-        "max_volume_marshCreek": {
-            "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
-            "column": "Adjusted_CAP_MG",
-            "index_col": "reservoir",
-            "index": "marshCreek"
-        },
-        "starfit_release_marshCreek": {
-            "type": "STARFITReservoirRelease",
-            "node": "marshCreek"
         },
         "max_flow_catchmentWithdrawal_marshCreek": {
             "type": "constant",
@@ -4122,12 +4130,18 @@
                 "mrf_drought_factor_delMontague"
             ]
         },
+        "mrf_target_delTrenton": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "mrf_baseline_delTrenton",
+                "mrf_drought_factor_delTrenton"
+            ]
+        },
         "volbalance_flow_agg_nonnyc_delMontague": {
             "type": "aggregated",
             "agg_func": "sum",
             "parameters": [
-                "flow_cannonsville",
-                "flow_pepacton",
                 "flow_01425000",
                 "flow_01417000",
                 "flow_delLordville",
@@ -4135,17 +4149,15 @@
                 "flow_wallenpaupack",
                 "flow_shoholaMarsh",
                 "flow_mongaupeCombined",
-                "flow_neversink",
                 "flow_01436000",
-                "flow_01433500"
+                "flow_01433500",
+                "flow_delMontague"
             ]
         },
         "volbalance_flow_agg_nonnyc_delTrenton": {
             "type": "aggregated",
             "agg_func": "sum",
             "parameters": [
-                "flow_cannonsville",
-                "flow_pepacton",
                 "flow_01425000",
                 "flow_01417000",
                 "flow_delLordville",
@@ -4153,7 +4165,6 @@
                 "flow_wallenpaupack",
                 "flow_shoholaMarsh",
                 "flow_mongaupeCombined",
-                "flow_neversink",
                 "flow_01436000",
                 "flow_01433500",
                 "flow_delMontague",
@@ -4163,7 +4174,8 @@
                 "flow_hopatcong",
                 "flow_nockamixon",
                 "flow_01449800",
-                "flow_01447800"
+                "flow_01447800",
+                "flow_delDRCanal"
             ]
         },
         "volbalance_relative_mrf_montagueTrenton": {
@@ -4201,14 +4213,6 @@
         "volbalance_max_flow_montagueTrenton_neversink": {
             "type": "VolBalanceNYCDownstreamMRFFinal",
             "node": "reservoir_neversink"
-        },
-        "mrf_target_delTrenton": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "mrf_baseline_delTrenton",
-                "mrf_drought_factor_delTrenton"
-            ]
         },
         "mrf_target_cannonsville": {
             "type": "aggregated",
