@@ -2,6 +2,7 @@ import json
 import pandas as pd
 
 from utils.directories import input_dir, model_data_dir
+from utils.lists import majorflow_list
 from pywr_drb_node_data import upstream_nodes_dict
 
 model_full_file = model_data_dir + 'drb_model_full.json'
@@ -40,9 +41,6 @@ def add_major_node(model, name, node_type, inflow_type, backup_inflow_type=None,
     is_NYC_reservoir = name in ['cannonsville', 'pepacton', 'neversink']
     ### does it have explicit outflow node for starfit or regulatory behavior?
     has_outflow_node = outflow_type in ['starfit', 'regulatory']
-    ### list of river nodes
-    river_nodes = ['delLordville', 'delMontague', 'delTrenton', 'outletAssunpink', 'outletSchuylkill',
-                   'outletChristina']
 
     ### first add major node to dict
     if node_type == 'reservoir':
@@ -131,9 +129,7 @@ def add_major_node(model, name, node_type, inflow_type, backup_inflow_type=None,
     ### withdrawal to reservoir
     model['edges'].append([f'catchmentWithdrawal_{name}', node_name])
     ### reservoir downstream node (via outflow node if one exists)
-    if downstream_node in river_nodes:
-        downstream_name = f'link_{downstream_node}'
-    elif downstream_node[0] == '0':
+    if downstream_node in majorflow_list:
         downstream_name = f'link_{downstream_node}'
     elif downstream_node == 'output_del':
         downstream_name = downstream_node
@@ -704,18 +700,18 @@ def drb_make_model(inflow_type, backup_inflow_type, start_date, end_date, use_hi
         }
 
         ### total non-NYC inflows to Montague & Trenton
-        upstream_nodes = upstream_nodes_dict['delMontague']
+        inflow_nodes = upstream_nodes_dict['delMontague'] + ['delMontague']
         model['parameters'][f'volbalance_flow_agg_nonnyc_delMontague'] = {
                 'type': 'aggregated',
                 'agg_func': 'sum',
-                'parameters': [f'flow_{node}' for node in upstream_nodes]
+                'parameters': [f'flow_{node}' for node in inflow_nodes]
             }
 
-        upstream_nodes = upstream_nodes_dict['delTrenton']
+        inflow_nodes = upstream_nodes_dict['delTrenton'] + ['delTrenton']
         model['parameters'][f'volbalance_flow_agg_nonnyc_delTrenton'] = {
                 'type': 'aggregated',
                 'agg_func': 'sum',
-                'parameters': [f'flow_{node}' for node in upstream_nodes]
+                'parameters': [f'flow_{node}' for node in inflow_nodes]
             }
 
         ### Get total release needed from NYC reservoirs to satisfy Montague & Trenton flow targets.

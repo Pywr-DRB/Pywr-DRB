@@ -174,11 +174,10 @@ def extrapolate_NYC_NJ_diversions(loc):
                            'm': diversion.index.month,
                            'y': diversion.index.year})
     elif loc == 'nj':
-        trenton_catchments = ['cannonsville', 'pepacton', '01425000', '01417000', 'delLordville', 'prompton', 'wallenpaupack', \
-                              'shoholaMarsh', 'mongaupeCombined', 'neversink', '01436000', '01433500', 'delMontague', 'beltzvilleCombined', \
-                              'fewalter', 'merrillCreek', 'hopatcong', 'nockamixon', '01449800', '01447800', 'delTrenton']
+        inflow_nodes = upstream_nodes_dict['delTrenton'] + ['delTrenton']
+
         df = pd.DataFrame({'diversion': diversion['D_R_Canal'],
-                           'flow_log': np.log(flow[trenton_catchments].sum(axis=1)),
+                           'flow_log': np.log(flow[inflow_nodes].sum(axis=1)),
                            'm': diversion.index.month,
                            'y': diversion.index.year})
 
@@ -330,7 +329,7 @@ def extrapolate_NYC_NJ_diversions(loc):
 
 if __name__ == "__main__":
     
-    ### read in observed, NHM, & NWM data at gages downstream of reservoirs
+    ### read in observed, NHM, & NWM data
     ### use same set of dates for all.
 
     df_obs = read_csv_data(f'{input_dir}usgs_gages/streamflow_daily_usgs.csv', start_date, end_date, units = 'cms', source = 'USGS')
