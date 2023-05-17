@@ -17,7 +17,7 @@ from utils.directories import input_dir, output_dir, fig_dir
 if __name__ == "__main__":
 
     ## System inputs
-    rerun_all = True
+    rerun_all = False
     use_WEAP = False
 
     ### User-specified date range, or default to minimum overlapping period across models
@@ -33,7 +33,7 @@ if __name__ == "__main__":
     
     ## Load data    
     # Load Pywr-DRB simulation models
-    print(f'Retrieving simulation data from {start_date} to {end_date}.')
+    print(f'Retrieving simulation data from {start_date.strftime("%Y-%m-%d")} to {end_date.strftime("%Y-%m-%d")}.')
     if use_WEAP:
         pywr_models = ['obs_pub', 'nhmv10', 'nwmv21', 'WEAP_23Aug2022_gridmet_nhmv10']
     else:
@@ -235,10 +235,10 @@ if __name__ == "__main__":
 
 
     ### plot NYC reservoir comparison
-    if rerun_all:
-        print('Plotting NYC reservoir operations')
-        plot_combined_nyc_storage(storages, reservoir_downstream_gages, pywr_models, start_date='2000-01-01', end_date='2004-01-01')
-        plot_combined_nyc_storage(storages, reservoir_downstream_gages, pywr_models, start_date='2000-01-01', end_date='2010-01-01')
-        plot_combined_nyc_storage(storages, reservoir_downstream_gages, pywr_models, start_date=start_date, end_date=end_date)
+    # if rerun_all:
+    print('Plotting NYC reservoir operations')
+    plot_combined_nyc_storage(storages, reservoir_downstream_gages, pywr_models, start_date='2000-01-01', end_date='2004-01-01')
+    plot_combined_nyc_storage(storages, reservoir_downstream_gages, pywr_models, start_date='2000-01-01', end_date='2010-01-01')
+    plot_combined_nyc_storage(storages, reservoir_downstream_gages, pywr_models, start_date=start_date.strftime('%Y-%m-%d'), end_date=end_date.strftime('%Y-%m-%d'))
 
     print(f'Done! Check the {fig_dir} folder.')

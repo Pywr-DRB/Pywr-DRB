@@ -677,6 +677,9 @@ def plot_combined_nyc_storage(storages, releases, models,
     reservoir_list : list of reservoirs to plot
     """
 
+    if isinstance(start_date, str):
+        start_date = pd.to_datetime(start_date)
+        end_date = pd.to_datetime(end_date)
 
     ffmp_level_colors = ['blue', 'blue', 'blue', 'cornflowerblue', 'green', 'darkorange', 'maroon']
     drought_cmap = ListedColormap(ffmp_level_colors)
@@ -706,11 +709,10 @@ def plot_combined_nyc_storage(storages, releases, models,
     historic_release['FFMP_min_release'].loc[[m in (6,7,8) for m in historic_release.index.month]] = 190 * cfs_to_mgd
 
     model_names = [m[5:] for m in models]
-    drought_levels = pd.DataFrame(index= historic_storage.index, columns = model_names)
+    drought_levels = pd.DataFrame(index= storages[models[0]].index, columns = model_names).loc[start_date:end_date]
     for model in model_names:
         drought_levels[model] = get_pywr_results(output_dir, model, results_set='res_level').loc[start_date:end_date, ['nyc']]
-    drought_levels.index = pd.to_datetime(historic_storage.index)
-    
+
     # Create figure with m subplots
     n_subplots = 3 if plot_releases else 2
     
@@ -748,6 +750,7 @@ def plot_combined_nyc_storage(storages, releases, models,
     ax2.grid(True, which='major', axis='y')
     ax2.set_ylim([0, 110])
     ax2.set_xticklabels([])
+    ax2.set_xlim([start_date, end_date])
     
     # Plot releases
     ax3 = fig.add_subplot(gs[2,0])
@@ -762,7 +765,8 @@ def plot_combined_nyc_storage(storages, releases, models,
     ax3.yaxis.set_label_coords(-0.1, 0.5)
     ax3.set_ylabel('Releases\n(MGD)', fontsize = 12)
     ax3.set_xlabel('Date', fontsize = 12)
-    
+    ax3.set_xlim([start_date, end_date])
+
     #plt.legend()
     plt.xlabel('Date')
     
@@ -774,6 +778,6 @@ def plot_combined_nyc_storage(storages, releases, models,
         #cbar.ax.yaxis.set_label_coords(4.5, 0.5)
     plt.legend(loc = 'upper left', bbox_to_anchor=(0., -0.5), ncols=2)
     plt.suptitle('Combined NYC Reservoir Operations\nSimulated & Observed')
-    plt.savefig(f'{fig_dir}combined_NYC_reservoir_operations_{start_date}_{end_date}.png', dpi=250)
+    plt.savefig(f'{fig_dir}combined_NYC_reservoir_operations_{start_date.strftime("%Y-%m-%d")}_{end_date.strftime("%Y-%m-%d")}.png', dpi=250)
     # plt.show()
     return
