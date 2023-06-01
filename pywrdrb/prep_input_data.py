@@ -70,32 +70,24 @@ def match_gages(df, dataset_label, site_matches_id, upstream_nodes_dict):
     For nodes related to USGS gages downstream of reservoirs, currently redundant flow with assumed inflow, so subtracted additional catchment flow will be 0 until this is updated.
     Saves csv file, & returns dataframe whose columns are names of Pywr-DRB nodes.'''
 
-    # If using prediction in ungauged basins (PUB) for historic reconstruction, load PUB data
-    if dataset_label in ['obs_pub']:
-        use_pub = True
-        df_pub = pd.read_csv(f'./input_data/modeled_gages/drb_pub_predicted_flows_nhmv10_mgd.csv', sep = ',', index_col=0)
-        df_pub.index = pd.to_datetime(df_pub.index)
-        df_pub = df_pub.loc[df.index.intersection(df_pub.index),:]
-    else:
-        use_pub = False
-
     ### 1. Match inflows for each Pywr-DRB node 
     ## 1.1 Reservoir inflows
     for node, site in site_matches_id.items():
         if node == 'cannonsville':
-            if site == None:
-                inflow = pd.DataFrame(df_pub.loc[:, node])
+            if (dataset_label == 'obs_pub') and (site == None):
+                inflow = pd.DataFrame(df.loc[:, node])
             else:
-                inflow = pd.DataFrame(df.loc[:, site])
+                inflow = pd.DataFrame(df.loc[:, site].sum(axis=1))
             inflow.columns = [node]
-            ## reset date column to be 'datetime'
             inflow['datetime'] = inflow.index
             inflow.index = inflow['datetime']
             inflow = inflow.iloc[:, :-1]
-        elif (site == None) and use_pub:
-            inflow[node] = df_pub.loc[:, node]
         else:
-            inflow[node] = df[site].sum(axis=1)
+            if (dataset_label == 'obs_pub') and (site == None):
+                inflow[node] = df[node]
+            else:
+                inflow[node] = df[site].sum(axis=1)
+            
                  
     ## Save full flows to csv 
     # For downstream nodes, this represents the full flow for results comparison
@@ -329,11 +321,17 @@ def extrapolate_NYC_NJ_diversions(loc):
 
 if __name__ == "__main__":
     
+    # Defaults
+    obs_pub_donor_fdc = 'nhmv10'
+
     ### read in observed, NHM, & NWM data
     ### use same set of dates for all.
 
     df_obs = read_csv_data(f'{input_dir}usgs_gages/streamflow_daily_usgs.csv', start_date, end_date, units = 'cms', source = 'USGS')
 
+    df_obs_pub = pd.read_csv(f'{input_dir}modeled_gages\historic_reconstruction_daily_1960_2022_{obs_pub_donor_fdc}_mgd.csv', 
+                         sep=',', index_col=0, parse_dates=True).loc[start_date:end_date, :]
+    
     df_nhm = read_csv_data(f'{input_dir}modeled_gages/streamflow_daily_nhmv10_mgd.csv', start_date, end_date, units = 'mgd', source = 'nhm')
 
     df_nwm = read_csv_data(f'{input_dir}modeled_gages/streamflow_daily_nwmv21_mgd.csv', start_date, end_date, units = 'mgd', source = 'nwmv21')
@@ -344,10 +342,9 @@ if __name__ == "__main__":
     ### match USGS gage sites to Pywr-DRB model nodes & save inflows to csv file in format expected by Pywr-DRB
     df_nhm = match_gages(df_nhm, 'nhmv10', site_matches_id= nhm_site_matches, upstream_nodes_dict= upstream_nodes_dict)
 
-    df_obs_copy = df_obs.copy()
     df_obs = match_gages(df_obs, 'obs', site_matches_id= obs_site_matches, upstream_nodes_dict= upstream_nodes_dict)
 
-    df_obs_pub = match_gages(df_obs_copy, 'obs_pub', site_matches_id= obs_pub_site_matches, upstream_nodes_dict= upstream_nodes_dict)
+    df_obs_pub = match_gages(df_obs_pub, 'obs_pub', site_matches_id= obs_pub_site_matches, upstream_nodes_dict= upstream_nodes_dict)
 
     df_nwm = match_gages(df_nwm, 'nwmv21', site_matches_id= nwm_site_matches, upstream_nodes_dict= upstream_nodes_dict)
 

@@ -35,13 +35,11 @@ upstream_nodes_dict = {'01425000': ['cannonsville'],
                        'outletChristina': ['marshCreek']
                        }
 
-
-
-obs_pub_site_matches = {'cannonsville': None,  # ['01423000'] is on the mainstem but biased low
-                    'pepacton': None, # ['01415000', '01414500', '01414000', '01413500'], # '01414000' doesnt start until 1996; likely underestimate before
+obs_pub_site_matches = {'cannonsville': ['01423000', '0142400103'], # 0142400103 doesnt start until '96 ##TODO: PUB until 96
+                    'pepacton': ['01415000', '01414500', '01414000', '01413500'], # '01414000' doesnt start until 1996; likely underestimate before
                     'neversink': ['01435000'],
                     'wallenpaupack': None, 
-                    'prompton': None,       ## PUB #TODO: PUB till 1986-09-30 then '01428750' observation start
+                    'prompton': ['01428750'],       ## PUB till 1986-09-30 then '01428750' observation start
                     'shoholaMarsh': None, 
                     'mongaupeCombined': None, 
                     'beltzvilleCombined': ['01449360'],  ## Not complete inflow                              
@@ -53,11 +51,11 @@ obs_pub_site_matches = {'cannonsville': None,  # ['01423000'] is on the mainstem
                     'ontelaunee': None, 
                     'stillCreek': None, 
                     'blueMarsh': None,  
-                    'greenLane': ['01472199', '01472198'],   # These two start 1981
+                    'greenLane': ['01472199', '01472198'],   # PUB until 1981
                     'marshCreek': None,  
                     '01425000': None,
                     '01417000': None,
-                    'delLordville': None, # '01427207' starts in 2006
+                    'delLordville': ['01427207'], # PUB until 2006 then '01427207'
                     '01436000': None,
                     '01433500': None, 
                     'delMontague': ['01438500'],
@@ -69,7 +67,7 @@ obs_pub_site_matches = {'cannonsville': None,  # ['01423000'] is on the mainstem
                     'outletAssunpink': ['01464000'],
                     '01470960': None, 
                     'outletSchuylkill': ['01474500'],
-                    'outletChristina': ['01480685'] # ['01481500', '01478650'],
+                    'outletChristina': ['01481500', '01478650'],
                     }
 
 obs_site_matches = {'cannonsville': ['01423000'], 

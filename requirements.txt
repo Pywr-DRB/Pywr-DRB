@@ -26,3 +26,4 @@ six==1.16.0
 tables==3.8.0
 tk==0.1.0
 statsmodels
+geopandas
