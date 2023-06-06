@@ -35,6 +35,41 @@ upstream_nodes_dict = {'01425000': ['cannonsville'],
                        'outletChristina': ['marshCreek']
                        }
 
+immediate_downstream_nodes_dict = {'cannonsville': '01425000',
+                    'pepacton': '01417000',
+                    'neversink': '01436000',
+                    'wallenpaupack': 'delMontague', 
+                    'prompton': 'delMontague',                          
+                    'shoholaMarsh': 'delMontague', 
+                    'mongaupeCombined': '01433500', 
+                    'beltzvilleCombined': '01449800',                              
+                    'fewalter': '01447800',
+                    'merrillCreek': 'delDRCanal', 
+                    'hopatcong': 'delDRCanal',   
+                    'nockamixon': 'delDRCanal', 
+                    'assunpink': 'outletAssunpink',  
+                    'ontelaunee': 'outletSchuylkill', 
+                    'stillCreek': 'outletSchuylkill', 
+                    'blueMarsh': '01470960',  
+                    'greenLane': 'outletSchuylkill',
+                    'marshCreek': 'outletChristina',  
+                    '01425000': 'delLordville',
+                    '01417000': 'delLordville',
+                    'delLordville': 'delMontague', # PUB until 2006 then '01427207'
+                    '01436000': 'delMontague',
+                    '01433500': 'delMontague', 
+                    'delMontague': 'delDRCanal',
+                    '01449800': 'delDRCanal',
+                    '01447800': 'delDRCanal',
+                    'delDRCanal': 'delTrenton', ### note DRCanal and Trenton are treated as being coincident, with DRCanal having the physical catchment inflows and withdrawals. DRCanal is where NJ deliveries leave from, and delTrenton is where min flow is enforced, so that this is downstream of deliveries.
+                    'delTrenton': 'output_del',
+                    '01463620': 'outletAssunpink', 
+                    'outletAssunpink': 'output_del',
+                    '01470960': 'outletSchuylkill', 
+                    'outletSchuylkill': 'output_del',
+                    'outletChristina': 'output_del',
+                    }
+
 obs_pub_site_matches = {'cannonsville': ['01423000', '0142400103'], # 0142400103 doesnt start until '96 ##TODO: PUB until 96
                     'pepacton': ['01415000', '01414500', '01414000', '01413500'], # '01414000' doesnt start until 1996; likely underestimate before
                     'neversink': ['01435000'],

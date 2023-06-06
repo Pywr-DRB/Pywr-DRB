@@ -1,11 +1,15 @@
+"""
+Contains functions used to construct a pywrdrb model in JSON format.
+"""
+
 import json
 import pandas as pd
 
 from utils.directories import input_dir, model_data_dir
 from utils.lists import majorflow_list, reservoir_list, reservoir_list_nyc
-from pywr_drb_node_data import upstream_nodes_dict
+from pywr_drb_node_data import upstream_nodes_dict, immediate_downstream_nodes_dict
 
-model_full_file = model_data_dir + 'drb_model_full.json'
+model_file_name_base = model_data_dir + 'drb_model_full'
 model_sheets_start = model_data_dir + 'drb_model_'
 
 EPS = 1e-8
@@ -15,7 +19,8 @@ EPS = 1e-8
 ##########################################################################################
 
 def add_major_node(model, name, node_type, inflow_type, backup_inflow_type=None, outflow_type=None, downstream_node=None,
-                   downstream_lag=0, capacity=None, initial_volume_frac=None, variable_cost=None, has_catchment=True):
+                   downstream_lag=0, capacity=None, initial_volume_frac=None, variable_cost=None, has_catchment=True,
+                   inflow_ensemble_indices = None):
     '''
     Add a major node to the model. Major nodes types include reservoir & river.
     This function will add the major node and all standard minor nodes that belong to each major node
@@ -177,31 +182,42 @@ def add_major_node(model, name, node_type, inflow_type, backup_inflow_type=None,
 
     if has_catchment:
         ### Assign inflows to nodes
-        if 'WEAP' not in inflow_type:
-            inflow_source = f'{input_dir}catchment_inflow_{inflow_type}.csv'
+        if inflow_ensemble_indices:
+            ### Use custom FlowEnsemble parameter to handle scenario indexing
+            model['parameters'][f'flow_{name}'] = {
+                'type': 'FlowEnsemble',
+                'node': name,
+                'inflow_type': inflow_type,
+                'inflow_ensemble_indices': inflow_ensemble_indices
+                }
+            
         else:
-            if name in ['cannonsville', 'pepacton', 'neversink', 'wallenpaupack', 'prompton',
-                        'mongaupeCombined', 'beltzvilleCombined', 'blueMarsh', 'ontelaunee', 'nockamixon', 'assunpink']:
+            if 'WEAP' not in inflow_type:
                 inflow_source = f'{input_dir}catchment_inflow_{inflow_type}.csv'
             else:
-                inflow_source = f'{input_dir}catchment_inflow_{backup_inflow_type}.csv'
+                if name in ['cannonsville', 'pepacton', 'neversink', 'wallenpaupack', 'prompton',
+                            'mongaupeCombined', 'beltzvilleCombined', 'blueMarsh', 'ontelaunee', 'nockamixon', 'assunpink']:
+                    inflow_source = f'{input_dir}catchment_inflow_{inflow_type}.csv'
+                else:
+                    inflow_source = f'{input_dir}catchment_inflow_{backup_inflow_type}.csv'
 
-        model['parameters'][f'flow_base_{name}'] = {
-            'type': 'dataframe',
-            'url': inflow_source,
-            'column': name,
-            'index_col': 'datetime',
-            'parse_dates': True
-        }
+            ### Use single-scenario historic data
+            model['parameters'][f'flow_base_{name}'] = {
+                'type': 'dataframe',
+                'url': inflow_source,
+                'column': name,
+                'index_col': 'datetime',
+                'parse_dates': True
+            }
 
-        model['parameters'][f'flow_{name}'] = {
-            'type': 'aggregated',
-            'agg_func': 'product',
-            'parameters': [
-                f'flow_base_{name}',
-                'flow_factor'
-            ]
-        }
+            model['parameters'][f'flow_{name}'] = {
+                'type': 'aggregated',
+                'agg_func': 'product',
+                'parameters': [
+                    f'flow_base_{name}',
+                    'flow_factor'
+                ]
+            }
 
         ### get max flow for catchment withdrawal nodes based on DRBC data
         model['parameters'][f'max_flow_catchmentWithdrawal_{name}'] = {
@@ -241,7 +257,8 @@ def add_major_node(model, name, node_type, inflow_type, backup_inflow_type=None,
 ### drb_make_model()
 ##########################################################################################
 
-def drb_make_model(inflow_type, backup_inflow_type, start_date, end_date, use_hist_NycNjDeliveries=True):
+def drb_make_model(inflow_type, backup_inflow_type, start_date, end_date, use_hist_NycNjDeliveries=True,
+                   inflow_ensemble_indices = None, model_filename_extension = ""):
     '''
     This function creates the JSON file used by Pywr to define the model. THis includes all nodes, edges, and parameters.
     :param inflow_type:
@@ -256,6 +273,13 @@ def drb_make_model(inflow_type, backup_inflow_type, start_date, end_date, use_hi
     ### Basic model info
     #######################################################################
 
+    if inflow_ensemble_indices:
+        model_file_name = f'{model_file_name_base}_ensemble{model_filename_extension}'
+        N_SCENARIOS = len(inflow_ensemble_indices)
+    else:
+        model_file_name = f'{model_file_name_base}{model_filename_extension}'
+        N_SCENARIOS = 1
+        
     ### create dict to hold all model nodes, edges, params, etc, following Pywr protocol. This will be saved to JSON at end.
     model = {
         'metadata': {
@@ -271,7 +295,7 @@ def drb_make_model(inflow_type, backup_inflow_type, start_date, end_date, use_hi
         'scenarios': [
             {
                 'name': 'inflow',
-                'size': 1
+                'size': N_SCENARIOS
             }
         ]
     }
@@ -291,40 +315,35 @@ def drb_make_model(inflow_type, backup_inflow_type, start_date, end_date, use_hi
     def get_reservoir_capacity(reservoir):
         return float(istarf['Adjusted_CAP_MG'].loc[istarf['reservoir'] == reservoir].iloc[0])
 
-    model = add_major_node(model, 'cannonsville', 'reservoir', inflow_type, backup_inflow_type, 'regulatory', '01425000', 0, get_reservoir_capacity('cannonsville'), initial_volume_frac, True)
-    model = add_major_node(model, '01425000', 'river', inflow_type, backup_inflow_type, None, 'delLordville', 0)
-    model = add_major_node(model, 'pepacton', 'reservoir', inflow_type, backup_inflow_type, 'regulatory', '01417000', 0, get_reservoir_capacity('pepacton'), initial_volume_frac, True)
-    model = add_major_node(model, '01417000', 'river', inflow_type, backup_inflow_type, None, 'delLordville', 0)
-    model = add_major_node(model, 'delLordville', 'river', inflow_type, backup_inflow_type, None, 'delMontague', 2)
-    model = add_major_node(model, 'neversink', 'reservoir', inflow_type, backup_inflow_type, 'regulatory', '01436000', 0, get_reservoir_capacity('neversink'), initial_volume_frac, True)
-    model = add_major_node(model, '01436000', 'river', inflow_type, backup_inflow_type, None, 'delMontague', 1)
-    model = add_major_node(model, 'wallenpaupack', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delMontague', 1, get_reservoir_capacity('wallenpaupack'), initial_volume_frac, False)
-    model = add_major_node(model, 'prompton', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delMontague', 1, get_reservoir_capacity('prompton'), initial_volume_frac, False)
-    model = add_major_node(model, 'shoholaMarsh', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delMontague', 1, get_reservoir_capacity('shoholaMarsh'), initial_volume_frac, False)
-    model = add_major_node(model, 'mongaupeCombined', 'reservoir', inflow_type, backup_inflow_type, 'starfit', '01433500', 0, get_reservoir_capacity('mongaupeCombined'), initial_volume_frac, False)
-    model = add_major_node(model, '01433500', 'river', inflow_type, backup_inflow_type, None, 'delMontague', 0)
-    model = add_major_node(model, 'delMontague', 'river', inflow_type, backup_inflow_type, 'regulatory', 'delDRCanal', 2)
-    model = add_major_node(model, 'beltzvilleCombined', 'reservoir', inflow_type, backup_inflow_type, 'starfit', '01449800', 0, get_reservoir_capacity('beltzvilleCombined'), initial_volume_frac, False)
-    model = add_major_node(model, '01449800', 'river', inflow_type, backup_inflow_type, None, 'delDRCanal', 2)
-    model = add_major_node(model, 'fewalter', 'reservoir', inflow_type, backup_inflow_type, 'starfit', '01447800', 0, get_reservoir_capacity('fewalter'), initial_volume_frac, False)
-    model = add_major_node(model, '01447800', 'river', inflow_type, backup_inflow_type, None, 'delDRCanal', 2)
-    model = add_major_node(model, 'merrillCreek', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delDRCanal', 1, get_reservoir_capacity('merrillCreek'), initial_volume_frac, False)
-    model = add_major_node(model, 'hopatcong', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delDRCanal', 1, get_reservoir_capacity('hopatcong'), initial_volume_frac, False)
-    model = add_major_node(model, 'nockamixon', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'delDRCanal', 0, get_reservoir_capacity('nockamixon'), initial_volume_frac, False)
-    model = add_major_node(model, 'delDRCanal', 'river', inflow_type, backup_inflow_type, None, 'delTrenton', 1)
-    model = add_major_node(model, 'delTrenton', 'river', inflow_type, backup_inflow_type, 'regulatory', 'output_del', 0, has_catchment=False)
-    model = add_major_node(model, 'assunpink', 'reservoir', inflow_type, backup_inflow_type, 'starfit', '01463620', 0, get_reservoir_capacity('assunpink'), initial_volume_frac, False)
-    model = add_major_node(model, '01463620', 'river', inflow_type, backup_inflow_type, None, 'outletAssunpink', 0)
-    model = add_major_node(model, 'outletAssunpink', 'river', inflow_type, backup_inflow_type, None, 'output_del', 0)
-    model = add_major_node(model, 'ontelaunee', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'outletSchuylkill', 2, get_reservoir_capacity('ontelaunee'), initial_volume_frac, False)
-    model = add_major_node(model, 'stillCreek', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'outletSchuylkill', 2, get_reservoir_capacity('stillCreek'), initial_volume_frac, False)
-    model = add_major_node(model, 'blueMarsh', 'reservoir', inflow_type, backup_inflow_type, 'starfit', '01470960', 0, get_reservoir_capacity('blueMarsh'), initial_volume_frac, False)
-    model = add_major_node(model, '01470960', 'river', inflow_type, backup_inflow_type, None, 'outletSchuylkill', 2)
-    model = add_major_node(model, 'greenLane', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'outletSchuylkill', 1, get_reservoir_capacity('greenLane'), initial_volume_frac, False)
-    model = add_major_node(model, 'outletSchuylkill', 'river', inflow_type, backup_inflow_type, None, 'output_del', 0)
-    model = add_major_node(model, 'marshCreek', 'reservoir', inflow_type, backup_inflow_type, 'starfit', 'outletChristina', 0, get_reservoir_capacity('marshCreek'), initial_volume_frac, False)
-    model = add_major_node(model, 'outletChristina', 'river', inflow_type, backup_inflow_type, None, 'output_del', 0)
-
+    
+    for node, downstream_node in immediate_downstream_nodes_dict.items():
+    
+        node_type = 'reservoir' if node in reservoir_list else 'river'
+    
+        lag_two_nodes = ['delLordville', 'delMontague', '01449980', '01447800', 'ontelaunee', 'stillCreek', '01470960']
+        lag_one_nodes = ['01436000', 'wallenpaupack', 'prompton', 'shoholaMarsh', 'merrillCreek', 'hopatcong', 'delDRCanal', 'greenLane']
+            
+        if node in reservoir_list_nyc:
+            outflow_type = 'regulatory'
+        elif node in reservoir_list:
+            outflow_type = 'starfit'
+        else:
+            outflow_type = None
+        
+        if node in lag_one_nodes:
+            downstream_lag = 1
+        elif node in lag_two_nodes:
+            downstream_lag = 2
+        else:
+            downstream_lag = 0
+            
+        variable_cost = True if (outflow_type == 'regulatory') else False
+        capacity = get_reservoir_capacity(node) if (node_type == 'reservoir') else None
+        has_catchment = True if (node != 'delTrenton') else False
+        
+        model = add_major_node(model, node, node_type, inflow_type, backup_inflow_type, outflow_type, downstream_node, 
+                               downstream_lag, capacity, initial_volume_frac, variable_cost, has_catchment, 
+                               inflow_ensemble_indices)
 
 
     #######################################################################
@@ -382,12 +401,13 @@ def drb_make_model(inflow_type, backup_inflow_type, start_date, end_date, use_hi
     ### Add additional parameters beyond those associated with major nodes above
     #######################################################################
 
-    ### Define "scenarios" based on flow multiplier -> only run one with 1.0 for now. Could switch scenario to modulate something else.
-    model['parameters']['flow_factor'] = {
-            'type': 'constantscenario',
-            'scenario': 'inflow',
-            'values': [1.0]
-        }
+    ### Define "scenarios" based on flow multiplier -> only run one with 1.0 for now
+    if N_SCENARIOS == 1:
+        model['parameters']['flow_factor'] = {
+                'type': 'constantscenario',
+                'scenario': 'inflow',
+                'values': [1.0]
+            }
 
     ### demand for NYC
     if use_hist_NycNjDeliveries:
@@ -765,5 +785,5 @@ def drb_make_model(inflow_type, backup_inflow_type, start_date, end_date, use_hi
     ### save full model as json
     #######################################################################
 
-    with open(model_full_file, 'w') as o:
+    with open(f'{model_file_name}.json', 'w') as o:
         json.dump(model, o, indent=4)
