@@ -137,7 +137,7 @@ obs_site_matches = {'cannonsville': ['01423000'],
                     'outletAssunpink': ['01464000'],
                     '01470960': ['01470960'],
                     'outletSchuylkill': ['01474500'],
-                    'outletChristina': ['01480685'] # ['01481500', '01478650'],
+                    'outletChristina': ['01481500', '01478650'],
                     }
 
 

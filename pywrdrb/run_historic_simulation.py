@@ -15,15 +15,16 @@ import custom_parameters.ffmp_parameters
 import custom_parameters.starfit_parameter
 from utils.directories import output_dir, model_data_dir
 
+inflow_type_options = ['obs_pub', 'nhmv10', 'nwmv21', 'WEAP']
+
 ### specify inflow type from command line args
 inflow_type = sys.argv[1]
+assert(inflow_type in inflow_type_options), f'Invalid inflow_type specified. Options: {inflow_type_options}'
 if len(sys.argv) >=2:
     backup_inflow_type = sys.argv[2]
 else:
     backup_inflow_type = 'nhmv10'
 
-# inflow_type = 'nhmv10'  ### nhmv10, nwmv21, nwmv21_withLakes, obs, obs_pub, WEAP_23Aug2022_gridmet
-# backup_inflow_type = 'obs-pub'  ## for WEAP inflow type, we dont have all reservoirs. use this secondary type for missing.
 
 ### assume we want to run the full range for each dataset
 if inflow_type in ('nwmv21', 'nwmv21_withLakes', 'nhmv10', 'obs_pub'):
@@ -32,9 +33,6 @@ if inflow_type in ('nwmv21', 'nwmv21_withLakes', 'nhmv10', 'obs_pub'):
 elif 'WEAP' in inflow_type:
     start_date = '1999-06-01'
     end_date = '2010-05-31'
-    
-start_date = '1999-06-01'
-end_date = '2010-05-31'
 
 model_filename = f'{model_data_dir}drb_model_full.json'
 if 'WEAP' in inflow_type:

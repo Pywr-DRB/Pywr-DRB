@@ -22,7 +22,8 @@ import datetime as dt
 sys.path.append('..')
 
 # Custom modules
-from utils.processing import get_base_results, get_pywr_results
+from data_processing.get_results import get_base_results, get_pywr_results
+
 from utils.constants import cms_to_mgd, cm_to_mg, cfs_to_mgd
 from utils.lists import reservoir_list, majorflow_list, reservoir_link_pairs
 from utils.directories import input_dir, fig_dir, output_dir, model_data_dir
@@ -773,10 +774,8 @@ def plot_combined_nyc_storage(storages, releases, models,
     # Create colorbar outside of subplots
     if ax_cbar is not None:
         cbar = ax_cbar.collections[0].colorbar
-        #cbar.ax.tick_params(labelsize=12)
-        #cbar.ax.set_ylabel('FFMP Level', fontsize=12, rotation=270, labelpad=15)
-        #cbar.ax.yaxis.set_label_coords(4.5, 0.5)
     plt.legend(loc = 'upper left', bbox_to_anchor=(0., -0.5), ncols=2)
+    plt.tight_layout()
     plt.suptitle('Combined NYC Reservoir Operations\nSimulated & Observed')
     plt.savefig(f'{fig_dir}combined_NYC_reservoir_operations_{start_date.strftime("%Y-%m-%d")}_{end_date.strftime("%Y-%m-%d")}.png', dpi=250)
     # plt.show()
