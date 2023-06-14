@@ -417,6 +417,18 @@ document.write(`
 </pre></div>
 </div>
 </div>
+<div class="cell_output docutils container">
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">ModuleNotFoundError</span><span class="g g-Whitespace">                       </span>Traceback (most recent call last)
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">line</span> <span class="mi">6</span>
+<span class="g g-Whitespace">      </span><span class="mi">3</span> <span class="kn">import</span> <span class="nn">os</span>
+<span class="g g-Whitespace">      </span><span class="mi">5</span> <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s1">&#39;../../../&#39;</span><span class="p">)</span>
+<span class="ne">----&gt; </span><span class="mi">6</span> <span class="kn">from</span> <span class="nn">drb_make_figs</span> <span class="kn">import</span> <span class="n">get_pywr_results</span><span class="p">,</span> <span class="n">get_base_results</span>
+
+<span class="ne">ModuleNotFoundError</span>: No module named &#39;drb_make_figs&#39;
+</pre></div>
+</div>
+</div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -434,59 +446,81 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
-<span class="ne">FileNotFoundError</span><span class="g g-Whitespace">                         </span>Traceback (most recent call last)
-<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">line</span> <span class="mi">2</span>
-<span class="g g-Whitespace">      </span><span class="mi">1</span> <span class="c1"># Load Pywr-DRB simulation flow results at major nodes</span>
-<span class="ne">----&gt; </span><span class="mi">2</span> <span class="n">simulated_flows</span> <span class="o">=</span> <span class="n">get_pywr_results</span><span class="p">(</span><span class="s1">&#39;./output_data/&#39;</span><span class="p">,</span> 
-<span class="g g-Whitespace">      </span><span class="mi">3</span>                                    <span class="n">model</span> <span class="o">=</span> <span class="s1">&#39;obs_pub&#39;</span><span class="p">,</span> 
-<span class="g g-Whitespace">      </span><span class="mi">4</span>                                    <span class="n">results_set</span> <span class="o">=</span> <span class="s1">&#39;major_flow&#39;</span><span class="p">)</span>
-<span class="g g-Whitespace">      </span><span class="mi">6</span> <span class="c1"># Report the size of the retrieved data</span>
-<span class="g g-Whitespace">      </span><span class="mi">7</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The resulting dataframe has </span><span class="si">{</span><span class="n">simulated_flows</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1"> days of data at </span><span class="si">{</span><span class="n">simulated_flows</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1"> different nodes.&#39;</span><span class="p">)</span>
-
-<span class="nn">File ~/work/Pywr-DRB/Pywr-DRB/plotting/plotting_functions.py:56,</span> in <span class="ni">get_pywr_results</span><span class="nt">(output_dir, model, results_set, scenario)</span>
-<span class="g g-Whitespace">     </span><span class="mi">43</span> <span class="k">def</span> <span class="nf">get_pywr_results</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">results_set</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="n">scenario</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-<span class="g g-Whitespace">     </span><span class="mi">44</span><span class="w">     </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="g g-Whitespace">     </span><span class="mi">45</span><span class="sd">     Gathers simulation results from Pywr model run and returns a pd.DataFrame.</span>
-<span class="g g-Whitespace">     </span><span class="mi">46</span><span class="sd"> </span>
-<span class="sd">   (...)</span>
-<span class="g g-Whitespace">     </span><span class="mi">54</span><span class="sd">     :return:</span>
-<span class="g g-Whitespace">     </span><span class="mi">55</span><span class="sd">     &#39;&#39;&#39;</span>
-<span class="ne">---&gt; </span><span class="mi">56</span>     <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">output_dir</span><span class="si">}</span><span class="s1">drb_output_</span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1">.hdf5&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-<span class="g g-Whitespace">     </span><span class="mi">57</span>         <span class="n">keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-<span class="g g-Whitespace">     </span><span class="mi">58</span>         <span class="n">first</span> <span class="o">=</span> <span class="mi">0</span>
-
-<span class="nn">File ~/.virtualenvs/.venv/lib/python3.8/site-packages/h5py/_hl/files.py:567,</span> in <span class="ni">File.__init__</span><span class="nt">(self, name, mode, driver, libver, userblock_size, swmr, rdcc_nslots, rdcc_nbytes, rdcc_w0, track_order, fs_strategy, fs_persist, fs_threshold, fs_page_size, page_buf_size, min_meta_keep, min_raw_keep, locking, alignment_threshold, alignment_interval, meta_block_size, **kwds)</span>
-<span class="g g-Whitespace">    </span><span class="mi">558</span>     <span class="n">fapl</span> <span class="o">=</span> <span class="n">make_fapl</span><span class="p">(</span><span class="n">driver</span><span class="p">,</span> <span class="n">libver</span><span class="p">,</span> <span class="n">rdcc_nslots</span><span class="p">,</span> <span class="n">rdcc_nbytes</span><span class="p">,</span> <span class="n">rdcc_w0</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">559</span>                      <span class="n">locking</span><span class="p">,</span> <span class="n">page_buf_size</span><span class="p">,</span> <span class="n">min_meta_keep</span><span class="p">,</span> <span class="n">min_raw_keep</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">560</span>                      <span class="n">alignment_threshold</span><span class="o">=</span><span class="n">alignment_threshold</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">561</span>                      <span class="n">alignment_interval</span><span class="o">=</span><span class="n">alignment_interval</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">562</span>                      <span class="n">meta_block_size</span><span class="o">=</span><span class="n">meta_block_size</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">563</span>                      <span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">564</span>     <span class="n">fcpl</span> <span class="o">=</span> <span class="n">make_fcpl</span><span class="p">(</span><span class="n">track_order</span><span class="o">=</span><span class="n">track_order</span><span class="p">,</span> <span class="n">fs_strategy</span><span class="o">=</span><span class="n">fs_strategy</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">565</span>                      <span class="n">fs_persist</span><span class="o">=</span><span class="n">fs_persist</span><span class="p">,</span> <span class="n">fs_threshold</span><span class="o">=</span><span class="n">fs_threshold</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">566</span>                      <span class="n">fs_page_size</span><span class="o">=</span><span class="n">fs_page_size</span><span class="p">)</span>
-<span class="ne">--&gt; </span><span class="mi">567</span>     <span class="n">fid</span> <span class="o">=</span> <span class="n">make_fid</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">userblock_size</span><span class="p">,</span> <span class="n">fapl</span><span class="p">,</span> <span class="n">fcpl</span><span class="p">,</span> <span class="n">swmr</span><span class="o">=</span><span class="n">swmr</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">569</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">libver</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
-<span class="g g-Whitespace">    </span><span class="mi">570</span>     <span class="bp">self</span><span class="o">.</span><span class="n">_libver</span> <span class="o">=</span> <span class="n">libver</span>
-
-<span class="nn">File ~/.virtualenvs/.venv/lib/python3.8/site-packages/h5py/_hl/files.py:231,</span> in <span class="ni">make_fid</span><span class="nt">(name, mode, userblock_size, fapl, fcpl, swmr)</span>
-<span class="g g-Whitespace">    </span><span class="mi">229</span>     <span class="k">if</span> <span class="n">swmr</span> <span class="ow">and</span> <span class="n">swmr_support</span><span class="p">:</span>
-<span class="g g-Whitespace">    </span><span class="mi">230</span>         <span class="n">flags</span> <span class="o">|=</span> <span class="n">h5f</span><span class="o">.</span><span class="n">ACC_SWMR_READ</span>
-<span class="ne">--&gt; </span><span class="mi">231</span>     <span class="n">fid</span> <span class="o">=</span> <span class="n">h5f</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">flags</span><span class="p">,</span> <span class="n">fapl</span><span class="o">=</span><span class="n">fapl</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">232</span> <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;r+&#39;</span><span class="p">:</span>
-<span class="g g-Whitespace">    </span><span class="mi">233</span>     <span class="n">fid</span> <span class="o">=</span> <span class="n">h5f</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">h5f</span><span class="o">.</span><span class="n">ACC_RDWR</span><span class="p">,</span> <span class="n">fapl</span><span class="o">=</span><span class="n">fapl</span><span class="p">)</span>
-
-<span class="nn">File h5py/_objects.pyx:54,</span> in <span class="ni">h5py._objects.with_phil.wrapper</span><span class="nt">()</span>
-
-<span class="nn">File h5py/_objects.pyx:55,</span> in <span class="ni">h5py._objects.with_phil.wrapper</span><span class="nt">()</span>
-
-<span class="nn">File h5py/h5f.pyx:106,</span> in <span class="ni">h5py.h5f.open</span><span class="nt">()</span>
-
-<span class="ne">FileNotFoundError</span>: [Errno 2] Unable to open file (unable to open file: name = &#39;./output_data/drb_output_obs_pub.hdf5&#39;, errno = 2, error message = &#39;No such file or directory&#39;, flags = 0, o_flags = 0)
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The resulting dataframe has 4018 days of data at 14 different nodes.
 </pre></div>
 </div>
-</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>01417000</th>
+      <th>01425000</th>
+      <th>01433500</th>
+      <th>01436000</th>
+      <th>01447800</th>
+      <th>01449800</th>
+      <th>01463620</th>
+      <th>01470960</th>
+      <th>delLordville</th>
+      <th>delMontague</th>
+      <th>delTrenton</th>
+      <th>outletAssunpink</th>
+      <th>outletChristina</th>
+      <th>outletSchuylkill</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2010-05-30</th>
+      <td>51.704</td>
+      <td>103.410526</td>
+      <td>110.505094</td>
+      <td>38.776</td>
+      <td>162.988043</td>
+      <td>35.863012</td>
+      <td>28.470559</td>
+      <td>113.557583</td>
+      <td>385.826303</td>
+      <td>1330.162720</td>
+      <td>3745.722246</td>
+      <td>28.470559</td>
+      <td>11.996494</td>
+      <td>1192.19984</td>
+    </tr>
+    <tr>
+      <th>2010-05-31</th>
+      <td>51.704</td>
+      <td>103.410526</td>
+      <td>105.172921</td>
+      <td>38.776</td>
+      <td>139.504039</td>
+      <td>31.962111</td>
+      <td>22.956278</td>
+      <td>113.781775</td>
+      <td>362.175733</td>
+      <td>1552.511097</td>
+      <td>3498.675639</td>
+      <td>22.956278</td>
+      <td>14.236330</td>
+      <td>1119.99031</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
 </div>
 <p>Additionally, the <span class="xref myst"><code class="docutils literal notranslate"><span class="pre">get_base_results()</span></code></span> function is designed to retrieve the similar sets of variables, but which have not been processed through the Pywr-DRB model. This function pulls from the <code class="docutils literal notranslate"><span class="pre">gage_flow_&lt;model&gt;.csv</span></code> generated by <code class="docutils literal notranslate"><span class="pre">prep_input_date.py</span></code>, and returns a DataFrame which matches the formatting of the data produced by <code class="docutils literal notranslate"><span class="pre">get_pywr_results</span></code>.</p>
 <p>When <code class="docutils literal notranslate"><span class="pre">get_base_results</span></code> is used with one of the modeled inflow datasets (NHM, NWM, or WEAP), these flows correspond to the modeled natural flows at these locations, unaffected by reservoirs.</p>
