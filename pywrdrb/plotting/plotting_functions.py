@@ -21,6 +21,8 @@ import datetime as dt
 
 sys.path.append('..')
 
+from pywr_drb_node_data import upstream_nodes_dict
+
 # Custom modules
 from data_processing.get_results import get_base_results, get_pywr_results
 
@@ -484,65 +486,38 @@ def plot_rrv_metrics(rrv_metrics, rrv_models, nodes, fig_dir = fig_dir,
 
 
 
-def plot_flow_contributions(reservoir_downstream_gages, major_flows,
+def plot_flow_contributions(reservoir_releases, major_flows,
                             model, node,
+                            start_date, end_date,
+                            upstream_nodes_dict = upstream_nodes_dict,
+                            reservoir_list = reservoir_list,
+                            majorflow_list = majorflow_list,
                             separate_pub_contributions = False,
                             percentage_flow = True,
                             plot_target = False, 
                             fig_dir = fig_dir,
-                            input_dir = input_dir):
+                            input_dir = input_dir,
+                            ):
 
     title = f'{fig_dir}/flow_contributions_{node}_{model}'
-
-    pub_reservoirs = ['wallenpaupack', 'shoholaMarsh', 'mongaupeCombined', 'merrillCreek', 'hopatcong', 'nockamixon',
-                    'assunpink', 'ontelaunee', 'stillCreek', 'greenLane']
-
     nyc_reservoirs = ['cannonsville', 'pepacton', 'neversink']
 
-    site_matches_link = [['delLordville', ['01427207'], ['cannonsville', 'pepacton']],
-                     ['delMontague', ['01438500'], ['cannonsville', 'pepacton', 'delLordville',
-                                                    'prompton', 'wallenpaupack', 'shoholaMarsh', 'mongaupeCombined', 'neversink']],
-                     ['delTrenton', ['01463500'], ['cannonsville', 'pepacton', 'delLordville',
-                                                    'prompton', 'wallenpaupack', 'shoholaMarsh', 'mongaupeCombined', 'neversink', 'delMontague',
-                                                   'beltzvilleCombined', 'fewalter', 'merrillCreek', 'hopatcong', 'nockamixon']],
-                     ['outletAssunpink', ['01463620'], ['assunpink']], ## note, should get downstream junction, just using reservoir-adjacent gage for now
-                     ['outletSchuylkill', ['01474500'], ['ontelaunee', 'stillCreek', 'blueMarsh', 'greenLane']],
-                     ['outletChristina', ['01480685'], ['marshCreek']] ## note, should use ['01481500, 01480015, 01479000, 01478000'], but dont have yet. so use marsh creek gage for now.
-                     ]
-
     # Get contributions
-    contributing = []
-    if node == 'delLordville':
-        contributing = site_matches_link[0][2].copy()
-        title_text = 'Contributing flows at Lordville'
-    elif node == 'delMontague':
-        contributing = site_matches_link[1][2].copy()
-        title_text = 'Contributing flows at Montague'
+    contributing = upstream_nodes_dict[node]
+    non_nyc_reservoirs = [i for i in contributing if (i in reservoir_list) and (i not in nyc_reservoirs)]
+    title_text = 'Contributing flows at Trenton' if (node == 'delTrenton') else 'Contributing flows at Montague'
+    if node == 'delMontague':
         target = 1750*cfs_to_mgd
     elif node == 'delTrenton':
-        contributing = site_matches_link[2][2].copy()
-        title_text = 'Contributing flows at Trenton'
         target = 3000*cfs_to_mgd
     else:
-        print('Invalid node specification.')
+        print('Invalid node specification. Options are "delMontague" and "delTrenton"')
 
-    # Pull just contributing data
-    use_releases = [i for i in contributing if i in reservoir_downstream_gages[model].columns]
-    use_flows = [i for i in contributing if (i not in use_releases) and (i in major_flows[model].columns)]
-    release_contributions = reservoir_downstream_gages[model][use_releases]
-    flow_contributions = major_flows[model][use_flows]
-    contributions = pd.concat([release_contributions, flow_contributions], axis=1)
-
-    if separate_pub_contributions:
-        pub_contributions = [res for res in pub_reservoirs if res in contributing]
-        gauged_other = [c for c in contributing if (c not in nyc_reservoirs) and (c not in pub_reservoirs)and (c not in major_flows[model].columns)]
-        upper_basin_main_inflows = [c for c in contributing if (c in major_flows[model].columns) and (c not in [node])]
-        title = f'{title}_with_pub'
-    else:
-        pub_contributions = []
-        gauged_other = [c for c in contributing if (c not in nyc_reservoirs) and (c not in major_flows[model].columns)]
-        upper_basin_main_inflows = [c for c in contributing if (c in major_flows[model].columns) and (c not in [node])]
-
+    ## Pull just contributing data
+    use_releases = [i for i in contributing if i in reservoir_list]
+    use_inflows = [i for i in contributing if (i in majorflow_list)]
+    release_contributions = reservoir_releases[model][use_releases]
+    
     # Account for mainstem inflows
     if model.split('_')[0] == 'pywr':
         if len(model.split('_'))==3:
@@ -551,71 +526,67 @@ def plot_flow_contributions(reservoir_downstream_gages, major_flows,
             m = f'{model.split("_")[1]}'
     else:
         m = model
+
+    # Load inflow data
     inflows = pd.read_csv(f'{input_dir}catchment_inflow_{m}.csv', sep = ',', index_col = 0)
     inflows.index = pd.to_datetime(inflows.index)
-    inflows = inflows.loc[inflows.index >= reservoir_downstream_gages[model].index[0]]
-    inflows = inflows.loc[inflows.index <= reservoir_downstream_gages[model].index[-1]]
+    inflows = inflows.loc[inflows.index >= reservoir_releases[model].index[0]]
+    inflows = inflows.loc[inflows.index <= reservoir_releases[model].index[-1]]
 
-    contributions[upper_basin_main_inflows] = inflows[upper_basin_main_inflows]
+    inflow_contributions = inflows[use_inflows]
+    contributions = pd.concat([release_contributions, inflow_contributions], axis=1)
     contributions[node] = inflows[node]
 
+    print(f'NonNYC Releases: {non_nyc_reservoirs}\n all releases: {use_releases} ')
+    print(f'Use inflows: {use_inflows}')
+    
+    total_node_flow = major_flows['obs'][node]
     if percentage_flow:
-        total_node_flow = major_flows['obs'][node]
-        contributions = contributions.divide(total_node_flow, axis =0)
+        contributions = contributions.divide(total_node_flow, axis =0) * 100
         contributions[contributions<0] = 0
-        ymax = 1.25
         title = f'{title}_percentage'
     else:
         title = f'{title}_absolute'
-        ymax = np.quantile(major_flows[model][node], 0.75)
 
-    nyc_color = 'steelblue'
-    pub_color = 'maroon'
-    other_reservoir_color = 'lightsteelblue'
-    upstream_inflow_color = 'darkcyan'
-    node_inflow_color = 'midnightblue'
+    # Modify date range
+    contributions = contributions.loc[start_date:end_date, :]
 
-    # Plotting
+    ## Plotting
+    nyc_color = 'midnightblue'
+    other_reservoir_color = 'darkcyan'
+    upstream_inflow_color = 'lightsteelblue'
+    obs_flow_color = 'red'
+
     fig = plt.figure(figsize=(16, 4), dpi =250)
     gs = fig.add_gridspec(2, 1, wspace=0.15, hspace=0.3)
     ax = fig.add_subplot(gs[0,0])
 
-    ts = contributions .index
+    ts = contributions.index
     fig,ax = plt.subplots(figsize = (16,4), dpi = 250)
 
-    if separate_pub_contributions:
-        # Partition contributions
-        A = contributions[node]
-        B = contributions[upper_basin_main_inflows].sum(axis=1) + A
-        C = contributions[gauged_other].sum(axis=1) + B
-        D = contributions[pub_contributions].sum(axis=1) + C
-        E = contributions[nyc_reservoirs].sum(axis=1) + D
+    A = contributions[node]
+    B = contributions[use_inflows].sum(axis=1) + A
+    C = contributions[non_nyc_reservoirs].sum(axis=1) + B
+    D = contributions[nyc_reservoirs].sum(axis=1) + C
 
-        ax.fill_between(ts, E, D, color = nyc_color, label = 'NYC reservoir contributions')
-        ax.fill_between(ts, D, C, color = pub_color, label = 'PUB reservoir contributions')
-        ax.fill_between(ts, C, B, color = other_reservoir_color, label = 'Other reservoir contributions')
-        ax.fill_between(ts, B, A, color = upstream_inflow_color, label = 'Direct inflow at upstream mainstem nodes')
-        ax.fill_between(ts, A, color = node_inflow_color, label = 'Direct node inflow')
-    else:
-        A = contributions[node]
-        B = contributions[upper_basin_main_inflows].sum(axis=1) + A
-        C = contributions[gauged_other].sum(axis=1) + contributions[pub_contributions].sum(axis=1) + B
-        E = contributions[nyc_reservoirs].sum(axis=1) + C
-
-        ax.fill_between(ts, E, C, color = nyc_color, label = 'NYC reservoir contributions')
-        ax.fill_between(ts, C, B, color = other_reservoir_color, label = 'Other reservoir contributions')
-        ax.fill_between(ts, B, A, color = upstream_inflow_color, label = 'Direct inflow at upstream mainstem nodes')
-        ax.fill_between(ts, A, color = node_inflow_color, label = 'Direct node inflow')
-
-
-    if plot_target and not percentage_flow:
-        ax.hlines(target, ts[0], ts[-1], linestyle = 'dashed', color = 'black', alpha = 0.5, label = 'Flow target')
+    # ax.fill_between(ts, A, color = node_inflow_color, label = 'Direct node inflow')
+    ax.fill_between(ts, B, color = upstream_inflow_color, label = 'Unmanaged Flows')
+    ax.fill_between(ts, C, B, color = other_reservoir_color, label = 'Non-NYC Reservoir Releases')
+    ax.fill_between(ts, D, C, color = nyc_color, label = 'NYC Reservoir Releases')
+    
     if percentage_flow:
         plt.ylabel('Percentage flow contributions (%)')
+        ax.hlines(100, ts[0], ts[-1], linestyle = 'dashed', color = 'black', alpha = 0.5, label = '100% Observed Flow')
+        plt.ylim([0,120])
     else:
+        ax.hlines(target, ts[0], ts[-1], linestyle = 'dashed', color = 'black', alpha = 0.5, label = f'Flow target {target} (MGD)')
+        ax.plot(ts, total_node_flow.loc[ts], color = obs_flow_color, label = 'Observed Flow')
+
         plt.ylabel('Flow contributions (MGD)')
+        plt.yscale('log')
+        plt.ylim([1000,10000])
+
     plt.title(title_text)
-    plt.ylim([0,ymax])
     plt.xlim([contributions.index[0], contributions.index[-1]])
     plt.xlabel('Date')
     plt.legend(loc='center left', bbox_to_anchor=(1.05, 0.8))

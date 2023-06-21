@@ -72,6 +72,9 @@ def get_pywr_results(output_dir, model, results_set='all', scenario=0):
             elif results_set == 'mrf_target':
                 if results_set in k:
                     results[k.split('mrf_target_')[1]] = f[k][:, scenario]
+            else:
+                print('Invalid results_set specified.')
+                return
         
         # Format datetime index
         day = [f['time'][i][0] for i in range(len(f['time']))]

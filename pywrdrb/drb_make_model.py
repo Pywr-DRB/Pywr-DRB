@@ -13,6 +13,7 @@ model_file_name_base = model_data_dir + 'drb_model_full'
 model_sheets_start = model_data_dir + 'drb_model_'
 
 EPS = 1e-8
+nhm_inflow_scaling = True
 
 ##########################################################################################
 ### add_major_node()

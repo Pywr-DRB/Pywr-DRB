@@ -24,6 +24,9 @@ end_date = '2016/12/31'
 # Directories
 weap_dir = input_dir + 'WEAP_23Aug2022_gridmet/'
 
+nhm_inflow_scaling = False
+nhm_inflow_scaling_coefs = {'cannonsville': 1.188,
+                            'pepacton': 1.737}
 
 def read_modeled_estimates(filename, sep, date_label, site_label, streamflow_label, start_date, end_date):
     '''Reads input streamflows from modeled NHM/NWM estimates, preps for Pywr.
@@ -89,6 +92,10 @@ def match_gages(df, dataset_label, site_matches_id, upstream_nodes_dict):
                 inflow[node] = df[node]
             else:
                 inflow[node] = df[site].sum(axis=1)
+                
+        if (dataset_label == 'obs_pub') and (nhm_inflow_scaling) and (node in nhm_inflow_scaling_coefs.keys()):
+            print(f'Scaling {node} inflow using NHM ratio')
+            inflow[node] = inflow[node]*nhm_inflow_scaling_coefs[node]
             
                  
     ## Save full flows to csv 

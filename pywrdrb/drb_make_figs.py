@@ -18,7 +18,7 @@ from data_processing.get_results import get_base_results, get_pywr_results
 if __name__ == "__main__":
 
     ## System inputs
-    rerun_all = True
+    rerun_all = False
     use_WEAP = False
 
     ### User-specified date range, or default to minimum overlapping period across models
@@ -49,8 +49,9 @@ if __name__ == "__main__":
         reservoir_downstream_gages[f'pywr_{model}'] = get_pywr_results(output_dir, model, 'reservoir_downstream_gage').loc[start_date:end_date,:]
         major_flows[f'pywr_{model}'] = get_pywr_results(output_dir, model, 'major_flow').loc[start_date:end_date,:]
         storages[f'pywr_{model}'] = get_pywr_results(output_dir, model, 'res_storage')
-        reservoir_releases[f'pywr_{model}'] = get_pywr_results(output_dir, model, 'res_releases').loc[start_date:end_date,:]
+        reservoir_releases[f'pywr_{model}'] = get_pywr_results(output_dir, model, 'res_release').loc[start_date:end_date,:]
     pywr_models = [f'pywr_{m}' for m in pywr_models]
+
 
     # Load base (non-pywr) models
     if use_WEAP:
@@ -65,7 +66,7 @@ if __name__ == "__main__":
 
     # Verify that all datasets have same datetime index
     for r in reservoir_downstream_gages.values():
-        # print(f'len r: {len(r.index)} and dt: {len(datetime_index)}')
+        print(f'len r: {len(r.index)} and dt: {len(datetime_index)}')
         assert ((r.index == datetime_index).mean() == 1)
     for r in major_flows.values():
         # print(f'len r: {len(r.index)} and dt: {len(datetime_index)}')
@@ -212,19 +213,37 @@ if __name__ == "__main__":
     ## Plot flow contributions at Trenton
     if rerun_all:
         print('Plotting flow contributions at major nodes.')
-        
+
         node = 'delTrenton'
         models = ['pywr_obs_pub', 'pywr_nhmv10', 'pywr_nwmv21']
         for model in models:  
-            plot_flow_contributions(reservoir_downstream_gages, major_flows, model, node,
-                                    separate_pub_contributions = False,
-                                    percentage_flow = True,
-                                    plot_target = False)
-            plot_flow_contributions(reservoir_downstream_gages, major_flows, model, node,
-                                    separate_pub_contributions = False,
+            plot_flow_contributions(reservoir_releases, major_flows, model, node,
+                                    start_date= '2000-01-01',
+                                    end_date= '2004-01-01',
                                     percentage_flow = False,
                                     plot_target = True)
 
+        # Only plot percentage for obs-pub
+        plot_flow_contributions(reservoir_releases, major_flows, 'pywr_obs_pub', node,
+                                start_date= '2000-01-01',
+                                end_date= '2004-01-01',
+                                percentage_flow = True,
+                                plot_target = False)
+    node = 'delTrenton'
+    models = ['pywr_obs_pub', 'pywr_nhmv10', 'pywr_nwmv21', 'obs']
+    for model in models:      
+        plot_flow_contributions(reservoir_downstream_gages, major_flows, model, node,
+                                start_date= '2000-01-01',
+                                end_date= '2004-01-01',
+                                percentage_flow = False,
+                                plot_target = False)
+
+        
+        plot_flow_contributions(reservoir_downstream_gages, major_flows, model, node,
+                                start_date= '2000-01-01',
+                                end_date= '2004-01-01',
+                                percentage_flow = True,
+                                plot_target = False)
 
     ## Plot inflow comparison
     if rerun_all:
