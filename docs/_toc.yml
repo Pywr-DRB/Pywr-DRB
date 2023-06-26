@@ -42,7 +42,7 @@ parts:
     # =============== References =================
     - file: API_References/api_references.md
       sections:
-        - title: API
+        - title: Custom Parameters
           file: API_References/pywrdrb.custom_parameters.rst
     # =============== Supplemental  =================
     - file: Supplemental/supplemental.md

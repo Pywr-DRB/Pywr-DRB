@@ -14,8 +14,11 @@ execute:
 sphinx:
  extra_extensions:
  - 'sphinx.ext.autodoc'
+ - 'sphinx.ext.autosummary'
  - 'sphinx.ext.napoleon'
-
+  config:
+    autosummary_generate: True
+    
 # Define the name of the latex output file for PDF builds
 latex:
   latex_documents:
