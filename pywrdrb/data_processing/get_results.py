@@ -111,7 +111,7 @@ def get_base_results(input_dir, model, datetime_index, results_set='all'):
         for c in gage_flow.columns:
             if c not in majorflow_list:
                 gage_flow = gage_flow.drop(c, axis=1)
-    print(f'Index with notation {gage_flow.index[0]} and type {type(gage_flow.index)}')
+    # print(f'Index with notation {gage_flow.index[0]} and type {type(gage_flow.index)}')
     gage_flow = gage_flow.loc[datetime_index, :]
     return gage_flow
 

@@ -5,11 +5,11 @@ This file contains various lists relavent to the Pywr-DRB model.
 
 reservoir_list = ['cannonsville', 'pepacton', 'neversink', 'wallenpaupack', 'prompton', 'shoholaMarsh', \
                    'mongaupeCombined', 'beltzvilleCombined', 'fewalter', 'merrillCreek', 'hopatcong', 'nockamixon', \
-                   'assunpink', 'ontelaunee', 'stillCreek', 'blueMarsh', 'greenLane', 'marshCreek']
+                   'assunpink', 'ontelaunee', 'stillCreek', 'blueMarsh', 'greenLane']
 
 reservoir_list_nyc = reservoir_list[:3]
 
-majorflow_list = ['delLordville', 'delMontague', 'delDRCanal', 'delTrenton', 'outletAssunpink', 'outletSchuylkill', 'outletChristina',
+majorflow_list = ['delLordville', 'delMontague', 'delDRCanal', 'delTrenton', 'outletAssunpink', 'outletSchuylkill',
                   '01425000', '01417000', '01436000', '01433500', '01449800', '01447800', '01463620', '01470960']
 
 
@@ -26,7 +26,7 @@ reservoir_link_pairs = {'cannonsville': '01425000',
 starfit_reservoir_list = ['wallenpaupack', 'prompton', 'shoholaMarsh', 
                           'mongaupeCombined', 'beltzvilleCombined', 'fewalter', 
                           'merrillCreek', 'hopatcong', 'nockamixon', 
-                          'assunpink', 'ontelaunee', 'stillCreek', 'blueMarsh', 'greenLane', 'marshCreek']
+                          'assunpink', 'ontelaunee', 'stillCreek', 'blueMarsh', 'greenLane']
 
 
 

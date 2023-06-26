@@ -34,7 +34,6 @@ node_labels = {'cannonsville': 'Cannonsville',
                'stillCreek': 'Still Creek',
                'blueMarsh': 'Blue Marsh',
                'greenLane': 'Green Lane',
-               'marshCreek': 'Marsh Creek', 
                'delLordville': 'Unmanaged Flow Upstream of Lordville',
                'delMontague': 'Unmanaged Flow Upstream of Montague',
                'delTrenton': 'Unmanaged Flow Upstream of Trenton',
@@ -52,7 +51,6 @@ site_matches_link = [['delLordville', ['01427207'], ['cannonsville', 'pepacton',
                                                 'beltzvilleCombined', 'fewalter', 'merrillCreek', 'hopatcong', 'nockamixon', '01449800', '01447800']],
                     ['outletAssunpink', ['01463620'], ['assunpink', '01463620']], ## note, should get downstream junction, just using reservoir-adjacent gage for now
                     ['outletSchuylkill', ['01474500'], ['ontelaunee', 'stillCreek', 'blueMarsh', 'greenLane', '01470960']],
-                    ['outletChristina', ['01480685'], ['marshCreek']]
                     ]
 
 contributing_nodes = site_matches_link[2][2]

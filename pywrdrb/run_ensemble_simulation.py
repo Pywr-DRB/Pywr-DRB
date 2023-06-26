@@ -2,7 +2,7 @@
 This script is used to run a Pywr-DRB simulation with an ensemble of inflow timeseries.
 
 Usage:
-python3 drb_run_sim.py <inflow_type> <backup_inflow_type> 
+python3 drb_run_sim.py <inflow_type>
 
 """
 import sys

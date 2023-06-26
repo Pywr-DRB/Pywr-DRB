@@ -36,7 +36,7 @@ if __name__ == "__main__":
     # Load Pywr-DRB simulation models
     print(f'Retrieving simulation data from {start_date.strftime("%Y-%m-%d")} to {end_date.strftime("%Y-%m-%d")}.')
     if use_WEAP:
-        pywr_models = ['obs_pub', 'nhmv10', 'nwmv21', 'WEAP_23Aug2022_gridmet_nhmv10']
+        pywr_models = ['obs_pub', 'nhmv10', 'nwmv21', 'WEAP_24Apr2023_gridmet']
     else:
         pywr_models = ['obs_pub', 'nhmv10', 'nwmv21']
 
@@ -55,7 +55,7 @@ if __name__ == "__main__":
 
     # Load base (non-pywr) models
     if use_WEAP:
-        base_models = ['obs', 'obs_pub', 'nhmv10', 'nwmv21', 'WEAP_23Aug2022_gridmet']
+        base_models = ['obs', 'obs_pub', 'nhmv10', 'nwmv21', 'WEAP_24Apr2023_gridmet']
     else:
         base_models = ['obs', 'obs_pub', 'nhmv10', 'nwmv21']
 
@@ -66,7 +66,7 @@ if __name__ == "__main__":
 
     # Verify that all datasets have same datetime index
     for r in reservoir_downstream_gages.values():
-        print(f'len r: {len(r.index)} and dt: {len(datetime_index)}')
+        # print(f'len r: {len(r.index)} and dt: {len(datetime_index)}')
         assert ((r.index == datetime_index).mean() == 1)
     for r in major_flows.values():
         # print(f'len r: {len(r.index)} and dt: {len(datetime_index)}')
@@ -82,7 +82,7 @@ if __name__ == "__main__":
         plot_3part_flows(reservoir_downstream_gages, ['nhmv10', 'nwmv21'], 'pepacton')
         if use_WEAP:
             ### nhm vs weap (with nhm backup) - slides 60-62 in 10/24/2022 presentation
-            plot_3part_flows(reservoir_downstream_gages, ['nhmv10', 'WEAP_23Aug2022_gridmet'], 'pepacton')
+            plot_3part_flows(reservoir_downstream_gages, ['nhmv10', 'WEAP_24Apr2023_gridmet'], 'pepacton')
         ### nhm vs pywr-nhm - slides 60-62 in 10/24/2022 presentation
         plot_3part_flows(reservoir_downstream_gages, ['nhmv10', 'pywr_nhmv10'], 'pepacton')
         ## obs-pub only
@@ -104,7 +104,7 @@ if __name__ == "__main__":
         plot_weekly_flow_distributions(reservoir_downstream_gages, ['nhmv10', 'nwmv21'], 'pepacton')
         if use_WEAP:
             ### nhm vs weap (with nhm backup) - slides 68 in 10/24/2022 presentation
-            plot_weekly_flow_distributions(reservoir_downstream_gages, ['nhmv10', 'WEAP_23Aug2022_gridmet'], 'pepacton')
+            plot_weekly_flow_distributions(reservoir_downstream_gages, ['nhmv10', 'WEAP_24Apr2023_gridmet'], 'pepacton')
         ### nhm vs pywr-nhm - slides 68 in 10/24/2022 presentation
         plot_weekly_flow_distributions(reservoir_downstream_gages, ['nhmv10', 'pywr_nhmv10'], 'pepacton')
 
@@ -120,7 +120,7 @@ if __name__ == "__main__":
 
     nodes = ['cannonsville', 'pepacton', 'neversink', 'fewalter', 'beltzvilleCombined', 'blueMarsh']
     if use_WEAP:
-        radial_models = ['nhmv10', 'nwmv21', 'WEAP_23Aug2022_gridmet', 'pywr_nhmv10', 'pywr_nwmv21', 'pywr_WEAP_23Aug2022_gridmet_nhmv10']
+        radial_models = ['nhmv10', 'nwmv21', 'WEAP_24Apr2023_gridmet', 'pywr_nhmv10', 'pywr_nwmv21', 'pywr_WEAP_24Apr2023_gridmet_nhmv10']
     else:
         radial_models = ['nhmv10', 'nwmv21', 'obs_pub', 'pywr_nhmv10', 'pywr_nwmv21', 'pywr_obs_pub']
     radial_models = radial_models[::-1]
@@ -149,7 +149,7 @@ if __name__ == "__main__":
     ### now do figs for major flow locations
     if rerun_all:
         print('Plotting radial error metrics for major flows.')
-        nodes = ['delMontague', 'delTrenton', 'outletSchuylkill']  # , 'outletChristina', 'delLordville']
+        nodes = ['delMontague', 'delTrenton', 'outletSchuylkill']  #  'delLordville']
         major_flow_metrics = get_error_metrics(major_flows, radial_models, nodes)
         plot_radial_error_metrics(major_flow_metrics, radial_models, nodes, useNonPep = True, useweap = True, usepywr = True, usemajorflows=True)
 
@@ -167,9 +167,9 @@ if __name__ == "__main__":
         plot_3part_flows(major_flows, ['nwmv21', 'pywr_nwmv21'], 'delTrenton')
         plot_3part_flows(major_flows, ['nwmv21', 'pywr_nwmv21'], 'outletSchuylkill')
         if use_WEAP:
-            plot_3part_flows(major_flows, ['WEAP_23Aug2022_gridmet', 'pywr_WEAP_23Aug2022_gridmet_nhmv10'], 'delMontague')
-            plot_3part_flows(major_flows, ['WEAP_23Aug2022_gridmet', 'pywr_WEAP_23Aug2022_gridmet_nhmv10'], 'delTrenton')
-            plot_3part_flows(major_flows, ['WEAP_23Aug2022_gridmet', 'pywr_WEAP_23Aug2022_gridmet_nhmv10'], 'outletSchuylkill')
+            plot_3part_flows(major_flows, ['WEAP_24Apr2023_gridmet', 'pywr_WEAP_24Apr2023_gridmet'], 'delMontague')
+            plot_3part_flows(major_flows, ['WEAP_24Apr2023_gridmet', 'pywr_WEAP_24Apr2023_gridmet'], 'delTrenton')
+            plot_3part_flows(major_flows, ['WEAP_24Apr2023_gridmet', 'pywr_WEAP_24Apr2023_gridmet'], 'outletSchuylkill')
         plot_3part_flows(major_flows, ['obs_pub', 'pywr_obs_pub'], 'delMontague')
         plot_3part_flows(major_flows, ['obs_pub', 'pywr_obs_pub'], 'delTrenton')
         plot_3part_flows(major_flows, ['obs_pub', 'pywr_obs_pub'], 'outletSchuylkill')
@@ -189,9 +189,9 @@ if __name__ == "__main__":
         plot_weekly_flow_distributions(major_flows, ['nwmv21', 'pywr_nwmv21'], 'delTrenton')
         plot_weekly_flow_distributions(major_flows, ['nwmv21', 'pywr_nwmv21'], 'outletSchuylkill')
         if use_WEAP:
-            plot_weekly_flow_distributions(major_flows, ['WEAP_23Aug2022_gridmet', 'pywr_WEAP_23Aug2022_gridmet_nhmv10'], 'delMontague')
-            plot_weekly_flow_distributions(major_flows, ['WEAP_23Aug2022_gridmet', 'pywr_WEAP_23Aug2022_gridmet_nhmv10'], 'delTrenton')
-            plot_weekly_flow_distributions(major_flows, ['WEAP_23Aug2022_gridmet', 'pywr_WEAP_23Aug2022_gridmet_nhmv10'], 'outletSchuylkill')
+            plot_weekly_flow_distributions(major_flows, ['WEAP_24Apr2023_gridmet', 'pywr_WEAP_24Apr2023_gridmet'], 'delMontague')
+            plot_weekly_flow_distributions(major_flows, ['WEAP_24Apr2023_gridmet', 'pywr_WEAP_24Apr2023_gridmet'], 'delTrenton')
+            plot_weekly_flow_distributions(major_flows, ['WEAP_24Apr2023_gridmet', 'pywr_WEAP_24Apr2023_gridmet'], 'outletSchuylkill')
         plot_weekly_flow_distributions(major_flows, ['obs_pub', 'pywr_obs_pub'], 'delMontague')
         plot_weekly_flow_distributions(major_flows, ['obs_pub', 'pywr_obs_pub'], 'delTrenton')
         plot_weekly_flow_distributions(major_flows, ['obs_pub', 'pywr_obs_pub'], 'outletSchuylkill')
@@ -202,7 +202,7 @@ if __name__ == "__main__":
     if rerun_all:
         print('Plotting RRV metrics.')
         if use_WEAP:
-            rrv_models = ['obs', 'obs_pub', 'nhmv10', 'nwmv21', 'WEAP_23Aug2022_gridmet', 'pywr_obs_pub', 'pywr_nhmv10', 'pywr_nwmv21', 'pywr_WEAP_23Aug2022_gridmet_nhmv10']
+            rrv_models = ['obs', 'obs_pub', 'nhmv10', 'nwmv21', 'WEAP_24Apr2023_gridmet', 'pywr_obs_pub', 'pywr_nhmv10', 'pywr_nwmv21', 'pywr_WEAP_24Apr2023_gridmet']
         else:
             rrv_models = ['obs', 'obs_pub', 'nhmv10', 'nwmv21', 'pywr_obs_pub', 'pywr_nhmv10', 'pywr_nwmv21']
 

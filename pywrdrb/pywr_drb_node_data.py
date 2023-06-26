@@ -31,8 +31,7 @@ upstream_nodes_dict = {'01425000': ['cannonsville'],
                        '01463620': ['assunpink'],
                        'outletAssunpink': ['assunpink', '01463620'],
                        '01470960': ['blueMarsh'],
-                       'outletSchuylkill': ['ontelaunee', 'stillCreek', 'blueMarsh', 'greenLane', '01470960'],
-                       'outletChristina': ['marshCreek']
+                       'outletSchuylkill': ['ontelaunee', 'stillCreek', 'blueMarsh', 'greenLane', '01470960']
                        }
 
 immediate_downstream_nodes_dict = {'cannonsville': '01425000',
@@ -52,7 +51,6 @@ immediate_downstream_nodes_dict = {'cannonsville': '01425000',
                     'stillCreek': 'outletSchuylkill', 
                     'blueMarsh': '01470960',  
                     'greenLane': 'outletSchuylkill',
-                    'marshCreek': 'outletChristina',  
                     '01425000': 'delLordville',
                     '01417000': 'delLordville',
                     'delLordville': 'delMontague', # PUB until 2006 then '01427207'
@@ -66,8 +64,7 @@ immediate_downstream_nodes_dict = {'cannonsville': '01425000',
                     '01463620': 'outletAssunpink', 
                     'outletAssunpink': 'output_del',
                     '01470960': 'outletSchuylkill', 
-                    'outletSchuylkill': 'output_del',
-                    'outletChristina': 'output_del',
+                    'outletSchuylkill': 'output_del'
                     }
 
 obs_pub_site_matches = {'cannonsville': ['01423000', '0142400103'], # 0142400103 doesnt start until '96 ##TODO: PUB until 96
@@ -87,7 +84,6 @@ obs_pub_site_matches = {'cannonsville': ['01423000', '0142400103'], # 0142400103
                     'stillCreek': None, 
                     'blueMarsh': None,  
                     'greenLane': ['01472199', '01472198'],   # PUB until 1981
-                    'marshCreek': None,  
                     '01425000': None,
                     '01417000': None,
                     'delLordville': ['01427207'], # PUB until 2006 then '01427207'
@@ -101,8 +97,7 @@ obs_pub_site_matches = {'cannonsville': ['01423000', '0142400103'], # 0142400103
                     '01463620': None, 
                     'outletAssunpink': ['01464000'],
                     '01470960': None, 
-                    'outletSchuylkill': ['01474500'],
-                    'outletChristina': ['01481500', '01478650'],
+                    'outletSchuylkill': ['01474500']
                     }
 
 obs_site_matches = {'cannonsville': ['01423000'], 
@@ -122,7 +117,6 @@ obs_site_matches = {'cannonsville': ['01423000'],
                     'stillCreek': [],  ## PUB
                     'blueMarsh': [],  ## PUB
                     'greenLane': ['01472199', '01472198'],  
-                    'marshCreek':[], ## PUB
                     '01425000': ['01425000'],
                     '01417000': ['01417000'],
                     'delLordville': ['01427207'],
@@ -136,8 +130,7 @@ obs_site_matches = {'cannonsville': ['01423000'],
                     '01463620': ['01463620'],        # This has periods of missing data
                     'outletAssunpink': ['01464000'],
                     '01470960': ['01470960'],
-                    'outletSchuylkill': ['01474500'],
-                    'outletChristina': ['01481500', '01478650'],
+                    'outletSchuylkill': ['01474500']
                     }
 
 
@@ -159,7 +152,6 @@ nhm_site_matches = {'cannonsville': ['1562'],
                     'stillCreek': ['2277'],  ## Note, this is downstream of reservoir and lakes
                     'blueMarsh': ['2335'],
                     'greenLane': ['2310'],
-                    'marshCreek': ['2009'],
                     '01425000': ['1566'],
                     '01417000': ['1444'],
                     'delLordville': ['1573'],
@@ -173,8 +165,7 @@ nhm_site_matches = {'cannonsville': ['1562'],
                     '01463620': ['1492'],
                     'outletAssunpink': ['1493'],
                     '01470960': ['2333'],
-                    'outletSchuylkill': ['2338'],
-                    'outletChristina': ['2005'] # This can be improved but low priority
+                    'outletSchuylkill': ['2338']
                     }
 
 ## NWM data IDs are either COMIDs or USGS-IDs (USGS-IDs start with 0)
@@ -195,7 +186,6 @@ nwm_site_matches = {'cannonsville': ['2613174'],    # Lake inflow
                     'stillCreek': ['4778721'],      # Lake inflow
                     'blueMarsh': ['4782813'],       # Lake inflow
                     'greenLane': ['4780087'],       # Lake inflow 
-                    'marshCreek': ['4648728'],      # No NWM lake; using available segment flow
                     '01425000': ['01425000'],
                     '01417000': ['01417000'],
                     'delLordville': ['2617364'],
@@ -209,43 +199,44 @@ nwm_site_matches = {'cannonsville': ['2613174'],    # Lake inflow
                     '01463620': ['01463620'],
                     'outletAssunpink': ['2590137'],
                     '01470960': ['01470960'],
-                    'outletSchuylkill': ['4784841'],
-                    'outletChristina': ['4652144'],
+                    'outletSchuylkill': ['4784841']
                     }
 
 
-### NWM inflows corresponding to lake objects
-nwm_lake_site_matches = {'cannonsville': '2613174',
-                            '01425000': 'none',
-                            'pepacton': '1748473',
-                            '01417000': 'none',
-                            'delLordville': 'none',
-                            'neversink': '4146742',
-                            '01436000': 'none',
-                            'wallenpaupack': '2741600',
-                            'prompton': '2739068',
-                            'shoholaMarsh': '120052035',
-                            'mongaupeCombined': '4148582',
-                            '01433500': 'none',
-                            'delMontague': 'none',
-                            'beltzvilleCombined': '4186689',
-                            '01449800': 'none',
-                            'fewalter': '4185065',
-                            '01447800': 'none',
-                            'merrillCreek': 'none',
-                            'hopatcong': '2585287',
-                            'nockamixon': 'none',
-                            'delDRCanal': 'none',
-                            'delTrenton': 'none',
-                            'assunpink': '2589015',
-                            '01463620': 'none',
-                            'outletAssunpink': 'none',
-                            'ontelaunee': '4779981',
-                            'stillCreek': '4778721',
-                            'blueMarsh': '4782813',
-                            '01470960': 'none',
-                            'greenLane': '4780087',
-                            'outletSchuylkill': 'none',
-                            'marshCreek': 'none',
-                            'outletChristina': 'none'
-                            }
+
+
+
+### match for WEAP results file (24Apr2023, gridmet, NatFlows) corresponding to each node in Pywr-DRB.
+### results files should be f'{match}_GridMet_NatFlows.csv'. these results are in MM3/day.
+WEAP_24Apr2023_gridmet_NatFlows_matches = {'cannonsville': ['RES_DelAbvCannon'],
+                                            'pepacton': ['RES_DelAbvPepacton'],
+                                            'neversink': ['RES_AbvNeversink'],
+                                            'wallenpaupack': ['RES_Wallenpaupack'],
+                                            'prompton': ['RES_Prompton'],
+                                            'shoholaMarsh': ['RES_ShoholaMarsh'],
+                                            'mongaupeCombined': ['RES_RioMongaupe'],
+                                            'beltzvilleCombined': ['RES_Beltzville'],
+                                            'fewalter': ['RES_FEWalter'],
+                                            'merrillCreek': None,
+                                            'hopatcong': ['RES_Hopatcong'],
+                                            'nockamixon': ['RES_Nockamixon'],
+                                            'assunpink': ['RES_Assunpink'],
+                                            'ontelaunee': ['RES_Ontelaunee'],
+                                            'stillCreek': None,
+                                            'blueMarsh': ['RES_BlueMarsh_01470779'],
+                                            'greenLane': ['RES_GreenLane'],
+                                            '01425000': ['West Brnch Del BlwCannnon_01425000'],
+                                            '01417000': ['DelawareBlwPepactonRes_01417000'],
+                                            'delLordville': ['DelAtLordville_01427207'],
+                                            '01436000': ['NeversinkBlwRes_01436000'],
+                                            '01433500': ['Mongaup_014433500'],
+                                            'delMontague': ['Delaware River at Montague_01438500'],
+                                            '01449800': ['PohopocoBlwBeltzville_0149800'],
+                                            '01447800': ['Leigh_01447800'],
+                                            'delDRCanal': ['Delaware at Trenton_01463500'],
+                                            'delTrenton': ['Delaware at Trenton_01463500'],
+                                            '01463620': ['Assunpink_01463620'],  # This has periods of missing data
+                                            'outletAssunpink': ['Assunpink_01464000'],
+                                            '01470960': ['Tulpenhocken_01470960'],
+                                            'outletSchuylkill': ['Schuykill_01474500']
+                                            }

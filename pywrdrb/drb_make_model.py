@@ -19,9 +19,8 @@ nhm_inflow_scaling = True
 ### add_major_node()
 ##########################################################################################
 
-def add_major_node(model, name, node_type, inflow_type, backup_inflow_type=None, outflow_type=None, downstream_node=None,
-                   downstream_lag=0, capacity=None, initial_volume_frac=None, variable_cost=None, has_catchment=True,
-                   inflow_ensemble_indices = None):
+def add_major_node(model, name, node_type, inflow_type, outflow_type=None, downstream_node=None, downstream_lag=0,
+                   capacity=None, initial_volume_frac=None, variable_cost=None, has_catchment=True, inflow_ensemble_indices = None):
     '''
     Add a major node to the model. Major nodes types include reservoir & river.
     This function will add the major node and all standard minor nodes that belong to each major node
@@ -31,7 +30,6 @@ def add_major_node(model, name, node_type, inflow_type, backup_inflow_type=None,
     :param name: name of major node
     :param node_type: type of major node - either 'reservoir' or 'river'
     :param inflow_type: 'nhmv10', etc
-    :param backup_inflow_type: 'nhmv10', etc. only active if inflow_type is a WEAP series - backup used to fill inflows for non-WEAP reservoirs.
     :param outflow_type: define what type of outflow node to use (if any) - either 'starfit' or 'regulatory'
     :param downstream_node: name of node directly downstream, for writing edge network.
     :param downstream_lag: travel time (in days) between flow leaving a node and reaching its downstream node
@@ -193,14 +191,7 @@ def add_major_node(model, name, node_type, inflow_type, backup_inflow_type=None,
                 }
             
         else:
-            if 'WEAP' not in inflow_type:
-                inflow_source = f'{input_dir}catchment_inflow_{inflow_type}.csv'
-            else:
-                if name in ['cannonsville', 'pepacton', 'neversink', 'wallenpaupack', 'prompton',
-                            'mongaupeCombined', 'beltzvilleCombined', 'blueMarsh', 'ontelaunee', 'nockamixon', 'assunpink']:
-                    inflow_source = f'{input_dir}catchment_inflow_{inflow_type}.csv'
-                else:
-                    inflow_source = f'{input_dir}catchment_inflow_{backup_inflow_type}.csv'
+            inflow_source = f'{input_dir}catchment_inflow_{inflow_type}.csv'
 
             ### Use single-scenario historic data
             model['parameters'][f'flow_base_{name}'] = {
@@ -258,12 +249,11 @@ def add_major_node(model, name, node_type, inflow_type, backup_inflow_type=None,
 ### drb_make_model()
 ##########################################################################################
 
-def drb_make_model(inflow_type, backup_inflow_type, start_date, end_date, use_hist_NycNjDeliveries=True,
+def drb_make_model(inflow_type, start_date, end_date, use_hist_NycNjDeliveries=True,
                    inflow_ensemble_indices = None, model_filename_extension = ""):
     '''
     This function creates the JSON file used by Pywr to define the model. THis includes all nodes, edges, and parameters.
     :param inflow_type:
-    :param backup_inflow_type:
     :param start_date:
     :param end_date:
     :param use_hist_NycNjDeliveries:
@@ -342,9 +332,8 @@ def drb_make_model(inflow_type, backup_inflow_type, start_date, end_date, use_hi
         capacity = get_reservoir_capacity(node) if (node_type == 'reservoir') else None
         has_catchment = True if (node != 'delTrenton') else False
         
-        model = add_major_node(model, node, node_type, inflow_type, backup_inflow_type, outflow_type, downstream_node, 
-                               downstream_lag, capacity, initial_volume_frac, variable_cost, has_catchment, 
-                               inflow_ensemble_indices)
+        model = add_major_node(model, node, node_type, inflow_type, outflow_type, downstream_node,  downstream_lag,
+                              capacity, initial_volume_frac, variable_cost, has_catchment, inflow_ensemble_indices)
 
 
     #######################################################################

@@ -248,12 +248,12 @@ def plot_radial_error_metrics(results_metrics, radial_models, nodes, useNonPep =
 
     metrics = ['nse', 'kge', 'r', 'alpha', 'beta', 'kss', 'lognse', 'logkge']
 
-    edgedict = {'obs_pub':'w', 'nhmv10': 'w', 'nwmv21': 'w', 'nwmv21_withLakes': 'w', 'WEAP_23Aug2022_gridmet': 'w',
-                'pywr_obs_pub':'w', 'pywr_nhmv10': 'w', 'pywr_nwmv21': 'w', 'pywr_nwmv21_withLakes': 'w', 'pywr_WEAP_23Aug2022_gridmet_nhmv10': 'w'}
+    edgedict = {'obs_pub':'w', 'nhmv10': 'w', 'nwmv21': 'w', 'nwmv21_withLakes': 'w', 'WEAP_24Apr2023_gridmet': 'w',
+                'pywr_obs_pub':'w', 'pywr_nhmv10': 'w', 'pywr_nwmv21': 'w', 'pywr_nwmv21_withLakes': 'w', 'pywr_WEAP_24Apr2023_gridmet': 'w'}
     nodelabeldict = {'pepacton': 'Pep', 'cannonsville': 'Can', 'neversink': 'Nev', 'prompton': 'Pro', 'assunpink': 'AspRes',\
                     'beltzvilleCombined': 'Bel', 'blueMarsh': 'Blu', 'mongaupeCombined': 'Mgp', 'fewalter': 'FEW',\
                     'delLordville':'Lor', 'delMontague':'Mtg', 'delTrenton':'Tre', 'outletAssunpink':'Asp', \
-                     'outletSchuylkill':'Sch','outletChristina':'Chr'}
+                     'outletSchuylkill':'Sch'}
     titledict = {'nse': 'NSE', 'kge': 'KGE', 'r': 'Correlation', 'alpha': 'Relative STD', 'beta': 'Relative Bias',
                  'kss': 'K-S Statistic', 'lognse': 'LogNSE', 'logkge': 'LogKGE'}
 
@@ -516,6 +516,7 @@ def plot_flow_contributions(reservoir_releases, major_flows,
     ## Pull just contributing data
     use_releases = [i for i in contributing if i in reservoir_list]
     use_inflows = [i for i in contributing if (i in majorflow_list)]
+
     release_contributions = reservoir_releases[model][use_releases]
     
     # Account for mainstem inflows
@@ -537,8 +538,8 @@ def plot_flow_contributions(reservoir_releases, major_flows,
     contributions = pd.concat([release_contributions, inflow_contributions], axis=1)
     contributions[node] = inflows[node]
 
-    print(f'NonNYC Releases: {non_nyc_reservoirs}\n all releases: {use_releases} ')
-    print(f'Use inflows: {use_inflows}')
+    # print(f'NonNYC Releases: {non_nyc_reservoirs}\n all releases: {use_releases} ')
+    # print(f'Use inflows: {use_inflows}')
     
     total_node_flow = major_flows['obs'][node]
     if percentage_flow:
@@ -596,8 +597,7 @@ def plot_flow_contributions(reservoir_releases, major_flows,
 
 
 
-def compare_inflow_data(inflow_data, nodes,
-                        fig_dir = fig_dir):
+def compare_inflow_data(inflow_data, nodes, fig_dir = fig_dir):
     """Generates a boxplot comparison of inflows are specific nodes for different datasets.
 
     Args:
@@ -609,7 +609,7 @@ def compare_inflow_data(inflow_data, nodes,
     pub_df = inflow_data['obs_pub'].loc[:,nodes]
     nhm_df = inflow_data['nhmv10'].loc[:,nodes]
     nwm_df = inflow_data['nwmv21'].loc[:,nodes]
-    #weap_df = inflow_data['WEAP_23Aug2022_gridmet_nhmv10']  
+    #weap_df = inflow_data['WEAP_24Apr2023_gridmet']
     
     pub_df= pub_df.assign(Dataset='PUB')
     nhm_df=nhm_df.assign(Dataset='NHMv10')
