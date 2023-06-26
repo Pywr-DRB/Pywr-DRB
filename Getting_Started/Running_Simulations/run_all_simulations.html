@@ -175,7 +175,11 @@ const thebe_selector_output = ".output, .cell_output"
 <li class="toctree-l2"><a class="reference internal" href="../Interpret_Results/explore_model_outputs.html">Analyzing outputs</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../Supplemental/supplemental.html">Supplemental Material</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../API_References/api_references.html">API References</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../API_References/pywrdrb.custom_parameters.html">API</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../Supplemental/supplemental.html">Supplemental Material</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../Supplemental/node_list.html">Pywr-DRB Node List</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../Supplemental/pub.html">Streamflow Prediction in Ungauged Basins</a></li>
 </ul>
@@ -421,7 +425,7 @@ document.write(`
 <p>Once the model is constructed, the simulation is run and the simulation results will be stored in <code class="docutils literal notranslate"><span class="pre">Pywr-DRB/output_data/drb_output_&lt;inflow_type&gt;.hdf5</span></code>. See <a class="reference internal" href="../Interpret_Results/explore_model_outputs.html"><span class="doc std std-doc">Model Outputs</span></a> for a description of the data contained within the output.</p>
 </section>
 <section id="drb-make-figs-py">
-<h3><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">drb_make_figs.py</span></code></span><a class="headerlink" href="#drb-make-figs-py" title="Permalink to this heading">#</a></h3>
+<h3><a class="reference internal" href="../../API_References/api_references.html"><span class="doc std std-doc"><code class="docutils literal notranslate"><span class="pre">drb_make_figs.py</span></code></span></a><a class="headerlink" href="#drb-make-figs-py" title="Permalink to this heading">#</a></h3>
 <p>This script uses several plotting functions (stored in <code class="docutils literal notranslate"><span class="pre">Pywr-DRB/plotting</span></code>) to generate comparative figures for analysis. Executing this script after performing a simulation will result in figures being generated and stored in <code class="docutils literal notranslate"><span class="pre">Pywr-DRB/figs/</span></code>.</p>
 <p>Running this script:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>-W<span class="w"> </span>ignore<span class="w"> </span>drb_make_figs.py
