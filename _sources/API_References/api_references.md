@@ -1,3 +1,0 @@
-# API References
-```{tableofcontents}
-```

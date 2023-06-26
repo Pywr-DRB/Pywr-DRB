@@ -175,17 +175,7 @@ const thebe_selector_output = ".output, .cell_output"
 <li class="toctree-l2"><a class="reference internal" href="../Interpret_Results/explore_model_outputs.html">Analyzing outputs</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../API_References/api_references.html">API References</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../API_References/prep_input_data.html">prep_input_data.py</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../API_References/drb_make_model.html">drb_make_model.py</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../API_References/drb_run_sim.html">drb_run_sim.py</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../API_References/drb_make_figs.html">drb_make_figs.py</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../API_References/drb_run_all.html">drb_run_all.sh</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../API_References/custom_pywr.html">custom_pywr.py</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../API_References/plotting_functions.html">Plotting Functions</a></li>
-</ul>
-</li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../Supplemental/supplemental.html">Supplemental Material</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../Supplemental/supplemental.html">Supplemental Material</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../Supplemental/node_list.html">Pywr-DRB Node List</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../Supplemental/pub.html">Streamflow Prediction in Ungauged Basins</a></li>
 </ul>
@@ -244,7 +234,7 @@ const thebe_selector_output = ".output, .cell_output"
       
       
       
-      <li><a href="https://github.com/ahamilton144/DRB_water_management" target="_blank"
+      <li><a href="https://github.com/Pywr-DRB/Pywr-DRB" target="_blank"
    class="btn btn-sm btn-source-repository-button dropdown-item"
    title="Source repository"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -261,7 +251,7 @@ const thebe_selector_output = ".output, .cell_output"
       
       
       
-      <li><a href="https://github.com/ahamilton144/DRB_water_management/issues/new?title=Issue%20on%20page%20%2FGetting_Started/Running_Simulations/run_all_simulations.html&body=Your%20issue%20content%20here." target="_blank"
+      <li><a href="https://github.com/Pywr-DRB/Pywr-DRB/issues/new?title=Issue%20on%20page%20%2FGetting_Started/Running_Simulations/run_all_simulations.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -411,7 +401,7 @@ document.write(`
 <li><p><code class="docutils literal notranslate"><span class="pre">drb_make_figs.py</span></code></p></li>
 </ul>
 <section id="prep-input-data-py">
-<h3><a class="reference internal" href="../../API_References/prep_input_data.html"><span class="doc std std-doc"><code class="docutils literal notranslate"><span class="pre">prep_input_data.py</span></code></span></a><a class="headerlink" href="#prep-input-data-py" title="Permalink to this heading">#</a></h3>
+<h3><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">prep_input_data.py</span></code></span><a class="headerlink" href="#prep-input-data-py" title="Permalink to this heading">#</a></h3>
 <p>This module prepares input-streamflow data files from different potential sources, and saves data in Pywr-ready formats. Sources include observed streamflows, modeled flows from a reconstructed historic period using <span class="xref myst">prediction in ungauged basins,</span> NHMv1.0, NWMv2.1, and WEAP (Aug 23, 2022, version) modeled streamflow data. For more information on different inflow datasets, see the <span class="xref myst">Data Summary page.</span></p>
 <p>Running this script:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>-W<span class="w"> </span>ignore<span class="w"> </span>prep_input_data.py
@@ -420,7 +410,7 @@ document.write(`
 <p>All of the processed data will be stored in <code class="docutils literal notranslate"><span class="pre">Pywr-DRB/input_data/</span></code>.</p>
 </section>
 <section id="drb-run-sim-py">
-<h3><a class="reference internal" href="../../API_References/drb_run_sim.html"><span class="doc std std-doc"><code class="docutils literal notranslate"><span class="pre">drb_run_sim.py</span></code></span></a><a class="headerlink" href="#drb-run-sim-py" title="Permalink to this heading">#</a></h3>
+<h3><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">drb_run_sim.py</span></code></span><a class="headerlink" href="#drb-run-sim-py" title="Permalink to this heading">#</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">drb_run_sim.py</span></code> script is used to run a simulation of the Pywr-DRB model using a specified streamflow input data type. After data has been prepared, the <span class="xref myst"><code class="docutils literal notranslate"><span class="pre">drb_make_model()</span></code></span> function constructs a JSON file defining the Pywr-DRB model (<code class="docutils literal notranslate"><span class="pre">Pywr-DRB/drb_model_full.json</span></code>).</p>
 <p>The model is run by calling the <code class="docutils literal notranslate"><span class="pre">drb_run_sim.py</span></code> file from the command line followed by an <code class="docutils literal notranslate"><span class="pre">inflow_type</span></code> argument.</p>
 <p>The inflow type options are <code class="docutils literal notranslate"><span class="pre">obs_pub</span></code>, <code class="docutils literal notranslate"><span class="pre">nhmv10</span></code>, <code class="docutils literal notranslate"><span class="pre">nwmv21</span></code>, <code class="docutils literal notranslate"><span class="pre">nwmv21_withLakes</span></code>, and <code class="docutils literal notranslate"><span class="pre">WEAP_23Aug2022_gridmet</span></code>. For descriptions of these different inflow data, see the <span class="xref myst">Data Summary</span> page.</p>
@@ -431,7 +421,7 @@ document.write(`
 <p>Once the model is constructed, the simulation is run and the simulation results will be stored in <code class="docutils literal notranslate"><span class="pre">Pywr-DRB/output_data/drb_output_&lt;inflow_type&gt;.hdf5</span></code>. See <a class="reference internal" href="../Interpret_Results/explore_model_outputs.html"><span class="doc std std-doc">Model Outputs</span></a> for a description of the data contained within the output.</p>
 </section>
 <section id="drb-make-figs-py">
-<h3><a class="reference internal" href="../../API_References/api_references.html"><span class="doc std std-doc"><code class="docutils literal notranslate"><span class="pre">drb_make_figs.py</span></code></span></a><a class="headerlink" href="#drb-make-figs-py" title="Permalink to this heading">#</a></h3>
+<h3><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">drb_make_figs.py</span></code></span><a class="headerlink" href="#drb-make-figs-py" title="Permalink to this heading">#</a></h3>
 <p>This script uses several plotting functions (stored in <code class="docutils literal notranslate"><span class="pre">Pywr-DRB/plotting</span></code>) to generate comparative figures for analysis. Executing this script after performing a simulation will result in figures being generated and stored in <code class="docutils literal notranslate"><span class="pre">Pywr-DRB/figs/</span></code>.</p>
 <p>Running this script:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>-W<span class="w"> </span>ignore<span class="w"> </span>drb_make_figs.py

@@ -64,7 +64,7 @@ const thebe_selector_output = ".output, .cell_output"
     <script>DOCUMENTATION_OPTIONS.pagename = 'Getting_Started/Interpret_Results/explore_model_outputs';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="API References" href="../../API_References/api_references.html" />
+    <link rel="next" title="Supplemental Material" href="../../Supplemental/supplemental.html" />
     <link rel="prev" title="Running Pywr-DRB Simulations" href="../Running_Simulations/run_all_simulations.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -175,17 +175,7 @@ const thebe_selector_output = ".output, .cell_output"
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Analyzing outputs</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../API_References/api_references.html">API References</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../API_References/prep_input_data.html">prep_input_data.py</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../API_References/drb_make_model.html">drb_make_model.py</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../API_References/drb_run_sim.html">drb_run_sim.py</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../API_References/drb_make_figs.html">drb_make_figs.py</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../API_References/drb_run_all.html">drb_run_all.sh</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../API_References/custom_pywr.html">custom_pywr.py</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../API_References/plotting_functions.html">Plotting Functions</a></li>
-</ul>
-</li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../Supplemental/supplemental.html">Supplemental Material</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../Supplemental/supplemental.html">Supplemental Material</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../Supplemental/node_list.html">Pywr-DRB Node List</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../Supplemental/pub.html">Streamflow Prediction in Ungauged Basins</a></li>
 </ul>
@@ -244,7 +234,7 @@ const thebe_selector_output = ".output, .cell_output"
       
       
       
-      <li><a href="https://github.com/ahamilton144/DRB_water_management" target="_blank"
+      <li><a href="https://github.com/Pywr-DRB/Pywr-DRB" target="_blank"
    class="btn btn-sm btn-source-repository-button dropdown-item"
    title="Source repository"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -261,7 +251,7 @@ const thebe_selector_output = ".output, .cell_output"
       
       
       
-      <li><a href="https://github.com/ahamilton144/DRB_water_management/issues/new?title=Issue%20on%20page%20%2FGetting_Started/Interpret_Results/explore_model_outputs.html&body=Your%20issue%20content%20here." target="_blank"
+      <li><a href="https://github.com/Pywr-DRB/Pywr-DRB/issues/new?title=Issue%20on%20page%20%2FGetting_Started/Interpret_Results/explore_model_outputs.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -390,7 +380,7 @@ document.write(`
 <p>After <a class="reference internal" href="../Running_Simulations/run_all_simulations.html"><span class="doc std std-doc">running a Pywr-DRB simulation</span></a> the simulation data will be stored in <code class="docutils literal notranslate"><span class="pre">Pywr-DRB/output_data/drb_output_&lt;inflow_type&gt;.hdf5</span></code> where <code class="docutils literal notranslate"><span class="pre">inflow_type</span></code> corresponds to one of the naming conventions listed in <span class="xref myst">Data Summary</span>.</p>
 <p>This file contains daily simulated values for every node in the model.</p>
 <p>The majority of the variables stored in the <code class="docutils literal notranslate"><span class="pre">hdf5</span></code> file will not be of interest when assessing the system; we want to focus on the data at the 32 major nodes in model.</p>
-<p>The function <a class="reference internal" href="../../API_References/drb_make_figs.html"><span class="doc std std-doc"><code class="docutils literal notranslate"><span class="pre">get_pywr_results()</span></code></span></a> is designed to extract variables of interest from the <code class="docutils literal notranslate"><span class="pre">hdf5</span></code> file and returns a pandas DataFrame.</p>
+<p>The function <span class="xref myst"><code class="docutils literal notranslate"><span class="pre">get_pywr_results()</span></code></span> is designed to extract variables of interest from the <code class="docutils literal notranslate"><span class="pre">hdf5</span></code> file and returns a pandas DataFrame.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">get_pywr_results()</span></code> function takes three inputs:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">output_dir</span></code> (str): The relative path to the output data folder.</p></li>
@@ -689,11 +679,11 @@ document.write(`
       </div>
     </a>
     <a class="right-next"
-       href="../../API_References/api_references.html"
+       href="../../Supplemental/supplemental.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">API References</p>
+        <p class="prev-next-title">Supplemental Material</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

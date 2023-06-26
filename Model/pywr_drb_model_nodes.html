@@ -175,17 +175,7 @@ const thebe_selector_output = ".output, .cell_output"
 <li class="toctree-l2"><a class="reference internal" href="../Getting_Started/Interpret_Results/explore_model_outputs.html">Analyzing outputs</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../API_References/api_references.html">API References</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../API_References/prep_input_data.html">prep_input_data.py</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../API_References/drb_make_model.html">drb_make_model.py</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../API_References/drb_run_sim.html">drb_run_sim.py</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../API_References/drb_make_figs.html">drb_make_figs.py</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../API_References/drb_run_all.html">drb_run_all.sh</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../API_References/custom_pywr.html">custom_pywr.py</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../API_References/plotting_functions.html">Plotting Functions</a></li>
-</ul>
-</li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../Supplemental/supplemental.html">Supplemental Material</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../Supplemental/supplemental.html">Supplemental Material</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../Supplemental/node_list.html">Pywr-DRB Node List</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../Supplemental/pub.html">Streamflow Prediction in Ungauged Basins</a></li>
 </ul>
@@ -244,7 +234,7 @@ const thebe_selector_output = ".output, .cell_output"
       
       
       
-      <li><a href="https://github.com/ahamilton144/DRB_water_management" target="_blank"
+      <li><a href="https://github.com/Pywr-DRB/Pywr-DRB" target="_blank"
    class="btn btn-sm btn-source-repository-button dropdown-item"
    title="Source repository"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -261,7 +251,7 @@ const thebe_selector_output = ".output, .cell_output"
       
       
       
-      <li><a href="https://github.com/ahamilton144/DRB_water_management/issues/new?title=Issue%20on%20page%20%2FModel/pywr_drb_model_nodes.html&body=Your%20issue%20content%20here." target="_blank"
+      <li><a href="https://github.com/Pywr-DRB/Pywr-DRB/issues/new?title=Issue%20on%20page%20%2FModel/pywr_drb_model_nodes.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -405,7 +395,7 @@ document.write(`
 <p>More information about the default Pywr node classes can be found <a class="reference external" href="https://pywr.github.io/pywr/api/pywr.nodes.html#nodes-classes">in the Pywr documentation.</a></p>
 <section id="major-nodes">
 <h2>Major nodes<a class="headerlink" href="#major-nodes" title="Permalink to this heading">#</a></h2>
-<p>Each major node in the Pywr-DRB model is created using the <a class="reference internal" href="../API_References/drb_make_model.html"><span class="doc std std-doc"><code class="docutils literal notranslate"><span class="pre">add_major_node()</span></code></span></a> function. This function adds the major node to the model (stored in <code class="docutils literal notranslate"><span class="pre">./model_data/drb_model_full.json</span></code>) and also constructs five corresponding <em>minor</em> nodes connected to the major node representing: withdrawals, consumption, outflow, and a link which connects to the downstream node. These minor nodes are described in <a class="reference internal" href="#reservoir-node-table"><span class="std std-numref">Table 1</span></a></p>
+<p>Each major node in the Pywr-DRB model is created using the <span class="xref myst"><code class="docutils literal notranslate"><span class="pre">add_major_node()</span></code></span> function. This function adds the major node to the model (stored in <code class="docutils literal notranslate"><span class="pre">./model_data/drb_model_full.json</span></code>) and also constructs five corresponding <em>minor</em> nodes connected to the major node representing: withdrawals, consumption, outflow, and a link which connects to the downstream node. These minor nodes are described in <a class="reference internal" href="#reservoir-node-table"><span class="std std-numref">Table 1</span></a></p>
 <p>Major nodes in the Pywr-DRB model are classified as either <code class="docutils literal notranslate"><span class="pre">&quot;reservoir&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;river&quot;</span></code> types.</p>
 <p>Reservoir nodes are defined as <code class="docutils literal notranslate"><span class="pre">&quot;storage&quot;</span></code> node classes in <code class="docutils literal notranslate"><span class="pre">pywr</span></code> and contain information about the volume of storage in the reservoir at each timestep along with the reservoir release policy. River nodes are defined as <code class="docutils literal notranslate"><span class="pre">&quot;link&quot;</span></code> classes in <code class="docutils literal notranslate"><span class="pre">pywr</span></code> and record simulated streamflow timeseries at that location.</p>
 <table class="table" id="reservoir-node-table">
