@@ -42,6 +42,7 @@ parts:
     # =============== References =================
     - file: API_References/api_references.md
       sections:
+        - title: API
           file: API_References/pywrdrb.custom_parameters.rst
     # =============== Supplemental  =================
     - file: Supplemental/supplemental.md
@@ -52,5 +53,4 @@ parts:
         file: Supplemental/node_list.md
       - title: Streamflow Prediction in Ungauged Basins
         file: Supplemental/pub.md
-        #      - title: Synthetic Streamflow Generation
-        #file: Supplemental/synthetic_generation.md
+
