@@ -11,9 +11,10 @@ execute:
   execute_notebooks: force
 
 # Enable autogeneration of API docs
-#sphinx:
-#  extra_extensions:
-#  - 'sphinx.ext.autodoc'
+sphinx:
+ extra_extensions:
+ - 'sphinx.ext.autodoc'
+ - 'sphinx.ext.napoleon'
 
 # Define the name of the latex output file for PDF builds
 latex:
@@ -26,7 +27,7 @@ bibtex_bibfiles:
 
 # Information about where the book exists on the web
 repository:
-  url: https://github.com/ahamilton144/DRB_water_management  # Online location of your book
+  url: https://github.com/Pywr-DRB/Pywr-DRB  # Online location of your book
   path_to_book: docs  # Optional path to your book, relative to the repository root
 
 # Add GitHub buttons to your book

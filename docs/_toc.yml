@@ -42,20 +42,7 @@ parts:
     # =============== References =================
     - file: API_References/api_references.md
       sections:
-        - title: prep_input_data.py
-          file: API_References/prep_input_data.md
-        - title: drb_make_model.py
-          file: API_References/drb_make_model.md
-        - title: drb_run_sim.py
-          file: API_References/drb_run_sim.md
-        - title: drb_make_figs.py
-          file: API_References/drb_make_figs.md
-        - title: drb_run_all.sh
-          file: API_References/drb_run_all.md
-        - title: custom_pywr.py
-          file: API_References/custom_pywr.md
-        - title: Plotting Functions
-          file: API_References/plotting_functions.md
+          file: API_References/pywrdrb.custom_parameters.rst
     # =============== Supplemental  =================
     - file: Supplemental/supplemental.md
       sections:

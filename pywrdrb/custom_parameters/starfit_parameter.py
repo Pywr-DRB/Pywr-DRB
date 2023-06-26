@@ -1,6 +1,4 @@
 """
-This file contains different class objects which are used to construct custom Pywr parameters.
-
 The parameters created here are used to implement the STARFIT-inferred reservoir operations 
 policy at non-NYC reservoirs.
 """
@@ -9,7 +7,6 @@ import pandas as pd
 import math
 
 from pywr.parameters import Parameter, load_parameter
-from pywr.parameters import AnnualHarmonicSeriesParameter
 
 from utils.directories import model_data_dir
 
@@ -17,6 +14,15 @@ from utils.directories import model_data_dir
 starfit_params = pd.read_csv(f'{model_data_dir}drb_model_istarf_conus.csv', sep = ',', index_col=0)
 
 def get_reservoir_capacity(reservoir):
+    """
+    Get the capacity of a reservoir.
+
+    Args:
+        reservoir (str): The name of the reservoir.
+
+    Returns:
+        float: The capacity of the reservoir.
+    """
     return float(starfit_params['Adjusted_CAP_MG'].loc[starfit_params['reservoir'] == reservoir].iloc[0])
 
 
@@ -25,6 +31,14 @@ class STARFITReservoirRelease(Parameter):
     Custom Pywr parameter class to implement STARFIT reservoir policy.
     '''
     def __init__(self, model, storage_node, flow_parameter, **kwargs):
+        """
+        Initialize the STARFITReservoirRelease parameter.
+
+        Args:
+            model (dict): The PywrDRB model.
+            storage_node (str): The storage node associated with the reservoir.
+            flow_parameter: The PywrDRB catchment inflow parameter corresponding to the reservoir.
+        """
         super().__init__(model, **kwargs)
 
         self.node = storage_node
@@ -74,18 +88,47 @@ class STARFITReservoirRelease(Parameter):
         self.R_min = (starfit_params.loc[self.name, 'Release_min'] +1)* self.I_bar
 
     def setup(self):
-        ### allocate an array to hold the parameter state
+        """
+        Set up the parameter.
+        """
         super().setup()
         self.N_SCENARIOS = len(self.model.scenarios.combinations)
         self.releases = np.empty([self.N_SCENARIOS], np.float64)
         
     def standardize_inflow(self, inflow):
+        """
+        Standardize the current reservoir inflow based on historic average.
+
+        Args:
+            inflow (float): The inflow value (MGD).
+
+        Returns:
+            float: The standardized inflow value.
+        """
         return (inflow - self.I_bar) / self.I_bar        
     
     def calculate_percent_storage(self, storage):
+        """
+        Calculate the reservoir's current percentage of storage capacity.
+
+        Args:
+            storage (float): The storage value (MG).
+
+        Returns:
+            float: The percentage of storage capacity.
+        """
         return (storage / self.S_cap)
     
     def get_NORhi(self, timestep):
+        """
+        Get the upper-bound normalized reservoir storage of the Normal Operating Range (NORlo) for a given timestep.
+
+        Args:
+            timestep: The timestep.
+
+        Returns:
+            float: The NORhi value.
+        """
         c = math.pi*(timestep.dayofyear + self.WATER_YEAR_OFFSET)/365  
         NORhi = (self.NORhi_mu + self.NORhi_alpha * math.sin(2*c) +
                  self.NORhi_beta * math.cos(2*c))
@@ -97,6 +140,15 @@ class STARFITReservoirRelease(Parameter):
             return self.NORhi_min/100
         
     def get_NORlo(self, timestep):
+        """
+        Get the lower-bound normalized reservoir storage of the Normal Operating Range (NORlo) for a given timestep.
+
+        Args:
+            timestep: The timestep.
+
+        Returns:
+            float: The NORlo value.
+        """
         c = math.pi*(timestep.dayofyear + self.WATER_YEAR_OFFSET)/365
         NORlo = (self.NORlo_mu + self.NORlo_alpha * math.sin(2*c) +
                  self.NORlo_beta * math.cos(2*c))
@@ -108,6 +160,15 @@ class STARFITReservoirRelease(Parameter):
             return self.NORlo_min/100 
         
     def get_harmonic_release(self, timestep):
+        """
+        Get the harmonic release for a given timestep.
+
+        Args:
+            timestep: The timestep.
+
+        Returns:
+            float: The seasonal harmonic reservoir release (MGD).
+        """
         c = math.pi*(timestep.dayofyear + self.WATER_YEAR_OFFSET)/365
         R_avg_t = self.Release_alpha1*math.sin(2*c) + self.Release_alpha2*math.sin(4*c) + self.Release_beta1*math.cos(2*c) + self.Release_beta2*math.cos(4*c)
         return R_avg_t
@@ -115,6 +176,18 @@ class STARFITReservoirRelease(Parameter):
 
     def calculate_release_adjustment(self, S_hat, I_hat,
                                      NORhi_t, NORlo_t):
+        """
+        Calculate the release adjustment.
+
+        Args:
+            S_hat (float): The standardized storage value.
+            I_hat (float): The standardized inflow value.
+            NORhi_t (float): The upper bound of normal operation range for the current timestep.
+            NORlo_t (float): The lower bound of normal operation range for the current timestep.
+
+        Returns:
+            float: The release adjustment value.
+        """
         # Calculate normalized value within NOR
         A_t = (S_hat - NORlo_t) / (NORhi_t)
         epsilon_t = self.Release_c + self.Release_p1 * A_t + self.Release_p2 * I_hat
@@ -123,6 +196,20 @@ class STARFITReservoirRelease(Parameter):
     
     def calculate_target_release(self, harmonic_release, epsilon,
                                  NORhi, NORlo, S_hat, I):
+        """
+        Calculate the target release under current inflow and storage.
+
+        Args:
+            harmonic_release (float): The harmonic release for the current day.
+            epsilon (float): The release adjustment value.
+            NORhi_t (float): The upper bound of normal operation range for the current timestep.
+            NORlo_t (float): The lower bound of normal operation range for the current timestep.
+            S_hat (float): The standardized storage value.
+            I (float): The inflow value.
+
+        Returns:
+            float: The target release value.
+        """
         if (S_hat <= NORhi) and (S_hat >= NORlo):
             target = min((self.I_bar * (harmonic_release + epsilon) + self.I_bar), self.R_max)
         elif (S_hat > NORhi):
@@ -136,6 +223,16 @@ class STARFITReservoirRelease(Parameter):
         
         
     def value(self, timestep, scenario_index):
+        """
+        Get the reservoir release for a given timestep and scenario index.
+
+        Args:
+            timestep: The timestep.
+            scenario_index: The scenario index.
+
+        Returns:
+            float: The STARFIT prescribed reservoir release (MGD).
+        """
         # Get current storage and inflow conditions
         I_t = self.inflow.get_value(scenario_index)
         S_t = self.node.volume[scenario_index.indices]
