@@ -26,6 +26,11 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    # Report CWD
+    - name: Print CWD
+      run: |
+        pwd
+        
     # Install python
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v1
