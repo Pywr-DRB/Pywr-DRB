@@ -29,12 +29,12 @@ jobs:
     # Report CWD
     - name: Print CWD
       run: |
-        pwd
-        echo $HOME/pywrdrb
-        echo $GITHUB_PATH
+        cat $GITHUB_PATH
+        pwd >> $GITHUB_PATH
+        cat $GITHUB_PATH
         echo $HOME >> $GITHUB_PATH
         echo $HOME/pywrdrb >> $GITHUB_PATH
-        echo $GITHUB_PATH
+        cat $GITHUB_PATH
 
 
 
