@@ -3,5 +3,5 @@ Custom Pywr Parameters
 
 Testing testing. 
 
-.. autoclass:: pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease
+.. autoclass:: custom_parameters.starfit_parameter.STARFITReservoirRelease
     :members:
