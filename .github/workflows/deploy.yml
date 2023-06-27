@@ -30,7 +30,9 @@ jobs:
     - name: Print CWD
       run: |
         pwd
-        
+        echo "$HOME/pywrdrb" >> $GITHUB_PATH
+
+
     # Install python
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v1
