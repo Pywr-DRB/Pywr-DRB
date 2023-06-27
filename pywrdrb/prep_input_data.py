@@ -12,7 +12,7 @@ import statsmodels.api as sm
 import datetime
 
 from pywr_drb_node_data import obs_site_matches, obs_pub_site_matches, nhm_site_matches, nwm_site_matches, \
-                               upstream_nodes_dict, WEAP_24Apr2023_gridmet_NatFlows_matches
+                               upstream_nodes_dict, WEAP_24Apr2023_gridmet_NatFlows_matches, downstream_node_lags
 from utils.constants import cfs_to_mgd, cms_to_mgd, cm_to_mg, mcm_to_mg
 from utils.directories import input_dir, weap_dir
 
@@ -67,6 +67,23 @@ def read_csv_data(filename, start_date, end_date, units = 'cms', source = 'USGS'
         df *= cms_to_mgd
     return df
 
+def subtract_upstream_catchment_inflows(inflows):
+    ''' Inflow timeseries are cumulative. So for each downstream node, subtract the flow into all upstream nodes so
+        this represents only direct catchment inflows into this node. Account for time lags between distant nodes. '''
+    for node, upstreams in upstream_nodes_dict.items():
+        for upstream in upstreams:
+            lag = downstream_node_lags[upstream]
+            if lag > 0:
+                inflows[node].iloc[lag:] -= inflows[upstream].iloc[:-lag].values
+                ### subtract same-day flow without lagging for first lag days, since we don't have data before 0 for lagging
+                inflows[node].iloc[:lag] -= inflows[upstream].iloc[:lag].values
+            else:
+                inflows[node] -= inflows[upstream]
+
+        ### if catchment inflow is negative after subtracting upstream, set to 0
+        inflows[node].loc[inflows[node] < 0] = 0
+    return inflows
+
 
 def match_gages(df, dataset_label, site_matches_id, upstream_nodes_dict):
     '''Matches USGS gage sites to nodes in Pywr-DRB.
@@ -80,38 +97,35 @@ def match_gages(df, dataset_label, site_matches_id, upstream_nodes_dict):
     for node, site in site_matches_id.items():
         if node == 'cannonsville':
             if (dataset_label == 'obs_pub') and (site == None):
-                inflow = pd.DataFrame(df.loc[:, node])
+                inflows = pd.DataFrame(df.loc[:, node])
             else:
-                inflow = pd.DataFrame(df.loc[:, site].sum(axis=1))
-            inflow.columns = [node]
-            inflow['datetime'] = inflow.index
-            inflow.index = inflow['datetime']
-            inflow = inflow.iloc[:, :-1]
+                inflows = pd.DataFrame(df.loc[:, site].sum(axis=1))
+            inflows.columns = [node]
+            inflows['datetime'] = inflows.index
+            inflows.index = inflows['datetime']
+            inflows = inflows.iloc[:, :-1]
         else:
             if (dataset_label == 'obs_pub') and (site == None):
-                inflow[node] = df[node]
+                inflows[node] = df[node]
             else:
-                inflow[node] = df[site].sum(axis=1)
+                inflows[node] = df[site].sum(axis=1)
                 
         if (dataset_label == 'obs_pub') and (nhm_inflow_scaling) and (node in nhm_inflow_scaling_coefs.keys()):
             print(f'Scaling {node} inflow using NHM ratio')
-            inflow[node] = inflow[node]*nhm_inflow_scaling_coefs[node]
-            
-                 
+            inflows[node] = inflows[node]*nhm_inflow_scaling_coefs[node]
+
     ## Save full flows to csv 
     # For downstream nodes, this represents the full flow for results comparison
-    inflow.to_csv(f'{input_dir}gage_flow_{dataset_label}.csv')
+    inflows.to_csv(f'{input_dir}gage_flow_{dataset_label}.csv')
 
-    ### 2. Subtract flows into upstream nodes from mainstem nodes
-    # This represents only the catchment inflows
-    for node, upstreams in upstream_nodes_dict.items():
-        inflow[node] -= inflow.loc[:, upstreams].sum(axis=1)
-        inflow[node].loc[inflow[node] < 0] = 0
+    ### 2. Inflow timeseries are cumulative. So for each downstream node, subtract the flow into all upstream nodes so
+    ###    this represents only direct catchment inflows into this node. Account for time lags between distant nodes.
+    inflows = subtract_upstream_catchment_inflows(inflows)
 
     ## Save catchment inflows to csv  
     # For downstream nodes, this represents the catchment inflow with upstream node inflows subtracted
-    inflow.to_csv(f'{input_dir}catchment_inflow_{dataset_label}.csv')
-    return inflow
+    inflows.to_csv(f'{input_dir}catchment_inflow_{dataset_label}.csv')
+    return inflows
 
 
 
@@ -186,10 +200,9 @@ if __name__ == "__main__":
         else:
             inflows[node] = df['flow']
 
-    ### Subtract flows into upstream nodes from downstream nodes, to represents only the direct catchment inflows to each node
-    for node, upstreams in upstream_nodes_dict.items():
-        inflows[node] -= inflows.loc[:, upstreams].sum(axis=1)
-        inflows[node].loc[inflows[node] < 0] = 0
+    ### Inflow timeseries are cumulative. So for each downstream node, subtract the flow into all upstream nodes so
+    ###    this represents only direct catchment inflows into this node. Account for time lags between distant nodes.
+    inflows = subtract_upstream_catchment_inflows(inflows)
 
     ### convert cubic meter to MG
     inflows *= cm_to_mg

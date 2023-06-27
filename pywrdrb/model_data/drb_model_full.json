@@ -746,6 +746,11 @@
             "max_flow": "max_flow_catchmentConsumption_01449800"
         },
         {
+            "name": "delay_01449800",
+            "type": "DelayNode",
+            "days": 2
+        },
+        {
             "name": "link_01447800",
             "type": "link"
         },
@@ -791,11 +796,6 @@
             "type": "output",
             "cost": -200.0,
             "max_flow": "max_flow_catchmentConsumption_delDRCanal"
-        },
-        {
-            "name": "delay_delDRCanal",
-            "type": "DelayNode",
-            "days": 1
         },
         {
             "name": "link_delTrenton",
@@ -1525,6 +1525,10 @@
         ],
         [
             "link_01449800",
+            "delay_01449800"
+        ],
+        [
+            "delay_01449800",
             "link_delDRCanal"
         ],
         [
@@ -1569,10 +1573,6 @@
         ],
         [
             "link_delDRCanal",
-            "delay_delDRCanal"
-        ],
-        [
-            "delay_delDRCanal",
             "link_delTrenton"
         ],
         [
@@ -1702,7 +1702,7 @@
         },
         "flow_base_cannonsville": {
             "type": "dataframe",
-            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nhmv10.csv",
             "column": "cannonsville",
             "index_col": "datetime",
             "parse_dates": true
@@ -1750,7 +1750,7 @@
         },
         "flow_base_pepacton": {
             "type": "dataframe",
-            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nhmv10.csv",
             "column": "pepacton",
             "index_col": "datetime",
             "parse_dates": true
@@ -1798,7 +1798,7 @@
         },
         "flow_base_neversink": {
             "type": "dataframe",
-            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nhmv10.csv",
             "column": "neversink",
             "index_col": "datetime",
             "parse_dates": true
@@ -1850,7 +1850,7 @@
         },
         "flow_base_wallenpaupack": {
             "type": "dataframe",
-            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nhmv10.csv",
             "column": "wallenpaupack",
             "index_col": "datetime",
             "parse_dates": true
@@ -1902,7 +1902,7 @@
         },
         "flow_base_prompton": {
             "type": "dataframe",
-            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nhmv10.csv",
             "column": "prompton",
             "index_col": "datetime",
             "parse_dates": true
@@ -1954,7 +1954,7 @@
         },
         "flow_base_shoholaMarsh": {
             "type": "dataframe",
-            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nhmv10.csv",
             "column": "shoholaMarsh",
             "index_col": "datetime",
             "parse_dates": true
@@ -2006,7 +2006,7 @@
         },
         "flow_base_mongaupeCombined": {
             "type": "dataframe",
-            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nhmv10.csv",
             "column": "mongaupeCombined",
             "index_col": "datetime",
             "parse_dates": true
@@ -2058,7 +2058,7 @@
         },
         "flow_base_beltzvilleCombined": {
             "type": "dataframe",
-            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nhmv10.csv",
             "column": "beltzvilleCombined",
             "index_col": "datetime",
             "parse_dates": true
@@ -2110,7 +2110,7 @@
         },
         "flow_base_fewalter": {
             "type": "dataframe",
-            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nhmv10.csv",
             "column": "fewalter",
             "index_col": "datetime",
             "parse_dates": true
@@ -2162,7 +2162,7 @@
         },
         "flow_base_merrillCreek": {
             "type": "dataframe",
-            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nhmv10.csv",
             "column": "merrillCreek",
             "index_col": "datetime",
             "parse_dates": true
@@ -2214,7 +2214,7 @@
         },
         "flow_base_hopatcong": {
             "type": "dataframe",
-            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nhmv10.csv",
             "column": "hopatcong",
             "index_col": "datetime",
             "parse_dates": true
@@ -2266,7 +2266,7 @@
         },
         "flow_base_nockamixon": {
             "type": "dataframe",
-            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nhmv10.csv",
             "column": "nockamixon",
             "index_col": "datetime",
             "parse_dates": true
@@ -2318,7 +2318,7 @@
         },
         "flow_base_assunpink": {
             "type": "dataframe",
-            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nhmv10.csv",
             "column": "assunpink",
             "index_col": "datetime",
             "parse_dates": true
@@ -2370,7 +2370,7 @@
         },
         "flow_base_ontelaunee": {
             "type": "dataframe",
-            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nhmv10.csv",
             "column": "ontelaunee",
             "index_col": "datetime",
             "parse_dates": true
@@ -2422,7 +2422,7 @@
         },
         "flow_base_stillCreek": {
             "type": "dataframe",
-            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nhmv10.csv",
             "column": "stillCreek",
             "index_col": "datetime",
             "parse_dates": true
@@ -2474,7 +2474,7 @@
         },
         "flow_base_blueMarsh": {
             "type": "dataframe",
-            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nhmv10.csv",
             "column": "blueMarsh",
             "index_col": "datetime",
             "parse_dates": true
@@ -2526,7 +2526,7 @@
         },
         "flow_base_greenLane": {
             "type": "dataframe",
-            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nhmv10.csv",
             "column": "greenLane",
             "index_col": "datetime",
             "parse_dates": true
@@ -2567,7 +2567,7 @@
         },
         "flow_base_01425000": {
             "type": "dataframe",
-            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nhmv10.csv",
             "column": "01425000",
             "index_col": "datetime",
             "parse_dates": true
@@ -2608,7 +2608,7 @@
         },
         "flow_base_01417000": {
             "type": "dataframe",
-            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nhmv10.csv",
             "column": "01417000",
             "index_col": "datetime",
             "parse_dates": true
@@ -2649,7 +2649,7 @@
         },
         "flow_base_delLordville": {
             "type": "dataframe",
-            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nhmv10.csv",
             "column": "delLordville",
             "index_col": "datetime",
             "parse_dates": true
@@ -2690,7 +2690,7 @@
         },
         "flow_base_01436000": {
             "type": "dataframe",
-            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nhmv10.csv",
             "column": "01436000",
             "index_col": "datetime",
             "parse_dates": true
@@ -2731,7 +2731,7 @@
         },
         "flow_base_01433500": {
             "type": "dataframe",
-            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nhmv10.csv",
             "column": "01433500",
             "index_col": "datetime",
             "parse_dates": true
@@ -2772,7 +2772,7 @@
         },
         "flow_base_delMontague": {
             "type": "dataframe",
-            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nhmv10.csv",
             "column": "delMontague",
             "index_col": "datetime",
             "parse_dates": true
@@ -2813,7 +2813,7 @@
         },
         "flow_base_01449800": {
             "type": "dataframe",
-            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nhmv10.csv",
             "column": "01449800",
             "index_col": "datetime",
             "parse_dates": true
@@ -2854,7 +2854,7 @@
         },
         "flow_base_01447800": {
             "type": "dataframe",
-            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nhmv10.csv",
             "column": "01447800",
             "index_col": "datetime",
             "parse_dates": true
@@ -2895,7 +2895,7 @@
         },
         "flow_base_delDRCanal": {
             "type": "dataframe",
-            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nhmv10.csv",
             "column": "delDRCanal",
             "index_col": "datetime",
             "parse_dates": true
@@ -2936,7 +2936,7 @@
         },
         "flow_base_01463620": {
             "type": "dataframe",
-            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nhmv10.csv",
             "column": "01463620",
             "index_col": "datetime",
             "parse_dates": true
@@ -2977,7 +2977,7 @@
         },
         "flow_base_outletAssunpink": {
             "type": "dataframe",
-            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nhmv10.csv",
             "column": "outletAssunpink",
             "index_col": "datetime",
             "parse_dates": true
@@ -3018,7 +3018,7 @@
         },
         "flow_base_01470960": {
             "type": "dataframe",
-            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nhmv10.csv",
             "column": "01470960",
             "index_col": "datetime",
             "parse_dates": true
@@ -3059,7 +3059,7 @@
         },
         "flow_base_outletSchuylkill": {
             "type": "dataframe",
-            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/DRB_water_management/input_data/catchment_inflow_nhmv10.csv",
             "column": "outletSchuylkill",
             "index_col": "datetime",
             "parse_dates": true

@@ -7,7 +7,7 @@ import pandas as pd
 
 from utils.directories import input_dir, model_data_dir
 from utils.lists import majorflow_list, reservoir_list, reservoir_list_nyc
-from pywr_drb_node_data import upstream_nodes_dict, immediate_downstream_nodes_dict
+from pywr_drb_node_data import upstream_nodes_dict, immediate_downstream_nodes_dict, downstream_node_lags
 
 model_file_name_base = model_data_dir + 'drb_model_full'
 model_sheets_start = model_data_dir + 'drb_model_'
@@ -306,34 +306,29 @@ def drb_make_model(inflow_type, start_date, end_date, use_hist_NycNjDeliveries=T
     def get_reservoir_capacity(reservoir):
         return float(istarf['Adjusted_CAP_MG'].loc[istarf['reservoir'] == reservoir].iloc[0])
 
-    
+    ### get downstream node to link to for the current node
     for node, downstream_node in immediate_downstream_nodes_dict.items():
     
         node_type = 'reservoir' if node in reservoir_list else 'river'
-    
-        lag_two_nodes = ['delLordville', 'delMontague', '01449980', '01447800', 'ontelaunee', 'stillCreek', '01470960']
-        lag_one_nodes = ['01436000', 'wallenpaupack', 'prompton', 'shoholaMarsh', 'merrillCreek', 'hopatcong', 'delDRCanal', 'greenLane']
-            
+
+        ### get outflow regulatory constraint type for reservoirs
         if node in reservoir_list_nyc:
             outflow_type = 'regulatory'
         elif node in reservoir_list:
             outflow_type = 'starfit'
         else:
             outflow_type = None
-        
-        if node in lag_one_nodes:
-            downstream_lag = 1
-        elif node in lag_two_nodes:
-            downstream_lag = 2
-        else:
-            downstream_lag = 0
+
+        ### get flow lag (days) between current node and its downstream connection
+        downstream_lag = downstream_node_lags[node]
             
         variable_cost = True if (outflow_type == 'regulatory') else False
         capacity = get_reservoir_capacity(node) if (node_type == 'reservoir') else None
         has_catchment = True if (node != 'delTrenton') else False
-        
+
+        ### set up major node
         model = add_major_node(model, node, node_type, inflow_type, outflow_type, downstream_node,  downstream_lag,
-                              capacity, initial_volume_frac, variable_cost, has_catchment, inflow_ensemble_indices)
+                               capacity, initial_volume_frac, variable_cost, has_catchment, inflow_ensemble_indices)
 
 
     #######################################################################

@@ -67,6 +67,40 @@ immediate_downstream_nodes_dict = {'cannonsville': '01425000',
                     'outletSchuylkill': 'output_del'
                     }
 
+### the time delay/lag (days) between each node and its downstream connection node
+downstream_node_lags = {'cannonsville': 0,
+                        'pepacton': 0,
+                        'neversink': 0,
+                        'wallenpaupack': 1,
+                        'prompton': 1,
+                        'shoholaMarsh': 1,
+                        'mongaupeCombined': 0,
+                        'beltzvilleCombined': 0,
+                        'fewalter': 0,
+                        'merrillCreek': 1,
+                        'hopatcong': 1,
+                        'nockamixon': 0,
+                        'assunpink': 0,
+                        'ontelaunee': 2,
+                        'stillCreek': 2,
+                        'blueMarsh': 0,
+                        'greenLane': 1,
+                        '01425000': 0,
+                        '01417000': 0,
+                        'delLordville': 2,
+                        '01436000': 1,
+                        '01433500': 0,
+                        'delMontague': 2,
+                        '01449800': 2,
+                        '01447800': 2,
+                        'delDRCanal': 0,
+                        'delTrenton': 0,
+                        '01463620': 0,
+                        'outletAssunpink': 0,
+                        '01470960': 2,
+                        'outletSchuylkill': 0
+                        }
+
 obs_pub_site_matches = {'cannonsville': ['01423000', '0142400103'], # 0142400103 doesnt start until '96 ##TODO: PUB until 96
                     'pepacton': ['01415000', '01414500', '01414000', '01413500'], # '01414000' doesnt start until 1996; likely underestimate before
                     'neversink': ['01435000'],
@@ -235,8 +269,11 @@ WEAP_24Apr2023_gridmet_NatFlows_matches = {'cannonsville': ['RES_DelAbvCannon'],
                                             '01447800': ['Leigh_01447800'],
                                             'delDRCanal': ['Delaware at Trenton_01463500'],
                                             'delTrenton': ['Delaware at Trenton_01463500'],
-                                            '01463620': ['Assunpink_01463620'],  # This has periods of missing data
+                                            '01463620': ['Assunpink_01463620'],
                                             'outletAssunpink': ['Assunpink_01464000'],
                                             '01470960': ['Tulpenhocken_01470960'],
                                             'outletSchuylkill': ['Schuykill_01474500']
                                             }
+
+
+
