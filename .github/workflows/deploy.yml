@@ -32,7 +32,10 @@ jobs:
         pwd
         echo $HOME/pywrdrb
         echo $GITHUB_PATH
+        echo $HOME >> $GITHUB_PATH
         echo $HOME/pywrdrb >> $GITHUB_PATH
+        echo $GITHUB_PATH
+
 
 
     # Install python
