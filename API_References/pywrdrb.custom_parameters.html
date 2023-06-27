@@ -382,6 +382,174 @@ document.write(`
   <section id="custom-pywr-parameters">
 <h1>Custom Pywr Parameters<a class="headerlink" href="#custom-pywr-parameters" title="Permalink to this heading">#</a></h1>
 <p>Testing testing.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pywrdrb.custom_parameters.starfit_parameter.</span></span><span class="sig-name descname"><span class="pre">STARFITReservoirRelease</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storage_node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flow_parameter</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease" title="Permalink to this definition">#</a></dt>
+<dd><p>Custom Pywr parameter class to implement STARFIT reservoir policy.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.calculate_percent_storage">
+<span class="sig-name descname"><span class="pre">calculate_percent_storage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">storage</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.calculate_percent_storage" title="Permalink to this definition">#</a></dt>
+<dd><p>Calculate the reservoir’s current percentage of storage capacity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>storage</strong> (<em>float</em>) – The storage value (MG).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The percentage of storage capacity.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.calculate_release_adjustment">
+<span class="sig-name descname"><span class="pre">calculate_release_adjustment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">S_hat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">I_hat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NORhi_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NORlo_t</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.calculate_release_adjustment" title="Permalink to this definition">#</a></dt>
+<dd><p>Calculate the release adjustment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>S_hat</strong> (<em>float</em>) – The standardized storage value.</p></li>
+<li><p><strong>I_hat</strong> (<em>float</em>) – The standardized inflow value.</p></li>
+<li><p><strong>NORhi_t</strong> (<em>float</em>) – The upper bound of normal operation range for the current timestep.</p></li>
+<li><p><strong>NORlo_t</strong> (<em>float</em>) – The lower bound of normal operation range for the current timestep.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The release adjustment value.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.calculate_target_release">
+<span class="sig-name descname"><span class="pre">calculate_target_release</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">harmonic_release</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NORhi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NORlo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">S_hat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">I</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.calculate_target_release" title="Permalink to this definition">#</a></dt>
+<dd><p>Calculate the target release under current inflow and storage.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>harmonic_release</strong> (<em>float</em>) – The harmonic release for the current day.</p></li>
+<li><p><strong>epsilon</strong> (<em>float</em>) – The release adjustment value.</p></li>
+<li><p><strong>NORhi_t</strong> (<em>float</em>) – The upper bound of normal operation range for the current timestep.</p></li>
+<li><p><strong>NORlo_t</strong> (<em>float</em>) – The lower bound of normal operation range for the current timestep.</p></li>
+<li><p><strong>S_hat</strong> (<em>float</em>) – The standardized storage value.</p></li>
+<li><p><strong>I</strong> (<em>float</em>) – The inflow value.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The target release value.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.get_NORhi">
+<span class="sig-name descname"><span class="pre">get_NORhi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestep</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.get_NORhi" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the upper-bound normalized reservoir storage of the Normal Operating Range (NORlo) for a given timestep.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>timestep</strong> – The timestep.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The NORhi value.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.get_NORlo">
+<span class="sig-name descname"><span class="pre">get_NORlo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestep</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.get_NORlo" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the lower-bound normalized reservoir storage of the Normal Operating Range (NORlo) for a given timestep.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>timestep</strong> – The timestep.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The NORlo value.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.get_harmonic_release">
+<span class="sig-name descname"><span class="pre">get_harmonic_release</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestep</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.get_harmonic_release" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the harmonic release for a given timestep.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>timestep</strong> – The timestep.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The seasonal harmonic reservoir release (MGD).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.load">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span> <span class="pre">cls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.load" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.setup">
+<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.setup" title="Permalink to this definition">#</a></dt>
+<dd><p>Set up the parameter.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.standardize_inflow">
+<span class="sig-name descname"><span class="pre">standardize_inflow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inflow</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.standardize_inflow" title="Permalink to this definition">#</a></dt>
+<dd><p>Standardize the current reservoir inflow based on historic average.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>inflow</strong> (<em>float</em>) – The inflow value (MGD).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The standardized inflow value.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.value">
+<span class="sig-name descname"><span class="pre">value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestep</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scenario_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.value" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the reservoir release for a given timestep and scenario index.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>timestep</strong> – The timestep.</p></li>
+<li><p><strong>scenario_index</strong> – The scenario index.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The STARFIT prescribed reservoir release (MGD).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
     <script type="text/x-thebe-config">
