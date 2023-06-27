@@ -32,7 +32,9 @@ jobs:
         cat $GITHUB_PATH
         pwd >> $GITHUB_PATH
         cat $GITHUB_PATH
-
+        ls
+        echo 'testing import:'
+        python3 test_import.py
 
 
 
