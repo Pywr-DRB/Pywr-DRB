@@ -58,7 +58,6 @@ jobs:
         echo 'testing import: '
         python3 test_import.py
 
-
     # Build the example book
     - name: Build book
       run: jupyter-book build --all docs/
