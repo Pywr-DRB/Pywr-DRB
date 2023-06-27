@@ -47,17 +47,6 @@ jobs:
       run: pip install -r docs/requirements.txt
       if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
-    # test path & pywrdrb import
-    - name: test import
-      run: |
-        cat $GITHUB_PATH
-        pwd >> $GITHUB_PATH
-        cat $GITHUB_PATH
-        pwd
-        ls
-        echo 'testing import: '
-        python3 test_import.py
- 
     # Build the example book
     - name: Build book
       run: |
