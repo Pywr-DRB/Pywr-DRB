@@ -22,6 +22,7 @@ from data_processing.extrapolate_NYC_NJ_diversions import extrapolate_NYC_NJ_div
 # Date range
 start_date = '1983/10/01'
 end_date = '2016/12/31'
+warmup_years = 4 ### this many years of data will be added
 
 
 nhm_inflow_scaling = False
