@@ -30,7 +30,9 @@ jobs:
     - name: Print CWD
       run: |
         pwd
-        echo "$HOME/pywrdrb" >> $GITHUB_PATH
+        echo $HOME/pywrdrb
+        echo $GITHUB_PATH
+        echo $HOME/pywrdrb >> $GITHUB_PATH
 
 
     # Install python
