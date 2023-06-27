@@ -60,7 +60,14 @@ jobs:
  
     # Build the example book
     - name: Build book
-      run: jupyter-book build --all docs/
+      run: |
+              #jupyter-book build --all docs/
+              ### first use jupyter-books to build sphinx config file
+              jupyter-book config sphinx docs/
+              ### now manually fix path in config file to include the base dir outside docs, so we can import pywrdrb
+              sed -i '1s:^:import sys\nimport os\nsys.path.insert(0, os.path.abspath("../"))\n:' docs/conf.py
+              ### now build jupyter book directly from altered sphinx config file
+              sphinx-build docs/ docs/_build/html -b html
 
     # Generate folium map and copy file to _build
     - name: copy map
