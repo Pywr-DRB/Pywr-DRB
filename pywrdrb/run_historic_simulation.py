@@ -23,7 +23,7 @@ assert(inflow_type in inflow_type_options), f'Invalid inflow_type specified. Opt
 
 ### assume we want to run the full range for each dataset
 if inflow_type in ('nwmv21', 'nwmv21_withLakes', 'nhmv10', 'obs_pub'):
-    start_date = '1983-10-01'
+    start_date = '1984-01-01'
     end_date = '2016-12-31'
 elif 'WEAP' in inflow_type:
     start_date = '1995-01-01'

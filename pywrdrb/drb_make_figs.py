@@ -26,7 +26,7 @@ if __name__ == "__main__":
         start_date = sys.argv[1] if len(sys.argv) > 1 else '1999-06-01'
         end_date = sys.argv[2] if len(sys.argv) > 2 else '2010-05-31'
     else:
-        start_date = sys.argv[1] if len(sys.argv) > 1 else '1983-10-01'
+        start_date = sys.argv[1] if len(sys.argv) > 1 else '1984-01-01'
         end_date = sys.argv[2] if len(sys.argv) > 2 else '2017-01-01'
 
     start_date = pd.to_datetime(start_date)
