@@ -32,9 +32,7 @@ jobs:
         cat $GITHUB_PATH
         pwd >> $GITHUB_PATH
         cat $GITHUB_PATH
-        echo $HOME >> $GITHUB_PATH
-        echo $HOME/pywrdrb >> $GITHUB_PATH
-        cat $GITHUB_PATH
+
 
 
 
