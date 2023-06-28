@@ -5,6 +5,7 @@ pywrdrb.prep_input_data
 
 .. autosummary::
    :toctree: generated/
+   :recursive:
 
    prep_input_data
    
