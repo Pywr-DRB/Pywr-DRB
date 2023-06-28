@@ -18,18 +18,24 @@ from utils.constants import cms_to_mgd, cfs_to_mgd, cm_to_mg
 
 
 def get_pywr_results(output_dir, model, results_set='all', scenario=0):
-    '''
+    """
     Gathers simulation results from Pywr model run and returns a pd.DataFrame.
 
-    :param output_dir:
-    :param model:
-    :param results_set: can be "all" to return all results,
-                            "reservoir_downstream_gage" to return downstream gage flow below reservoir,
-                            "res_storage" to return resrvoir storages,
-                            "major_flow" to return flow at major flow points of interest,
-                            "inflow" to return the inflow at each catchment.
-    :return:
-    '''
+    Args:
+        output_dir (str): The output directory.
+        model (str): The model datatype name (e.g., "nhmv10").
+        results_set (str, optional): The results set to return. Can be one of the following:
+            - "all": Return all results.
+            - "reservoir_downstream_gage": Return downstream gage flow below reservoir.
+            - "res_storage": Return reservoir storages.
+            - "major_flow": Return flow at major flow points of interest.
+            - "inflow": Return the inflow at each catchment.
+            (Default: 'all')
+        scenario (int, optional): The scenario index number. (Default: 0)
+
+    Returns:
+        pd.DataFrame: The simulation results.
+    """
     with h5py.File(f'{output_dir}drb_output_{model}.hdf5', 'r') as f:
         keys = list(f.keys())
         first = 0
@@ -88,16 +94,22 @@ def get_pywr_results(output_dir, model, results_set='all', scenario=0):
 
 ### load other flow estimates. each column represents modeled flow at USGS gage downstream of reservoir or gage on mainstem
 def get_base_results(input_dir, model, datetime_index, results_set='all'):
-    '''
-    function for retreiving & organizing results from non-pywr results (NHM, NWM, WEAP)
-    :param input_dir:
-    :param model:
-    :param datetime_index:
-    :param results_set: can be "all" to return all results,
-                            "reservoir_downstream_gage" to return downstream gage flow below reservoir,
-                            "major_flow" to return flow at major flow points of interest
-    :return:
-    '''
+    """
+    Function for retrieving and organizing results from non-pywr streamflows (NHM, NWM, WEAP).
+
+    Args:
+        input_dir (str): The input data directory.
+        model (str): The model datatype name (e.g., "nhmv10").
+        datetime_index: The datetime index.
+        results_set (str, optional): The results set to return. Can be one of the following:
+            - "all": Return all results.
+            - "reservoir_downstream_gage": Return downstream gage flow below reservoir.
+            - "major_flow": Return flow at major flow points of interest.
+            (Default: 'all')
+
+    Returns:
+        pd.DataFrame: The retrieved and organized results.
+    """
     gage_flow = pd.read_csv(f'{input_dir}gage_flow_{model}.csv')
     gage_flow.index = pd.DatetimeIndex(gage_flow['datetime'])
     gage_flow = gage_flow.drop('datetime', axis=1)

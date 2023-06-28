@@ -8,7 +8,12 @@ from utils.lists import majorflow_list, reservoir_list
 
 
 def disaggregate_DRBC_demands():
-    
+    """
+    Disaggregates DRBC water demand data to align with PywrDRB catchments.
+
+    Returns:
+        pd.DataFrame: Contains demand data disaggregated to align with PywrDRB catchments.
+    """
     
     ### set seed for consistent results
     np.random.seed(1)

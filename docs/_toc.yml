@@ -44,6 +44,8 @@ parts:
       sections:
         - title: Custom Parameters
           file: API_References/pywrdrb.custom_parameters.rst
+        - title: Data Processing
+          file: API_References/pywrdrb.data_processing.rst
     # =============== Supplemental  =================
     - file: Supplemental/supplemental.md
       sections:

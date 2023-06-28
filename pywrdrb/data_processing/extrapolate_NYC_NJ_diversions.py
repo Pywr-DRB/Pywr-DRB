@@ -11,12 +11,16 @@ from utils.directories import input_dir
 weap_dir = input_dir + 'WEAP_23Aug2022_gridmet/'
 
 def extrapolate_NYC_NJ_diversions(loc):
-    '''
-    Function for retrieving NYC & NJ historical diversions, and extrapolating into time periods where we don't have
-    data based on seasonal flow regressions.
-    :param loc: location to extrapolate: either "nyc" or "nj"
-    :return: dataframe
-    '''
+    """
+    Function for retrieving NYC and NJ historical diversions and extrapolating them into time periods
+    where we don't have data based on seasonal flow regressions.
+
+    Args:
+        loc (str): The location to extrapolate. Can be either "nyc" or "nj".
+
+    Returns:
+        pd.DataFrame: The dataframe containing the extrapolated diversions.
+    """
 
     ### set seed for consistent results
     np.random.seed(1)
