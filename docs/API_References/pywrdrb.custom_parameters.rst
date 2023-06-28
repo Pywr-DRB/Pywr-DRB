@@ -6,7 +6,7 @@ The following custom parameters are built from the `pywr` Parameter class and us
 .. currentmodule:: pywrdrb.custom_parameters
 
 FFMP Parameters
---------------------
+------------------------------------------------------------
 
 These custom parameters are used to implement the Flexible Flow Management Program (FFMP).
 
@@ -18,9 +18,7 @@ These custom parameters are used to implement the Flexible Flow Management Progr
 
 
 STARFIT Reservoir Release Parameter
---------------------
-
-This parameter is used to simulate STARFIT reservoir release operations ([Turner et al. (2021)](https://www.sciencedirect.com/science/article/pii/S0022169421008933?via%3Dihub)) at non-NYC reservoirs.
+------------------------------------------------------------
 
 .. autosummary::
    :toctree: generated/
@@ -29,7 +27,7 @@ This parameter is used to simulate STARFIT reservoir release operations ([Turner
 
 
 Flow Ensemble Parameter
---------------------
+------------------------------------------------------------
 
 .. autosummary::
    :toctree: generated/

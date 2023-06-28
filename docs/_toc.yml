@@ -42,6 +42,12 @@ parts:
     # =============== References =================
     - file: API_References/api_references.md
       sections:
+        - title: Prep Inputs
+          file: API_References/pywrdrb.prep_input_data.rst
+        - title: Make Model
+          file: API_References/pywrdrb.drb_make_model.rst
+        - title: Plotting
+          file: API_References/pywrdrb.plotting.rst
         - title: Custom Parameters
           file: API_References/pywrdrb.custom_parameters.rst
         - title: Data Processing

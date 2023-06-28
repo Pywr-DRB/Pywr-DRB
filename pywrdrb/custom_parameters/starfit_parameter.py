@@ -1,7 +1,3 @@
-"""
-The parameters created here are used to implement the STARFIT-inferred reservoir operations 
-policy at non-NYC reservoirs.
-"""
 import numpy as np
 import pandas as pd
 import math
@@ -28,7 +24,7 @@ def get_reservoir_capacity(reservoir):
 
 class STARFITReservoirRelease(Parameter):
     """
-    Custom Pywr parameter class to implement STARFIT reservoir policy following Turner et al. (2021).
+    Custom Pywr Parameter used to implement the STARFIT-inferred reservoir operations policy at non-NYC reservoirs following Turner et al. (2021).
     
     Args:
         model (dict): The PywrDRB model.

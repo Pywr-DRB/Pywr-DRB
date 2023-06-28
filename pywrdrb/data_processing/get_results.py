@@ -1,21 +1,11 @@
-"""
-Contains functions used to process Pywr-DRB data.  
-
-Functions include:
-- get_pywr_results()
-- get_base_results()
-
-
-"""
-
 import numpy as np
 import pandas as pd
-
 import h5py
 
 from utils.lists import reservoir_list, majorflow_list, reservoir_link_pairs
 from utils.constants import cms_to_mgd, cfs_to_mgd, cm_to_mg
 
+### Contains functions used to process Pywr-DRB data.  
 
 def get_pywr_results(output_dir, model, results_set='all', scenario=0):
     """
@@ -34,7 +24,7 @@ def get_pywr_results(output_dir, model, results_set='all', scenario=0):
         scenario (int, optional): The scenario index number. (Default: 0)
 
     Returns:
-        pd.DataFrame: The simulation results.
+        pd.DataFrame: The simulation results with datetime index.
     """
     with h5py.File(f'{output_dir}drb_output_{model}.hdf5', 'r') as f:
         keys = list(f.keys())
@@ -108,7 +98,7 @@ def get_base_results(input_dir, model, datetime_index, results_set='all'):
             (Default: 'all')
 
     Returns:
-        pd.DataFrame: The retrieved and organized results.
+        pd.DataFrame: The retrieved and organized results with datetime index.
     """
     gage_flow = pd.read_csv(f'{input_dir}gage_flow_{model}.csv')
     gage_flow.index = pd.DatetimeIndex(gage_flow['datetime'])
