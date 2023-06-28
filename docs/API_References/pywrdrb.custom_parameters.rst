@@ -12,6 +12,27 @@ These custom parameters are used to implement the Flexible Flow Management Progr
 
 .. autosummary::
    :toctree: generated/
+   :recursive:
 
    ffmp_parameters
+
+
+STARFIT Reservoir Release Parameter
+--------------------
+
+This parameter is used to simulate STARFIT reservoir release operations ([Turner et al. (2021)](https://www.sciencedirect.com/science/article/pii/S0022169421008933?via%3Dihub)) at non-NYC reservoirs.
+
+.. autosummary::
+   :toctree: generated/
+
+   starfit_parameter
+
+
+Flow Ensemble Parameter
+--------------------
+
+.. autosummary::
+   :toctree: generated/
+
+   flow_ensemble_parameter
 
