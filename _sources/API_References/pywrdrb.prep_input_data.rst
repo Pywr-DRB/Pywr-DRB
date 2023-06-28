@@ -1,4 +1,4 @@
-`pywrdrb.prep_input_data`
+pywrdrb.prep_input_data
 ========================================
 
 .. currentmodule:: pywrdrb

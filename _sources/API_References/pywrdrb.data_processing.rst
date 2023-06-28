@@ -1,4 +1,4 @@
-`pywrdrb.data_processing`
+pywrdrb.data_processing
 ========================================
 
 Contains various functions for processing input and output data.
@@ -20,4 +20,3 @@ Contains various functions for processing input and output data.
    :toctree: generated/
 
    extrapolate_NYC_NJ_diversions
-   

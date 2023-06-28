@@ -1,4 +1,4 @@
-`pywrdrb.drb_make_model`
+pywrdrb.drb_make_model
 ========================================
 
 .. currentmodule:: pywrdrb

@@ -1,4 +1,4 @@
-`pywrdrb.plotting`
+pywrdrb.plotting
 ========================================
 
 .. currentmodule:: pywrdrb.plotting
