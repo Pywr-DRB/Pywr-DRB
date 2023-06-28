@@ -178,6 +178,8 @@ const thebe_selector_output = ".output, .cell_output"
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="api_references.html">API References</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
 <li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">Custom Parameters</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.custom_parameters.ffmp_parameters.html">pywrdrb.custom_parameters.ffmp_parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.custom_parameters.starfit_parameter.html">pywrdrb.custom_parameters.starfit_parameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.custom_parameters.flow_ensemble_parameter.html">pywrdrb.custom_parameters.flow_ensemble_parameter</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="pywrdrb.data_processing.html">Data Processing</a></li>
@@ -382,6 +384,8 @@ document.write(`
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ffmp-parameters">FFMP Parameters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#starfit-reservoir-release-parameter">STARFIT Reservoir Release Parameter</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#flow-ensemble-parameter">Flow Ensemble Parameter</a></li>
 </ul>
             </nav>
         </div>
@@ -403,6 +407,27 @@ document.write(`
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/pywrdrb.custom_parameters.ffmp_parameters.html#module-pywrdrb.custom_parameters.ffmp_parameters" title="pywrdrb.custom_parameters.ffmp_parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ffmp_parameters</span></code></a></p></td>
 <td><p>This file contains different class objects which are used to construct custom Pywr parameters.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="starfit-reservoir-release-parameter">
+<h2>STARFIT Reservoir Release Parameter<a class="headerlink" href="#starfit-reservoir-release-parameter" title="Permalink to this heading">#</a></h2>
+<p>This parameter is used to simulate STARFIT reservoir release operations ([Turner et al. (2021)](<a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S0022169421008933?via%3Dihub">https://www.sciencedirect.com/science/article/pii/S0022169421008933?via%3Dihub</a>)) at non-NYC reservoirs.</p>
+<table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pywrdrb.custom_parameters.starfit_parameter.html#module-pywrdrb.custom_parameters.starfit_parameter" title="pywrdrb.custom_parameters.starfit_parameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">starfit_parameter</span></code></a></p></td>
+<td><p>The parameters created here are used to implement the STARFIT-inferred reservoir operations policy at non-NYC reservoirs.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="flow-ensemble-parameter">
+<h2>Flow Ensemble Parameter<a class="headerlink" href="#flow-ensemble-parameter" title="Permalink to this heading">#</a></h2>
+<table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pywrdrb.custom_parameters.flow_ensemble_parameter.html#module-pywrdrb.custom_parameters.flow_ensemble_parameter" title="pywrdrb.custom_parameters.flow_ensemble_parameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flow_ensemble_parameter</span></code></a></p></td>
+<td><p>This script defines a custom Pywr Parameter used to provide ensembles of flow timeseries to a given node.</p></td>
 </tr>
 </tbody>
 </table>
@@ -477,6 +502,8 @@ document.write(`
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ffmp-parameters">FFMP Parameters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#starfit-reservoir-release-parameter">STARFIT Reservoir Release Parameter</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#flow-ensemble-parameter">Flow Ensemble Parameter</a></li>
 </ul>
   </nav></div>
 
