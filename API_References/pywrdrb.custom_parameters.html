@@ -64,7 +64,7 @@ const thebe_selector_output = ".output, .cell_output"
     <script>DOCUMENTATION_OPTIONS.pagename = 'API_References/pywrdrb.custom_parameters';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="pywrdrb.data_processing" href="pywrdrb.data_processing.html" />
+    <link rel="next" title="pywrdrb.custom_parameters.ffmp_parameters" href="generated/pywrdrb.custom_parameters.ffmp_parameters.html" />
     <link rel="prev" title="API References" href="api_references.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -176,11 +176,14 @@ const thebe_selector_output = ".output, .cell_output"
 </ul>
 </li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="api_references.html">API References</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">Custom Parameters</a></li>
+<li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">Custom Parameters</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.custom_parameters.ffmp_parameters.html">pywrdrb.custom_parameters.ffmp_parameters</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="pywrdrb.data_processing.html">Data Processing</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../Supplemental/supplemental.html">Supplemental Material</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../Supplemental/supplemental.html">Supplemental Material</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../Supplemental/node_list.html">Pywr-DRB Node List</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../Supplemental/pub.html">Streamflow Prediction in Ungauged Basins</a></li>
 </ul>
@@ -355,7 +358,9 @@ document.write(`
   </button>
 `);
 </script>
-
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
 </div></div>
       
     </div>
@@ -371,6 +376,14 @@ document.write(`
     <div id="print-main-content">
         <div id="jb-print-toc">
             
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ffmp-parameters">FFMP Parameters</a></li>
+</ul>
+            </nav>
         </div>
     </div>
 </div>
@@ -382,174 +395,18 @@ document.write(`
                   
   <section id="custom-pywr-parameters">
 <h1>Custom Pywr Parameters<a class="headerlink" href="#custom-pywr-parameters" title="Permalink to this heading">#</a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pywrdrb.custom_parameters.starfit_parameter.</span></span><span class="sig-name descname"><span class="pre">STARFITReservoirRelease</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storage_node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flow_parameter</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease" title="Permalink to this definition">#</a></dt>
-<dd><p>Custom Pywr parameter class to implement STARFIT reservoir policy.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.calculate_percent_storage">
-<span class="sig-name descname"><span class="pre">calculate_percent_storage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">storage</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.calculate_percent_storage" title="Permalink to this definition">#</a></dt>
-<dd><p>Calculate the reservoir’s current percentage of storage capacity.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>storage</strong> (<em>float</em>) – The storage value (MG).</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The percentage of storage capacity.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.calculate_release_adjustment">
-<span class="sig-name descname"><span class="pre">calculate_release_adjustment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">S_hat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">I_hat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NORhi_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NORlo_t</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.calculate_release_adjustment" title="Permalink to this definition">#</a></dt>
-<dd><p>Calculate the release adjustment.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>S_hat</strong> (<em>float</em>) – The standardized storage value.</p></li>
-<li><p><strong>I_hat</strong> (<em>float</em>) – The standardized inflow value.</p></li>
-<li><p><strong>NORhi_t</strong> (<em>float</em>) – The upper bound of normal operation range for the current timestep.</p></li>
-<li><p><strong>NORlo_t</strong> (<em>float</em>) – The lower bound of normal operation range for the current timestep.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The release adjustment value.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.calculate_target_release">
-<span class="sig-name descname"><span class="pre">calculate_target_release</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">harmonic_release</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NORhi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NORlo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">S_hat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">I</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.calculate_target_release" title="Permalink to this definition">#</a></dt>
-<dd><p>Calculate the target release under current inflow and storage.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>harmonic_release</strong> (<em>float</em>) – The harmonic release for the current day.</p></li>
-<li><p><strong>epsilon</strong> (<em>float</em>) – The release adjustment value.</p></li>
-<li><p><strong>NORhi_t</strong> (<em>float</em>) – The upper bound of normal operation range for the current timestep.</p></li>
-<li><p><strong>NORlo_t</strong> (<em>float</em>) – The lower bound of normal operation range for the current timestep.</p></li>
-<li><p><strong>S_hat</strong> (<em>float</em>) – The standardized storage value.</p></li>
-<li><p><strong>I</strong> (<em>float</em>) – The inflow value.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The target release value.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.get_NORhi">
-<span class="sig-name descname"><span class="pre">get_NORhi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestep</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.get_NORhi" title="Permalink to this definition">#</a></dt>
-<dd><p>Get the upper-bound normalized reservoir storage of the Normal Operating Range (NORlo) for a given timestep.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>timestep</strong> – The timestep.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The NORhi value.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.get_NORlo">
-<span class="sig-name descname"><span class="pre">get_NORlo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestep</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.get_NORlo" title="Permalink to this definition">#</a></dt>
-<dd><p>Get the lower-bound normalized reservoir storage of the Normal Operating Range (NORlo) for a given timestep.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>timestep</strong> – The timestep.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The NORlo value.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.get_harmonic_release">
-<span class="sig-name descname"><span class="pre">get_harmonic_release</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestep</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.get_harmonic_release" title="Permalink to this definition">#</a></dt>
-<dd><p>Get the harmonic release for a given timestep.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>timestep</strong> – The timestep.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The seasonal harmonic reservoir release (MGD).</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.load">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span> <span class="pre">cls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.load" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.setup">
-<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.setup" title="Permalink to this definition">#</a></dt>
-<dd><p>Set up the parameter.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.standardize_inflow">
-<span class="sig-name descname"><span class="pre">standardize_inflow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inflow</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.standardize_inflow" title="Permalink to this definition">#</a></dt>
-<dd><p>Standardize the current reservoir inflow based on historic average.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>inflow</strong> (<em>float</em>) – The inflow value (MGD).</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The standardized inflow value.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.value">
-<span class="sig-name descname"><span class="pre">value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestep</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scenario_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease.value" title="Permalink to this definition">#</a></dt>
-<dd><p>Get the reservoir release for a given timestep and scenario index.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>timestep</strong> – The timestep.</p></li>
-<li><p><strong>scenario_index</strong> – The scenario index.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The STARFIT prescribed reservoir release (MGD).</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+<p>The following custom parameters are built from the <cite>pywr</cite> Parameter class and used to track various model state variables throughout the simulation period.</p>
+<section id="ffmp-parameters">
+<h2>FFMP Parameters<a class="headerlink" href="#ffmp-parameters" title="Permalink to this heading">#</a></h2>
+<p>These custom parameters are used to implement the Flexible Flow Management Program (FFMP).</p>
+<table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pywrdrb.custom_parameters.ffmp_parameters.html#module-pywrdrb.custom_parameters.ffmp_parameters" title="pywrdrb.custom_parameters.ffmp_parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ffmp_parameters</span></code></a></p></td>
+<td><p>This file contains different class objects which are used to construct custom Pywr parameters.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 </section>
 
     <script type="text/x-thebe-config">
@@ -593,11 +450,11 @@ document.write(`
       </div>
     </a>
     <a class="right-next"
-       href="pywrdrb.data_processing.html"
+       href="generated/pywrdrb.custom_parameters.ffmp_parameters.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><cite>pywrdrb.data_processing</cite></p>
+        <p class="prev-next-title">pywrdrb.custom_parameters.ffmp_parameters</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -610,6 +467,20 @@ document.write(`
             </div>
             
             
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ffmp-parameters">FFMP Parameters</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>

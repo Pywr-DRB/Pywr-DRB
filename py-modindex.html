@@ -7,9 +7,8 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
-    <title>Pywr-DRB &#8212; Pywr-DRB Integrated Water Resource Management Model</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Python Module Index &#8212; Pywr-DRB Integrated Water Resource Management Model</title>
   
   
   
@@ -61,12 +60,14 @@ const thebe_selector_input = "pre"
 const thebe_selector_output = ".output, .cell_output"
 </script>
     <script async="async" src="_static/sphinx-thebe.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'intro';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'py-modindex';</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Overview of the Delaware River Basin" href="DRB/drb.html" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
+
+
   </head>
   
   
@@ -130,7 +131,7 @@ const thebe_selector_output = ".output, .cell_output"
         <div class="sidebar-primary-item">
   
 
-<a class="navbar-brand logo" href="#">
+<a class="navbar-brand logo" href="intro.html">
   
   
   
@@ -149,8 +150,8 @@ const thebe_selector_output = ".output, .cell_output"
     <div class="bd-toc-item navbar-nav active">
         
         <ul class="nav bd-sidenav bd-sidenav__home-link">
-            <li class="toctree-l1 current active">
-                <a class="reference internal" href="#">
+            <li class="toctree-l1">
+                <a class="reference internal" href="intro.html">
                     Pywr-DRB
                 </a>
             </li>
@@ -258,7 +259,7 @@ const thebe_selector_output = ".output, .cell_output"
       
       
       
-      <li><a href="https://github.com/Pywr-DRB/Pywr-DRB/issues/new?title=Issue%20on%20page%20%2Fintro.html&body=Your%20issue%20content%20here." target="_blank"
+      <li><a href="https://github.com/Pywr-DRB/Pywr-DRB/issues/new?title=Issue%20on%20page%20%2Fpy-modindex.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -270,54 +271,6 @@ const thebe_selector_output = ".output, .cell_output"
   </span>
 <span class="btn__text-container">Open issue</span>
 </a>
-</li>
-      
-  </ul>
-</div>
-
-
-
-
-
-
-<div class="dropdown dropdown-download-buttons">
-  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
-    <i class="fas fa-download"></i>
-  </button>
-  <ul class="dropdown-menu">
-      
-      
-      
-      <li><a href="_sources/intro.md" target="_blank"
-   class="btn btn-sm btn-download-source-button dropdown-item"
-   title="Download source file"
-   data-bs-placement="left" data-bs-toggle="tooltip"
->
-  
-
-<span class="btn__icon-container">
-  <i class="fas fa-file"></i>
-  </span>
-<span class="btn__text-container">.md</span>
-</a>
-</li>
-      
-      
-      
-      
-      <li>
-<button onclick="window.print()"
-  class="btn btn-sm btn-download-pdf-button dropdown-item"
-  title="Print to PDF"
-  data-bs-placement="left" data-bs-toggle="tooltip"
->
-  
-
-<span class="btn__icon-container">
-  <i class="fas fa-file-pdf"></i>
-  </span>
-<span class="btn__text-container">.pdf</span>
-</button>
 </li>
       
   </ul>
@@ -357,9 +310,7 @@ document.write(`
   </button>
 `);
 </script>
-<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <span class="fa-solid fa-list"></span>
-</label>
+
 </div></div>
       
     </div>
@@ -370,20 +321,11 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Pywr-DRB</h1>
+    <h1></h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
             
-            <div>
-                <h2> Contents </h2>
-            </div>
-            <nav aria-label="Page">
-                <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#contents">Contents</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#license">License</a></li>
-</ul>
-            </nav>
         </div>
     </div>
 </div>
@@ -393,84 +335,30 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="pywr-drb">
-<h1>Pywr-DRB<a class="headerlink" href="#pywr-drb" title="Permalink to this heading">#</a></h1>
-<p>Pywr-DRB is a water resources model of the Delaware River Basin (DRB) designed to improve our understanding of water availability, drought risk, and long-term water supply planning within the Basin.</p>
-<p>Pywr-DRB builds on the open-source Python package Pywr, which provides a modular, flexible structure for building and simulating complex water resources networks. Pywr uses a linear program to allocate water flows throughout the network within each time step, and updates the flow constraints each time step based on parameterized rules and evolving internal states of the model (e.g., seasonal reservoir releases based on current storages and downstream environmental targets).</p>
-<p>Pywr-DRB is a node-based network simulation model of the DRB system that includes 18 major reservoirs, 14 important river gage flow locations, two major out-of-basin water supply transfers (NYC and NJ), as well as various in-basin water demands. Pywr-DRB represents all reservoir operations and water diversions using state-aware rules that respond to changing conditions within the system. A critical component of the model is its representation of the 2017 FFMP, which defines adaptive rules governing the operations of NYC’s three major water supply reservoirs, the allowable diversions to NYC and NJ, and the minimum flow rules at downstream locations meant to protect habitat, water supply, and water quality. Fifteen other reservoirs in the basin are represented using the CONUS-scale data-driven reservoir operating rules derived in the ISTARF-CONUS dataset.</p>
-<p>Another advantage of Pywr-DRB is its flexibility with respect to input streamflow forcings. Many water management models such as WEAP are built to use meteorological inputs, which are internally converted to streamflows using an embedded hydrologic model. Pywr-DRB, on the other hand, ingests streamflow inputs directly, allowing for alternative scenarios to be run with multiple streamflow estimates from different hydrologic models, observational datasets, or statistical reanalysis datasets. This ensemble modeling approach improves the characterization of uncertainty by decoupling hydrologic modeling errors from water management modeling errors. Pywr-DRB currently has support for modeled streamflow estimates from NHM v1.0, NWM v2.1, and WEAP. Additionally, we have developed a new dataset (obs-pub) that combines historical gaged streamflow records with statistically reconstructed estimates for ungaged locations. As other streamflow modeling datasets become available, they will be integrated into Pywr-DRB as well (e.g., our colleagues at USGS/NCAR are developing WRF-Hydro simulations for the 1960’s drought of record and various future climate scenarios).</p>
-<p>A graphical representation of the Pywr-DRB model is shown below, where every octogon represents a reservoir in the Basin:</p>
-<div style="padding-bottom:75%; position:relative; display:block; width: 100%">
-  <iframe src="drb_model_map.html"
-  height = "100%" width = "100%"
-  title = "Graphical Representation of Pywr-DRB Model"
-  frameborder="0" allowfullscreen="" style="position:absolute; top:0; left: 0">
-  </iframe>
-</div>
-<section id="contents">
-<h2>Contents<a class="headerlink" href="#contents" title="Permalink to this heading">#</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="DRB/drb.html">Delaware River Basin Overview</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="DRB/drb_hydrology.html">Hydrology</a></li>
-<li class="toctree-l2"><a class="reference internal" href="DRB/drb_planning_management.html">Planning &amp; Management</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="Model/pywr_drb.html">Pywr-DRB Overview</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="Model/pywr_drb_overview.html">Model Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Model/pywr_drb_model_nodes.html">Model Nodes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Model/pywr_drb_resops.html">Representing Reservoir Operations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Model/pywr_drb_inflow_scenarios.html">Available Inflow Scenarios</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="Getting_Started/getting_started.html">Getting Started</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="Getting_Started/quick_start.html">Quick-Start</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Getting_Started/Running_Simulations/run_all_simulations.html">Running Simulations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Getting_Started/Interpret_Results/explore_model_outputs.html">Analyzing outputs</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="API_References/api_references.html">API References</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="API_References/pywrdrb.custom_parameters.html">Custom Parameters</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="API_References/generated/pywrdrb.custom_parameters.ffmp_parameters.html">pywrdrb.custom_parameters.ffmp_parameters</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="API_References/pywrdrb.data_processing.html">Data Processing</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="Supplemental/supplemental.html">Supplemental Material</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="Supplemental/node_list.html">Pywr-DRB Node List</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Supplemental/pub.html">Streamflow Prediction in Ungauged Basins</a></li>
-</ul>
-</li>
-</ul>
-</div>
-</section>
-<section id="license">
-<h2>License<a class="headerlink" href="#license" title="Permalink to this heading">#</a></h2>
-<p>This program is licensed under the MIT License. See the full license <a class="reference external" href="https://github.com/Pywr-DRB/Pywr-DRB/blob/master/LICENSE">here</a>.</p>
-<p>Copyright (c) 2023 Andrew Hamilton, Trevor Amestoy, Patrick Reed</p>
-</section>
-</section>
 
-    <script type="text/x-thebe-config">
-    {
-        requestKernel: true,
-        binderOptions: {
-            repo: "binder-examples/jupyter-stacks-datascience",
-            ref: "master",
-        },
-        codeMirrorConfig: {
-            theme: "abcdef",
-            mode: "python"
-        },
-        kernelOptions: {
-            name: "python3",
-            path: "./."
-        },
-        predefinedOutput: true
-    }
-    </script>
-    <script>kernelName = 'python3'</script>
+   <h1>Python Module Index</h1>
+
+   <div class="modindex-jumpbox">
+   <a href="#cap-p"><strong>p</strong></a>
+   </div>
+
+   <table class="indextable modindextable">
+     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
+     <tr class="cap" id="cap-p"><td></td><td>
+       <strong>p</strong></td><td></td></tr>
+     <tr>
+       <td><img src="_static/minus.png" class="toggler"
+              id="toggle-1" style="display: none" alt="-" /></td>
+       <td>
+       <code class="xref">pywrdrb</code></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="API_References/generated/pywrdrb.custom_parameters.ffmp_parameters.html#module-pywrdrb.custom_parameters.ffmp_parameters"><code class="xref">pywrdrb.custom_parameters.ffmp_parameters</code></a></td><td>
+       <em></em></td></tr>
+   </table>
+
 
                 </article>
               
@@ -483,15 +371,6 @@ document.write(`
   
     <div class="footer-article-item"><!-- Previous / next buttons -->
 <div class="prev-next-area">
-    <a class="right-next"
-       href="DRB/drb.html"
-       title="next page">
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Overview of the Delaware River Basin</p>
-      </div>
-      <i class="fa-solid fa-angle-right"></i>
-    </a>
 </div></div>
   
 </div>
@@ -501,21 +380,6 @@ document.write(`
             </div>
             
             
-              
-                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
-
-  <div class="sidebar-secondary-item">
-  <div class="page-toc tocsection onthispage">
-    <i class="fa-solid fa-list"></i> Contents
-  </div>
-  <nav class="bd-toc-nav page-toc">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#contents">Contents</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#license">License</a></li>
-</ul>
-  </nav></div>
-
-</div></div>
               
             
           </div>
