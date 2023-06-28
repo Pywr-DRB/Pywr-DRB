@@ -10,3 +10,6 @@ hydroeval
 scipy
 seaborn
 pywr 
+geopandas
+glob
+statsmodels

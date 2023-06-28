@@ -38,6 +38,24 @@ def plot_3part_flows(results, models, node,
                      colordict = paired_model_colors, 
                      markerdict = scatter_model_markers, 
                      uselog=False, save_fig=True, fig_dir = fig_dir):
+    """
+    Plots a 3-part figure to visualize flow data, including a timeseries plot, a scatter plot, and a flow duration curve.
+    
+    Args:
+        results (dict): A dictionary containing the flow data, including observed and modeled flows.
+        models (list): A list of model names to plot. It can contain one or two model names.
+        node (str): The name of the node or location for which the flows are plotted.
+        colordict (dict, optional): A dictionary mapping model names to color codes for line and scatter plots.
+            Defaults to paired_model_colors.
+        markerdict (dict, optional): A dictionary mapping model names to marker codes for scatter plots.
+            Defaults to scatter_model_markers.
+        uselog (bool, optional): Determines whether logarithmic scale is used for plotting. Defaults to False.
+        save_fig (bool, optional): Determines whether to save the figure as a PNG file. Defaults to True.
+        fig_dir (str, optional): The directory to save the figure. Defaults to fig_dir.
+
+    Returns:
+        None
+    """
     
     use2nd = True if len(models) > 1 else False
     fig = plt.figure(figsize=(16, 4))
@@ -123,8 +141,24 @@ def plot_3part_flows(results, models, node,
     return
 
 
-### plot distributions of weekly flows, with & without log scale
+### 
 def plot_weekly_flow_distributions(results, models, node, colordict= paired_model_colors, fig_dir = fig_dir):
+    """
+    Plot distributions (range and median) of weekly flows for 1 or 2 model simulation results.
+        
+    Args:
+        results (dict): A dictionary containing the flow data, including observed and modeled flows.
+        models (list): A list of model names to plot. It can contain one or two model names.
+        node (str): The name of the node or location for which the flows are plotted.
+        colordict (dict, optional): A dictionary mapping model names to color codes for line and scatter plots.
+            Defaults to paired_model_colors.
+        markerdict (dict, optional): A dictionary mapping model names to marker codes for scatter plots.
+            Defaults to scatter_model_markers.
+        fig_dir (str, optional): The directory to save the figure. Defaults to fig_dir.
+
+    Returns:
+        None
+    """
     use2nd = True if len(models) > 1 else False
 
     fig = plt.figure(figsize=(16, 4))
@@ -191,16 +225,19 @@ def plot_weekly_flow_distributions(results, models, node, colordict= paired_mode
 
 
 
+
+###
 def get_error_metrics(results, models, nodes):
-    """Generate error metrics (NSE, KGE, correlation, bias, etc.) for a specific model and node.
+    """
+    Generate error metrics (NSE, KGE, correlation, bias, etc.) for a specific model and node.
 
     Args:
-        results (dict): Dictionary containing dataframes of results.
-        models (list): List of model names (str).
-        nodes (list): List of node names (str).
+        results (dict): A dictionary containing dataframes of results.
+        models (list): A list of model names (str) to compute error metrics for.
+        nodes (list): A list of node names (str) to compute error metrics for.
 
     Returns:
-        pd.DataFrame: Dataframe containing all error metrics.
+        pd.DataFrame: A dataframe containing error metrics for the specified models and nodes.
     """
     ### compile error across models/nodes/metrics
     for j, node in enumerate(nodes):
@@ -243,6 +280,24 @@ def get_error_metrics(results, models, nodes):
 ### following galleries here https://www.python-graph-gallery.com/circular-barplot-with-groups
 def plot_radial_error_metrics(results_metrics, radial_models, nodes, useNonPep = True, useweap = True, usepywr = True, usemajorflows=False, fig_dir = fig_dir,
                               colordict = base_model_colors, hatchdict = model_hatch_styles):
+    """
+    Plot radial error metrics for different models, nodes, and metrics.
+
+    Args:
+        results_metrics (pd.DataFrame): Dataframe containing error metrics.
+        radial_models (list): List of model names (str) to include in the plot.
+        nodes (list): List of node names (str) to include in the plot.
+        useNonPep (bool): Whether to include non-pepacton nodes in the plot (default: True).
+        useweap (bool): Whether to include WEAP models in the plot (default: True).
+        usepywr (bool): Whether to include PyWR models in the plot (default: True).
+        usemajorflows (bool): Whether to use major flows in the plot (default: False).
+        fig_dir (str): Directory to save the generated figure (default: fig_dir).
+        colordict (dict): Dictionary mapping model names to colors (default: base_model_colors).
+        hatchdict (dict): Dictionary mapping model names to hatch styles (default: model_hatch_styles).
+
+    Returns:
+        None
+    """
 
     fig, axs = plt.subplots(2, 4, figsize=(16, 8), subplot_kw={"projection": "polar"})
 
@@ -389,9 +444,19 @@ def plot_radial_error_metrics(results_metrics, radial_models, nodes, useNonPep =
     return
 
 
-
-### get measures of reliability, resilience, and vulnerability from Hashimoto et al 1982, WRR
+###
 def get_RRV_metrics(results, models, nodes):
+    """
+    Calculate measures of reliability, resilience, and vulnerability based on Hashimoto et al. (1982) WRR.
+
+    Args:
+        results (dict): Dictionary containing model results for different nodes.
+        models (list): List of model names (str) to include in the analysis.
+        nodes (list): List of node names (str) to include in the analysis.
+
+    Returns:
+        pd.DataFrame: DataFrame containing reliability, resiliency, and vulnerability metrics for each model and node.
+    """
     thresholds = {'delMontague': 1131.05, 'delTrenton': 1938.950669}  ### FFMP flow targets (MGD)
     eps = 1e-9
     thresholds = {k: v - eps for k, v in thresholds.items()}
@@ -445,9 +510,23 @@ def get_RRV_metrics(results, models, nodes):
 
 
 
-### histogram of reliability, resiliency, & vulnerability for different models & nodes
+### 
 def plot_rrv_metrics(rrv_metrics, rrv_models, nodes, fig_dir = fig_dir,
                      colordict = base_model_colors, hatchdict = model_hatch_styles):
+    """
+    Plot histograms of reliability, resiliency, and vulnerability for different models and nodes.
+
+    Args:
+        rrv_metrics (pd.DataFrame): DataFrame containing reliability, resiliency, and vulnerability metrics.
+        rrv_models (list): List of model names (str) to include in the plot.
+        nodes (list): List of node names (str) to include in the plot.
+        fig_dir (str): Directory to save the figure (optional).
+        colordict (dict): Dictionary mapping model names to color codes (optional).
+        hatchdict (dict): Dictionary mapping model names to hatch styles (optional).
+
+    Returns:
+        None
+    """
 
     fig, axs = plt.subplots(2, 3, figsize=(16, 8))
 
@@ -492,12 +571,32 @@ def plot_flow_contributions(reservoir_releases, major_flows,
                             upstream_nodes_dict = upstream_nodes_dict,
                             reservoir_list = reservoir_list,
                             majorflow_list = majorflow_list,
-                            separate_pub_contributions = False,
                             percentage_flow = True,
                             plot_target = False, 
                             fig_dir = fig_dir,
                             input_dir = input_dir,
                             ):
+    """
+    Plot flow contributions at a specific node for a given model.
+
+    Args:
+        reservoir_releases (dict): Dictionary of reservoir releases data for different models.
+        major_flows (dict): Dictionary of major flows data.
+        model (str): Name of the model.
+        node (str): Name of the node.
+        start_date (str): Start date of the plot in 'YYYY-MM-DD' format.
+        end_date (str): End date of the plot in 'YYYY-MM-DD' format.
+        upstream_nodes_dict (dict): Dictionary mapping nodes to their upstream contributing nodes (optional).
+        reservoir_list (list): List of reservoir names (optional).
+        majorflow_list (list): List of major flow names (optional).
+        percentage_flow (bool): Whether to plot flow contributions as percentages (optional).
+        plot_target (bool): Whether to plot the flow target line (optional).
+        fig_dir (str): Directory to save the figure (optional).
+        input_dir (str): Directory to load input data (optional).
+
+    Returns:
+        None
+    """
 
     title = f'{fig_dir}/flow_contributions_{node}_{model}'
     nyc_reservoirs = ['cannonsville', 'pepacton', 'neversink']
@@ -633,6 +732,7 @@ def compare_inflow_data(inflow_data, nodes, fig_dir = fig_dir):
     plt.close()
     return
 
+
 def plot_combined_nyc_storage(storages, releases, models, 
                       start_date = '1999-10-01',
                       end_date = '2010-05-31',
@@ -641,12 +741,21 @@ def plot_combined_nyc_storage(storages, releases, models,
                       plot_drought_levels = True, 
                       plot_releases = True):
     """
-    Plots of simulated & observed NYC combined reservoir storage.
-    
-    Parameters:
-    storages : dictionary of storage results from `get_pywr_results`
-    models : list of models to plot
-    reservoir_list : list of reservoirs to plot
+    Plot simulated and observed combined NYC reservoir storage.
+
+    Args:
+        storages (dict): Dictionary of storage results from `get_pywr_results`.
+        releases (dict): Dictionary of release data.
+        models (list): List of models to plot.
+        start_date (str): Start date of the plot in 'YYYY-MM-DD' format.
+        end_date (str): End date of the plot in 'YYYY-MM-DD' format.
+        colordict (dict): Dictionary mapping model names to colors (optional).
+        use_percent (bool): Whether to plot storage as percentages of capacity (optional).
+        plot_drought_levels (bool): Whether to plot drought levels (optional).
+        plot_releases (bool): Whether to plot releases (optional).
+
+    Returns:
+        None
     """
 
     if isinstance(start_date, str):

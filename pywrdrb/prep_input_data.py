@@ -30,9 +30,22 @@ nhm_inflow_scaling_coefs = {'cannonsville': 1.188,
                             'pepacton': 1.737}
 
 def read_modeled_estimates(filename, sep, date_label, site_label, streamflow_label, start_date, end_date):
-    '''Reads input streamflows from modeled NHM/NWM estimates, preps for Pywr.
-    Returns dataframe.'''
+    """
+    Reads input streamflows from modeled NHM/NWM estimates and prepares them for Pywr.
 
+    Args:
+        filename (str): The path or filename of the input file.
+        sep (str): The separator used in the input file.
+        date_label (str): The label for the date column in the input file.
+        site_label (str): The label for the site column in the input file.
+        streamflow_label (str): The label for the streamflow column in the input file.
+        start_date (str): The start date for filtering the data (format: 'YYYY-MM-DD').
+        end_date (str): The end date for filtering the data (format: 'YYYY-MM-DD').
+
+    Returns:
+        pandas.DataFrame: The resulting dataframe containing the filtered and restructured data.
+    """
+    
     ### read in data & filter dates
     df = pd.read_csv(filename, sep = sep, dtype = {'site_no': str})
     df.sort_values([site_label, date_label], inplace=True)
@@ -54,7 +67,18 @@ def read_modeled_estimates(filename, sep, date_label, site_label, streamflow_lab
 
 
 def read_csv_data(filename, start_date, end_date, units = 'cms', source = 'USGS'):
-    """Reads in a pd.DataFrame containing USGS gauge data relevant to the model.
+    """
+    Reads in a pandas DataFrame containing USGS gauge data relevant to the model.
+
+    Args:
+        filename (str): The path or filename of the input file.
+        start_date (str): The start date for filtering the data (format: 'YYYY-MM-DD').
+        end_date (str): The end date for filtering the data (format: 'YYYY-MM-DD').
+        units (str, optional): The units of the data. Default is 'cms'.
+        source (str, optional): The data source. Default is 'USGS'.
+
+    Returns:
+        pandas.DataFrame: The resulting dataframe containing the filtered data.
     """
     df = pd.read_csv(filename, sep = ',', index_col=0)
     df.index = pd.to_datetime(df.index)
@@ -69,8 +93,18 @@ def read_csv_data(filename, start_date, end_date, units = 'cms', source = 'USGS'
     return df
 
 def subtract_upstream_catchment_inflows(inflows):
-    ''' Inflow timeseries are cumulative. So for each downstream node, subtract the flow into all upstream nodes so
-        this represents only direct catchment inflows into this node. Account for time lags between distant nodes. '''
+    """
+    Subtracts upstream catchment inflows from the input inflows timeseries.
+
+    Inflow timeseries are cumulative. For each downstream node, this function subtracts the flow into all upstream nodes so
+    that it represents only the direct catchment inflows into this node. It also accounts for time lags between distant nodes.
+
+    Args:
+        inflows (pandas.DataFrame): The inflows timeseries dataframe.
+
+    Returns:
+        pandas.DataFrame: The modified inflows timeseries dataframe with upstream catchment inflows subtracted.
+    """
     for node, upstreams in upstream_nodes_dict.items():
         for upstream in upstreams:
             lag = downstream_node_lags[upstream]
@@ -87,12 +121,24 @@ def subtract_upstream_catchment_inflows(inflows):
 
 
 def match_gages(df, dataset_label, site_matches_id, upstream_nodes_dict):
-    '''Matches USGS gage sites to nodes in Pywr-DRB.
-    For reservoirs, the matched gages are actually downstream, but assume this flows into reservoir from upstream catchment.
-    For river nodes, upstream reservoir inflows are subtracted from the flow at river node USGS gage.
-    For nodes related to USGS gages downstream of reservoirs, currently redundant flow with assumed inflow, so subtracted additional catchment flow will be 0 until this is updated.
-    Saves csv file, & returns dataframe whose columns are names of Pywr-DRB nodes.'''
+    """
+    Matches USGS gage sites to nodes in Pywr-DRB.
 
+    For reservoirs, the matched gages are actually downstream, but assume this flows into the reservoir from the upstream catchment.
+    For river nodes, upstream reservoir inflows are subtracted from the flow at the river node USGS gage.
+    For nodes related to USGS gages downstream of reservoirs, the currently redundant flow with assumed inflow is subtracted, resulting in an additional catchment flow of 0 until this is updated.
+    Saves csv file, & returns dataframe whose columns are names of Pywr-DRB nodes.
+    
+    Args:
+        df (pandas.DataFrame): The input dataframe.
+        dataset_label (str): The label for the dataset.
+        site_matches_id (dict): A dictionary containing the site matches for Pywr-DRB nodes.
+        upstream_nodes_dict (dict): A dictionary containing the upstream nodes for each node.
+
+    Returns:
+        pandas.DataFrame: The resulting dataframe whose columns are names of Pywr-DRB nodes.
+    """
+    
     ### 1. Match inflows for each Pywr-DRB node 
     ## 1.1 Reservoir inflows
     for node, site in site_matches_id.items():

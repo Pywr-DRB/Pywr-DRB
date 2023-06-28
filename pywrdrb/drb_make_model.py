@@ -21,26 +21,34 @@ nhm_inflow_scaling = True
 
 def add_major_node(model, name, node_type, inflow_type, outflow_type=None, downstream_node=None, downstream_lag=0,
                    capacity=None, initial_volume_frac=None, variable_cost=None, has_catchment=True, inflow_ensemble_indices = None):
-    '''
-    Add a major node to the model. Major nodes types include reservoir & river.
-    This function will add the major node and all standard minor nodes that belong to each major node
-    ( i.e., catchment, withdrawal, consumption, outflow), along with their standard parameters and edges.
-    All nodes, edges, and parameters are added to the model dict, which is then returned
-    :param model: the dict holding all model elements, which will be written to JSON file at completion.
-    :param name: name of major node
-    :param node_type: type of major node - either 'reservoir' or 'river'
-    :param inflow_type: 'nhmv10', etc
-    :param outflow_type: define what type of outflow node to use (if any) - either 'starfit' or 'regulatory'
-    :param downstream_node: name of node directly downstream, for writing edge network.
-    :param downstream_lag: travel time (in days) between flow leaving a node and reaching its downstream node
-    :param capacity: (reservoirs only) capacity of reservoir in MG.
-    :param initial_volume_frac: (reservoirs only) fraction full for reservoir initially
-                           (note this is fraction, not percent, despite that it must be named "initial_volume_pc" for pywr json by convention)
-    :param variable_cost: (reservoirs only) If False, cost is fixed throughout simulation.
-                           If True, it varies according to state-dependent parameter.
-    :param has_catchment: True if node has a catchment with inflows and withdrawal/consumption. False for artificial nodes that are coincident with another (eg  delTrenton, which shares catchment with delDRCanal)
-    :return: model
-    '''
+    """
+    Add a major node to the model.
+
+    Major node types include reservoirs and rivers. This function adds the major node
+    and all standard minor nodes that belong to each major node (i.e., catchment,
+    withdrawal, consumption, outflow), along with their standard parameters and edges.
+    All nodes, edges, and parameters are added to the model dictionary, which is then returned.
+
+    Args:
+        model (dict): The dictionary holding all model elements, which will be written to a JSON file upon completion.
+        name (str): The name of the major node.
+        node_type (str): The type of major node, either 'reservoir' or 'river'.
+        inflow_type (str): The inflow type, e.g., 'nhmv10'.
+        outflow_type (str): Define what type of outflow node to use (if any), either 'starfit' or 'regulatory'.
+        downstream_node (str): The name of the node directly downstream for writing the edge network.
+        downstream_lag (int): The travel time (in days) between flow leaving a node and reaching its downstream node.
+        capacity (float): The capacity of the reservoir in million gallons (MG) (reservoirs only).
+        initial_volume_frac (float): The initial fraction full for the reservoir (reservoirs only).
+                                     Note: This is a fraction, not a percentage, despite being named "initial_volume_pc" in the Pywr JSON by convention.
+        variable_cost (bool): If False, the cost is fixed throughout the simulation.
+                              If True, it varies according to a state-dependent parameter (reservoirs only).
+        has_catchment (bool): True if the node has a catchment with inflows and withdrawal/consumption.
+                              False for artificial nodes that coincide with another (e.g., delTrenton, which shares a catchment with delDRCanal).
+        inflow_ensemble_indices (None or list): List of ensemble indices for inflows (optional).
+
+    Returns:
+        dict: The updated model dictionary.
+    """
 
     ### NYC reservoirs are a bit more complex, leave some of model creation in csv files for now
     is_NYC_reservoir = name in ['cannonsville', 'pepacton', 'neversink']
@@ -251,14 +259,20 @@ def add_major_node(model, name, node_type, inflow_type, outflow_type=None, downs
 
 def drb_make_model(inflow_type, start_date, end_date, use_hist_NycNjDeliveries=True,
                    inflow_ensemble_indices = None, model_filename_extension = ""):
-    '''
-    This function creates the JSON file used by Pywr to define the model. THis includes all nodes, edges, and parameters.
-    :param inflow_type:
-    :param start_date:
-    :param end_date:
-    :param use_hist_NycNjDeliveries:
-    :return:
-    '''
+    """
+    Creates the JSON file used by Pywr to define the model, including all nodes, edges, and parameters.
+
+    Args:
+        inflow_type (str): Type of inflow.
+        start_date (str): Start date of the model.
+        end_date (str): End date of the model.
+        use_hist_NycNjDeliveries (bool): Flag indicating whether to use historical NYC and NJ deliveries.
+        inflow_ensemble_indices (list): List of inflow ensemble indices.
+        model_filename_extension (str): Filename extension for the model.
+
+    Returns:
+        dict: Model JSON representation.
+    """
 
     #######################################################################
     ### Basic model info
