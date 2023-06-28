@@ -182,10 +182,15 @@ const thebe_selector_output = ".output, .cell_output"
 <li class="toctree-l3"><a class="reference internal" href="pywrdrb.custom_parameters.flow_ensemble_parameter.html">pywrdrb.custom_parameters.flow_ensemble_parameter</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../pywrdrb.data_processing.html">Data Processing</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../pywrdrb.data_processing.html">Data Processing</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="pywrdrb.data_processing.get_results.html">pywrdrb.data_processing.get_results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pywrdrb.data_processing.disaggregate_DRBC_demands.html">pywrdrb.data_processing.disaggregate_DRBC_demands</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pywrdrb.data_processing.extrapolate_NYC_NJ_diversions.html">pywrdrb.data_processing.extrapolate_NYC_NJ_diversions</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../Supplemental/supplemental.html">Supplemental Material</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../Supplemental/supplemental.html">Supplemental Material</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../Supplemental/node_list.html">Pywr-DRB Node List</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../Supplemental/pub.html">Streamflow Prediction in Ungauged Basins</a></li>
 </ul>
@@ -401,7 +406,7 @@ policy at non-NYC reservoirs.</p>
 <table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">STARFITReservoirRelease</span></code>(model, storage_node, ...)</p></td>
-<td><p>Custom Pywr parameter class to implement STARFIT reservoir policy.</p></td>
+<td><p>Custom Pywr parameter class to implement STARFIT reservoir policy following Turner et al. (2021).</p></td>
 </tr>
 </tbody>
 </table>

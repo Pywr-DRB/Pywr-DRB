@@ -1,4 +1,4 @@
-`pywrdrb.prep_input_data`
+`pywrdrb.drb_make_model`
 ========================================
 
 .. currentmodule:: pywrdrb
@@ -6,5 +6,5 @@
 .. autosummary::
    :toctree: generated/
 
-   prep_input_data
+   drb_make_model
    

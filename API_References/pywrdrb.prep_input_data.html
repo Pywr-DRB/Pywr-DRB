@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>&lt;no title&gt; &#8212; Pywr-DRB Integrated Water Resource Management Model</title>
+    <title>pywrdrb.prep_input_data &#8212; Pywr-DRB Integrated Water Resource Management Model</title>
   
   
   
@@ -180,10 +180,15 @@ const thebe_selector_output = ".output, .cell_output"
 <li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.custom_parameters.flow_ensemble_parameter.html">pywrdrb.custom_parameters.flow_ensemble_parameter</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="pywrdrb.data_processing.html">Data Processing</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="pywrdrb.data_processing.html">Data Processing</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.data_processing.get_results.html">pywrdrb.data_processing.get_results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.data_processing.disaggregate_DRBC_demands.html">pywrdrb.data_processing.disaggregate_DRBC_demands</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.data_processing.extrapolate_NYC_NJ_diversions.html">pywrdrb.data_processing.extrapolate_NYC_NJ_diversions</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../Supplemental/supplemental.html">Supplemental Material</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../Supplemental/supplemental.html">Supplemental Material</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../Supplemental/node_list.html">Pywr-DRB Node List</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../Supplemental/pub.html">Streamflow Prediction in Ungauged Basins</a></li>
 </ul>
@@ -358,9 +363,7 @@ document.write(`
   </button>
 `);
 </script>
-<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <span class="fa-solid fa-list"></span>
-</label>
+
 </div></div>
       
     </div>
@@ -371,19 +374,11 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1><no title></h1>
+    <h1>pywrdrb.prep_input_data</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
             
-            <div>
-                <h2> Contents </h2>
-            </div>
-            <nav aria-label="Page">
-                <ul class="simple visible nav section-nav flex-column">
-</ul>
-
-            </nav>
         </div>
     </div>
 </div>
@@ -393,7 +388,17 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  
+  <section id="pywrdrb-prep-input-data">
+<h1><cite>pywrdrb.prep_input_data</cite><a class="headerlink" href="#pywrdrb-prep-input-data" title="Permalink to this heading">#</a></h1>
+<table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pywrdrb.prep_input_data.html#module-pywrdrb.prep_input_data" title="pywrdrb.prep_input_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prep_input_data</span></code></a></p></td>
+<td><p>Organize data records into appropriate format for Pywr-DRB.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+
     <script type="text/x-thebe-config">
     {
         requestKernel: true,
@@ -434,20 +439,6 @@ document.write(`
             </div>
             
             
-              
-                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
-
-  <div class="sidebar-secondary-item">
-  <div class="page-toc tocsection onthispage">
-    <i class="fa-solid fa-list"></i> Contents
-  </div>
-  <nav class="bd-toc-nav page-toc">
-    <ul class="simple visible nav section-nav flex-column">
-</ul>
-
-  </nav></div>
-
-</div></div>
               
             
           </div>

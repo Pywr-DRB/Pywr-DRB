@@ -64,7 +64,7 @@ const thebe_selector_output = ".output, .cell_output"
     <script>DOCUMENTATION_OPTIONS.pagename = 'API_References/pywrdrb.data_processing';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Supplemental Material" href="../Supplemental/supplemental.html" />
+    <link rel="next" title="pywrdrb.data_processing.get_results" href="generated/pywrdrb.data_processing.get_results.html" />
     <link rel="prev" title="pywrdrb.custom_parameters.flow_ensemble_parameter" href="generated/pywrdrb.custom_parameters.flow_ensemble_parameter.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -182,10 +182,15 @@ const thebe_selector_output = ".output, .cell_output"
 <li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.custom_parameters.flow_ensemble_parameter.html">pywrdrb.custom_parameters.flow_ensemble_parameter</a></li>
 </ul>
 </li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">Data Processing</a></li>
+<li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">Data Processing</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.data_processing.get_results.html">pywrdrb.data_processing.get_results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.data_processing.disaggregate_DRBC_demands.html">pywrdrb.data_processing.disaggregate_DRBC_demands</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.data_processing.extrapolate_NYC_NJ_diversions.html">pywrdrb.data_processing.extrapolate_NYC_NJ_diversions</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../Supplemental/supplemental.html">Supplemental Material</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../Supplemental/supplemental.html">Supplemental Material</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../Supplemental/node_list.html">Pywr-DRB Node List</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../Supplemental/pub.html">Streamflow Prediction in Ungauged Basins</a></li>
 </ul>
@@ -390,8 +395,22 @@ document.write(`
 <p>Contains various functions for processing input and output data.</p>
 <table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">pywrdrb.data_processing</span></code></p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pywrdrb.data_processing.get_results.html#module-pywrdrb.data_processing.get_results" title="pywrdrb.data_processing.get_results"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_results</span></code></a></p></td>
+<td><p>Contains functions used to process Pywr-DRB data.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pywrdrb.data_processing.disaggregate_DRBC_demands.html#pywrdrb.data_processing.disaggregate_DRBC_demands" title="pywrdrb.data_processing.disaggregate_DRBC_demands"><code class="xref py py-obj docutils literal notranslate"><span class="pre">disaggregate_DRBC_demands</span></code></a>()</p></td>
+<td><p>Disaggregates DRBC water demand data to align with PywrDRB catchments.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pywrdrb.data_processing.extrapolate_NYC_NJ_diversions.html#pywrdrb.data_processing.extrapolate_NYC_NJ_diversions" title="pywrdrb.data_processing.extrapolate_NYC_NJ_diversions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extrapolate_NYC_NJ_diversions</span></code></a>(loc)</p></td>
+<td><p>Function for retrieving NYC and NJ historical diversions and extrapolating them into time periods where we don't have data based on seasonal flow regressions.</p></td>
 </tr>
 </tbody>
 </table>
@@ -438,11 +457,11 @@ document.write(`
       </div>
     </a>
     <a class="right-next"
-       href="../Supplemental/supplemental.html"
+       href="generated/pywrdrb.data_processing.get_results.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Supplemental Material</p>
+        <p class="prev-next-title">pywrdrb.data_processing.get_results</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
