@@ -11,7 +11,7 @@ FFMP Parameters
 These custom parameters are used to implement the Flexible Flow Management Program (FFMP).
 
 .. autosummary::
-   :toctree: generated/
+   :toctree: _autosummary
    :recursive:
 
    ffmp_parameters
