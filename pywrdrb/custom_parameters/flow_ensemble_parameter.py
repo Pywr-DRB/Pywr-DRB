@@ -12,18 +12,18 @@ from utils.directories import input_dir
 
 
 class FlowEnsemble(Parameter):
-    """Custom Pywr parameter class. This parameter provides access to inflow ensemble timeseries during the simulation period. 
-    
-    :param name: The node name.
-    :type name: str
-    
-    :param inflow_type: The dataset label; Options: 'obs_pub', 'nhmv10', 'nwmv21'
-    :type inflow_type: str
-    
-    :returns: None
-    :rtype: None
-    """
-    
+    """This parameter provides access to inflow ensemble timeseries during the simulation period.
+
+    Args:
+        model (Model): The Pywr model.
+        name (str): The node name.
+        inflow_type (str): The dataset label; Options: 'obs_pub', 'nhmv10', 'nwmv21'
+        inflow_ensemble_indices (list): Indices of the inflow ensemble to be used.
+        **kwargs: Additional keyword arguments.
+
+    Returns:
+        None
+    """    
     def __init__(self, model, name, inflow_type, inflow_ensemble_indices, **kwargs):
         super().__init__(model, **kwargs)
         
@@ -35,13 +35,20 @@ class FlowEnsemble(Parameter):
         
         
     def setup(self):
-        ### allocate an array to hold the parameter state
+        """Perform setup operations for the parameter."""
         super().setup()
         
     def value(self, timestep, scenario_index):
-        ### return the current flow across scenarios
-        #if self.name == 'flow_cannonsville' and ((scenario_index.global_id == 1) or (scenario_index.global_id == 0)):
-        #    print(f'Returning {self.inflow_ensemble.loc[timestep.datetime, f"scenario_{scenario_index.global_id}"]} for {self.name} in scenario {scenario_index.global_id} at {timestep.datetime}')
+        """Return the current flow across scenarios for the specified timestep and scenario index.
+
+        Args:
+            timestep (Timestep): The timestep being evaluated.
+            scenario_index (ScenarioIndex): The index of the scenario.
+
+        Returns:
+            float: The flow value for the specified timestep and scenario.
+        """
+        
         s_id = self.inflow_ensemble_indices[scenario_index.global_id]
         return self.inflow_ensemble.loc[timestep.datetime, f"scenario_{s_id}"]
 

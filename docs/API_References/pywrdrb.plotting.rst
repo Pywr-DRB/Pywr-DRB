@@ -1,4 +1,10 @@
 `pywrdrb.plotting`
 ========================================
 
-.. autofunction:: pywrdrb.plotting.plotting_functions.plot_3part_flows
+.. currentmodule:: pywrdrb.plotting
+
+.. autosummary::
+   :toctree: generated/
+
+   plotting_functions
+   

@@ -27,18 +27,18 @@ def get_reservoir_capacity(reservoir):
 
 
 class STARFITReservoirRelease(Parameter):
-    '''
-    Custom Pywr parameter class to implement STARFIT reservoir policy.
-    '''
+    """
+    Custom Pywr parameter class to implement STARFIT reservoir policy following Turner et al. (2021).
+    
+    Args:
+        model (dict): The PywrDRB model.
+        storage_node (str): The storage node associated with the reservoir.
+        flow_parameter: The PywrDRB catchment inflow parameter corresponding to the reservoir.
+    
+    Returns:
+        None
+    """
     def __init__(self, model, storage_node, flow_parameter, **kwargs):
-        """
-        Initialize the STARFITReservoirRelease parameter.
-
-        Args:
-            model (dict): The PywrDRB model.
-            storage_node (str): The storage node associated with the reservoir.
-            flow_parameter: The PywrDRB catchment inflow parameter corresponding to the reservoir.
-        """
         super().__init__(model, **kwargs)
 
         self.node = storage_node
