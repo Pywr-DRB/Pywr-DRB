@@ -1,7 +1,9 @@
 Custom Pywr Parameters
 ========================================
 
-Testing automodule
+.. autosummary::
+    :recursive: 
+    pywrdrb.custom_parameters
 
-.. automodule:: pywrdrb.custom_parameters
+.. autoclass:: pywrdrb.custom_parameters.starfit_parameter.STARFITReservoirRelease
     :members:
