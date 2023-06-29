@@ -292,9 +292,6 @@ class VolBalanceNYCDemandFinal(Parameter):
         volbalance_target_max_flow_delivery_nyc_reservoir (Parameter): The volume balance target maximum flow delivery NYC reservoir parameter.
         volbalance_target_max_flow_delivery_agg_nyc (Parameter): The volume balance target maximum flow delivery aggregate NYC parameter.
 
-    Keyword Args:
-        Additional keyword arguments.
-
     Attributes:
         node (Node): The node associated with the parameter.
         max_flow_delivery_nyc (Parameter): The maximum flow NYC delivery parameter.
