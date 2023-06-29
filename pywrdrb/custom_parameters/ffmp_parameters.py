@@ -10,12 +10,31 @@ import pandas as pd
 from pywr.parameters import Parameter, load_parameter
 
 
-
 class FfmpNycRunningAvgParameter(Parameter):
-    '''
+    """
     Custom Pywr parameter class. This parameter enforces the constraint on NYC deliveries from the FFMP, which is based
     on a running average.
-    '''
+
+    Args:
+        model (Model): The Pywr model instance.
+        node (Node): The node associated with the parameter.
+        max_avg_delivery (ConstantParameter): The maximum average delivery constant parameter.
+
+    Attributes:
+        node (Node): The node associated with the parameter.
+        max_avg_delivery (float): The maximum average delivery value.
+        max_delivery (ndarray): An array to hold the parameter state.
+
+    Methods:
+        setup(): Allocates an array to hold the parameter state.
+        reset(): Resets the amount remaining in all states to the initial value.
+        value(timestep, scenario_index): Returns the current volume remaining for the scenario.
+        after(): Updates the parameter requirement based on running average and updates the date for tomorrow.
+
+    Class Methods:
+        load(model, data): Loads the parameter from model and data dictionary.
+
+    """
     def __init__(self, model, node, max_avg_delivery, **kwargs):
         super().__init__(model, **kwargs)
         self.node = node
@@ -23,22 +42,33 @@ class FfmpNycRunningAvgParameter(Parameter):
         self.children.add(max_avg_delivery)
 
     def setup(self):
-        ### allocate an array to hold the parameter state
+        """Allocates an array to hold the parameter state."""
         super().setup()
         num_scenarios = len(self.model.scenarios.combinations)
         self.max_delivery = np.empty([num_scenarios], np.float64)
 
     def reset(self):
-        ### reset the amount remaining in all states to the initial value
+        """Resets the amount remaining in all states to the initial value."""
         self.timestep = self.model.timestepper.delta
         self.datetime = pd.to_datetime(self.model.timestepper.start)
         self.max_delivery[...] = self.max_avg_delivery * self.timestep
 
     def value(self, timestep, scenario_index):
-        ### return the current volume remaining for the scenario
+        """
+        Returns the current volume remaining for the scenario.
+
+        Args:
+            timestep (Timestep): The current timestep.
+            scenario_index (ScenarioIndex): The scenario index.
+
+        Returns:
+            float: The current volume remaining for the scenario.
+        """
         return self.max_delivery[scenario_index.global_id]
 
     def after(self):
+        """Updates the parameter requirement based on running average and updates the date for tomorrow.
+        """
         ### if it is may 31, reset max delivery to original value (800)
         if self.datetime.month == 5 and self.datetime.day == 31:
             self.max_delivery[...] = self.max_avg_delivery * self.timestep
@@ -51,6 +81,16 @@ class FfmpNycRunningAvgParameter(Parameter):
 
     @classmethod
     def load(cls, model, data):
+        """
+        Loads the parameter from model and data dictionary.
+
+        Args:
+            model (Model): The Pywr model instance.
+            data (dict): The data dictionary containing the parameter information.
+
+        Returns:
+            FfmpNycRunningAvgParameter: The loaded parameter instance.
+        """
         node = model.nodes[data.pop("node")]
         max_avg_delivery = load_parameter(model, data.pop("max_avg_delivery"))
         return cls(model, node, max_avg_delivery, **data)
@@ -61,10 +101,36 @@ FfmpNycRunningAvgParameter.register()
 
 
 class FfmpNjRunningAvgParameter(Parameter):
-    '''
+    """
     Custom Pywr parameter class. This parameter enforces the constraint on NJ deliveries from the FFMP, which is based
     on a running average.
-    '''
+
+    Args:
+        model (Model): The Pywr model instance.
+        node (Node): The node associated with the parameter.
+        max_avg_delivery (ConstantParameter): The maximum average delivery constant parameter.
+        max_daily_delivery (ConstantParameter): The maximum daily delivery constant parameter.
+        drought_factor (Parameter): The drought factor parameter.
+
+    Attributes:
+        node (Node): The node associated with the parameter.
+        max_avg_delivery (float): The maximum average delivery value.
+        max_daily_delivery (float): The maximum daily delivery value.
+        drought_factor (Parameter): The drought factor parameter.
+        max_delivery (ndarray): An array to hold the parameter state.
+        current_drought_factor (ndarray): An array to hold the current drought factor.
+        previous_drought_factor (ndarray): An array to hold the previous drought factor.
+
+    Methods:
+        setup(): Allocates arrays to hold the parameter state and drought factors.
+        reset(): Resets the amount remaining in all states to the initial value.
+        value(timestep, scenario_index): Returns the current volume remaining for the scenario.
+        after(): Updates the parameter requirement based on running average and updates the date for tomorrow.
+
+    Class Methods:
+        load(model, data): Loads the parameter from model and data dictionary.
+
+    """
     def __init__(self, model, node, max_avg_delivery, max_daily_delivery, drought_factor, **kwargs):
         super().__init__(model, **kwargs)
         self.node = node
@@ -76,7 +142,7 @@ class FfmpNjRunningAvgParameter(Parameter):
         self.children.add(drought_factor)
 
     def setup(self):
-        ### allocate an array to hold the parameter state
+        """Allocate an array to hold the parameter state."""
         super().setup()
         num_scenarios = len(self.model.scenarios.combinations)
         self.max_delivery = np.empty([num_scenarios], np.float64)
@@ -84,7 +150,7 @@ class FfmpNjRunningAvgParameter(Parameter):
         self.previous_drought_factor = np.empty([num_scenarios], np.float64)
 
     def reset(self):
-        ### reset the amount remaining in all states to the initial value
+        """Resets the amount remaining in all states to the initial value."""
         self.timestep = self.model.timestepper.delta
         self.datetime = pd.to_datetime(self.model.timestepper.start)
         self.max_delivery[...] = self.max_avg_delivery * self.timestep
@@ -92,10 +158,21 @@ class FfmpNjRunningAvgParameter(Parameter):
         self.previous_drought_factor[...] = 1.0
 
     def value(self, timestep, scenario_index):
-        ### return the current volume remaining for the scenario
+        """
+        Returns the current volume remaining for the scenario.
+
+        Args:
+            timestep (Timestep): The current timestep.
+            scenario_index (ScenarioIndex): The scenario index.
+
+        Returns:
+            float: The current volume remaining for the scenario.
+        
+        """
         return self.max_delivery[scenario_index.global_id]
 
     def after(self):
+        """Updates the parameter requirement based on running average and updates the date for tomorrow."""
         self.current_drought_factor[...] = self.drought_factor.get_all_values()
         ### loop over scenarios
         for s, factor in enumerate(self.current_drought_factor):
@@ -133,12 +210,40 @@ class FfmpNjRunningAvgParameter(Parameter):
 
 
 class VolBalanceNYCDemandTarget(Parameter):
-    '''
+    """
     Custom Pywr parameter class. This parameter updates the contribution to NYC deliveries made by each of the NYC
     reservoirs, in such a way as to balance the relative storages across the three reservoirs.
     See comments on this GitHub issue for the equations & logic:
     https://github.com/users/ahamilton144/projects/1/views/1?pane=issue&itemId=7840442
-    '''
+
+    Args:
+        model (Model): The Pywr model instance.
+        node (Node): The node associated with the parameter.
+        max_volume_agg_nyc (Parameter): The maximum volume aggregate NYC parameter.
+        volume_agg_nyc (Parameter): The volume aggregate NYC parameter.
+        max_flow_delivery_nyc (Parameter): The maximum flow delivery NYC parameter.
+        flow_agg_nyc (Parameter): The flow aggregate NYC parameter.
+        max_vol_reservoir (Parameter): The maximum volume reservoir parameter.
+        vol_reservoir (Parameter): The volume reservoir parameter.
+        flow_reservoir (Parameter): The flow reservoir parameter.
+
+    Attributes:
+        node (Node): The node associated with the parameter.
+        max_volume_agg_nyc (Parameter): The maximum volume aggregate NYC parameter.
+        volume_agg_nyc (Parameter): The volume aggregate NYC parameter.
+        max_flow_delivery_nyc (Parameter): The maximum flow delivery NYC parameter.
+        flow_agg_nyc (Parameter): The flow aggregate NYC parameter.
+        max_vol_reservoir (Parameter): The maximum volume reservoir parameter.
+        vol_reservoir (Parameter): The volume reservoir parameter.
+        flow_reservoir (Parameter): The flow reservoir parameter.
+
+    Methods:
+        value(timestep, scenario_index): Returns the target NYC delivery for this reservoir to balance storages across reservoirs.
+
+    Class Methods:
+        load(model, data): Loads the parameter from model and data dictionary.
+
+    """
     def __init__(self, model, node, max_volume_agg_nyc, volume_agg_nyc, max_flow_delivery_nyc, flow_agg_nyc,
                  max_vol_reservoir, vol_reservoir, flow_reservoir, **kwargs):
         super().__init__(model, **kwargs)
@@ -206,6 +311,16 @@ class VolBalanceNYCDemandFinal(Parameter):
         self.children.add(volbalance_target_max_flow_delivery_agg_nyc)
 
     def value(self, timestep, scenario_index):
+        """
+        Returns the target NYC delivery for this reservoir to balance storages across reservoirs.
+
+        Args:
+            timestep (Timestep): The current timestep.
+            scenario_index (ScenarioIndex): The scenario index.
+
+        Returns:
+            float: The target NYC delivery for this reservoir.
+        """
         ### rescale the max flow NYC delivery for this reservoir after zeroing out if any reservoir had negative target
         return self.max_flow_delivery_nyc.get_value(scenario_index) * \
                self.volbalance_target_max_flow_delivery_nyc_reservoir.get_value(scenario_index) / \
@@ -256,6 +371,16 @@ class VolBalanceNYCDownstreamMRFTargetAgg(Parameter):
 
     @classmethod
     def load(cls, model, data):
+        """
+        Loads the parameter from model and data dictionary.
+
+        Args:
+            model (Model): The Pywr model instance.
+            data (dict): The data dictionary containing the parameter information.
+
+        Returns:
+            VolBalanceNYCDemandTarget: The loaded parameter instance.
+        """
         volbalance_flow_agg_nonnyc_delMontague = load_parameter(model, 'volbalance_flow_agg_nonnyc_delMontague')
         mrf_target_delMontague = load_parameter(model, 'mrf_target_delMontague')
         volbalance_flow_agg_nonnyc_delTrenton = load_parameter(model, 'volbalance_flow_agg_nonnyc_delTrenton')
@@ -269,12 +394,40 @@ class VolBalanceNYCDownstreamMRFTargetAgg(Parameter):
 
 
 class VolBalanceNYCDownstreamMRFTarget(Parameter):
-    '''
+    """
     Custom Pywr parameter class. This parameter updates the contribution to meeting Montague & Trenton flow targets,
     by each of the NYC reservoirs, in such a way as to balance the relative storages across the three reservoirs.
     See comments on this GitHub issue for the equations & logic:
     https://github.com/users/ahamilton144/projects/1/views/1?pane=issue&itemId=7840442
-    '''
+
+    Args:
+        model (Model): The Pywr model instance.
+        node (Node): The node associated with the parameter.
+        max_volume_agg_nyc (Parameter): The maximum volume aggregate NYC parameter.
+        volume_agg_nyc (Parameter): The volume aggregate NYC parameter.
+        volbalance_relative_mrf_montagueTrenton (Parameter): The volbalance relative MRF Montague & Trenton parameter.
+        flow_agg_nyc (Parameter): The flow aggregate NYC parameter.
+        max_vol_reservoir (Parameter): The maximum volume reservoir parameter.
+        vol_reservoir (Parameter): The volume reservoir parameter.
+        flow_reservoir (Parameter): The flow reservoir parameter.
+
+    Attributes:
+        node (Node): The node associated with the parameter.
+        max_volume_agg_nyc (Parameter): The maximum volume aggregate NYC parameter.
+        volume_agg_nyc (Parameter): The volume aggregate NYC parameter.
+        volbalance_relative_mrf_montagueTrenton (Parameter): The volbalance relative MRF Montague & Trenton parameter.
+        flow_agg_nyc (Parameter): The flow aggregate NYC parameter.
+        max_vol_reservoir (Parameter): The maximum volume reservoir parameter.
+        vol_reservoir (Parameter): The volume reservoir parameter.
+        flow_reservoir (Parameter): The flow reservoir parameter.
+
+    Methods:
+        value(timestep, scenario_index): Returns the target downstream MRF release for this reservoir to balance storages across reservoirs.
+
+    Class Methods:
+        load(model, data): Loads the parameter from model and data dictionary.
+    
+    """
     def __init__(self, model, node, max_volume_agg_nyc, volume_agg_nyc, volbalance_relative_mrf_montagueTrenton, flow_agg_nyc,
                  max_vol_reservoir, vol_reservoir, flow_reservoir, **kwargs):
         super().__init__(model, **kwargs)
@@ -297,7 +450,16 @@ class VolBalanceNYCDownstreamMRFTarget(Parameter):
 
 
     def value(self, timestep, scenario_index):
-        ### return the target downstream MRF release for this reservoir to balance storages across reservoirs
+        """
+        Returns the target downstream MRF release for this reservoir to balance storages across reservoirs.
+
+        Args:
+            timestep (Timestep): The current timestep.
+            scenario_index (ScenarioIndex): The scenario index.
+
+        Returns:
+            float: The target downstream MRF release for this reservoir.
+        """
         target = self.vol_reservoir.get_value(scenario_index) + self.flow_reservoir.get_value(scenario_index) - \
                (self.max_vol_reservoir.get_value(scenario_index) / self.max_volume_agg_nyc.get_value(scenario_index)) * \
                (self.volume_agg_nyc.get_value(scenario_index) + self.flow_agg_nyc.get_value(scenario_index) - \
@@ -307,6 +469,15 @@ class VolBalanceNYCDownstreamMRFTarget(Parameter):
 
     @classmethod
     def load(cls, model, data):
+        """Loads the parameter from model and data dictionary.
+
+        Args:
+            model (Model): The Pywr model instance.
+            data (dict): The data dictionary containing the parameter information.
+
+        Returns:
+            VolBalanceNYCDownstreamMRFTarget: The loaded parameter instance.
+        """
         reservoir = data.pop("node")
         node = model.nodes[reservoir]
         reservoir = reservoir.split('_')[1]
@@ -326,14 +497,34 @@ class VolBalanceNYCDownstreamMRFTarget(Parameter):
 
 
 class VolBalanceNYCDownstreamMRFFinal(Parameter):
-    '''
+    """
     Custom Pywr parameter class. This is the second step in updating the contribution to meeting Montague & Trenton flow
     targets, by each of the NYC reservoirs, in such a way as to balance the relative storages across the three reservoirs.
     Step one is VolBalanceNYCDownstreamMRFTargetAgg above.
     In this second step, each reservoir's contributions are rescaled to ensure their sum is equal to demand.
     See comments on this GitHub issue for the equations & logic:
     https://github.com/users/ahamilton144/projects/1/views/1?pane=issue&itemId=7840442
-    '''
+
+    Args:
+        model (Model): The Pywr model instance.
+        node (Node): The node associated with the parameter.
+        volbalance_relative_mrf_montagueTrenton (Parameter): The volbalance relative MRF Montague & Trenton parameter.
+        volbalance_target_max_flow_montagueTrenton_reservoir (Parameter): The volbalance target max flow Montague & Trenton reservoir parameter.
+        volbalance_target_max_flow_montagueTrenton_agg_nyc (Parameter): The volbalance target max flow Montague & Trenton aggregate NYC parameter.
+
+    Attributes:
+        node (Node): The node associated with the parameter.
+        volbalance_relative_mrf_montagueTrenton (Parameter): The volbalance relative MRF Montague & Trenton parameter.
+        volbalance_target_max_flow_montagueTrenton_reservoir (Parameter): The volbalance target max flow Montague & Trenton reservoir parameter.
+        volbalance_target_max_flow_montagueTrenton_agg_nyc (Parameter): The volbalance target max flow Montague & Trenton aggregate NYC parameter.
+
+    Methods:
+        value(timestep, scenario_index): Returns the rescaled max flow NYC delivery for this reservoir.
+
+    Class Methods:
+        load(model, data): Loads the parameter from model and data dictionary.
+
+    """
     def __init__(self, model, node, volbalance_relative_mrf_montagueTrenton, volbalance_target_max_flow_montagueTrenton_reservoir,
                  volbalance_target_max_flow_montagueTrenton_agg_nyc, **kwargs):
         super().__init__(model, **kwargs)
@@ -346,6 +537,16 @@ class VolBalanceNYCDownstreamMRFFinal(Parameter):
         self.children.add(volbalance_target_max_flow_montagueTrenton_agg_nyc)
 
     def value(self, timestep, scenario_index):
+        """
+        Returns the rescaled max flow NYC delivery for this reservoir.
+
+        Args:
+            timestep (Timestep): The current timestep.
+            scenario_index (ScenarioIndex): The scenario index.
+
+        Returns:
+            float: The rescaled max flow NYC delivery for this reservoir.
+        """
         ### rescale the max flow NYC delivery for this reservoir after zeroing out if any reservoir had negative target
         return self.volbalance_relative_mrf_montagueTrenton.get_value(scenario_index) * \
                self.volbalance_target_max_flow_montagueTrenton_reservoir.get_value(scenario_index) / \
@@ -353,6 +554,16 @@ class VolBalanceNYCDownstreamMRFFinal(Parameter):
 
     @classmethod
     def load(cls, model, data):
+        """
+        Loads the parameter from model and data dictionary.
+
+        Args:
+            model (Model): The Pywr model instance.
+            data (dict): The data dictionary containing the parameter information.
+
+        Returns:
+            VolBalanceNYCDownstreamMRFFinal: The loaded parameter instance.
+        """
         reservoir = data.pop("node")
         node = model.nodes[reservoir]
         reservoir = reservoir.split('_')[1]
@@ -366,14 +577,34 @@ class VolBalanceNYCDownstreamMRFFinal(Parameter):
 
 
 class NYCCombinedReleaseFactor(Parameter):
-    '''
+    """
     Custom Pywr parameter class. This parameter decides whether an NYC reservoir's release is dictated by its own
     storage (in the case of flood operations) or the aggregate storage across the three NYC reservoirs
     (in the case of normal or drought operations). It returns the "factor" which is a multiplier to baseline release
     value for the reservoir.
     See 8/30/2022 comment on this GitHub issue for the equation & logic:
     https://github.com/users/ahamilton144/projects/1/views/1?pane=issue&itemId=7839486
-    '''
+
+    Args:
+        model (Model): The Pywr model instance.
+        node (Node): The node associated with the parameter.
+        drought_level_agg_nyc (Parameter): The drought level aggregate NYC parameter.
+        mrf_drought_factor_agg_reservoir (Parameter): The MRF drought factor aggregate reservoir parameter.
+        mrf_drought_factor_individual_reservoir (Parameter): The MRF drought factor individual reservoir parameter.
+
+    Attributes:
+        node (Node): The node associated with the parameter.
+        drought_level_agg_nyc (Parameter): The drought level aggregate NYC parameter.
+        mrf_drought_factor_agg_reservoir (Parameter): The MRF drought factor aggregate reservoir parameter.
+        mrf_drought_factor_individual_reservoir (Parameter): The MRF drought factor individual reservoir parameter.
+
+    Methods:
+        value(timestep, scenario_index): Returns the overall release factor for the NYC reservoir.
+
+    Class Methods:
+        load(model, data): Loads the parameter from model and data dictionary.
+
+    """
     def __init__(self, model, node, drought_level_agg_nyc, mrf_drought_factor_agg_reservoir,
                  mrf_drought_factor_individual_reservoir, **kwargs):
         super().__init__(model, **kwargs)
@@ -386,9 +617,18 @@ class NYCCombinedReleaseFactor(Parameter):
         self.children.add(mrf_drought_factor_individual_reservoir)
 
     def value(self, timestep, scenario_index):
-        ### get overall release factor for NYC reservoir, depending on whether it is flood stage (in which case we use
-        ### the reservoirs individual storage) or normal/drought stage (in which case we use aggregate storage across
-        ### the NYC reservoirs).
+        """
+        Returns the overall release factor for the NYC reservoir, depending on whether it is flood stage 
+        (in which case we use the reservoirs individual storage) or normal/drought stage 
+        (in which case we use aggregate storage across the NYC reservoirs).
+
+        Args:
+            timestep (Timestep): The current timestep.
+            scenario_index (ScenarioIndex): The scenario index.
+
+        Returns:
+            float: The overall release factor for the NYC reservoir.
+        """
         ### $$ factor_{combined-cannonsville} = \min(\max(levelindex_{aggregated} - 2, 0), 1) * factor_{cannonsville}[levelindex_{aggregated}] +
         ###                                     \min(\max(3 - levelindex_{aggregated}, 0), 1) * factor_{cannonsville}[levelindex_{cannonsville}] $$
 
@@ -399,6 +639,16 @@ class NYCCombinedReleaseFactor(Parameter):
 
     @classmethod
     def load(cls, model, data):
+        """
+        Loads the parameter from model and data dictionary.
+
+        Args:
+            model (Model): The Pywr model instance.
+            data (dict): The data dictionary containing the parameter information.
+
+        Returns:
+            NYCCombinedReleaseFactor: The loaded parameter instance.
+        """
         reservoir = data.pop("node")
         node = model.nodes[reservoir]
         reservoir = reservoir.split('_')[1]
