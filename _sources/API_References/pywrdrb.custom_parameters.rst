@@ -17,11 +17,20 @@ These custom parameters are used to implement the Flexible Flow Management Progr
    ffmp_parameters
 
 
-STARFIT Reservoir Release Parameter
+STARFIT Reservoir Release Parameter (generated)
 ------------------------------------------------------------
 
 .. autosummary::
    :toctree: generated/
+
+   starfit_parameter
+
+
+STARFIT Reservoir Release Parameter (auto)
+------------------------------------------------------------
+
+.. autosummary::
+   :toctree: _autosummary
 
    starfit_parameter
 
