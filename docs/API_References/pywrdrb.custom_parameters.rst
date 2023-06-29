@@ -22,17 +22,10 @@ STARFIT Reservoir Release Parameter (generated)
 
 .. autosummary::
    :toctree: generated/
+   :recursive:
 
    starfit_parameter
 
-
-STARFIT Reservoir Release Parameter (auto)
-------------------------------------------------------------
-
-.. autosummary::
-   :toctree: _autosummary
-
-   starfit_parameter
 
 
 Flow Ensemble Parameter
