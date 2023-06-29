@@ -1,7 +1,7 @@
 Custom Pywr Parameters
 ========================================
 
-The following custom parameters are built from the `pywr` Parameter class and used to track various model state variables throughout the simulation period. 
+The following custom parameters are built from the `pywr Parameter class <https://pywr.github.io/pywr/api/pywr.parameters.html>` and used to track various model state variables throughout the simulation period.
 
 .. currentmodule:: pywrdrb.parameters
 
@@ -13,6 +13,7 @@ These custom parameters are used to implement the Flexible Flow Management Progr
 .. autosummary::
    :toctree: generated/
 
+   FfmpNycRunningAvgParameter
    FfmpNjRunningAvgParameter
    VolBalanceNYCDemandTarget
    VolBalanceNYCDemandFinal
@@ -22,17 +23,7 @@ These custom parameters are used to implement the Flexible Flow Management Progr
    NYCCombinedReleaseFactor
 
 
-STARFIT Reservoir Release Parameter (no inherited-members)
-------------------------------------------------------------
-
-.. autosummary::
-   :toctree: generated/
-   :no-inherited-members:
-   
-   STARFITReservoirRelease
-
-
-STARFIT Reservoir Release Parameter (recursive)
+STARFIT Reservoir Release Parameter
 ------------------------------------------------------------
 
 .. autosummary::
