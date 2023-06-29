@@ -15,7 +15,7 @@ from data_processing.extrapolate_NYC_NJ_diversions import extrapolate_NYC_NJ_div
 from prep_input_data import read_csv_data, match_gages
 
 # Date range
-start_date = '1955-01-01'
+start_date = '1950-01-01'
 end_date = '2022-12-31'
 
 
