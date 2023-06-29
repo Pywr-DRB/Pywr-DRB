@@ -1,7 +1,7 @@
 Custom Pywr Parameters
 ========================================
 
-The following custom parameters are built from the `pywr Parameter class <https://pywr.github.io/pywr/api/pywr.parameters.html>` and used to track various model state variables throughout the simulation period.
+The following custom parameters are built from the `pywr Parameter class <https://pywr.github.io/pywr/api/pywr.parameters.html>`_ and used to track various model state variables throughout the simulation period.
 
 .. currentmodule:: pywrdrb.parameters
 
