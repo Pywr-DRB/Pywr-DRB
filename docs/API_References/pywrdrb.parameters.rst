@@ -12,7 +12,6 @@ These custom parameters are used to implement the Flexible Flow Management Progr
 
 .. autosummary::
    :toctree: generated/
-   :recursive:
 
    FfmpNjRunningAvgParameter
    VolBalanceNYCDemandTarget
@@ -23,30 +22,13 @@ These custom parameters are used to implement the Flexible Flow Management Progr
    NYCCombinedReleaseFactor
 
 
-FFMP Parameters (alternative autodoc)
-------------------------------------------------------------
-
-.. autosummary::
-   :toctree: generated/
-   :recursive:
-
-   ffmp_parameters.FfmpNjRunningAvgParameter
-   ffmp_parameters.VolBalanceNYCDemandTarget
-   ffmp_parameters.VolBalanceNYCDemandFinal
-   ffmp_parameters.VolBalanceNYCDownstreamMRFTargetAgg
-   ffmp_parameters.VolBalanceNYCDownstreamMRFTarget
-   ffmp_parameters.VolBalanceNYCDownstreamMRFFinal
-   ffmp_parameters.NYCCombinedReleaseFactor
-
-
 STARFIT Reservoir Release Parameter (generated)
 ------------------------------------------------------------
 
 .. autosummary::
    :toctree: generated/
    
-.. autoclass:: STARFITReservoirRelease
-   :members:
+   STARFITReservoirRelease
 
 
 Flow Ensemble Parameter

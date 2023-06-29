@@ -49,7 +49,7 @@ parts:
         - title: Plotting
           file: API_References/pywrdrb.plotting.rst
         - title: Custom Parameters
-          file: API_References/pywrdrb.custom_parameters.rst
+          file: API_References/pywrdrb.parameters.rst
         - title: Data Processing
           file: API_References/pywrdrb.data_processing.rst
     # =============== Supplemental  =================
