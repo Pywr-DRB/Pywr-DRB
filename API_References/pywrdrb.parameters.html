@@ -64,7 +64,7 @@ const thebe_selector_output = ".output, .cell_output"
     <script>DOCUMENTATION_OPTIONS.pagename = 'API_References/pywrdrb.parameters';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="pywrdrb.parameters.FfmpNjRunningAvgParameter" href="generated/pywrdrb.parameters.FfmpNjRunningAvgParameter.html" />
+    <link rel="next" title="pywrdrb.parameters.FfmpNycRunningAvgParameter" href="generated/pywrdrb.parameters.FfmpNycRunningAvgParameter.html" />
     <link rel="prev" title="pywrdrb.plotting" href="pywrdrb.plotting.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -186,6 +186,7 @@ const thebe_selector_output = ".output, .cell_output"
 </li>
 <li class="toctree-l2"><a class="reference internal" href="pywrdrb.plotting.html">Plotting</a></li>
 <li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">Custom Parameters</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.parameters.FfmpNycRunningAvgParameter.html">pywrdrb.parameters.FfmpNycRunningAvgParameter</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.parameters.FfmpNjRunningAvgParameter.html">pywrdrb.parameters.FfmpNjRunningAvgParameter</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.parameters.VolBalanceNYCDemandTarget.html">pywrdrb.parameters.VolBalanceNYCDemandTarget</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.parameters.VolBalanceNYCDemandFinal.html">pywrdrb.parameters.VolBalanceNYCDemandFinal</a></li>
@@ -404,8 +405,7 @@ document.write(`
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ffmp-parameters">FFMP Parameters</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#starfit-reservoir-release-parameter-no-inherited-members">STARFIT Reservoir Release Parameter (no inherited-members)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#starfit-reservoir-release-parameter-recursive">STARFIT Reservoir Release Parameter (recursive)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#starfit-reservoir-release-parameter">STARFIT Reservoir Release Parameter</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#flow-ensemble-parameter">Flow Ensemble Parameter</a></li>
 </ul>
             </nav>
@@ -420,41 +420,41 @@ document.write(`
                   
   <section id="custom-pywr-parameters">
 <h1>Custom Pywr Parameters<a class="headerlink" href="#custom-pywr-parameters" title="Permalink to this heading">#</a></h1>
-<p>The following custom parameters are built from the <cite>pywr</cite> Parameter class and used to track various model state variables throughout the simulation period.</p>
+<p>The following custom parameters are built from the <cite>pywr Parameter class &lt;https://pywr.github.io/pywr/api/pywr.parameters.html&gt;</cite> and used to track various model state variables throughout the simulation period.</p>
 <section id="ffmp-parameters">
 <h2>FFMP Parameters<a class="headerlink" href="#ffmp-parameters" title="Permalink to this heading">#</a></h2>
 <p>These custom parameters are used to implement the Flexible Flow Management Program (FFMP).</p>
 <table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/pywrdrb.parameters.FfmpNjRunningAvgParameter.html#pywrdrb.parameters.FfmpNjRunningAvgParameter" title="pywrdrb.parameters.FfmpNjRunningAvgParameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FfmpNjRunningAvgParameter</span></code></a>(model, node, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pywrdrb.parameters.FfmpNycRunningAvgParameter.html#pywrdrb.parameters.FfmpNycRunningAvgParameter" title="pywrdrb.parameters.FfmpNycRunningAvgParameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FfmpNycRunningAvgParameter</span></code></a>(model, node, ...)</p></td>
+<td><p>Enforces the constraint on NYC deliveries from the FFMP, based on a running average.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pywrdrb.parameters.FfmpNjRunningAvgParameter.html#pywrdrb.parameters.FfmpNjRunningAvgParameter" title="pywrdrb.parameters.FfmpNjRunningAvgParameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FfmpNjRunningAvgParameter</span></code></a>(model, node, ...)</p></td>
 <td><p>Enforces the constraint on NJ deliveries from the FFMP, based on a running average.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/pywrdrb.parameters.VolBalanceNYCDemandTarget.html#pywrdrb.parameters.VolBalanceNYCDemandTarget" title="pywrdrb.parameters.VolBalanceNYCDemandTarget"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VolBalanceNYCDemandTarget</span></code></a>(model, node, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pywrdrb.parameters.VolBalanceNYCDemandTarget.html#pywrdrb.parameters.VolBalanceNYCDemandTarget" title="pywrdrb.parameters.VolBalanceNYCDemandTarget"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VolBalanceNYCDemandTarget</span></code></a>(model, node, ...)</p></td>
 <td><p>Updates the contribution to NYC deliveries made by each of the NYC reservoirs, in such a way as to balance the relative storages across the three reservoirs.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/pywrdrb.parameters.VolBalanceNYCDemandFinal.html#pywrdrb.parameters.VolBalanceNYCDemandFinal" title="pywrdrb.parameters.VolBalanceNYCDemandFinal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VolBalanceNYCDemandFinal</span></code></a>(model, node, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pywrdrb.parameters.VolBalanceNYCDemandFinal.html#pywrdrb.parameters.VolBalanceNYCDemandFinal" title="pywrdrb.parameters.VolBalanceNYCDemandFinal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VolBalanceNYCDemandFinal</span></code></a>(model, node, ...)</p></td>
 <td><p>This is the second step in updating the contribution to NYC deliveries made by each of the NYC reservoirs, in such a way as to balance the relative storages across the three reservoirs.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRFTargetAgg.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRFTargetAgg" title="pywrdrb.parameters.VolBalanceNYCDownstreamMRFTargetAgg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VolBalanceNYCDownstreamMRFTargetAgg</span></code></a>(model, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRFTargetAgg.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRFTargetAgg" title="pywrdrb.parameters.VolBalanceNYCDownstreamMRFTargetAgg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VolBalanceNYCDownstreamMRFTargetAgg</span></code></a>(model, ...)</p></td>
 <td><p>Calculates the total releases from NYC reservoirs needed to meet the Montague and Trenton flow targets, after subtracting out flows from the rest of the basin, and adding max deliveries to NJ.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRFTarget.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRFTarget" title="pywrdrb.parameters.VolBalanceNYCDownstreamMRFTarget"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VolBalanceNYCDownstreamMRFTarget</span></code></a>(model, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRFTarget.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRFTarget" title="pywrdrb.parameters.VolBalanceNYCDownstreamMRFTarget"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VolBalanceNYCDownstreamMRFTarget</span></code></a>(model, ...)</p></td>
 <td><p>Custom Pywr parameter class.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRFFinal.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRFFinal" title="pywrdrb.parameters.VolBalanceNYCDownstreamMRFFinal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VolBalanceNYCDownstreamMRFFinal</span></code></a>(model, node, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRFFinal.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRFFinal" title="pywrdrb.parameters.VolBalanceNYCDownstreamMRFFinal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VolBalanceNYCDownstreamMRFFinal</span></code></a>(model, node, ...)</p></td>
 <td><p>Second step in updating the contribution to meeting Montague &amp; Trenton flow targets, by each of the NYC reservoirs, in such a way as to balance the relative storages across the three reservoirs.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/pywrdrb.parameters.NYCCombinedReleaseFactor.html#pywrdrb.parameters.NYCCombinedReleaseFactor" title="pywrdrb.parameters.NYCCombinedReleaseFactor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NYCCombinedReleaseFactor</span></code></a>(model, node, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pywrdrb.parameters.NYCCombinedReleaseFactor.html#pywrdrb.parameters.NYCCombinedReleaseFactor" title="pywrdrb.parameters.NYCCombinedReleaseFactor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NYCCombinedReleaseFactor</span></code></a>(model, node, ...)</p></td>
 <td><p>Decides whether an NYC reservoir's release is dictated by its own storage (in the case of flood operations) or the aggregate storage across the three NYC reservoirs (in the case of normal or drought operations).</p></td>
 </tr>
 </tbody>
 </table>
 </section>
-<section id="starfit-reservoir-release-parameter-no-inherited-members">
-<h2>STARFIT Reservoir Release Parameter (no inherited-members)<a class="headerlink" href="#starfit-reservoir-release-parameter-no-inherited-members" title="Permalink to this heading">#</a></h2>
-</section>
-<section id="starfit-reservoir-release-parameter-recursive">
-<h2>STARFIT Reservoir Release Parameter (recursive)<a class="headerlink" href="#starfit-reservoir-release-parameter-recursive" title="Permalink to this heading">#</a></h2>
+<section id="starfit-reservoir-release-parameter">
+<h2>STARFIT Reservoir Release Parameter<a class="headerlink" href="#starfit-reservoir-release-parameter" title="Permalink to this heading">#</a></h2>
 <table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease" title="pywrdrb.parameters.STARFITReservoirRelease"><code class="xref py py-obj docutils literal notranslate"><span class="pre">STARFITReservoirRelease</span></code></a>(model, storage_node, ...)</p></td>
@@ -516,11 +516,11 @@ document.write(`
       </div>
     </a>
     <a class="right-next"
-       href="generated/pywrdrb.parameters.FfmpNjRunningAvgParameter.html"
+       href="generated/pywrdrb.parameters.FfmpNycRunningAvgParameter.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">pywrdrb.parameters.FfmpNjRunningAvgParameter</p>
+        <p class="prev-next-title">pywrdrb.parameters.FfmpNycRunningAvgParameter</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -543,8 +543,7 @@ document.write(`
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ffmp-parameters">FFMP Parameters</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#starfit-reservoir-release-parameter-no-inherited-members">STARFIT Reservoir Release Parameter (no inherited-members)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#starfit-reservoir-release-parameter-recursive">STARFIT Reservoir Release Parameter (recursive)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#starfit-reservoir-release-parameter">STARFIT Reservoir Release Parameter</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#flow-ensemble-parameter">Flow Ensemble Parameter</a></li>
 </ul>
   </nav></div>
