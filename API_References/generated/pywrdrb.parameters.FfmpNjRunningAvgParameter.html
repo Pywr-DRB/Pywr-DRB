@@ -64,6 +64,8 @@ const thebe_selector_output = ".output, .cell_output"
     <script>DOCUMENTATION_OPTIONS.pagename = 'API_References/generated/pywrdrb.parameters.FfmpNjRunningAvgParameter';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="pywrdrb.parameters.VolBalanceNYCDemandTarget" href="pywrdrb.parameters.VolBalanceNYCDemandTarget.html" />
+    <link rel="prev" title="Custom Pywr Parameters" href="../pywrdrb.parameters.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -154,7 +156,7 @@ const thebe_selector_output = ".output, .cell_output"
                 </a>
             </li>
         </ul>
-        <ul class="nav bd-sidenav">
+        <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../DRB/drb.html">Delaware River Basin Overview</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../DRB/drb_hydrology.html">Hydrology</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../DRB/drb_planning_management.html">Planning &amp; Management</a></li>
@@ -173,7 +175,7 @@ const thebe_selector_output = ".output, .cell_output"
 <li class="toctree-l2"><a class="reference internal" href="../../Getting_Started/Interpret_Results/explore_model_outputs.html">Analyzing outputs</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../api_references.html">API References</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../api_references.html">API References</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
 <li class="toctree-l2 has-children"><a class="reference internal" href="../pywrdrb.prep_input_data.html">Prep Inputs</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="pywrdrb.prep_input_data.html">pywrdrb.prep_input_data</a></li>
 </ul>
@@ -183,7 +185,15 @@ const thebe_selector_output = ".output, .cell_output"
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../pywrdrb.plotting.html">Plotting</a></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../pywrdrb.parameters.html">Custom Parameters</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../pywrdrb.parameters.html">Custom Parameters</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">pywrdrb.parameters.FfmpNjRunningAvgParameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pywrdrb.parameters.VolBalanceNYCDemandTarget.html">pywrdrb.parameters.VolBalanceNYCDemandTarget</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pywrdrb.parameters.VolBalanceNYCDemandFinal.html">pywrdrb.parameters.VolBalanceNYCDemandFinal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pywrdrb.parameters.VolBalanceNYCDownstreamMRFTargetAgg.html">pywrdrb.parameters.VolBalanceNYCDownstreamMRFTargetAgg</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pywrdrb.parameters.VolBalanceNYCDownstreamMRFTarget.html">pywrdrb.parameters.VolBalanceNYCDownstreamMRFTarget</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pywrdrb.parameters.VolBalanceNYCDownstreamMRFFinal.html">pywrdrb.parameters.VolBalanceNYCDownstreamMRFFinal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pywrdrb.parameters.NYCCombinedReleaseFactor.html">pywrdrb.parameters.NYCCombinedReleaseFactor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pywrdrb.parameters.STARFITReservoirRelease.html">pywrdrb.parameters.STARFITReservoirRelease</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pywrdrb.parameters.FlowEnsemble.html">pywrdrb.parameters.FlowEnsemble</a></li>
 </ul>
 </li>
@@ -660,6 +670,24 @@ document.write(`
   
     <div class="footer-article-item"><!-- Previous / next buttons -->
 <div class="prev-next-area">
+    <a class="left-prev"
+       href="../pywrdrb.parameters.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Custom Pywr Parameters</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="pywrdrb.parameters.VolBalanceNYCDemandTarget.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">pywrdrb.parameters.VolBalanceNYCDemandTarget</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
 </div></div>
   
 </div>
