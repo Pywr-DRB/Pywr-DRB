@@ -3,7 +3,7 @@ Custom Pywr Parameters
 
 The following custom parameters are built from the `pywr` Parameter class and used to track various model state variables throughout the simulation period. 
 
-.. currentmodule:: pywrdrb.custom_parameters
+.. currentmodule:: pywrdrb.parameters
 
 FFMP Parameters
 ------------------------------------------------------------
@@ -37,5 +37,5 @@ Flow Ensemble Parameter
 .. autosummary::
    :toctree: generated/
 
-   flow_ensemble_parameter
+   FlowEnsemble
 
