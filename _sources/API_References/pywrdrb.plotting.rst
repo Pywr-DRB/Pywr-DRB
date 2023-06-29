@@ -6,5 +6,5 @@ pywrdrb.plotting
 .. autosummary::
    :toctree: generated/
 
-   plotting_functions
+   
    

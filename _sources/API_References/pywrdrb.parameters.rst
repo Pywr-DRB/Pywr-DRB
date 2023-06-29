@@ -12,6 +12,7 @@ These custom parameters are used to implement the Flexible Flow Management Progr
 
 .. autosummary::
    :toctree: generated/
+   :inherited-members: False
 
    FfmpNjRunningAvgParameter
    VolBalanceNYCDemandTarget
@@ -22,11 +23,22 @@ These custom parameters are used to implement the Flexible Flow Management Progr
    NYCCombinedReleaseFactor
 
 
-STARFIT Reservoir Release Parameter (generated)
+STARFIT Reservoir Release Parameter
 ------------------------------------------------------------
 
 .. autosummary::
    :toctree: generated/
+   :inherited-members: False
+   
+   STARFITReservoirRelease
+
+
+STARFIT Reservoir Release Parameter (recursive)
+------------------------------------------------------------
+
+.. autosummary::
+   :toctree: generated/
+   :inherited-members: False
    
    STARFITReservoirRelease
 
