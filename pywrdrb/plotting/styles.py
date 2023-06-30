@@ -1,8 +1,5 @@
 """
 This file contains style specifications for figures.
-
-Colorblind-friendly colors taken from here: https://personal.sron.nl/~pault/#sec:qualitative
-
 """
 
 full_node_label_dict = {}
