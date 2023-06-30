@@ -10,10 +10,10 @@ import numpy as np
 from pywr.model import Model
 from pywr.recorders import TablesRecorder
 
-from make_ensemble_model import drb_make_model
-import custom_parameters.ffmp_parameters
-import custom_parameters.starfit_parameter
-import custom_parameters.flow_ensemble_parameter
+from drb_make_model import drb_make_model
+import parameters.ffmp
+import parameters.starfit
+import parameters.inflow_ensemble
 from utils.directories import output_dir, model_data_dir
 
 import time

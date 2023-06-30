@@ -1,7 +1,7 @@
 pywrdrb.plotting
 ========================================
 
-The :code:`pywrdrb.plotting` module contains various functions used to generate diagnostic figures.
+The pywrdrb.plotting module contains various functions used to generate diagnostic figures.
 
 .. currentmodule:: pywrdrb.plotting
 

@@ -9,8 +9,8 @@ import sys
 
 from pywr.model import Model
 from pywr.recorders import TablesRecorder
-import custom_parameters.ffmp_parameters
-import custom_parameters.starfit_parameter
+import parameters.ffmp
+import parameters.starfit
 from drb_make_model import drb_make_model
 from utils.directories import output_dir, model_data_dir
 
