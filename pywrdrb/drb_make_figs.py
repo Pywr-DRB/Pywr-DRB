@@ -20,11 +20,13 @@ if __name__ == "__main__":
     ## System inputs
     rerun_all = False
     use_WEAP = False
+    WEAP_model = 'WEAP_29June2023_gridmet'
+    pywr_WEAP_model = f'pywr_{WEAP_model}'
 
-    ### User-specified date range, or default to minimum overlapping period across models
+    ### User-specified date range, or default to minimum overlapping period across models. Skip Oct-Dec 1983 as warm up.
     if use_WEAP:
-        start_date = sys.argv[1] if len(sys.argv) > 1 else '1999-06-01'
-        end_date = sys.argv[2] if len(sys.argv) > 2 else '2010-05-31'
+        start_date = sys.argv[1] if len(sys.argv) > 1 else '1984-01-01' ### as of 29June2023 version we have 1981-2020 for WEAP
+        end_date = sys.argv[2] if len(sys.argv) > 2 else '2017-01-01'
     else:
         start_date = sys.argv[1] if len(sys.argv) > 1 else '1984-01-01'
         end_date = sys.argv[2] if len(sys.argv) > 2 else '2017-01-01'
@@ -36,7 +38,7 @@ if __name__ == "__main__":
     # Load Pywr-DRB simulation models
     print(f'Retrieving simulation data from {start_date.strftime("%Y-%m-%d")} to {end_date.strftime("%Y-%m-%d")}.')
     if use_WEAP:
-        pywr_models = ['obs_pub', 'nhmv10', 'nwmv21', 'WEAP_24Apr2023_gridmet']
+        pywr_models = ['obs_pub', 'nhmv10', 'nwmv21', WEAP_model]
     else:
         pywr_models = ['obs_pub', 'nhmv10', 'nwmv21']
 
@@ -55,7 +57,7 @@ if __name__ == "__main__":
 
     # Load base (non-pywr) models
     if use_WEAP:
-        base_models = ['obs', 'obs_pub', 'nhmv10', 'nwmv21', 'WEAP_24Apr2023_gridmet']
+        base_models = ['obs', 'obs_pub', 'nhmv10', 'nwmv21', WEAP_model]
     else:
         base_models = ['obs', 'obs_pub', 'nhmv10', 'nwmv21']
 
@@ -82,7 +84,7 @@ if __name__ == "__main__":
         plot_3part_flows(reservoir_downstream_gages, ['nhmv10', 'nwmv21'], 'pepacton')
         if use_WEAP:
             ### nhm vs weap (with nhm backup) - slides 60-62 in 10/24/2022 presentation
-            plot_3part_flows(reservoir_downstream_gages, ['nhmv10', 'WEAP_24Apr2023_gridmet'], 'pepacton')
+            plot_3part_flows(reservoir_downstream_gages, ['nhmv10', WEAP_model], 'pepacton')
         ### nhm vs pywr-nhm - slides 60-62 in 10/24/2022 presentation
         plot_3part_flows(reservoir_downstream_gages, ['nhmv10', 'pywr_nhmv10'], 'pepacton')
         ## obs-pub only
@@ -104,7 +106,7 @@ if __name__ == "__main__":
         plot_weekly_flow_distributions(reservoir_downstream_gages, ['nhmv10', 'nwmv21'], 'pepacton')
         if use_WEAP:
             ### nhm vs weap (with nhm backup) - slides 68 in 10/24/2022 presentation
-            plot_weekly_flow_distributions(reservoir_downstream_gages, ['nhmv10', 'WEAP_24Apr2023_gridmet'], 'pepacton')
+            plot_weekly_flow_distributions(reservoir_downstream_gages, ['nhmv10', WEAP_model], 'pepacton')
         ### nhm vs pywr-nhm - slides 68 in 10/24/2022 presentation
         plot_weekly_flow_distributions(reservoir_downstream_gages, ['nhmv10', 'pywr_nhmv10'], 'pepacton')
 
@@ -120,7 +122,7 @@ if __name__ == "__main__":
 
     nodes = ['cannonsville', 'pepacton', 'neversink', 'fewalter', 'beltzvilleCombined', 'blueMarsh']
     if use_WEAP:
-        radial_models = ['nhmv10', 'nwmv21', 'WEAP_24Apr2023_gridmet', 'pywr_nhmv10', 'pywr_nwmv21', 'pywr_WEAP_24Apr2023_gridmet_nhmv10']
+        radial_models = ['nhmv10', 'nwmv21', WEAP_model, 'pywr_nhmv10', 'pywr_nwmv21', pywr_WEAP_model]
     else:
         radial_models = ['nhmv10', 'nwmv21', 'obs_pub', 'pywr_nhmv10', 'pywr_nwmv21', 'pywr_obs_pub']
     radial_models = radial_models[::-1]
@@ -167,9 +169,9 @@ if __name__ == "__main__":
         plot_3part_flows(major_flows, ['nwmv21', 'pywr_nwmv21'], 'delTrenton')
         plot_3part_flows(major_flows, ['nwmv21', 'pywr_nwmv21'], 'outletSchuylkill')
         if use_WEAP:
-            plot_3part_flows(major_flows, ['WEAP_24Apr2023_gridmet', 'pywr_WEAP_24Apr2023_gridmet'], 'delMontague')
-            plot_3part_flows(major_flows, ['WEAP_24Apr2023_gridmet', 'pywr_WEAP_24Apr2023_gridmet'], 'delTrenton')
-            plot_3part_flows(major_flows, ['WEAP_24Apr2023_gridmet', 'pywr_WEAP_24Apr2023_gridmet'], 'outletSchuylkill')
+            plot_3part_flows(major_flows, [WEAP_model, pywr_WEAP_model], 'delMontague')
+            plot_3part_flows(major_flows, [WEAP_model, pywr_WEAP_model], 'delTrenton')
+            plot_3part_flows(major_flows, [WEAP_model, pywr_WEAP_model], 'outletSchuylkill')
         plot_3part_flows(major_flows, ['obs_pub', 'pywr_obs_pub'], 'delMontague')
         plot_3part_flows(major_flows, ['obs_pub', 'pywr_obs_pub'], 'delTrenton')
         plot_3part_flows(major_flows, ['obs_pub', 'pywr_obs_pub'], 'outletSchuylkill')
@@ -189,9 +191,9 @@ if __name__ == "__main__":
         plot_weekly_flow_distributions(major_flows, ['nwmv21', 'pywr_nwmv21'], 'delTrenton')
         plot_weekly_flow_distributions(major_flows, ['nwmv21', 'pywr_nwmv21'], 'outletSchuylkill')
         if use_WEAP:
-            plot_weekly_flow_distributions(major_flows, ['WEAP_24Apr2023_gridmet', 'pywr_WEAP_24Apr2023_gridmet'], 'delMontague')
-            plot_weekly_flow_distributions(major_flows, ['WEAP_24Apr2023_gridmet', 'pywr_WEAP_24Apr2023_gridmet'], 'delTrenton')
-            plot_weekly_flow_distributions(major_flows, ['WEAP_24Apr2023_gridmet', 'pywr_WEAP_24Apr2023_gridmet'], 'outletSchuylkill')
+            plot_weekly_flow_distributions(major_flows, [WEAP_model, pywr_WEAP_model], 'delMontague')
+            plot_weekly_flow_distributions(major_flows, [WEAP_model, pywr_WEAP_model], 'delTrenton')
+            plot_weekly_flow_distributions(major_flows, [WEAP_model, pywr_WEAP_model], 'outletSchuylkill')
         plot_weekly_flow_distributions(major_flows, ['obs_pub', 'pywr_obs_pub'], 'delMontague')
         plot_weekly_flow_distributions(major_flows, ['obs_pub', 'pywr_obs_pub'], 'delTrenton')
         plot_weekly_flow_distributions(major_flows, ['obs_pub', 'pywr_obs_pub'], 'outletSchuylkill')
@@ -202,7 +204,7 @@ if __name__ == "__main__":
     if rerun_all:
         print('Plotting RRV metrics.')
         if use_WEAP:
-            rrv_models = ['obs', 'obs_pub', 'nhmv10', 'nwmv21', 'WEAP_24Apr2023_gridmet', 'pywr_obs_pub', 'pywr_nhmv10', 'pywr_nwmv21', 'pywr_WEAP_24Apr2023_gridmet']
+            rrv_models = ['obs', 'obs_pub', 'nhmv10', 'nwmv21', WEAP_model, 'pywr_obs_pub', 'pywr_nhmv10', 'pywr_nwmv21', pywr_WEAP_model]
         else:
             rrv_models = ['obs', 'obs_pub', 'nhmv10', 'nwmv21', 'pywr_obs_pub', 'pywr_nhmv10', 'pywr_nwmv21']
 

@@ -14,7 +14,7 @@ import parameters.starfit
 from drb_make_model import drb_make_model
 from utils.directories import output_dir, model_data_dir
 
-inflow_type_options = ['obs_pub', 'nhmv10', 'nwmv21', 'WEAP_24Apr2023_gridmet']
+inflow_type_options = ['obs_pub', 'nhmv10', 'nwmv21', 'WEAP_29June2023_gridmet']
 
 ### specify inflow type from command line args
 inflow_type = sys.argv[1]
@@ -26,8 +26,8 @@ if inflow_type in ('nwmv21', 'nwmv21_withLakes', 'nhmv10', 'obs_pub'):
     start_date = '1983-10-01'
     end_date = '2016-12-31'
 elif 'WEAP' in inflow_type:
-    start_date = '1995-01-01'
-    end_date = '2010-12-31'
+    start_date = '1983-10-01'   ### as of 29June2023 version, we have WEAP from 1981 to 2020. for now run same as others.
+    end_date = '2016-12-31'
 
 model_filename = f'{model_data_dir}drb_model_full.json'
 output_filename = f'{output_dir}drb_output_{inflow_type}.hdf5'

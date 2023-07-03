@@ -15,4 +15,4 @@ output_dir = os.path.realpath(os.path.join(ROOT_DIR, '../output_data/')) + '/'
 fig_dir = os.path.realpath(os.path.join(ROOT_DIR, '../figs/')) + '/'
 model_data_dir = os.path.realpath(os.path.join(ROOT_DIR, 'model_data/')) + '/'
 spatial_data_dir = os.path.realpath(os.path.join(ROOT_DIR, '../DRB_spatial/')) + '/'
-weap_dir = os.path.realpath(os.path.join(ROOT_DIR, '../input_data/WEAP_24Apr2023_gridmet/'))
+weap_dir = os.path.realpath(os.path.join(ROOT_DIR, '../input_data/WEAP_29June2023_gridmet/'))

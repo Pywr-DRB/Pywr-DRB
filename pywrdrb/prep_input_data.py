@@ -12,7 +12,7 @@ import statsmodels.api as sm
 import datetime
 
 from pywr_drb_node_data import obs_site_matches, obs_pub_site_matches, nhm_site_matches, nwm_site_matches, \
-                               upstream_nodes_dict, WEAP_24Apr2023_gridmet_NatFlows_matches, downstream_node_lags
+                               upstream_nodes_dict, WEAP_29June2023_gridmet_NatFlows_matches, downstream_node_lags
 from utils.constants import cfs_to_mgd, cms_to_mgd, cm_to_mg, mcm_to_mg
 from utils.directories import input_dir, weap_dir
 
@@ -178,12 +178,12 @@ def match_gages(df, dataset_label, site_matches_id, upstream_nodes_dict):
 
 
 def get_WEAP_df(filename):
-    ### new file format for 24Apr2023 WEAP
+    ### new file format for 29June2023 WEAP
     df = pd.read_csv(filename)
     df.columns = ['year', 'doy', 'flow', '_']
     df['datetime'] = [datetime.datetime(y, 1, 1) + datetime.timedelta(d - 1) for y, d in zip(df['year'], df['doy'])]
     df.index = pd.DatetimeIndex(df['datetime'])
-    df = df.loc[np.logical_or(df['doy'] != 366, df.index.month != 1)]
+    # df = df.loc[np.logical_or(df['doy'] != 366, df.index.month != 1)]
     df = df[['flow']]
     return df
 
@@ -225,15 +225,15 @@ if __name__ == "__main__":
 
     ### now get NJ diversions. for time periods we dont have historical record, extrapolate by seasonal relationship to flow.
     nj_diversion = extrapolate_NYC_NJ_diversions('nj')
-    nj_diversion.to_csv(f'{input_dir}deliveryNJ_WEAP_23Aug2022_gridmet_extrapolated.csv', index=False)
+    nj_diversion.to_csv(f'{input_dir}deliveryNJ_DRCanal_extrapolated.csv', index=False)
 
 
     ### get catchment demands based on DRBC data
     sw_demand = disaggregate_DRBC_demands()
     sw_demand.to_csv(f'{input_dir}sw_avg_wateruse_Pywr-DRB_Catchments.csv', index_label='node')
 
-    ### organize WEAP results to use in Pywr-DRB - new for 24Apr2023 WEAP format
-    for node, filekey in WEAP_24Apr2023_gridmet_NatFlows_matches.items():
+    ### organize WEAP results to use in Pywr-DRB - new for 29June2023 WEAP format
+    for node, filekey in WEAP_29June2023_gridmet_NatFlows_matches.items():
         if filekey:
             filename = f'{weap_dir}/{filekey[0]}_GridMet_NatFlows.csv'
             df = get_WEAP_df(filename)
@@ -254,6 +254,6 @@ if __name__ == "__main__":
     ### convert cubic meter to MG
     inflows *= cm_to_mg
     ### save
-    inflows.to_csv(f'{input_dir}catchment_inflow_WEAP_24Apr2023_gridmet.csv')
+    inflows.to_csv(f'{input_dir}catchment_inflow_WEAP_29June2023_gridmet.csv')
 
     ### Note: still need to get simulated/regulated time series from WEAP for comparison. Above is just inflows with reservoirs/mgmt turned off.

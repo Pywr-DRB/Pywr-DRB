@@ -94,6 +94,10 @@ class FfmpNycRunningAvgParameter(Parameter):
         max_avg_delivery = load_parameter(model, data.pop("max_avg_delivery"))
         return cls(model, node, max_avg_delivery, **data)
 
+### have to register the custom parameter so Pywr recognizes it
+FfmpNycRunningAvgParameter.register()
+
+
 
 
 class FfmpNjRunningAvgParameter(Parameter):
@@ -196,9 +200,11 @@ class FfmpNjRunningAvgParameter(Parameter):
         drought_factor = load_parameter(model, data.pop('drought_factor'))
         return cls(model, node, max_avg_delivery, max_daily_delivery, drought_factor, **data)
 
+### have to register the custom parameter so Pywr recognizes it
+FfmpNjRunningAvgParameter.register()
 
 
-###
+
 
 
 class VolBalanceNYCDemandTarget(Parameter):
@@ -272,6 +278,9 @@ class VolBalanceNYCDemandTarget(Parameter):
         flow_reservoir = load_parameter(model, f'flow_{reservoir}')
         return cls(model, node, max_volume_agg_nyc, volume_agg_nyc, max_flow_delivery_nyc, flow_agg_nyc,
                    max_vol_reservoir, vol_reservoir, flow_reservoir, **data)
+
+### have to register the custom parameter so Pywr recognizes it
+VolBalanceNYCDemandTarget.register()
 
 
 
@@ -351,6 +360,10 @@ class VolBalanceNYCDemandFinal(Parameter):
         return cls(model, node, max_flow_delivery_nyc, volbalance_target_max_flow_delivery_nyc_reservoir,
                    volbalance_target_max_flow_delivery_agg_nyc, **data)
 
+### have to register the custom parameter so Pywr recognizes it
+VolBalanceNYCDemandFinal.register()
+
+
 
 
 class VolBalanceNYCDownstreamMRFTargetAgg(Parameter):
@@ -428,6 +441,9 @@ class VolBalanceNYCDownstreamMRFTargetAgg(Parameter):
 
         return cls(model, volbalance_flow_agg_nonnyc_delMontague, mrf_target_delMontague,\
                    volbalance_flow_agg_nonnyc_delTrenton, max_flow_delivery_nj, mrf_target_delTrenton, **data)
+
+### have to register the custom parameter so Pywr recognizes it
+VolBalanceNYCDownstreamMRFTargetAgg.register()
 
 
 
@@ -523,7 +539,8 @@ class VolBalanceNYCDownstreamMRFTarget(Parameter):
         return cls(model, node, max_volume_agg_nyc, volume_agg_nyc, volbalance_relative_mrf_montagueTrenton, flow_agg_nyc,
                    max_vol_reservoir, vol_reservoir, flow_reservoir, **data)
 
-
+### have to register the custom parameter so Pywr recognizes it
+VolBalanceNYCDownstreamMRFTarget.register()
 
 
 
@@ -601,6 +618,9 @@ class VolBalanceNYCDownstreamMRFFinal(Parameter):
         volbalance_target_max_flow_montagueTrenton_agg_nyc = load_parameter(model, f'volbalance_target_max_flow_montagueTrenton_agg_nyc')
         return cls(model, node, volbalance_relative_mrf_montagueTrenton, volbalance_target_max_flow_montagueTrenton_reservoir,
                    volbalance_target_max_flow_montagueTrenton_agg_nyc, **data)
+
+### have to register the custom parameter so Pywr recognizes it
+VolBalanceNYCDownstreamMRFFinal.register()
 
 
 
@@ -684,13 +704,7 @@ class NYCCombinedReleaseFactor(Parameter):
         return cls(model, node, drought_level_agg_nyc, mrf_drought_factor_agg_reservoir,
                    mrf_drought_factor_individual_reservoir, **data)
 
-
-FfmpNjRunningAvgParameter.register()
-VolBalanceNYCDemandTarget.register()
-VolBalanceNYCDemandFinal.register()
-VolBalanceNYCDownstreamMRFTargetAgg.register()
-VolBalanceNYCDownstreamMRFTarget.register()
-VolBalanceNYCDownstreamMRFFinal.register()
+### have to register the custom parameter so Pywr recognizes it
 NYCCombinedReleaseFactor.register()
 
 
