@@ -20,19 +20,19 @@ import time
 start_time = time.time()
 
 ### specify inflow type from command line args
-N_SCENARIOS = 10
+
 inflow_type = 'obs_pub'
 
 start_date = '2001-01-01'
 end_date = '2010-12-31'
 
-model_filename = f'{model_data_dir}drb_ensemble_model_full.json'
+model_filename = f'{model_data_dir}drb_model_full_ensemble.json'
 output_filename = f'{output_dir}drb_ensemble_output_{inflow_type}.hdf5'
 
 inflow_ensemble_indices= [1,2,3,4]
 
 ### make model json files
-drb_make_model(inflow_type, 'obs_pub', start_date, end_date, 
+drb_make_model(inflow_type, start_date, end_date, 
                inflow_ensemble_indices= inflow_ensemble_indices)
 
 ### Load the model
@@ -45,4 +45,4 @@ TablesRecorder(model, output_filename, parameters=[p for p in model.parameters i
 stats = model.run()
 stats_df = stats.to_dataframe()
 
-print("--- %s seconds --------" % (time.time() - start_time))
+# print("---  seconds --------" % (time.time() - start_time))

@@ -123,11 +123,11 @@ obs_pub_site_matches = {'cannonsville': ['01423000', '0142400103'], # 0142400103
                     'delLordville': ['01427207'], # PUB until 2006 then '01427207'
                     '01436000': None,
                     '01433500': None, 
-                    'delMontague': ['01438500'],
+                    'delMontague': None, #['01438500'],
                     '01449800': None,
                     '01447800': None,
-                    'delDRCanal': ['01463500'], ### note DRCanal and Trenton are treated as being coincident, with DRCanal having the physical catchment inflows and withdrawals. DRCanal is where NJ deliveries leave from, and delTrenton is where min flow is enforced, so that this is downstream of deliveries.
-                    'delTrenton': ['01463500'],
+                    'delDRCanal': None, #['01463500'], ### note DRCanal and Trenton are treated as being coincident, with DRCanal having the physical catchment inflows and withdrawals. DRCanal is where NJ deliveries leave from, and delTrenton is where min flow is enforced, so that this is downstream of deliveries.
+                    'delTrenton': None, #['01463500'],
                     '01463620': None, 
                     'outletAssunpink': ['01464000'],
                     '01470960': None, 

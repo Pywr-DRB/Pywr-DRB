@@ -16,7 +16,7 @@ from utils.directories import output_dir, model_data_dir
 
 inflow_type = 'obs_pub'
 
-start_date = '1955-01-01'
+start_date = '1950-01-01'
 end_date = '2022-12-31'
 
 model_filename = f'{model_data_dir}drb_model_full.json'

@@ -193,14 +193,15 @@ def get_WEAP_df(filename):
 if __name__ == "__main__":
     
     # Defaults
-    obs_pub_donor_fdc = 'nhmv10'
-
+    obs_pub_donor_fdc= 'nhmv10'
+    hist_reconst_filename= f'{input_dir}modeled_gages/historic_reconstruction_daily_{obs_pub_donor_fdc}_mgd.csv'
+    
     ### read in observed, NHM, & NWM data
     ### use same set of dates for all.
 
     df_obs = read_csv_data(f'{input_dir}usgs_gages/streamflow_daily_usgs_1950_2022_cms.csv', start_date, end_date, units = 'cms', source = 'USGS')
 
-    df_obs_pub = pd.read_csv(f'{input_dir}modeled_gages/historic_reconstruction_daily_1960_2022_{obs_pub_donor_fdc}_mgd.csv',
+    df_obs_pub = pd.read_csv(hist_reconst_filename,
                          sep=',', index_col=0, parse_dates=True).loc[start_date:end_date, :]
 
     df_nhm = read_csv_data(f'{input_dir}modeled_gages/streamflow_daily_nhmv10_mgd.csv', start_date, end_date, units = 'mgd', source = 'nhm')
