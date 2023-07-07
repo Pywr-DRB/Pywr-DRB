@@ -4,12 +4,12 @@
 echo Prepping data...
 time python3 -W ignore ./pywrdrb/prep_input_data.py
 
-#### run simulation using multiple inpu data sources
-#for inflow_type in WEAP_29June2023_gridmet obs_pub nhmv10 nwmv21
-#do
-#	echo Running simulation with $inflow_type ...
-#	time python3 -W ignore ./pywrdrb/run_historic_simulation.py $inflow_type
-#done
+### run simulation using multiple inpu data sources
+for inflow_type in WEAP_29June2023_gridmet obs_pub nhmv10 nwmv21
+do
+	echo Running simulation with $inflow_type ...
+	time python3 -W ignore ./pywrdrb/run_historic_simulation.py $inflow_type
+done
 
 ### now run historic reconstructions under different assumptions
 for fdc_type in nhmv10 nwmv21
@@ -28,4 +28,4 @@ done
 
 ### analyze results, make figures
 #echo Analyzing results...
-#time python3 -W ignore ./pywrdrb/drb_make_figs.py
+#time python3 -W ignore ./pywrdrb/drb_make_figs_diagnostics_paper.py

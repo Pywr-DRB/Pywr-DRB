@@ -120,6 +120,35 @@ def subtract_upstream_catchment_inflows(inflows):
     return inflows
 
 
+def add_upstream_catchment_inflows(inflows):
+    """
+    Adds upstream catchment inflows to get cumulative flow at downstream nodes. THis is inverse of subtract_upstream_catchment_inflows()
+
+    Inflow timeseries are cumulative. For each downstream node, this function adds the flow into all upstream nodes so
+    that it represents cumulative inflows into the downstream node. It also accounts for time lags between distant nodes.
+
+    Args:
+        inflows (pandas.DataFrame): The inflows timeseries dataframe.
+
+    Returns:
+        pandas.DataFrame: The modified inflows timeseries dataframe with upstream catchment inflows added.
+    """
+    for node, upstreams in upstream_nodes_dict.items():
+        for upstream in upstreams:
+            lag = downstream_node_lags[upstream]
+            if lag > 0:
+                inflows[node].iloc[lag:] += inflows[upstream].iloc[:-lag].values
+                ### add same-day flow without lagging for first lag days, since we don't have data before 0 for lagging
+                inflows[node].iloc[:lag] += inflows[upstream].iloc[:lag].values
+            else:
+                inflows[node] += inflows[upstream]
+
+        ### if catchment inflow is negative after adding upstream, set to 0 (note: this shouldnt happen)
+        inflows[node].loc[inflows[node] < 0] = 0
+
+    return inflows
+
+
 def match_gages(df, dataset_label, site_matches_id, upstream_nodes_dict):
     """
     Matches USGS gage sites to nodes in Pywr-DRB.
@@ -161,9 +190,10 @@ def match_gages(df, dataset_label, site_matches_id, upstream_nodes_dict):
             print(f'Scaling {node} inflow using NHM ratio')
             inflows[node] = inflows[node]*nhm_inflow_scaling_coefs[node]
 
-    ## Save full flows to csv 
-    # For downstream nodes, this represents the full flow for results comparison
-    inflows.to_csv(f'{input_dir}gage_flow_{dataset_label}.csv')
+    if dataset_label != 'obs_pub':
+        ## Save full flows to csv
+        # For downstream nodes, this represents the full flow for results comparison
+        inflows.to_csv(f'{input_dir}gage_flow_{dataset_label}.csv')
 
     ### 2. Inflow timeseries are cumulative. So for each downstream node, subtract the flow into all upstream nodes so
     ###    this represents only direct catchment inflows into this node. Account for time lags between distant nodes.
@@ -172,6 +202,13 @@ def match_gages(df, dataset_label, site_matches_id, upstream_nodes_dict):
     ## Save catchment inflows to csv  
     # For downstream nodes, this represents the catchment inflow with upstream node inflows subtracted
     inflows.to_csv(f'{input_dir}catchment_inflow_{dataset_label}.csv')
+
+    if dataset_label == 'obs_pub':
+        ## For PUB, to get full gage flow we want to re-add up cumulative flows after doing previous catchment subtraction.
+        # For downstream nodes, this represents the full flow for results comparison
+        inflows = add_upstream_catchment_inflows(inflows)
+        inflows.to_csv(f'{input_dir}gage_flow_{dataset_label}.csv')
+
     return inflows
 
 

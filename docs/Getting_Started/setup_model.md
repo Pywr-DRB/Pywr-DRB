@@ -24,7 +24,7 @@ DRB_water_management/
 ├── figs/
 ├── prep_input_data.py
 ├── custom_pywr.py
-├── drb_make_figs.py
+├── drb_make_figs_diagnostics_paper.py
 ├── drb_make_model.py
 ├── drb_run_sim.py
 ├── drb_run_all.sh        
