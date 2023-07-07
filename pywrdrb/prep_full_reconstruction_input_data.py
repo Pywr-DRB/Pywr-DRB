@@ -6,7 +6,7 @@ from utils.directories import input_dir
 from pywr_drb_node_data import upstream_nodes_dict
 
 import pandas as pd
-
+import sys
 from pywr_drb_node_data import obs_site_matches, obs_pub_site_matches, upstream_nodes_dict
 from utils.directories import input_dir
 from data_processing.disaggregate_DRBC_demands import disaggregate_DRBC_demands
@@ -20,8 +20,8 @@ start_date = '1950-01-01'
 end_date = '2022-12-31'
 
 # Reconstruction alternative specs
-obs_pub_donor_fdc = 'nhmv10'            # Options: 'nwmv21', 'nhmv10'
-regression_nhm_inflow_scaling = False   # If true, Cannonsville and Pep. inflows increase following NHM-based regression to estimate HRU inflows
+obs_pub_donor_fdc = sys.argv[1]            # Options: 'nwmv21', 'nhmv10'
+regression_nhm_inflow_scaling = True if sys.argv[2] == 'yes' else 'no'   # If true, Cannonsville and Pep. inflows increase following NHM-based regression to estimate HRU inflows
 
 
 if __name__ == "__main__":
@@ -33,7 +33,7 @@ if __name__ == "__main__":
     df_obs = read_csv_data(f'{input_dir}usgs_gages/streamflow_daily_usgs_1950_2022_cms.csv', start_date, end_date, units = 'cms', source = 'USGS')
     df_obs.index = pd.to_datetime(df_obs.index)
     
-    df_obs_pub = pd.read_csv(f'{input_dir}modeled_gages\{hist_reconst_filename}_mgd.csv', 
+    df_obs_pub = pd.read_csv(f'{input_dir}modeled_gages/{hist_reconst_filename}_mgd.csv', 
                              sep=',', index_col=0, parse_dates=True).loc[start_date:end_date, :]
     df_obs_pub.index = pd.to_datetime(df_obs_pub.index)
     
@@ -47,7 +47,7 @@ if __name__ == "__main__":
 
     ### now get NJ diversions. for time periods we dont have historical record, extrapolate by seasonal relationship to flow.
     nj_diversion = extrapolate_NYC_NJ_diversions('nj')
-    nj_diversion.to_csv(f'{input_dir}deliveryNJ_WEAP_23Aug2022_gridmet_extrapolated.csv', index=False)
+    nj_diversion.to_csv(f'{input_dir}deliveryNJ_DRCanal_extrapolated.csv', index=False)
 
     ### get catchment demands based on DRBC data
     sw_demand = disaggregate_DRBC_demands()
