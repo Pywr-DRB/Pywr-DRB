@@ -172,7 +172,7 @@ def match_gages(df, dataset_label, site_matches_id, upstream_nodes_dict):
     ## 1.1 Reservoir inflows
     for node, site in site_matches_id.items():
         if node == 'cannonsville':
-            if (dataset_label == 'obs_pub') and (site == None):
+            if ('obs_pub' in dataset_label) and (site == None):
                 inflows = pd.DataFrame(df.loc[:, node])
             else:
                 inflows = pd.DataFrame(df.loc[:, site].sum(axis=1))
@@ -181,16 +181,16 @@ def match_gages(df, dataset_label, site_matches_id, upstream_nodes_dict):
             inflows.index = inflows['datetime']
             inflows = inflows.iloc[:, :-1]
         else:
-            if (dataset_label == 'obs_pub') and (site == None):
+            if ('obs_pub' in dataset_label) and (site == None):
                 inflows[node] = df[node]
             else:
                 inflows[node] = df[site].sum(axis=1)
                 
-        if (dataset_label == 'obs_pub') and (nhm_inflow_scaling) and (node in nhm_inflow_scaling_coefs.keys()):
+        if ('obs_pub' in dataset_label) and (nhm_inflow_scaling) and (node in nhm_inflow_scaling_coefs.keys()):
             print(f'Scaling {node} inflow using NHM ratio')
             inflows[node] = inflows[node]*nhm_inflow_scaling_coefs[node]
 
-    if dataset_label != 'obs_pub':
+    if  'obs_pub' not in dataset_label:
         ## Save full flows to csv
         # For downstream nodes, this represents the full flow for results comparison
         inflows.to_csv(f'{input_dir}gage_flow_{dataset_label}.csv')
@@ -203,7 +203,7 @@ def match_gages(df, dataset_label, site_matches_id, upstream_nodes_dict):
     # For downstream nodes, this represents the catchment inflow with upstream node inflows subtracted
     inflows.to_csv(f'{input_dir}catchment_inflow_{dataset_label}.csv')
 
-    if dataset_label == 'obs_pub':
+    if 'obs_pub' in dataset_label:
         ## For PUB, to get full gage flow we want to re-add up cumulative flows after doing previous catchment subtraction.
         # For downstream nodes, this represents the full flow for results comparison
         inflows = add_upstream_catchment_inflows(inflows)
@@ -229,17 +229,17 @@ def get_WEAP_df(filename):
 
 if __name__ == "__main__":
     
-    # Defaults
-    obs_pub_donor_fdc= 'nhmv10'
-    hist_reconst_filename= f'{input_dir}modeled_gages/historic_reconstruction_daily_{obs_pub_donor_fdc}_mgd.csv'
-    
+    # # Defaults
+    # obs_pub_donor_fdc= 'nhmv10'
+    # hist_reconst_filename= f'{input_dir}modeled_gages/historic_reconstruction_daily_{obs_pub_donor_fdc}_mgd.csv'
+
     ### read in observed, NHM, & NWM data
     ### use same set of dates for all.
 
     df_obs = read_csv_data(f'{input_dir}usgs_gages/streamflow_daily_usgs_1950_2022_cms.csv', start_date, end_date, units = 'cms', source = 'USGS')
 
-    df_obs_pub = pd.read_csv(hist_reconst_filename,
-                         sep=',', index_col=0, parse_dates=True).loc[start_date:end_date, :]
+    # df_obs_pub = pd.read_csv(hist_reconst_filename,
+    #                      sep=',', index_col=0, parse_dates=True).loc[start_date:end_date, :]
 
     df_nhm = read_csv_data(f'{input_dir}modeled_gages/streamflow_daily_nhmv10_mgd.csv', start_date, end_date, units = 'mgd', source = 'nhm')
 
@@ -253,7 +253,7 @@ if __name__ == "__main__":
 
     df_obs = match_gages(df_obs, 'obs', site_matches_id= obs_site_matches, upstream_nodes_dict= upstream_nodes_dict)
 
-    df_obs_pub = match_gages(df_obs_pub, 'obs_pub', site_matches_id= obs_pub_site_matches, upstream_nodes_dict= upstream_nodes_dict)
+    # df_obs_pub = match_gages(df_obs_pub, 'obs_pub', site_matches_id= obs_pub_site_matches, upstream_nodes_dict= upstream_nodes_dict)
 
     df_nwm = match_gages(df_nwm, 'nwmv21', site_matches_id= nwm_site_matches, upstream_nodes_dict= upstream_nodes_dict)
 
@@ -273,17 +273,23 @@ if __name__ == "__main__":
     ### organize WEAP results to use in Pywr-DRB - new for 29June2023 WEAP format
     for node, filekey in WEAP_29June2023_gridmet_NatFlows_matches.items():
         if filekey:
-            filename = f'{weap_dir}/{filekey[0]}_GridMet_NatFlows.csv'
-            df = get_WEAP_df(filename)
+            inflow_filename = f'{weap_dir}/{filekey[0]}_GridMet_NatFlows.csv'
+            df_inflow = get_WEAP_df(inflow_filename)
+            gageflow_filename = f'{weap_dir}/{filekey[0]}_GridMet_ManagedFlows_ObsNYCDiv.csv'
+            df_gageflow = get_WEAP_df(gageflow_filename)
+
         ### We dont have inflows for 2 reservoirs that aren't in WEAP. just set to 0 inflow since they are small anyway.
         ### This wont change overall mass balance because this flow will now be routed through downstream node directly without regulation (next step).
         else:
-            df = df * 0
+            df_inflow = df_inflow * 0
+            df_gageflow = df_gageflow * 0
 
         if node == 'cannonsville':
-            inflows = pd.DataFrame({node: df['flow']})
+            inflows = pd.DataFrame({node: df_inflow['flow']})
+            gageflows = pd.DataFrame({node: df_inflow['flow']})
         else:
-            inflows[node] = df['flow']
+            inflows[node] = df_inflow['flow']
+            gageflows[node] = df_gageflow['flow']
 
     ### Inflow timeseries are cumulative. So for each downstream node, subtract the flow into all upstream nodes so
     ###    this represents only direct catchment inflows into this node. Account for time lags between distant nodes.
@@ -291,7 +297,9 @@ if __name__ == "__main__":
 
     ### convert cubic meter to MG
     inflows *= cm_to_mg
+    gageflows *= cm_to_mg
+
     ### save
     inflows.to_csv(f'{input_dir}catchment_inflow_WEAP_29June2023_gridmet.csv')
+    gageflows.to_csv(f'{input_dir}gage_flow_WEAP_29June2023_gridmet.csv')
 
-    ### Note: still need to get simulated/regulated time series from WEAP for comparison. Above is just inflows with reservoirs/mgmt turned off.

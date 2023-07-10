@@ -39,7 +39,7 @@ if __name__ == "__main__":
     
     ### match USGS gage sites to Pywr-DRB model nodes & save inflows to csv file in format expected by Pywr-DRB
     df_obs = match_gages(df_obs, 'obs', site_matches_id= obs_site_matches, upstream_nodes_dict= upstream_nodes_dict)
-    df_obs_pub = match_gages(df_obs_pub, 'obs_pub', site_matches_id= obs_pub_site_matches, upstream_nodes_dict= upstream_nodes_dict)
+    df_obs_pub = match_gages(df_obs_pub, f'obs_pub_{obs_pub_donor_fdc}_NYCScaling{regression_nhm_inflow_scaling}', site_matches_id= obs_pub_site_matches, upstream_nodes_dict= upstream_nodes_dict)
 
     ### now get NYC diversions. for time periods we dont have historical record, extrapolate by seasonal relationship to flow.
     nyc_diversion = extrapolate_NYC_NJ_diversions('nyc')

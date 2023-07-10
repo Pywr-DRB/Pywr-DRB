@@ -19,18 +19,16 @@ import hydroeval as he
 import h5py
 import datetime as dt
 
-sys.path.append('..')
-
-from pywr_drb_node_data import upstream_nodes_dict
+from pywrdrb.pywr_drb_node_data import upstream_nodes_dict
 
 # Custom modules
-from data_processing.get_results import get_base_results, get_pywr_results
+from pywrdrb.data_processing.get_results import get_base_results, get_pywr_results
 
-from utils.constants import cms_to_mgd, cm_to_mg, cfs_to_mgd
-from utils.lists import reservoir_list, majorflow_list, reservoir_link_pairs
-from utils.directories import input_dir, fig_dir, output_dir, model_data_dir
+from pywrdrb.utils.constants import cms_to_mgd, cm_to_mg, cfs_to_mgd
+from pywrdrb.utils.lists import reservoir_list, majorflow_list, reservoir_link_pairs
+from pywrdrb.utils.directories import input_dir, fig_dir, output_dir, model_data_dir
 
-from plotting.styles import base_model_colors, model_hatch_styles, paired_model_colors, scatter_model_markers
+from pywrdrb.plotting.styles import base_model_colors, model_hatch_styles, paired_model_colors, scatter_model_markers
 
 
 ### 3-part figure to visualize flow: timeseries, scatter plot, & flow duration curve. Can plot observed plus 1 or 2 modeled series.

@@ -5,7 +5,7 @@ echo Prepping data...
 time python3 -W ignore ./pywrdrb/prep_input_data.py
 
 ### run simulation using multiple inpu data sources
-for inflow_type in WEAP_29June2023_gridmet obs_pub nhmv10 nwmv21
+for inflow_type in WEAP_29June2023_gridmet nhmv10 nwmv21
 do
 	echo Running simulation with $inflow_type ...
 	time python3 -W ignore ./pywrdrb/run_historic_simulation.py $inflow_type
@@ -14,7 +14,7 @@ done
 ### now run historic reconstructions under different assumptions
 for fdc_type in nhmv10 nwmv21
 do
-	for use_NYCScaling in no yes
+	for use_NYCScaling in yes #no
 	do
 		#### Prep inputs from raw data
 		echo Prepping data... $fdc_type $use_NYCScaling
