@@ -10,7 +10,7 @@ import numpy as np
 from pywr.model import Model
 from pywr.recorders import TablesRecorder
 
-from drb_make_model import drb_make_model
+from make_model import make_model
 import parameters.ffmp
 import parameters.starfit
 import parameters.inflow_ensemble
@@ -32,7 +32,7 @@ output_filename = f'{output_dir}drb_ensemble_output_{inflow_type}.hdf5'
 inflow_ensemble_indices= [1,2,3,4]
 
 ### make model json files
-drb_make_model(inflow_type, start_date, end_date, 
+make_model(inflow_type, start_date, end_date,
                inflow_ensemble_indices= inflow_ensemble_indices)
 
 ### Load the model

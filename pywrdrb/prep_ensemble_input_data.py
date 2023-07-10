@@ -7,6 +7,7 @@ exports HDF5 file containing all realizations (datasets) for each node (key).
 """
 
 import pandas as pd
+import sys
 
 from utils.directories import input_dir
 from utils.hdf5 import extract_realization_from_hdf5, get_hdf5_realization_numbers
@@ -26,7 +27,7 @@ def main(inflow_type='obs_pub', scenario_type = 'historic_ensemble'):
     """
 
     if scenario_type == 'historic_ensemble':
-        filename = 'historic_reconstruction_daily_ensemble.hdf5'
+        filename = f'historic_reconstruction_daily_{fdc_doner_type}_ensemble_mgd.hdf5'
     elif scenario_type == 'synthetic_ensemble':
         ## This is outdated and needs to be upped to hdf5
         filename = f'{inflow_type}/gage_flow_{inflow_type}_scenario_0.csv'
@@ -104,8 +105,8 @@ if __name__ == "__main__":
     # Specifications
     inflow_type = 'obs_pub'
     scenario_type = 'historic_ensemble'  # Or synthetic_ensemble    
+    fdc_doner_type = sys.argv[1] #nhmv10 or nwmv21
     output_type = 'hdf5'
 
     # Run processing
-    main(inflow_type= inflow_type, 
-         scenario_type=scenario_type)
+    main(inflow_type= inflow_type, scenario_type=scenario_type)
