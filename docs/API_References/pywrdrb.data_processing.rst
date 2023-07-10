@@ -9,7 +9,8 @@ Contains various functions for processing input and output data.
 .. autosummary::
    :toctree: generated/
 
-   get_results
+   get_results.get_base_results
+   get_results.get_pywr_results
 
 .. autosummary::
    :toctree: generated/

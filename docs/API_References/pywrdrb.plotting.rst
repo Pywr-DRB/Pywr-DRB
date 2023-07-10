@@ -3,7 +3,7 @@ pywrdrb.plotting
 
 The pywrdrb.plotting module contains various functions used to generate diagnostic figures.
 
-.. currentmodule:: pywrdrb.plotting
+.. currentmodule:: pywrdrb.plotting.plotting_functions
 
 .. autosummary::
    :toctree: generated/
