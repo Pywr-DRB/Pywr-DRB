@@ -28,7 +28,6 @@ STARFIT Reservoir Release Parameter
 
 .. autosummary::
    :toctree: generated/
-   :recursive:
    
    STARFITReservoirRelease
 

@@ -45,7 +45,7 @@ This script uses several plotting functions (stored in `Pywr-DRB/plotting`) to g
 Running this script:
 
 ```bash
-python3 -W ignore drb_make_figs.py
+python3 -W ignore drb_make_figs_diagnostics_paper.py
 ```
 
 ```{note}
