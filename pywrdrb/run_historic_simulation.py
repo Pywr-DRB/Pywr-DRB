@@ -11,10 +11,10 @@ from pywr.model import Model
 from pywr.recorders import TablesRecorder
 import parameters.ffmp
 import parameters.starfit
-from drb_make_model import drb_make_model
+from make_model import make_model
 from utils.directories import output_dir, model_data_dir
 
-inflow_type_options = ['obs_pub', 'nhmv10', 'nwmv21', 'WEAP_29June2023_gridmet']
+inflow_type_options = ['obs_pub', 'nhmv10', 'nwmv21', 'WEAP_29June2023_gridmet', 'obs_pub_nhmv10_NYCScaling', 'obs_pub_nwmv21_NYCScaling']
 
 ### specify inflow type from command line args
 inflow_type = sys.argv[1]
@@ -22,19 +22,19 @@ assert(inflow_type in inflow_type_options), f'Invalid inflow_type specified. Opt
 
 
 ### assume we want to run the full range for each dataset
-if inflow_type in ('nwmv21', 'nwmv21_withLakes', 'nhmv10', 'obs_pub'):
+if inflow_type in ('nwmv21', 'nhmv10', 'WEAP_29June2023_gridmet'):
     start_date = '1983-10-01'
     end_date = '2016-12-31'
-elif 'WEAP' in inflow_type:
-    start_date = '1983-10-01'   ### as of 29June2023 version, we have WEAP from 1981 to 2020. for now run same as others.
-    end_date = '2016-12-31'
+elif 'obs_pub' in inflow_type:
+    start_date = '1950-01-01'
+    end_date = '2022-12-31'
 
 model_filename = f'{model_data_dir}drb_model_full.json'
 output_filename = f'{output_dir}drb_output_{inflow_type}.hdf5'
 
 
 ### make model json files
-drb_make_model(inflow_type, start_date, end_date)
+make_model(inflow_type, start_date, end_date)
 
 ### Load the model
 model = Model.load(model_filename)

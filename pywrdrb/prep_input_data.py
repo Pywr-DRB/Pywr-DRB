@@ -19,15 +19,7 @@ from utils.directories import input_dir, weap_dir
 from data_processing.disaggregate_DRBC_demands import disaggregate_DRBC_demands
 from data_processing.extrapolate_NYC_NJ_diversions import extrapolate_NYC_NJ_diversions
 
-# Date range
-start_date = '1983/10/01'
-end_date = '2016/12/31'
-warmup_years = 4 ### this many years of data will be added
 
-
-nhm_inflow_scaling = False
-nhm_inflow_scaling_coefs = {'cannonsville': 1.188,
-                            'pepacton': 1.737}
 
 def read_modeled_estimates(filename, sep, date_label, site_label, streamflow_label, start_date, end_date):
     """
@@ -186,10 +178,6 @@ def match_gages(df, dataset_label, site_matches_id, upstream_nodes_dict):
             else:
                 inflows[node] = df[site].sum(axis=1)
                 
-        if ('obs_pub' in dataset_label) and (nhm_inflow_scaling) and (node in nhm_inflow_scaling_coefs.keys()):
-            print(f'Scaling {node} inflow using NHM ratio')
-            inflows[node] = inflows[node]*nhm_inflow_scaling_coefs[node]
-
     if  'obs_pub' not in dataset_label:
         ## Save full flows to csv
         # For downstream nodes, this represents the full flow for results comparison
@@ -229,17 +217,12 @@ def get_WEAP_df(filename):
 
 if __name__ == "__main__":
     
-    # # Defaults
-    # obs_pub_donor_fdc= 'nhmv10'
-    # hist_reconst_filename= f'{input_dir}modeled_gages/historic_reconstruction_daily_{obs_pub_donor_fdc}_mgd.csv'
-
     ### read in observed, NHM, & NWM data
     ### use same set of dates for all.
+    start_date = '1983/10/01'
+    end_date = '2016/12/31'
 
     df_obs = read_csv_data(f'{input_dir}usgs_gages/streamflow_daily_usgs_1950_2022_cms.csv', start_date, end_date, units = 'cms', source = 'USGS')
-
-    # df_obs_pub = pd.read_csv(hist_reconst_filename,
-    #                      sep=',', index_col=0, parse_dates=True).loc[start_date:end_date, :]
 
     df_nhm = read_csv_data(f'{input_dir}modeled_gages/streamflow_daily_nhmv10_mgd.csv', start_date, end_date, units = 'mgd', source = 'nhm')
 
@@ -247,15 +230,38 @@ if __name__ == "__main__":
 
     assert ((df_obs.index == df_nhm.index).mean() == 1) and ((df_nhm.index == df_nwm.index).mean() == 1)
 
-
     ### match USGS gage sites to Pywr-DRB model nodes & save inflows to csv file in format expected by Pywr-DRB
     df_nhm = match_gages(df_nhm, 'nhmv10', site_matches_id= nhm_site_matches, upstream_nodes_dict= upstream_nodes_dict)
 
     df_obs = match_gages(df_obs, 'obs', site_matches_id= obs_site_matches, upstream_nodes_dict= upstream_nodes_dict)
 
-    # df_obs_pub = match_gages(df_obs_pub, 'obs_pub', site_matches_id= obs_pub_site_matches, upstream_nodes_dict= upstream_nodes_dict)
-
     df_nwm = match_gages(df_nwm, 'nwmv21', site_matches_id= nwm_site_matches, upstream_nodes_dict= upstream_nodes_dict)
+
+    ### now prep input data for full PUB reconstruction using both NHM & NWM FDC methods
+    start_date = '1950-01-01'
+    end_date = '2022-12-31'
+
+    # Loop over both NWM & NHM methods for FDC construction
+    for obs_pub_donor_fdc in ['nwmv21', 'nhmv10']:
+        regression_nhm_inflow_scaling = True
+
+        # Hist. Reconst. names are based on method specs
+        hist_reconst_filename = f'historic_reconstruction_daily_{obs_pub_donor_fdc}'
+        hist_reconst_filename = f'{hist_reconst_filename}_NYCscaled' if regression_nhm_inflow_scaling else hist_reconst_filename
+
+        df_obs = read_csv_data(f'{input_dir}usgs_gages/streamflow_daily_usgs_1950_2022_cms.csv', start_date, end_date,
+                               units='cms', source='USGS')
+        df_obs.index = pd.to_datetime(df_obs.index)
+
+        ### read in PUB reconstruction from Pywr-DRB/DRB-historic-reconstruction repo
+        df_obs_pub = pd.read_csv(f'{input_dir}modeled_gages/{hist_reconst_filename}_mgd.csv',
+                                 sep=',', index_col=0, parse_dates=True).loc[start_date:end_date, :]
+        df_obs_pub.index = pd.to_datetime(df_obs_pub.index)
+
+        ### match USGS gage sites to Pywr-DRB model nodes & save inflows to csv file in format expected by Pywr-DRB
+        df_obs = match_gages(df_obs, 'obs', site_matches_id=obs_site_matches, upstream_nodes_dict=upstream_nodes_dict)
+        df_obs_pub = match_gages(df_obs_pub, f'obs_pub_{obs_pub_donor_fdc}_NYCScaling',
+                                 site_matches_id=obs_pub_site_matches, upstream_nodes_dict=upstream_nodes_dict)
 
     ### now get NYC diversions. for time periods we dont have historical record, extrapolate by seasonal relationship to flow.
     nyc_diversion = extrapolate_NYC_NJ_diversions('nyc')
