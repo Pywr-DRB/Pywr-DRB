@@ -134,11 +134,11 @@ obs_pub_site_matches = {'cannonsville': ['01423000', '0142400103'], # 0142400103
                     'outletSchuylkill': ['01474500']
                     }
 
-obs_site_matches = {'cannonsville': ['01423000'], 
+obs_site_matches = {'cannonsville': ['01423000', '0142400103'], 
                     'pepacton': ['01415000', '01414500', '01414000', '01413500'],  # '01414000' doesnt start until 1996; likely underestimate before
                     'neversink': ['01435000'],
                     'wallenpaupack': [], ## PUB 
-                    'prompton': [],  ## PUB :None till 1986-09-30 then '01428750' observation start
+                    'prompton': ['01428750'],  ## PUB :None till 1986-09-30 then '01428750' observation start
                     'shoholaMarsh': [], ## PUB
                     'mongaupeCombined': [], ## PUB
                     'beltzvilleCombined': ['01449360'],  ## Not complete inflow                              
