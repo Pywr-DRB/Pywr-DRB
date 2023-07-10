@@ -10,7 +10,7 @@ from pywrdrb.utils.lists import reservoir_list, majorflow_list, reservoir_link_p
 from pywrdrb.utils.constants import cms_to_mgd, cm_to_mg, cfs_to_mgd
 from pywrdrb.utils.directories import input_dir, output_dir, fig_dir
 
-from pywrdrb.data_processing.get_results import get_base_results, get_pywr_results
+from pywrdrb.post.get_results import get_base_results, get_pywr_results
 
 ### I was having trouble with interactive console plotting in Pycharm for some reason - comment this out if you want to use that and not having issues
 #mpl.use('TkAgg')

@@ -23,13 +23,13 @@ start_time = time.time()
 
 inflow_type = 'obs_pub'
 
-start_date = '2001-01-01'
-end_date = '2010-12-31'
+start_date = '1950-01-01'
+end_date = '2022-12-31'
 
 model_filename = f'{model_data_dir}drb_model_full_ensemble.json'
-output_filename = f'{output_dir}drb_ensemble_output_{inflow_type}.hdf5'
+output_filename = f'{output_dir}drb_output_{inflow_type}_ensemble.hdf5'
 
-inflow_ensemble_indices= [1,2,3,4]
+inflow_ensemble_indices= [1,2,3,4,5,6,7,8,9,10]
 
 ### make model json files
 make_model(inflow_type, start_date, end_date,
@@ -42,6 +42,7 @@ model = Model.load(model_filename)
 TablesRecorder(model, output_filename, parameters=[p for p in model.parameters if p.name])
 
 ### Run the model
+print(f'Running ensemble simulation with inflow indices: {inflow_ensemble_indices}')
 stats = model.run()
 stats_df = stats.to_dataframe()
 
