@@ -20,6 +20,7 @@ reservoir_marshCreek,reservoir,40.055435,-75.717303,3022.12768,4648728,2.04E+12,
 link_delLordville,river,41.867528,-75.21417,,2617364,2.04E+12,,,Flow in the Delaware River at Lordville.
 link_delMontague,regulatory,41.30916667,-74.79527778,,4151628,2.04E+12,,,"Montague Gauge Site <br> Streamflow at this location is considered when making releases from NYC reservoirs. <br>Flow at this location should exceed 1,750 CFS during normal operation."
 link_delTrenton,regulatory,40.221041,-74.780647,,2590277,2.04E+12,,,"Trenton Gauge Site <br> Maintaining high flow at this location is important to keep the salt front away from Philadelphia, and is used to guide water releases at NYC reservoirs . <br>Flow at this location should exceed 3,000 CFS during normal operation."
+link_delDRCanal,river,40.221041,-74.780647,,,,,,
 link_outletAssunpink,river,40.217486,-74.76699,,2590137,2.04E+12,,,Outlet of the Assunpink river into the Delaware mainstem.
 link_outletSchuylkill,river,39.894148,-75.203456,,4784841,2.04E+12,,,Outlet of the Schuylkill river into the Delaware mainstem.
 link_outletChristina,river,39.735611,-75.534213,,4652144,2.04E+12,,,Outlet of the Christina river into the Delaware mainstem.
