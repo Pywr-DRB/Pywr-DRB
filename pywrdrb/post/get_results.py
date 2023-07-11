@@ -7,7 +7,7 @@ from utils.constants import cms_to_mgd, cfs_to_mgd, cm_to_mg
 
 ### Contains functions used to process Pywr-DRB data.  
 
-def get_pywr_results(output_dir, model, results_set='all', scenario=0):
+def get_pywr_results(output_dir, model, results_set='all', scenario=0, datetime_index=None):
     """
     Gathers simulation results from Pywr model run and returns a pd.DataFrame.
 
@@ -22,64 +22,86 @@ def get_pywr_results(output_dir, model, results_set='all', scenario=0):
             - "inflow": Return the inflow at each catchment.
             (Default: 'all')
         scenario (int, optional): The scenario index number. (Default: 0)
+        datetime_index (Pandas datetime_index): Creating the dates are slow: if this isn't our first data retrieval, we can provide the dates from a previous results dataframe.
 
     Returns:
         pd.DataFrame: The simulation results with datetime index.
     """
     with h5py.File(f'{output_dir}drb_output_{model}.hdf5', 'r') as f:
         keys = list(f.keys())
-        first = 0
         results = pd.DataFrame()
-        for k in keys:
-            if results_set == 'all':
+        if results_set == 'all':
+            for k in keys:
                 results[k] = f[k][:, scenario]
-            elif results_set == 'reservoir_downstream_gage':
-                ## Need to pull flow data for link_ downstream of reservoirs instead of simulated outflows
-                if k.split('_')[0] == 'link' and k.split('_')[1] in reservoir_link_pairs.values():
-                    res_name = [res for res, link in reservoir_link_pairs.items() if link == k.split('_')[1]][0]
-                    results[res_name] = f[k][:, scenario]
-                # Now pull simulated relases from un-observed reservoirs
-                elif k.split('_')[0] == 'outflow' and k.split('_')[1] in reservoir_list:
-                    results[k.split('_')[1]] = f[k][:, scenario]
-            elif results_set == 'res_storage':
-                if k.split('_')[0] == 'reservoir' and k.split('_')[1] in reservoir_list:
-                    results[k.split('_')[1]] = f[k][:, scenario]
-            elif results_set == 'major_flow':
-                if k.split('_')[0] == 'link' and k.split('_')[1] in majorflow_list:
-                    results[k.split('_')[1]] = f[k][:, scenario]
-            elif results_set == 'res_release':
-                if k.split('_')[0] == 'outflow' and k.split('_')[1] in reservoir_list:
-                    results[k.split('_')[1]] = f[k][:, scenario]
-            elif results_set == 'inflow':
-                if k.split('_')[0] == 'catchment':
-                    results[k.split('_')[1]] = f[k][:, scenario]
-            elif results_set == 'withdrawal':
-                if k.split('_')[0] == 'catchmentWithdrawal':
-                    results[k.split('_')[1]] = f[k][:, scenario]
-            elif results_set == 'consumption':
-                if k.split('_')[0] == 'catchmentConsumption':
-                    results[k.split('_')[1]] = f[k][:, scenario]
-            elif results_set in ('prev_flow_catchmentWithdrawal', 'max_flow_catchmentWithdrawal', 'max_flow_catchmentConsumption'):
-                if results_set in k:
-                    results[k.split('_')[-1]] = f[k][:, scenario]
-            elif results_set in ('res_level'):
-                if 'drought_level' in k:
-                    results[k.split('_')[-1]] = f[k][:, scenario]
-            elif results_set == 'mrf_target':
-                if results_set in k:
-                    results[k.split('mrf_target_')[1]] = f[k][:, scenario]
+        elif results_set == 'reservoir_downstream_gage':
+            ## Need to pull flow data for link_ downstream of reservoirs instead of simulated outflows
+            keys_with_link = [k for k in keys if k.split('_')[0] == 'link' and k.split('_')[1] in reservoir_link_pairs.values()]
+            for k in keys_with_link:
+                res_name = [res for res, link in reservoir_link_pairs.items() if link == k.split('_')[1]][0]
+                results[res_name] = f[k][:, scenario]
+            # Now pull simulated relases from un-observed reservoirs
+            keys_without_link = [k for k in keys if k.split('_')[0] == 'outflow' and k.split('_')[1] in reservoir_list]
+            for k in keys_without_link:
+                results[k.split('_')[1]] = f[k][:, scenario]
+        elif results_set == 'res_storage':
+            keys = [k for k in keys if k.split('_')[0] == 'reservoir' and k.split('_')[1] in reservoir_list]
+            for k in keys:
+                results[k.split('_')[1]] = f[k][:, scenario]
+        elif results_set == 'major_flow':
+            keys = [k for k in keys if k.split('_')[0] == 'link' and k.split('_')[1] in majorflow_list]
+            for k in keys:
+                results[k.split('_')[1]] = f[k][:, scenario]
+        elif results_set == 'res_release':
+            keys = [k for k in keys if k.split('_')[0] == 'outflow' and k.split('_')[1] in reservoir_list]
+            for k in keys:
+                results[k.split('_')[1]] = f[k][:, scenario]
+        elif results_set == 'inflow':
+            keys = [k for k in keys if k.split('_')[0] == 'catchment']
+            for k in keys:
+                results[k.split('_')[1]] = f[k][:, scenario]
+        elif results_set == 'withdrawal':
+            keys = [k for k in keys if k.split('_')[0] == 'catchmentWithdrawal']
+            for k in keys:
+                results[k.split('_')[1]] = f[k][:, scenario]
+        elif results_set == 'consumption':
+            keys = [k for k in keys if k.split('_')[0] == 'catchmentConsumption']
+            for k in keys:
+                results[k.split('_')[1]] = f[k][:, scenario]
+        elif results_set in ('prev_flow_catchmentWithdrawal', 'max_flow_catchmentWithdrawal', 'max_flow_catchmentConsumption'):
+            keys = [k for k in keys if results_set in k]
+            for k in keys:
+                results[k.split('_')[-1]] = f[k][:, scenario]
+        elif results_set in ('res_level'):
+            keys = [k for k in keys if 'drought_level' in k]
+            for k in keys:
+                results[k.split('_')[-1]] = f[k][:, scenario]
+        elif results_set == 'mrf_target':
+            keys = [k for k in keys if results_set in k]
+            for k in keys:
+                results[k.split('mrf_target_')[1]] = f[k][:, scenario]
+        else:
+            print('Invalid results_set specified.')
+            return
+
+        if datetime_index is not None:
+            if len(datetime_index) == len(f['time']):
+                results.index = datetime_index
+                reuse_datetime_index = True
             else:
-                print('Invalid results_set specified.')
-                return
-        
-        # Format datetime index
-        day = [f['time'][i][0] for i in range(len(f['time']))]
-        month = [f['time'][i][2] for i in range(len(f['time']))]
-        year = [f['time'][i][3] for i in range(len(f['time']))]
-        date = [f'{y}-{m}-{d}' for y, m, d in zip(year, month, day)]
-        date = pd.to_datetime(date)
-        results.index = date
-        return results
+                reuse_datetime_index = False
+        else:
+            reuse_datetime_index = False
+
+        if not reuse_datetime_index:
+            # Format datetime index
+            day = [f['time'][i][0] for i in range(len(f['time']))]
+            month = [f['time'][i][2] for i in range(len(f['time']))]
+            year = [f['time'][i][3] for i in range(len(f['time']))]
+            date = [f'{y}-{m}-{d}' for y, m, d in zip(year, month, day)]
+            datetime_index = pd.to_datetime(date)
+            results.index = datetime_index
+
+        return results, datetime_index
 
 
 ### load other flow estimates. each column represents modeled flow at USGS gage downstream of reservoir or gage on mainstem
