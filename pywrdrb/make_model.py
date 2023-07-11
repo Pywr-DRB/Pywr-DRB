@@ -257,7 +257,7 @@ def add_major_node(model, name, node_type, inflow_type, outflow_type=None, downs
 ##########################################################################################
 
 def make_model(inflow_type, start_date, end_date, use_hist_NycNjDeliveries=True,
-                   inflow_ensemble_indices = None, model_filename_extension = ""):
+                   inflow_ensemble_indices = None):
     """
     Creates the JSON file used by Pywr to define the model, including all nodes, edges, and parameters.
 
@@ -277,11 +277,10 @@ def make_model(inflow_type, start_date, end_date, use_hist_NycNjDeliveries=True,
     ### Basic model info
     #######################################################################
 
+    model_file_name = f'{model_file_name_base}_{inflow_type}'
     if inflow_ensemble_indices:
-        model_file_name = f'{model_file_name_base}_ensemble{model_filename_extension}'
         N_SCENARIOS = len(inflow_ensemble_indices)
     else:
-        model_file_name = f'{model_file_name_base}{model_filename_extension}'
         N_SCENARIOS = 1
         
     ### create dict to hold all model nodes, edges, params, etc, following Pywr protocol. This will be saved to JSON at end.

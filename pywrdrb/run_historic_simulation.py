@@ -14,7 +14,9 @@ import parameters.starfit
 from make_model import make_model
 from utils.directories import output_dir, model_data_dir
 
-inflow_type_options = ['obs_pub', 'nhmv10', 'nwmv21', 'WEAP_29June2023_gridmet', 'obs_pub_nhmv10_NYCScaling', 'obs_pub_nwmv21_NYCScaling']
+inflow_type_options = ['obs_pub', 'nhmv10', 'nwmv21', 'WEAP_29June2023_gridmet',
+                       'obs_pub_nhmv10_NYCScaled', 'obs_pub_nwmv21_NYCScaled',
+                       'obs_pub_nhmv10_NYCScaled_ensemble', 'obs_pub_nwmv21_NYCScaled_ensemble']
 
 ### specify inflow type from command line args
 inflow_type = sys.argv[1]
@@ -29,12 +31,18 @@ elif 'obs_pub' in inflow_type:
     start_date = '1950-01-01'
     end_date = '2022-12-31'
 
-model_filename = f'{model_data_dir}drb_model_full.json'
+### for ensemble mode, list scenario indices we want to run
+if 'ensemble' in inflow_type:
+    inflow_ensemble_indices = [1, 2, 3, 4, 5]#, 6, 7, 8, 9, 10]
+else:
+    inflow_ensemble_indices = None
+
+model_filename = f'{model_data_dir}drb_model_full_{inflow_type}.json'
 output_filename = f'{output_dir}drb_output_{inflow_type}.hdf5'
 
 
 ### make model json files
-make_model(inflow_type, start_date, end_date)
+make_model(inflow_type, start_date, end_date, inflow_ensemble_indices= inflow_ensemble_indices)
 
 ### Load the model
 model = Model.load(model_filename)

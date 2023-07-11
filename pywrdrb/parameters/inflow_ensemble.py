@@ -29,7 +29,7 @@ class FlowEnsemble(Parameter):
     def __init__(self, model, name, inflow_type, inflow_ensemble_indices, **kwargs):
         super().__init__(model, **kwargs)
         
-        filename = f'{input_dir}/historic_ensembles/catchment_inflow_ensemble.hdf5'
+        filename = f'{input_dir}/historic_ensembles/catchment_inflow_{inflow_type}.hdf5'
         
         # Load from hfd5 specific realizations
         with h5py.File(filename, 'r') as file:

@@ -10,13 +10,14 @@ from utils.directories import input_dir
 # Directories
 weap_dir = input_dir + 'WEAP_23Aug2022_gridmet/'
 
-def extrapolate_NYC_NJ_diversions(loc):
+def extrapolate_NYC_NJ_diversions(loc, inflow_label):
     """
     Function for retrieving NYC and NJ historical diversions and extrapolating them into time periods
     where we don't have data based on seasonal flow regressions.
 
     Args:
         loc (str): The location to extrapolate. Can be either "nyc" or "nj".
+        inflow_label (str): Label of catchment inflow scenario to use for regressions & extrapolation. e.g., "obs_pub_nhmv10_NYCScaling".
 
     Returns:
         pd.DataFrame: The dataframe containing the extrapolated diversions.
@@ -45,7 +46,7 @@ def extrapolate_NYC_NJ_diversions(loc):
         diversion[diversion < 0] = 0
 
     ### get historical flow
-    flow = pd.read_csv(f'{input_dir}catchment_inflow_obs.csv', index_col=0)
+    flow = pd.read_csv(f'{input_dir}catchment_inflow_{inflow_label}.csv', index_col=0)
     flow.index = pd.to_datetime(flow.index)
 
     ### get maximum overlapping timespan for diversions and flow
@@ -97,7 +98,7 @@ def extrapolate_NYC_NJ_diversions(loc):
     lrrs = {q: lrms[q].fit() for q in quarters}
 
     ### now get longer dataset of flows for extrapolation
-    flow = pd.read_csv(f'{input_dir}catchment_inflow_obs.csv', index_col=0)
+    flow = pd.read_csv(f'{input_dir}catchment_inflow_{inflow_label}.csv', index_col=0)
     flow.index = pd.to_datetime(flow.index)
 
     if loc == 'nyc':
