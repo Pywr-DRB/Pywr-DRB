@@ -329,7 +329,7 @@ if __name__ == "__main__":
     for fdc_doner_type in ['nwmv21', 'nhmv10']:
         # Hist. Reconst. names are based on method specs
         hist_reconst_filename = f'historic_reconstruction_daily_{fdc_doner_type}'
-        hist_reconst_filename = f'{hist_reconst_filename}_NYCscaled' if regression_nhm_inflow_scaling else hist_reconst_filename
+        hist_reconst_filename = f'{hist_reconst_filename}_NYCScaled' if regression_nhm_inflow_scaling else hist_reconst_filename
 
         df_obs = read_csv_data(f'{input_dir}usgs_gages/streamflow_daily_usgs_1950_2022_cms.csv', start_date, end_date,
                                units='cms', source='USGS')

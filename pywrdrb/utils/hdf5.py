@@ -1,6 +1,32 @@
 import h5py
 import pandas as pd
+import numpy as np
 
+
+def combine_batched_hdf5_outputs(batch_files, combined_output_file):
+    with h5py.File(combined_output_file, 'w') as hf_out:
+        # Since keys are same in all files, we just take keys from the first file
+        with h5py.File(batch_files[0], 'r') as hf_in:
+            keys = list(hf_in.keys())
+            time_array=hf_in['time'][:]
+            
+        for key in keys:
+            if key not in ['time', 'scenarios']:
+                # Accumulate data from all files for a specific key
+                data_for_key = []
+                for file in batch_files:
+                    with h5py.File(file, 'r') as hf_in:
+                            data_for_key.append(hf_in[key][:,:])
+
+                # Concatenate along the scenarios axis
+                combined_data = np.concatenate(data_for_key, axis=1)
+
+                # Write combined data to the output file
+                hf_out.create_dataset(key, data=combined_data)
+        
+        # Time needs to be handled differently since 1D
+        hf_out.create_dataset('time', data=time_array)
+    return
 
 
 def export_ensemble_to_hdf5(dict, output_file):

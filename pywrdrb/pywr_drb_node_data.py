@@ -101,7 +101,7 @@ downstream_node_lags = {'cannonsville': 0,
                         'outletSchuylkill': 0
                         }
 
-obs_pub_site_matches = {'cannonsville': ['01423000', '0142400103'], # 0142400103 doesnt start until '96 ##TODO: PUB until 96
+obs_pub_site_matches = {'cannonsville': ['01423000', '0142400103'], # 0142400103 doesnt start until '96 
                     'pepacton': ['01415000', '01414500', '01414000', '01413500'], # '01414000' doesnt start until 1996; likely underestimate before
                     'neversink': ['01435000'],
                     'wallenpaupack': None, 
