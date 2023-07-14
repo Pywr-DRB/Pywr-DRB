@@ -108,9 +108,14 @@ def subtract_upstream_catchment_inflows(inflows):
                 inflows[node].iloc[:lag] -= inflows[upstream].iloc[:lag].values
             else:
                 inflows[node] -= inflows[upstream]
+        if node == 'delTrenton':
+            ### delTrenton node should have zero inflow because coincident with DRCanal
+            ### -> make sure that is still so after subtraction process
+            inflows['delTrenton'] *= 0.
 
         ### if catchment inflow is negative after subtracting upstream, set to 0
         inflows[node].loc[inflows[node] < 0] = 0
+
     return inflows
 
 
@@ -179,7 +184,7 @@ def match_gages(df, dataset_label, site_matches_id):
                 inflows[node] = df[node]
             else:
                 inflows[node] = df[site].sum(axis=1)
-                
+
     if  'obs_pub' not in dataset_label:
         ## Save full flows to csv
         # For downstream nodes, this represents the full flow for results comparison
@@ -265,6 +270,8 @@ def prep_ensemble_inflows(fdc_doner_type, regression_nhm_inflow_scaling):
 
         # Subtract upstream flows to get just inflows to catchment
         realization_inflows = subtract_upstream_catchment_inflows(realization_nodeflow)
+        # Add back upstream flow to make sure gage flows are consistent
+        realization_nodeflow = add_upstream_catchment_inflows(realization_inflows)
 
         ### Store data ###
         ## We want a df containing all realization timeseries for a single node

@@ -9,8 +9,6 @@ from utils.directories import input_dir, model_data_dir
 from utils.lists import majorflow_list, reservoir_list, reservoir_list_nyc
 from pywr_drb_node_data import upstream_nodes_dict, immediate_downstream_nodes_dict, downstream_node_lags
 
-model_file_name_base = model_data_dir + 'drb_model_full'
-
 EPS = 1e-8
 nhm_inflow_scaling = True
 
@@ -256,7 +254,7 @@ def add_major_node(model, name, node_type, inflow_type, outflow_type=None, downs
 ### drb_make_model()
 ##########################################################################################
 
-def make_model(inflow_type, start_date, end_date, use_hist_NycNjDeliveries=True,
+def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNjDeliveries=True,
                    inflow_ensemble_indices = None):
     """
     Creates the JSON file used by Pywr to define the model, including all nodes, edges, and parameters.
@@ -267,8 +265,6 @@ def make_model(inflow_type, start_date, end_date, use_hist_NycNjDeliveries=True,
         end_date (str): End date of the model.
         use_hist_NycNjDeliveries (bool): Flag indicating whether to use historical NYC and NJ deliveries.
         inflow_ensemble_indices (list): List of inflow ensemble indices.
-        model_filename_extension (str): Filename extension for the model.
-
     Returns:
         dict: Model JSON representation.
     """
@@ -277,7 +273,6 @@ def make_model(inflow_type, start_date, end_date, use_hist_NycNjDeliveries=True,
     ### Basic model info
     #######################################################################
 
-    model_file_name = f'{model_file_name_base}_{inflow_type}'
     if inflow_ensemble_indices:
         N_SCENARIOS = len(inflow_ensemble_indices)
     else:
@@ -782,5 +777,5 @@ def make_model(inflow_type, start_date, end_date, use_hist_NycNjDeliveries=True,
     ### save full model as json
     #######################################################################
 
-    with open(f'{model_file_name}.json', 'w') as o:
+    with open(f'{model_filename}', 'w') as o:
         json.dump(model, o, indent=4)
