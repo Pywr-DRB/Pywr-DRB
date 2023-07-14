@@ -29,15 +29,20 @@ inflow_type = sys.argv[1]
 assert(inflow_type in inflow_type_options), f'Invalid inflow_type specified. Options: {inflow_type_options}'
 
 ### specify whether to use MPI or not. This only matters for ensemble mode.
-use_mpi_options = [None,'','True','False']
-use_mpi = sys.argv[2]
-print('use_mpi:', use_mpi)
-assert(use_mpi in use_mpi_options), f'Invalid use_mpi specified. Options: {use_mpi_options}'
-if use_mpi == 'True':
-    from mpi4py import MPI
-    comm = MPI.COMM_WORLD
-    rank = comm.Get_rank()
-    size = comm.Get_size()
+if len(sys.argv) > 2:
+    use_mpi_options = [None,'','True','False']
+    use_mpi = sys.argv[2]
+    assert(use_mpi in use_mpi_options), f'Invalid use_mpi specified. Options: {use_mpi_options}'
+    if use_mpi == 'True':
+        use_mpi = True
+        from mpi4py import MPI
+        comm = MPI.COMM_WORLD
+        rank = comm.Get_rank()
+        size = comm.Get_size()
+    else:
+        use_mpi = False
+else:
+    use_mpi = False
 
 ### assume we want to run the full range for each dataset
 if inflow_type in ('nwmv21', 'nhmv10', 'WEAP_29June2023_gridmet'):
@@ -55,9 +60,10 @@ model_filename = f'{model_data_dir}drb_model_full_{inflow_type}.json'
 if 'ensemble' not in inflow_type:
 
     output_filename = f'{output_dir}drb_output_{inflow_type}.hdf5'
+    model_filename = f'{model_data_dir}drb_model_full_{inflow_type}.json'
 
     ### make model json files
-    make_model(inflow_type, start_date, end_date)
+    make_model(inflow_type, model_filename, start_date, end_date)
 
     ### Load the model
     model = Model.load(model_filename)
@@ -79,7 +85,7 @@ elif 'ensemble' in inflow_type:
     n_realizations=len(realization_ids)
 
     # How many inflow scenarios to run internally per sim using Pywr parallel
-    if use_mpi == 'True':
+    if use_mpi:
         batch_size = 5
         ### get subset of realizations assigned to this rank
         rank_realization_ids = []
@@ -109,7 +115,7 @@ elif 'ensemble' in inflow_type:
         print(f'Running {inflow_type} {batch} with inflow scenarios {indices}, {time.time()-t0}')
         sys.stdout.flush()
 
-        if use_mpi == 'True':
+        if use_mpi:
             model_filename = f'{model_data_dir}drb_model_full_{inflow_type}_rank{rank}.json'
             output_filename = f'{output_dir}drb_output_{inflow_type}_rank{rank}_batch{batch}.hdf5'
         else:
