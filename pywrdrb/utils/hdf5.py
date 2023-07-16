@@ -98,7 +98,6 @@ def extract_realization_from_hdf5(hdf5_file, realization):
         
         # Extract column labels
         column_labels = realization_group.attrs['column_labels']
-        
         # Extract timeseries data for each location
         data = {}
         for label in column_labels:

@@ -108,13 +108,13 @@ def subtract_upstream_catchment_inflows(inflows):
                 inflows[node].iloc[:lag] -= inflows[upstream].iloc[:lag].values
             else:
                 inflows[node] -= inflows[upstream]
-        if node == 'delTrenton':
-            ### delTrenton node should have zero inflow because coincident with DRCanal
-            ### -> make sure that is still so after subtraction process
-            inflows['delTrenton'] *= 0.
 
         ### if catchment inflow is negative after subtracting upstream, set to 0
         inflows[node].loc[inflows[node] < 0] = 0
+
+        ### delTrenton node should have zero catchment inflow because coincident with DRCanal
+        ### -> make sure that is still so after subtraction process
+        inflows['delTrenton'] *= 0.
 
     return inflows
 
@@ -132,8 +132,9 @@ def add_upstream_catchment_inflows(inflows):
     Returns:
         pandas.DataFrame: The modified inflows timeseries dataframe with upstream catchment inflows added.
     """
-    for node, upstreams in upstream_nodes_dict.items():
-        for upstream in upstreams:
+    ### loop over upstream_nodes_dict in reverse direction to avoid double counting
+    for node in list(upstream_nodes_dict.keys())[::-1]:
+        for upstream in upstream_nodes_dict[node]:
             lag = downstream_node_lags[upstream]
             if lag > 0:
                 inflows[node].iloc[lag:] += inflows[upstream].iloc[:-lag].values
@@ -271,7 +272,8 @@ def prep_ensemble_inflows(fdc_doner_type, regression_nhm_inflow_scaling):
         # Subtract upstream flows to get just inflows to catchment
         realization_inflows = subtract_upstream_catchment_inflows(realization_nodeflow)
         # Add back upstream flow to make sure gage flows are consistent
-        realization_nodeflow = add_upstream_catchment_inflows(realization_inflows)
+        realization_nodeflow = realization_inflows.copy()
+        realization_nodeflow = add_upstream_catchment_inflows(realization_nodeflow)
 
         ### Store data ###
         ## We want a df containing all realization timeseries for a single node
