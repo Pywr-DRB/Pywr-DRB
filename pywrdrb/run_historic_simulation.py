@@ -77,7 +77,7 @@ if 'ensemble' not in inflow_type:
 
 ## Run ensemble reconstruction in batches
 elif 'ensemble' in inflow_type:
-    inflow_subtype= inflow_type.replace('obs_pub_', '').replace('_NYCScaled','')
+    inflow_subtype= inflow_type.replace('obs_pub_', '')
 
     # Get the IDs for the realizations
     ensemble_input_filename= f'{input_dir}/historic_ensembles/historic_reconstruction_daily_{inflow_subtype}_mgd.hdf5'
