@@ -7,7 +7,7 @@ from pywr.parameters import Parameter, load_parameter
 from utils.directories import model_data_dir
 
 ### Load STARFIT parameter values
-starfit_params = pd.read_csv(f'{model_data_dir}drb_model_istarf_conus.csv', sep = ',', index_col=0)
+starfit_params = pd.read_csv(f'{model_data_dir}drb_model_istarf_conus_modified.csv', sep = ',', index_col=0)
 
 def get_reservoir_capacity(reservoir):
     """
@@ -46,7 +46,7 @@ class STARFITReservoirRelease(Parameter):
         
         # Modifications to
         self.remove_R_max = True
-        self.linear_below_NOR = False
+        self.linear_below_NOR = True
         use_adjusted_storage = True
         self.WATER_YEAR_OFFSET = 0
         

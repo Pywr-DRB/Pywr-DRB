@@ -230,8 +230,11 @@ def prep_ensemble_inflows(fdc_doner_type, regression_nhm_inflow_scaling):
         regression_nhm_inflow_scaling (bool): True if NYC reservoir inflows were scaled to account for ungaged flows.
     """
 
-    input_filename = f'historic_reconstruction_daily_{fdc_doner_type}_ensemble_mgd.hdf5'
-
+    if regression_nhm_inflow_scaling:
+        input_filename = f'historic_reconstruction_daily_{fdc_doner_type}_NYCScaled_ensemble_mgd.hdf5'
+    else:
+        input_filename = f'historic_reconstruction_daily_{fdc_doner_type}_ensemble_mgd.hdf5'
+    
     # Intialize storage
     ensemble_gage_flows = {}
     ensemble_inflows = {}
@@ -248,7 +251,6 @@ def prep_ensemble_inflows(fdc_doner_type, regression_nhm_inflow_scaling):
 
     start_date = check_inflow_df.index[0]
     end_date = check_inflow_df.index[-1]
-    print(f'Preparing inflows for {fdc_doner_type} between {start_date} and {end_date}.')
 
     for i in realization_ids:
 
