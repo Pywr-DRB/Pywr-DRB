@@ -45,7 +45,13 @@
             "name": "outflow_cannonsville",
             "type": "rivergauge",
             "mrf": "mrf_target_cannonsville",
-            "mrf_cost": -1000.0
+            "mrf_cost": -1000.0,
+            "max_flow": 2062.0
+        },
+        {
+            "name": "spill_cannonsville",
+            "type": "link",
+            "cost": 5000.0
         },
         {
             "name": "reservoir_pepacton",
@@ -76,7 +82,13 @@
             "name": "outflow_pepacton",
             "type": "rivergauge",
             "mrf": "mrf_target_pepacton",
-            "mrf_cost": -1000.0
+            "mrf_cost": -1000.0,
+            "max_flow": 842.0
+        },
+        {
+            "name": "spill_pepacton",
+            "type": "link",
+            "cost": 5000.0
         },
         {
             "name": "reservoir_neversink",
@@ -107,7 +119,13 @@
             "name": "outflow_neversink",
             "type": "rivergauge",
             "mrf": "mrf_target_neversink",
-            "mrf_cost": -1000.0
+            "mrf_cost": -1000.0,
+            "max_flow": 303.0
+        },
+        {
+            "name": "spill_neversink",
+            "type": "link",
+            "cost": 5000.0
         },
         {
             "name": "reservoir_wallenpaupack",
@@ -139,6 +157,11 @@
             "type": "link",
             "cost": -500.0,
             "max_flow": "starfit_release_wallenpaupack"
+        },
+        {
+            "name": "spill_wallenpaupack",
+            "type": "link",
+            "cost": 5000.0
         },
         {
             "name": "delay_wallenpaupack",
@@ -177,6 +200,11 @@
             "max_flow": "starfit_release_prompton"
         },
         {
+            "name": "spill_prompton",
+            "type": "link",
+            "cost": 5000.0
+        },
+        {
             "name": "delay_prompton",
             "type": "DelayNode",
             "days": 1
@@ -211,6 +239,11 @@
             "type": "link",
             "cost": -500.0,
             "max_flow": "starfit_release_shoholaMarsh"
+        },
+        {
+            "name": "spill_shoholaMarsh",
+            "type": "link",
+            "cost": 5000.0
         },
         {
             "name": "delay_shoholaMarsh",
@@ -249,6 +282,11 @@
             "max_flow": "starfit_release_mongaupeCombined"
         },
         {
+            "name": "spill_mongaupeCombined",
+            "type": "link",
+            "cost": 5000.0
+        },
+        {
             "name": "reservoir_beltzvilleCombined",
             "type": "storage",
             "max_volume": "max_volume_beltzvilleCombined",
@@ -278,6 +316,11 @@
             "type": "link",
             "cost": -500.0,
             "max_flow": "starfit_release_beltzvilleCombined"
+        },
+        {
+            "name": "spill_beltzvilleCombined",
+            "type": "link",
+            "cost": 5000.0
         },
         {
             "name": "reservoir_fewalter",
@@ -311,6 +354,11 @@
             "max_flow": "starfit_release_fewalter"
         },
         {
+            "name": "spill_fewalter",
+            "type": "link",
+            "cost": 5000.0
+        },
+        {
             "name": "reservoir_merrillCreek",
             "type": "storage",
             "max_volume": "max_volume_merrillCreek",
@@ -340,6 +388,11 @@
             "type": "link",
             "cost": -500.0,
             "max_flow": "starfit_release_merrillCreek"
+        },
+        {
+            "name": "spill_merrillCreek",
+            "type": "link",
+            "cost": 5000.0
         },
         {
             "name": "delay_merrillCreek",
@@ -378,6 +431,11 @@
             "max_flow": "starfit_release_hopatcong"
         },
         {
+            "name": "spill_hopatcong",
+            "type": "link",
+            "cost": 5000.0
+        },
+        {
             "name": "delay_hopatcong",
             "type": "DelayNode",
             "days": 1
@@ -414,6 +472,11 @@
             "max_flow": "starfit_release_nockamixon"
         },
         {
+            "name": "spill_nockamixon",
+            "type": "link",
+            "cost": 5000.0
+        },
+        {
             "name": "reservoir_assunpink",
             "type": "storage",
             "max_volume": "max_volume_assunpink",
@@ -445,6 +508,11 @@
             "max_flow": "starfit_release_assunpink"
         },
         {
+            "name": "spill_assunpink",
+            "type": "link",
+            "cost": 5000.0
+        },
+        {
             "name": "reservoir_ontelaunee",
             "type": "storage",
             "max_volume": "max_volume_ontelaunee",
@@ -474,6 +542,11 @@
             "type": "link",
             "cost": -500.0,
             "max_flow": "starfit_release_ontelaunee"
+        },
+        {
+            "name": "spill_ontelaunee",
+            "type": "link",
+            "cost": 5000.0
         },
         {
             "name": "delay_ontelaunee",
@@ -512,6 +585,11 @@
             "max_flow": "starfit_release_stillCreek"
         },
         {
+            "name": "spill_stillCreek",
+            "type": "link",
+            "cost": 5000.0
+        },
+        {
             "name": "delay_stillCreek",
             "type": "DelayNode",
             "days": 2
@@ -548,6 +626,11 @@
             "max_flow": "starfit_release_blueMarsh"
         },
         {
+            "name": "spill_blueMarsh",
+            "type": "link",
+            "cost": 5000.0
+        },
+        {
             "name": "reservoir_greenLane",
             "type": "storage",
             "max_volume": "max_volume_greenLane",
@@ -577,6 +660,11 @@
             "type": "link",
             "cost": -500.0,
             "max_flow": "starfit_release_greenLane"
+        },
+        {
+            "name": "spill_greenLane",
+            "type": "link",
+            "cost": 5000.0
         },
         {
             "name": "delay_greenLane",
@@ -960,6 +1048,14 @@
             "link_01425000"
         ],
         [
+            "reservoir_cannonsville",
+            "spill_cannonsville"
+        ],
+        [
+            "spill_cannonsville",
+            "link_01425000"
+        ],
+        [
             "catchment_pepacton",
             "reservoir_pepacton"
         ],
@@ -984,6 +1080,14 @@
             "link_01417000"
         ],
         [
+            "reservoir_pepacton",
+            "spill_pepacton"
+        ],
+        [
+            "spill_pepacton",
+            "link_01417000"
+        ],
+        [
             "catchment_neversink",
             "reservoir_neversink"
         ],
@@ -1005,6 +1109,14 @@
         ],
         [
             "outflow_neversink",
+            "link_01436000"
+        ],
+        [
+            "reservoir_neversink",
+            "spill_neversink"
+        ],
+        [
+            "spill_neversink",
             "link_01436000"
         ],
         [
@@ -1036,6 +1148,14 @@
             "link_delMontague"
         ],
         [
+            "reservoir_wallenpaupack",
+            "spill_wallenpaupack"
+        ],
+        [
+            "spill_wallenpaupack",
+            "delay_wallenpaupack"
+        ],
+        [
             "catchment_prompton",
             "reservoir_prompton"
         ],
@@ -1062,6 +1182,14 @@
         [
             "delay_prompton",
             "link_delMontague"
+        ],
+        [
+            "reservoir_prompton",
+            "spill_prompton"
+        ],
+        [
+            "spill_prompton",
+            "delay_prompton"
         ],
         [
             "catchment_shoholaMarsh",
@@ -1092,6 +1220,14 @@
             "link_delMontague"
         ],
         [
+            "reservoir_shoholaMarsh",
+            "spill_shoholaMarsh"
+        ],
+        [
+            "spill_shoholaMarsh",
+            "delay_shoholaMarsh"
+        ],
+        [
             "catchment_mongaupeCombined",
             "reservoir_mongaupeCombined"
         ],
@@ -1113,6 +1249,14 @@
         ],
         [
             "outflow_mongaupeCombined",
+            "link_01433500"
+        ],
+        [
+            "reservoir_mongaupeCombined",
+            "spill_mongaupeCombined"
+        ],
+        [
+            "spill_mongaupeCombined",
             "link_01433500"
         ],
         [
@@ -1140,6 +1284,14 @@
             "link_01449800"
         ],
         [
+            "reservoir_beltzvilleCombined",
+            "spill_beltzvilleCombined"
+        ],
+        [
+            "spill_beltzvilleCombined",
+            "link_01449800"
+        ],
+        [
             "catchment_fewalter",
             "reservoir_fewalter"
         ],
@@ -1161,6 +1313,14 @@
         ],
         [
             "outflow_fewalter",
+            "link_01447800"
+        ],
+        [
+            "reservoir_fewalter",
+            "spill_fewalter"
+        ],
+        [
+            "spill_fewalter",
             "link_01447800"
         ],
         [
@@ -1192,6 +1352,14 @@
             "link_delDRCanal"
         ],
         [
+            "reservoir_merrillCreek",
+            "spill_merrillCreek"
+        ],
+        [
+            "spill_merrillCreek",
+            "delay_merrillCreek"
+        ],
+        [
             "catchment_hopatcong",
             "reservoir_hopatcong"
         ],
@@ -1220,6 +1388,14 @@
             "link_delDRCanal"
         ],
         [
+            "reservoir_hopatcong",
+            "spill_hopatcong"
+        ],
+        [
+            "spill_hopatcong",
+            "delay_hopatcong"
+        ],
+        [
             "catchment_nockamixon",
             "reservoir_nockamixon"
         ],
@@ -1244,6 +1420,14 @@
             "link_delDRCanal"
         ],
         [
+            "reservoir_nockamixon",
+            "spill_nockamixon"
+        ],
+        [
+            "spill_nockamixon",
+            "link_delDRCanal"
+        ],
+        [
             "catchment_assunpink",
             "reservoir_assunpink"
         ],
@@ -1265,6 +1449,14 @@
         ],
         [
             "outflow_assunpink",
+            "link_01463620"
+        ],
+        [
+            "reservoir_assunpink",
+            "spill_assunpink"
+        ],
+        [
+            "spill_assunpink",
             "link_01463620"
         ],
         [
@@ -1296,6 +1488,14 @@
             "link_outletSchuylkill"
         ],
         [
+            "reservoir_ontelaunee",
+            "spill_ontelaunee"
+        ],
+        [
+            "spill_ontelaunee",
+            "delay_ontelaunee"
+        ],
+        [
             "catchment_stillCreek",
             "reservoir_stillCreek"
         ],
@@ -1324,6 +1524,14 @@
             "link_outletSchuylkill"
         ],
         [
+            "reservoir_stillCreek",
+            "spill_stillCreek"
+        ],
+        [
+            "spill_stillCreek",
+            "delay_stillCreek"
+        ],
+        [
             "catchment_blueMarsh",
             "reservoir_blueMarsh"
         ],
@@ -1345,6 +1553,14 @@
         ],
         [
             "outflow_blueMarsh",
+            "link_01470960"
+        ],
+        [
+            "reservoir_blueMarsh",
+            "spill_blueMarsh"
+        ],
+        [
+            "spill_blueMarsh",
             "link_01470960"
         ],
         [
@@ -1374,6 +1590,14 @@
         [
             "delay_greenLane",
             "link_outletSchuylkill"
+        ],
+        [
+            "reservoir_greenLane",
+            "spill_greenLane"
+        ],
+        [
+            "spill_greenLane",
+            "delay_greenLane"
         ],
         [
             "catchment_01425000",

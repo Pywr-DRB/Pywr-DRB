@@ -4,6 +4,7 @@ Contains functions used to construct a pywrdrb model in JSON format.
 
 import json
 import pandas as pd
+from collections import defaultdict
 
 from utils.directories import input_dir, model_data_dir
 from utils.lists import majorflow_list, reservoir_list, reservoir_list_nyc
@@ -17,7 +18,8 @@ nhm_inflow_scaling = True
 ##########################################################################################
 
 def add_major_node(model, name, node_type, inflow_type, outflow_type=None, downstream_node=None, downstream_lag=0,
-                   capacity=None, initial_volume_frac=None, variable_cost=None, has_catchment=True, inflow_ensemble_indices = None):
+                   capacity=None, initial_volume_frac=None, variable_cost=None, has_catchment=True, max_release=None,
+                   inflow_ensemble_indices=None):
     """
     Add a major node to the model.
 
@@ -41,6 +43,7 @@ def add_major_node(model, name, node_type, inflow_type, outflow_type=None, downs
                               If True, it varies according to a state-dependent parameter (reservoirs only).
         has_catchment (bool): True if the node has a catchment with inflows and withdrawal/consumption.
                               False for artificial nodes that coincide with another (e.g., delTrenton, which shares a catchment with delDRCanal).
+        max_release (float): Max release constraint for reservoir. This is a soft constraint that can be exceeded via a high-cost second flow path for spill.
         inflow_ensemble_indices (None or list): List of ensemble indices for inflows (optional).
 
     Returns:
@@ -103,11 +106,22 @@ def add_major_node(model, name, node_type, inflow_type, outflow_type=None, downs
     ### add outflow node (if any), either using STARFIT rules or regulatory targets.
     ### Note reservoirs must have either starfit or regulatory, river nodes have either regulatory or None
     if outflow_type == 'starfit':
+        if max_release is None:
+            max_flow = f'starfit_release_{name}'
+        else:
+            max_flow = f'starfit_with_max_release_{name}'
         outflow = {
             'name': f'outflow_{name}',
             'type': 'link',
             'cost': -500.0,
-            'max_flow': f'starfit_release_{name}'
+            'max_flow': max_flow
+        }
+        model['nodes'].append(outflow)
+        ### add secondary high-cost flow path for spill above max_flow
+        outflow = {
+            'name': f'spill_{name}',
+            'type': 'link',
+            'cost': 5000.0
         }
         model['nodes'].append(outflow)
         
@@ -120,8 +134,18 @@ def add_major_node(model, name, node_type, inflow_type, outflow_type=None, downs
         }
         model['nodes'].append(outflow)
 
+        if max_release is not None:
+            outflow['max_flow'] = max_release
+            ### add secondary high-cost flow path for spill above max_flow
+            outflow = {
+                'name': f'spill_{name}',
+                'type': 'link',
+                'cost': 5000.0
+            }
+            model['nodes'].append(outflow)
+
     ### add Delay node to account for flow travel time between nodes. Lag unit is days.
-    if downstream_lag>0:
+    if downstream_lag > 0:
         delay = {
             'name': f'delay_{name}',
             'type': 'DelayNode',
@@ -154,6 +178,13 @@ def add_major_node(model, name, node_type, inflow_type, outflow_type=None, downs
             model['edges'].append([f'delay_{name}', downstream_name])
         else:
             model['edges'].append([f'outflow_{name}', downstream_name])
+        ### add secondary high-cost spill path if necessary
+        if (outflow_type == 'starfit') or (outflow_type == 'regulatory' and max_release is not None):
+            model['edges'].append([node_name, f'spill_{name}'])
+            if downstream_lag > 0:
+                model['edges'].append([f'spill_{name}', f'delay_{name}'])
+            else:
+                model['edges'].append([f'spill_{name}', downstream_name])
 
     else:
         if downstream_lag > 0:
@@ -181,6 +212,19 @@ def add_major_node(model, name, node_type, inflow_type, outflow_type=None, downs
             'type': 'STARFITReservoirRelease',
             'node': name
         }
+        if max_release is not None:
+            model['parameters'][f'constant_max_release_{name}'] = {
+                'type': 'constant',
+                'value': max_release
+            }
+            model['parameters'][f'starfit_with_max_release_{name}'] = {
+                'type': 'aggregated',
+                'agg_func': 'min',
+                'parameters': [
+                    f'starfit_release_{name}',
+                    f'constant_max_release_{name}'
+                ]
+            }
 
 
 
@@ -313,6 +357,17 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
     def get_reservoir_capacity(reservoir):
         return float(istarf['Adjusted_CAP_MG'].loc[istarf['reservoir'] == reservoir].iloc[0])
 
+    ### get max reservoir releases for NYC from historical data
+    def get_reservoir_max_release(reservoir):
+        assert (reservoir in reservoir_list_nyc), f'No max release data for {reservoir}'
+        hist_releases = pd.read_excel(input_dir + '/historic_NYC/Pep_Can_Nev_releases_daily_2000-2021.xlsx')
+        if reservoir == 'pepacton':
+            return hist_releases['Pepacton Controlled Release'].max()
+        elif reservoir == 'cannonsville':
+            return hist_releases['Cannonsville Controlled Release'].max()
+        elif reservoir == 'neversink':
+            return hist_releases['Neversink Controlled Release'].max()
+
     ### get downstream node to link to for the current node
     for node, downstream_node in immediate_downstream_nodes_dict.items():
     
@@ -326,6 +381,9 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
         else:
             outflow_type = None
 
+        ### get max release for NYC reservoirs from historical data
+        max_release = get_reservoir_max_release(node) if node in reservoir_list_nyc else None
+
         ### get flow lag (days) between current node and its downstream connection
         downstream_lag = downstream_node_lags[node]
             
@@ -335,7 +393,8 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
 
         ### set up major node
         model = add_major_node(model, node, node_type, inflow_type, outflow_type, downstream_node,  downstream_lag,
-                               capacity, initial_volume_frac, variable_cost, has_catchment, inflow_ensemble_indices)
+                               capacity, initial_volume_frac, variable_cost, has_catchment, max_release,
+                               inflow_ensemble_indices)
 
 
     #######################################################################
@@ -343,15 +402,14 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
     #######################################################################
 
     ### Node for NYC aggregated storage across 3 reservoirs
-    nyc_reservoirs = ['cannonsville', 'pepacton', 'neversink']
     model['nodes'].append({
             'name': 'reservoir_agg_nyc',
             'type': 'aggregatedstorage',
-            'storage_nodes': [f'reservoir_{r}' for r in nyc_reservoirs]
+            'storage_nodes': [f'reservoir_{r}' for r in reservoir_list_nyc]
     })
 
     ### Nodes linking each NYC reservoir to NYC deliveries
-    for r in nyc_reservoirs:
+    for r in reservoir_list_nyc:
         model['nodes'].append({
             'name': f'link_{r}_nyc',
             'type': 'link',
@@ -380,7 +438,7 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
     #######################################################################
 
     ### Edges linking each NYC reservoir to NYC deliveries
-    for r in nyc_reservoirs:
+    for r in reservoir_list_nyc:
         model['edges'].append([f'reservoir_{r}', f'link_{r}_nyc'])
         model['edges'].append([f'link_{r}_nyc', 'delivery_nyc'])
 
@@ -552,7 +610,7 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
         }
 
     ### baseline release flow rate for each NYC reservoir, dictated by FFMP
-    for reservoir in nyc_reservoirs:
+    for reservoir in reservoir_list_nyc:
         model['parameters'][f'mrf_baseline_{reservoir}'] = {
             'type': 'constant',
             'url': 'drb_model_constants.csv',
@@ -562,7 +620,7 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
         }
 
     ### Control curve index that tells us which level each individual NYC reservoir's storage is currently in
-    for reservoir in nyc_reservoirs:
+    for reservoir in reservoir_list_nyc:
         model['parameters'][f'drought_level_{reservoir}'] = {
             'type': 'controlcurveindex',
             'storage_node': f'reservoir_{reservoir}',
@@ -570,7 +628,7 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
         }
 
     ### Factor governing changing release reqs from NYC reservoirs, based on aggregated storage across 3 reservoirs
-    for reservoir in nyc_reservoirs:
+    for reservoir in reservoir_list_nyc:
         model['parameters'][f'mrf_drought_factor_agg_{reservoir}'] = {
             'type': 'indexedarray',
             'index_parameter': 'drought_level_agg_nyc',
@@ -578,7 +636,7 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
         }
 
     ### Levels defining operational regimes for individual NYC reservoirs, as opposed to aggregated level across 3 reservoirs
-    for reservoir in nyc_reservoirs:
+    for reservoir in reservoir_list_nyc:
         for level in levels:
             model['parameters'][f'level{level}_factor_mrf_{reservoir}'] = {
                 'type': 'dailyprofile',
@@ -588,7 +646,7 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
             }
 
     ### Factor governing changing release reqs from NYC reservoirs, based on individual storage for particular reservoir
-    for reservoir in nyc_reservoirs:
+    for reservoir in reservoir_list_nyc:
         model['parameters'][f'mrf_drought_factor_individual_{reservoir}'] = {
             'type': 'indexedarray',
             'index_parameter': f'drought_level_{reservoir}',
@@ -597,14 +655,14 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
 
     ### Factor governing changing release reqs from NYC reservoirs, depending on whether aggregated or individual storage level is activated
     ### Based on custom Pywr parameter.
-    for reservoir in nyc_reservoirs:
+    for reservoir in reservoir_list_nyc:
         model['parameters'][f'mrf_drought_factor_combined_final_{reservoir}'] = {
             'type': 'NYCCombinedReleaseFactor',
             'node': f'reservoir_{reservoir}'
         }
 
     ### FFMP mandated releases from NYC reservoirs
-    for reservoir in nyc_reservoirs:
+    for reservoir in reservoir_list_nyc:
         model['parameters'][f'mrf_target_individual_{reservoir}'] = {
             'type': 'aggregated',
             'agg_func': 'product',
@@ -619,7 +677,7 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
     volumes = {'cannonsville': get_reservoir_capacity('cannonsville'),
                'pepacton':  get_reservoir_capacity('pepacton'),
                'neversink': get_reservoir_capacity('neversink')}
-    for reservoir in nyc_reservoirs:
+    for reservoir in reservoir_list_nyc:
         model['parameters'][f'storage_cost_{reservoir}'] = {
             'type': 'interpolatedvolume',
             'values': [-100,-1],
@@ -628,7 +686,7 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
         }
 
     ### current volume stored in each reservoir, plus the aggregated storage node
-    for reservoir in nyc_reservoirs + ['agg_nyc']:
+    for reservoir in reservoir_list_nyc + ['agg_nyc']:
         model['parameters'][f'volume_{reservoir}'] = {
             'type': 'interpolatedvolume',
             'values': [-EPS, 1000000],
@@ -640,19 +698,19 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
     model['parameters']['flow_agg_nyc'] = {
             'type': 'aggregated',
             'agg_func': 'sum',
-            'parameters': [f'flow_{reservoir}' for reservoir in nyc_reservoirs]
+            'parameters': [f'flow_{reservoir}' for reservoir in reservoir_list_nyc]
         }
 
     ### aggregated max volume across to NYC reservoirs
     model['parameters']['max_volume_agg_nyc'] = {
             'type': 'aggregated',
             'agg_func': 'sum',
-            'parameters': [f'max_volume_{reservoir}' for reservoir in nyc_reservoirs]
+            'parameters': [f'max_volume_{reservoir}' for reservoir in reservoir_list_nyc]
         }
 
     ### Target release from each NYC reservoir to satisfy NYC demand - part 1.
     ### Uses custom Pywr parameter.
-    for reservoir in nyc_reservoirs:
+    for reservoir in reservoir_list_nyc:
         model['parameters'][f'volbalance_target_max_flow_delivery_nyc_{reservoir}'] = {
             'type': 'VolBalanceNYCDemandTarget',
             'node': f'reservoir_{reservoir}'
@@ -662,13 +720,13 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
     model['parameters'][f'volbalance_target_max_flow_delivery_agg_nyc'] = {
             'type': 'aggregated',
             'agg_func': 'sum',
-            'parameters': [f'volbalance_target_max_flow_delivery_nyc_{reservoir}' for reservoir in nyc_reservoirs]
+            'parameters': [f'volbalance_target_max_flow_delivery_nyc_{reservoir}' for reservoir in reservoir_list_nyc]
         }
 
     ### Target release from each NYC reservoir to satisfy NYC demand - part 2,
     ### rescaling to make sure total contribution across 3 reservoirs is equal to total demand.
     ### Uses custom Pywr parameter.
-    for reservoir in nyc_reservoirs:
+    for reservoir in reservoir_list_nyc:
         model['parameters'][f'volbalance_max_flow_delivery_nyc_{reservoir}'] = {
             'type': 'VolBalanceNYCDemandFinal',
             'node': f'reservoir_{reservoir}'
@@ -742,7 +800,7 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
 
     ### Target release from each NYC reservoir to satisfy Montague & Trenton flow targets - part 1.
     ### Uses custom Pywr parameter.
-    for reservoir in nyc_reservoirs:
+    for reservoir in reservoir_list_nyc:
         model['parameters'][f'volbalance_target_max_flow_montagueTrenton_{reservoir}'] = {
             'type': 'VolBalanceNYCDownstreamMRFTarget',
             'node': f'reservoir_{reservoir}'
@@ -752,13 +810,13 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
     model['parameters'][f'volbalance_target_max_flow_montagueTrenton_agg_nyc'] = {
         'type': 'aggregated',
         'agg_func': 'sum',
-        'parameters': [f'volbalance_target_max_flow_montagueTrenton_{reservoir}' for reservoir in nyc_reservoirs]
+        'parameters': [f'volbalance_target_max_flow_montagueTrenton_{reservoir}' for reservoir in reservoir_list_nyc]
     }
 
     ### Target release from each NYC reservoir to satisfy Montague & Trenton flow targets - part 2,
     ### rescaling to make sure total contribution across 3 reservoirs is equal to total flow requirement.
     ### Uses custom Pywr parameter.
-    for reservoir in nyc_reservoirs:
+    for reservoir in reservoir_list_nyc:
         model['parameters'][f'volbalance_max_flow_montagueTrenton_{reservoir}'] = {
             'type': 'VolBalanceNYCDownstreamMRFFinal',
             'node': f'reservoir_{reservoir}'
@@ -766,7 +824,7 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
 
     ### finally, get final effective mandated release from each NYC reservoir, which is the max of its
     ###    individually-mandated release from FFMP and its individual contribution to the Montague/Trenton targets
-    for reservoir in nyc_reservoirs:
+    for reservoir in reservoir_list_nyc:
         model['parameters'][f'mrf_target_{reservoir}'] = {
             'type': 'aggregated',
             'agg_func': 'max',

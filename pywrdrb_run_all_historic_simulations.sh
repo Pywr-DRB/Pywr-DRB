@@ -1,9 +1,9 @@
 #!/bin/bash
 
 #### rerun historic pub reconstruction if needed
-cd ../DRB-Historic-Reconstruction/
-python -W ignore generate_all_reconstructions.py
-cd ../Pywr-DRB/
+#cd ../DRB-Historic-Reconstruction/
+#python -W ignore generate_all_reconstructions.py
+#cd ../Pywr-DRB/
 
 #### prep inputs from raw data
 echo Prepping data...

@@ -52,9 +52,13 @@ def get_pywr_results(output_dir, model, results_set='all', scenario=0, datetime_
             for k in keys:
                 results[k.split('_')[1]] = f[k][:, scenario]
         elif results_set == 'res_release':
-            keys = [k for k in keys if k.split('_')[0] == 'outflow' and k.split('_')[1] in reservoir_list]
-            for k in keys:
+            ### reservoir releases are "outflow" plus "spill". Not all reservoirs have spill.
+            keys_outflow = [k for k in keys if k.split('_')[0] == 'outflow' and k.split('_')[1] in reservoir_list]
+            for k in keys_outflow:
                 results[k.split('_')[1]] = f[k][:, scenario]
+            keys_spill = [k for k in keys if k.split('_')[0] == 'spill' and k.split('_')[1] in reservoir_list]
+            for k in keys_spill:
+                results[k.split('_')[1]] += f[k][:, scenario]
         elif results_set == 'inflow':
             keys = [k for k in keys if k.split('_')[0] == 'catchment']
             for k in keys:
@@ -104,8 +108,8 @@ def get_pywr_results(output_dir, model, results_set='all', scenario=0, datetime_
         return results, datetime_index
 
 
-### load other flow estimates. each column represents modeled flow at USGS gage downstream of reservoir or gage on mainstem
-def get_base_results(input_dir, model, datetime_index, results_set='all'):
+### load flow estimates from raw input datasets
+def get_base_results(input_dir, model, datetime_index, results_set='all', ensemble_scenario=None):
     """
     Function for retrieving and organizing results from non-pywr streamflows (NHM, NWM, WEAP).
 
@@ -122,9 +126,35 @@ def get_base_results(input_dir, model, datetime_index, results_set='all'):
     Returns:
         pd.DataFrame: The retrieved and organized results with datetime index.
     """
-    gage_flow = pd.read_csv(f'{input_dir}gage_flow_{model}.csv')
-    gage_flow.index = pd.DatetimeIndex(gage_flow['datetime'])
-    gage_flow = gage_flow.drop('datetime', axis=1)
+    if ensemble_scenario is None:
+        gage_flow = pd.read_csv(f'{input_dir}gage_flow_{model}.csv')
+        gage_flow.index = pd.DatetimeIndex(gage_flow['datetime'])
+        gage_flow = gage_flow.drop('datetime', axis=1)
+    else:
+        with h5py.File(f'{input_dir}gage_flow_{model}.hdf5', 'r') as f:
+            nodes = list(f.keys())
+            gage_flow = pd.DataFrame()
+            for node in nodes:
+                gage_flow[node] = f[f'{node}/realization_{ensemble_scenario}']
+
+            if datetime_index is not None:
+                if len(datetime_index) == len(f[nodes[0]]['date']):
+                    gage_flow.index = datetime_index
+                    reuse_datetime_index = True
+                else:
+                    reuse_datetime_index = False
+            else:
+                reuse_datetime_index = False
+
+            if not reuse_datetime_index:
+                # Format datetime index
+                # day = [f[nodes[0]]['date'][i][0] for i in range(len(f[nodes[0]]['date']))]
+                # month = [f[nodes[0]]['date'][i][2] for i in range(len(f['time']))]
+                # year = [f['time'][i][3] for i in range(len(f['time']))]
+                # date = [f'{y}-{m}-{d}' for y, m, d in zip(year, month, day)]
+                datetime = [str(d, 'utf-8') for d in f[nodes[0]]['date']]
+                datetime_index = pd.to_datetime(datetime)
+                gage_flow.index = datetime_index
     if results_set == 'reservoir_downstream_gage':
         available_release_data = gage_flow.columns.intersection(reservoir_link_pairs.values())
         reservoirs_with_data = [list(filter(lambda x: reservoir_link_pairs[x] == site, reservoir_link_pairs))[0] for
@@ -136,7 +166,8 @@ def get_base_results(input_dir, model, datetime_index, results_set='all'):
             if c not in majorflow_list:
                 gage_flow = gage_flow.drop(c, axis=1)
     # print(f'Index with notation {gage_flow.index[0]} and type {type(gage_flow.index)}')
-    gage_flow = gage_flow.loc[datetime_index, :]
-    return gage_flow
+    # gage_flow = gage_flow.loc[datetime_index, :]
+
+    return gage_flow, datetime_index
 
 
