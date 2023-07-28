@@ -335,30 +335,34 @@ if __name__ == "__main__":
     start_date = '1950-01-01'
     end_date = '2022-12-31'
 
+
+    ### Historic reconstructions: these are now being processed within DRB-Historic-Reconstruction repo
     # Loop over both NWM & NHM methods for FDC construction
-    regression_nhm_inflow_scaling = True
-    for fdc_doner_type in ['nwmv21', 'nhmv10']:
-        # Hist. Reconst. names are based on method specs
-        hist_reconst_filename = f'historic_reconstruction_daily_{fdc_doner_type}'
-        hist_reconst_filename = f'{hist_reconst_filename}_NYCScaled' if regression_nhm_inflow_scaling else hist_reconst_filename
+    # regression_nhm_inflow_scaling = True
+    # for fdc_doner_type in ['nwmv21', 'nhmv10']:
+    #     # Hist. Reconst. names are based on method specs
+    #     hist_reconst_filename = f'historic_reconstruction_daily_{fdc_doner_type}'
+    #     hist_reconst_filename = f'{hist_reconst_filename}_NYCScaled' if regression_nhm_inflow_scaling else hist_reconst_filename
 
-        df_obs = read_csv_data(f'{input_dir}usgs_gages/streamflow_daily_usgs_1950_2022_cms.csv', start_date, end_date,
-                               units='cms', source='USGS')
-        df_obs.index = pd.to_datetime(df_obs.index)
+    #     modelname = f'obs_pub_{fdc_doner_type}_NYCScaled' if regression_nhm_inflow_scaling else f'obs_pub_{fdc_doner_type}'
 
-        ### read in PUB reconstruction from Pywr-DRB/DRB-historic-reconstruction repo
-        df_obs_pub = pd.read_csv(f'{input_dir}modeled_gages/{hist_reconst_filename}_mgd.csv',
-                                 sep=',', index_col=0, parse_dates=True).loc[start_date:end_date, :]
-        df_obs_pub.index = pd.to_datetime(df_obs_pub.index)
+    #     df_obs = read_csv_data(f'{input_dir}usgs_gages/streamflow_daily_usgs_1950_2022_cms.csv', start_date, end_date,
+    #                            units='cms', source='USGS')
+    #     df_obs.index = pd.to_datetime(df_obs.index)
 
-        ### match USGS gage sites to Pywr-DRB model nodes & save inflows to csv file in format expected by Pywr-DRB
-        df_obs = match_gages(df_obs, 'obs', site_matches_id=obs_site_matches)
-        df_obs_pub = match_gages(df_obs_pub, f'obs_pub_{fdc_doner_type}_NYCScaled',
-                                 site_matches_id=obs_pub_site_matches)
+    #     ### read in PUB reconstruction from Pywr-DRB/DRB-historic-reconstruction repo
+    #     df_obs_pub = pd.read_csv(f'{input_dir}modeled_gages/{hist_reconst_filename}_mgd.csv',
+    #                              sep=',', index_col=0, parse_dates=True).loc[start_date:end_date, :]
+    #     df_obs_pub.index = pd.to_datetime(df_obs_pub.index)
 
-    ### now prep data for historic reconstruction ensembles
-    for fdc_doner_type in ['nwmv21', 'nhmv10']:
-        prep_ensemble_inflows(fdc_doner_type, regression_nhm_inflow_scaling)
+    #     ### match USGS gage sites to Pywr-DRB model nodes & save inflows to csv file in format expected by Pywr-DRB
+    #     df_obs = match_gages(df_obs, 'obs', site_matches_id=obs_site_matches)
+    #     df_obs_pub = match_gages(df_obs_pub, modelname,
+    #                              site_matches_id=obs_pub_site_matches)
+
+    # ### now prep data for historic reconstruction ensembles
+    # for fdc_doner_type in ['nwmv21', 'nhmv10']:
+    #     prep_ensemble_inflows(fdc_doner_type, regression_nhm_inflow_scaling=True)
 
     ### now get NYC diversions. for time periods we dont have historical record, extrapolate by seasonal relationship to flow.
     ### uses obs_pub_nhmv10_NYCScaling for inflow regressions & extrapolation.
