@@ -53,7 +53,6 @@ def export_ensemble_to_hdf5(dict, output_file):
             for j in range(M):
                 dataset = grp.create_dataset(column_labels[j], 
                                              data=data[column_labels[j]].to_list())
-
     return
 
 
@@ -70,16 +69,19 @@ def get_hdf5_realization_numbers(filename):
     """
     realization_numbers = []
     with h5py.File(filename, 'r') as file:
-        # Get the keys (dataset names) in the HDF5 file
+        # Get the keys in the HDF5 file
         keys = list(file.keys())
 
-        # Iterate over the keys and extract the realization numbers
-        for key in keys:
-            if key.startswith('realization_'):
+        # Get the df using a specific node key
+        node_data = file[keys[0]]
+        column_labels = node_data.attrs['column_labels']
+        
+        # Iterate over the columns and extract the realization numbers
+        for col in column_labels:
+            if col.startswith('realization_'):
                 # Extract the realization number from the key
-                realization_number = int(key.split('_')[1])
+                realization_number = int(col.split('_')[1])
                 realization_numbers.append(realization_number)
-
     return realization_numbers
 
 

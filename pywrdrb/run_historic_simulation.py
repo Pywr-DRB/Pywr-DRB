@@ -24,6 +24,7 @@ t0 = time.time()
 ### specify inflow type from command line args
 inflow_type_options = ['obs_pub', 'nhmv10', 'nwmv21', 'WEAP_29June2023_gridmet',
                        'obs_pub_nhmv10_NYCScaled', 'obs_pub_nwmv21_NYCScaled',
+                       'obs_pub_nhmv10', 'obs_pub_nwmv21',
                        'obs_pub_nhmv10_NYCScaled_ensemble', 'obs_pub_nwmv21_NYCScaled_ensemble']
 inflow_type = sys.argv[1]
 assert(inflow_type in inflow_type_options), f'Invalid inflow_type specified. Options: {inflow_type_options}'
@@ -77,10 +78,8 @@ if 'ensemble' not in inflow_type:
 
 ## Run ensemble reconstruction in batches
 elif 'ensemble' in inflow_type:
-    inflow_subtype= inflow_type.replace('obs_pub_', '')
-
     # Get the IDs for the realizations
-    ensemble_input_filename= f'{input_dir}/historic_ensembles/historic_reconstruction_daily_{inflow_subtype}_mgd.hdf5'
+    ensemble_input_filename= f'{input_dir}/historic_ensembles/catchment_inflow_{inflow_type}.hdf5'
     realization_ids= get_hdf5_realization_numbers(ensemble_input_filename)
     n_realizations=len(realization_ids)
 

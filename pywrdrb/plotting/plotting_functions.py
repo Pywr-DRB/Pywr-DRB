@@ -19,7 +19,7 @@ import hydroeval as he
 import h5py
 import datetime as dt
 
-from pywrdrb.pywr_drb_node_data import upstream_nodes_dict
+from pywrdrb.pywr_drb_node_data import upstream_nodes_dict, downstream_node_lags, immediate_downstream_nodes_dict
 
 # Custom modules
 from pywrdrb.post.get_results import get_base_results, get_pywr_results
@@ -102,7 +102,7 @@ def plot_3part_flows(results, models, node,
             ### first plot time series of observed vs modeled
             modeled = results[m][node]
 
-            ax.scatter(obs, modeled, alpha=0.25, zorder=2, color=colordict[m], marker=markerdict[m])
+            ax.scatter(obs, modeled, alpha=0.25, zorder=2, color=colordict[m], marker='x' if 'pywr' in m else 'o')
             diagmax = min(ax.get_xlim()[1], ax.get_ylim()[1])
             ax.plot([0, diagmax], [0, diagmax], color='k', ls='--')
             if uselog:
@@ -332,7 +332,8 @@ def plot_radial_error_metrics(results_metrics, radial_models, nodes, useNonPep =
             mask = [r == 'pepacton' for r in results_metrics['node']]
             colors = [v if m else 'none' for m, v in zip(mask, colors)]
 
-        edges = [edgedict[model] for model in results_metrics['model']]
+        edges = ['w' for model in results_metrics['model']]
+        # edges = [edgedict[model] for model in results_metrics['model']]
         hatches = [hatchdict[model] for model in results_metrics['model']]
 
         width = 2 * np.pi / len(angles)
@@ -413,7 +414,7 @@ def plot_radial_error_metrics(results_metrics, radial_models, nodes, useNonPep =
     legend_elements.append(Line2D([0], [0], color='none', label='models'))
     for m in radial_models[::-1]:
         if usepywr or m in radial_models[-2:] or (useweap and m == radial_models[-3]):
-            legend_elements.append(Patch(facecolor=colordict[m], edgecolor=edgedict[m], label=m, hatch=hatchdict[m]))
+            legend_elements.append(Patch(facecolor=colordict[m], edgecolor='w', label=m, hatch=hatchdict[m]))
         else:
             legend_elements.append(Patch(facecolor='w', edgecolor='w', label=m, hatch=hatchdict[m]))
 
@@ -559,18 +560,20 @@ def plot_rrv_metrics(rrv_metrics, rrv_models, nodes, fig_dir = fig_dir,
 
     fig.savefig(f'{fig_dir}/rrv_comparison.png', bbox_inches='tight', dpi=300)
     plt.close()
+    
     return
 
 
 
-def plot_flow_contributions(reservoir_releases, major_flows,
+def plot_flow_contributions(reservoir_releases, major_flows, inflows,
                             model, node,
                             start_date, end_date,
                             upstream_nodes_dict = upstream_nodes_dict,
+                            downstream_node_lags= downstream_node_lags, 
                             reservoir_list = reservoir_list,
+                            log_flows=True,
                             majorflow_list = majorflow_list,
-                            percentage_flow = True,
-                            plot_target = False, 
+                            smoothing=True, smoothing_window=7,
                             fig_dir = fig_dir,
                             input_dir = input_dir,
                             ):
@@ -596,12 +599,20 @@ def plot_flow_contributions(reservoir_releases, major_flows,
         None
     """
 
-    title = f'{fig_dir}/flow_contributions_{node}_{model}'
+    title = f'{fig_dir}/flow_contributions_{node}_{model}_{start_date}_{end_date}'
     nyc_reservoirs = ['cannonsville', 'pepacton', 'neversink']
-
+    mainstem_nodes= ['delLordville', 'delMontague', 'delDRCanal', 'delTrenton', 
+                     'outletAssunpink', 'outletSchuylkill']
+    
     # Get contributions
     contributing = upstream_nodes_dict[node]
     non_nyc_reservoirs = [i for i in contributing if (i in reservoir_list) and (i not in nyc_reservoirs)]
+    
+    use_releases = [i for i in contributing if i in reservoir_list]
+    use_inflows = [i for i in contributing if (i in mainstem_nodes)]
+    if node == 'delMontague':
+        use_inflows.append('delMontague')
+
     title_text = 'Contributing flows at Trenton' if (node == 'delTrenton') else 'Contributing flows at Montague'
     if node == 'delMontague':
         target = 1750*cfs_to_mgd
@@ -611,83 +622,94 @@ def plot_flow_contributions(reservoir_releases, major_flows,
         print('Invalid node specification. Options are "delMontague" and "delTrenton"')
 
     ## Pull just contributing data
-    use_releases = [i for i in contributing if i in reservoir_list]
-    use_inflows = [i for i in contributing if (i in majorflow_list)]
-
     release_contributions = reservoir_releases[model][use_releases]
-    
-    # Account for mainstem inflows
-    if model.split('_')[0] == 'pywr':
-        if len(model.split('_'))==3:
-            m = f'{model.split("_")[1]}_{model.split("_")[2]}'
-        else:
-            m = f'{model.split("_")[1]}'
-    else:
-        m = model
-
-    # Load inflow data
-    inflows = pd.read_csv(f'{input_dir}catchment_inflow_{m}.csv', sep = ',', index_col = 0)
-    inflows.index = pd.to_datetime(inflows.index)
-    inflows = inflows.loc[inflows.index >= reservoir_releases[model].index[0]]
-    inflows = inflows.loc[inflows.index <= reservoir_releases[model].index[-1]]
-
-    inflow_contributions = inflows[use_inflows]
+    inflow_contributions = inflows[model][use_inflows]
     contributions = pd.concat([release_contributions, inflow_contributions], axis=1)
-    contributions[node] = inflows[node]
 
-    # print(f'NonNYC Releases: {non_nyc_reservoirs}\n all releases: {use_releases} ')
-    # print(f'Use inflows: {use_inflows}')
-    
-    total_node_flow = major_flows['obs'][node]
-    if percentage_flow:
-        contributions = contributions.divide(total_node_flow, axis =0) * 100
-        contributions[contributions<0] = 0
-        title = f'{title}_percentage'
-    else:
-        title = f'{title}_absolute'
-
-    # Modify date range
+    # Impose lag
+    for c in upstream_nodes_dict[node][::-1]:
+        if c in contributions.columns:
+            lag= downstream_node_lags[c]
+            downstream_node = immediate_downstream_nodes_dict[c]
+            
+            while downstream_node not in ['delDRCanal', 'delTrenton', 'output_del']:
+                if node == 'delDRCanal':
+                    break
+                lag += downstream_node_lags[downstream_node]
+                downstream_node = immediate_downstream_nodes_dict[downstream_node]
+                
+            if lag > 0:
+                contributions[c].iloc[lag:] = contributions[c].iloc[:-lag]
+            
     contributions = contributions.loc[start_date:end_date, :]
-
+    
+    # Get total sim and obs flow    
+    total_obs_node_flow = major_flows['obs'].loc[start_date:end_date, node]
+    total_sim_node_flow = major_flows[model].loc[start_date:end_date, node]
+    
+    #TODO: Find source of unaccounted flow
+    unaccounted_flow = (total_sim_node_flow - contributions.sum(axis=1)).divide(total_sim_node_flow, axis=0)*100 
+    
+    contributions = contributions.divide(total_sim_node_flow, axis =0) * 100
+    contributions[contributions<0] = 0
+    
     ## Plotting
     nyc_color = 'midnightblue'
     other_reservoir_color = 'darkcyan'
     upstream_inflow_color = 'lightsteelblue'
     obs_flow_color = 'red'
 
-    fig = plt.figure(figsize=(16, 4), dpi =250)
-    gs = fig.add_gridspec(2, 1, wspace=0.15, hspace=0.3)
-    ax = fig.add_subplot(gs[0,0])
-
+    fig, axes = plt.subplots(nrows=2, ncols=1, 
+                           figsize=(8, 5), dpi =200,
+                           sharex=True, 
+                           gridspec_kw={'height_ratios': [1, 1.5], 'wspace': 0.05})
+    ax1= axes[0]
+    ax2= axes[1]
+    
     ts = contributions.index
-    fig,ax = plt.subplots(figsize = (16,4), dpi = 250)
-
-    A = contributions[node]
-    B = contributions[use_inflows].sum(axis=1) + A
+    
+    B = contributions[use_inflows].sum(axis=1) + unaccounted_flow
     C = contributions[non_nyc_reservoirs].sum(axis=1) + B
     D = contributions[nyc_reservoirs].sum(axis=1) + C
-
-    # ax.fill_between(ts, A, color = node_inflow_color, label = 'Direct node inflow')
-    ax.fill_between(ts, B, color = upstream_inflow_color, label = 'Unmanaged Flows')
-    ax.fill_between(ts, C, B, color = other_reservoir_color, label = 'Non-NYC Reservoir Releases')
-    ax.fill_between(ts, D, C, color = nyc_color, label = 'NYC Reservoir Releases')
+    if smoothing:
+        B = B.rolling(window=smoothing_window).mean()
+        C = C.rolling(window=smoothing_window).mean()
+        D = D.rolling(window=smoothing_window).mean()
+        
+        smooth_total_sim_node_flow = total_sim_node_flow.rolling(window=7).mean()
     
-    if percentage_flow:
-        plt.ylabel('Percentage flow contributions (%)')
-        ax.hlines(100, ts[0], ts[-1], linestyle = 'dashed', color = 'black', alpha = 0.5, label = '100% Observed Flow')
-        plt.ylim([0,120])
-    else:
-        ax.hlines(target, ts[0], ts[-1], linestyle = 'dashed', color = 'black', alpha = 0.5, label = f'Flow target {target} (MGD)')
-        ax.plot(ts, total_node_flow.loc[ts], color = obs_flow_color, label = 'Observed Flow')
+    # Total flows and target flow
+    ax1.hlines(target, ts[0], ts[-1], linestyle = 'dotted', color = 'maroon', alpha = 0.85, label = f'Flow target {target:.0f} (MGD)')
+    ax1.plot(ts, smooth_total_sim_node_flow.loc[ts], color = 'dodgerblue', label = 'Sim. Flow')
+    ax1.plot(ts, total_obs_node_flow.loc[ts], color = 'black', ls='dashed', label = 'Obs. Flow')
+    # ax1.fill_between(ts, total_sim_node_flow.loc[ts], target, where=(total_sim_node_flow.loc[ts] < target), color='red', alpha=0.5)
+    
+    ax1.set_ylabel('Flow (MGD)', fontsize=14)
+    if log_flows:
+        ax1.set_yscale('log')
+    ax1.set_ylim([1000,100000])
 
-        plt.ylabel('Flow contributions (MGD)')
-        plt.yscale('log')
-        plt.ylim([1000,10000])
+    # plot percent contribution
+    # ax.fill_between(ts, A, color = node_inflow_color, label = 'Direct node inflow')
 
-    plt.title(title_text)
+    ax2.fill_between(ts, B, color = upstream_inflow_color, label = 'Unmanaged Flows')
+    ax2.fill_between(ts, C, B, color = other_reservoir_color, label = 'Non-NYC Reservoir Releases')
+    ax2.fill_between(ts, D, C, color = nyc_color, label = 'NYC Reservoir Releases')
+    
+    ax2.set_ylabel('Contributions (%)', fontsize=14)
+    ax2.set_ylim([0,100])
+    
+    # Create legend
+    handles1, labels1 = ax1.get_legend_handles_labels()
+    handles2, labels2 = ax2.get_legend_handles_labels()
+    handles = handles1 + handles2
+    labels = labels1 + labels2
+    plt.legend(handles, labels, loc='upper left', bbox_to_anchor=(1.0, 0.9))
+
+    # plt.title(title_text)
     plt.xlim([contributions.index[0], contributions.index[-1]])
     plt.xlabel('Date')
-    plt.legend(loc='center left', bbox_to_anchor=(1.05, 0.8))
+    fig.align_labels()
     plt.savefig(f'{title}.png', bbox_inches='tight', dpi=300)
     plt.close()
     return
@@ -736,8 +758,12 @@ def plot_combined_nyc_storage(storages, releases, models,
                       end_date = '2010-05-31',
                       colordict = base_model_colors,
                       use_percent = True,
+                      plot_observed=True, plot_sim=True,
+                      add_ffmp_levels=True, ffmp_levels_to_plot=[2,5],
                       plot_drought_levels = True, 
-                      plot_releases = True):
+                      smooth_releases=True, smooth_window=7,
+                      plot_releases = True, 
+                      fig_dir=fig_dir, filename_addon=""):
     """
     Plot simulated and observed combined NYC reservoir storage.
 
@@ -761,8 +787,9 @@ def plot_combined_nyc_storage(storages, releases, models,
         end_date = pd.to_datetime(end_date)
 
     ffmp_level_colors = ['blue', 'blue', 'blue', 'cornflowerblue', 'green', 'darkorange', 'maroon']
-    drought_cmap = ListedColormap(ffmp_level_colors)
-
+    drought_cmap = ListedColormap(ffmp_level_colors, N=7)
+    norm = plt.Normalize(0, 6)
+    
     reservoir_list = ['cannonsville', 'pepacton', 'neversink']
 
     ### get reservoir storage capacities
@@ -790,27 +817,34 @@ def plot_combined_nyc_storage(storages, releases, models,
     model_names = [m[5:] for m in models]
     drought_levels = pd.DataFrame(index= storages[models[0]].index, columns = model_names).loc[start_date:end_date]
     for model in model_names:
-        drought_levels[model] = get_pywr_results(output_dir, model, results_set='res_level').loc[start_date:end_date, ['nyc']]
-
+        all_drought_levels, _ = get_pywr_results(output_dir, model, results_set='res_level', datetime_index=storages[models[0]].index)
+        drought_levels[model] = all_drought_levels.loc[start_date:end_date, ['nyc']]
+    
     # Create figure with m subplots
     n_subplots = 3 if plot_releases else 2
     
     fig = plt.figure(figsize=(8, 5), dpi=200)
     gs = gridspec.GridSpec(nrows=n_subplots, ncols=2, width_ratios=[15, 1], height_ratios=[1, 3, 2], wspace=0.05)
-
-    # Plot drought levels
+    
+    ## Plot drought levels
     if plot_drought_levels:
         ax1 = fig.add_subplot(gs[0, 0])
         ax_cbar = fig.add_subplot(gs[0, 1])
         sns.heatmap(drought_levels.transpose(), cmap = drought_cmap,  
-                    ax = ax1,
+                    ax = ax1, norm=norm,
                     cbar_ax = ax_cbar, cbar_kws = dict(use_gridspec=False))
         ax1.set_xticklabels([])
         ax1.set_xticks([])
+        ax1.set_yticklabels([])
         ax1.set_ylabel('FFMP\nLevel', fontsize=12)
+            
+    # Invert the colorbar
+    if ax_cbar is not None:
+        ax_cbar.invert_yaxis()  
 
-    # Plot combined storage
+    ## Plot combined storage
     ax2 = fig.add_subplot(gs[1, 0])
+    ax2.grid(True, which='major', axis='y')
     for m in models:
         if use_percent:
             sim_data = storages[m][reservoir_list].sum(axis=1).loc[start_date:end_date]/capacities['combined']*100
@@ -820,41 +854,84 @@ def plot_combined_nyc_storage(storages, releases, models,
             sim_data = storages[m][reservoir_list].sum(axis=1).loc[start_date:end_date]
             hist_data = historic_storage.loc[start_date:end_date, 'Total']
             ylab = f'Combined NYC Reservoir Storage (MG)'
+    if plot_sim:
         ax2.plot(sim_data, color=colordict[m], label=f'{m}')
-    ax2.plot(hist_data, color=colordict['obs'], label=f'Observed')
+    if plot_observed:
+        ax2.plot(hist_data, color=colordict['obs'], label=f'Observed')
     datetime = sim_data.index
+    
+    if add_ffmp_levels:
+        # Load profiles
+        level_profiles = pd.read_csv(f'{model_data_dir}drb_model_dailyProfiles.csv', sep=',')
+        level_profiles = level_profiles.transpose()
+        level_profiles.columns= level_profiles.iloc[0]
+        level_profiles=level_profiles[1:]
+        # Format to make datetime
+        level_profiles.index=pd.to_datetime(level_profiles.index+f'-1944', 
+                                            format='%d-%b-%Y')
+        for l in ffmp_levels_to_plot:
+            d_emergency=pd.DataFrame(data= level_profiles[f'level{l}']*100,
+                                    index=pd.date_range('1944-01-01', end_date))
+            first_year_data = d_emergency[d_emergency.index.year == 1944]
+            day_of_year_to_value = {day.day_of_year: value for day, value in zip(first_year_data.index, first_year_data[f'level{l}'])}
+            d_emergency.columns=[f'level{l}']
+            
+            d_emergency[f'level{l}'] = d_emergency.apply(lambda row: day_of_year_to_value[row.name.day_of_year] if np.isnan(row[f'level{l}']) else row[f'level{l}'], axis=1)
+        
+            # Plot
+            ax2.plot(d_emergency.loc[start_date:end_date, :], 
+                     color=drought_cmap(l),ls='dashed', zorder=1, alpha = 0.3,
+                     label= f'FFMP L{l}')
     
     ax2.set_ylabel(ylab, fontsize = 12)
     ax2.yaxis.set_label_coords(-0.1, 0.5) # Set y-axis label position
-    ax2.grid(True, which='major', axis='y')
     ax2.set_ylim([0, 110])
     ax2.set_xticklabels([])
     ax2.set_xlim([start_date, end_date])
     
     # Plot releases
     ax3 = fig.add_subplot(gs[2,0])
-    for m in models:
-        sim_data = releases[m][reservoir_list].sum(axis=1).loc[start_date:end_date]
-        sim_data.index = datetime
-        ax3.plot(sim_data.index, sim_data, color = colordict[m], label = m, lw = 1)
+    if plot_sim:
+        for m in models:
+            sim_data = releases[m][reservoir_list].sum(axis=1).loc[start_date:end_date]
+            sim_data.index = datetime
+            
+            if smooth_releases:
+                rd_rolling= sim_data.rolling(window=smooth_window).mean().values
+                rd_rolling[0:smooth_window]= sim_data.values[0:smooth_window]
+                rd_rolling[-smooth_window:]= sim_data.values[-smooth_window:]
+                
+                ax3.plot(sim_data.index, rd_rolling, color = colordict[m], label = m, lw = 1)
+            else:
+                ax3.plot(sim_data.index, sim_data, color = colordict[m], label = m, lw = 1)
 
-    ax3.plot(historic_release['Total'], color = colordict['obs'], label=f'Observed', lw = 1)
-    ax3.plot(historic_release['FFMP_min_release'], color ='black', ls =':', label = f'FFMP Min. Allowable Combined Release\nAt Drought Level 5')
+    if plot_observed:
+        ax3.plot(historic_release['Total'], color = colordict['obs'], label=f'Observed', 
+                lw = 1, zorder=3)
+    ax3.plot(historic_release['FFMP_min_release'], color ='black', ls =':', zorder=3,
+            label = f'FFMP Min. Allowable Combined Release\nAt Drought Level 5')
+
     ax3.set_yscale('log')
+    ax3.set_ylim([10, 10000])
     ax3.yaxis.set_label_coords(-0.1, 0.5)
     ax3.set_ylabel('Releases\n(MGD)', fontsize = 12)
     ax3.set_xlabel('Date', fontsize = 12)
     ax3.set_xlim([start_date, end_date])
 
-    #plt.legend()
-    plt.xlabel('Date')
+    # Create legend
+    handles1, labels1 = ax1.get_legend_handles_labels()
+    handles2, labels2 = ax2.get_legend_handles_labels()
+    handles3, labels3 = ax3.get_legend_handles_labels()
+    handles = handles1 + handles2 + handles3
+    labels = labels1 + labels2 + labels3
+    plt.legend(handles, labels, loc='upper center', bbox_to_anchor=(0.5, -0.5))
     
-    # Create colorbar outside of subplots
-    if ax_cbar is not None:
-        cbar = ax_cbar.collections[0].colorbar
-    plt.legend(loc = 'upper left', bbox_to_anchor=(0., -0.5), ncols=2)
+    plt.xlabel('Date')
+
+    # plt.legend(loc = 'upper left', bbox_to_anchor=(0., -0.5), ncols=2)
     plt.tight_layout()
+    fig.align_labels()
     plt.suptitle('Combined NYC Reservoir Operations\nSimulated & Observed')
-    plt.savefig(f'{fig_dir}combined_NYC_reservoir_operations_{start_date.strftime("%Y-%m-%d")}_{end_date.strftime("%Y-%m-%d")}.png', dpi=250)
+    plt.savefig(f'{fig_dir}NYC_reservoir_ops_{start_date.strftime("%Y")}_{end_date.strftime("%Y")}{filename_addon}.png', dpi=250)
     # plt.show()
     return
