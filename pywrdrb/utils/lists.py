@@ -29,4 +29,4 @@ starfit_reservoir_list = ['wallenpaupack', 'prompton', 'shoholaMarsh',
                           'assunpink', 'ontelaunee', 'stillCreek', 'blueMarsh', 'greenLane']
 
 
-
+modified_starfit_reservoir_list = ['blueMarsh', 'beltzvilleCombined', 'fewalter']

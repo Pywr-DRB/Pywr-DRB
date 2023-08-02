@@ -7,7 +7,7 @@ import pandas as pd
 from collections import defaultdict
 
 from utils.directories import input_dir, model_data_dir
-from utils.lists import majorflow_list, reservoir_list, reservoir_list_nyc
+from utils.lists import majorflow_list, reservoir_list, reservoir_list_nyc, modified_starfit_reservoir_list
 from pywr_drb_node_data import upstream_nodes_dict, immediate_downstream_nodes_dict, downstream_node_lags
 
 EPS = 1e-8
@@ -203,7 +203,7 @@ def add_major_node(model, name, node_type, inflow_type, outflow_type=None, downs
             'url': 'drb_model_istarf_conus.csv',
             'column': 'Adjusted_CAP_MG',
             'index_col': 'reservoir',
-            'index': name
+            'index': f'modified_{name}' if name in modified_starfit_reservoir_list else name
         }
 
     ### for starfit reservoirs, need to add a bunch of starfit specific params
@@ -388,7 +388,9 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
         downstream_lag = downstream_node_lags[node]
             
         variable_cost = True if (outflow_type == 'regulatory') else False
-        capacity = get_reservoir_capacity(node) if (node_type == 'reservoir') else None
+        if node_type == 'reservoir':
+            capacity = get_reservoir_capacity(f'modified_{node}') if node in modified_starfit_reservoir_list else get_reservoir_capacity(node)
+    
         has_catchment = True if (node != 'delTrenton') else False
 
         ### set up major node

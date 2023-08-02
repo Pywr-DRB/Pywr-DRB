@@ -5,21 +5,22 @@ import math
 from pywr.parameters import Parameter, load_parameter
 
 from utils.directories import model_data_dir
+from utils.constants import cfs_to_mgd
+from utils.lists import modified_starfit_reservoir_list
+
+## Conservation releases at lower reservoirs
+# These are DRBC specified for Normal conditions
+conservation_releases= {'blueMarsh': 50*cfs_to_mgd,
+                        'beltzvilleCombined': 35*cfs_to_mgd,
+                        'fewalter': 50*cfs_to_mgd}
+
+# FE Walter and Beltzville max discharges are linked to one another in practice, not implemented
+max_discharges= {'blueMarsh': 5400*cfs_to_mgd, 
+                 'beltzvilleCombined': 4000*cfs_to_mgd,
+                 'fewalter': 4000*cfs_to_mgd}
 
 ### Load STARFIT parameter values
 starfit_params = pd.read_csv(f'{model_data_dir}drb_model_istarf_conus.csv', sep = ',', index_col=0)
-
-def get_reservoir_capacity(reservoir):
-    """
-    Get the capacity of a reservoir.
-
-    Args:
-        reservoir (str): The name of the reservoir.
-
-    Returns:
-        float: The capacity of the reservoir.
-    """
-    return float(starfit_params['Adjusted_CAP_MG'].loc[starfit_params['reservoir'] == reservoir].iloc[0])
 
 
 class STARFITReservoirRelease(Parameter):
@@ -45,43 +46,59 @@ class STARFITReservoirRelease(Parameter):
         self.children.add(flow_parameter)
         
         # Modifications to
-        self.remove_R_max = True
-        self.linear_below_NOR = True
+        self.remove_R_max = False
+        self.linear_below_NOR = False
         use_adjusted_storage = True
         self.WATER_YEAR_OFFSET = 0
         
+        # Use modified storage parameters for DRBC relevant reservoirs
+        if self.name in modified_starfit_reservoir_list:
+            self.starfit_name = 'modified_' + self.name
+        else:
+            self.starfit_name = self.name
+            
         # Pull data from node
         if use_adjusted_storage:
-            self.S_cap = starfit_params.loc[self.name, 'Adjusted_CAP_MG']
+            self.S_cap = starfit_params.loc[self.starfit_name, 'Adjusted_CAP_MG']
         else:
-            self.S_cap = starfit_params.loc[self.name, 'GRanD_CAP_MG']
+            self.S_cap = starfit_params.loc[self.starfit_name, 'GRanD_CAP_MG']
         
         # Store STARFIT parameters
-        self.NORhi_mu = starfit_params.loc[self.name, 'NORhi_mu']
-        self.NORhi_min = starfit_params.loc[self.name, 'NORhi_min']
-        self.NORhi_max = starfit_params.loc[self.name, 'NORhi_max']
-        self.NORhi_alpha = starfit_params.loc[self.name, 'NORhi_alpha']
-        self.NORhi_beta = starfit_params.loc[self.name, 'NORhi_beta']
+        self.NORhi_mu = starfit_params.loc[self.starfit_name, 'NORhi_mu']
+        self.NORhi_min = starfit_params.loc[self.starfit_name, 'NORhi_min']
+        self.NORhi_max = starfit_params.loc[self.starfit_name, 'NORhi_max']
+        self.NORhi_alpha = starfit_params.loc[self.starfit_name, 'NORhi_alpha']
+        self.NORhi_beta = starfit_params.loc[self.starfit_name, 'NORhi_beta']
         
-        self.NORlo_mu = starfit_params.loc[self.name, 'NORlo_mu']
-        self.NORlo_min = starfit_params.loc[self.name, 'NORlo_min']
-        self.NORlo_max = starfit_params.loc[self.name, 'NORlo_max']
-        self.NORlo_alpha = starfit_params.loc[self.name, 'NORlo_alpha']
-        self.NORlo_beta = starfit_params.loc[self.name, 'NORlo_beta']
+        self.NORlo_mu = starfit_params.loc[self.starfit_name, 'NORlo_mu']
+        self.NORlo_min = starfit_params.loc[self.starfit_name, 'NORlo_min']
+        self.NORlo_max = starfit_params.loc[self.starfit_name, 'NORlo_max']
+        self.NORlo_alpha = starfit_params.loc[self.starfit_name, 'NORlo_alpha']
+        self.NORlo_beta = starfit_params.loc[self.starfit_name, 'NORlo_beta']
         
-        self.Release_alpha1 = starfit_params.loc[self.name, 'Release_alpha1']
-        self.Release_alpha2 = starfit_params.loc[self.name, 'Release_alpha2']
-        self.Release_beta1 = starfit_params.loc[self.name, 'Release_beta1']
-        self.Release_beta2 = starfit_params.loc[self.name, 'Release_beta2']
+        self.Release_alpha1 = starfit_params.loc[self.starfit_name, 'Release_alpha1']
+        self.Release_alpha2 = starfit_params.loc[self.starfit_name, 'Release_alpha2']
+        self.Release_beta1 = starfit_params.loc[self.starfit_name, 'Release_beta1']
+        self.Release_beta2 = starfit_params.loc[self.starfit_name, 'Release_beta2']
         
-        self.Release_c = starfit_params.loc[self.name, 'Release_c']
-        self.Release_p1 = starfit_params.loc[self.name, 'Release_p1']
-        self.Release_p2 = starfit_params.loc[self.name, 'Release_p2']
+        self.Release_c = starfit_params.loc[self.starfit_name, 'Release_c']
+        self.Release_p1 = starfit_params.loc[self.starfit_name, 'Release_p1']
+        self.Release_p2 = starfit_params.loc[self.starfit_name, 'Release_p2']
         
-        self.I_bar = starfit_params.loc[self.name, 'GRanD_MEANFLOW_MGD']
+        self.I_bar = starfit_params.loc[self.starfit_name, 'GRanD_MEANFLOW_MGD']
         
-        self.R_max = 999999 if self.remove_R_max else ((starfit_params.loc[self.name, 'Release_max']+1)*self.I_bar)
-        self.R_min = (starfit_params.loc[self.name, 'Release_min'] +1)* self.I_bar
+        # Override STARFIT max releases at DRBC lower reservoirs
+        if self.name in list(max_discharges.keys()):
+            self.R_max = max_discharges[self.name]
+        else:    
+            self.R_max = 999999 if self.remove_R_max else ((starfit_params.loc[self.starfit_name, 'Release_max']+1)*self.I_bar)
+        
+        # Override STARFIT min releases at DRBC lower reservoirs
+        if self.name in list(conservation_releases.keys()):
+            self.R_min = conservation_releases[self.name]
+        else:
+            self.R_min = (starfit_params.loc[self.starfit_name, 'Release_min'] +1)* self.I_bar
+
 
     def setup(self):
         """
@@ -212,7 +229,8 @@ class STARFITReservoirRelease(Parameter):
             target = min((self.S_cap * (S_hat - NORhi) + I*7)/7, self.R_max)
         else:
             if self.linear_below_NOR:
-                target = (self.I_bar * (harmonic_release + epsilon) + self.I_bar) * (1 - (NORlo - S_hat)/NORlo)
+                target = (self.I_bar * (harmonic_release + epsilon) + self.I_bar) * (S_hat / NORlo) #(1 - (NORlo - S_hat)/NORlo)
+                target = max(target, self.R_min)
             else:
                 target = self.R_min
         return target
