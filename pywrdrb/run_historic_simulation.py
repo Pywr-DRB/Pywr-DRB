@@ -23,6 +23,7 @@ t0 = time.time()
 
 ### specify inflow type from command line args
 inflow_type_options = ['obs_pub', 'nhmv10', 'nwmv21', 'WEAP_29June2023_gridmet',
+                        'nhmv10_withNYCObsScaled', 'nwmv21_withNYCObsScaled',
                        'obs_pub_nhmv10_NYCScaled', 'obs_pub_nwmv21_NYCScaled',
                        'obs_pub_nhmv10', 'obs_pub_nwmv21',
                        'obs_pub_nhmv10_NYCScaled_ensemble', 'obs_pub_nwmv21_NYCScaled_ensemble']
@@ -46,7 +47,7 @@ else:
     use_mpi = False
 
 ### assume we want to run the full range for each dataset
-if inflow_type in ('nwmv21', 'nhmv10', 'WEAP_29June2023_gridmet'):
+if inflow_type in ('nwmv21', 'nhmv10', 'WEAP_29June2023_gridmet') or 'withNYCObsScaled' in inflow_type:
     start_date = '1983-10-01'
     end_date = '2016-12-31'
 elif 'obs_pub' in inflow_type:

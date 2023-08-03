@@ -31,5 +31,6 @@ local/*
 #*.png
 #figs/*.png
 #./figs/*
+cache/
 
 input_data/historic_ensembles/historic_reconstruction_daily_ensemble.hdf5

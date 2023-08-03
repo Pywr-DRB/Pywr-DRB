@@ -2,22 +2,42 @@ import numpy as np
 import pandas as pd
 import glob
 import statsmodels.api as sm
+from pygeohydro import NWIS
+import datetime
 
 from pywr_drb_node_data import upstream_nodes_dict
 from utils.constants import cfs_to_mgd, cms_to_mgd, cm_to_mg
 from utils.directories import input_dir
 
-# Directories
-weap_dir = input_dir + 'WEAP_23Aug2022_gridmet/'
 
-def extrapolate_NYC_NJ_diversions(loc, inflow_label):
+def download_USGS_data_NYC_NJ_diversions():
+    ### NYC reservoir upstream gages are selected based on historical data. all of these have complete data back to 1952.
+    dates = ('1952-01-01', '2022-12-31')
+    nwis = NWIS()
+    gages = ['01460440', '01463500', '01423000', '01415000', '01413500', '01414500', '01435000']
+    labels = ['D_R_Canal', 'delTrenton','cannonsville1', 'pepacton1', 'pepacton2', 'pepacton3', 'neversink1']
+    hist_flows = nwis.get_streamflow(gages, dates)
+    hist_flows['datetime'] = pd.to_datetime(hist_flows.index.date)
+    labels.append('datetime')
+    hist_flows.reset_index(inplace=True, drop=True)
+    hist_flows = hist_flows[['USGS-'+g for g in gages] + ['datetime']]
+    hist_flows.columns = labels
+
+    for reservoir in ['cannonsville','pepacton','neversink']:
+        hist_flows[reservoir] = hist_flows[[c for c in labels if reservoir in c]].sum(axis=1)
+    hist_flows['NYC_inflow'] = hist_flows[['cannonsville','pepacton','neversink']].sum(axis=1)
+    hist_flows = hist_flows[['datetime','D_R_Canal', 'delTrenton', 'NYC_inflow']]
+    hist_flows.to_csv(input_dir + '/usgs_gages/streamflow_daily_usgs_1950_2022_cms_for_NYC_NJ_diversions.csv', index=False)
+    return hist_flows
+
+
+def extrapolate_NYC_NJ_diversions(loc):
     """
     Function for retrieving NYC and NJ historical diversions and extrapolating them into time periods
     where we don't have data based on seasonal flow regressions.
 
     Args:
         loc (str): The location to extrapolate. Can be either "nyc" or "nj".
-        inflow_label (str): Label of catchment inflow scenario to use for regressions & extrapolation. e.g., "obs_pub_nhmv10_NYCScaling".
 
     Returns:
         pd.DataFrame: The dataframe containing the extrapolated diversions.
@@ -32,22 +52,31 @@ def extrapolate_NYC_NJ_diversions(loc, inflow_label):
         diversion = diversion.iloc[:, :3]
         diversion.index = pd.to_datetime(diversion.index)
         diversion['aggregate'] = diversion.sum(axis=1)
+        diversion = diversion.loc[np.logical_not(np.isnan(diversion['aggregate']))]
         ### convert CFS to MGD
         diversion *= cfs_to_mgd
     elif loc == 'nj':
         ### now get NJ demands/deliveries
-        diversion = pd.read_csv(glob.glob(f'{weap_dir}/*Raritan*')[0], skiprows=1, header=None)
-        diversion.columns = ['datetime', 'D_R_Canal', 'dum']
+        ### The gage for D_R_Canal starts 1989-10-23, but lots of NA's early on. Pretty good after 1991-01-01, but a few remaining to clean up.
+        start_date = (1991, 1, 1)
+        diversion = pd.read_csv(input_dir + '/usgs_gages/streamflow_daily_usgs_1950_2022_cms_for_NYC_NJ_diversions.csv')
         diversion.index = pd.DatetimeIndex(diversion['datetime'])
         diversion = diversion[['D_R_Canal']]
-        ### convert cfs to mgd
-        diversion *= cfs_to_mgd
+        diversion = diversion.loc[diversion.index >= datetime.datetime(*start_date)]
+
+        ### infill NA values with previous day's flow
+        for i in range(1, diversion.shape[0]):
+            if np.isnan(diversion['D_R_Canal'].iloc[i]):
+                diversion['D_R_Canal'].iloc[i] = diversion['D_R_Canal'].iloc[i-1]
+
+        ### convert cms to mgd
+        diversion *= cms_to_mgd
         ### flow becomes negative sometimes, presumably due to storms and/or drought reversing flow. dont count as deliveries
         diversion[diversion < 0] = 0
 
-    ### get historical flow
-    flow = pd.read_csv(f'{input_dir}catchment_inflow_{inflow_label}.csv', index_col=0)
-    flow.index = pd.to_datetime(flow.index)
+    ### get historical flows
+    flow = pd.read_csv(input_dir + '/usgs_gages/streamflow_daily_usgs_1950_2022_cms_for_NYC_NJ_diversions.csv')
+    flow.index = pd.to_datetime(flow['datetime'])
 
     ### get maximum overlapping timespan for diversions and flow
     flow = flow.loc[np.logical_and(flow.index >= diversion.index.min(), flow.index <= diversion.index.max())]
@@ -57,14 +86,12 @@ def extrapolate_NYC_NJ_diversions(loc, inflow_label):
     ### dataframe of daily states
     if loc == 'nyc':
         df = pd.DataFrame({'diversion':diversion['aggregate'],
-                           'flow_log':np.log(flow[['cannonsville','pepacton','neversink']].sum(axis=1)),
+                           'flow_log':np.log(flow['NYC_inflow']),
                            'm': diversion.index.month,
                            'y': diversion.index.year})
     elif loc == 'nj':
-        inflow_nodes = upstream_nodes_dict['delTrenton'] + ['delTrenton']
-
         df = pd.DataFrame({'diversion': diversion['D_R_Canal'],
-                           'flow_log': np.log(flow[inflow_nodes].sum(axis=1)),
+                           'flow_log': np.log(flow['delTrenton']),
                            'm': diversion.index.month,
                            'y': diversion.index.year})
 
@@ -91,23 +118,23 @@ def extrapolate_NYC_NJ_diversions(loc, inflow_label):
         nj_trans_max = df_m['diversion'].max() + 5
         df_m['diversion'] = np.log(nj_trans_max - df_m['diversion'])
 
-
     ### get linear regression model for each quarter
     lrms = {q: sm.OLS(df_m['diversion'].loc[df_m['quarter'] == q],
                       sm.add_constant(df_m['flow_log'].loc[df_m['quarter'] == q])) for q in quarters}
     lrrs = {q: lrms[q].fit() for q in quarters}
 
     ### now get longer dataset of flows for extrapolation
-    flow = pd.read_csv(f'{input_dir}catchment_inflow_{inflow_label}.csv', index_col=0)
-    flow.index = pd.to_datetime(flow.index)
+    flow = pd.read_csv(input_dir + '/usgs_gages/streamflow_daily_usgs_1950_2022_cms_for_NYC_NJ_diversions.csv')
+    flow.index = pd.to_datetime(flow['datetime'])
+
 
     if loc == 'nyc':
-        df_long = pd.DataFrame({'flow_log': np.log(flow[['cannonsville','pepacton','neversink']].sum(axis=1)),
+        df_long = pd.DataFrame({'flow_log': np.log(flow['NYC_inflow']),
                                 'm': flow.index.month,
                                 'y': flow.index.year,
                                 'q': [get_quarter(m) for m in flow.index.month]})
     elif loc == 'nj':
-        df_long = pd.DataFrame({'flow_log': np.log(flow[inflow_nodes].sum(axis=1)),
+        df_long = pd.DataFrame({'flow_log': np.log(flow['delTrenton']),
                                 'm': flow.index.month,
                                 'y': flow.index.year,
                                 'q': [get_quarter(m) for m in flow.index.month]})
@@ -194,13 +221,25 @@ def extrapolate_NYC_NJ_diversions(loc, inflow_label):
         diversion.columns = ['pepacton','cannonsville','neversink','aggregate', 'datetime']
         diversion = diversion.iloc[:, [-1,1,0,2,3]]
 
+        diversion.to_csv(f'{input_dir}deliveryNYC_ODRM_extrapolated.csv', index=False)
+
+
     elif loc == 'nj':
-        diversion = pd.read_csv(glob.glob(f'{weap_dir}/*Raritan*')[0], skiprows=1, header=None)
-        diversion.columns = ['datetime', 'D_R_Canal', 'dum']
+        ### now get NJ demands/deliveries
+        ### The gage for D_R_Canal starts 1989-10-23, but lots of NA's early on. Pretty good after 1991-01-01, but a few remaining to clean up.
+        start_date = (1991, 1, 1)
+        diversion = pd.read_csv(input_dir + '/usgs_gages/streamflow_daily_usgs_1950_2022_cms_for_NYC_NJ_diversions.csv')
         diversion.index = pd.DatetimeIndex(diversion['datetime'])
         diversion = diversion[['D_R_Canal']]
-        ### convert cfs to mgd
-        diversion *= cfs_to_mgd
+        diversion = diversion.loc[diversion.index >= datetime.datetime(*start_date)]
+
+        ### infill NA values with previous day's flow
+        for i in range(1, diversion.shape[0]):
+            if np.isnan(diversion['D_R_Canal'].iloc[i]):
+                diversion['D_R_Canal'].iloc[i] = diversion['D_R_Canal'].iloc[i - 1]
+
+        ### convert cms to mgd
+        diversion *= cms_to_mgd
         ### flow becomes negative sometimes, presumably due to storms and/or drought reversing flow. dont count as deliveries
         diversion[diversion < 0] = 0
 
@@ -211,4 +250,5 @@ def extrapolate_NYC_NJ_diversions(loc, inflow_label):
         diversion['datetime'] = diversion.index
         diversion = diversion.iloc[:, [-1, 0]]
 
-    return diversion
+        diversion.to_csv(f'{input_dir}deliveryNJ_DRCanal_extrapolated.csv', index=False)
+

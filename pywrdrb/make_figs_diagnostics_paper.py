@@ -13,7 +13,7 @@ from pywrdrb.utils.directories import input_dir, output_dir, fig_dir
 from pywrdrb.post.get_results import get_base_results, get_pywr_results
 
 ### I was having trouble with interactive console plotting in Pycharm for some reason - comment this out if you want to use that and not having issues
-#mpl.use('TkAgg')
+mpl.use('TkAgg')
 
 
 
@@ -23,62 +23,51 @@ if __name__ == "__main__":
 
     ## System inputs
     rerun_all = True
-    use_WEAP = True
-    WEAP_model = 'WEAP_29June2023_gridmet'
-    obs_pub_model = 'obs_pub_nhmv10_NYCScaling'
-    pywr_WEAP_model = f'pywr_{WEAP_model}'
 
-    ### User-specified date range, or default to minimum overlapping period across models. Skip Oct-Dec 1983 as warm up.
-    start_date = sys.argv[1] if len(sys.argv) > 1 else '1984-01-01'
-    end_date = sys.argv[2] if len(sys.argv) > 2 else '2017-01-01'
-
-    start_date = pd.to_datetime(start_date)
-    end_date = pd.to_datetime(end_date)
+    # ### User-specified date range, or default to minimum overlapping period across models. Skip Oct-Dec 1983 as warm up.
+    # start_date = sys.argv[1] if len(sys.argv) > 1 else '1984-01-01'
+    # end_date = sys.argv[2] if len(sys.argv) > 2 else '2017-01-01'
+    #
+    # start_date = pd.to_datetime(start_date)
+    # end_date = pd.to_datetime(end_date)
     
     ## Load data    
     # Load Pywr-DRB simulation models
-    print(f'Retrieving simulation data from {start_date.strftime("%Y-%m-%d")} to {end_date.strftime("%Y-%m-%d")}.')
-    if use_WEAP:
-        pywr_models = [obs_pub_model, 'nhmv10', 'nwmv21', WEAP_model]
-    else:
-        pywr_models = [obs_pub_model, 'nhmv10', 'nwmv21']
+    print(f'Retrieving simulation data.')
+    pywr_models = ['nhmv10', 'nwmv21', 'nhmv10_withNYCObsScaled', 'nhmv10_withNYCObsScaled']
 
     reservoir_downstream_gages = {}
     major_flows = {}
     storages = {}
     reservoir_releases = {}
 
+    datetime_index = None
     for model in pywr_models:
-        reservoir_downstream_gages[f'pywr_{model}'] = get_pywr_results(output_dir, model, 'reservoir_downstream_gage').loc[start_date:end_date,:]
-        major_flows[f'pywr_{model}'] = get_pywr_results(output_dir, model, 'major_flow').loc[start_date:end_date,:]
-        storages[f'pywr_{model}'] = get_pywr_results(output_dir, model, 'res_storage')
-        reservoir_releases[f'pywr_{model}'] = get_pywr_results(output_dir, model, 'res_release').loc[start_date:end_date,:]
+        print(f'pywr_{model}')
+        reservoir_downstream_gages[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, results_set='reservoir_downstream_gage', datetime_index=datetime_index)
+        major_flows[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, results_set='major_flow', datetime_index=datetime_index)
+        storages[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, results_set='res_storage', datetime_index=datetime_index)
+        reservoir_releases[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, results_set='res_release', datetime_index=datetime_index)
     pywr_models = [f'pywr_{m}' for m in pywr_models]
 
 
     # Load base (non-pywr) models
-    if use_WEAP:
-        base_models = ['obs', obs_pub_model, 'nhmv10', 'nwmv21', WEAP_model]
-    else:
-        base_models = ['obs', obs_pub_model, 'nhmv10', 'nwmv21']
+    base_models = ['obs', 'nhmv10', 'nwmv21', 'nhmv10_withNYCObsScaled', 'nhmv10_withNYCObsScaled']
 
     datetime_index = list(reservoir_downstream_gages.values())[0].index
     for model in base_models:
-        reservoir_downstream_gages[model] = get_base_results(input_dir, model, datetime_index, 'reservoir_downstream_gage').loc[start_date:end_date,:]
-        major_flows[model] = get_base_results(input_dir, model, datetime_index, 'major_flow').loc[start_date:end_date,:]
+        print(model)
+        reservoir_downstream_gages[model] = get_base_results(input_dir, model, results_set='reservoir_downstream_gage', datetime_index=datetime_index)
+        major_flows[model] = get_base_results(input_dir, model, results_set='major_flow', datetime_index=datetime_index)
 
-    # Verify that all datasets have same datetime index
-    for r in reservoir_downstream_gages.values():
-        # print(f'len r: {len(r.index)} and dt: {len(datetime_index)}')
-        assert ((r.index == datetime_index).mean() == 1)
-    for r in major_flows.values():
-        # print(f'len r: {len(r.index)} and dt: {len(datetime_index)}')
-        assert ((r.index == datetime_index).mean() == 1)
-    print(f'Successfully loaded {len(base_models)} base model results & {len(pywr_models)} pywr model results')
-
-
-
-
+    # # Verify that all datasets have same datetime index
+    # for r in reservoir_downstream_gages.values():
+    #     # print(f'len r: {len(r.index)} and dt: {len(datetime_index)}')
+    #     assert ((r.index == datetime_index).mean() == 1)
+    # for r in major_flows.values():
+    #     # print(f'len r: {len(r.index)} and dt: {len(datetime_index)}')
+    #     assert ((r.index == datetime_index).mean() == 1)
+    # print(f'Successfully loaded {len(base_models)} base model results & {len(pywr_models)} pywr model results')
 
 
 

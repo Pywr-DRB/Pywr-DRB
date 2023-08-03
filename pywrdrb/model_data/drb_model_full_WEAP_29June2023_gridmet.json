@@ -290,7 +290,7 @@
             "name": "reservoir_beltzvilleCombined",
             "type": "storage",
             "max_volume": "max_volume_beltzvilleCombined",
-            "initial_volume": 38653.64704,
+            "initial_volume": 10800.0,
             "initial_volume_pc": 0.8,
             "cost": -10.0
         },
@@ -2274,7 +2274,7 @@
             "url": "drb_model_istarf_conus.csv",
             "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
-            "index": "beltzvilleCombined"
+            "index": "modified_beltzvilleCombined"
         },
         "starfit_release_beltzvilleCombined": {
             "type": "STARFITReservoirRelease",
@@ -2326,7 +2326,7 @@
             "url": "drb_model_istarf_conus.csv",
             "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
-            "index": "fewalter"
+            "index": "modified_fewalter"
         },
         "starfit_release_fewalter": {
             "type": "STARFITReservoirRelease",
@@ -2690,7 +2690,7 @@
             "url": "drb_model_istarf_conus.csv",
             "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
-            "index": "blueMarsh"
+            "index": "modified_blueMarsh"
         },
         "starfit_release_blueMarsh": {
             "type": "STARFITReservoirRelease",

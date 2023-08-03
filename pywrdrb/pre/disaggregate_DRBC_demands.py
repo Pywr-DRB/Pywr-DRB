@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import geopandas as gpd
 from pywr_drb_node_data import upstream_nodes_dict
-from utils.directories import spatial_data_dir
+from utils.directories import spatial_data_dir, input_dir
 from utils.lists import majorflow_list, reservoir_list
 
 
@@ -180,7 +180,8 @@ def disaggregate_DRBC_demands():
     #         gw_model = gw_model.append(pd.DataFrame({k: 0. for k in gw_model.columns}, index=[f'link_{majorflow}']))
     # gw_model.loc['reservoir_merrillCreek', :] = np.zeros(gw_model.shape[1])
 
-    return sw_model
+    sw_model.to_csv(f'{input_dir}sw_avg_wateruse_Pywr-DRB_Catchments.csv', index_label='node')
+
 
 
 

@@ -109,7 +109,7 @@ def get_pywr_results(output_dir, model, results_set='all', scenario=0, datetime_
 
 
 ### load flow estimates from raw input datasets
-def get_base_results(input_dir, model, datetime_index, results_set='all', ensemble_scenario=None):
+def get_base_results(input_dir, model, datetime_index=None, results_set='all', ensemble_scenario=None):
     """
     Function for retrieving and organizing results from non-pywr streamflows (NHM, NWM, WEAP).
 

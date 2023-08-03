@@ -290,7 +290,7 @@
             "name": "reservoir_beltzvilleCombined",
             "type": "storage",
             "max_volume": "max_volume_beltzvilleCombined",
-            "initial_volume": 38653.64704,
+            "initial_volume": 10800.0,
             "initial_volume_pc": 0.8,
             "cost": -10.0
         },
@@ -1929,11 +1929,11 @@
             "node": "cannonsville",
             "inflow_type": "obs_pub_nwmv21_NYCScaled_ensemble",
             "inflow_ensemble_indices": [
-                1,
-                15,
-                20,
-                26,
-                4
+                0,
+                6,
+                12,
+                18,
+                24
             ]
         },
         "max_flow_catchmentWithdrawal_cannonsville": {
@@ -1974,11 +1974,11 @@
             "node": "pepacton",
             "inflow_type": "obs_pub_nwmv21_NYCScaled_ensemble",
             "inflow_ensemble_indices": [
-                1,
-                15,
-                20,
-                26,
-                4
+                0,
+                6,
+                12,
+                18,
+                24
             ]
         },
         "max_flow_catchmentWithdrawal_pepacton": {
@@ -2019,11 +2019,11 @@
             "node": "neversink",
             "inflow_type": "obs_pub_nwmv21_NYCScaled_ensemble",
             "inflow_ensemble_indices": [
-                1,
-                15,
-                20,
-                26,
-                4
+                0,
+                6,
+                12,
+                18,
+                24
             ]
         },
         "max_flow_catchmentWithdrawal_neversink": {
@@ -2068,11 +2068,11 @@
             "node": "wallenpaupack",
             "inflow_type": "obs_pub_nwmv21_NYCScaled_ensemble",
             "inflow_ensemble_indices": [
-                1,
-                15,
-                20,
-                26,
-                4
+                0,
+                6,
+                12,
+                18,
+                24
             ]
         },
         "max_flow_catchmentWithdrawal_wallenpaupack": {
@@ -2117,11 +2117,11 @@
             "node": "prompton",
             "inflow_type": "obs_pub_nwmv21_NYCScaled_ensemble",
             "inflow_ensemble_indices": [
-                1,
-                15,
-                20,
-                26,
-                4
+                0,
+                6,
+                12,
+                18,
+                24
             ]
         },
         "max_flow_catchmentWithdrawal_prompton": {
@@ -2166,11 +2166,11 @@
             "node": "shoholaMarsh",
             "inflow_type": "obs_pub_nwmv21_NYCScaled_ensemble",
             "inflow_ensemble_indices": [
-                1,
-                15,
-                20,
-                26,
-                4
+                0,
+                6,
+                12,
+                18,
+                24
             ]
         },
         "max_flow_catchmentWithdrawal_shoholaMarsh": {
@@ -2215,11 +2215,11 @@
             "node": "mongaupeCombined",
             "inflow_type": "obs_pub_nwmv21_NYCScaled_ensemble",
             "inflow_ensemble_indices": [
-                1,
-                15,
-                20,
-                26,
-                4
+                0,
+                6,
+                12,
+                18,
+                24
             ]
         },
         "max_flow_catchmentWithdrawal_mongaupeCombined": {
@@ -2253,7 +2253,7 @@
             "url": "drb_model_istarf_conus.csv",
             "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
-            "index": "beltzvilleCombined"
+            "index": "modified_beltzvilleCombined"
         },
         "starfit_release_beltzvilleCombined": {
             "type": "STARFITReservoirRelease",
@@ -2264,11 +2264,11 @@
             "node": "beltzvilleCombined",
             "inflow_type": "obs_pub_nwmv21_NYCScaled_ensemble",
             "inflow_ensemble_indices": [
-                1,
-                15,
-                20,
-                26,
-                4
+                0,
+                6,
+                12,
+                18,
+                24
             ]
         },
         "max_flow_catchmentWithdrawal_beltzvilleCombined": {
@@ -2302,7 +2302,7 @@
             "url": "drb_model_istarf_conus.csv",
             "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
-            "index": "fewalter"
+            "index": "modified_fewalter"
         },
         "starfit_release_fewalter": {
             "type": "STARFITReservoirRelease",
@@ -2313,11 +2313,11 @@
             "node": "fewalter",
             "inflow_type": "obs_pub_nwmv21_NYCScaled_ensemble",
             "inflow_ensemble_indices": [
-                1,
-                15,
-                20,
-                26,
-                4
+                0,
+                6,
+                12,
+                18,
+                24
             ]
         },
         "max_flow_catchmentWithdrawal_fewalter": {
@@ -2362,11 +2362,11 @@
             "node": "merrillCreek",
             "inflow_type": "obs_pub_nwmv21_NYCScaled_ensemble",
             "inflow_ensemble_indices": [
-                1,
-                15,
-                20,
-                26,
-                4
+                0,
+                6,
+                12,
+                18,
+                24
             ]
         },
         "max_flow_catchmentWithdrawal_merrillCreek": {
@@ -2411,11 +2411,11 @@
             "node": "hopatcong",
             "inflow_type": "obs_pub_nwmv21_NYCScaled_ensemble",
             "inflow_ensemble_indices": [
-                1,
-                15,
-                20,
-                26,
-                4
+                0,
+                6,
+                12,
+                18,
+                24
             ]
         },
         "max_flow_catchmentWithdrawal_hopatcong": {
@@ -2460,11 +2460,11 @@
             "node": "nockamixon",
             "inflow_type": "obs_pub_nwmv21_NYCScaled_ensemble",
             "inflow_ensemble_indices": [
-                1,
-                15,
-                20,
-                26,
-                4
+                0,
+                6,
+                12,
+                18,
+                24
             ]
         },
         "max_flow_catchmentWithdrawal_nockamixon": {
@@ -2509,11 +2509,11 @@
             "node": "assunpink",
             "inflow_type": "obs_pub_nwmv21_NYCScaled_ensemble",
             "inflow_ensemble_indices": [
-                1,
-                15,
-                20,
-                26,
-                4
+                0,
+                6,
+                12,
+                18,
+                24
             ]
         },
         "max_flow_catchmentWithdrawal_assunpink": {
@@ -2558,11 +2558,11 @@
             "node": "ontelaunee",
             "inflow_type": "obs_pub_nwmv21_NYCScaled_ensemble",
             "inflow_ensemble_indices": [
-                1,
-                15,
-                20,
-                26,
-                4
+                0,
+                6,
+                12,
+                18,
+                24
             ]
         },
         "max_flow_catchmentWithdrawal_ontelaunee": {
@@ -2607,11 +2607,11 @@
             "node": "stillCreek",
             "inflow_type": "obs_pub_nwmv21_NYCScaled_ensemble",
             "inflow_ensemble_indices": [
-                1,
-                15,
-                20,
-                26,
-                4
+                0,
+                6,
+                12,
+                18,
+                24
             ]
         },
         "max_flow_catchmentWithdrawal_stillCreek": {
@@ -2645,7 +2645,7 @@
             "url": "drb_model_istarf_conus.csv",
             "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
-            "index": "blueMarsh"
+            "index": "modified_blueMarsh"
         },
         "starfit_release_blueMarsh": {
             "type": "STARFITReservoirRelease",
@@ -2656,11 +2656,11 @@
             "node": "blueMarsh",
             "inflow_type": "obs_pub_nwmv21_NYCScaled_ensemble",
             "inflow_ensemble_indices": [
-                1,
-                15,
-                20,
-                26,
-                4
+                0,
+                6,
+                12,
+                18,
+                24
             ]
         },
         "max_flow_catchmentWithdrawal_blueMarsh": {
@@ -2705,11 +2705,11 @@
             "node": "greenLane",
             "inflow_type": "obs_pub_nwmv21_NYCScaled_ensemble",
             "inflow_ensemble_indices": [
-                1,
-                15,
-                20,
-                26,
-                4
+                0,
+                6,
+                12,
+                18,
+                24
             ]
         },
         "max_flow_catchmentWithdrawal_greenLane": {
@@ -2743,11 +2743,11 @@
             "node": "01425000",
             "inflow_type": "obs_pub_nwmv21_NYCScaled_ensemble",
             "inflow_ensemble_indices": [
-                1,
-                15,
-                20,
-                26,
-                4
+                0,
+                6,
+                12,
+                18,
+                24
             ]
         },
         "max_flow_catchmentWithdrawal_01425000": {
@@ -2781,11 +2781,11 @@
             "node": "01417000",
             "inflow_type": "obs_pub_nwmv21_NYCScaled_ensemble",
             "inflow_ensemble_indices": [
-                1,
-                15,
-                20,
-                26,
-                4
+                0,
+                6,
+                12,
+                18,
+                24
             ]
         },
         "max_flow_catchmentWithdrawal_01417000": {
@@ -2819,11 +2819,11 @@
             "node": "delLordville",
             "inflow_type": "obs_pub_nwmv21_NYCScaled_ensemble",
             "inflow_ensemble_indices": [
-                1,
-                15,
-                20,
-                26,
-                4
+                0,
+                6,
+                12,
+                18,
+                24
             ]
         },
         "max_flow_catchmentWithdrawal_delLordville": {
@@ -2857,11 +2857,11 @@
             "node": "01436000",
             "inflow_type": "obs_pub_nwmv21_NYCScaled_ensemble",
             "inflow_ensemble_indices": [
-                1,
-                15,
-                20,
-                26,
-                4
+                0,
+                6,
+                12,
+                18,
+                24
             ]
         },
         "max_flow_catchmentWithdrawal_01436000": {
@@ -2895,11 +2895,11 @@
             "node": "01433500",
             "inflow_type": "obs_pub_nwmv21_NYCScaled_ensemble",
             "inflow_ensemble_indices": [
-                1,
-                15,
-                20,
-                26,
-                4
+                0,
+                6,
+                12,
+                18,
+                24
             ]
         },
         "max_flow_catchmentWithdrawal_01433500": {
@@ -2933,11 +2933,11 @@
             "node": "delMontague",
             "inflow_type": "obs_pub_nwmv21_NYCScaled_ensemble",
             "inflow_ensemble_indices": [
-                1,
-                15,
-                20,
-                26,
-                4
+                0,
+                6,
+                12,
+                18,
+                24
             ]
         },
         "max_flow_catchmentWithdrawal_delMontague": {
@@ -2971,11 +2971,11 @@
             "node": "01449800",
             "inflow_type": "obs_pub_nwmv21_NYCScaled_ensemble",
             "inflow_ensemble_indices": [
-                1,
-                15,
-                20,
-                26,
-                4
+                0,
+                6,
+                12,
+                18,
+                24
             ]
         },
         "max_flow_catchmentWithdrawal_01449800": {
@@ -3009,11 +3009,11 @@
             "node": "01447800",
             "inflow_type": "obs_pub_nwmv21_NYCScaled_ensemble",
             "inflow_ensemble_indices": [
-                1,
-                15,
-                20,
-                26,
-                4
+                0,
+                6,
+                12,
+                18,
+                24
             ]
         },
         "max_flow_catchmentWithdrawal_01447800": {
@@ -3047,11 +3047,11 @@
             "node": "delDRCanal",
             "inflow_type": "obs_pub_nwmv21_NYCScaled_ensemble",
             "inflow_ensemble_indices": [
-                1,
-                15,
-                20,
-                26,
-                4
+                0,
+                6,
+                12,
+                18,
+                24
             ]
         },
         "max_flow_catchmentWithdrawal_delDRCanal": {
@@ -3085,11 +3085,11 @@
             "node": "01463620",
             "inflow_type": "obs_pub_nwmv21_NYCScaled_ensemble",
             "inflow_ensemble_indices": [
-                1,
-                15,
-                20,
-                26,
-                4
+                0,
+                6,
+                12,
+                18,
+                24
             ]
         },
         "max_flow_catchmentWithdrawal_01463620": {
@@ -3123,11 +3123,11 @@
             "node": "outletAssunpink",
             "inflow_type": "obs_pub_nwmv21_NYCScaled_ensemble",
             "inflow_ensemble_indices": [
-                1,
-                15,
-                20,
-                26,
-                4
+                0,
+                6,
+                12,
+                18,
+                24
             ]
         },
         "max_flow_catchmentWithdrawal_outletAssunpink": {
@@ -3161,11 +3161,11 @@
             "node": "01470960",
             "inflow_type": "obs_pub_nwmv21_NYCScaled_ensemble",
             "inflow_ensemble_indices": [
-                1,
-                15,
-                20,
-                26,
-                4
+                0,
+                6,
+                12,
+                18,
+                24
             ]
         },
         "max_flow_catchmentWithdrawal_01470960": {
@@ -3199,11 +3199,11 @@
             "node": "outletSchuylkill",
             "inflow_type": "obs_pub_nwmv21_NYCScaled_ensemble",
             "inflow_ensemble_indices": [
-                1,
-                15,
-                20,
-                26,
-                4
+                0,
+                6,
+                12,
+                18,
+                24
             ]
         },
         "max_flow_catchmentWithdrawal_outletSchuylkill": {
