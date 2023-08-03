@@ -6,10 +6,10 @@ sys.path.append('./')
 sys.path.append('../')
 
 from pywrdrb.plotting.plotting_functions import *
-from pywrdrb.utils.lists import reservoir_list, majorflow_list, reservoir_link_pairs
+from pywrdrb.plotting.styles import *
+from pywrdrb.utils.lists import reservoir_list, reservoir_list_nyc, majorflow_list, reservoir_link_pairs
 from pywrdrb.utils.constants import cms_to_mgd, cm_to_mg, cfs_to_mgd
 from pywrdrb.utils.directories import input_dir, output_dir, fig_dir
-
 from pywrdrb.post.get_results import get_base_results, get_pywr_results
 
 ### I was having trouble with interactive console plotting in Pycharm for some reason - comment this out if you want to use that and not having issues
@@ -52,13 +52,13 @@ if __name__ == "__main__":
 
 
     # Load base (non-pywr) models
-    base_models = ['obs', 'nhmv10', 'nwmv21', 'nhmv10_withNYCObsScaled', 'nhmv10_withNYCObsScaled']
+    base_models = ['obs', 'nhmv10', 'nwmv21', 'nhmv10_withNYCObsScaled', 'nwmv21_withNYCObsScaled']
 
     datetime_index = list(reservoir_downstream_gages.values())[0].index
     for model in base_models:
         print(model)
-        reservoir_downstream_gages[model] = get_base_results(input_dir, model, results_set='reservoir_downstream_gage', datetime_index=datetime_index)
-        major_flows[model] = get_base_results(input_dir, model, results_set='major_flow', datetime_index=datetime_index)
+        reservoir_downstream_gages[model], datetime_index = get_base_results(input_dir, model, results_set='reservoir_downstream_gage', datetime_index=datetime_index)
+        major_flows[model], datetime_index = get_base_results(input_dir, model, results_set='major_flow', datetime_index=datetime_index)
 
     # # Verify that all datasets have same datetime index
     # for r in reservoir_downstream_gages.values():
@@ -77,29 +77,16 @@ if __name__ == "__main__":
 
 
 
+    ## 3-part flow figures with releases
+    if rerun_all:
+        print('Plotting 3-part flows at reservoirs.')
+        for reservoir in reservoir_list_nyc:
+            for model in pywr_models:
+                plot_3part_flows(reservoir_downstream_gages, [model.replace('pywr_',''), model], reservoir, colordict=model_colors_diagnostics_paper)
+            plot_3part_flows(reservoir_downstream_gages, [pywr_models[0], pywr_models[2]], reservoir, colordict=model_colors_diagnostics_paper)
+            plot_3part_flows(reservoir_downstream_gages, [pywr_models[1], pywr_models[3]], reservoir, colordict=model_colors_diagnostics_paper)
 
-    # ## 3-part flow figures with releases
-    # if rerun_all:
-    #     print('Plotting 3-part flows at reservoirs.')
-    #     ### nhm only - slides 36-39 in 10/24/2022 presentation
-    #     plot_3part_flows(reservoir_downstream_gages, ['nhmv10'], 'pepacton')
-    #     ### nhm vs nwm - slides 40-42 in 10/24/2022 presentation
-    #     plot_3part_flows(reservoir_downstream_gages, ['nhmv10', 'nwmv21'], 'pepacton')
-    #     if use_WEAP:
-    #         ### nhm vs weap (with nhm backup) - slides 60-62 in 10/24/2022 presentation
-    #         plot_3part_flows(reservoir_downstream_gages, ['nhmv10', WEAP_model], 'pepacton')
-    #     ### nhm vs pywr-nhm - slides 60-62 in 10/24/2022 presentation
-    #     plot_3part_flows(reservoir_downstream_gages, ['nhmv10', 'pywr_nhmv10'], 'pepacton')
-    #     ## obs-pub only
-    #     plot_3part_flows(reservoir_downstream_gages, ['obs_pub'], 'pepacton')
-    #     plot_3part_flows(reservoir_downstream_gages, ['pywr_obs_pub'], 'pepacton')
-    #     plot_3part_flows(reservoir_downstream_gages, ['obs_pub', 'nhmv10'], 'pepacton')
-    #     plot_3part_flows(reservoir_downstream_gages, ['pywr_obs_pub', 'pywr_nhmv10'], 'pepacton')
-    #
-    #     plot_3part_flows(reservoir_downstream_gages, ['obs_pub', 'nhmv10'], 'cannonsville')
-    #     plot_3part_flows(reservoir_downstream_gages, ['pywr_obs_pub', 'pywr_nhmv10'], 'cannonsville')
-    #     plot_3part_flows(reservoir_downstream_gages, ['pywr_obs_pub', 'pywr_nhmv10'], 'neversink')
-    #
+
     #
     # if rerun_all:
     #     print('Plotting weekly flow distributions at reservoirs.')

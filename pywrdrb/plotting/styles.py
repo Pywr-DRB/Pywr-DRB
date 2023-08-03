@@ -1,6 +1,7 @@
 """
 This file contains style specifications for figures.
 """
+import matplotlib.cm as cm
 
 full_node_label_dict = {}
 
@@ -43,6 +44,17 @@ paired_model_colors = {'obs': '#2B2B2B',
                 'pywr_nwmv21': '#9E1145', # darker green
                 'pywr_nwmv21_withLakes': '#9E1145', # darker green
                 'pywr_WEAP_29June2023_gridmet': '#1F6727'} # drk grn
+
+model_colors_diagnostics_paper = {'obs': '0.5',
+                                  'nhmv10': cm.get_cmap('Reds')(0.4),
+                                  'nwmv21': cm.get_cmap('Oranges')(0.4),
+                                  'nhmv10_withNYCObsScaled': cm.get_cmap('Purples')(0.4),
+                                  'nwmv21_withNYCObsScaled': cm.get_cmap('Blues')(0.4),
+                                  'pywr_nhmv10': cm.get_cmap('Reds')(0.9),
+                                  'pywr_nwmv21': cm.get_cmap('Oranges')(0.9),
+                                  'pywr_nhmv10_withNYCObsScaled': cm.get_cmap('Purples')(0.9),
+                                  'pywr_nwmv21_withNYCObsScaled': cm.get_cmap('Blues')(0.9)
+                                  }
 
 base_marker = "o"
 pywr_marker = "x"
