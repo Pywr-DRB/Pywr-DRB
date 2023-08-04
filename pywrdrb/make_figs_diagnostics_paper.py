@@ -21,20 +21,12 @@ mpl.use('TkAgg')
 ## Execution - Generate all figures
 if __name__ == "__main__":
 
-    ## System inputs
     rerun_all = True
 
-    # ### User-specified date range, or default to minimum overlapping period across models. Skip Oct-Dec 1983 as warm up.
-    # start_date = sys.argv[1] if len(sys.argv) > 1 else '1984-01-01'
-    # end_date = sys.argv[2] if len(sys.argv) > 2 else '2017-01-01'
-    #
-    # start_date = pd.to_datetime(start_date)
-    # end_date = pd.to_datetime(end_date)
-    
     ## Load data    
     # Load Pywr-DRB simulation models
     print(f'Retrieving simulation data.')
-    pywr_models = ['nhmv10', 'nwmv21', 'nhmv10_withNYCObsScaled', 'nhmv10_withNYCObsScaled']
+    pywr_models = ['nhmv10', 'nwmv21', 'nhmv10_withNYCObsScaled', 'nwmv21_withNYCObsScaled']
 
     reservoir_downstream_gages = {}
     major_flows = {}
@@ -50,8 +42,7 @@ if __name__ == "__main__":
         reservoir_releases[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, results_set='res_release', datetime_index=datetime_index)
     pywr_models = [f'pywr_{m}' for m in pywr_models]
 
-
-    # Load base (non-pywr) models
+    ### Load base (non-pywr) models
     base_models = ['obs', 'nhmv10', 'nwmv21', 'nhmv10_withNYCObsScaled', 'nwmv21_withNYCObsScaled']
 
     datetime_index = list(reservoir_downstream_gages.values())[0].index
@@ -60,31 +51,20 @@ if __name__ == "__main__":
         reservoir_downstream_gages[model], datetime_index = get_base_results(input_dir, model, results_set='reservoir_downstream_gage', datetime_index=datetime_index)
         major_flows[model], datetime_index = get_base_results(input_dir, model, results_set='major_flow', datetime_index=datetime_index)
 
-    # # Verify that all datasets have same datetime index
-    # for r in reservoir_downstream_gages.values():
-    #     # print(f'len r: {len(r.index)} and dt: {len(datetime_index)}')
-    #     assert ((r.index == datetime_index).mean() == 1)
-    # for r in major_flows.values():
-    #     # print(f'len r: {len(r.index)} and dt: {len(datetime_index)}')
-    #     assert ((r.index == datetime_index).mean() == 1)
-    # print(f'Successfully loaded {len(base_models)} base model results & {len(pywr_models)} pywr model results')
 
-
-
-
-
-
-
-
-
+    start_date = pd.to_datetime('2008-01-01')
+    end_date = pd.to_datetime('2017-01-01')
     ## 3-part flow figures with releases
     if rerun_all:
         print('Plotting 3-part flows at reservoirs.')
         for reservoir in reservoir_list_nyc:
             for model in pywr_models:
-                plot_3part_flows(reservoir_downstream_gages, [model.replace('pywr_',''), model], reservoir, colordict=model_colors_diagnostics_paper)
-            plot_3part_flows(reservoir_downstream_gages, [pywr_models[0], pywr_models[2]], reservoir, colordict=model_colors_diagnostics_paper)
-            plot_3part_flows(reservoir_downstream_gages, [pywr_models[1], pywr_models[3]], reservoir, colordict=model_colors_diagnostics_paper)
+                plot_3part_flows(reservoir_downstream_gages, [model.replace('pywr_',''), model], reservoir,
+                                 colordict=model_colors_diagnostics_paper, start_date=start_date, end_date=end_date)
+            plot_3part_flows(reservoir_downstream_gages, [pywr_models[0], pywr_models[2]], reservoir,
+                             colordict=model_colors_diagnostics_paper, start_date=start_date, end_date=end_date)
+            plot_3part_flows(reservoir_downstream_gages, [pywr_models[1], pywr_models[3]], reservoir,
+                             colordict=model_colors_diagnostics_paper, start_date=start_date, end_date=end_date)
 
 
     #

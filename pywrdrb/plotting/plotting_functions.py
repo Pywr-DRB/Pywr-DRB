@@ -31,10 +31,21 @@ from pywrdrb.utils.directories import input_dir, fig_dir, output_dir, model_data
 from pywrdrb.plotting.styles import base_model_colors, model_hatch_styles, paired_model_colors, scatter_model_markers
 
 
+
+
+### function to return subset of dates for timeseries data
+def subset_timeseries(timeseries, start_date, end_date):
+    if start_date is not None:
+        timeseries = timeseries.loc[start_date:]
+    if end_date is not None:
+        timeseries = timeseries.loc[:end_date]
+    return timeseries
+
+
+
 ### 3-part figure to visualize flow: timeseries, scatter plot, & flow duration curve. Can plot observed plus 1 or 2 modeled series.
 def plot_3part_flows(results, models, node, 
-                     colordict = paired_model_colors, 
-                     markerdict = scatter_model_markers, 
+                     colordict = paired_model_colors, markerdict = scatter_model_markers, start_date=None, end_date=None,
                      uselog=False, save_fig=True, fig_dir = fig_dir):
     """
     Plots a 3-part figure to visualize flow data, including a timeseries plot, a scatter plot, and a flow duration curve.
@@ -59,14 +70,14 @@ def plot_3part_flows(results, models, node,
     fig = plt.figure(figsize=(16, 4))
     gs = fig.add_gridspec(1, 3, width_ratios=(2, 1, 1), wspace=0.25, hspace=0.3)
 
-    obs = results['obs'][node]
+    obs = subset_timeseries(results['obs'][node], start_date, end_date)
 
     ### first fig: time series of observed & modeled flows
     ax = fig.add_subplot(gs[0, 0])
     for i, m in enumerate(models):
         if use2nd or i == 0:
             ### first plot time series of observed vs modeled
-            modeled = results[m][node]
+            modeled = subset_timeseries(results[m][node], start_date, end_date)
 
             if i == 0:
                 ax.plot(obs, label='observed', color=colordict['obs'])
@@ -100,7 +111,7 @@ def plot_3part_flows(results, models, node,
         ### now add scatter of observed vs modeled
         if use2nd or i == 0:
             ### first plot time series of observed vs modeled
-            modeled = results[m][node]
+            modeled = subset_timeseries(results[m][node], start_date, end_date)
 
             ax.scatter(obs, modeled, alpha=0.25, zorder=2, color=colordict[m], marker='x' if 'pywr' in m else 'o')
             diagmax = min(ax.get_xlim()[1], ax.get_ylim()[1])
@@ -120,7 +131,7 @@ def plot_3part_flows(results, models, node,
                 exceedance = np.arange(1., len(df) + 1.) / len(df)
                 ax.plot(exceedance, df, color=color, **kwargs)
 
-            modeled = results[m][node]
+            modeled = subset_timeseries(results[m][node], start_date, end_date)
 
             plot_exceedance(obs, ax, color = colordict['obs'])
             ax.semilogy()

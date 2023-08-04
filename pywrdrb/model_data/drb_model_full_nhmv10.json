@@ -46,7 +46,7 @@
             "type": "rivergauge",
             "mrf": "mrf_target_cannonsville",
             "mrf_cost": -1000.0,
-            "max_flow": 2062.0
+            "max_flow": 1331.912543962472
         },
         {
             "name": "spill_cannonsville",
@@ -83,7 +83,7 @@
             "type": "rivergauge",
             "mrf": "mrf_target_pepacton",
             "mrf_cost": -1000.0,
-            "max_flow": 842.0
+            "max_flow": 543.875054324152
         },
         {
             "name": "spill_pepacton",
@@ -120,7 +120,7 @@
             "type": "rivergauge",
             "mrf": "mrf_target_neversink",
             "mrf_cost": -1000.0,
-            "max_flow": 303.0
+            "max_flow": 195.717507672468
         },
         {
             "name": "spill_neversink",
@@ -991,19 +991,19 @@
             "name": "link_cannonsville_nyc",
             "type": "link",
             "cost": -500.0,
-            "max_flow": "volbalance_max_flow_delivery_nyc_cannonsville"
+            "max_flow": "max_flow_delivery_nyc_cannonsville"
         },
         {
             "name": "link_pepacton_nyc",
             "type": "link",
             "cost": -500.0,
-            "max_flow": "volbalance_max_flow_delivery_nyc_pepacton"
+            "max_flow": "max_flow_delivery_nyc_pepacton"
         },
         {
             "name": "link_neversink_nyc",
             "type": "link",
             "cost": -500.0,
-            "max_flow": "volbalance_max_flow_delivery_nyc_neversink"
+            "max_flow": "max_flow_delivery_nyc_neversink"
         },
         {
             "name": "delivery_nyc",
@@ -1924,6 +1924,10 @@
             "index_col": "reservoir",
             "index": "cannonsville"
         },
+        "constant_max_release_cannonsville": {
+            "type": "constant",
+            "value": 1331.912543962472
+        },
         "flow_base_cannonsville": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nhmv10.csv",
@@ -1972,6 +1976,10 @@
             "index_col": "reservoir",
             "index": "pepacton"
         },
+        "constant_max_release_pepacton": {
+            "type": "constant",
+            "value": 543.875054324152
+        },
         "flow_base_pepacton": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nhmv10.csv",
@@ -2019,6 +2027,10 @@
             "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": "neversink"
+        },
+        "constant_max_release_neversink": {
+            "type": "constant",
+            "value": 195.717507672468
         },
         "flow_base_neversink": {
             "type": "dataframe",
@@ -3869,6 +3881,15 @@
                 "mrf_drought_factor_combined_final_neversink"
             ]
         },
+        "mrf_target_individual_agg_nyc": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "mrf_target_individual_cannonsville",
+                "mrf_target_individual_pepacton",
+                "mrf_target_individual_neversink"
+            ]
+        },
         "storage_cost_cannonsville": {
             "type": "interpolatedvolume",
             "values": [
@@ -3971,37 +3992,28 @@
                 "max_volume_neversink"
             ]
         },
-        "volbalance_target_max_flow_delivery_nyc_cannonsville": {
+        "hist_max_flow_delivery_nyc_cannonsville": {
+            "type": "constant",
+            "value": 497.7041574232482
+        },
+        "max_flow_delivery_nyc_cannonsville": {
             "type": "VolBalanceNYCDemandTarget",
             "node": "reservoir_cannonsville"
         },
-        "volbalance_target_max_flow_delivery_nyc_pepacton": {
+        "hist_max_flow_delivery_nyc_pepacton": {
+            "type": "constant",
+            "value": 673.5996026170066
+        },
+        "max_flow_delivery_nyc_pepacton": {
             "type": "VolBalanceNYCDemandTarget",
             "node": "reservoir_pepacton"
         },
-        "volbalance_target_max_flow_delivery_nyc_neversink": {
+        "hist_max_flow_delivery_nyc_neversink": {
+            "type": "constant",
+            "value": 514.6940583794635
+        },
+        "max_flow_delivery_nyc_neversink": {
             "type": "VolBalanceNYCDemandTarget",
-            "node": "reservoir_neversink"
-        },
-        "volbalance_target_max_flow_delivery_agg_nyc": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "volbalance_target_max_flow_delivery_nyc_cannonsville",
-                "volbalance_target_max_flow_delivery_nyc_pepacton",
-                "volbalance_target_max_flow_delivery_nyc_neversink"
-            ]
-        },
-        "volbalance_max_flow_delivery_nyc_cannonsville": {
-            "type": "VolBalanceNYCDemandFinal",
-            "node": "reservoir_cannonsville"
-        },
-        "volbalance_max_flow_delivery_nyc_pepacton": {
-            "type": "VolBalanceNYCDemandFinal",
-            "node": "reservoir_pepacton"
-        },
-        "volbalance_max_flow_delivery_nyc_neversink": {
-            "type": "VolBalanceNYCDemandFinal",
             "node": "reservoir_neversink"
         },
         "mrf_baseline_delMontague": {
@@ -4187,61 +4199,40 @@
         "volbalance_relative_mrf_montagueTrenton": {
             "type": "VolBalanceNYCDownstreamMRFTargetAgg"
         },
-        "volbalance_target_max_flow_montagueTrenton_cannonsville": {
-            "type": "VolBalanceNYCDownstreamMRFTarget",
+        "mrf_montagueTrenton_cannonsville": {
+            "type": "VolBalanceNYCDownstreamMRF",
             "node": "reservoir_cannonsville"
         },
-        "volbalance_target_max_flow_montagueTrenton_pepacton": {
-            "type": "VolBalanceNYCDownstreamMRFTarget",
+        "mrf_montagueTrenton_pepacton": {
+            "type": "VolBalanceNYCDownstreamMRF",
             "node": "reservoir_pepacton"
         },
-        "volbalance_target_max_flow_montagueTrenton_neversink": {
-            "type": "VolBalanceNYCDownstreamMRFTarget",
-            "node": "reservoir_neversink"
-        },
-        "volbalance_target_max_flow_montagueTrenton_agg_nyc": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "volbalance_target_max_flow_montagueTrenton_cannonsville",
-                "volbalance_target_max_flow_montagueTrenton_pepacton",
-                "volbalance_target_max_flow_montagueTrenton_neversink"
-            ]
-        },
-        "volbalance_max_flow_montagueTrenton_cannonsville": {
-            "type": "VolBalanceNYCDownstreamMRFFinal",
-            "node": "reservoir_cannonsville"
-        },
-        "volbalance_max_flow_montagueTrenton_pepacton": {
-            "type": "VolBalanceNYCDownstreamMRFFinal",
-            "node": "reservoir_pepacton"
-        },
-        "volbalance_max_flow_montagueTrenton_neversink": {
-            "type": "VolBalanceNYCDownstreamMRFFinal",
+        "mrf_montagueTrenton_neversink": {
+            "type": "VolBalanceNYCDownstreamMRF",
             "node": "reservoir_neversink"
         },
         "mrf_target_cannonsville": {
             "type": "aggregated",
-            "agg_func": "max",
+            "agg_func": "sum",
             "parameters": [
                 "mrf_target_individual_cannonsville",
-                "volbalance_max_flow_montagueTrenton_cannonsville"
+                "mrf_montagueTrenton_cannonsville"
             ]
         },
         "mrf_target_pepacton": {
             "type": "aggregated",
-            "agg_func": "max",
+            "agg_func": "sum",
             "parameters": [
                 "mrf_target_individual_pepacton",
-                "volbalance_max_flow_montagueTrenton_pepacton"
+                "mrf_montagueTrenton_pepacton"
             ]
         },
         "mrf_target_neversink": {
             "type": "aggregated",
-            "agg_func": "max",
+            "agg_func": "sum",
             "parameters": [
                 "mrf_target_individual_neversink",
-                "volbalance_max_flow_montagueTrenton_neversink"
+                "mrf_montagueTrenton_neversink"
             ]
         }
     }

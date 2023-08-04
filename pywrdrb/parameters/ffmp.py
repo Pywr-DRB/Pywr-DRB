@@ -8,7 +8,8 @@ for the three NYC reservoirs.
 import numpy as np
 import pandas as pd
 from pywr.parameters import Parameter, load_parameter
-
+from utils.lists import reservoir_list_nyc
+from utils.constants import epsilon
 
 class FfmpNycRunningAvgParameter(Parameter):
     """
@@ -207,7 +208,7 @@ FfmpNjRunningAvgParameter.register()
 
 
 
-class VolBalanceNYCDemandTarget(Parameter):
+class VolBalanceNYCDemand(Parameter):
     """
     Updates the contribution to NYC deliveries made by each of the NYC
     reservoirs, in such a way as to balance the relative storages across the three reservoirs.
@@ -235,133 +236,115 @@ class VolBalanceNYCDemandTarget(Parameter):
         load(model, data): Loads the parameter from model and data dictionary.
 
     """
-    def __init__(self, model, node, max_volume_agg_nyc, volume_agg_nyc, max_flow_delivery_nyc, flow_agg_nyc,
-                 max_vol_reservoir, vol_reservoir, flow_reservoir, **kwargs):
+    def __init__(self, model, reservoir, nodes, max_volume_agg_nyc, volume_agg_nyc, max_flow_delivery_nyc,
+                 flow_agg_nyc, max_vol_reservoirs, vol_reservoirs, flow_reservoirs, hist_max_flow_delivery_nycs,
+                 mrf_target_individual_reservoirs, mrf_target_individual_agg_nyc, **kwargs):
         super().__init__(model, **kwargs)
-        self.node = node
+        self.reservoir = reservoir
+        self.nodes = nodes
+        self.num_reservoirs = len(nodes)
         self.max_volume_agg_nyc = max_volume_agg_nyc
         self.volume_agg_nyc = volume_agg_nyc
         self.max_flow_delivery_nyc = max_flow_delivery_nyc
         self.flow_agg_nyc = flow_agg_nyc
-        self.max_vol_reservoir = max_vol_reservoir
-        self.vol_reservoir = vol_reservoir
-        self.flow_reservoir = flow_reservoir
+        self.max_vol_reservoirs = max_vol_reservoirs
+        self.vol_reservoirs = vol_reservoirs
+        self.flow_reservoirs = flow_reservoirs
+        self.hist_max_flow_delivery_nycs = hist_max_flow_delivery_nycs
+        self.mrf_target_individual_reservoirs = mrf_target_individual_reservoirs
+        self.mrf_target_individual_agg_nyc = mrf_target_individual_agg_nyc
 
         self.children.add(max_volume_agg_nyc)
         self.children.add(volume_agg_nyc)
         self.children.add(max_flow_delivery_nyc)
         self.children.add(flow_agg_nyc)
-        self.children.add(max_vol_reservoir)
-        self.children.add(vol_reservoir)
-        self.children.add(flow_reservoir)
+        self.children.add(mrf_target_individual_agg_nyc)
+        for i in range(len(reservoir_list_nyc)):
+            self.children.add(max_vol_reservoirs[i])
+            self.children.add(vol_reservoirs[i])
+            self.children.add(flow_reservoirs[i])
+            self.children.add(hist_max_flow_delivery_nycs[i])
+            self.children.add(mrf_target_individual_reservoirs[i])
+
 
 
     def value(self, timestep, scenario_index):
-        ### return the target NYC delivery for this reservoir to balance storages across reservoirs
-        target = self.vol_reservoir.get_value(scenario_index) + self.flow_reservoir.get_value(scenario_index) - \
-               (self.max_vol_reservoir.get_value(scenario_index) / self.max_volume_agg_nyc.get_value(scenario_index)) * \
-               (self.volume_agg_nyc.get_value(scenario_index) + self.flow_agg_nyc.get_value(scenario_index) - self.max_flow_delivery_nyc.get_value(scenario_index))
-        return max(target, 0.)
+        sid = scenario_index.global_id
+        ### calculate diversions from all 3 NYC reservoirs in consistent way.
+        ### Note: ideally we would only do this once. But may not be possible to have parameter with array output,
+        ###       so for now we just repeat this procedure for each reservoir.
+
+        ### first calculate the contributions to NYC delivery for this reservoir to balance storages across reservoirs
+        requirement_total = self.max_flow_delivery_nyc.get_value(scenario_index)
+        max_diversions = [self.hist_max_flow_delivery_nycs[i].get_value(scenario_index) for i in range(self.num_reservoirs)]
+        targets = [-1] * self.num_reservoirs
+        for i in range(self.num_reservoirs):
+            targets[i] = self.vol_reservoirs[i].get_value(scenario_index) + \
+                         self.flow_reservoirs[i].get_value(scenario_index) - \
+                         self.mrf_target_individual_reservoirs[i].get_value(scenario_index) - \
+                         (self.max_vol_reservoirs[i].get_value(scenario_index) / \
+                          self.max_volume_agg_nyc.get_value(scenario_index)) * \
+                         (self.volume_agg_nyc.get_value(scenario_index) + \
+                          self.flow_agg_nyc.get_value(scenario_index) - \
+                          self.mrf_target_individual_agg_nyc.get_value(scenario_index) - \
+                          requirement_total)
+            ### enforce nonnegativity and reservoir max release constraint
+            targets[i] = min(max(targets[i], 0), max_diversions[i])
+
+
+
+        ### sum total diversions across 3 reservoirs. if this is less than requirement_total,
+        ### that means one of the reservoirs had negative value or exceeded max diversion above
+        ### -> rescale unconstrained reservoirs to counteract
+        target_sum = sum(targets)
+        fully_constrained = False
+        count = 0
+        while requirement_total - epsilon > target_sum and not fully_constrained:
+            increasable_flow = 0
+            ### find the total "increasable" flow that is not coming from reservoirs with 0 release or max_release
+            for i in range(self.num_reservoirs):
+                if targets[i] < max_diversions[i]:
+                    increasable_flow += targets[i]
+            if increasable_flow > epsilon:
+                for i in range(self.num_reservoirs):
+                    targets[i] = min(targets[i] * requirement_total / increasable_flow, max_diversions[i])
+            else:
+                fully_constrained = True
+            target_sum = sum(targets)
+            count += 1
+            if count > 5:
+                print(count, requirement_total, target_sum, increasable_flow, targets, max_diversions)
+
+        ### now return target for the reservoir of interest
+        for i in range(self.num_reservoirs):
+            if self.reservoir == reservoir_list_nyc[i]:
+                return targets[i]
 
 
     @classmethod
     def load(cls, model, data):
+        """
+        """
         reservoir = data.pop("node")
-        node = model.nodes[reservoir]
         reservoir = reservoir.split('_')[1]
+        nodes = [model.nodes[f'reservoir_{reservoir}'] for reservoir in reservoir_list_nyc]
         max_volume_agg_nyc = load_parameter(model, 'max_volume_agg_nyc')
         volume_agg_nyc = load_parameter(model, 'volume_agg_nyc')
         max_flow_delivery_nyc = load_parameter(model, 'max_flow_delivery_nyc')
         flow_agg_nyc = load_parameter(model, 'flow_agg_nyc')
-        max_vol_reservoir = load_parameter(model, f'max_volume_{reservoir}')
-        vol_reservoir = load_parameter(model, f'volume_{reservoir}')
-        flow_reservoir = load_parameter(model, f'flow_{reservoir}')
-        return cls(model, node, max_volume_agg_nyc, volume_agg_nyc, max_flow_delivery_nyc, flow_agg_nyc,
-                   max_vol_reservoir, vol_reservoir, flow_reservoir, **data)
+        max_vol_reservoirs = [load_parameter(model, f'max_volume_{reservoir}') for reservoir in reservoir_list_nyc]
+        vol_reservoirs = [load_parameter(model, f'volume_{reservoir}') for reservoir in reservoir_list_nyc]
+        flow_reservoirs = [load_parameter(model, f'flow_{reservoir}') for reservoir in reservoir_list_nyc]
+        hist_max_flow_delivery_nycs = [load_parameter(model, f'hist_max_flow_delivery_nyc_{reservoir}') for reservoir in reservoir_list_nyc]
+        mrf_target_individual_reservoirs = [load_parameter(model, f'mrf_target_individual_{reservoir}') for reservoir in reservoir_list_nyc]
+        mrf_target_individual_agg_nyc = load_parameter(model, 'mrf_target_individual_agg_nyc')
+        return cls(model, reservoir, nodes, max_volume_agg_nyc, volume_agg_nyc, max_flow_delivery_nyc,
+                   flow_agg_nyc, max_vol_reservoirs, vol_reservoirs, flow_reservoirs, hist_max_flow_delivery_nycs,
+                   mrf_target_individual_reservoirs, mrf_target_individual_agg_nyc, **data)
 
 ### have to register the custom parameter so Pywr recognizes it
-VolBalanceNYCDemandTarget.register()
+VolBalanceNYCDemand.register()
 
-
-
-
-class VolBalanceNYCDemandFinal(Parameter):
-    """
-    This is the second step in updating the contribution to NYC deliveries made by each of the NYC
-    reservoirs, in such a way as to balance the relative storages across the three reservoirs.
-    Step one is VolBalanceNYCDemandTarget above.
-    In this second step, each reservoir's contributions are rescaled to ensure their sum is equal to demand.
-    See comments on this GitHub issue for the equations & logic:
-    https://github.com/users/ahamilton144/projects/1/views/1?pane=issue&itemId=7840442
-
-    Args:
-        model (Model): The Pywr model instance.
-        node (Node): The node associated with the parameter.
-        max_flow_delivery_nyc (Parameter): The maximum flow NYC delivery parameter.
-        volbalance_target_max_flow_delivery_nyc_reservoir (Parameter): The volume balance target maximum flow delivery NYC reservoir parameter.
-        volbalance_target_max_flow_delivery_agg_nyc (Parameter): The volume balance target maximum flow delivery aggregate NYC parameter.
-
-    Attributes:
-        node (Node): The node associated with the parameter.
-        max_flow_delivery_nyc (Parameter): The maximum flow NYC delivery parameter.
-        volbalance_target_max_flow_delivery_nyc_reservoir (Parameter): The volume balance target maximum flow delivery NYC reservoir parameter.
-        volbalance_target_max_flow_delivery_agg_nyc (Parameter): The volume balance target maximum flow delivery aggregate NYC parameter.
-
-    Methods:
-        value(timestep, scenario_index): Returns the rescaled max flow NYC delivery for this reservoir.
-
-    Class Methods:
-        load(model, data): Loads the parameter from model and data dictionary.
-
-    """
-    def __init__(self, model, node, max_flow_delivery_nyc, volbalance_target_max_flow_delivery_nyc_reservoir,
-                 volbalance_target_max_flow_delivery_agg_nyc, **kwargs):
-        super().__init__(model, **kwargs)
-        self.node = node
-        self.max_flow_delivery_nyc = max_flow_delivery_nyc
-        self.volbalance_target_max_flow_delivery_nyc_reservoir = volbalance_target_max_flow_delivery_nyc_reservoir
-        self.volbalance_target_max_flow_delivery_agg_nyc = volbalance_target_max_flow_delivery_agg_nyc
-        self.children.add(max_flow_delivery_nyc)
-        self.children.add(volbalance_target_max_flow_delivery_nyc_reservoir)
-        self.children.add(volbalance_target_max_flow_delivery_agg_nyc)
-
-    def value(self, timestep, scenario_index):
-        """
-        Returns the rescaled max flow NYC delivery for this reservoir, after zeroing out if any reservoir had negative target
-
-        Args:
-            timestep (Timestep): The current timestep.
-            scenario_index (ScenarioIndex): The scenario index.
-
-        Returns:
-            float: The rescaled max flow NYC delivery for this reservoir.
-        """
-        return self.max_flow_delivery_nyc.get_value(scenario_index) * \
-               self.volbalance_target_max_flow_delivery_nyc_reservoir.get_value(scenario_index) / \
-               self.volbalance_target_max_flow_delivery_agg_nyc.get_value(scenario_index)
-
-    @classmethod
-    def load(cls, model, data):
-        """Loads the parameter from model and data dictionary.
-
-        Args:
-            model (Model): The Pywr model instance.
-            data (dict): The data dictionary containing the parameter information.
-
-        Returns:
-            VolBalanceNYCDemandFinal: The loaded parameter instance.
-        """
-        reservoir = data.pop("node")
-        node = model.nodes[reservoir]
-        reservoir = reservoir.split('_')[1]
-        max_flow_delivery_nyc = load_parameter(model, 'max_flow_delivery_nyc')
-        volbalance_target_max_flow_delivery_nyc_reservoir = load_parameter(model, f'volbalance_target_max_flow_delivery_nyc_{reservoir}')
-        volbalance_target_max_flow_delivery_agg_nyc = load_parameter(model, f'volbalance_target_max_flow_delivery_agg_nyc')
-        return cls(model, node, max_flow_delivery_nyc, volbalance_target_max_flow_delivery_nyc_reservoir,
-                   volbalance_target_max_flow_delivery_agg_nyc, **data)
-
-### have to register the custom parameter so Pywr recognizes it
-VolBalanceNYCDemandFinal.register()
 
 
 
@@ -369,7 +352,8 @@ VolBalanceNYCDemandFinal.register()
 class VolBalanceNYCDownstreamMRFTargetAgg(Parameter):
     """
     Calculates the total releases from NYC reservoirs needed to meet the Montague and Trenton flow targets,
-    after subtracting out flows from the rest of the basin, and adding max deliveries to NJ.
+    after subtracting out flows from the rest of the basin, and adding max deliveries to NJ, and
+    subtracting mandated individual FFMP releases for NYC reservoirs.
 
     Args:
         model (Model): The Pywr model instance.
@@ -389,21 +373,26 @@ class VolBalanceNYCDownstreamMRFTargetAgg(Parameter):
 
     """
     def __init__(self, model, volbalance_flow_agg_nonnyc_delMontague, mrf_target_delMontague,\
-                   volbalance_flow_agg_nonnyc_delTrenton, max_flow_delivery_nj, mrf_target_delTrenton, **kwargs):
+                 volbalance_flow_agg_nonnyc_delTrenton, max_flow_delivery_nj, mrf_target_delTrenton,
+                 mrf_target_individual_agg_nyc, **kwargs):
         super().__init__(model, **kwargs)
         self.volbalance_flow_agg_nonnyc_delMontague = volbalance_flow_agg_nonnyc_delMontague
         self.mrf_target_delMontague = mrf_target_delMontague
         self.volbalance_flow_agg_nonnyc_delTrenton = volbalance_flow_agg_nonnyc_delTrenton
         self.max_flow_delivery_nj = max_flow_delivery_nj
         self.mrf_target_delTrenton = mrf_target_delTrenton
+        self.mrf_target_individual_agg_nyc = mrf_target_individual_agg_nyc
+
         self.children.add(volbalance_flow_agg_nonnyc_delMontague)
         self.children.add(mrf_target_delMontague)
         self.children.add(volbalance_flow_agg_nonnyc_delTrenton)
         self.children.add(max_flow_delivery_nj)
         self.children.add(mrf_target_delTrenton)
+        self.children.add(mrf_target_individual_agg_nyc)
 
     def value(self, timestep, scenario_index):
-        """Returns the total flow needed from NYC reservoirs to meet Montague and Trenton targets.
+        """Returns the total flow needed from NYC reservoirs to meet Montague and Trenton targets,
+        above and beyond their individual direct mandated releases.
 
         Args:
             timestep (Timestep): The current timestep.
@@ -413,10 +402,12 @@ class VolBalanceNYCDownstreamMRFTargetAgg(Parameter):
             float: The total flow needed from NYC reservoirs to meet Montague and Trenton targets.
         """
         req_delMontague = max(self.mrf_target_delMontague.get_value(scenario_index) -
-                              self.volbalance_flow_agg_nonnyc_delMontague.get_value(scenario_index),
+                              self.volbalance_flow_agg_nonnyc_delMontague.get_value(scenario_index) -
+                              self.mrf_target_individual_agg_nyc.get_value(scenario_index),
                               0.)
         req_delTrenton = max(self.mrf_target_delTrenton.get_value(scenario_index) -
-                             self.volbalance_flow_agg_nonnyc_delTrenton.get_value(scenario_index) +
+                             self.volbalance_flow_agg_nonnyc_delTrenton.get_value(scenario_index) -
+                             self.mrf_target_individual_agg_nyc.get_value(scenario_index) +
                              self.max_flow_delivery_nj.get_value(scenario_index),
                              0.)
         return max(req_delMontague, req_delTrenton)
@@ -438,9 +429,11 @@ class VolBalanceNYCDownstreamMRFTargetAgg(Parameter):
         volbalance_flow_agg_nonnyc_delTrenton = load_parameter(model, 'volbalance_flow_agg_nonnyc_delTrenton')
         max_flow_delivery_nj = load_parameter(model, 'max_flow_delivery_nj')
         mrf_target_delTrenton = load_parameter(model, 'mrf_target_delTrenton')
+        mrf_target_individual_agg_nyc = load_parameter(model, 'mrf_target_individual_agg_nyc')
 
         return cls(model, volbalance_flow_agg_nonnyc_delMontague, mrf_target_delMontague,\
-                   volbalance_flow_agg_nonnyc_delTrenton, max_flow_delivery_nj, mrf_target_delTrenton, **data)
+                   volbalance_flow_agg_nonnyc_delTrenton, max_flow_delivery_nj, mrf_target_delTrenton,
+                   mrf_target_individual_agg_nyc, **data)
 
 ### have to register the custom parameter so Pywr recognizes it
 VolBalanceNYCDownstreamMRFTargetAgg.register()
@@ -448,179 +441,123 @@ VolBalanceNYCDownstreamMRFTargetAgg.register()
 
 
 
-class VolBalanceNYCDownstreamMRFTarget(Parameter):
-    """
-    Custom Pywr parameter class. This parameter updates the contribution to meeting Montague & Trenton flow targets,
-    by each of the NYC reservoirs, in such a way as to balance the relative storages across the three reservoirs.
-    See comments on this GitHub issue for the equations & logic:
-    https://github.com/users/ahamilton144/projects/1/views/1?pane=issue&itemId=7840442
+### updated parameter to consistently assign release targets for all 3 reservoirs, above and beyond individual mandated releases.
+###     - total release needed for Montague & Trenton targets from FFMP
+###     - accounts for max release constraints at each reservoir
 
-    Args:
-        model (Model): The Pywr model instance.
-        node (Node): The node associated with the parameter.
+class VolBalanceNYCDownstreamMRF(Parameter):
 
-    Attributes:
-        node (Node): The node associated with the parameter.
-        max_volume_agg_nyc (Parameter): The maximum volume aggregate NYC parameter.
-        volume_agg_nyc (Parameter): The volume aggregate NYC parameter.
-        volbalance_relative_mrf_montagueTrenton (Parameter): The volbalance relative MRF Montague & Trenton parameter.
-        flow_agg_nyc (Parameter): The flow aggregate NYC parameter.
-        max_vol_reservoir (Parameter): The maximum volume reservoir parameter.
-        vol_reservoir (Parameter): The volume reservoir parameter.
-        flow_reservoir (Parameter): The flow reservoir parameter.
-
-    Methods:
-        value(timestep, scenario_index): Returns the target downstream MRF release for this reservoir to balance storages across reservoirs.
-
-    Class Methods:
-        load(model, data): Loads the parameter from model and data dictionary.
-    
-    """
-    def __init__(self, model, node, max_volume_agg_nyc, volume_agg_nyc, volbalance_relative_mrf_montagueTrenton, flow_agg_nyc,
-                 max_vol_reservoir, vol_reservoir, flow_reservoir, **kwargs):
+    def __init__(self, model, reservoir, nodes, max_volume_agg_nyc, volume_agg_nyc, volbalance_relative_mrf_montagueTrenton,
+                 flow_agg_nyc, max_vol_reservoirs, vol_reservoirs, flow_reservoirs, max_release_reservoirs,
+                 mrf_target_individual_reservoirs, mrf_target_individual_agg_nyc, **kwargs):
         super().__init__(model, **kwargs)
-        self.node = node
+        self.reservoir = reservoir
+        self.nodes = nodes
+        self.num_reservoirs = len(nodes)
         self.max_volume_agg_nyc = max_volume_agg_nyc
         self.volume_agg_nyc = volume_agg_nyc
         self.volbalance_relative_mrf_montagueTrenton = volbalance_relative_mrf_montagueTrenton
         self.flow_agg_nyc = flow_agg_nyc
-        self.max_vol_reservoir = max_vol_reservoir
-        self.vol_reservoir = vol_reservoir
-        self.flow_reservoir = flow_reservoir
+        self.max_vol_reservoirs = max_vol_reservoirs
+        self.vol_reservoirs = vol_reservoirs
+        self.flow_reservoirs = flow_reservoirs
+        self.max_release_reservoirs = max_release_reservoirs
+        self.mrf_target_individual_reservoirs = mrf_target_individual_reservoirs
+        self.mrf_target_individual_agg_nyc  = mrf_target_individual_agg_nyc
 
         self.children.add(max_volume_agg_nyc)
         self.children.add(volume_agg_nyc)
         self.children.add(volbalance_relative_mrf_montagueTrenton)
         self.children.add(flow_agg_nyc)
-        self.children.add(max_vol_reservoir)
-        self.children.add(vol_reservoir)
-        self.children.add(flow_reservoir)
+        self.children.add(mrf_target_individual_agg_nyc)
+        for i in range(len(reservoir_list_nyc)):
+            self.children.add(max_vol_reservoirs[i])
+            self.children.add(vol_reservoirs[i])
+            self.children.add(flow_reservoirs[i])
+            self.children.add(max_release_reservoirs[i])
+            self.children.add(mrf_target_individual_reservoirs[i])
 
 
     def value(self, timestep, scenario_index):
         """
-        Returns the target downstream MRF release for this reservoir to balance storages across reservoirs.
-
-        Args:
-            timestep (Timestep): The current timestep.
-            scenario_index (ScenarioIndex): The scenario index.
-
-        Returns:
-            float: The target downstream MRF release for this reservoir.
         """
-        target = self.vol_reservoir.get_value(scenario_index) + self.flow_reservoir.get_value(scenario_index) - \
-               (self.max_vol_reservoir.get_value(scenario_index) / self.max_volume_agg_nyc.get_value(scenario_index)) * \
-               (self.volume_agg_nyc.get_value(scenario_index) + self.flow_agg_nyc.get_value(scenario_index) - \
-                self.volbalance_relative_mrf_montagueTrenton.get_value(scenario_index))
-        return max(target, 0.)
+        sid = scenario_index.global_id
+        ### calculate contributions for all 3 NYC reservoirs in consistent way.
+        ### Note: ideally we would only do this once. But may not be possible to have parameter with array output,
+        ###       so for now we just repeat this procedure for each reservoir.
+
+        ### first calculate contributions to Trenton&Montague flow targets based on volume balancing formula.
+        ### These are above and beyond what is needed for individual FFMP mandated releases
+        requirement_total = self.volbalance_relative_mrf_montagueTrenton.get_value(scenario_index)
+        max_releases_reservoirs = [self.max_release_reservoirs[i].get_value(scenario_index) - \
+                                   self.mrf_target_individual_reservoirs[i].get_value(scenario_index)
+                                   for i in range(self.num_reservoirs)]
+        targets = [-1] * self.num_reservoirs
+        for i in range(self.num_reservoirs):
+            targets[i] = self.vol_reservoirs[i].get_value(scenario_index) + \
+                         self.flow_reservoirs[i].get_value(scenario_index) - \
+                         self.mrf_target_individual_reservoirs[i].get_value(scenario_index) - \
+                         (self.max_vol_reservoirs[i].get_value(scenario_index) / \
+                          self.max_volume_agg_nyc.get_value(scenario_index)) * \
+                         (self.volume_agg_nyc.get_value(scenario_index) + \
+                          self.flow_agg_nyc.get_value(scenario_index) - \
+                          self.mrf_target_individual_agg_nyc.get_value(scenario_index) - \
+                          requirement_total)
+            ### enforce nonnegativity and reservoir max release constraint
+            targets[i] = min(max(targets[i], 0), max_releases_reservoirs[i])
+
+        ### sum total release across 3 reservoirs. if this is less than volbalance_relative_mrf_montagueTrenton,
+        ### that means one of the reservoirs had negative value or exceeded max release above
+        ### -> rescale unconstrained reservoirs to counteract
+        target_sum = sum(targets)
+        fully_constrained = False
+        count = 0
+        while requirement_total - epsilon > target_sum and not fully_constrained:
+            increasable_flow = 0
+            ### find the total "increasable" flow that is not coming from reservoirs with 0 release or max_release
+            for i in range(self.num_reservoirs):
+                if targets[i] < max_releases_reservoirs[i]:
+                    increasable_flow += targets[i]
+            if increasable_flow > epsilon:
+                for i in range(self.num_reservoirs):
+                    targets[i] = min(targets[i] * requirement_total / increasable_flow, max_releases_reservoirs[i])
+            else:
+                fully_constrained = True
+            target_sum = sum(targets)
+            count += 1
+            if count > 5:
+                print(count, requirement_total, target_sum, increasable_flow, targets, max_releases_reservoirs)
+
+        ### now return target for the reservoir of interest
+        for i in range(self.num_reservoirs):
+            if self.reservoir == reservoir_list_nyc[i]:
+                return targets[i]
 
 
     @classmethod
     def load(cls, model, data):
-        """Loads the parameter from model and data dictionary.
-
-        Args:
-            model (Model): The Pywr model instance.
-            data (dict): The data dictionary containing the parameter information.
-
-        Returns:
-            VolBalanceNYCDownstreamMRFTarget: The loaded parameter instance.
+        """
         """
         reservoir = data.pop("node")
-        node = model.nodes[reservoir]
         reservoir = reservoir.split('_')[1]
+        nodes = [model.nodes[f'reservoir_{reservoir}'] for reservoir in reservoir_list_nyc]
         max_volume_agg_nyc = load_parameter(model, 'max_volume_agg_nyc')
         volume_agg_nyc = load_parameter(model, 'volume_agg_nyc')
         volbalance_relative_mrf_montagueTrenton = load_parameter(model, 'volbalance_relative_mrf_montagueTrenton')
         flow_agg_nyc = load_parameter(model, 'flow_agg_nyc')
-        max_vol_reservoir = load_parameter(model, f'max_volume_{reservoir}')
-        vol_reservoir = load_parameter(model, f'volume_{reservoir}')
-        flow_reservoir = load_parameter(model, f'flow_{reservoir}')
-        return cls(model, node, max_volume_agg_nyc, volume_agg_nyc, volbalance_relative_mrf_montagueTrenton, flow_agg_nyc,
-                   max_vol_reservoir, vol_reservoir, flow_reservoir, **data)
+        max_vol_reservoirs = [load_parameter(model, f'max_volume_{reservoir}') for reservoir in reservoir_list_nyc]
+        vol_reservoirs = [load_parameter(model, f'volume_{reservoir}') for reservoir in reservoir_list_nyc]
+        flow_reservoirs = [load_parameter(model, f'flow_{reservoir}') for reservoir in reservoir_list_nyc]
+        max_release_reservoirs = [load_parameter(model, f'constant_max_release_{reservoir}') for reservoir in reservoir_list_nyc]
+        mrf_target_individual_reservoirs = [load_parameter(model, f'mrf_target_individual_{reservoir}') for reservoir in reservoir_list_nyc]
+        mrf_target_individual_agg_nyc = load_parameter(model, 'mrf_target_individual_agg_nyc')
+        return cls(model, reservoir, nodes, max_volume_agg_nyc, volume_agg_nyc, volbalance_relative_mrf_montagueTrenton,
+                   flow_agg_nyc, max_vol_reservoirs, vol_reservoirs, flow_reservoirs, max_release_reservoirs,
+                   mrf_target_individual_reservoirs, mrf_target_individual_agg_nyc, **data)
 
 ### have to register the custom parameter so Pywr recognizes it
-VolBalanceNYCDownstreamMRFTarget.register()
+VolBalanceNYCDownstreamMRF.register()
 
-
-
-
-class VolBalanceNYCDownstreamMRFFinal(Parameter):
-    """
-    Second step in updating the contribution to meeting Montague & Trenton flow
-    targets, by each of the NYC reservoirs, in such a way as to balance the relative storages across the three reservoirs.
-    Step one is VolBalanceNYCDownstreamMRFTargetAgg above.
-    In this second step, each reservoir's contributions are rescaled to ensure their sum is equal to demand.
-    See comments on this GitHub issue for the equations & logic:
-    https://github.com/users/ahamilton144/projects/1/views/1?pane=issue&itemId=7840442
-
-    Args:
-        model (Model): The Pywr model instance.
-        node (Node): The node associated with the parameter.
-
-    Attributes:
-        node (Node): The node associated with the parameter.
-        volbalance_relative_mrf_montagueTrenton (Parameter): The volbalance relative MRF Montague & Trenton parameter.
-        volbalance_target_max_flow_montagueTrenton_reservoir (Parameter): The volbalance target max flow Montague & Trenton reservoir parameter.
-        volbalance_target_max_flow_montagueTrenton_agg_nyc (Parameter): The volbalance target max flow Montague & Trenton aggregate NYC parameter.
-
-    Methods:
-        value(timestep, scenario_index): Returns the rescaled max flow NYC delivery for this reservoir.
-
-    Class Methods:
-        load(model, data): Loads the parameter from model and data dictionary.
-
-    """
-    def __init__(self, model, node, volbalance_relative_mrf_montagueTrenton, volbalance_target_max_flow_montagueTrenton_reservoir,
-                 volbalance_target_max_flow_montagueTrenton_agg_nyc, **kwargs):
-        super().__init__(model, **kwargs)
-        self.node = node
-        self.volbalance_relative_mrf_montagueTrenton = volbalance_relative_mrf_montagueTrenton
-        self.volbalance_target_max_flow_montagueTrenton_reservoir = volbalance_target_max_flow_montagueTrenton_reservoir
-        self.volbalance_target_max_flow_montagueTrenton_agg_nyc = volbalance_target_max_flow_montagueTrenton_agg_nyc
-        self.children.add(volbalance_relative_mrf_montagueTrenton)
-        self.children.add(volbalance_target_max_flow_montagueTrenton_reservoir)
-        self.children.add(volbalance_target_max_flow_montagueTrenton_agg_nyc)
-
-    def value(self, timestep, scenario_index):
-        """
-        Returns the rescaled max flow NYC delivery for this reservoir.
-
-        Args:
-            timestep (Timestep): The current timestep.
-            scenario_index (ScenarioIndex): The scenario index.
-
-        Returns:
-            float: The rescaled max flow NYC delivery for this reservoir.
-        """
-        ### rescale the max flow NYC delivery for this reservoir after zeroing out if any reservoir had negative target
-        return self.volbalance_relative_mrf_montagueTrenton.get_value(scenario_index) * \
-               self.volbalance_target_max_flow_montagueTrenton_reservoir.get_value(scenario_index) / \
-               self.volbalance_target_max_flow_montagueTrenton_agg_nyc.get_value(scenario_index)
-
-    @classmethod
-    def load(cls, model, data):
-        """
-        Loads the parameter from model and data dictionary.
-
-        Args:
-            model (Model): The Pywr model instance.
-            data (dict): The data dictionary containing the parameter information.
-
-        Returns:
-            VolBalanceNYCDownstreamMRFFinal: The loaded parameter instance.
-        """
-        reservoir = data.pop("node")
-        node = model.nodes[reservoir]
-        reservoir = reservoir.split('_')[1]
-        volbalance_relative_mrf_montagueTrenton = load_parameter(model, 'volbalance_relative_mrf_montagueTrenton')
-        volbalance_target_max_flow_montagueTrenton_reservoir = load_parameter(model, f'volbalance_target_max_flow_montagueTrenton_{reservoir}')
-        volbalance_target_max_flow_montagueTrenton_agg_nyc = load_parameter(model, f'volbalance_target_max_flow_montagueTrenton_agg_nyc')
-        return cls(model, node, volbalance_relative_mrf_montagueTrenton, volbalance_target_max_flow_montagueTrenton_reservoir,
-                   volbalance_target_max_flow_montagueTrenton_agg_nyc, **data)
-
-### have to register the custom parameter so Pywr recognizes it
-VolBalanceNYCDownstreamMRFFinal.register()
 
 
 

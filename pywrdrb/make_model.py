@@ -8,6 +8,7 @@ from collections import defaultdict
 
 from utils.directories import input_dir, model_data_dir
 from utils.lists import majorflow_list, reservoir_list, reservoir_list_nyc, modified_starfit_reservoir_list
+from utils.constants import cfs_to_mgd
 from pywr_drb_node_data import upstream_nodes_dict, immediate_downstream_nodes_dict, downstream_node_lags
 
 EPS = 1e-8
@@ -132,10 +133,11 @@ def add_major_node(model, name, node_type, inflow_type, outflow_type=None, downs
             'mrf': f'mrf_target_{name}',
             'mrf_cost': -1000.0
         }
+        if max_release is not None:
+            outflow['max_flow'] = max_release
         model['nodes'].append(outflow)
 
         if max_release is not None:
-            outflow['max_flow'] = max_release
             ### add secondary high-cost flow path for spill above max_flow
             outflow = {
                 'name': f'spill_{name}',
@@ -143,6 +145,7 @@ def add_major_node(model, name, node_type, inflow_type, outflow_type=None, downs
                 'cost': 5000.0
             }
             model['nodes'].append(outflow)
+
 
     ### add Delay node to account for flow travel time between nodes. Lag unit is days.
     if downstream_lag > 0:
@@ -206,6 +209,12 @@ def add_major_node(model, name, node_type, inflow_type, outflow_type=None, downs
             'index': f'modified_{name}' if name in modified_starfit_reservoir_list else name
         }
 
+    ### add max release constraints for NYC reservoirs
+    if outflow_type == 'regulatory' and max_release is not None:
+        model['parameters'][f'constant_max_release_{name}'] = {
+            'type': 'constant',
+            'value': max_release
+        }
     ### for starfit reservoirs, need to add a bunch of starfit specific params
     if outflow_type == 'starfit':
         model['parameters'][f'starfit_release_{name}'] = {
@@ -362,11 +371,24 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
         assert (reservoir in reservoir_list_nyc), f'No max release data for {reservoir}'
         hist_releases = pd.read_excel(input_dir + '/historic_NYC/Pep_Can_Nev_releases_daily_2000-2021.xlsx')
         if reservoir == 'pepacton':
-            return hist_releases['Pepacton Controlled Release'].max()
+            max_hist_release = hist_releases['Pepacton Controlled Release'].max()
         elif reservoir == 'cannonsville':
-            return hist_releases['Cannonsville Controlled Release'].max()
+            max_hist_release = hist_releases['Cannonsville Controlled Release'].max()
         elif reservoir == 'neversink':
-            return hist_releases['Neversink Controlled Release'].max()
+            max_hist_release = hist_releases['Neversink Controlled Release'].max()
+        return max_hist_release * cfs_to_mgd
+
+    ### get max reservoir releases for NYC from historical data
+    def get_reservoir_max_diversion_NYC(reservoir):
+        assert (reservoir in reservoir_list_nyc), f'No max diversion data for {reservoir}'
+        hist_diversions = pd.read_excel(input_dir + '/historic_NYC/Pep_Can_Nev_diversions_daily_2000-2021.xlsx')
+        if reservoir == 'pepacton':
+            max_hist_diversion = hist_diversions['East Delaware Tunnel'].max()
+        elif reservoir == 'cannonsville':
+            max_hist_diversion = hist_diversions['West Delaware Tunnel'].max()
+        elif reservoir == 'neversink':
+            max_hist_diversion = hist_diversions['Neversink Tunnel'].max()
+        return max_hist_diversion * cfs_to_mgd
 
     ### get downstream node to link to for the current node
     for node, downstream_node in immediate_downstream_nodes_dict.items():
@@ -416,7 +438,7 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
             'name': f'link_{r}_nyc',
             'type': 'link',
             'cost': -500.0,
-            'max_flow': f'volbalance_max_flow_delivery_nyc_{r}'
+            'max_flow': f'max_flow_delivery_nyc_{r}'
         })
 
     ### Nodes for NYC & NJ deliveries
@@ -674,6 +696,13 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
             ]
         }
 
+    ### sum of FFMP mandated releases from NYC reservoirs
+    model['parameters']['mrf_target_individual_agg_nyc'] = {
+        'type': 'aggregated',
+        'agg_func': 'sum',
+        'parameters': [f'mrf_target_individual_{reservoir}' for reservoir in reservoir_list_nyc]
+    }
+
     ### variable storage cost for each reservoir, based on its fractional storage
     ### Note: may not need this anymore now that we have volume balancing rules. but maybe makes sense to leave in for extra protection.
     volumes = {'cannonsville': get_reservoir_capacity('cannonsville'),
@@ -703,37 +732,27 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
             'parameters': [f'flow_{reservoir}' for reservoir in reservoir_list_nyc]
         }
 
-    ### aggregated max volume across to NYC reservoirs
+    ### aggregated max volume across NYC reservoirs
     model['parameters']['max_volume_agg_nyc'] = {
             'type': 'aggregated',
             'agg_func': 'sum',
             'parameters': [f'max_volume_{reservoir}' for reservoir in reservoir_list_nyc]
         }
 
-    ### Target release from each NYC reservoir to satisfy NYC demand - part 1.
-    ### Uses custom Pywr parameter.
+
     for reservoir in reservoir_list_nyc:
-        model['parameters'][f'volbalance_target_max_flow_delivery_nyc_{reservoir}'] = {
-            'type': 'VolBalanceNYCDemandTarget',
+        ### max diversion to NYC from each reservoir based on historical data
+        model['parameters'][f'hist_max_flow_delivery_nyc_{reservoir}'] = {
+            'type': 'constant',
+            'value': get_reservoir_max_diversion_NYC(reservoir)
+        }
+        ### Target diversion from each NYC reservoir to satisfy NYC demand, accounting for historical max diversion constraints
+        ### and attempting to balance storages across 3 NYC reservoirs
+        ### Uses custom Pywr parameter.
+        model['parameters'][f'max_flow_delivery_nyc_{reservoir}'] = {
+            'type': 'VolBalanceNYCDemand',
             'node': f'reservoir_{reservoir}'
         }
-
-    ### Sum of target releases from step above
-    model['parameters'][f'volbalance_target_max_flow_delivery_agg_nyc'] = {
-            'type': 'aggregated',
-            'agg_func': 'sum',
-            'parameters': [f'volbalance_target_max_flow_delivery_nyc_{reservoir}' for reservoir in reservoir_list_nyc]
-        }
-
-    ### Target release from each NYC reservoir to satisfy NYC demand - part 2,
-    ### rescaling to make sure total contribution across 3 reservoirs is equal to total demand.
-    ### Uses custom Pywr parameter.
-    for reservoir in reservoir_list_nyc:
-        model['parameters'][f'volbalance_max_flow_delivery_nyc_{reservoir}'] = {
-            'type': 'VolBalanceNYCDemandFinal',
-            'node': f'reservoir_{reservoir}'
-        }
-
 
 
     ### Baseline flow target at Montague & Trenton
@@ -794,43 +813,29 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
         }
 
 
-    ### Get total release needed from NYC reservoirs to satisfy Montague & Trenton flow targets, after accting for non-NYC inflows and NJ diversions
+    ### Get total release needed from NYC reservoirs to satisfy Montague & Trenton flow targets,
+    ### above and beyond their individually mandated releases, & after accting for non-NYC inflows and NJ diversions
     ### Uses custom Pywr parameter.
     model['parameters']['volbalance_relative_mrf_montagueTrenton'] = {
         'type': 'VolBalanceNYCDownstreamMRFTargetAgg'
     }
 
-    ### Target release from each NYC reservoir to satisfy Montague & Trenton flow targets - part 1.
+    ### Target release from each NYC reservoir to satisfy Montague & Trenton flow targets,on top of individually mandated FFMP releases.
     ### Uses custom Pywr parameter.
     for reservoir in reservoir_list_nyc:
-        model['parameters'][f'volbalance_target_max_flow_montagueTrenton_{reservoir}'] = {
-            'type': 'VolBalanceNYCDownstreamMRFTarget',
+        model['parameters'][f'mrf_montagueTrenton_{reservoir}'] = {
+            'type': 'VolBalanceNYCDownstreamMRF',
             'node': f'reservoir_{reservoir}'
         }
 
-    ### Sum of target releases from step above
-    model['parameters'][f'volbalance_target_max_flow_montagueTrenton_agg_nyc'] = {
-        'type': 'aggregated',
-        'agg_func': 'sum',
-        'parameters': [f'volbalance_target_max_flow_montagueTrenton_{reservoir}' for reservoir in reservoir_list_nyc]
-    }
 
-    ### Target release from each NYC reservoir to satisfy Montague & Trenton flow targets - part 2,
-    ### rescaling to make sure total contribution across 3 reservoirs is equal to total flow requirement.
-    ### Uses custom Pywr parameter.
-    for reservoir in reservoir_list_nyc:
-        model['parameters'][f'volbalance_max_flow_montagueTrenton_{reservoir}'] = {
-            'type': 'VolBalanceNYCDownstreamMRFFinal',
-            'node': f'reservoir_{reservoir}'
-        }
-
-    ### finally, get final effective mandated release from each NYC reservoir, which is the max of its
-    ###    individually-mandated release from FFMP and its individual contribution to the Montague/Trenton targets
+    ### finally, get final effective mandated release from each NYC reservoir, which is the sum of its
+    ###    individually-mandated release from FFMP and its contribution to the Montague/Trenton targets
     for reservoir in reservoir_list_nyc:
         model['parameters'][f'mrf_target_{reservoir}'] = {
             'type': 'aggregated',
-            'agg_func': 'max',
-            'parameters': [f'mrf_target_individual_{reservoir}', f'volbalance_max_flow_montagueTrenton_{reservoir}']
+            'agg_func': 'sum',
+            'parameters': [f'mrf_target_individual_{reservoir}', f'mrf_montagueTrenton_{reservoir}']
         }
 
     #######################################################################
