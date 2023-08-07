@@ -22,10 +22,8 @@ import datetime as dt
 from pywrdrb.pywr_drb_node_data import upstream_nodes_dict, downstream_node_lags, immediate_downstream_nodes_dict
 
 # Custom modules
-from pywrdrb.post.get_results import get_base_results, get_pywr_results
-
 from pywrdrb.utils.constants import cms_to_mgd, cm_to_mg, cfs_to_mgd
-from pywrdrb.utils.lists import reservoir_list, majorflow_list, reservoir_link_pairs
+from pywrdrb.utils.lists import reservoir_list, reservoir_list_nyc, majorflow_list, reservoir_link_pairs
 from pywrdrb.utils.directories import input_dir, fig_dir, output_dir, model_data_dir
 
 from pywrdrb.plotting.styles import base_model_colors, model_hatch_styles, paired_model_colors, scatter_model_markers
@@ -35,6 +33,10 @@ from pywrdrb.plotting.styles import base_model_colors, model_hatch_styles, paire
 
 ### function to return subset of dates for timeseries data
 def subset_timeseries(timeseries, start_date, end_date):
+    if isinstance(start_date, str):
+        start_date = pd.to_datetime(start_date)
+        end_date = pd.to_datetime(end_date)
+
     if start_date is not None:
         timeseries = timeseries.loc[start_date:]
     if end_date is not None:
@@ -151,7 +153,8 @@ def plot_3part_flows(results, models, node,
 
 
 ### 
-def plot_weekly_flow_distributions(results, models, node, colordict= paired_model_colors, fig_dir = fig_dir):
+def plot_weekly_flow_distributions(results, models, node, colordict= paired_model_colors, fig_dir = fig_dir,
+                                   start_date=None, end_date=None):
     """
     Plot distributions (range and median) of weekly flows for 1 or 2 model simulation results.
         
@@ -173,14 +176,14 @@ def plot_weekly_flow_distributions(results, models, node, colordict= paired_mode
     fig = plt.figure(figsize=(16, 4))
     gs = fig.add_gridspec(1, 2, wspace=0.15, hspace=0.3)
 
-    obs = results['obs'][node]
+    obs = subset_timeseries(results['obs'][node], start_date, end_date)
 
     obs_resample = obs.resample('W').sum()
     nx = len(obs_resample.groupby(obs_resample.index.week).max())
     ymax = obs_resample.groupby(obs_resample.index.week).max().max()
     ymin = obs_resample.groupby(obs_resample.index.week).min().min()
     for i, m in enumerate(models):
-        modeled = results[m][node]
+        modeled = subset_timeseries(results[m][node], start_date, end_date)
         modeled_resample = modeled.resample('W').sum()
         ymax = max(ymax, modeled_resample.groupby(modeled_resample.index.week).max().max())
         ymin = min(ymin, modeled_resample.groupby(modeled_resample.index.week).min().min())
@@ -194,7 +197,7 @@ def plot_weekly_flow_distributions(results, models, node, colordict= paired_mode
                             obs_resample.groupby(obs_resample.index.week).min(), color=colordict['obs'], alpha=0.4)
             ax.plot(obs_resample.groupby(obs_resample.index.week).mean(), label='observed', color=colordict['obs'])
 
-        modeled = results[m][node]
+        modeled = subset_timeseries(results[m][node], start_date, end_date)
         modeled_resample = modeled.resample('W').sum()
         ax.fill_between(np.arange(1, (nx+1)), modeled_resample.groupby(modeled_resample.index.week).max(),
                         modeled_resample.groupby(modeled_resample.index.week).min(), color=colordict[m], alpha=0.4)
@@ -213,7 +216,7 @@ def plot_weekly_flow_distributions(results, models, node, colordict= paired_mode
                             obs_resample.groupby(obs_resample.index.week).min(), color=colordict['obs'], alpha=0.4)
             ax.plot(obs_resample.groupby(obs_resample.index.week).mean(), label='observed', color=colordict['obs'])
 
-        modeled = results[m][node]
+        modeled = subset_timeseries(results[m][node], start_date, end_date)
         modeled_resample = modeled.resample('W').sum()
         ax.fill_between(np.arange(1, (nx+1)), modeled_resample.groupby(modeled_resample.index.week).max(),
                         modeled_resample.groupby(modeled_resample.index.week).min(), color=colordict[m], alpha=0.4)
@@ -236,7 +239,7 @@ def plot_weekly_flow_distributions(results, models, node, colordict= paired_mode
 
 
 ###
-def get_error_metrics(results, models, nodes):
+def get_error_metrics(reservoir_downstream_gages, major_flows, models, nodes, start_date=None, end_date=None):
     """
     Generate error metrics (NSE, KGE, correlation, bias, etc.) for a specific model and node.
 
@@ -250,11 +253,14 @@ def get_error_metrics(results, models, nodes):
     """
     ### compile error across models/nodes/metrics
     for j, node in enumerate(nodes):
-        obs = results['obs'][node]
+        if node in reservoir_list:
+            results = reservoir_downstream_gages
+        else:
+            results = major_flows
+
+        obs = subset_timeseries(results['obs'][node], start_date, end_date)
         for i, m in enumerate(models):
-            # print(node, m)
-            # print(results[m])
-            modeled = results[m][node]
+            modeled = subset_timeseries(results[m][node], start_date, end_date)
 
             ### only do models with nonzero entries (eg remove some weap)
             if np.sum(modeled) > 0:
@@ -287,7 +293,8 @@ def get_error_metrics(results, models, nodes):
 
 ### radial plots across diff metrics/reservoirs/models.
 ### following galleries here https://www.python-graph-gallery.com/circular-barplot-with-groups
-def plot_radial_error_metrics(results_metrics, radial_models, nodes, useNonPep = True, useweap = True, usepywr = True, usemajorflows=False, fig_dir = fig_dir,
+def plot_radial_error_metrics(results_metrics, radial_models, nodes, useNonPep = True, useweap = True, usepywr = True,
+                              usemajorflows=False, fig_dir = fig_dir,
                               colordict = base_model_colors, hatchdict = model_hatch_styles):
     """
     Plot radial error metrics for different models, nodes, and metrics.
@@ -312,8 +319,6 @@ def plot_radial_error_metrics(results_metrics, radial_models, nodes, useNonPep =
 
     metrics = ['nse', 'kge', 'r', 'alpha', 'beta', 'kss', 'lognse', 'logkge']
 
-    edgedict = {'obs_pub':'w', 'nhmv10': 'w', 'nwmv21': 'w', 'nwmv21_withLakes': 'w', 'WEAP_24Apr2023_gridmet': 'w',
-                'pywr_obs_pub':'w', 'pywr_nhmv10': 'w', 'pywr_nwmv21': 'w', 'pywr_nwmv21_withLakes': 'w', 'pywr_WEAP_24Apr2023_gridmet': 'w'}
     nodelabeldict = {'pepacton': 'Pep', 'cannonsville': 'Can', 'neversink': 'Nev', 'prompton': 'Pro', 'assunpink': 'AspRes',\
                     'beltzvilleCombined': 'Bel', 'blueMarsh': 'Blu', 'mongaupeCombined': 'Mgp', 'fewalter': 'FEW',\
                     'delLordville':'Lor', 'delMontague':'Mtg', 'delTrenton':'Tre', 'outletAssunpink':'Asp', \
@@ -429,7 +434,7 @@ def plot_radial_error_metrics(results_metrics, radial_models, nodes, useNonPep =
         else:
             legend_elements.append(Patch(facecolor='w', edgecolor='w', label=m, hatch=hatchdict[m]))
 
-    leg = plt.legend(handles=legend_elements, loc='center', bbox_to_anchor=(1.45, 1.1), frameon=False)
+    leg = plt.legend(handles=legend_elements, loc='center', bbox_to_anchor=(1.5, 1.1), frameon=False)
     for i, text in enumerate(leg.get_texts()):
         if not usepywr and i > 3:
             text.set_color("w")
@@ -437,7 +442,7 @@ def plot_radial_error_metrics(results_metrics, radial_models, nodes, useNonPep =
             text.set_color('w')
 
     if usemajorflows:
-        filename_mod = 'majorFlows'
+        filename_mod = 'combinedNodeTypes'
     else:
         filename_res = 'allRes' if useNonPep else 'pep'
         if usepywr:
@@ -455,7 +460,7 @@ def plot_radial_error_metrics(results_metrics, radial_models, nodes, useNonPep =
 
 
 ###
-def get_RRV_metrics(results, models, nodes):
+def get_RRV_metrics(results, models, nodes, start_date=None, end_date=None):
     """
     Calculate measures of reliability, resilience, and vulnerability based on Hashimoto et al. (1982) WRR.
 
@@ -472,7 +477,7 @@ def get_RRV_metrics(results, models, nodes):
     thresholds = {k: v - eps for k, v in thresholds.items()}
     for j, node in enumerate(nodes):
         for i, m in enumerate(models):
-            modeled = results[m][node]
+            modeled = subset_timeseries(results[m][node], start_date, end_date)
 
             ### only do models with nonzero entries (eg remove some weap)
             if np.sum(modeled) > 0:
@@ -576,17 +581,13 @@ def plot_rrv_metrics(rrv_metrics, rrv_models, nodes, fig_dir = fig_dir,
 
 
 
-def plot_flow_contributions(reservoir_releases, major_flows, inflows,
-                            model, node,
-                            start_date, end_date,
+def plot_flow_contributions(reservoir_releases, major_flows, inflows, model, node, start_date=None, end_date=None,
                             upstream_nodes_dict = upstream_nodes_dict,
                             downstream_node_lags= downstream_node_lags, 
                             reservoir_list = reservoir_list,
                             log_flows=True,
-                            majorflow_list = majorflow_list,
                             smoothing=True, smoothing_window=7,
                             fig_dir = fig_dir,
-                            input_dir = input_dir,
                             ):
     """
     Plot flow contributions at a specific node for a given model.
@@ -610,14 +611,12 @@ def plot_flow_contributions(reservoir_releases, major_flows, inflows,
         None
     """
 
-    title = f'{fig_dir}/flow_contributions_{node}_{model}_{start_date}_{end_date}'
-    nyc_reservoirs = ['cannonsville', 'pepacton', 'neversink']
-    mainstem_nodes= ['delLordville', 'delMontague', 'delDRCanal', 'delTrenton', 
+    mainstem_nodes= ['delLordville', 'delMontague', 'delDRCanal', 'delTrenton',
                      'outletAssunpink', 'outletSchuylkill']
     
     # Get contributions
     contributing = upstream_nodes_dict[node]
-    non_nyc_reservoirs = [i for i in contributing if (i in reservoir_list) and (i not in nyc_reservoirs)]
+    non_nyc_reservoirs = [i for i in contributing if (i in reservoir_list) and (i not in reservoir_list_nyc)]
     
     use_releases = [i for i in contributing if i in reservoir_list]
     use_inflows = [i for i in contributing if (i in mainstem_nodes)]
@@ -652,11 +651,11 @@ def plot_flow_contributions(reservoir_releases, major_flows, inflows,
             if lag > 0:
                 contributions[c].iloc[lag:] = contributions[c].iloc[:-lag]
             
-    contributions = contributions.loc[start_date:end_date, :]
+    contributions = subset_timeseries(contributions, start_date, end_date)
     
     # Get total sim and obs flow    
-    total_obs_node_flow = major_flows['obs'].loc[start_date:end_date, node]
-    total_sim_node_flow = major_flows[model].loc[start_date:end_date, node]
+    total_obs_node_flow = subset_timeseries(major_flows['obs'][node], start_date, end_date)
+    total_sim_node_flow = subset_timeseries(major_flows[model][node], start_date, end_date)
     
     #TODO: Find source of unaccounted flow
     unaccounted_flow = (total_sim_node_flow - contributions.sum(axis=1)).divide(total_sim_node_flow, axis=0)*100 
@@ -681,7 +680,7 @@ def plot_flow_contributions(reservoir_releases, major_flows, inflows,
     
     B = contributions[use_inflows].sum(axis=1) + unaccounted_flow
     C = contributions[non_nyc_reservoirs].sum(axis=1) + B
-    D = contributions[nyc_reservoirs].sum(axis=1) + C
+    D = contributions[reservoir_list_nyc].sum(axis=1) + C
     if smoothing:
         B = B.rolling(window=smoothing_window).mean()
         C = C.rolling(window=smoothing_window).mean()
@@ -717,7 +716,8 @@ def plot_flow_contributions(reservoir_releases, major_flows, inflows,
     labels = labels1 + labels2
     plt.legend(handles, labels, loc='upper left', bbox_to_anchor=(1.0, 0.9))
 
-    # plt.title(title_text)
+    title = f'{fig_dir}/flow_contributions_{node}_{model}_{contributions.index.year[0]}_{contributions.index.year[-1]}'
+
     plt.xlim([contributions.index[0], contributions.index[-1]])
     plt.xlabel('Date')
     fig.align_labels()
@@ -727,7 +727,7 @@ def plot_flow_contributions(reservoir_releases, major_flows, inflows,
 
 
 
-def compare_inflow_data(inflow_data, nodes, fig_dir = fig_dir):
+def compare_inflow_data(inflow_data, nodes, models, start_date = None, end_date = None, fig_dir = fig_dir):
     """Generates a boxplot comparison of inflows are specific nodes for different datasets.
 
     Args:
@@ -735,17 +735,13 @@ def compare_inflow_data(inflow_data, nodes, fig_dir = fig_dir):
         nodes (list): List of nodes with inflows.
         fig_dir (str, optional): Folder to save figures. Defaults to 'figs/'.
     """
-    
-    pub_df = inflow_data['obs_pub'].loc[:,nodes]
-    nhm_df = inflow_data['nhmv10'].loc[:,nodes]
-    nwm_df = inflow_data['nwmv21'].loc[:,nodes]
-    #weap_df = inflow_data['WEAP_24Apr2023_gridmet']
-    
-    pub_df= pub_df.assign(Dataset='PUB')
-    nhm_df=nhm_df.assign(Dataset='NHMv10')
-    nwm_df=nwm_df.assign(Dataset='NWMv21')
 
-    cdf = pd.concat([pub_df, nhm_df, nwm_df])    
+    results = {}
+    for m in models:
+        results[m] = subset_timeseries(inflow_data[m].loc[:,nodes], start_date, end_date)
+        results[m] = results[m].assign(Dataset=m)
+
+    cdf = pd.concat([results[m] for m in models])
     mdf = pd.melt(cdf, id_vars=['Dataset'], var_name=['Node'])
     mdf.value.name = "Inflow (MGD)"
     
@@ -764,7 +760,9 @@ def compare_inflow_data(inflow_data, nodes, fig_dir = fig_dir):
     return
 
 
-def plot_combined_nyc_storage(storages, releases, models, 
+
+
+def plot_combined_nyc_storage(storages, releases, all_drought_levels, models,
                       start_date = '1999-10-01',
                       end_date = '2010-05-31',
                       colordict = base_model_colors,
@@ -793,31 +791,27 @@ def plot_combined_nyc_storage(storages, releases, models,
         None
     """
 
-    if isinstance(start_date, str):
-        start_date = pd.to_datetime(start_date)
-        end_date = pd.to_datetime(end_date)
+
 
     ffmp_level_colors = ['blue', 'blue', 'blue', 'cornflowerblue', 'green', 'darkorange', 'maroon']
     drought_cmap = ListedColormap(ffmp_level_colors, N=7)
     norm = plt.Normalize(0, 6)
     
-    reservoir_list = ['cannonsville', 'pepacton', 'neversink']
-
     ### get reservoir storage capacities
     istarf = pd.read_csv(f'{model_data_dir}drb_model_istarf_conus.csv')
     def get_reservoir_capacity(reservoir):
         return float(istarf['Adjusted_CAP_MG'].loc[istarf['reservoir'] == reservoir].iloc[0])
-    capacities = {r: get_reservoir_capacity(r) for r in reservoir_list}
-    capacities['combined'] = sum([capacities[r] for r in reservoir_list])
+    capacities = {r: get_reservoir_capacity(r) for r in reservoir_list_nyc}
+    capacities['combined'] = sum([capacities[r] for r in reservoir_list_nyc])
 
     historic_storage = pd.read_csv(f'{input_dir}/historic_NYC/NYC_storage_daily_2000-2021.csv', sep=',', index_col=0)
     historic_storage.index = pd.to_datetime(historic_storage.index)
-    historic_storage = historic_storage.loc[start_date:end_date]
+    historic_storage = subset_timeseries(historic_storage, start_date, end_date)
 
     historic_release = pd.read_excel(f'{input_dir}/historic_NYC/Pep_Can_Nev_releases_daily_2000-2021.xlsx', index_col=0)
     historic_release.index = pd.to_datetime(historic_release.index)
     historic_release = historic_release.iloc[:,:3]
-    historic_release = historic_release.loc[start_date:end_date] * cfs_to_mgd
+    historic_release = subset_timeseries(historic_release, start_date, end_date) * cfs_to_mgd
     historic_release.columns = ['pepacton','cannonsville','neversink']
     historic_release['Total'] = historic_release.sum(axis=1)
 
@@ -825,11 +819,10 @@ def plot_combined_nyc_storage(storages, releases, models,
     historic_release['FFMP_min_release'] = 95 * cfs_to_mgd
     historic_release['FFMP_min_release'].loc[[m in (6,7,8) for m in historic_release.index.month]] = 190 * cfs_to_mgd
 
-    model_names = [m[5:] for m in models]
-    drought_levels = pd.DataFrame(index= storages[models[0]].index, columns = model_names).loc[start_date:end_date]
-    for model in model_names:
-        all_drought_levels, _ = get_pywr_results(output_dir, model, results_set='res_level', datetime_index=storages[models[0]].index)
-        drought_levels[model] = all_drought_levels.loc[start_date:end_date, ['nyc']]
+    # model_names = [m[5:] for m in models]
+    drought_levels = pd.DataFrame()
+    for model in models:
+        drought_levels[model] = subset_timeseries(all_drought_levels[model]['nyc'], start_date, end_date)
     
     # Create figure with m subplots
     n_subplots = 3 if plot_releases else 2
@@ -858,15 +851,15 @@ def plot_combined_nyc_storage(storages, releases, models,
     ax2.grid(True, which='major', axis='y')
     for m in models:
         if use_percent:
-            sim_data = storages[m][reservoir_list].sum(axis=1).loc[start_date:end_date]/capacities['combined']*100
-            hist_data = historic_storage.loc[start_date:end_date, 'Total']/capacities['combined']*100
+            sim_data = subset_timeseries(storages[m][reservoir_list_nyc].sum(axis=1), start_date, end_date)/capacities['combined']*100
+            hist_data = subset_timeseries(historic_storage['Total'], start_date, end_date)/capacities['combined']*100
             ylab = f'Storage\n(% Useable)'
         else:
-            sim_data = storages[m][reservoir_list].sum(axis=1).loc[start_date:end_date]
-            hist_data = historic_storage.loc[start_date:end_date, 'Total']
+            sim_data = subset_timeseries(storages[m][reservoir_list_nyc].sum(axis=1), start_date, end_date)
+            hist_data = subset_timeseries(historic_storage['Total'], start_date, end_date)
             ylab = f'Combined NYC Reservoir Storage (MG)'
-    if plot_sim:
-        ax2.plot(sim_data, color=colordict[m], label=f'{m}')
+        if plot_sim:
+            ax2.plot(sim_data, color=colordict[m], label=f'{m}')
     if plot_observed:
         ax2.plot(hist_data, color=colordict['obs'], label=f'Observed')
     datetime = sim_data.index
@@ -890,7 +883,7 @@ def plot_combined_nyc_storage(storages, releases, models,
             d_emergency[f'level{l}'] = d_emergency.apply(lambda row: day_of_year_to_value[row.name.day_of_year] if np.isnan(row[f'level{l}']) else row[f'level{l}'], axis=1)
         
             # Plot
-            ax2.plot(d_emergency.loc[start_date:end_date, :], 
+            ax2.plot(subset_timeseries(d_emergency, start_date, end_date),
                      color=drought_cmap(l),ls='dashed', zorder=1, alpha = 0.3,
                      label= f'FFMP L{l}')
     
@@ -904,7 +897,7 @@ def plot_combined_nyc_storage(storages, releases, models,
     ax3 = fig.add_subplot(gs[2,0])
     if plot_sim:
         for m in models:
-            sim_data = releases[m][reservoir_list].sum(axis=1).loc[start_date:end_date]
+            sim_data = subset_timeseries(releases[m][reservoir_list_nyc].sum(axis=1), start_date, end_date)
             sim_data.index = datetime
             
             if smooth_releases:

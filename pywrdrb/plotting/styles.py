@@ -50,9 +50,9 @@ model_colors_diagnostics_paper = {'obs': '0.5',
                                   'nwmv21': cm.get_cmap('Oranges')(0.4),
                                   'nhmv10_withNYCObsScaled': cm.get_cmap('Purples')(0.4),
                                   'nwmv21_withNYCObsScaled': cm.get_cmap('Blues')(0.4),
-                                  'pywr_nhmv10': cm.get_cmap('Reds')(0.9),
-                                  'pywr_nwmv21': cm.get_cmap('Oranges')(0.9),
-                                  'pywr_nhmv10_withNYCObsScaled': cm.get_cmap('Purples')(0.9),
+                                  'pywr_nhmv10': cm.get_cmap('Reds')(0.8),
+                                  'pywr_nwmv21': cm.get_cmap('Oranges')(0.8),
+                                  'pywr_nhmv10_withNYCObsScaled': cm.get_cmap('Purples')(0.8),
                                   'pywr_nwmv21_withNYCObsScaled': cm.get_cmap('Blues')(0.9)
                                   }
 
@@ -60,18 +60,23 @@ base_marker = "o"
 pywr_marker = "x"
 
 scatter_model_markers = {'obs': base_marker, #
-                'obs_pub_nhmv10_NYCScaled': base_marker, # 
-                'obs_pub_nwmv21_NYCScaled': base_marker, # 
-                'nhmv10': base_marker,
-                'nwmv21': base_marker,
-                'nwmv21_withLakes': base_marker,
-                'WEAP_29June2023_gridmet': base_marker,
-                'pywr_obs_pub_nhmv10_NYCScaled': pywr_marker, # 
-                'pywr_obs_pub_nwmv21_NYCScaled': pywr_marker, # 
-                'pywr_nhmv10': pywr_marker, #
-                'pywr_nwmv21': pywr_marker, #
-                'pywr_nwmv21_withLakes': pywr_marker, #
-                'pywr_WEAP_29June2023_gridmet': pywr_marker} #
+                         'obs_pub_nhmv10_NYCScaled': base_marker, #
+                         'obs_pub_nwmv21_NYCScaled': base_marker, #
+                         'nhmv10': base_marker,
+                         'nwmv21': base_marker,
+                         'nwmv21_withLakes': base_marker,
+                         'nhmv10_withNYCObsScaled': pywr_marker,
+                         'nwmv21_withNYCObsScaled': pywr_marker,
+                         'WEAP_29June2023_gridmet': base_marker,
+                         'pywr_obs_pub_nhmv10_NYCScaled': pywr_marker, #
+                         'pywr_obs_pub_nwmv21_NYCScaled': pywr_marker, #
+                         'pywr_nhmv10': pywr_marker, #
+                         'pywr_nwmv21': pywr_marker, #
+                         'pywr_nwmv21_withLakes': pywr_marker, #
+                         'pywr_WEAP_29June2023_gridmet': pywr_marker,
+                         'pywr_nhmv10_withNYCObsScaled': pywr_marker,
+                         'pywr_nwmv21_withNYCObsScaled': pywr_marker
+                         }
 
 node_colors = {}
 
@@ -83,7 +88,9 @@ model_hatch_styles = {'obs': '',
                         'obs_pub_nwmv21': '',
                         'nhmv10': '', 
                         'nwmv21': '', 
-                        'nwmv21_withLakes': '', 
+                        'nwmv21_withLakes': '',
+                        'nhmv10_withNYCObsScaled': '',
+                        'nwmv21_withNYCObsScaled': '',
                         'WEAP_29June2023_gridmet': '',
                         'pywr_nhmv10': '///',
                         'pywr_obs_pub_nhmv10_NYCScaled': '///',
@@ -92,5 +99,8 @@ model_hatch_styles = {'obs': '',
                         'pywr_obs_pub_nwmv21': '///',
                         'pywr_nwmv21': '///',
                         'pywr_nwmv21_withLakes': '///',
-                        'pywr_WEAP_29June2023_gridmet': '///'}
+                        'pywr_WEAP_29June2023_gridmet': '///',
+                        'pywr_nhmv10_withNYCObsScaled': '///',
+                        'pywr_nwmv21_withNYCObsScaled': '///'
+}
 

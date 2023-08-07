@@ -11,7 +11,7 @@ reservoir_list_nyc = reservoir_list[:3]
 
 majorflow_list = ['delLordville', 'delMontague', 'delDRCanal', 'delTrenton', 'outletAssunpink', 'outletSchuylkill',
                   '01425000', '01417000', '01436000', '01433500', '01449800', '01447800', '01463620', '01470960']
-
+majorflow_list_figs = ['delMontague', 'delTrenton', 'outletSchuylkill']
 
 # The USGS gage data available downstream of reservoirs
 reservoir_link_pairs = {'cannonsville': '01425000',

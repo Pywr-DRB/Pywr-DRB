@@ -3997,7 +3997,7 @@
             "value": 497.7041574232482
         },
         "max_flow_delivery_nyc_cannonsville": {
-            "type": "VolBalanceNYCDemandTarget",
+            "type": "VolBalanceNYCDemand",
             "node": "reservoir_cannonsville"
         },
         "hist_max_flow_delivery_nyc_pepacton": {
@@ -4005,7 +4005,7 @@
             "value": 673.5996026170066
         },
         "max_flow_delivery_nyc_pepacton": {
-            "type": "VolBalanceNYCDemandTarget",
+            "type": "VolBalanceNYCDemand",
             "node": "reservoir_pepacton"
         },
         "hist_max_flow_delivery_nyc_neversink": {
@@ -4013,7 +4013,7 @@
             "value": 514.6940583794635
         },
         "max_flow_delivery_nyc_neversink": {
-            "type": "VolBalanceNYCDemandTarget",
+            "type": "VolBalanceNYCDemand",
             "node": "reservoir_neversink"
         },
         "mrf_baseline_delMontague": {
