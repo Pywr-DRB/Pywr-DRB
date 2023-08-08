@@ -56,6 +56,29 @@ model_colors_diagnostics_paper = {'obs': '0.5',
                                   'pywr_nwmv21_withNYCObsScaled': cm.get_cmap('Blues')(0.9)
                                   }
 
+model_label_dict = {'obs': 'Obs',
+                      'nhmv10': 'Nhm',
+                      'nwmv21': 'Nwm',
+                      'nhmv10_withNYCObsScaled': 'NhmHyb',
+                      'nwmv21_withNYCObsScaled': 'NwmHyb',
+                      'pywr_nhmv10': 'PywrNhm',
+                      'pywr_nwmv21': 'PywrNwm',
+                      'pywr_nhmv10_withNYCObsScaled': 'PywrNhmHyb',
+                      'pywr_nwmv21_withNYCObsScaled': 'PywrNwmHyb'
+                      }
+
+node_label_dict = {'pepacton': 'Pep', 'cannonsville': 'Can', 'neversink': 'Nev', 'prompton': 'Pro', 'assunpink': 'AspRes', \
+                   'beltzvilleCombined': 'Bel', 'blueMarsh': 'Blu', 'mongaupeCombined': 'Mgp', 'fewalter': 'FEW', \
+                   'delLordville': 'Lor', 'delMontague': 'Mtg', 'delTrenton': 'Tre', 'outletAssunpink': 'Asp', \
+                   'outletSchuylkill': 'Sch'}
+
+node_label_full_dict = {'pepacton': 'Pepacton', 'cannonsville': 'Cannonsville', 'neversink': 'Neversink', 'prompton': 'Pro', 'assunpink': 'AspRes', \
+                   'beltzvilleCombined': 'Bel', 'blueMarsh': 'Blu', 'mongaupeCombined': 'Mgp', 'fewalter': 'FEW', \
+                   'delLordville': 'Lor', 'delMontague': 'Montague', 'delTrenton': 'Trenton', 'outletAssunpink': 'Asp', \
+                   'outletSchuylkill': 'Schuylkill'}
+
+month_dict = {1:'Jan', 2:'Feb', 3:'Mar', 4:'Apr', 5:'May', 6:'Jun', 7:'Jul', 8:'Aug', 9:'Sep', 10:'Oct', 11:'Nov', 12:'Dec'}
+
 base_marker = "o"
 pywr_marker = "x"
 

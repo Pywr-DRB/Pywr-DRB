@@ -30,7 +30,8 @@ from pywrdrb.utils.constants import cms_to_mgd, cm_to_mg, cfs_to_mgd
 from pywrdrb.utils.lists import reservoir_list, reservoir_list_nyc, majorflow_list, reservoir_link_pairs
 from pywrdrb.utils.directories import input_dir, fig_dir, output_dir, model_data_dir
 
-from pywrdrb.plotting.styles import base_model_colors, model_hatch_styles, paired_model_colors, scatter_model_markers
+from pywrdrb.plotting.styles import base_model_colors, model_hatch_styles, paired_model_colors, scatter_model_markers, \
+    node_label_dict, node_label_full_dict, model_label_dict, month_dict
 
 
 
@@ -105,7 +106,7 @@ def plot_3part_flows(results, models, node,
                 coords = (0.04, 0.88)
             ax.annotate(f'NSE={nse}; KGE={kge}: r={r}, relvar={alpha}, bias={beta}', xy=coords, xycoords=ax.transAxes,
                         color=colordict[m])
-            ax.legend(loc='right')
+            # ax.legend(loc='right')
             ax.set_ylabel('Daily flow (MGD)')
             ax.set_xlabel('Date')
             if uselog:
@@ -132,19 +133,21 @@ def plot_3part_flows(results, models, node,
     for i, m in enumerate(models):
         if use2nd or i == 0:
             ### now add exceedance plot
-            def plot_exceedance(data, ax, color, **kwargs):
+            def plot_exceedance(data, ax, color, label, **kwargs):
                 df = data.sort_values()
                 exceedance = np.arange(1., len(df) + 1.) / len(df)
-                ax.plot(exceedance, df, color=color, **kwargs)
+                ax.plot(exceedance, df, color=color, label=label, **kwargs)
 
             modeled = subset_timeseries(results[m][node], start_date, end_date)
+            if i == 0:
+                plot_exceedance(obs, ax, color = colordict['obs'], label=model_label_dict['obs'])
+                ax.semilogy()
+                ax.set_xlabel('Non-exceedence')
+                ax.set_ylabel('Daily flow (log scale, MGD)')
 
-            plot_exceedance(obs, ax, color = colordict['obs'])
-            ax.semilogy()
-            ax.set_xlabel('Non-exceedence')
-            ax.set_ylabel('Daily flow (log scale, MGD)')
+            plot_exceedance(modeled, ax, color = colordict[m], label=model_label_dict[m])
+            ax.legend(frameon=False)
 
-            plot_exceedance(modeled, ax, color = colordict[m])
 
     # plt.show()
     if save_fig:
@@ -199,15 +202,15 @@ def plot_weekly_flow_distributions(results, models, node, colordict= paired_mode
             ax = fig.add_subplot(gs[0, 0])
             ax.fill_between(np.arange(1, (nx+1)), obs_resample.groupby(obs_resample.index.week).max(),
                             obs_resample.groupby(obs_resample.index.week).min(), color=colordict['obs'], alpha=0.4)
-            ax.plot(obs_resample.groupby(obs_resample.index.week).mean(), label='observed', color=colordict['obs'])
+            ax.plot(obs_resample.groupby(obs_resample.index.week).mean(), label=model_label_dict['obs'], color=colordict['obs'])
 
         modeled = subset_timeseries(results[m][node], start_date, end_date)
         modeled_resample = modeled.resample('W').sum()
         ax.fill_between(np.arange(1, (nx+1)), modeled_resample.groupby(modeled_resample.index.week).max(),
                         modeled_resample.groupby(modeled_resample.index.week).min(), color=colordict[m], alpha=0.4)
-        ax.plot(modeled_resample.groupby(modeled_resample.index.week).mean(), label=m, color=colordict[m])
+        ax.plot(modeled_resample.groupby(modeled_resample.index.week).mean(), label=model_label_dict[m], color=colordict[m])
 
-        ax.legend(loc='upper right')
+        ax.legend(loc='upper right', frameon=False)
         ax.set_ylabel('Weekly flow (MGW)')
         ax.set_xlabel('Week')
         ax.set_ylim([-0.1 * ymax, ymax * 1.1])
@@ -323,10 +326,6 @@ def plot_radial_error_metrics(results_metrics, radial_models, nodes, useNonPep =
 
     metrics = ['nse', 'kge', 'r', 'alpha', 'beta', 'kss', 'lognse', 'logkge']
 
-    nodelabeldict = {'pepacton': 'Pep', 'cannonsville': 'Can', 'neversink': 'Nev', 'prompton': 'Pro', 'assunpink': 'AspRes',\
-                    'beltzvilleCombined': 'Bel', 'blueMarsh': 'Blu', 'mongaupeCombined': 'Mgp', 'fewalter': 'FEW',\
-                    'delLordville':'Lor', 'delMontague':'Mtg', 'delTrenton':'Tre', 'outletAssunpink':'Asp', \
-                     'outletSchuylkill':'Sch'}
     titledict = {'nse': 'NSE', 'kge': 'KGE', 'r': 'Correlation', 'alpha': 'Relative STD', 'beta': 'Relative Bias',
                  'kss': 'K-S Statistic', 'lognse': 'LogNSE', 'logkge': 'LogKGE'}
 
@@ -340,7 +339,6 @@ def plot_radial_error_metrics(results_metrics, radial_models, nodes, useNonPep =
         angles = np.linspace(0, 2 * np.pi, len(nodes) * len(radial_models) + pad * groups, endpoint=False)
         values = np.maximum(np.minimum(results_metrics[metric], 3), -1) - 1
 
-        labels = [node + '_' + model for node, model in zip(results_metrics['node'], results_metrics['model'])]
         colors = [colordict[model] for model in results_metrics['model']]
         if not usepywr:
             if not useweap:
@@ -353,7 +351,6 @@ def plot_radial_error_metrics(results_metrics, radial_models, nodes, useNonPep =
             colors = [v if m else 'none' for m, v in zip(mask, colors)]
 
         edges = ['w' for model in results_metrics['model']]
-        # edges = [edgedict[model] for model in results_metrics['model']]
         hatches = [hatchdict[model] for model in results_metrics['model']]
 
         width = 2 * np.pi / len(angles)
@@ -379,7 +376,6 @@ def plot_radial_error_metrics(results_metrics, radial_models, nodes, useNonPep =
             ax.set_ylim(-1, 0.2)
             yrings = [-1, -0.25, -0.5, -0.75, 0]
         elif metric in ['alpha', 'beta']:
-            #         ax.set_ylim(-1, 2.2)
             yrings = [-1, -0.5, 0, 0.5, 1]
         elif metric in ['kge', 'nse', 'logkge', 'lognse']:
             ax.set_ylim(-2, 0.2)
@@ -419,7 +415,7 @@ def plot_radial_error_metrics(results_metrics, radial_models, nodes, useNonPep =
                 fontcolor = "w"
 
             ax.text(
-                np.mean(x1), ax.get_ylim()[1] + 0.01 * (ax.get_ylim()[1] - ax.get_ylim()[0]), nodelabeldict[node],
+                np.mean(x1), ax.get_ylim()[1] + 0.01 * (ax.get_ylim()[1] - ax.get_ylim()[0]), node_label_dict[node],
                 color=fontcolor, fontsize=14,
                 ha="center", va="center", rotation=rotation
             )
@@ -434,9 +430,9 @@ def plot_radial_error_metrics(results_metrics, radial_models, nodes, useNonPep =
     legend_elements.append(Line2D([0], [0], color='none', label='models'))
     for m in radial_models[::-1]:
         if usepywr or m in radial_models[-2:] or (useweap and m == radial_models[-3]):
-            legend_elements.append(Patch(facecolor=colordict[m], edgecolor='w', label=m, hatch=hatchdict[m]))
+            legend_elements.append(Patch(facecolor=colordict[m], edgecolor='w', label=model_label_dict[m], hatch=hatchdict[m]))
         else:
-            legend_elements.append(Patch(facecolor='w', edgecolor='w', label=m, hatch=hatchdict[m]))
+            legend_elements.append(Patch(facecolor='w', edgecolor='w', label=model_label_dict[m], hatch=hatchdict[m]))
 
     leg = plt.legend(handles=legend_elements, loc='center', bbox_to_anchor=(1.5, 1.1), frameon=False)
     for i, text in enumerate(leg.get_texts()):
@@ -575,7 +571,7 @@ def plot_rrv_metrics(rrv_metrics, rrv_models, nodes, fig_dir = fig_dir,
     legend_elements = []
     legend_elements.append(Line2D([0], [0], color='none', label='models'))
     for m in rrv_models:
-        legend_elements.append(Patch(facecolor=colordict[m], edgecolor='w', label=m, hatch=hatchdict[m]))
+        legend_elements.append(Patch(facecolor=colordict[m], edgecolor='w', label=model_label_dict[m], hatch=hatchdict[m]))
     leg = plt.legend(handles=legend_elements, loc='center', bbox_to_anchor=(1.5, 1.1), frameon=False)
 
     fig.savefig(f'{fig_dir}/rrv_comparison.png', bbox_inches='tight', dpi=300)
@@ -743,7 +739,7 @@ def compare_inflow_data(inflow_data, nodes, models, start_date = None, end_date 
     results = {}
     for m in models:
         results[m] = subset_timeseries(inflow_data[m].loc[:,nodes], start_date, end_date)
-        results[m] = results[m].assign(Dataset=m)
+        results[m] = results[m].assign(Dataset=model_label_dict[m])
 
     cdf = pd.concat([results[m] for m in models])
     mdf = pd.melt(cdf, id_vars=['Dataset'], var_name=['Node'])
@@ -879,7 +875,7 @@ def plot_combined_nyc_storage(storages, releases, all_drought_levels, models,
                                             format='%d-%b-%Y')
         for l in ffmp_levels_to_plot:
             d_emergency=pd.DataFrame(data= level_profiles[f'level{l}']*100,
-                                    index=pd.date_range('1944-01-01', end_date))
+                                     index=pd.date_range('1944-01-01', end_date))
             first_year_data = d_emergency[d_emergency.index.year == 1944]
             day_of_year_to_value = {day.day_of_year: value for day, value in zip(first_year_data.index, first_year_data[f'level{l}'])}
             d_emergency.columns=[f'level{l}']
@@ -955,10 +951,10 @@ def get_xQn_flow(data, x, n):
 
 
 def plot_xQn_grid(reservoir_downstream_gages, major_flows, models, nodes, nlist, xlist,
-                  start_date = None, end_date = None, colordict = base_model_colors, fig_dir=fig_dir):
-    # fig, axs = plt.subplots(len(nodes), 1, figsize=(14, 7), gridspec_kw={'hspace': 0.15})
+                  start_date = None, end_date = None, fig_dir=fig_dir):
+    fontsize=10
     fig = plt.figure(figsize=(14, 7))
-    gs = GridSpec(len(nodes), 4, width_ratios=[1,1,30,1], hspace=0.15)
+    gs = GridSpec(len(nodes), 5, width_ratios=[1,2.5,30,1,1], hspace=0.15)
 
     # for ax, node in zip(axs, nodes):
     for j,node in enumerate(nodes):
@@ -976,24 +972,20 @@ def plot_xQn_grid(reservoir_downstream_gages, major_flows, models, nodes, nlist,
                     count += 1
         for c in range(1, len(models)):
             a[:, :, c] = (a[:, :, c] - a[:, :, 0]) / a[:, :, 0] * 100
-
-        # cnorm_obs = Normalize(vmin=0, vmax=a[:, :, 0].max())
-        # sm_obs = cm.ScalarMappable(cmap='viridis', norm=cnorm_obs)
-        # cnorm_mod = Normalize(vmin=-a[:, :, 1:].max(), vmax=a[:, :, 1:].max())
-        # sm_mod = cm.ScalarMappable(cmap='RdBu', norm=cnorm_mod)
+        # print(a[:,:,0].max().max(), a[:,:,1:].max().max().max(), a[:,:,0].min().min(), a[:,:,1:].min().min().min())
 
         ### create custom cmap following https://stackoverflow.com/questions/14777066/matplotlib-discrete-colorbar
         cmap_obs = cm.get_cmap('viridis')
         cmaplist_obs = [cmap_obs(i) for i in range(cmap_obs.N)]
         cmap_obs = LinearSegmentedColormap.from_list('Custom cmap', cmaplist_obs, cmap_obs.N)
-        bounds_obs = np.array([0, 10, 25, 50, 100, 250, 500, 1000, 2000, 4000, 6000])
+        bounds_obs = np.array([0, 25, 50, 100, 250, 500, 1000, 2000, 3000, 6000])
         norm_obs = BoundaryNorm(bounds_obs, cmap_obs.N)
         sm_obs = cm.ScalarMappable(cmap=cmap_obs, norm=norm_obs)
 
         cmap_mod = cm.get_cmap('RdBu')
         cmaplist_mod = [cmap_mod(i) for i in range(cmap_mod.N)]
         cmap_mod = LinearSegmentedColormap.from_list('Custom cmap', cmaplist_mod, cmap_mod.N)
-        bounds_mod = np.array([-1000, -100, -50, -25, -10, 0, 10, 25, 50, 100, 1000])
+        bounds_mod = np.array([-500, -200, -100, -60, -30, -15, -5, 5, 15, 30, 60, 100, 200, 500])
         norm_mod = BoundaryNorm(bounds_mod, cmap_mod.N)
         sm_mod = cm.ScalarMappable(cmap=cmap_mod, norm=norm_mod)
 
@@ -1008,25 +1000,138 @@ def plot_xQn_grid(reservoir_downstream_gages, major_flows, models, nodes, nlist,
                         color = sm_mod.to_rgba(a[nn, xx, i])
                     pc = PatchCollection(box, facecolor=color, edgecolor='0.8', lw=0.5)
                     ax.add_collection(pc)
+            ### add model labels
+            if j == 0:
+                ax.annotate(model_label_dict[model], xy=(nn+xmax - 1, xx+1.6), annotation_clip=False, va='center', ha='center',
+                            fontsize=fontsize-1)
+                if i == 4:
+                    ax.annotate('Model', xy=(nn + xmax - 1, xx + 2.8), annotation_clip=False, va='center',
+                                ha='center', fontsize=fontsize+1)
             xmax += xx + 1
+
+        ### add node labels
+        ax.annotate(node_label_full_dict[node], xy=(xmax-0.5, xx-1.5), rotation=270, annotation_clip=False, va='center',
+                    ha='center', fontsize=fontsize-1)
+        if j == 3:
+            ax.annotate('Node', xy=(xmax+0.6, xx+1), rotation=270, annotation_clip=False, va='center',
+                        ha='center', fontsize=fontsize+1)
+
+        ### add x & y labels
+        if j == len(nodes)-1:
+            ax.annotate('Low flow return period (years)', xy=(xmax/2, -1.8), annotation_clip=False,
+                        va='center', ha='center', fontsize=fontsize+1)
+
+        if j == 3:
+            ax.annotate('Rolling average (days)', xy=(-2.5, xx+1), rotation=90, annotation_clip=False,
+                        va='center', ha='center', fontsize=fontsize+1)
+
+        ### add ticks etc
         ax.spines[['right', 'left', 'bottom', 'top']].set_visible(False)
         ax.set_xlim([0, xmax - 1])
         ax.set_ylim([0, xx + 1])
         if node == nodes[-1]:
-            ax.set_xticks([v - 0.5 for v in range(xmax) if v % (len(nlist) + 1) > 0], nlist * len(models))
+            ax.set_xticks([v - 0.5 for v in range(xmax) if v % (len(nlist) + 1) > 0], nlist * len(models),
+                          fontsize = fontsize-1)
         else:
             ax.set_xticks([])
-        ax.set_yticks(np.arange(0.5, xx + 1), xlist)
+        ax.set_yticks(np.arange(0.5, xx + 1), xlist, fontsize = fontsize-1)
         ax.tick_params(axis='both', which='both', length=0)
+
+
 
     ### now add colorbars
     ax = fig.add_subplot(gs[1:5,0])
-    fig.colorbar(sm_obs, cax=ax, label='Obs xQn flow, MGD')
+    cb = fig.colorbar(sm_obs, cax=ax)
+    cb.ax.set_title('Observed flow\n(MGD)', fontsize = fontsize)
+    cb.ax.set_yticks(bounds_obs, fontsize = fontsize)
 
-    ax = fig.add_subplot(gs[1:5, 3])
-    cb = fig.colorbar(sm_mod, cax=ax, label='Est xQn flow, in % deviation from obs)')
-    cb.ax.set_yticks(bounds_mod)
-    cb.ax.set_ylim([-100, 1000])
+    ax = fig.add_subplot(gs[1:5, 4])
+    cb = fig.colorbar(sm_mod, cax=ax)
+    cb.ax.set_title('Modeled flow\n(% deviation\nfrom obs)', fontsize = fontsize)
+    cb.ax.set_yticks(bounds_mod, fontsize = fontsize)
+    cb.ax.set_ylim([-60, cb.ax.get_ylim()[1]])
 
     plt.savefig(f'{fig_dir}xQn_grid.png', bbox_inches='tight', dpi=250)
     # plt.close()
+
+
+def get_fdc(data):
+    df = data.sort_values()
+    fdc_x = np.arange(1., len(df) + 1.) / len(df)
+    fdc_y = df.values
+    return fdc_x, fdc_y
+
+
+def plot_monthly_boxplot_fdc_combined(reservoir_downstream_gages, major_flows, base_models, pywr_models, node,
+                                      colordict = base_model_colors, start_date = None, end_date = None, fig_dir=fig_dir):
+    ### plot monthly FDCs & boxplots for raw inputs (top) vs pywr (bottom) - show 4 months only
+
+    alpha = 0.9
+
+    fig, axs = plt.subplots(2, 1, figsize=(12, 8), gridspec_kw={'hspace': 0.05})
+    for ax, model_sets in zip(axs, [base_models, ['obs']+pywr_models]):
+        xpartitions = []
+        for i, model in enumerate(model_sets):
+            if node in reservoir_list:
+                flow = subset_timeseries(reservoir_downstream_gages[model][node], start_date, end_date)
+            elif node in majorflow_list:
+                flow = subset_timeseries(major_flows[model][node], start_date, end_date)
+            flow_monthly_q01 = flow.groupby(flow.index.month).apply(np.quantile, 0.01)
+            flow_monthly_q25 = flow.groupby(flow.index.month).apply(np.quantile, 0.25)
+            flow_monthly_q50 = flow.groupby(flow.index.month).apply(np.quantile, 0.50)
+            flow_monthly_q75 = flow.groupby(flow.index.month).apply(np.quantile, 0.75)
+            flow_monthly_q99 = flow.groupby(flow.index.month).apply(np.quantile, 0.99)
+
+            for midx in range(1, 5):
+                m = 3 * midx - 2
+                dx = 0.05
+                mx = midx + (dx + 0.04) * i
+                ax.plot((mx + 0.01, mx + dx), (flow_monthly_q50[m], flow_monthly_q50[m]), color='k', zorder=3)
+                ax.plot((mx + 0.01, mx + dx), (flow_monthly_q99[m], flow_monthly_q99[m]), color='k', zorder=1)
+                ax.plot((mx + 0.01, mx + dx), (flow_monthly_q01[m], flow_monthly_q01[m]), color='k', zorder=1)
+                ax.plot((mx + dx / 2, mx + dx / 2), (flow_monthly_q01[m], flow_monthly_q25[m]), color='k', zorder=1)
+                ax.plot((mx + dx / 2, mx + dx / 2), (flow_monthly_q99[m], flow_monthly_q75[m]), color='k', zorder=1)
+
+                box = [Rectangle((mx, flow_monthly_q25[m]), dx, flow_monthly_q75[m] - flow_monthly_q25[m])]
+                pc = PatchCollection(box, facecolor=colordict[model], edgecolor='k', lw=0.5, zorder=2, alpha=alpha)
+                ax.add_collection(pc)
+                if i == len(base_models) - 1:
+                    if m == 1:
+                        xpartitions.append(mx + dx + (midx + 1 - mx - dx) / 2 - 1)
+                    xpartitions.append(mx + dx + (midx + 1 - mx - dx) / 2)
+        for midx in range(1, 5):
+            ax.axvline(xpartitions[midx], color='k', lw=0.5)
+
+        for i, model in enumerate(model_sets):
+            if node in reservoir_list:
+                flow = subset_timeseries(reservoir_downstream_gages[model][node], start_date, end_date)
+            elif node in majorflow_list:
+                flow = subset_timeseries(major_flows[model][node], start_date, end_date)
+            for midx in range(1, 5):
+                m = 3 * midx - 2
+                fdc_x, fdc_y = get_fdc(flow.loc[flow.index.month == m])
+                zorder = 0 if model == 'obs' else -10 + i
+                ax.plot(fdc_x + xpartitions[midx - 1], fdc_y, color=colordict[model], zorder=zorder, alpha=alpha, lw=2)
+
+        ax.set_xlim(xpartitions[0], xpartitions[-1])
+        ax.set_xticks([(xpartitions[midx] - 0.5) for midx in range(1, 5)],
+                      [month_dict[midx * 3 - 2] for midx in range(1, 5)])
+
+        ax.semilogy()
+
+        if model_sets == base_models:
+            ax.set_title(node)
+            ax.set_xticks([])
+            ax.set_ylabel('Input Streamflow (MGD)')
+
+        else:
+            ax.set_xticks([(xpartitions[midx] - 0.5) for midx in range(1, 5)],
+                          [month_dict[midx * 3 - 2] for midx in range(1, 5)])
+            ax.set_ylabel('Output Streamflow (MGD)')
+
+    ### reset ylim to be equal across subplots
+    ylim = [min(axs[0].get_ylim()[0], axs[1].get_ylim()[0]), max(axs[0].get_ylim()[1], axs[1].get_ylim()[1])]
+    axs[0].set_ylim(ylim)
+    axs[1].set_ylim(ylim)
+
+    plt.savefig(f'{fig_dir}monthly_boxplot_fdc_combined_{node}.png', bbox_inches='tight', dpi=250)
