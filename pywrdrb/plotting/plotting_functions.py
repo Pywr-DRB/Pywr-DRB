@@ -10,8 +10,12 @@ import seaborn as sns
 from matplotlib import pyplot as plt
 from matplotlib.patches import Patch
 from matplotlib.lines import Line2D
-from matplotlib.colors import ListedColormap
 from matplotlib import gridspec
+from matplotlib import cm
+from matplotlib.patches import Rectangle
+from matplotlib.collections import PatchCollection
+from matplotlib.colors import Normalize, LogNorm, ListedColormap, BoundaryNorm, LinearSegmentedColormap
+from matplotlib.gridspec import GridSpec
 from scipy import stats
 import sys
 
@@ -939,3 +943,90 @@ def plot_combined_nyc_storage(storages, releases, all_drought_levels, models,
     plt.savefig(f'{fig_dir}NYC_reservoir_ops_{start_date.strftime("%Y")}_{end_date.strftime("%Y")}{filename_addon}.png', dpi=250)
     # plt.show()
     return
+
+
+
+def get_xQn_flow(data, x, n):
+    ### find the worst x-day rolling average each year, then get the value of this with n-year return interval
+    data_rolling = data.rolling(x).mean()[x:]
+    data_rolling_annualWorst = data_rolling.resample('A').min()
+    xQn = np.percentile(data_rolling_annualWorst, 100 / n)
+    return xQn
+
+
+def plot_xQn_grid(reservoir_downstream_gages, major_flows, models, nodes, nlist, xlist,
+                  start_date = None, end_date = None, colordict = base_model_colors, fig_dir=fig_dir):
+    # fig, axs = plt.subplots(len(nodes), 1, figsize=(14, 7), gridspec_kw={'hspace': 0.15})
+    fig = plt.figure(figsize=(14, 7))
+    gs = GridSpec(len(nodes), 4, width_ratios=[1,1,30,1], hspace=0.15)
+
+    # for ax, node in zip(axs, nodes):
+    for j,node in enumerate(nodes):
+        ax = fig.add_subplot(gs[j,2])
+        a = np.zeros((len(nlist), len(xlist), len(models)))
+        for i, model in enumerate(models):
+            count = 0
+            if node in reservoir_list:
+                data = subset_timeseries(reservoir_downstream_gages[model][node], start_date, end_date)
+            elif node in majorflow_list:
+                data = subset_timeseries(major_flows[model][node], start_date, end_date)
+            for nn, n in enumerate(nlist):
+                for xx, x in enumerate(xlist):
+                    a[nn, xx, i] = get_xQn_flow(data, x, n)
+                    count += 1
+        for c in range(1, len(models)):
+            a[:, :, c] = (a[:, :, c] - a[:, :, 0]) / a[:, :, 0] * 100
+
+        # cnorm_obs = Normalize(vmin=0, vmax=a[:, :, 0].max())
+        # sm_obs = cm.ScalarMappable(cmap='viridis', norm=cnorm_obs)
+        # cnorm_mod = Normalize(vmin=-a[:, :, 1:].max(), vmax=a[:, :, 1:].max())
+        # sm_mod = cm.ScalarMappable(cmap='RdBu', norm=cnorm_mod)
+
+        ### create custom cmap following https://stackoverflow.com/questions/14777066/matplotlib-discrete-colorbar
+        cmap_obs = cm.get_cmap('viridis')
+        cmaplist_obs = [cmap_obs(i) for i in range(cmap_obs.N)]
+        cmap_obs = LinearSegmentedColormap.from_list('Custom cmap', cmaplist_obs, cmap_obs.N)
+        bounds_obs = np.array([0, 10, 25, 50, 100, 250, 500, 1000, 2000, 4000, 6000])
+        norm_obs = BoundaryNorm(bounds_obs, cmap_obs.N)
+        sm_obs = cm.ScalarMappable(cmap=cmap_obs, norm=norm_obs)
+
+        cmap_mod = cm.get_cmap('RdBu')
+        cmaplist_mod = [cmap_mod(i) for i in range(cmap_mod.N)]
+        cmap_mod = LinearSegmentedColormap.from_list('Custom cmap', cmaplist_mod, cmap_mod.N)
+        bounds_mod = np.array([-1000, -100, -50, -25, -10, 0, 10, 25, 50, 100, 1000])
+        norm_mod = BoundaryNorm(bounds_mod, cmap_mod.N)
+        sm_mod = cm.ScalarMappable(cmap=cmap_mod, norm=norm_mod)
+
+        xmax = 0
+        for i, model in enumerate(models):
+            for nn, n in enumerate(nlist):
+                for xx, x in enumerate(xlist):
+                    box = [Rectangle((nn + xmax, xx), 1, 1)]
+                    if i == 0:
+                        color = sm_obs.to_rgba(a[nn, xx, i])
+                    else:
+                        color = sm_mod.to_rgba(a[nn, xx, i])
+                    pc = PatchCollection(box, facecolor=color, edgecolor='0.8', lw=0.5)
+                    ax.add_collection(pc)
+            xmax += xx + 1
+        ax.spines[['right', 'left', 'bottom', 'top']].set_visible(False)
+        ax.set_xlim([0, xmax - 1])
+        ax.set_ylim([0, xx + 1])
+        if node == nodes[-1]:
+            ax.set_xticks([v - 0.5 for v in range(xmax) if v % (len(nlist) + 1) > 0], nlist * len(models))
+        else:
+            ax.set_xticks([])
+        ax.set_yticks(np.arange(0.5, xx + 1), xlist)
+        ax.tick_params(axis='both', which='both', length=0)
+
+    ### now add colorbars
+    ax = fig.add_subplot(gs[1:5,0])
+    fig.colorbar(sm_obs, cax=ax, label='Obs xQn flow, MGD')
+
+    ax = fig.add_subplot(gs[1:5, 3])
+    cb = fig.colorbar(sm_mod, cax=ax, label='Est xQn flow, in % deviation from obs)')
+    cb.ax.set_yticks(bounds_mod)
+    cb.ax.set_ylim([-100, 1000])
+
+    plt.savefig(f'{fig_dir}xQn_grid.png', bbox_inches='tight', dpi=250)
+    # plt.close()

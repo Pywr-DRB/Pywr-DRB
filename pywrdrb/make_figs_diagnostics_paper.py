@@ -13,7 +13,7 @@ from pywrdrb.utils.directories import input_dir, output_dir, fig_dir
 from pywrdrb.post.get_results import get_base_results, get_pywr_results
 
 ### I was having trouble with interactive console plotting in Pycharm for some reason - comment this out if you want to use that and not having issues
-mpl.use('TkAgg')
+# mpl.use('TkAgg')
 
 
 
@@ -138,7 +138,7 @@ if __name__ == "__main__":
 
     ## Plot NYC storage dynamics
     if rerun_all:
-        plot_combined_nyc_storage(storages, reservoir_downstream_gages, all_drought_levels, pywr_models,
+        plot_combined_nyc_storage(storages, reservoir_releases, all_drought_levels, pywr_models,
                                   start_date=start_date, end_date=end_date, fig_dir=fig_dir,
                                   colordict=model_colors_diagnostics_paper,
                                   add_ffmp_levels=True, plot_observed=True, plot_sim=True, filename_addon='_part4')
@@ -148,14 +148,21 @@ if __name__ == "__main__":
         print('Plotting flow contributions at major nodes.')
         for node in ['delMontague', 'delTrenton']:
             for model in pywr_models:
-                plot_flow_contributions(reservoir_downstream_gages, major_flows, inflows, model, node,
+                plot_flow_contributions(reservoir_releases, major_flows, inflows, model, node,
                                         start_date= start_date, end_date= end_date, log_flows = True, fig_dir = fig_dir)
 
 
 
     ## Plot inflow comparison
+    if rerun_all:
+        compare_inflow_data(inflows, reservoir_list, pywr_models,
+                            start_date=start_date, end_date=end_date, fig_dir=fig_dir)
+
+    ### xQn grid low flow comparison figure
     # if rerun_all:
-    compare_inflow_data(inflows, reservoir_list, pywr_models,
-                        start_date=start_date, end_date=end_date, fig_dir=fig_dir)
+    plot_xQn_grid(reservoir_downstream_gages, major_flows, base_models + pywr_models,
+                  reservoir_list_nyc + majorflow_list_figs, xlist = [1,7,30,90, 365], nlist = [5, 10, 20, 30],
+                  start_date=start_date, end_date=end_date, colordict=model_colors_diagnostics_paper, fig_dir=fig_dir)
+
 
     print(f'Done! Check the {fig_dir} folder.')
