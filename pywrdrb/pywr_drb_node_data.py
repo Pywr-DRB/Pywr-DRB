@@ -177,7 +177,7 @@ nhm_site_matches = {'cannonsville': ['1562'],
                     'shoholaMarsh': ['1598'], ## Note, Shohola has no inlet gauge or NHM segment - use wallenpaupack upstream
                     'mongaupeCombined': ['1640'], 
                     'beltzvilleCombined': ['1710'], 
-                    'fewalter': ['1695'],
+                    'fewalter': ['1684', '1691', '1694'], # Two tributary flows
                     'merrillCreek': ['1467'], ## Merrill Creek doesnt have gage or HRU - using nearby small stream flow
                     'hopatcong': ['1470'],  ## NOTE, this is downstream but should be good
                     'nockamixon': ['1470'],
