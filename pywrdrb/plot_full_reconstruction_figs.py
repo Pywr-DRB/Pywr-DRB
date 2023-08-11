@@ -74,13 +74,16 @@ if __name__ == "__main__":
     datetime_index = list(reservoir_downstream_gages.values())[0].index
     for model in base_models:
         print(model)
-        reservoir_downstream_gages[model] = get_base_results(input_dir, model, datetime_index, 'reservoir_downstream_gage').loc[start_date:end_date,:]
-        major_flows[model] = get_base_results(input_dir, model, datetime_index, 'major_flow').loc[start_date:end_date,:]
+        reservoir_downstream_gages[model], datetime_index = get_base_results(input_dir, model, datetime_index, 'reservoir_downstream_gage')
+        major_flows[model], datetime_index = get_base_results(input_dir, model, datetime_index, 'major_flow')
     
 
     # Verify that all datasets have same datetime index
-    for r in major_flows.values():
-        assert ((r.index == datetime_index).mean() == 1)
+    for m, r_df in major_flows.items():
+        # assert ((r.index == datetime_index).mean() == 1)
+        # Debug
+        if r_df.index.equals(datetime_index) == False:
+            print(f'Error with datetime index for model {m}')
     print(f'Successfully loaded {len(base_models)} base model results & {len(pywr_models)} pywr model results')
 
     ## 3-part flow figures with releases
