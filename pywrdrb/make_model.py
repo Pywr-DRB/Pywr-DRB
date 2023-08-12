@@ -13,6 +13,7 @@ from pywr_drb_node_data import upstream_nodes_dict, immediate_downstream_nodes_d
 
 EPS = 1e-8
 nhm_inflow_scaling = True
+flow_prediction_mode = 'regression_agg'   ### 'regression_agg', 'regression_disagg', 'perfect_foresight', 'same_day'
 
 ##########################################################################################
 ### add_major_node()
@@ -122,7 +123,7 @@ def add_major_node(model, name, node_type, inflow_type, outflow_type=None, downs
         outflow = {
             'name': f'spill_{name}',
             'type': 'link',
-            'cost': 5000.0
+            'cost': 500000.0
         }
         model['nodes'].append(outflow)
         
@@ -133,16 +134,22 @@ def add_major_node(model, name, node_type, inflow_type, outflow_type=None, downs
             'mrf': f'mrf_target_{name}',
             'mrf_cost': -1000.0
         }
-        if max_release is not None:
-            outflow['max_flow'] = max_release
         model['nodes'].append(outflow)
 
         if max_release is not None:
+            ### max flow wasnt working right directly tied to rivergauge type. So create an extra node in sequence to apply constraint.
+            outflow = {
+                'name': f'release_constraint_{name}',
+                'type': 'link',
+                'cost': 0,
+                'max_flow': max_release
+            }
+            model['nodes'].append(outflow)
             ### add secondary high-cost flow path for spill above max_flow
             outflow = {
                 'name': f'spill_{name}',
                 'type': 'link',
-                'cost': 5000.0
+                'cost': 500000.0
             }
             model['nodes'].append(outflow)
 
@@ -175,7 +182,11 @@ def add_major_node(model, name, node_type, inflow_type, outflow_type=None, downs
     else:
         downstream_name = f'reservoir_{downstream_node}'
     if has_outflow_node:
-        model['edges'].append([node_name, f'outflow_{name}'])
+        if outflow_type == 'regulatory' and max_release is not None:
+            model['edges'].append([node_name, f'release_constraint_{name}'])
+            model['edges'].append([f'release_constraint_{name}', f'outflow_{name}'])
+        else:
+            model['edges'].append([node_name, f'outflow_{name}'])
         if downstream_lag > 0:
             model['edges'].append([f'outflow_{name}', f'delay_{name}'])
             model['edges'].append([f'delay_{name}', downstream_name])
@@ -252,7 +263,7 @@ def add_major_node(model, name, node_type, inflow_type, outflow_type=None, downs
             inflow_source = f'{input_dir}catchment_inflow_{inflow_type}.csv'
 
             ### Use single-scenario historic data
-            model['parameters'][f'flow_base_{name}'] = {
+            model['parameters'][f'flow_{name}'] = {
                 'type': 'dataframe',
                 'url': inflow_source,
                 'column': name,
@@ -260,14 +271,6 @@ def add_major_node(model, name, node_type, inflow_type, outflow_type=None, downs
                 'parse_dates': True
             }
 
-            model['parameters'][f'flow_{name}'] = {
-                'type': 'aggregated',
-                'agg_func': 'product',
-                'parameters': [
-                    f'flow_base_{name}',
-                    'flow_factor'
-                ]
-            }
 
         ### get max flow for catchment withdrawal nodes based on DRBC data
         model['parameters'][f'max_flow_catchmentWithdrawal_{name}'] = {
@@ -740,21 +743,6 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
         }
 
 
-    for reservoir in reservoir_list_nyc:
-        ### max diversion to NYC from each reservoir based on historical data
-        model['parameters'][f'hist_max_flow_delivery_nyc_{reservoir}'] = {
-            'type': 'constant',
-            'value': get_reservoir_max_diversion_NYC(reservoir)
-        }
-        ### Target diversion from each NYC reservoir to satisfy NYC demand, accounting for historical max diversion constraints
-        ### and attempting to balance storages across 3 NYC reservoirs
-        ### Uses custom Pywr parameter.
-        model['parameters'][f'max_flow_delivery_nyc_{reservoir}'] = {
-            'type': 'VolBalanceNYCDemand',
-            'node': f'reservoir_{reservoir}'
-        }
-
-
     ### Baseline flow target at Montague & Trenton
     mrfs = ['delMontague', 'delTrenton']
     for mrf in mrfs:
@@ -795,39 +783,63 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
             ]
         }
 
-    ### total non-NYC inflows to Montague & Trenton
-    inflow_nodes = upstream_nodes_dict['delMontague'] + ['delMontague']
-    inflow_nodes = [n for n in inflow_nodes if n not in reservoir_list_nyc]
-    model['parameters'][f'volbalance_flow_agg_nonnyc_delMontague'] = {
-            'type': 'aggregated',
-            'agg_func': 'sum',
-            'parameters': [f'flow_{node}' for node in inflow_nodes]
-        }
+    # ### total non-NYC inflows to Montague & Trenton
+    ### Assign inflows to nodes
+    if inflow_ensemble_indices is None:
+        ### Use single-scenario historic data
+        for mrf, lag in zip(('delMontague', 'delMontague', 'delTrenton', 'delTrenton'), (1,2,3,4)):
+            label = f'{mrf}_lag{lag}_{flow_prediction_mode}'
 
-    inflow_nodes = upstream_nodes_dict['delTrenton'] ### note: dont include delTrenton in this because it doesnt have catchment -> catchment inflows go to delDRCanal
-    inflow_nodes = [n for n in inflow_nodes if n not in reservoir_list_nyc]
-    model['parameters'][f'volbalance_flow_agg_nonnyc_delTrenton'] = {
-            'type': 'aggregated',
-            'agg_func': 'sum',
-            'parameters': [f'flow_{node}' for node in inflow_nodes]
-        }
+            model['parameters'][f'predicted_nonnyc_gage_flow_{mrf}_lag{lag}'] = {
+                'type': 'dataframe',
+                'url': f'{input_dir}predicted_nonnyc_gage_flow_{inflow_type}.csv',
+                'column': label,
+                'index_col': 'datetime',
+                'parse_dates': True
+            }
+    else:
+        print('WARNING: Ensemble mode not set up yet for Montague & Trenton flow forecasts')
+
+
+
 
 
     ### Get total release needed from NYC reservoirs to satisfy Montague & Trenton flow targets,
-    ### above and beyond their individually mandated releases, & after accting for non-NYC inflows and NJ diversions
+    ### above and beyond their individually mandated releases, & after accting for non-NYC inflows and NJ diversions.
+    ### THis first step is based on predicted inflows to Montague in 2 days and Trenton in 4 days, and is used
+    ### to calculate balanced releases from all 3 reservoirs. But only Cannonsville & Pepacton actually use these
+    ### releases, because Neversink is adjusted later because it is 1 day closer travel time & has more info.
     ### Uses custom Pywr parameter.
-    model['parameters']['volbalance_relative_mrf_montagueTrenton'] = {
-        'type': 'VolBalanceNYCDownstreamMRFTargetAgg'
+    model['parameters']['volbalance_relative_mrf_montagueTrenton_step1CanPep'] = {
+        'type': 'VolBalanceNYCDownstreamMRFTargetAgg_step1CanPep'
     }
 
     ### Target release from each NYC reservoir to satisfy Montague & Trenton flow targets,on top of individually mandated FFMP releases.
     ### Uses custom Pywr parameter.
-    for reservoir in reservoir_list_nyc:
+    for reservoir in ['cannonsville','pepacton']:
         model['parameters'][f'mrf_montagueTrenton_{reservoir}'] = {
-            'type': 'VolBalanceNYCDownstreamMRF',
+            'type': 'VolBalanceNYCDownstreamMRF_step1CanPep',
             'node': f'reservoir_{reservoir}'
         }
 
+    ### now update Neversink release requirement based on yesterday's Can&Pep releases & extra day of flow observations
+    for reservoir in ['cannonsville','pepacton']:
+        model['parameters'][f'prev_outflow_{reservoir}'] = {
+            'type': 'flow',
+            'node': f'outflow_{reservoir}'
+        }
+        model['parameters'][f'prev_spill_{reservoir}'] = {
+            'type': 'flow',
+            'node': f'spill_{reservoir}'
+        }
+        model['parameters'][f'prev_release_{reservoir}'] = {
+            'type': 'aggregated',
+            'agg_func': 'sum',
+            'parameters': [f'prev_outflow_{reservoir}', f'prev_spill_{reservoir}']
+        }
+    model['parameters'][f'mrf_montagueTrenton_neversink'] = {
+        'type': 'VolBalanceNYCDownstreamMRF_step2Nev',
+    }
 
     ### finally, get final effective mandated release from each NYC reservoir, which is the sum of its
     ###    individually-mandated release from FFMP and its contribution to the Montague/Trenton targets
@@ -836,6 +848,26 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
             'type': 'aggregated',
             'agg_func': 'sum',
             'parameters': [f'mrf_target_individual_{reservoir}', f'mrf_montagueTrenton_{reservoir}']
+        }
+
+
+
+
+
+
+    ### now distribute NYC deliveries across 3 reservoirs with volume balancing after accounting for downstream releases
+    for reservoir in reservoir_list_nyc:
+        ### max diversion to NYC from each reservoir based on historical data
+        model['parameters'][f'hist_max_flow_delivery_nyc_{reservoir}'] = {
+            'type': 'constant',
+            'value': get_reservoir_max_diversion_NYC(reservoir)
+        }
+        ### Target diversion from each NYC reservoir to satisfy NYC demand, accounting for historical max diversion constraints
+        ### and attempting to balance storages across 3 NYC reservoirs
+        ### Uses custom Pywr parameter.
+        model['parameters'][f'max_flow_delivery_nyc_{reservoir}'] = {
+            'type': 'VolBalanceNYCDemand',
+            'node': f'reservoir_{reservoir}'
         }
 
     #######################################################################

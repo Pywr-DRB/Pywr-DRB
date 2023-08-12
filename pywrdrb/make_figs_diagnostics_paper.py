@@ -21,7 +21,7 @@ from pywrdrb.post.get_results import get_base_results, get_pywr_results
 ## Execution - Generate all figures
 if __name__ == "__main__":
 
-    rerun_all = False
+    rerun_all = True
 
     ## Load data    
     # Load Pywr-DRB simulation models
@@ -165,10 +165,10 @@ if __name__ == "__main__":
                       start_date=start_date, end_date=end_date, fig_dir=fig_dir)
 
     ### plot comparing flow series with overlapping boxplots & FDCs
-    # if rerun_all:
-    for node in reservoir_list_nyc + majorflow_list_figs:
-        plot_monthly_boxplot_fdc_combined(reservoir_downstream_gages, major_flows, base_models, pywr_models, node,
-                                          colordict=model_colors_diagnostics_paper, start_date=start_date,
-                                          end_date=end_date, fig_dir=fig_dir)
+    if rerun_all:
+        for node in reservoir_list_nyc + majorflow_list_figs:
+            plot_monthly_boxplot_fdc_combined(reservoir_downstream_gages, major_flows, base_models, pywr_models, node,
+                                              colordict=model_colors_diagnostics_paper, start_date=start_date,
+                                              end_date=end_date, fig_dir=fig_dir)
 
     print(f'Done! Check the {fig_dir} folder.')

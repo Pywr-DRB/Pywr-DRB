@@ -45,13 +45,18 @@
             "name": "outflow_cannonsville",
             "type": "rivergauge",
             "mrf": "mrf_target_cannonsville",
-            "mrf_cost": -1000.0,
+            "mrf_cost": -1000.0
+        },
+        {
+            "name": "release_constraint_cannonsville",
+            "type": "link",
+            "cost": 0,
             "max_flow": 1331.912543962472
         },
         {
             "name": "spill_cannonsville",
             "type": "link",
-            "cost": 5000.0
+            "cost": 500000.0
         },
         {
             "name": "reservoir_pepacton",
@@ -82,13 +87,18 @@
             "name": "outflow_pepacton",
             "type": "rivergauge",
             "mrf": "mrf_target_pepacton",
-            "mrf_cost": -1000.0,
+            "mrf_cost": -1000.0
+        },
+        {
+            "name": "release_constraint_pepacton",
+            "type": "link",
+            "cost": 0,
             "max_flow": 543.875054324152
         },
         {
             "name": "spill_pepacton",
             "type": "link",
-            "cost": 5000.0
+            "cost": 500000.0
         },
         {
             "name": "reservoir_neversink",
@@ -119,13 +129,18 @@
             "name": "outflow_neversink",
             "type": "rivergauge",
             "mrf": "mrf_target_neversink",
-            "mrf_cost": -1000.0,
+            "mrf_cost": -1000.0
+        },
+        {
+            "name": "release_constraint_neversink",
+            "type": "link",
+            "cost": 0,
             "max_flow": 195.717507672468
         },
         {
             "name": "spill_neversink",
             "type": "link",
-            "cost": 5000.0
+            "cost": 500000.0
         },
         {
             "name": "reservoir_wallenpaupack",
@@ -161,7 +176,7 @@
         {
             "name": "spill_wallenpaupack",
             "type": "link",
-            "cost": 5000.0
+            "cost": 500000.0
         },
         {
             "name": "delay_wallenpaupack",
@@ -202,7 +217,7 @@
         {
             "name": "spill_prompton",
             "type": "link",
-            "cost": 5000.0
+            "cost": 500000.0
         },
         {
             "name": "delay_prompton",
@@ -243,7 +258,7 @@
         {
             "name": "spill_shoholaMarsh",
             "type": "link",
-            "cost": 5000.0
+            "cost": 500000.0
         },
         {
             "name": "delay_shoholaMarsh",
@@ -284,7 +299,7 @@
         {
             "name": "spill_mongaupeCombined",
             "type": "link",
-            "cost": 5000.0
+            "cost": 500000.0
         },
         {
             "name": "reservoir_beltzvilleCombined",
@@ -320,7 +335,7 @@
         {
             "name": "spill_beltzvilleCombined",
             "type": "link",
-            "cost": 5000.0
+            "cost": 500000.0
         },
         {
             "name": "reservoir_fewalter",
@@ -356,7 +371,7 @@
         {
             "name": "spill_fewalter",
             "type": "link",
-            "cost": 5000.0
+            "cost": 500000.0
         },
         {
             "name": "reservoir_merrillCreek",
@@ -392,7 +407,7 @@
         {
             "name": "spill_merrillCreek",
             "type": "link",
-            "cost": 5000.0
+            "cost": 500000.0
         },
         {
             "name": "delay_merrillCreek",
@@ -433,7 +448,7 @@
         {
             "name": "spill_hopatcong",
             "type": "link",
-            "cost": 5000.0
+            "cost": 500000.0
         },
         {
             "name": "delay_hopatcong",
@@ -474,7 +489,7 @@
         {
             "name": "spill_nockamixon",
             "type": "link",
-            "cost": 5000.0
+            "cost": 500000.0
         },
         {
             "name": "reservoir_assunpink",
@@ -510,7 +525,7 @@
         {
             "name": "spill_assunpink",
             "type": "link",
-            "cost": 5000.0
+            "cost": 500000.0
         },
         {
             "name": "reservoir_ontelaunee",
@@ -546,7 +561,7 @@
         {
             "name": "spill_ontelaunee",
             "type": "link",
-            "cost": 5000.0
+            "cost": 500000.0
         },
         {
             "name": "delay_ontelaunee",
@@ -587,7 +602,7 @@
         {
             "name": "spill_stillCreek",
             "type": "link",
-            "cost": 5000.0
+            "cost": 500000.0
         },
         {
             "name": "delay_stillCreek",
@@ -628,7 +643,7 @@
         {
             "name": "spill_blueMarsh",
             "type": "link",
-            "cost": 5000.0
+            "cost": 500000.0
         },
         {
             "name": "reservoir_greenLane",
@@ -664,7 +679,7 @@
         {
             "name": "spill_greenLane",
             "type": "link",
-            "cost": 5000.0
+            "cost": 500000.0
         },
         {
             "name": "delay_greenLane",
@@ -1041,6 +1056,10 @@
         ],
         [
             "reservoir_cannonsville",
+            "release_constraint_cannonsville"
+        ],
+        [
+            "release_constraint_cannonsville",
             "outflow_cannonsville"
         ],
         [
@@ -1073,6 +1092,10 @@
         ],
         [
             "reservoir_pepacton",
+            "release_constraint_pepacton"
+        ],
+        [
+            "release_constraint_pepacton",
             "outflow_pepacton"
         ],
         [
@@ -1105,6 +1128,10 @@
         ],
         [
             "reservoir_neversink",
+            "release_constraint_neversink"
+        ],
+        [
+            "release_constraint_neversink",
             "outflow_neversink"
         ],
         [
@@ -1928,20 +1955,12 @@
             "type": "constant",
             "value": 1331.912543962472
         },
-        "flow_base_cannonsville": {
+        "flow_cannonsville": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nhmv10.csv",
             "column": "cannonsville",
             "index_col": "datetime",
             "parse_dates": true
-        },
-        "flow_cannonsville": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "flow_base_cannonsville",
-                "flow_factor"
-            ]
         },
         "max_flow_catchmentWithdrawal_cannonsville": {
             "type": "constant",
@@ -1980,20 +1999,12 @@
             "type": "constant",
             "value": 543.875054324152
         },
-        "flow_base_pepacton": {
+        "flow_pepacton": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nhmv10.csv",
             "column": "pepacton",
             "index_col": "datetime",
             "parse_dates": true
-        },
-        "flow_pepacton": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "flow_base_pepacton",
-                "flow_factor"
-            ]
         },
         "max_flow_catchmentWithdrawal_pepacton": {
             "type": "constant",
@@ -2032,20 +2043,12 @@
             "type": "constant",
             "value": 195.717507672468
         },
-        "flow_base_neversink": {
+        "flow_neversink": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nhmv10.csv",
             "column": "neversink",
             "index_col": "datetime",
             "parse_dates": true
-        },
-        "flow_neversink": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "flow_base_neversink",
-                "flow_factor"
-            ]
         },
         "max_flow_catchmentWithdrawal_neversink": {
             "type": "constant",
@@ -2084,20 +2087,12 @@
             "type": "STARFITReservoirRelease",
             "node": "wallenpaupack"
         },
-        "flow_base_wallenpaupack": {
+        "flow_wallenpaupack": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nhmv10.csv",
             "column": "wallenpaupack",
             "index_col": "datetime",
             "parse_dates": true
-        },
-        "flow_wallenpaupack": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "flow_base_wallenpaupack",
-                "flow_factor"
-            ]
         },
         "max_flow_catchmentWithdrawal_wallenpaupack": {
             "type": "constant",
@@ -2136,20 +2131,12 @@
             "type": "STARFITReservoirRelease",
             "node": "prompton"
         },
-        "flow_base_prompton": {
+        "flow_prompton": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nhmv10.csv",
             "column": "prompton",
             "index_col": "datetime",
             "parse_dates": true
-        },
-        "flow_prompton": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "flow_base_prompton",
-                "flow_factor"
-            ]
         },
         "max_flow_catchmentWithdrawal_prompton": {
             "type": "constant",
@@ -2188,20 +2175,12 @@
             "type": "STARFITReservoirRelease",
             "node": "shoholaMarsh"
         },
-        "flow_base_shoholaMarsh": {
+        "flow_shoholaMarsh": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nhmv10.csv",
             "column": "shoholaMarsh",
             "index_col": "datetime",
             "parse_dates": true
-        },
-        "flow_shoholaMarsh": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "flow_base_shoholaMarsh",
-                "flow_factor"
-            ]
         },
         "max_flow_catchmentWithdrawal_shoholaMarsh": {
             "type": "constant",
@@ -2240,20 +2219,12 @@
             "type": "STARFITReservoirRelease",
             "node": "mongaupeCombined"
         },
-        "flow_base_mongaupeCombined": {
+        "flow_mongaupeCombined": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nhmv10.csv",
             "column": "mongaupeCombined",
             "index_col": "datetime",
             "parse_dates": true
-        },
-        "flow_mongaupeCombined": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "flow_base_mongaupeCombined",
-                "flow_factor"
-            ]
         },
         "max_flow_catchmentWithdrawal_mongaupeCombined": {
             "type": "constant",
@@ -2292,20 +2263,12 @@
             "type": "STARFITReservoirRelease",
             "node": "beltzvilleCombined"
         },
-        "flow_base_beltzvilleCombined": {
+        "flow_beltzvilleCombined": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nhmv10.csv",
             "column": "beltzvilleCombined",
             "index_col": "datetime",
             "parse_dates": true
-        },
-        "flow_beltzvilleCombined": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "flow_base_beltzvilleCombined",
-                "flow_factor"
-            ]
         },
         "max_flow_catchmentWithdrawal_beltzvilleCombined": {
             "type": "constant",
@@ -2344,20 +2307,12 @@
             "type": "STARFITReservoirRelease",
             "node": "fewalter"
         },
-        "flow_base_fewalter": {
+        "flow_fewalter": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nhmv10.csv",
             "column": "fewalter",
             "index_col": "datetime",
             "parse_dates": true
-        },
-        "flow_fewalter": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "flow_base_fewalter",
-                "flow_factor"
-            ]
         },
         "max_flow_catchmentWithdrawal_fewalter": {
             "type": "constant",
@@ -2396,20 +2351,12 @@
             "type": "STARFITReservoirRelease",
             "node": "merrillCreek"
         },
-        "flow_base_merrillCreek": {
+        "flow_merrillCreek": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nhmv10.csv",
             "column": "merrillCreek",
             "index_col": "datetime",
             "parse_dates": true
-        },
-        "flow_merrillCreek": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "flow_base_merrillCreek",
-                "flow_factor"
-            ]
         },
         "max_flow_catchmentWithdrawal_merrillCreek": {
             "type": "constant",
@@ -2448,20 +2395,12 @@
             "type": "STARFITReservoirRelease",
             "node": "hopatcong"
         },
-        "flow_base_hopatcong": {
+        "flow_hopatcong": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nhmv10.csv",
             "column": "hopatcong",
             "index_col": "datetime",
             "parse_dates": true
-        },
-        "flow_hopatcong": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "flow_base_hopatcong",
-                "flow_factor"
-            ]
         },
         "max_flow_catchmentWithdrawal_hopatcong": {
             "type": "constant",
@@ -2500,20 +2439,12 @@
             "type": "STARFITReservoirRelease",
             "node": "nockamixon"
         },
-        "flow_base_nockamixon": {
+        "flow_nockamixon": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nhmv10.csv",
             "column": "nockamixon",
             "index_col": "datetime",
             "parse_dates": true
-        },
-        "flow_nockamixon": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "flow_base_nockamixon",
-                "flow_factor"
-            ]
         },
         "max_flow_catchmentWithdrawal_nockamixon": {
             "type": "constant",
@@ -2552,20 +2483,12 @@
             "type": "STARFITReservoirRelease",
             "node": "assunpink"
         },
-        "flow_base_assunpink": {
+        "flow_assunpink": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nhmv10.csv",
             "column": "assunpink",
             "index_col": "datetime",
             "parse_dates": true
-        },
-        "flow_assunpink": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "flow_base_assunpink",
-                "flow_factor"
-            ]
         },
         "max_flow_catchmentWithdrawal_assunpink": {
             "type": "constant",
@@ -2604,20 +2527,12 @@
             "type": "STARFITReservoirRelease",
             "node": "ontelaunee"
         },
-        "flow_base_ontelaunee": {
+        "flow_ontelaunee": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nhmv10.csv",
             "column": "ontelaunee",
             "index_col": "datetime",
             "parse_dates": true
-        },
-        "flow_ontelaunee": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "flow_base_ontelaunee",
-                "flow_factor"
-            ]
         },
         "max_flow_catchmentWithdrawal_ontelaunee": {
             "type": "constant",
@@ -2656,20 +2571,12 @@
             "type": "STARFITReservoirRelease",
             "node": "stillCreek"
         },
-        "flow_base_stillCreek": {
+        "flow_stillCreek": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nhmv10.csv",
             "column": "stillCreek",
             "index_col": "datetime",
             "parse_dates": true
-        },
-        "flow_stillCreek": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "flow_base_stillCreek",
-                "flow_factor"
-            ]
         },
         "max_flow_catchmentWithdrawal_stillCreek": {
             "type": "constant",
@@ -2708,20 +2615,12 @@
             "type": "STARFITReservoirRelease",
             "node": "blueMarsh"
         },
-        "flow_base_blueMarsh": {
+        "flow_blueMarsh": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nhmv10.csv",
             "column": "blueMarsh",
             "index_col": "datetime",
             "parse_dates": true
-        },
-        "flow_blueMarsh": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "flow_base_blueMarsh",
-                "flow_factor"
-            ]
         },
         "max_flow_catchmentWithdrawal_blueMarsh": {
             "type": "constant",
@@ -2760,20 +2659,12 @@
             "type": "STARFITReservoirRelease",
             "node": "greenLane"
         },
-        "flow_base_greenLane": {
+        "flow_greenLane": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nhmv10.csv",
             "column": "greenLane",
             "index_col": "datetime",
             "parse_dates": true
-        },
-        "flow_greenLane": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "flow_base_greenLane",
-                "flow_factor"
-            ]
         },
         "max_flow_catchmentWithdrawal_greenLane": {
             "type": "constant",
@@ -2801,20 +2692,12 @@
                 "prev_flow_catchmentWithdrawal_greenLane"
             ]
         },
-        "flow_base_01425000": {
+        "flow_01425000": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nhmv10.csv",
             "column": "01425000",
             "index_col": "datetime",
             "parse_dates": true
-        },
-        "flow_01425000": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "flow_base_01425000",
-                "flow_factor"
-            ]
         },
         "max_flow_catchmentWithdrawal_01425000": {
             "type": "constant",
@@ -2842,20 +2725,12 @@
                 "prev_flow_catchmentWithdrawal_01425000"
             ]
         },
-        "flow_base_01417000": {
+        "flow_01417000": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nhmv10.csv",
             "column": "01417000",
             "index_col": "datetime",
             "parse_dates": true
-        },
-        "flow_01417000": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "flow_base_01417000",
-                "flow_factor"
-            ]
         },
         "max_flow_catchmentWithdrawal_01417000": {
             "type": "constant",
@@ -2883,20 +2758,12 @@
                 "prev_flow_catchmentWithdrawal_01417000"
             ]
         },
-        "flow_base_delLordville": {
+        "flow_delLordville": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nhmv10.csv",
             "column": "delLordville",
             "index_col": "datetime",
             "parse_dates": true
-        },
-        "flow_delLordville": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "flow_base_delLordville",
-                "flow_factor"
-            ]
         },
         "max_flow_catchmentWithdrawal_delLordville": {
             "type": "constant",
@@ -2924,20 +2791,12 @@
                 "prev_flow_catchmentWithdrawal_delLordville"
             ]
         },
-        "flow_base_01436000": {
+        "flow_01436000": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nhmv10.csv",
             "column": "01436000",
             "index_col": "datetime",
             "parse_dates": true
-        },
-        "flow_01436000": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "flow_base_01436000",
-                "flow_factor"
-            ]
         },
         "max_flow_catchmentWithdrawal_01436000": {
             "type": "constant",
@@ -2965,20 +2824,12 @@
                 "prev_flow_catchmentWithdrawal_01436000"
             ]
         },
-        "flow_base_01433500": {
+        "flow_01433500": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nhmv10.csv",
             "column": "01433500",
             "index_col": "datetime",
             "parse_dates": true
-        },
-        "flow_01433500": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "flow_base_01433500",
-                "flow_factor"
-            ]
         },
         "max_flow_catchmentWithdrawal_01433500": {
             "type": "constant",
@@ -3006,20 +2857,12 @@
                 "prev_flow_catchmentWithdrawal_01433500"
             ]
         },
-        "flow_base_delMontague": {
+        "flow_delMontague": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nhmv10.csv",
             "column": "delMontague",
             "index_col": "datetime",
             "parse_dates": true
-        },
-        "flow_delMontague": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "flow_base_delMontague",
-                "flow_factor"
-            ]
         },
         "max_flow_catchmentWithdrawal_delMontague": {
             "type": "constant",
@@ -3047,20 +2890,12 @@
                 "prev_flow_catchmentWithdrawal_delMontague"
             ]
         },
-        "flow_base_01449800": {
+        "flow_01449800": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nhmv10.csv",
             "column": "01449800",
             "index_col": "datetime",
             "parse_dates": true
-        },
-        "flow_01449800": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "flow_base_01449800",
-                "flow_factor"
-            ]
         },
         "max_flow_catchmentWithdrawal_01449800": {
             "type": "constant",
@@ -3088,20 +2923,12 @@
                 "prev_flow_catchmentWithdrawal_01449800"
             ]
         },
-        "flow_base_01447800": {
+        "flow_01447800": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nhmv10.csv",
             "column": "01447800",
             "index_col": "datetime",
             "parse_dates": true
-        },
-        "flow_01447800": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "flow_base_01447800",
-                "flow_factor"
-            ]
         },
         "max_flow_catchmentWithdrawal_01447800": {
             "type": "constant",
@@ -3129,20 +2956,12 @@
                 "prev_flow_catchmentWithdrawal_01447800"
             ]
         },
-        "flow_base_delDRCanal": {
+        "flow_delDRCanal": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nhmv10.csv",
             "column": "delDRCanal",
             "index_col": "datetime",
             "parse_dates": true
-        },
-        "flow_delDRCanal": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "flow_base_delDRCanal",
-                "flow_factor"
-            ]
         },
         "max_flow_catchmentWithdrawal_delDRCanal": {
             "type": "constant",
@@ -3170,20 +2989,12 @@
                 "prev_flow_catchmentWithdrawal_delDRCanal"
             ]
         },
-        "flow_base_01463620": {
+        "flow_01463620": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nhmv10.csv",
             "column": "01463620",
             "index_col": "datetime",
             "parse_dates": true
-        },
-        "flow_01463620": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "flow_base_01463620",
-                "flow_factor"
-            ]
         },
         "max_flow_catchmentWithdrawal_01463620": {
             "type": "constant",
@@ -3211,20 +3022,12 @@
                 "prev_flow_catchmentWithdrawal_01463620"
             ]
         },
-        "flow_base_outletAssunpink": {
+        "flow_outletAssunpink": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nhmv10.csv",
             "column": "outletAssunpink",
             "index_col": "datetime",
             "parse_dates": true
-        },
-        "flow_outletAssunpink": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "flow_base_outletAssunpink",
-                "flow_factor"
-            ]
         },
         "max_flow_catchmentWithdrawal_outletAssunpink": {
             "type": "constant",
@@ -3252,20 +3055,12 @@
                 "prev_flow_catchmentWithdrawal_outletAssunpink"
             ]
         },
-        "flow_base_01470960": {
+        "flow_01470960": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nhmv10.csv",
             "column": "01470960",
             "index_col": "datetime",
             "parse_dates": true
-        },
-        "flow_01470960": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "flow_base_01470960",
-                "flow_factor"
-            ]
         },
         "max_flow_catchmentWithdrawal_01470960": {
             "type": "constant",
@@ -3293,20 +3088,12 @@
                 "prev_flow_catchmentWithdrawal_01470960"
             ]
         },
-        "flow_base_outletSchuylkill": {
+        "flow_outletSchuylkill": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nhmv10.csv",
             "column": "outletSchuylkill",
             "index_col": "datetime",
             "parse_dates": true
-        },
-        "flow_outletSchuylkill": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "flow_base_outletSchuylkill",
-                "flow_factor"
-            ]
         },
         "max_flow_catchmentWithdrawal_outletSchuylkill": {
             "type": "constant",
@@ -3992,30 +3779,6 @@
                 "max_volume_neversink"
             ]
         },
-        "hist_max_flow_delivery_nyc_cannonsville": {
-            "type": "constant",
-            "value": 497.7041574232482
-        },
-        "max_flow_delivery_nyc_cannonsville": {
-            "type": "VolBalanceNYCDemand",
-            "node": "reservoir_cannonsville"
-        },
-        "hist_max_flow_delivery_nyc_pepacton": {
-            "type": "constant",
-            "value": 673.5996026170066
-        },
-        "max_flow_delivery_nyc_pepacton": {
-            "type": "VolBalanceNYCDemand",
-            "node": "reservoir_pepacton"
-        },
-        "hist_max_flow_delivery_nyc_neversink": {
-            "type": "constant",
-            "value": 514.6940583794635
-        },
-        "max_flow_delivery_nyc_neversink": {
-            "type": "VolBalanceNYCDemand",
-            "node": "reservoir_neversink"
-        },
         "mrf_baseline_delMontague": {
             "type": "constant",
             "url": "drb_model_constants.csv",
@@ -4156,60 +3919,79 @@
                 "mrf_drought_factor_delTrenton"
             ]
         },
-        "volbalance_flow_agg_nonnyc_delMontague": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "flow_01425000",
-                "flow_01417000",
-                "flow_delLordville",
-                "flow_prompton",
-                "flow_wallenpaupack",
-                "flow_shoholaMarsh",
-                "flow_mongaupeCombined",
-                "flow_01436000",
-                "flow_01433500",
-                "flow_delMontague"
-            ]
+        "predicted_nonnyc_gage_flow_delMontague_lag1": {
+            "type": "dataframe",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_nonnyc_gage_flow_nhmv10.csv",
+            "column": "delMontague_lag1_regression_agg",
+            "index_col": "datetime",
+            "parse_dates": true
         },
-        "volbalance_flow_agg_nonnyc_delTrenton": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "flow_01425000",
-                "flow_01417000",
-                "flow_delLordville",
-                "flow_prompton",
-                "flow_wallenpaupack",
-                "flow_shoholaMarsh",
-                "flow_mongaupeCombined",
-                "flow_01436000",
-                "flow_01433500",
-                "flow_delMontague",
-                "flow_beltzvilleCombined",
-                "flow_fewalter",
-                "flow_merrillCreek",
-                "flow_hopatcong",
-                "flow_nockamixon",
-                "flow_01449800",
-                "flow_01447800",
-                "flow_delDRCanal"
-            ]
+        "predicted_nonnyc_gage_flow_delMontague_lag2": {
+            "type": "dataframe",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_nonnyc_gage_flow_nhmv10.csv",
+            "column": "delMontague_lag2_regression_agg",
+            "index_col": "datetime",
+            "parse_dates": true
         },
-        "volbalance_relative_mrf_montagueTrenton": {
-            "type": "VolBalanceNYCDownstreamMRFTargetAgg"
+        "predicted_nonnyc_gage_flow_delTrenton_lag3": {
+            "type": "dataframe",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_nonnyc_gage_flow_nhmv10.csv",
+            "column": "delTrenton_lag3_regression_agg",
+            "index_col": "datetime",
+            "parse_dates": true
+        },
+        "predicted_nonnyc_gage_flow_delTrenton_lag4": {
+            "type": "dataframe",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_nonnyc_gage_flow_nhmv10.csv",
+            "column": "delTrenton_lag4_regression_agg",
+            "index_col": "datetime",
+            "parse_dates": true
+        },
+        "volbalance_relative_mrf_montagueTrenton_step1CanPep": {
+            "type": "VolBalanceNYCDownstreamMRFTargetAgg_step1CanPep"
         },
         "mrf_montagueTrenton_cannonsville": {
-            "type": "VolBalanceNYCDownstreamMRF",
+            "type": "VolBalanceNYCDownstreamMRF_step1CanPep",
             "node": "reservoir_cannonsville"
         },
         "mrf_montagueTrenton_pepacton": {
-            "type": "VolBalanceNYCDownstreamMRF",
+            "type": "VolBalanceNYCDownstreamMRF_step1CanPep",
             "node": "reservoir_pepacton"
         },
+        "prev_outflow_cannonsville": {
+            "type": "flow",
+            "node": "outflow_cannonsville"
+        },
+        "prev_spill_cannonsville": {
+            "type": "flow",
+            "node": "spill_cannonsville"
+        },
+        "prev_release_cannonsville": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "prev_outflow_cannonsville",
+                "prev_spill_cannonsville"
+            ]
+        },
+        "prev_outflow_pepacton": {
+            "type": "flow",
+            "node": "outflow_pepacton"
+        },
+        "prev_spill_pepacton": {
+            "type": "flow",
+            "node": "spill_pepacton"
+        },
+        "prev_release_pepacton": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "prev_outflow_pepacton",
+                "prev_spill_pepacton"
+            ]
+        },
         "mrf_montagueTrenton_neversink": {
-            "type": "VolBalanceNYCDownstreamMRF",
-            "node": "reservoir_neversink"
+            "type": "VolBalanceNYCDownstreamMRF_step2Nev"
         },
         "mrf_target_cannonsville": {
             "type": "aggregated",
@@ -4234,6 +4016,30 @@
                 "mrf_target_individual_neversink",
                 "mrf_montagueTrenton_neversink"
             ]
+        },
+        "hist_max_flow_delivery_nyc_cannonsville": {
+            "type": "constant",
+            "value": 497.7041574232482
+        },
+        "max_flow_delivery_nyc_cannonsville": {
+            "type": "VolBalanceNYCDemand",
+            "node": "reservoir_cannonsville"
+        },
+        "hist_max_flow_delivery_nyc_pepacton": {
+            "type": "constant",
+            "value": 673.5996026170066
+        },
+        "max_flow_delivery_nyc_pepacton": {
+            "type": "VolBalanceNYCDemand",
+            "node": "reservoir_pepacton"
+        },
+        "hist_max_flow_delivery_nyc_neversink": {
+            "type": "constant",
+            "value": 514.6940583794635
+        },
+        "max_flow_delivery_nyc_neversink": {
+            "type": "VolBalanceNYCDemand",
+            "node": "reservoir_neversink"
         }
     }
 }
