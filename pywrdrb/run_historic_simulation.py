@@ -51,7 +51,7 @@ if inflow_type in ('nwmv21', 'nhmv10', 'WEAP_29June2023_gridmet') or 'withNYCObs
     start_date = '1983-10-01'
     end_date = '2016-12-31'
 elif 'obs_pub' in inflow_type:
-    start_date = '1950-01-01'
+    start_date = '1952-01-01'
     end_date = '2022-12-31'
 
 # Set the filename based on inflow type
