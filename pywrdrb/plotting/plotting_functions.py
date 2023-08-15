@@ -29,7 +29,7 @@ from pywrdrb.pywr_drb_node_data import upstream_nodes_dict, downstream_node_lags
 from pywrdrb.utils.constants import cms_to_mgd, cm_to_mg, cfs_to_mgd
 from pywrdrb.utils.lists import reservoir_list, reservoir_list_nyc, majorflow_list, reservoir_link_pairs
 from pywrdrb.utils.directories import input_dir, fig_dir, output_dir, model_data_dir
-
+from pywrdrb.make_model import get_reservoir_max_release
 from pywrdrb.plotting.styles import base_model_colors, model_hatch_styles, paired_model_colors, scatter_model_markers, \
     node_label_dict, node_label_full_dict, model_label_dict, month_dict
 
@@ -686,11 +686,11 @@ def plot_flow_contributions(reservoir_releases, major_flows, inflows, model, nod
         C = C.rolling(window=smoothing_window).mean()
         D = D.rolling(window=smoothing_window).mean()
         
-        smooth_total_sim_node_flow = total_sim_node_flow.rolling(window=7).mean()
+        total_sim_node_flow = total_sim_node_flow.rolling(window=7).mean()
     
     # Total flows and target flow
     ax1.hlines(target, ts[0], ts[-1], linestyle = 'dotted', color = 'maroon', alpha = 0.85, label = f'Flow target {target:.0f} (MGD)')
-    ax1.plot(ts, smooth_total_sim_node_flow.loc[ts], color = 'dodgerblue', label = 'Sim. Flow')
+    ax1.plot(ts, total_sim_node_flow.loc[ts], color = 'dodgerblue', label = 'Sim. Flow')
     ax1.plot(ts, total_obs_node_flow.loc[ts], color = 'black', ls='dashed', label = 'Obs. Flow')
     # ax1.fill_between(ts, total_sim_node_flow.loc[ts], target, where=(total_sim_node_flow.loc[ts] < target), color='red', alpha=0.5)
     
@@ -765,12 +765,13 @@ def compare_inflow_data(inflow_data, nodes, models, start_date = None, end_date 
 def plot_combined_nyc_storage(storages, releases, all_drought_levels, models,
                       start_date = '1999-10-01',
                       end_date = '2010-05-31',
+                      reservoir = 'agg',
                       colordict = base_model_colors,
                       use_percent = True,
                       plot_observed=True, plot_sim=True,
                       add_ffmp_levels=True, ffmp_levels_to_plot=[2,5],
                       plot_drought_levels = True, 
-                      smooth_releases=True, smooth_window=7,
+                      smooth_releases=False, smooth_window=7,
                       plot_releases = True, 
                       fig_dir=fig_dir, filename_addon=""):
     """
@@ -816,13 +817,18 @@ def plot_combined_nyc_storage(storages, releases, all_drought_levels, models,
     historic_release['Total'] = historic_release.sum(axis=1)
 
     ### add seasonal min FFMP releases (table 3 https://webapps.usgs.gov/odrm/documents/ffmp/Appendix_A_FFMP-20180716-Final.pdf)
-    historic_release['FFMP_min_release'] = 95 * cfs_to_mgd
-    historic_release['FFMP_min_release'].loc[[m in (6,7,8) for m in historic_release.index.month]] = 190 * cfs_to_mgd
+    min_releases = {'agg': [95, 190], 'cannonsville': [40, 90], 'pepacton': [35, 60], 'neversink': [20, 40]}
+    historic_release['FFMP_min_release'] = min_releases[reservoir][0] * cfs_to_mgd
+    historic_release['FFMP_min_release'].loc[[m in (6,7,8) for m in historic_release.index.month]] = min_releases[reservoir][1] * cfs_to_mgd
 
     # model_names = [m[5:] for m in models]
     drought_levels = pd.DataFrame()
     for model in models:
-        drought_levels[model] = subset_timeseries(all_drought_levels[model]['nyc'], start_date, end_date)
+        if reservoir == 'agg':
+            drought_levels[model] = subset_timeseries(all_drought_levels[model]['nyc'], start_date, end_date)
+        else:
+            drought_levels[model] = subset_timeseries(all_drought_levels[model][f'{reservoir}'], start_date, end_date)
+
     
     # Create figure with m subplots
     n_subplots = 3 if plot_releases else 2
@@ -850,14 +856,21 @@ def plot_combined_nyc_storage(storages, releases, all_drought_levels, models,
     ax2 = fig.add_subplot(gs[1, 0])
     ax2.grid(True, which='major', axis='y')
     for m in models:
-        if use_percent:
-            sim_data = subset_timeseries(storages[m][reservoir_list_nyc].sum(axis=1), start_date, end_date)/capacities['combined']*100
-            hist_data = subset_timeseries(historic_storage['Total'], start_date, end_date)/capacities['combined']*100
-            ylab = f'Storage\n(% Useable)'
-        else:
+        if reservoir == 'agg':
             sim_data = subset_timeseries(storages[m][reservoir_list_nyc].sum(axis=1), start_date, end_date)
             hist_data = subset_timeseries(historic_storage['Total'], start_date, end_date)
-            ylab = f'Combined NYC Reservoir Storage (MG)'
+            total_capacity = capacities['combined']
+        else:
+            sim_data = subset_timeseries(storages[m][reservoir], start_date, end_date)
+            hist_data = subset_timeseries(historic_storage[reservoir], start_date, end_date)
+            total_capacity = capacities[reservoir]
+
+        if use_percent:
+            sim_data = sim_data / total_capacity *100
+            hist_data = hist_data / total_capacity *100
+            ylab = f'Storage\n(% Useable)'
+        else:
+            ylab = f'Storage\n(MG)'
         if plot_sim:
             ax2.plot(sim_data, color=colordict[m], label=f'{m}')
     if plot_observed:
@@ -895,10 +908,21 @@ def plot_combined_nyc_storage(storages, releases, all_drought_levels, models,
     
     # Plot releases
     ax3 = fig.add_subplot(gs[2,0])
+    ymax = 0
     if plot_sim:
         for m in models:
-            sim_data = subset_timeseries(releases[m][reservoir_list_nyc].sum(axis=1), start_date, end_date)
+            # print(m)
+            # print(releases[m][reservoir_list_nyc].max(axis=0))
+            if reservoir == 'agg':
+                sim_data = subset_timeseries(releases[m][reservoir_list_nyc].sum(axis=1), start_date, end_date)
+                hist_data = subset_timeseries(historic_release['Total'], start_date, end_date)
+            else:
+                sim_data = subset_timeseries(releases[m][reservoir], start_date, end_date)
+                hist_data = subset_timeseries(historic_release[reservoir], start_date, end_date)
+
             sim_data.index = datetime
+            ymax = max(ymax, sim_data.max())
+            # print(sim_data.max())
             
             if smooth_releases:
                 rd_rolling= sim_data.rolling(window=smooth_window).mean().values
@@ -910,13 +934,20 @@ def plot_combined_nyc_storage(storages, releases, all_drought_levels, models,
                 ax3.plot(sim_data.index, sim_data, color = colordict[m], label = m, lw = 1)
 
     if plot_observed:
-        ax3.plot(historic_release['Total'], color = colordict['obs'], label=f'Observed', 
-                lw = 1, zorder=3)
+        ax3.plot(hist_data, color = colordict['obs'], label=f'Observed', lw = 1, zorder=3)
     ax3.plot(historic_release['FFMP_min_release'], color ='black', ls =':', zorder=3,
             label = f'FFMP Min. Allowable Combined Release\nAt Drought Level 5')
 
     ax3.set_yscale('log')
-    ax3.set_ylim([10, 10000])
+    ax3.set_ylim([10, ymax*1.3])
+    ### max total controlled+spill release suggested in FFMP
+    if reservoir == 'agg':
+        ax3.axhline(sum([get_reservoir_max_release(r, 'controlled') for r in reservoir_list_nyc]), color='k', ls=':')
+        ax3.axhline(sum([get_reservoir_max_release(r, 'flood') for r in reservoir_list_nyc]), color='k', ls=':')
+    else:
+        ax3.axhline(get_reservoir_max_release(reservoir, 'controlled'), color='k', ls=':')
+        ax3.axhline(get_reservoir_max_release(reservoir, 'flood'), color='k', ls=':')
+
     ax3.yaxis.set_label_coords(-0.1, 0.5)
     ax3.set_ylabel('Releases\n(MGD)', fontsize = 12)
     ax3.set_xlabel('Date', fontsize = 12)
@@ -935,8 +966,8 @@ def plot_combined_nyc_storage(storages, releases, all_drought_levels, models,
     # plt.legend(loc = 'upper left', bbox_to_anchor=(0., -0.5), ncols=2)
     plt.tight_layout()
     fig.align_labels()
-    plt.suptitle('Combined NYC Reservoir Operations\nSimulated & Observed')
-    plt.savefig(f'{fig_dir}NYC_reservoir_ops_{start_date.strftime("%Y")}_{end_date.strftime("%Y")}{filename_addon}.png', dpi=250)
+    plt.suptitle(f'{reservoir} Reservoir Operations\nSimulated & Observed')
+    plt.savefig(f'{fig_dir}NYC_reservoir_ops_{reservoir}_{sim_data.index.year[0]}_{sim_data.index.year[-1]}.png', dpi=250)
     # plt.show()
     return
 
@@ -1135,3 +1166,34 @@ def plot_monthly_boxplot_fdc_combined(reservoir_downstream_gages, major_flows, b
     axs[1].set_ylim(ylim)
 
     plt.savefig(f'{fig_dir}monthly_boxplot_fdc_combined_{node}.png', bbox_inches='tight', dpi=250)
+
+
+
+
+
+
+def plot_NYC_release_components(nyc_release_components, reservoir_releases, model, reservoir,
+                                colordict = base_model_colors, start_date = None, end_date = None, fig_dir=fig_dir):
+
+    release_components = subset_timeseries(nyc_release_components[model], start_date, end_date)
+    release_components = release_components[[c for c in release_components.columns if reservoir in c]]
+
+    plt.figure(figsize=(12,5))
+    x = release_components[f'mrf_target_individual_{reservoir}'].index
+    y1 = 0
+    y2 = y1 + release_components[f'mrf_target_individual_{reservoir}'].values
+    plt.fill_between(x, y1, y2, label='FFMP Individual')
+    y3 = y2 + release_components[f'flood_release_{reservoir}'].values
+    plt.fill_between(x, y2, y3, label='Flood')
+    y4 = y3 + release_components[f'mrf_montagueTrenton_{reservoir}'].values
+    plt.fill_between(x, y3, y4, label='FFMP Tre/Mon')
+    y5 = y4 + release_components[f'spill_{reservoir}'].values
+    plt.fill_between(x, y4, y5, label='Spill')
+
+    release_total = subset_timeseries(reservoir_releases[model][reservoir], start_date, end_date)
+
+    plt.plot(release_total, color='k', lw=0.5)
+    # plt.semilogy()
+    plt.legend(frameon=False)
+
+    plt.savefig(f'{fig_dir}NYC_release_components_{model}_{reservoir}.png', bbox_inches='tight', dpi=500)

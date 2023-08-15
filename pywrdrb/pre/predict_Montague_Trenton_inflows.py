@@ -211,5 +211,14 @@ def predict_Montague_Trenton_inflows(dataset_label, start_date, end_date,
             [get_flow_or_prediction(nonnyc_gage_flow, regressions, pred_node, pred_lag, idx, use_log, mode) for idx in
              range(catchment_inflows.shape[0])])
 
+    ### finally, just assume a 7-day moving average of flows to try to smooth releases
+    mode = 'moving_average'
+    window = 7
+    for pred_node, pred_lag in zip(('delMontague', 'delMontague', 'delTrenton', 'delTrenton'), (1, 2, 3, 4)):
+        rollmean_nonnyc_gage_flow = nonnyc_gage_flow.rolling(window=window).mean()
+        rollmean_nonnyc_gage_flow.iloc[:window] = [nonnyc_gage_flow.rolling(window=i+1).mean().iloc[i] for i in range(window)]
+        rollmean_nonnyc_gage_flow['datetime'] = nonnyc_gage_flow['datetime']
+        pred_nonnyc_gage_flow[f'{pred_node}_lag{pred_lag}_{mode}'] = rollmean_nonnyc_gage_flow[pred_node]
+
     ### save to csv
     pred_nonnyc_gage_flow.to_csv(f'{input_dir}/predicted_nonnyc_gage_flow_{dataset_label}.csv', index=False)

@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import h5py
 
-from utils.lists import reservoir_list, majorflow_list, reservoir_link_pairs
+from utils.lists import reservoir_list, reservoir_list_nyc, majorflow_list, reservoir_link_pairs
 from utils.constants import cms_to_mgd, cfs_to_mgd, cm_to_mg
 
 ### Contains functions used to process Pywr-DRB data.  
@@ -36,11 +36,12 @@ def get_pywr_results(output_dir, model, results_set='all', scenario=0, datetime_
         elif results_set == 'reservoir_downstream_gage':
             ## Need to pull flow data for link_ downstream of reservoirs instead of simulated outflows
             keys_with_link = [k for k in keys if k.split('_')[0] == 'link' and k.split('_')[1] in reservoir_link_pairs.values()]
+            # print(keys_with_link)
             for k in keys_with_link:
                 res_name = [res for res, link in reservoir_link_pairs.items() if link == k.split('_')[1]][0]
                 results[res_name] = f[k][:, scenario]
             # Now pull simulated relases from un-observed reservoirs
-            keys_without_link = [k for k in keys if k.split('_')[0] == 'outflow' and k.split('_')[1] in reservoir_list]
+            keys_without_link = [k for k in keys if k.split('_')[0] == 'outflow' and k.split('_')[1] in reservoir_list and k.split('_')[1] not in reservoir_link_pairs.keys()]
             for k in keys_without_link:
                 results[k.split('_')[1]] = f[k][:, scenario]
         elif results_set == 'res_storage':
@@ -83,6 +84,14 @@ def get_pywr_results(output_dir, model, results_set='all', scenario=0, datetime_
             keys = [k for k in keys if results_set in k]
             for k in keys:
                 results[k.split('mrf_target_')[1]] = f[k][:, scenario]
+        elif results_set == 'nyc_release_components':
+            keys = [f'mrf_target_individual_{reservoir}' for reservoir in reservoir_list_nyc] + \
+                    [f'flood_release_{reservoir}' for reservoir in reservoir_list_nyc] + \
+                    [f'mrf_montagueTrenton_{reservoir}' for reservoir in reservoir_list_nyc] + \
+                    [f'spill_{reservoir}' for reservoir in reservoir_list_nyc]
+            for k in keys:
+                results[k] = f[k][:, scenario]
+
         else:
             print('Invalid results_set specified.')
             return

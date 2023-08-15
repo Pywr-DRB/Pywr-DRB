@@ -13,14 +13,58 @@ from pywr_drb_node_data import upstream_nodes_dict, immediate_downstream_nodes_d
 
 EPS = 1e-8
 nhm_inflow_scaling = True
-flow_prediction_mode = 'regression_agg'   ### 'regression_agg', 'regression_disagg', 'perfect_foresight', 'same_day'
+flow_prediction_mode = 'regression_agg'   ### 'regression_agg', 'regression_disagg', 'perfect_foresight', 'same_day', 'moving_average'
+use_neversink_update = True
 
+def get_reservoir_capacity(reservoir):
+    istarf = pd.read_csv(f'{model_data_dir}drb_model_istarf_conus.csv')
+    return float(istarf['Adjusted_CAP_MG'].loc[istarf['reservoir'] == reservoir].iloc[0])
+
+
+### get max reservoir releases for NYC from historical data
+def get_reservoir_max_release(reservoir, release_type):
+    assert (reservoir in reservoir_list_nyc), f'No max release data for {reservoir}'
+    assert (release_type in ['controlled', 'flood'])
+
+    ### constrain most releases based on historical controlled release max
+    if release_type == 'controlled':
+        hist_releases = pd.read_excel(input_dir + '/historic_NYC/Pep_Can_Nev_releases_daily_2000-2021.xlsx')
+        if reservoir == 'pepacton':
+            max_hist_release = hist_releases['Pepacton Controlled Release'].max()
+        elif reservoir == 'cannonsville':
+            max_hist_release = hist_releases['Cannonsville Controlled Release'].max()
+        elif reservoir == 'neversink':
+            max_hist_release = hist_releases['Neversink Controlled Release'].max()
+        return max_hist_release * cfs_to_mgd
+
+    ### constrain flood releases based on FFMP Table 5 instead. Note there is still a separate high cost spill path that can exceed this value.
+    elif release_type == 'flood':
+        if reservoir == 'pepacton':
+            max_hist_release = 2400
+        elif reservoir == 'cannonsville':
+            max_hist_release = 4200
+        elif reservoir == 'neversink':
+            max_hist_release = 3400
+        return max_hist_release * cfs_to_mgd
+
+
+### get max reservoir releases for NYC from historical data
+def get_reservoir_max_diversion_NYC(reservoir):
+    assert (reservoir in reservoir_list_nyc), f'No max diversion data for {reservoir}'
+    hist_diversions = pd.read_excel(input_dir + '/historic_NYC/Pep_Can_Nev_diversions_daily_2000-2021.xlsx')
+    if reservoir == 'pepacton':
+        max_hist_diversion = hist_diversions['East Delaware Tunnel'].max()
+    elif reservoir == 'cannonsville':
+        max_hist_diversion = hist_diversions['West Delaware Tunnel'].max()
+    elif reservoir == 'neversink':
+        max_hist_diversion = hist_diversions['Neversink Tunnel'].max()
+    return max_hist_diversion * cfs_to_mgd
 ##########################################################################################
 ### add_major_node()
 ##########################################################################################
 
 def add_major_node(model, name, node_type, inflow_type, outflow_type=None, downstream_node=None, downstream_lag=0,
-                   capacity=None, initial_volume_frac=None, variable_cost=None, has_catchment=True, max_release=None,
+                   capacity=None, initial_volume_frac=None, variable_cost=None, has_catchment=True,
                    inflow_ensemble_indices=None):
     """
     Add a major node to the model.
@@ -45,7 +89,6 @@ def add_major_node(model, name, node_type, inflow_type, outflow_type=None, downs
                               If True, it varies according to a state-dependent parameter (reservoirs only).
         has_catchment (bool): True if the node has a catchment with inflows and withdrawal/consumption.
                               False for artificial nodes that coincide with another (e.g., delTrenton, which shares a catchment with delDRCanal).
-        max_release (float): Max release constraint for reservoir. This is a soft constraint that can be exceeded via a high-cost second flow path for spill.
         inflow_ensemble_indices (None or list): List of ensemble indices for inflows (optional).
 
     Returns:
@@ -108,50 +151,45 @@ def add_major_node(model, name, node_type, inflow_type, outflow_type=None, downs
     ### add outflow node (if any), either using STARFIT rules or regulatory targets.
     ### Note reservoirs must have either starfit or regulatory, river nodes have either regulatory or None
     if outflow_type == 'starfit':
-        if max_release is None:
-            max_flow = f'starfit_release_{name}'
-        else:
-            max_flow = f'starfit_with_max_release_{name}'
         outflow = {
             'name': f'outflow_{name}',
             'type': 'link',
             'cost': -500.0,
-            'max_flow': max_flow
+            'max_flow': f'starfit_release_{name}'
         }
         model['nodes'].append(outflow)
         ### add secondary high-cost flow path for spill above max_flow
         outflow = {
             'name': f'spill_{name}',
             'type': 'link',
-            'cost': 500000.0
+            'cost': 5000.0
         }
         model['nodes'].append(outflow)
         
     elif outflow_type == 'regulatory':
+        # outflow = {
+        #     'name': f'outflow_{name}',
+        #     'type': 'rivergauge',
+        #     'mrf': f'downstream_release_target_{name}',
+        #     'mrf_cost': -1000.0
+        # }
+        # model['nodes'].append(outflow)
+
+        ### max flow wasnt working right directly tied to rivergauge type. Just use link type instead.
         outflow = {
             'name': f'outflow_{name}',
-            'type': 'rivergauge',
-            'mrf': f'mrf_target_{name}',
-            'mrf_cost': -1000.0
+            'type': 'link',
+            'cost': -1000,
+            'max_flow': f'downstream_release_target_{name}',
         }
         model['nodes'].append(outflow)
-
-        if max_release is not None:
-            ### max flow wasnt working right directly tied to rivergauge type. So create an extra node in sequence to apply constraint.
-            outflow = {
-                'name': f'release_constraint_{name}',
-                'type': 'link',
-                'cost': 0,
-                'max_flow': max_release
-            }
-            model['nodes'].append(outflow)
-            ### add secondary high-cost flow path for spill above max_flow
-            outflow = {
-                'name': f'spill_{name}',
-                'type': 'link',
-                'cost': 500000.0
-            }
-            model['nodes'].append(outflow)
+        ### add secondary high-cost flow path for spill above max_flow
+        outflow = {
+            'name': f'spill_{name}',
+            'type': 'link',
+            'cost': 5000.0
+        }
+        model['nodes'].append(outflow)
 
 
     ### add Delay node to account for flow travel time between nodes. Lag unit is days.
@@ -182,23 +220,18 @@ def add_major_node(model, name, node_type, inflow_type, outflow_type=None, downs
     else:
         downstream_name = f'reservoir_{downstream_node}'
     if has_outflow_node:
-        if outflow_type == 'regulatory' and max_release is not None:
-            model['edges'].append([node_name, f'release_constraint_{name}'])
-            model['edges'].append([f'release_constraint_{name}', f'outflow_{name}'])
-        else:
-            model['edges'].append([node_name, f'outflow_{name}'])
+        model['edges'].append([node_name, f'outflow_{name}'])
         if downstream_lag > 0:
             model['edges'].append([f'outflow_{name}', f'delay_{name}'])
             model['edges'].append([f'delay_{name}', downstream_name])
         else:
             model['edges'].append([f'outflow_{name}', downstream_name])
-        ### add secondary high-cost spill path if necessary
-        if (outflow_type == 'starfit') or (outflow_type == 'regulatory' and max_release is not None):
-            model['edges'].append([node_name, f'spill_{name}'])
-            if downstream_lag > 0:
-                model['edges'].append([f'spill_{name}', f'delay_{name}'])
-            else:
-                model['edges'].append([f'spill_{name}', downstream_name])
+        ### add secondary high-cost spill path
+        model['edges'].append([node_name, f'spill_{name}'])
+        if downstream_lag > 0:
+            model['edges'].append([f'spill_{name}', f'delay_{name}'])
+        else:
+            model['edges'].append([f'spill_{name}', downstream_name])
 
     else:
         if downstream_lag > 0:
@@ -221,10 +254,14 @@ def add_major_node(model, name, node_type, inflow_type, outflow_type=None, downs
         }
 
     ### add max release constraints for NYC reservoirs
-    if outflow_type == 'regulatory' and max_release is not None:
-        model['parameters'][f'constant_max_release_{name}'] = {
+    if outflow_type == 'regulatory':
+        model['parameters'][f'controlled_max_release_{name}'] = {
             'type': 'constant',
-            'value': max_release
+            'value': get_reservoir_max_release(name, 'controlled')
+        }
+        model['parameters'][f'flood_max_release_{name}'] = {
+            'type': 'constant',
+            'value': get_reservoir_max_release(name, 'flood')
         }
     ### for starfit reservoirs, need to add a bunch of starfit specific params
     if outflow_type == 'starfit':
@@ -232,20 +269,6 @@ def add_major_node(model, name, node_type, inflow_type, outflow_type=None, downs
             'type': 'STARFITReservoirRelease',
             'node': name
         }
-        if max_release is not None:
-            model['parameters'][f'constant_max_release_{name}'] = {
-                'type': 'constant',
-                'value': max_release
-            }
-            model['parameters'][f'starfit_with_max_release_{name}'] = {
-                'type': 'aggregated',
-                'agg_func': 'min',
-                'parameters': [
-                    f'starfit_release_{name}',
-                    f'constant_max_release_{name}'
-                ]
-            }
-
 
 
     if has_catchment:
@@ -364,34 +387,8 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
     #######################################################################
 
     ### get initial reservoir storages as 80% of capacity
-    istarf = pd.read_csv(f'{model_data_dir}drb_model_istarf_conus.csv')
     initial_volume_frac = 0.8
-    def get_reservoir_capacity(reservoir):
-        return float(istarf['Adjusted_CAP_MG'].loc[istarf['reservoir'] == reservoir].iloc[0])
 
-    ### get max reservoir releases for NYC from historical data
-    def get_reservoir_max_release(reservoir):
-        assert (reservoir in reservoir_list_nyc), f'No max release data for {reservoir}'
-        hist_releases = pd.read_excel(input_dir + '/historic_NYC/Pep_Can_Nev_releases_daily_2000-2021.xlsx')
-        if reservoir == 'pepacton':
-            max_hist_release = hist_releases['Pepacton Controlled Release'].max()
-        elif reservoir == 'cannonsville':
-            max_hist_release = hist_releases['Cannonsville Controlled Release'].max()
-        elif reservoir == 'neversink':
-            max_hist_release = hist_releases['Neversink Controlled Release'].max()
-        return max_hist_release * cfs_to_mgd
-
-    ### get max reservoir releases for NYC from historical data
-    def get_reservoir_max_diversion_NYC(reservoir):
-        assert (reservoir in reservoir_list_nyc), f'No max diversion data for {reservoir}'
-        hist_diversions = pd.read_excel(input_dir + '/historic_NYC/Pep_Can_Nev_diversions_daily_2000-2021.xlsx')
-        if reservoir == 'pepacton':
-            max_hist_diversion = hist_diversions['East Delaware Tunnel'].max()
-        elif reservoir == 'cannonsville':
-            max_hist_diversion = hist_diversions['West Delaware Tunnel'].max()
-        elif reservoir == 'neversink':
-            max_hist_diversion = hist_diversions['Neversink Tunnel'].max()
-        return max_hist_diversion * cfs_to_mgd
 
     ### get downstream node to link to for the current node
     for node, downstream_node in immediate_downstream_nodes_dict.items():
@@ -406,9 +403,6 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
         else:
             outflow_type = None
 
-        ### get max release for NYC reservoirs from historical data
-        max_release = get_reservoir_max_release(node) if node in reservoir_list_nyc else None
-
         ### get flow lag (days) between current node and its downstream connection
         downstream_lag = downstream_node_lags[node]
             
@@ -420,8 +414,7 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
 
         ### set up major node
         model = add_major_node(model, node, node_type, inflow_type, outflow_type, downstream_node,  downstream_lag,
-                               capacity, initial_volume_frac, variable_cost, has_catchment, max_release,
-                               inflow_ensemble_indices)
+                               capacity, initial_volume_frac, variable_cost, has_catchment, inflow_ensemble_indices)
 
 
     #######################################################################
@@ -706,6 +699,30 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
         'parameters': [f'mrf_target_individual_{reservoir}' for reservoir in reservoir_list_nyc]
     }
 
+
+    ### extra flood releases for NYC reservoirs specified in FFMP
+    for reservoir in reservoir_list_nyc:
+        model['parameters'][f'weekly_rolling_mean_flow_{reservoir}'] = {
+            'type': 'RollingMeanFlowNode',
+            'node': f'reservoir_{reservoir}',
+            'timesteps': 7,
+            'name': f'flow_{reservoir}',
+            'initial_flow': 0
+        }
+        model['parameters'][f'flood_release_{reservoir}'] = {
+            'type': 'NYCFloodRelease',
+            'node': f'reservoir_{reservoir}'
+        }
+
+    ### sum of flood control releases from NYC reservoirs
+    model['parameters']['flood_release_agg_nyc'] = {
+        'type': 'aggregated',
+        'agg_func': 'sum',
+        'parameters': [f'flood_release_{reservoir}' for reservoir in reservoir_list_nyc]
+    }
+
+
+
     ### variable storage cost for each reservoir, based on its fractional storage
     ### Note: may not need this anymore now that we have volume balancing rules. but maybe makes sense to leave in for extra protection.
     volumes = {'cannonsville': get_reservoir_capacity('cannonsville'),
@@ -783,10 +800,8 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
             ]
         }
 
-    # ### total non-NYC inflows to Montague & Trenton
-    ### Assign inflows to nodes
+    # ### total predicted lagged non-NYC inflows to Montague & Trenton
     if inflow_ensemble_indices is None:
-        ### Use single-scenario historic data
         for mrf, lag in zip(('delMontague', 'delMontague', 'delTrenton', 'delTrenton'), (1,2,3,4)):
             label = f'{mrf}_lag{lag}_{flow_prediction_mode}'
 
@@ -816,39 +831,50 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
 
     ### Target release from each NYC reservoir to satisfy Montague & Trenton flow targets,on top of individually mandated FFMP releases.
     ### Uses custom Pywr parameter.
-    for reservoir in ['cannonsville','pepacton']:
-        model['parameters'][f'mrf_montagueTrenton_{reservoir}'] = {
-            'type': 'VolBalanceNYCDownstreamMRF_step1CanPep',
-            'node': f'reservoir_{reservoir}'
-        }
+    if use_neversink_update:
+        for reservoir in ['cannonsville','pepacton']:
+            model['parameters'][f'mrf_montagueTrenton_{reservoir}'] = {
+                'type': 'VolBalanceNYCDownstreamMRF_step1CanPep',
+                'node': f'reservoir_{reservoir}'
+            }
 
-    ### now update Neversink release requirement based on yesterday's Can&Pep releases & extra day of flow observations
-    for reservoir in ['cannonsville','pepacton']:
-        model['parameters'][f'prev_outflow_{reservoir}'] = {
-            'type': 'flow',
-            'node': f'outflow_{reservoir}'
+        ### now update Neversink release requirement based on yesterday's Can&Pep releases & extra day of flow observations
+        for reservoir in ['cannonsville','pepacton']:
+            model['parameters'][f'prev_outflow_{reservoir}'] = {
+                'type': 'flow',
+                'node': f'outflow_{reservoir}'
+            }
+            model['parameters'][f'prev_spill_{reservoir}'] = {
+                'type': 'flow',
+                'node': f'spill_{reservoir}'
+            }
+            model['parameters'][f'prev_release_{reservoir}'] = {
+                'type': 'aggregated',
+                'agg_func': 'sum',
+                'parameters': [f'prev_outflow_{reservoir}', f'prev_spill_{reservoir}']
+            }
+        model['parameters'][f'mrf_montagueTrenton_neversink'] = {
+            'type': 'VolBalanceNYCDownstreamMRF_step2Nev',
         }
-        model['parameters'][f'prev_spill_{reservoir}'] = {
-            'type': 'flow',
-            'node': f'spill_{reservoir}'
-        }
-        model['parameters'][f'prev_release_{reservoir}'] = {
-            'type': 'aggregated',
-            'agg_func': 'sum',
-            'parameters': [f'prev_outflow_{reservoir}', f'prev_spill_{reservoir}']
-        }
-    model['parameters'][f'mrf_montagueTrenton_neversink'] = {
-        'type': 'VolBalanceNYCDownstreamMRF_step2Nev',
-    }
+    else:
+        for reservoir in reservoir_list_nyc:
+            model['parameters'][f'mrf_montagueTrenton_{reservoir}'] = {
+                'type': 'VolBalanceNYCDownstreamMRF_step1CanPep',
+                'node': f'reservoir_{reservoir}'
+            }
 
-    ### finally, get final effective mandated release from each NYC reservoir, which is the sum of its
-    ###    individually-mandated release from FFMP and its contribution to the Montague/Trenton targets
+    ### finally, get final downstream release from each NYC reservoir, which is the sum of its
+    ###    individually-mandated release from FFMP, flood control release, and its contribution to the
+    ### Montague/Trenton targets
     for reservoir in reservoir_list_nyc:
-        model['parameters'][f'mrf_target_{reservoir}'] = {
+        model['parameters'][f'downstream_release_target_{reservoir}'] = {
             'type': 'aggregated',
             'agg_func': 'sum',
-            'parameters': [f'mrf_target_individual_{reservoir}', f'mrf_montagueTrenton_{reservoir}']
+            'parameters': [f'mrf_target_individual_{reservoir}',
+                           f'flood_release_{reservoir}',
+                           f'mrf_montagueTrenton_{reservoir}']
         }
+
 
 
 

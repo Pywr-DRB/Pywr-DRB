@@ -34,6 +34,7 @@ if __name__ == "__main__":
     reservoir_releases = {}
     all_drought_levels = {}
     inflows = {}
+    nyc_release_components = {}
 
     datetime_index = None
     for model in pywr_models:
@@ -44,6 +45,7 @@ if __name__ == "__main__":
         reservoir_releases[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, results_set='res_release', datetime_index=datetime_index)
         all_drought_levels[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, results_set='res_level', datetime_index=datetime_index)
         inflows[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, 'inflow', datetime_index=datetime_index)
+        nyc_release_components[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, 'nyc_release_components', datetime_index=datetime_index)
 
     pywr_models = [f'pywr_{m}' for m in pywr_models]
 
@@ -61,22 +63,23 @@ if __name__ == "__main__":
     end_date = pd.to_datetime('2017-01-01')
     ## 3-part flow figures with releases
     if rerun_all:
+        uselog=True
         print('Plotting 3-part flows at nodes.')
         for node in reservoir_list_nyc:
             for model in pywr_models:
-                plot_3part_flows(reservoir_downstream_gages, [model.replace('pywr_',''), model], node,
+                plot_3part_flows(reservoir_downstream_gages, [model.replace('pywr_',''), model], node, uselog=uselog,
                                  colordict=model_colors_diagnostics_paper, start_date=start_date, end_date=end_date)
-            plot_3part_flows(reservoir_downstream_gages, [pywr_models[0], pywr_models[2]], node,
+            plot_3part_flows(reservoir_downstream_gages, [pywr_models[0], pywr_models[2]], node, uselog=uselog,
                              colordict=model_colors_diagnostics_paper, start_date=start_date, end_date=end_date)
-            plot_3part_flows(reservoir_downstream_gages, [pywr_models[1], pywr_models[3]], node,
+            plot_3part_flows(reservoir_downstream_gages, [pywr_models[1], pywr_models[3]], node, uselog=uselog,
                              colordict=model_colors_diagnostics_paper, start_date=start_date, end_date=end_date)
         for node in majorflow_list_figs:
             for model in pywr_models:
-                plot_3part_flows(major_flows, [model.replace('pywr_',''), model], node,
+                plot_3part_flows(major_flows, [model.replace('pywr_',''), model], node, uselog=uselog,
                                  colordict=model_colors_diagnostics_paper, start_date=start_date, end_date=end_date)
-            plot_3part_flows(major_flows, [pywr_models[0], pywr_models[2]], node,
+            plot_3part_flows(major_flows, [pywr_models[0], pywr_models[2]], node, uselog=uselog,
                              colordict=model_colors_diagnostics_paper, start_date=start_date, end_date=end_date)
-            plot_3part_flows(major_flows, [pywr_models[1], pywr_models[3]], node,
+            plot_3part_flows(major_flows, [pywr_models[1], pywr_models[3]], node, uselog=uselog,
                              colordict=model_colors_diagnostics_paper, start_date=start_date, end_date=end_date)
 
 
@@ -138,10 +141,13 @@ if __name__ == "__main__":
 
     ## Plot NYC storage dynamics
     if rerun_all:
-        plot_combined_nyc_storage(storages, reservoir_releases, all_drought_levels, pywr_models,
-                                  start_date=start_date, end_date=end_date, fig_dir=fig_dir,
-                                  colordict=model_colors_diagnostics_paper,
-                                  add_ffmp_levels=True, plot_observed=True, plot_sim=True, filename_addon='_part4')
+        print('Plotting NYC reservoir storages & releases')
+        for reservoir in ['agg']+reservoir_list_nyc:
+            plot_combined_nyc_storage(storages, reservoir_releases, all_drought_levels, pywr_models,
+                                      start_date=start_date, end_date=end_date, reservoir=reservoir, fig_dir=fig_dir,
+                                      colordict=model_colors_diagnostics_paper,
+                                      add_ffmp_levels=True, plot_observed=True, plot_sim=True)
+
 
     ### flow contributions plot
     if rerun_all:
@@ -155,20 +161,33 @@ if __name__ == "__main__":
 
     ## Plot inflow comparison
     if rerun_all:
+        print('Plotting inflow data boxplots')
         compare_inflow_data(inflows, reservoir_list, pywr_models,
                             start_date=start_date, end_date=end_date, fig_dir=fig_dir)
 
     ### xQn grid low flow comparison figure
     if rerun_all:
+        print('Plotting low flow grid.')
         plot_xQn_grid(reservoir_downstream_gages, major_flows,  base_models + pywr_models,
                       reservoir_list_nyc + majorflow_list_figs, xlist = [1,7,30,90, 365], nlist = [5, 10, 20, 30],
                       start_date=start_date, end_date=end_date, fig_dir=fig_dir)
 
     ### plot comparing flow series with overlapping boxplots & FDCs
     if rerun_all:
+        print('Plotting monthly boxplot/FDC figures')
         for node in reservoir_list_nyc + majorflow_list_figs:
             plot_monthly_boxplot_fdc_combined(reservoir_downstream_gages, major_flows, base_models, pywr_models, node,
                                               colordict=model_colors_diagnostics_paper, start_date=start_date,
                                               end_date=end_date, fig_dir=fig_dir)
+
+
+    ### plot breaking down NYC flows into components
+    if rerun_all:
+        print('Plotting NYC releases by components')
+        for model in pywr_models:
+            for reservoir in reservoir_list_nyc:
+                plot_NYC_release_components(nyc_release_components, reservoir_releases, model, reservoir,
+                                            colordict=model_colors_diagnostics_paper,
+                                            start_date='2012-01-01', end_date='2015-01-01', fig_dir=fig_dir)
 
     print(f'Done! Check the {fig_dir} folder.')
