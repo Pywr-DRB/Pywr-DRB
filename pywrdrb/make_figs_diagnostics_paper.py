@@ -21,7 +21,7 @@ from pywrdrb.post.get_results import get_base_results, get_pywr_results
 ## Execution - Generate all figures
 if __name__ == "__main__":
 
-    rerun_all = False
+    rerun_all = True
 
     ## Load data    
     # Load Pywr-DRB simulation models
@@ -182,14 +182,14 @@ if __name__ == "__main__":
 
 
     ### plot breaking down NYC flows into components
-    # if rerun_all:
-    print('Plotting NYC releases by components')
-    for model in pywr_models:
-        plot_NYC_release_components(nyc_release_components, reservoir_releases, model,
-                                    colordict=model_colors_diagnostics_paper,
-                                    start_date=start_date, end_date=end_date, fig_dir=fig_dir)
-        plot_NYC_release_components(nyc_release_components, reservoir_releases, model,
-                                    colordict=model_colors_diagnostics_paper,
-                                    start_date='2011-01-01', end_date='2013-01-01', fig_dir=fig_dir)
+    if rerun_all:
+        print('Plotting NYC releases by components')
+        for model in pywr_models:
+            plot_NYC_release_components(nyc_release_components, reservoir_releases, model,
+                                        colordict=model_colors_diagnostics_paper,
+                                        start_date=start_date, end_date=end_date, fig_dir=fig_dir)
+            plot_NYC_release_components(nyc_release_components, reservoir_releases, model,
+                                        colordict=model_colors_diagnostics_paper,
+                                        start_date='2011-01-01', end_date='2013-01-01', fig_dir=fig_dir)
 
     print(f'Done! Check the {fig_dir} folder.')

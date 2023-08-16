@@ -3946,28 +3946,28 @@
         "predicted_nonnyc_gage_flow_delMontague_lag1": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_nonnyc_gage_flow_nhmv10_withObsScaled.csv",
-            "column": "delMontague_lag1_regression_agg",
+            "column": "delMontague_lag1_regression_disagg",
             "index_col": "datetime",
             "parse_dates": true
         },
         "predicted_nonnyc_gage_flow_delMontague_lag2": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_nonnyc_gage_flow_nhmv10_withObsScaled.csv",
-            "column": "delMontague_lag2_regression_agg",
+            "column": "delMontague_lag2_regression_disagg",
             "index_col": "datetime",
             "parse_dates": true
         },
         "predicted_nonnyc_gage_flow_delTrenton_lag3": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_nonnyc_gage_flow_nhmv10_withObsScaled.csv",
-            "column": "delTrenton_lag3_regression_agg",
+            "column": "delTrenton_lag3_regression_disagg",
             "index_col": "datetime",
             "parse_dates": true
         },
         "predicted_nonnyc_gage_flow_delTrenton_lag4": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_nonnyc_gage_flow_nhmv10_withObsScaled.csv",
-            "column": "delTrenton_lag4_regression_agg",
+            "column": "delTrenton_lag4_regression_disagg",
             "index_col": "datetime",
             "parse_dates": true
         },

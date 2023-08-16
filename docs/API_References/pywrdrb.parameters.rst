@@ -15,13 +15,12 @@ These custom parameters are used to implement the Flexible Flow Management Progr
 
    FfmpNycRunningAvgParameter
    FfmpNjRunningAvgParameter
-   VolBalanceNYCDemandTarget
-   VolBalanceNYCDemandFinal
-   VolBalanceNYCDownstreamMRFTargetAgg
-   VolBalanceNYCDownstreamMRFTarget
-   VolBalanceNYCDownstreamMRFFinal
    NYCCombinedReleaseFactor
-
+   NYCFloodRelease
+   VolBalanceNYCDownstreamMRFTargetAgg_step1CanPep
+   VolBalanceNYCDownstreamMRF_step1CanPep
+   VolBalanceNYCDownstreamMRF_step2Nev
+   VolBalanceNYCDemand
 
 STARFIT Reservoir Release Parameter
 ------------------------------------------------------------

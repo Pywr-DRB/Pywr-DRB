@@ -13,7 +13,7 @@ from pywr_drb_node_data import upstream_nodes_dict, immediate_downstream_nodes_d
 
 EPS = 1e-8
 nhm_inflow_scaling = True
-flow_prediction_mode = 'regression_agg'   ### 'regression_agg', 'regression_disagg', 'perfect_foresight', 'same_day', 'moving_average'
+flow_prediction_mode = 'regression_disagg'   ### 'regression_agg', 'regression_disagg', 'perfect_foresight', 'same_day', 'moving_average'
 use_neversink_update = True
 
 def get_reservoir_capacity(reservoir):

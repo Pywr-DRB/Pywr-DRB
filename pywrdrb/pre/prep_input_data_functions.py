@@ -213,7 +213,7 @@ def combine_modeled_observed_datasets(nyc_scaling_type, downstream_inflow_type, 
     nyc_obs.index = pd.DatetimeIndex(nyc_obs['datetime'])
     inflows = inflows.loc[datetime_index]
     nyc_obs = nyc_obs.loc[datetime_index]
-    for reservoir in reservoir_list_nyc:
+    for reservoir in reservoir_list_nyc + ['fewalter','beltzvilleCombined']:
         inflows[reservoir] = nyc_obs[reservoir]
 
     new_label = downstream_inflow_type + '_withObsScaled'
