@@ -50,8 +50,10 @@ parts:
           file: API_References/pywrdrb.plotting.rst
         - title: Custom Parameters
           file: API_References/pywrdrb.parameters.rst
-        - title: Data Processing
+        - title: Input Data Processing
           file: API_References/pywrdrb.pre.rst
+        - title: Output Data Processing
+          file: API_References/pywrdrb.post.rst
     # =============== Supplemental  =================
     - file: Supplemental/supplemental.md
       sections:

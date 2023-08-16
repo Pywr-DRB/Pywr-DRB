@@ -10,4 +10,4 @@ The following functions are used to construct the Pywr-DRB model, which is store
    :recursive:
 
    add_major_node
-   drb_make_model
+   make_model
