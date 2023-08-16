@@ -8,8 +8,8 @@ from utils.hdf5 import get_hdf5_realization_numbers, combine_batched_hdf5_output
 
 ### specify inflow type from command line args
 inflow_type_options = ['obs_pub', 'nhmv10', 'nwmv21', 'WEAP_29June2023_gridmet',
-                       'obs_pub_nhmv10_NYCScaled', 'obs_pub_nwmv21_NYCScaled',
-                       'obs_pub_nhmv10_NYCScaled_ensemble', 'obs_pub_nwmv21_NYCScaled_ensemble']
+                       'obs_pub_nhmv10_ObsScaled', 'obs_pub_nwmv21_ObsScaled',
+                       'obs_pub_nhmv10_ObsScaled_ensemble', 'obs_pub_nwmv21_ObsScaled_ensemble']
 inflow_type = sys.argv[1]
 assert(inflow_type in inflow_type_options), f'Invalid inflow_type specified. Options: {inflow_type_options}'
 

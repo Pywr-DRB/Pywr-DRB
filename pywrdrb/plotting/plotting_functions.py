@@ -773,7 +773,7 @@ def plot_combined_nyc_storage(storages, releases, all_drought_levels, models,
                       plot_drought_levels = True, 
                       smooth_releases=False, smooth_window=7,
                       plot_releases = True, 
-                      fig_dir=fig_dir, filename_addon=""):
+                      fig_dir=fig_dir):
     """
     Plot simulated and observed combined NYC reservoir storage.
 
@@ -1172,28 +1172,36 @@ def plot_monthly_boxplot_fdc_combined(reservoir_downstream_gages, major_flows, b
 
 
 
-def plot_NYC_release_components(nyc_release_components, reservoir_releases, model, reservoir,
-                                colordict = base_model_colors, start_date = None, end_date = None, fig_dir=fig_dir):
+def plot_NYC_release_components(nyc_release_components, reservoir_releases, model, start_date = None, end_date = None,
+                                colordict = base_model_colors, use_log=False, fig_dir=fig_dir):
 
-    release_components = subset_timeseries(nyc_release_components[model], start_date, end_date)
-    release_components = release_components[[c for c in release_components.columns if reservoir in c]]
+    fig, axs = plt.subplots(3,1,figsize=(12,9))
 
-    plt.figure(figsize=(12,5))
-    x = release_components[f'mrf_target_individual_{reservoir}'].index
-    y1 = 0
-    y2 = y1 + release_components[f'mrf_target_individual_{reservoir}'].values
-    plt.fill_between(x, y1, y2, label='FFMP Individual')
-    y3 = y2 + release_components[f'flood_release_{reservoir}'].values
-    plt.fill_between(x, y2, y3, label='Flood')
-    y4 = y3 + release_components[f'mrf_montagueTrenton_{reservoir}'].values
-    plt.fill_between(x, y3, y4, label='FFMP Tre/Mon')
-    y5 = y4 + release_components[f'spill_{reservoir}'].values
-    plt.fill_between(x, y4, y5, label='Spill')
+    for ax, reservoir in zip(axs, reservoir_list_nyc):
+        release_components = subset_timeseries(nyc_release_components[model], start_date, end_date)
+        release_components = release_components[[c for c in release_components.columns if reservoir in c]]
 
-    release_total = subset_timeseries(reservoir_releases[model][reservoir], start_date, end_date)
+        x = release_components[f'mrf_target_individual_{reservoir}'].index
+        y1 = 0
+        y2 = y1 + release_components[f'mrf_target_individual_{reservoir}'].values
+        ax.fill_between(x, y1, y2, label='FFMP Individual')
+        y3 = y2 + release_components[f'flood_release_{reservoir}'].values
+        ax.fill_between(x, y2, y3, label='Flood')
+        y4 = y3 + release_components[f'mrf_montagueTrenton_{reservoir}'].values
+        ax.fill_between(x, y3, y4, label='FFMP Tre/Mon')
+        y5 = y4 + release_components[f'spill_{reservoir}'].values
+        ax.fill_between(x, y4, y5, label='Spill')
 
-    plt.plot(release_total, color='k', lw=0.5)
-    # plt.semilogy()
-    plt.legend(frameon=False)
+        release_total = subset_timeseries(reservoir_releases[model][reservoir], start_date, end_date)
 
-    plt.savefig(f'{fig_dir}NYC_release_components_{model}_{reservoir}.png', bbox_inches='tight', dpi=500)
+        ax.plot(release_total, color='k', lw=0.5)
+
+        if use_log:
+            ax.semilogy()
+
+        ax.set_title(reservoir)
+        if reservoir == reservoir_list_nyc[1]:
+            ax.legend(frameon=False)
+            ax.set_ylabel('Release (MGD)')
+
+        plt.savefig(f'{fig_dir}NYC_release_components_{model}_{release_total.index.year[0]}_{release_total.index.year[-1]}.png', bbox_inches='tight', dpi=500)

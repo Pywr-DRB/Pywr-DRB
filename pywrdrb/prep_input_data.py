@@ -58,8 +58,8 @@ if __name__ == "__main__":
     end_date_training = '2008/01/01'
     predict_Montague_Trenton_inflows('nhmv10', start_date_training, end_date_training)
     predict_Montague_Trenton_inflows('nwmv21', start_date_training, end_date_training)
-    predict_Montague_Trenton_inflows('nhmv10_withNYCObsScaled', start_date_training, end_date_training)
-    predict_Montague_Trenton_inflows('nwmv21_withNYCObsScaled', start_date_training, end_date_training)
+    predict_Montague_Trenton_inflows('nhmv10_withObsScaled', start_date_training, end_date_training)
+    predict_Montague_Trenton_inflows('nwmv21_withObsScaled', start_date_training, end_date_training)
 
     ### now get NYC & NJ diversions. for time periods we dont have historical record, extrapolate by seasonal relationship to flow.
     ### uses obs_pub_nhmv10_NYCScaling for inflow regressions & extrapolation -> this needs to be created first from Historic_reconstruction repo.

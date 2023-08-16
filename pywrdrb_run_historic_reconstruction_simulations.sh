@@ -10,7 +10,7 @@ echo Prepping data...
 time python3 -W ignore ./pywrdrb/prep_input_data.py
 
 ### run ensemble simulations across multiple processors using mpi4py (default: 6 cores)
-for inflow_type in obs_pub_nwmv21_NYCScaled_ensemble obs_pub_nhmv10_NYCScaled_ensemble
+for inflow_type in obs_pub_nwmv21_ObsScaled_ensemble obs_pub_nhmv10_ObsScaled_ensemble
 do
 	echo Running simulation with $inflow_type ...
 	time mpirun -np 6 python3 -W ignore ./pywrdrb/run_historic_simulation.py $inflow_type True
@@ -18,7 +18,7 @@ do
 done
 
 ### run single-scenario simulations with different data sources
-for inflow_type in obs_pub_nhmv10_NYCScaled obs_pub_nwmv21_NYCScaled nhmv10 nwmv21 WEAP_29June2023_gridmet
+for inflow_type in obs_pub_nhmv10_ObsScaled obs_pub_nwmv21_ObsScaled nhmv10 nwmv21 WEAP_29June2023_gridmet
 do
 	echo Running simulation with $inflow_type ...
 	time python3 -W ignore ./pywrdrb/run_historic_simulation.py $inflow_type

@@ -205,7 +205,7 @@ def match_gages(df, dataset_label, site_matches_id):
 
 def combine_modeled_observed_datasets(nyc_scaling_type, downstream_inflow_type, datetime_index):
     ### create combo dataset that uses observed scaled data for NYC & NHM/NWM data everywhere else
-    inflow_label_NYC = f'obs_pub_{nyc_scaling_type}_NYCScaled'
+    inflow_label_NYC = f'obs_pub_{nyc_scaling_type}_ObsScaled'
     inflow_label_nonNYC = downstream_inflow_type
     inflows = pd.read_csv(f'{input_dir}/catchment_inflow_{inflow_label_nonNYC}.csv')
     nyc_obs = pd.read_csv(f'{input_dir}/catchment_inflow_{inflow_label_NYC}.csv')
@@ -216,7 +216,7 @@ def combine_modeled_observed_datasets(nyc_scaling_type, downstream_inflow_type, 
     for reservoir in reservoir_list_nyc:
         inflows[reservoir] = nyc_obs[reservoir]
 
-    new_label = downstream_inflow_type + '_withNYCObsScaled'
+    new_label = downstream_inflow_type + '_withObsScaled'
 
     ## Save catchment inflows to csv
     inflows.to_csv(f'{input_dir}catchment_inflow_{new_label}.csv', index=False)

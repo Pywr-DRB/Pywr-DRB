@@ -21,12 +21,12 @@ from pywrdrb.post.get_results import get_base_results, get_pywr_results
 ## Execution - Generate all figures
 if __name__ == "__main__":
 
-    rerun_all = True
+    rerun_all = False
 
     ## Load data    
     # Load Pywr-DRB simulation models
     print(f'Retrieving simulation data.')
-    pywr_models = ['nhmv10', 'nwmv21', 'nhmv10_withNYCObsScaled', 'nwmv21_withNYCObsScaled']
+    pywr_models = ['nhmv10', 'nwmv21', 'nhmv10_withObsScaled', 'nwmv21_withObsScaled']
 
     reservoir_downstream_gages = {}
     major_flows = {}
@@ -50,7 +50,7 @@ if __name__ == "__main__":
     pywr_models = [f'pywr_{m}' for m in pywr_models]
 
     ### Load base (non-pywr) models
-    base_models = ['obs', 'nhmv10', 'nwmv21', 'nhmv10_withNYCObsScaled', 'nwmv21_withNYCObsScaled']
+    base_models = ['obs', 'nhmv10', 'nwmv21', 'nhmv10_withObsScaled', 'nwmv21_withObsScaled']
 
     datetime_index = list(reservoir_downstream_gages.values())[0].index
     for model in base_models:
@@ -182,12 +182,14 @@ if __name__ == "__main__":
 
 
     ### plot breaking down NYC flows into components
-    if rerun_all:
-        print('Plotting NYC releases by components')
-        for model in pywr_models:
-            for reservoir in reservoir_list_nyc:
-                plot_NYC_release_components(nyc_release_components, reservoir_releases, model, reservoir,
-                                            colordict=model_colors_diagnostics_paper,
-                                            start_date='2012-01-01', end_date='2015-01-01', fig_dir=fig_dir)
+    # if rerun_all:
+    print('Plotting NYC releases by components')
+    for model in pywr_models:
+        plot_NYC_release_components(nyc_release_components, reservoir_releases, model,
+                                    colordict=model_colors_diagnostics_paper,
+                                    start_date=start_date, end_date=end_date, fig_dir=fig_dir)
+        plot_NYC_release_components(nyc_release_components, reservoir_releases, model,
+                                    colordict=model_colors_diagnostics_paper,
+                                    start_date='2011-01-01', end_date='2013-01-01', fig_dir=fig_dir)
 
     print(f'Done! Check the {fig_dir} folder.')
