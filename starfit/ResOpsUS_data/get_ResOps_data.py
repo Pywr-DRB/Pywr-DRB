@@ -13,7 +13,7 @@ import os
 
 
 ### Load STARFIT conus data for reservoirs in DRB
-starfit = pd.read_csv('../../model_data/drb_model_istarf_conus.csv')
+starfit = pd.read_csv('pywrdrb/model_data/drb_model_istarf_conus.csv')
 reservoirs = [res for res in starfit['reservoir']]
 reservoir_ids = [id for id in starfit['GRanD_ID']]
 reservoir_names = [name for name in starfit['GRanD_NAME']]

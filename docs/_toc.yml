@@ -40,7 +40,7 @@ parts:
           # - title: Visualize Streamflows
           #   file: Getting_Started/Interpret_Results/visualize_streamflows.md
     # =============== References =================
-    - file: API_References/api_references.md
+    - file: api/api.md
       sections:
         - title: Prep Inputs
           file: api/pre/prep_input_data_functions.rst
