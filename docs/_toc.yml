@@ -37,10 +37,8 @@ parts:
     # =============== References =================
     - file: api/api.md
       sections:
-        - title: Prep Inputs
-          file: api/pre/pre.rst
         - title: Plotting
-          file: api/plotting/plotting_functions.rst
+          file: api/plotting.rst
     # =============== Supplemental  =================
     - file: Supplemental/supplemental.md
       sections:

@@ -25,6 +25,10 @@ jobs:
         python-version: [3.8]
     steps:
     - uses: actions/checkout@v2
+    
+    
+    # - name: Clear Build Cache
+    #   run: rm -rf docs/_build
 
     # Install python
     - name: Set up Python ${{ matrix.python-version }}
