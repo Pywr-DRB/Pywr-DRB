@@ -34,11 +34,6 @@ parts:
           file: Getting_Started/Running_Simulations/run_all_simulations.md
         - title: Analyzing outputs
           file: Getting_Started/Interpret_Results/explore_model_outputs.ipynb
-          #          sections:
-          # - title: Model Outputs
-          #   file: Getting_Started/Interpret_Results/explore_model_outputs.ipynb
-          # - title: Visualize Streamflows
-          #   file: Getting_Started/Interpret_Results/visualize_streamflows.md
     # =============== References =================
     - file: api/api.md
       sections:
