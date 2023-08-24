@@ -9,11 +9,11 @@ import numpy as np
 import pandas as pd
 import datetime
 
-from pywr_drb_node_data import obs_site_matches, obs_pub_site_matches, nhm_site_matches, nwm_site_matches, \
+from pywrdrb.pywr_drb_node_data import obs_site_matches, obs_pub_site_matches, nhm_site_matches, nwm_site_matches, \
                                upstream_nodes_dict, WEAP_29June2023_gridmet_NatFlows_matches, downstream_node_lags
-from utils.constants import cfs_to_mgd, cms_to_mgd, cm_to_mg, mcm_to_mg
-from utils.directories import input_dir, weap_dir
-from utils.lists import reservoir_list_nyc
+from pywrdrb.utils.constants import cfs_to_mgd, cms_to_mgd, cm_to_mg, mcm_to_mg
+from pywrdrb.utils.directories import input_dir, weap_dir
+from pywrdrb.utils.lists import reservoir_list_nyc
 
 
 

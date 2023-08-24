@@ -61,8 +61,18 @@ jobs:
               #jupyter-book build --all docs/
               ### first use jupyter-books to build sphinx config file
               jupyter-book config sphinx docs/
+
+              # Now manually fix path in config file to include the base dir outside docs, so we can import pywrdrb
+              echo "Appending sys.path modification to conf.py"
+              echo -e "import sys\nimport os\nsys.path.insert(0, os.path.abspath('../'))\nsys.path.insert(0, os.path.abspath('../pywrdrb/'))" >> docs/conf.py
+
+              # Print contents of modified config file
+              echo "Contents of conf.py:"
+              cat docs/conf.py
+
               ### now manually fix path in config file to include the base dir outside docs, so we can import pywrdrb
-              sed -i '1s:^:import sys\nimport os\nsys.path.insert(0, os.path.abspath("../"))\nsys.path.insert(0, os.path.abspath("../pywrdrb/"))\n:' docs/conf.py
+              ## sed -i '1s:^:import sys\nimport os\nsys.path.insert(0, os.path.abspath("../"))\nsys.path.insert(0, os.path.abspath("../pywrdrb/"))\n:' docs/conf.py
+              
               ### now build jupyter book directly from altered sphinx config file
               sphinx-build docs/ docs/_build/html -b html
 

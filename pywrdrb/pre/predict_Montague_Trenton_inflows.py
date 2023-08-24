@@ -5,11 +5,11 @@ import seaborn as sns
 import sys
 import statsmodels.api as sm
 
-sys.path.append('../')
-sys.path.append('../pywrdrb/')
-from utils.directories import input_dir
-from plotting.plotting_functions import subset_timeseries
-from pre.prep_input_data_functions import add_upstream_catchment_inflows
+# sys.path.append('../')
+# sys.path.append('../pywrdrb/')
+from pywrdrb.utils.directories import input_dir
+from pywrdrb.plotting.plotting_functions import subset_timeseries
+from pywrdrb.pre.prep_input_data_functions import add_upstream_catchment_inflows
 
 def predict_future_inflows(inflows, node, lag, use_log, remove_zeros, use_const, print_summary=False, plot_scatter=True):
     Y = inflows[node].iloc[lag:].values
