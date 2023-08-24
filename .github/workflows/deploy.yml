@@ -47,6 +47,14 @@ jobs:
       run: pip install -r docs/requirements.txt
       if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
+    # Print current directory
+    - name: Print Current Directory
+      run: |
+            echo "Current directory:"
+            pwd
+            echo "Listing contents:"
+            ls -al
+
     # Build the example book
     - name: Build book
       run: |
