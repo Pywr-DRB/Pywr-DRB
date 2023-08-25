@@ -5,9 +5,9 @@ import statsmodels.api as sm
 from pygeohydro import NWIS
 import datetime
 
-from pywr_drb_node_data import upstream_nodes_dict
-from utils.constants import cfs_to_mgd, cms_to_mgd, cm_to_mg
-from utils.directories import input_dir
+from pywrdrb.pywr_drb_node_data import upstream_nodes_dict
+from pywrdrb.utils.constants import cfs_to_mgd, cms_to_mgd, cm_to_mg
+from pywrdrb.utils.directories import input_dir
 
 
 def download_USGS_data_NYC_NJ_diversions():

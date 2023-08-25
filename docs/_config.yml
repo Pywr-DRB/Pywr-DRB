@@ -18,7 +18,6 @@ sphinx:
   - 'sphinx.ext.napoleon'
   config:
     autosummary_generate: True
-  conf_py_path: "./"
 
 # Define the name of the latex output file for PDF builds
 latex:

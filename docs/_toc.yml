@@ -34,33 +34,14 @@ parts:
           file: Getting_Started/Running_Simulations/run_all_simulations.md
         - title: Analyzing outputs
           file: Getting_Started/Interpret_Results/explore_model_outputs.ipynb
-          #          sections:
-          # - title: Model Outputs
-          #   file: Getting_Started/Interpret_Results/explore_model_outputs.ipynb
-          # - title: Visualize Streamflows
-          #   file: Getting_Started/Interpret_Results/visualize_streamflows.md
     # =============== References =================
     - file: api/api.md
       sections:
-        - title: Prep Inputs
-          file: api/pre/prep_input_data_functions.rst
         - title: Plotting
-          file: api/plotting/plotting_functions.rst
-        # - title: Make Model
-        #   file: API_References/pywrdrb.make_model.rst
-        # - title: Plotting
-        #   file: API_References/pywrdrb.plotting.rst
-        # - title: Custom Parameters
-        #   file: API_References/pywrdrb.parameters.rst
-        # - title: Input Data Processing
-        #   file: API_References/pywrdrb.pre.rst
-        # - title: Output Data Processing
-        #   file: API_References/pywrdrb.post.rst
+          file: api/plotting.rst
     # =============== Supplemental  =================
     - file: Supplemental/supplemental.md
       sections:
-              #      - title: Data Summary
-              #        file: Supplemental/data_summary.md
       - title: Pywr-DRB Node List
         file: Supplemental/node_list.md
       - title: Streamflow Prediction in Ungauged Basins

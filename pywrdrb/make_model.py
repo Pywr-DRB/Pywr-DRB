@@ -6,10 +6,10 @@ import json
 import pandas as pd
 from collections import defaultdict
 
-from utils.directories import input_dir, model_data_dir
-from utils.lists import majorflow_list, reservoir_list, reservoir_list_nyc, modified_starfit_reservoir_list
-from utils.constants import cfs_to_mgd
-from pywr_drb_node_data import upstream_nodes_dict, immediate_downstream_nodes_dict, downstream_node_lags
+from pywrdrb.utils.directories import input_dir, model_data_dir
+from pywrdrb.utils.lists import majorflow_list, reservoir_list, reservoir_list_nyc, modified_starfit_reservoir_list
+from pywrdrb.utils.constants import cfs_to_mgd
+from pywrdrb.pywr_drb_node_data import upstream_nodes_dict, immediate_downstream_nodes_dict, downstream_node_lags
 
 EPS = 1e-8
 nhm_inflow_scaling = True
