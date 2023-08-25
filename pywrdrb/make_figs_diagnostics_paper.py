@@ -35,6 +35,8 @@ if __name__ == "__main__":
     all_drought_levels = {}
     inflows = {}
     nyc_release_components = {}
+    diversions = {}
+    consumptions = {}
 
     datetime_index = None
     for model in pywr_models:
@@ -46,6 +48,8 @@ if __name__ == "__main__":
         all_drought_levels[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, results_set='res_level', datetime_index=datetime_index)
         inflows[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, 'inflow', datetime_index=datetime_index)
         nyc_release_components[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, 'nyc_release_components', datetime_index=datetime_index)
+        diversions[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, 'diversions', datetime_index=datetime_index)
+        consumptions[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, 'consumption', datetime_index=datetime_index)
 
     pywr_models = [f'pywr_{m}' for m in pywr_models]
 
@@ -149,21 +153,21 @@ if __name__ == "__main__":
                                       add_ffmp_levels=True, plot_observed=True, plot_sim=True)
 
 
-    ### flow contributions plot
-    if rerun_all:
-        print('Plotting flow contributions at major nodes.')
-        for node in ['delMontague', 'delTrenton']:
-            for model in pywr_models:
-                plot_flow_contributions(reservoir_releases, major_flows, inflows, model, node,
-                                        start_date= start_date, end_date= end_date, log_flows = True, fig_dir = fig_dir)
+    # ### flow contributions plot
+    # if rerun_all:
+    #     print('Plotting flow contributions at major nodes.')
+    #     for node in ['delMontague', 'delTrenton']:
+    #         for model in pywr_models:
+    #             plot_flow_contributions(reservoir_releases, major_flows, inflows, model, node,
+    #                                     start_date= start_date, end_date= end_date, log_flows = True, fig_dir = fig_dir)
 
 
 
-    ## Plot inflow comparison
-    if rerun_all:
-        print('Plotting inflow data boxplots')
-        compare_inflow_data(inflows, reservoir_list, pywr_models,
-                            start_date=start_date, end_date=end_date, fig_dir=fig_dir)
+    # ## Plot inflow comparison
+    # if rerun_all:
+    #     print('Plotting inflow data boxplots')
+    #     compare_inflow_data(inflows, reservoir_list, pywr_models,
+    #                         start_date=start_date, end_date=end_date, fig_dir=fig_dir)
 
     ### xQn grid low flow comparison figure
     if rerun_all:
@@ -182,14 +186,27 @@ if __name__ == "__main__":
 
 
     ### plot breaking down NYC flows into components
+    # if rerun_all:
+    #     print('Plotting NYC releases by components')
+    #     for model in pywr_models:
+    #         plot_NYC_release_components_indiv(nyc_release_components, reservoir_releases, model,
+    #                                             use_proportional=True, use_log=True,
+    #                                             start_date=start_date, end_date=end_date, fig_dir=fig_dir)
+    #         plot_NYC_release_components_indiv(nyc_release_components, reservoir_releases, model,
+    #                                             use_proportional=True, use_log=True,
+    #                                             start_date='2011-01-01', end_date='2013-01-01', fig_dir=fig_dir)
+
     if rerun_all:
-        print('Plotting NYC releases by components')
+        print('Plotting NYC releases by components, combined with downstream flow components')
         for model in pywr_models:
-            plot_NYC_release_components(nyc_release_components, reservoir_releases, model,
-                                        colordict=model_colors_diagnostics_paper,
-                                        start_date=start_date, end_date=end_date, fig_dir=fig_dir)
-            plot_NYC_release_components(nyc_release_components, reservoir_releases, model,
-                                        colordict=model_colors_diagnostics_paper,
-                                        start_date='2011-01-01', end_date='2013-01-01', fig_dir=fig_dir)
+            for node in ['delMontague','delTrenton']:
+                plot_NYC_release_components_combined(nyc_release_components, reservoir_releases, major_flows, inflows,
+                                                     diversions, consumptions, model, node, use_proportional=True, use_log=True,
+                                                     start_date=start_date, end_date=end_date, fig_dir=fig_dir)
+
+                plot_NYC_release_components_combined(nyc_release_components, reservoir_releases, major_flows, inflows,
+                                                     diversions, consumptions, model, node, use_proportional=True, use_log=True,
+                                                     start_date='2011-01-01', end_date='2013-01-01', fig_dir=fig_dir)
+
 
     print(f'Done! Check the {fig_dir} folder.')

@@ -100,7 +100,6 @@ downstream_node_lags = {'cannonsville': 0,
                         '01470960': 2,
                         'outletSchuylkill': 0
                         }
-'beltzvilleCombined', 'fewalter', 'merrillCreek', 'hopatcong', 'nockamixon', '01449800', '01447800'
 
 obs_pub_site_matches = {'cannonsville': ['01423000', '0142400103'], # 0142400103 doesnt start until '96 
                     'pepacton': ['01415000', '01414500', '01414000', '01413500'], # '01414000' doesnt start until 1996; likely underestimate before

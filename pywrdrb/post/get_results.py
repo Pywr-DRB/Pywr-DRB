@@ -91,6 +91,10 @@ def get_pywr_results(output_dir, model, results_set='all', scenario=0, datetime_
                     [f'spill_{reservoir}' for reservoir in reservoir_list_nyc]
             for k in keys:
                 results[k] = f[k][:, scenario]
+        elif results_set == 'diversions':
+            keys = ['delivery_nyc','delivery_nj']
+            for k in keys:
+                results[k] = f[k][:, scenario]
 
         else:
             print('Invalid results_set specified.')
