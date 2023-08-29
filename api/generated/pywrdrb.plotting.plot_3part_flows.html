@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>Run Historic Simulations &#8212; Pywr-DRB Integrated Water Resource Management Model</title>
+    <title>pywrdrb.plotting.plot_3part_flows &#8212; Pywr-DRB Integrated Water Resource Management Model</title>
   
   
   
@@ -61,9 +61,11 @@ const thebe_selector_input = "pre"
 const thebe_selector_output = ".output, .cell_output"
 </script>
     <script async="async" src="../../_static/sphinx-thebe.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'Getting_Started/Running_Simulations/run_historic_simulation';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/pywrdrb.plotting.plot_3part_flows';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="pywrdrb.plotting.plot_weekly_flow_distributions" href="pywrdrb.plotting.plot_weekly_flow_distributions.html" />
+    <link rel="prev" title="pywrdrb.plotting" href="../plotting.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -154,7 +156,7 @@ const thebe_selector_output = ".output, .cell_output"
                 </a>
             </li>
         </ul>
-        <ul class="nav bd-sidenav">
+        <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../DRB/drb.html">Delaware River Basin Overview</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../DRB/drb_hydrology.html">Hydrology</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../DRB/drb_planning_management.html">Planning &amp; Management</a></li>
@@ -167,20 +169,20 @@ const thebe_selector_output = ".output, .cell_output"
 <li class="toctree-l2"><a class="reference internal" href="../../Model/pywr_drb_inflow_scenarios.html">Available Inflow Scenarios</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../getting_started.html">Getting Started</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../quick_start.html">Quick-Start</a></li>
-<li class="toctree-l2"><a class="reference internal" href="run_all_simulations.html">Running Simulations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../Interpret_Results/explore_model_outputs.html">Analyzing outputs</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../Getting_Started/getting_started.html">Getting Started</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../Getting_Started/quick_start.html">Quick-Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Getting_Started/Running_Simulations/run_all_simulations.html">Running Simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Getting_Started/Interpret_Results/explore_model_outputs.html">Analyzing outputs</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../api/api.html">API References</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../api/plotting.html">Plotting</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../api/generated/pywrdrb.plotting.plot_3part_flows.html">pywrdrb.plotting.plot_3part_flows</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/generated/pywrdrb.plotting.plot_weekly_flow_distributions.html">pywrdrb.plotting.plot_weekly_flow_distributions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/generated/pywrdrb.plotting.plot_combined_nyc_storage.html">pywrdrb.plotting.plot_combined_nyc_storage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/generated/pywrdrb.plotting.plot_radial_error_metrics.html">pywrdrb.plotting.plot_radial_error_metrics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/generated/pywrdrb.plotting.plot_rrv_metrics.html">pywrdrb.plotting.plot_rrv_metrics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/generated/pywrdrb.plotting.compare_inflow_data.html">pywrdrb.plotting.compare_inflow_data</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html">API References</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../plotting.html">Plotting</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">pywrdrb.plotting.plot_3part_flows</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pywrdrb.plotting.plot_weekly_flow_distributions.html">pywrdrb.plotting.plot_weekly_flow_distributions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pywrdrb.plotting.plot_combined_nyc_storage.html">pywrdrb.plotting.plot_combined_nyc_storage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pywrdrb.plotting.plot_radial_error_metrics.html">pywrdrb.plotting.plot_radial_error_metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pywrdrb.plotting.plot_rrv_metrics.html">pywrdrb.plotting.plot_rrv_metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pywrdrb.plotting.compare_inflow_data.html">pywrdrb.plotting.compare_inflow_data</a></li>
 </ul>
 </li>
 </ul>
@@ -261,7 +263,7 @@ const thebe_selector_output = ".output, .cell_output"
       
       
       
-      <li><a href="https://github.com/Pywr-DRB/Pywr-DRB/issues/new?title=Issue%20on%20page%20%2FGetting_Started/Running_Simulations/run_historic_simulation.html&body=Your%20issue%20content%20here." target="_blank"
+      <li><a href="https://github.com/Pywr-DRB/Pywr-DRB/issues/new?title=Issue%20on%20page%20%2Fapi/generated/pywrdrb.plotting.plot_3part_flows.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -291,7 +293,7 @@ const thebe_selector_output = ".output, .cell_output"
       
       
       
-      <li><a href="../../_sources/Getting_Started/Running_Simulations/run_historic_simulation.md" target="_blank"
+      <li><a href="../../_sources/api/generated/pywrdrb.plotting.plot_3part_flows.rst" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -301,7 +303,7 @@ const thebe_selector_output = ".output, .cell_output"
 <span class="btn__icon-container">
   <i class="fas fa-file"></i>
   </span>
-<span class="btn__text-container">.md</span>
+<span class="btn__text-container">.rst</span>
 </a>
 </li>
       
@@ -371,7 +373,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Run Historic Simulations</h1>
+    <h1>pywrdrb.plotting.plot_3part_flows</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -385,8 +387,33 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="run-historic-simulations">
-<h1>Run Historic Simulations<a class="headerlink" href="#run-historic-simulations" title="Permalink to this heading">#</a></h1>
+  <section id="pywrdrb-plotting-plot-3part-flows">
+<h1>pywrdrb.plotting.plot_3part_flows<a class="headerlink" href="#pywrdrb-plotting-plot-3part-flows" title="Permalink to this heading">#</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="pywrdrb.plotting.plot_3part_flows">
+<span class="sig-prename descclassname"><span class="pre">pywrdrb.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_3part_flows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">models</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colordict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'WEAP_29June2023_gridmet':</span> <span class="pre">'#95F19F',</span> <span class="pre">'nhmv10':</span> <span class="pre">'#FDE088',</span> <span class="pre">'nwmv21':</span> <span class="pre">'#FF91B9',</span> <span class="pre">'nwmv21_withLakes':</span> <span class="pre">'#FF91B9',</span> <span class="pre">'obs':</span> <span class="pre">'#2B2B2B',</span> <span class="pre">'obs_pub_nhmv10':</span> <span class="pre">'#7db9e5',</span> <span class="pre">'obs_pub_nhmv10_ObsScaled':</span> <span class="pre">'#7db9e5',</span> <span class="pre">'obs_pub_nwmv21':</span> <span class="pre">'#7db9e5',</span> <span class="pre">'obs_pub_nwmv21_ObsScaled':</span> <span class="pre">'#7db9e5',</span> <span class="pre">'pywr_WEAP_29June2023_gridmet':</span> <span class="pre">'#1F6727',</span> <span class="pre">'pywr_nhmv10':</span> <span class="pre">'#B58800',</span> <span class="pre">'pywr_nwmv21':</span> <span class="pre">'#9E1145',</span> <span class="pre">'pywr_nwmv21_withLakes':</span> <span class="pre">'#9E1145',</span> <span class="pre">'pywr_obs_pub_nhmv10':</span> <span class="pre">'#0f6da9',</span> <span class="pre">'pywr_obs_pub_nhmv10_ObsScaled':</span> <span class="pre">'#0f6da9',</span> <span class="pre">'pywr_obs_pub_nwmv21':</span> <span class="pre">'#0f6da9',</span> <span class="pre">'pywr_obs_pub_nwmv21_ObsScaled':</span> <span class="pre">'#0f6da9'}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">markerdict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'WEAP_29June2023_gridmet':</span> <span class="pre">'o',</span> <span class="pre">'nhmv10':</span> <span class="pre">'o',</span> <span class="pre">'nhmv10_withObsScaled':</span> <span class="pre">'x',</span> <span class="pre">'nwmv21':</span> <span class="pre">'o',</span> <span class="pre">'nwmv21_withLakes':</span> <span class="pre">'o',</span> <span class="pre">'nwmv21_withObsScaled':</span> <span class="pre">'x',</span> <span class="pre">'obs':</span> <span class="pre">'o',</span> <span class="pre">'obs_pub_nhmv10_ObsScaled':</span> <span class="pre">'o',</span> <span class="pre">'obs_pub_nwmv21_ObsScaled':</span> <span class="pre">'o',</span> <span class="pre">'pywr_WEAP_29June2023_gridmet':</span> <span class="pre">'x',</span> <span class="pre">'pywr_nhmv10':</span> <span class="pre">'x',</span> <span class="pre">'pywr_nhmv10_withObsScaled':</span> <span class="pre">'x',</span> <span class="pre">'pywr_nwmv21':</span> <span class="pre">'x',</span> <span class="pre">'pywr_nwmv21_withLakes':</span> <span class="pre">'x',</span> <span class="pre">'pywr_nwmv21_withObsScaled':</span> <span class="pre">'x',</span> <span class="pre">'pywr_obs_pub_nhmv10_ObsScaled':</span> <span class="pre">'x',</span> <span class="pre">'pywr_obs_pub_nwmv21_ObsScaled':</span> <span class="pre">'x'}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uselog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_fig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/home/runner/work/Pywr-DRB/Pywr-DRB/figs/'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.plotting.plot_3part_flows" title="Permalink to this definition">#</a></dt>
+<dd><p>Plots a 3-part figure to visualize flow data, including a timeseries plot, a scatter plot, and a flow duration curve.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>results</strong> (<em>dict</em>) – A dictionary containing the flow data, including observed and modeled flows.</p></li>
+<li><p><strong>models</strong> (<em>list</em>) – A list of model names to plot. It can contain one or two model names.</p></li>
+<li><p><strong>node</strong> (<em>str</em>) – The name of the node or location for which the flows are plotted.</p></li>
+<li><p><strong>colordict</strong> (<em>dict</em><em>, </em><em>optional</em>) – A dictionary mapping model names to color codes for line and scatter plots.
+Defaults to paired_model_colors.</p></li>
+<li><p><strong>markerdict</strong> (<em>dict</em><em>, </em><em>optional</em>) – A dictionary mapping model names to marker codes for scatter plots.
+Defaults to scatter_model_markers.</p></li>
+<li><p><strong>uselog</strong> (<em>bool</em><em>, </em><em>optional</em>) – Determines whether logarithmic scale is used for plotting. Defaults to False.</p></li>
+<li><p><strong>save_fig</strong> (<em>bool</em><em>, </em><em>optional</em>) – Determines whether to save the figure as a PNG file. Defaults to True.</p></li>
+<li><p><strong>fig_dir</strong> (<em>str</em><em>, </em><em>optional</em>) – The directory to save the figure. Defaults to fig_dir.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
     <script type="text/x-thebe-config">
@@ -402,7 +429,7 @@ document.write(`
         },
         kernelOptions: {
             name: "python3",
-            path: "./Getting_Started/Running_Simulations"
+            path: "./api/generated"
         },
         predefinedOutput: true
     }
@@ -420,6 +447,24 @@ document.write(`
   
     <div class="footer-article-item"><!-- Previous / next buttons -->
 <div class="prev-next-area">
+    <a class="left-prev"
+       href="../plotting.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title"><cite>pywrdrb.plotting</cite></p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="pywrdrb.plotting.plot_weekly_flow_distributions.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">pywrdrb.plotting.plot_weekly_flow_distributions</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
 </div></div>
   
 </div>

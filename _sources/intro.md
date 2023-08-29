@@ -22,7 +22,12 @@ A graphical representation of the Pywr-DRB model is shown below, where every oct
 ```{tableofcontents}
 ```
 
+## Funding
+This research was funded by the U.S. Geological Survey (USGS) Water Availability and Use Science Program as part of 
+the Water Resources Mission Area Predictive Understanding of Multiscale Processes Project 
+(USGS Grant Number G21AC10668).
+
 ## License
 This program is licensed under the MIT License. See the full license [here](https://github.com/Pywr-DRB/Pywr-DRB/blob/master/LICENSE).
 
-Copyright (c) 2023 Andrew Hamilton, Trevor Amestoy, Patrick Reed
+Copyright (c) 2023 Andrew Hamilton, Trevor Amestoy, Patrick Reed.
