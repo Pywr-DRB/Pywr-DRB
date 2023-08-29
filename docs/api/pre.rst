@@ -1,4 +1,4 @@
-pywrdrb.pre
+`pywrdrb.pre`
 ========================================
 
 .. autosummary::
