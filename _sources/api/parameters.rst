@@ -2,6 +2,7 @@
 ================
 
 Flexible Flow Management (FFMP) Parameters
+
 .. autosummary::
    :toctree: generated/
    :nosignatures:
@@ -11,7 +12,10 @@ Flexible Flow Management (FFMP) Parameters
     pywrdrb.parameters.NYCCombinedReleaseFactor
     pywrdrb.parameters.NYCFloodRelease
     pywrdrb.parameters.VolBalanceNYCDownstreamMRFTargetAgg_step1CanPep
-
+    pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1CanPep
+    pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2Nev
+    pywrdrb.parameters.VolBalanceNYCDemand
+    
 
 STARFIT Reservoir Operations Parameters
 
