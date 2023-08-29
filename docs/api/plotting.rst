@@ -1,5 +1,5 @@
 
-pywrdrb.plotting
+`pywrdrb.plotting`
 =================
 
 .. autosummary::
