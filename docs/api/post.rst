@@ -1,7 +1,6 @@
 `pywrdrb.post`
 ================
 
-
 .. autosummary::
    :toctree: generated/
    :nosignatures:

@@ -68,7 +68,7 @@ jobs:
 
               # Now manually fix path in config file to include the base dir outside docs, so we can import pywrdrb
               echo "Appending sys.path modification to conf.py"
-              echo -e "import sys\nimport os\nsys.path.insert(0, os.path.abspath('../'))\nsys.path.insert(0, os.path.abspath('./pywrdrb/'))" >> docs/conf.py
+              echo -e "import sys\nimport os\nsys.path.insert(0, os.path.abspath('../'))\nsys.path.insert(0, os.path.abspath('../pywrdrb/'))" >> docs/conf.py
 
               # Print contents of modified config file
               echo "Contents of conf.py:"
