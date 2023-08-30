@@ -1,6 +1,6 @@
-# import sys
-# import os
-# sys.path.insert(0, os.path.abspath('./'))
+import sys
+import os
+sys.path.insert(0, os.path.abspath('./'))
 from .disaggregate_DRBC_demands import disaggregate_DRBC_demands
 from .extrapolate_NYC_NJ_diversions import extrapolate_NYC_NJ_diversions
 from .predict_Montague_Trenton_inflows import predict_Montague_Trenton_inflows
