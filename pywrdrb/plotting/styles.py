@@ -55,17 +55,54 @@ model_colors_diagnostics_paper = {'obs': '0.5',
                                   'pywr_nhmv10_withObsScaled': cm.get_cmap('Purples')(0.8),
                                   'pywr_nwmv21_withObsScaled': cm.get_cmap('Blues')(0.9)
                                   }
+# model_colors_diagnostics_paper2 = {'obs': '0.5',
+#                                   'nhmv10': '#D8B70A',
+#                                   'nwmv21': '#D8B70A',
+#                                   'nhmv10_withObsScaled': '#D8B70A',
+#                                   'nwmv21_withObsScaled': '#D8B70A',
+#                                   'pywr_nhmv10': '#02401B',
+#                                   'pywr_nwmv21': '#02401B',
+#                                   'pywr_nhmv10_withObsScaled': '#02401B',
+#                                   'pywr_nwmv21_withObsScaled': '#02401B'
+#                                   }
+model_colors_diagnostics_paper2 = {'obs': '0.4',
+                                  'nhmv10': '#D8B70A',
+                                  'nwmv21': '#D8B70A',
+                                  'nhmv10_withObsScaled': '#D8B70A',
+                                  'nwmv21_withObsScaled': '#D8B70A',
+                                  'pywr_nhmv10': cm.get_cmap('Purples')(0.8),
+                                  'pywr_nwmv21': cm.get_cmap('Purples')(0.8),
+                                  'pywr_nhmv10_withObsScaled': cm.get_cmap('Purples')(0.8),
+                                  'pywr_nwmv21_withObsScaled': cm.get_cmap('Purples')(0.8)
+                                  }
+model_colors_diagnostics_paper3 = {'obs': '0.4',
+                                  'nhmv10': '#D8B70A',
+                                  'nwmv21': '#D8B70A',
+                                  'nhmv10_withObsScaled': '#D8B70A',
+                                  'nwmv21_withObsScaled': '#D8B70A',
+                                  'pywr_nhmv10': '#D8B70A',
+                                  'pywr_nwmv21': '#A2A475',
+                                  'pywr_nhmv10_withObsScaled': '#02401B',
+                                  'pywr_nwmv21_withObsScaled': '#81A88D'
+                                  }
 
-model_label_dict = {'obs': 'Obs',
-                      'nhmv10': 'Nhm',
-                      'nwmv21': 'Nwm',
-                      'nhmv10_withObsScaled': 'NhmHyb',
-                      'nwmv21_withObsScaled': 'NwmHyb',
-                      'pywr_nhmv10': 'PywrNhm',
-                      'pywr_nwmv21': 'PywrNwm',
-                      'pywr_nhmv10_withObsScaled': 'PywrNhmHyb',
-                      'pywr_nwmv21_withObsScaled': 'PywrNwmHyb'
+model_label_dict = {'obs': 'Observed',
+                      'nhmv10': 'NHM',
+                      'nwmv21': 'NWM',
+                      'nhmv10_withObsScaled': 'hNHM',
+                      'nwmv21_withObsScaled': 'hNWM',
+                      'pywr_nhmv10': 'Pywr-NHM',
+                      'pywr_nwmv21': 'Pywr-NWM',
+                      'pywr_nhmv10_withObsScaled': 'Pywr-hNHM',
+                      'pywr_nwmv21_withObsScaled': 'Pywr-hNWM'
                       }
+
+model_linestyle_dict = {'obs': '-',
+                        'pywr_nhmv10': (0,(1,3)),
+                        'pywr_nwmv21': (0,(3,6)),
+                        'pywr_nhmv10_withObsScaled': (0,(1,1)),
+                        'pywr_nwmv21_withObsScaled': (0,(3,1))
+                        }
 
 node_label_dict = {'pepacton': 'Pep', 'cannonsville': 'Can', 'neversink': 'Nev', 'prompton': 'Pro', 'assunpink': 'AspRes', \
                    'beltzvilleCombined': 'Bel', 'blueMarsh': 'Blu', 'mongaupeCombined': 'Mgp', 'fewalter': 'FEW', \
@@ -75,21 +112,20 @@ node_label_dict = {'pepacton': 'Pep', 'cannonsville': 'Can', 'neversink': 'Nev',
 node_label_full_dict = {'pepacton': 'Pepacton', 'cannonsville': 'Cannonsville', 'neversink': 'Neversink', 'prompton': 'Pro', 'assunpink': 'AspRes', \
                    'beltzvilleCombined': 'Bel', 'blueMarsh': 'Blu', 'mongaupeCombined': 'Mgp', 'fewalter': 'FEW', \
                    'delLordville': 'Lor', 'delMontague': 'Montague', 'delTrenton': 'Trenton', 'outletAssunpink': 'Asp', \
-                   'outletSchuylkill': 'Schuylkill'}
+                   'outletSchuylkill': 'Schuylkill', 'NYCAgg': 'NYC Total'}
 
 month_dict = {1:'Jan', 2:'Feb', 3:'Mar', 4:'Apr', 5:'May', 6:'Jun', 7:'Jul', 8:'Aug', 9:'Sep', 10:'Oct', 11:'Nov', 12:'Dec'}
 
 base_marker = "o"
 pywr_marker = "x"
-
 scatter_model_markers = {'obs': base_marker, #
                          'obs_pub_nhmv10_ObsScaled': base_marker, #
                          'obs_pub_nwmv21_ObsScaled': base_marker, #
                          'nhmv10': base_marker,
                          'nwmv21': base_marker,
                          'nwmv21_withLakes': base_marker,
-                         'nhmv10_withObsScaled': pywr_marker,
-                         'nwmv21_withObsScaled': pywr_marker,
+                         'nhmv10_withObsScaled': base_marker,
+                         'nwmv21_withObsScaled': base_marker,
                          'WEAP_29June2023_gridmet': base_marker,
                          'pywr_obs_pub_nhmv10_ObsScaled': pywr_marker, #
                          'pywr_obs_pub_nwmv21_ObsScaled': pywr_marker, #

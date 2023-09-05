@@ -80,6 +80,10 @@ def get_pywr_results(output_dir, model, results_set='all', scenario=0, datetime_
             keys = [k for k in keys if 'drought_level' in k]
             for k in keys:
                 results[k.split('_')[-1]] = f[k][:, scenario]
+        elif results_set == 'ffmp_level_boundaries':
+            keys = [f'level{l}' for l in ['1b','1c','2','3','4','5']]
+            for k in keys:
+                results[k] = f[k][:, scenario]
         elif results_set == 'mrf_target':
             keys = [k for k in keys if results_set in k]
             for k in keys:

@@ -30,3 +30,5 @@ starfit_reservoir_list = ['wallenpaupack', 'prompton', 'shoholaMarsh',
 
 
 modified_starfit_reservoir_list = ['blueMarsh', 'beltzvilleCombined', 'fewalter']
+
+seasons_dict = {m: 'DJF' if m in (12,1,2) else 'MAM' if m in (3,4,5) else 'JJA' if m in (6,7,8) else 'SON' for m in range(1,13)}
