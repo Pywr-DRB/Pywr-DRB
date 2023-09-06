@@ -1464,6 +1464,107 @@ def plot_combined_nyc_storage_new(storages, ffmp_level_boundaries, models,
 
 
 
+def plot_combined_nyc_storage_vs_diversion(storages, ffmp_level_boundaries, ibt_demands, ibt_diversions, models,
+                                            start_date = '1999-10-01', end_date = '2010-05-31', fig_dir=fig_dir):
+    """
+
+    """
+
+    fig, axs= plt.subplots(4,1,figsize=(8, 10), gridspec_kw={'height_ratios':[2,1,1,1]})
+
+    ### subplot a: Reservoir modeled storages, no observed
+    ax = axs[0]
+    ### get reservoir storage capacities
+    istarf = pd.read_csv(f'{model_data_dir}drb_model_istarf_conus.csv')
+    def get_reservoir_capacity(reservoir):
+        return float(istarf['Adjusted_CAP_MG'].loc[istarf['reservoir'] == reservoir].iloc[0])
+    capacities = {r: get_reservoir_capacity(r) for r in reservoir_list_nyc}
+    capacities['combined'] = sum([capacities[r] for r in reservoir_list_nyc])
+
+    # historic_storage = pd.read_csv(f'{input_dir}/historic_NYC/NYC_storage_daily_2000-2021.csv', sep=',', index_col=0)
+    # historic_storage.index = pd.to_datetime(historic_storage.index)
+    # historic_storage = subset_timeseries(historic_storage['Total'], start_date, end_date)
+    # historic_storage *= 100/capacities['combined']
+
+    ffmp_level_boundaries = subset_timeseries(ffmp_level_boundaries, start_date, end_date) * 100
+    ffmp_level_boundaries['level1a'] = 100.
+
+
+    ### First plot FFMP levels as background color
+    levels = [f'level{l}' for l in ['1a','1b','1c','2','3','4','5']]
+    # cmap = cm.get_cmap('RdYlBu')
+    # level_colors = [cmap(v) for v in [0.65, 0.6, 0.55, 0.5, 0.45, 0.4, 0.35]]
+    level_colors = [cm.get_cmap('Blues')(v) for v in [0.3, 0.2, 0.1]] +\
+                    ['papayawhip'] +\
+                    [cm.get_cmap('Reds')(v) for v in [0.1, 0.2, 0.3]]
+    level_alpha = [1]*3 + [1] + [1]*3
+    x = ffmp_level_boundaries.index
+    for i in range(len(levels)):
+        y0 = ffmp_level_boundaries[levels[i]]
+        if i == len(levels)-1:
+            y1 = 0.
+        else:
+            y1 = ffmp_level_boundaries[levels[i+1]]
+        ax.fill_between(x, y0, y1, color=level_colors[i], lw=0.2, edgecolor='k',
+                        alpha=level_alpha[i], zorder=1, label=levels[i])
+
+
+    # ax.plot(historic_storage, color='k', ls = ':', label=model_label_dict['obs'], zorder=3)
+    line_colors = [cm.get_cmap('Purples')(v) for v in (0.4, 0.6, 0.75, 0.99)]
+    for m,c in zip(models,line_colors):
+        modeled_storage = subset_timeseries(storages[m][reservoir_list_nyc], start_date, end_date).sum(axis=1)
+        modeled_storage *= 100/capacities['combined']
+        ax.plot(modeled_storage, color='k', ls='-', zorder=2, lw=2)
+        ax.plot(modeled_storage, color=c, ls='-', label=model_label_dict[m], zorder=2, lw=1.6)
+
+    ### clean up figure
+    ax.set_xlim([start_date, end_date])
+    ax.set_ylabel('Combined NYC Storage (%)')
+    ax.set_ylim([0,110])
+    ax.legend(frameon=False, loc='center left', bbox_to_anchor=(1.02,0.5))
+
+
+
+    ### subfigure b: IBT demands
+    ax = axs[1]
+    dems = subset_timeseries(ibt_demands[m], start_date, end_date)
+    dems = dems.rolling(7).mean() + 0.01  ### add a small amt to avoid dividing by zero
+    ax.plot(dems['demand_nyc'], color='k', label='NYC', zorder=2, lw=1.6)
+    ax.plot(dems['demand_nj'], color='0.5', label='NJ', zorder=2, lw=1.6)
+    ax.set_ylabel('Demand (MGD)')
+    ax.legend()
+
+    ### subfigure c&d: IBT demand satisfaction for NYC & NJ
+    for m,c in zip(models,line_colors):
+
+        divs = subset_timeseries(ibt_diversions[m], start_date, end_date)
+        divs = divs.rolling(7).mean() + 0.01
+        for ibt in ['nyc','nj']:
+            divs[f'delivery_{ibt}'] = divs[f'delivery_{ibt}'].divide(dems[f'demand_{ibt}']) * 100
+            # divs[f'delivery_{ibt}'].loc[np.isnan(divs[[f'delivery_{ibt}']])] = 1
+
+        ax = axs[2]
+        ax.plot(divs['delivery_nyc'], color='k', ls='-', label=model_label_dict[m], zorder=2, lw=2)
+        ax.plot(divs['delivery_nyc'], color=c, ls='-', label=model_label_dict[m], zorder=2, lw=1.6)
+        ax.set_ylabel('Demand Satisfaction (%)')
+
+        ax = axs[3]
+        ax.plot(divs['delivery_nj'], color='k', ls='-', label=model_label_dict[m], zorder=2, lw=2)
+        ax.plot(divs['delivery_nj'], color=c, ls='-', label=model_label_dict[m], zorder=2, lw=1.6)
+        ax.set_ylabel('Demand Satisfaction (%)')
+
+    ### save fig
+    plt.savefig(f'{fig_dir}NYC_storages_diversions_' + \
+                f'{ffmp_level_boundaries.index.year[0]}_{ffmp_level_boundaries.index.year[-1]}.png',
+                bbox_inches='tight', dpi=250)
+
+    return
+
+
+
+
+
+
 def get_xQn_flow(data, x, n):
     ### find the worst x-day rolling average each year, then get the value of this with n-year return interval
     data_rolling = data.rolling(x).mean()[x:]

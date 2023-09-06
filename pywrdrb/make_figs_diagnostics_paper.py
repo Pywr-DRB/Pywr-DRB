@@ -36,8 +36,9 @@ if __name__ == "__main__":
     ffmp_level_boundaries = {}
     inflows = {}
     nyc_release_components = {}
-    diversions = {}
-    consumptions = {}
+    ibt_demands = {}
+    ibt_diversions = {}
+    catchment_consumptions = {}
 
     datetime_index = None
     for model in pywr_models:
@@ -50,8 +51,9 @@ if __name__ == "__main__":
         ffmp_levels[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, results_set='res_level', datetime_index=datetime_index)
         inflows[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, 'inflow', datetime_index=datetime_index)
         nyc_release_components[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, 'nyc_release_components', datetime_index=datetime_index)
-        diversions[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, 'diversions', datetime_index=datetime_index)
-        consumptions[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, 'consumption', datetime_index=datetime_index)
+        ibt_demands[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, 'ibt_demands', datetime_index=datetime_index)
+        ibt_diversions[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, 'ibt_diversions', datetime_index=datetime_index)
+        catchment_consumptions[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, 'catchment_consumption', datetime_index=datetime_index)
 
     ffmp_level_boundaries, datetime_index = get_pywr_results(output_dir, model, results_set='ffmp_level_boundaries', datetime_index=datetime_index)
 
@@ -72,8 +74,10 @@ if __name__ == "__main__":
     end_date_obs = pd.to_datetime('2017-01-01')
     start_date_full = pd.to_datetime('1984-01-01')  ### full NHM/NWM time series
     end_date_full = pd.to_datetime('2017-01-01')
-    start_date_short = pd.to_datetime('2011-01-01') ### short 2-year period for zoomed dynamics
+    start_date_short = pd.to_datetime('2011-01-01') ### short 2-year period in observed record for zoomed dynamics
     end_date_short = pd.to_datetime('2013-01-01')
+    start_date_short_preobs = pd.to_datetime('1988-01-01') ### short 2-year period pre observed record for zoomed dynamics
+    end_date_short_preobs = pd.to_datetime('1994-01-01')
 
 
     ### first set of subplots showing comparison of modeled & observed flows at 3 locations, top to bottom of basin
@@ -87,6 +91,15 @@ if __name__ == "__main__":
             ### now zoomed in 2 year period where it is easier to see time series
             plot_3part_flows_hier(reservoir_downstream_gages, major_flows, [model.replace('pywr_', ''), model], uselog=True,
                                   colordict=model_colors_diagnostics_paper2, start_date=start_date_short, end_date=end_date_short)
+
+
+    ### compare modeled vs observed NYC storages
+    if rerun_all:
+        print('Plotting new NYC storage figure')
+        plot_combined_nyc_storage_new(storages, ffmp_level_boundaries, pywr_models,
+                                      start_date=start_date_obs, end_date=end_date_obs, fig_dir=fig_dir)
+        plot_combined_nyc_storage_new(storages, ffmp_level_boundaries, pywr_models,
+                                      start_date=start_date_short, end_date=end_date_short, fig_dir=fig_dir)
 
 
 
@@ -110,63 +123,52 @@ if __name__ == "__main__":
 
 
 
-
-    ## RRV metrics
-    if rerun_all:
-        print('Plotting RRV metrics.')
-        rrv_models = base_models + pywr_models
-
-        nodes = ['delMontague','delTrenton']
-        rrv_metrics = get_RRV_metrics(major_flows, rrv_models, nodes, start_date=start_date_obs, end_date=end_date_obs)
-        plot_rrv_metrics(rrv_metrics, rrv_models, nodes, colordict=model_colors_diagnostics_paper)
-
-
-
-    ## Plot NYC storage dynamics
-    if rerun_all:
-        print('Plotting NYC reservoir storages & releases')
-        for reservoir in ['agg']+reservoir_list_nyc:
-            plot_combined_nyc_storage(storages, reservoir_releases, ffmp_levels, pywr_models,
-                                      start_date=start_date_obs, end_date=end_date_obs, reservoir=reservoir, fig_dir=fig_dir,
-                                      colordict=model_colors_diagnostics_paper,
-                                      add_ffmp_levels=True, plot_observed=True, plot_sim=True)
+    #
+    # ## RRV metrics
+    # if rerun_all:
+    #     print('Plotting RRV metrics.')
+    #     rrv_models = base_models + pywr_models
+    #
+    #     nodes = ['delMontague','delTrenton']
+    #     rrv_metrics = get_RRV_metrics(major_flows, rrv_models, nodes, start_date=start_date_obs, end_date=end_date_obs)
+    #     plot_rrv_metrics(rrv_metrics, rrv_models, nodes, colordict=model_colors_diagnostics_paper)
+    #
 
 
-    ### xQn grid low flow comparison figure
-    if rerun_all:
-        print('Plotting low flow grid.')
-        plot_xQn_grid(reservoir_downstream_gages, major_flows,  base_models + pywr_models,
-                      reservoir_list_nyc + majorflow_list_figs, xlist = [1,7,30,90, 365], nlist = [5, 10, 20, 30],
-                      start_date=start_date_obs, end_date=end_date_obs, fig_dir=fig_dir)
+    #
+    # ### xQn grid low flow comparison figure
+    # if rerun_all:
+    #     print('Plotting low flow grid.')
+    #     plot_xQn_grid(reservoir_downstream_gages, major_flows,  base_models + pywr_models,
+    #                   reservoir_list_nyc + majorflow_list_figs, xlist = [1,7,30,90, 365], nlist = [5, 10, 20, 30],
+    #                   start_date=start_date_obs, end_date=end_date_obs, fig_dir=fig_dir)
 
-    ### plot comparing flow series with overlapping boxplots & FDCs
-    if rerun_all:
-        print('Plotting monthly boxplot/FDC figures')
-        for node in reservoir_list_nyc + majorflow_list_figs:
-            plot_monthly_boxplot_fdc_combined(reservoir_downstream_gages, major_flows, base_models, pywr_models, node,
-                                              colordict=model_colors_diagnostics_paper, start_date=start_date_obs,
-                                              end_date=end_date_obs, fig_dir=fig_dir)
+
 
 
     ### plot breaking down NYC flows & Trenton flows into components
-    # if rerun_all:
-    print('Plotting NYC releases by components, combined with downstream flow components')
-    for model in pywr_models:
-        for node in ['delMontague','delTrenton']:
-            plot_NYC_release_components_combined(nyc_release_components, reservoir_releases, major_flows, inflows,
-                                                 diversions, consumptions, model, node, use_proportional=True, use_log=True,
-                                                 start_date=start_date_obs, end_date=end_date_obs, fig_dir=fig_dir)
-
-            plot_NYC_release_components_combined(nyc_release_components, reservoir_releases, major_flows, inflows,
-                                                 diversions, consumptions, model, node, use_proportional=True, use_log=True,
-                                                 start_date=start_date_short, end_date=end_date_short, fig_dir=fig_dir)
-
-
     if rerun_all:
-        print('Plotting new NYC storage figure')
-        plot_combined_nyc_storage_new(storages, ffmp_level_boundaries, pywr_models,
-                                      start_date=start_date_obs, end_date=end_date_obs, fig_dir=fig_dir)
-        plot_combined_nyc_storage_new(storages, ffmp_level_boundaries, pywr_models,
-                                      start_date=start_date_short, end_date=end_date_short, fig_dir=fig_dir)
+        print('Plotting NYC releases by components, combined with downstream flow components')
+        for model in pywr_models:
+            for node in ['delMontague','delTrenton']:
+                plot_NYC_release_components_combined(nyc_release_components, reservoir_releases, major_flows, inflows,
+                                                     ibt_diversions, catchment_consumptions, model, node, use_proportional=True, use_log=True,
+                                                     start_date=start_date_obs, end_date=end_date_obs, fig_dir=fig_dir)
+
+                plot_NYC_release_components_combined(nyc_release_components, reservoir_releases, major_flows, inflows,
+                                                     ibt_diversions, catchment_consumptions, model, node, use_proportional=True, use_log=True,
+                                                     start_date=start_date_short, end_date=end_date_short, fig_dir=fig_dir)
+
+
+    ### show NYC storage vs diversion dynamics in broader time period
+    # if rerun_all:
+    print('Plotting new NYC storage figure')
+    plot_combined_nyc_storage_vs_diversion(storages, ffmp_level_boundaries, ibt_demands, ibt_diversions, pywr_models,
+                                            start_date=start_date_short_preobs, end_date=end_date_short_preobs, fig_dir=fig_dir)
+    # plot_combined_nyc_storage_vs_diversion(storages, ffmp_level_boundaries, ibt_demands, ibt_diversions, pywr_models,
+    #                                         start_date=start_date_short, end_date=end_date_short, fig_dir=fig_dir)
+
+
+
 
     print(f'Done! Check the {fig_dir} folder.')

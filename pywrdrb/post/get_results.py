@@ -64,11 +64,11 @@ def get_pywr_results(output_dir, model, results_set='all', scenario=0, datetime_
             keys = [k for k in keys if k.split('_')[0] == 'catchment']
             for k in keys:
                 results[k.split('_')[1]] = f[k][:, scenario]
-        elif results_set == 'withdrawal':
+        elif results_set == 'catchment_withdrawal':
             keys = [k for k in keys if k.split('_')[0] == 'catchmentWithdrawal']
             for k in keys:
                 results[k.split('_')[1]] = f[k][:, scenario]
-        elif results_set == 'consumption':
+        elif results_set == 'catchment_consumption':
             keys = [k for k in keys if k.split('_')[0] == 'catchmentConsumption']
             for k in keys:
                 results[k.split('_')[1]] = f[k][:, scenario]
@@ -95,7 +95,11 @@ def get_pywr_results(output_dir, model, results_set='all', scenario=0, datetime_
                     [f'spill_{reservoir}' for reservoir in reservoir_list_nyc]
             for k in keys:
                 results[k] = f[k][:, scenario]
-        elif results_set == 'diversions':
+        elif results_set == 'ibt_demands':
+            keys = ['demand_nyc','demand_nj']
+            for k in keys:
+                results[k] = f[k][:, scenario]
+        elif results_set == 'ibt_diversions':
             keys = ['delivery_nyc','delivery_nj']
             for k in keys:
                 results[k] = f[k][:, scenario]
