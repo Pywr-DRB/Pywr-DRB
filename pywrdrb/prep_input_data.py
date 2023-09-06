@@ -18,15 +18,16 @@ from pre.disaggregate_DRBC_demands import disaggregate_DRBC_demands
 from pre.extrapolate_NYC_NJ_diversions import extrapolate_NYC_NJ_diversions, download_USGS_data_NYC_NJ_diversions
 from pre.predict_Montague_Trenton_inflows import predict_Montague_Trenton_inflows
 from pre.prep_input_data_functions import *
-
+from pre.reorganize_data import combine_nwmv21_datasets
 
 
 if __name__ == "__main__":
-    
+
     ### read in observed, NHM, & NWM data
     ### use same set of dates for all.
     start_date = '1983/10/01'
     end_date = '2016/12/31'
+    
 
     df_obs = read_csv_data(f'{input_dir}usgs_gages/streamflow_daily_usgs_1950_2022_cms.csv', start_date, end_date,
                            units = 'cms', source = 'USGS')
@@ -60,6 +61,11 @@ if __name__ == "__main__":
     predict_Montague_Trenton_inflows('nwmv21', start_date_training, end_date_training)
     predict_Montague_Trenton_inflows('nhmv10_withObsScaled', start_date_training, end_date_training)
     predict_Montague_Trenton_inflows('nwmv21_withObsScaled', start_date_training, end_date_training)
+    
+    # Repeat using historic reconstruction
+    predict_Montague_Trenton_inflows('obs_pub_nhmv10_ObsScaled', '1945/01/01', '2022/12/31')
+    predict_Montague_Trenton_inflows('obs_pub_nwmv21_ObsScaled', '1945/01/01', '2022/12/31')
+
 
     ### now get NYC & NJ diversions. for time periods we dont have historical record, extrapolate by seasonal relationship to flow.
     ### uses obs_pub_nhmv10_NYCScaling for inflow regressions & extrapolation -> this needs to be created first from Historic_reconstruction repo.

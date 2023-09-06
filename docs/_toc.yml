@@ -39,6 +39,10 @@ parts:
       sections:
         - title: Plotting
           file: api/plotting.rst
+        - title: Post-Processing
+          file: api/post.rst
+        - title: Parameters
+          file: api/parameters.rst
     # =============== Supplemental  =================
     - file: Supplemental/supplemental.md
       sections:
