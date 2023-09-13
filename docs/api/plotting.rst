@@ -11,3 +11,4 @@
    pywrdrb.plotting.plot_radial_error_metrics
    pywrdrb.plotting.plot_rrv_metrics
    pywrdrb.plotting.compare_inflow_data
+   pywrdrb.plotting.get_error_metrics
