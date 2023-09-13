@@ -395,9 +395,9 @@ class VolBalanceNYCDownstreamMRFTargetAgg_step1CanPep(Parameter):
 
     Attributes:
         predicted_nonnyc_gage_flow_delMontague_lag2 (Parameter): The volume balance flow aggregate non-NYC Montague delivery parameter.
+        predicted_nonnyc_gage_flow_delTrenton_lag4 (Parameter): The volume balance flow aggregate non-NYC Trenton delivery parameter.
         mrf_target_delMontague (Parameter): The MRF target Montague delivery parameter.
-        volbalance_flow_agg_nonnyc_delTrenton (Parameter): The volume balance flow aggregate non-NYC Trenton delivery parameter.
-        max_flow_delivery_nj (Parameter): The maximum flow delivery to NJ parameter.
+        predicted_demand_nj_lag4 (Parameter): The predicted lagged demand to NJ parameter.
         mrf_target_delTrenton (Parameter): The MRF target Trenton delivery parameter.
 
     Methods:
@@ -408,13 +408,13 @@ class VolBalanceNYCDownstreamMRFTargetAgg_step1CanPep(Parameter):
 
     """
     def __init__(self, model, predicted_nonnyc_gage_flow_delMontague_lag2, mrf_target_delMontague,\
-                 predicted_nonnyc_gage_flow_delTrenton_lag4, max_flow_delivery_nj, mrf_target_delTrenton,
+                 predicted_nonnyc_gage_flow_delTrenton_lag4, predicted_demand_nj_lag4, mrf_target_delTrenton,
                  mrf_target_individual_agg_nyc, flood_release_agg_nyc, **kwargs):
         super().__init__(model, **kwargs)
         self.predicted_nonnyc_gage_flow_delMontague_lag2 = predicted_nonnyc_gage_flow_delMontague_lag2
         self.mrf_target_delMontague = mrf_target_delMontague
         self.predicted_nonnyc_gage_flow_delTrenton_lag4 = predicted_nonnyc_gage_flow_delTrenton_lag4
-        self.max_flow_delivery_nj = max_flow_delivery_nj
+        self.predicted_demand_nj_lag4 = predicted_demand_nj_lag4
         self.mrf_target_delTrenton = mrf_target_delTrenton
         self.mrf_target_individual_agg_nyc = mrf_target_individual_agg_nyc
         self.flood_release_agg_nyc = flood_release_agg_nyc
@@ -422,7 +422,7 @@ class VolBalanceNYCDownstreamMRFTargetAgg_step1CanPep(Parameter):
         self.children.add(predicted_nonnyc_gage_flow_delMontague_lag2)
         self.children.add(mrf_target_delMontague)
         self.children.add(predicted_nonnyc_gage_flow_delTrenton_lag4)
-        self.children.add(max_flow_delivery_nj)
+        self.children.add(predicted_demand_nj_lag4)
         self.children.add(mrf_target_delTrenton)
         self.children.add(mrf_target_individual_agg_nyc)
         self.children.add(flood_release_agg_nyc)
@@ -447,7 +447,7 @@ class VolBalanceNYCDownstreamMRFTargetAgg_step1CanPep(Parameter):
                              self.predicted_nonnyc_gage_flow_delTrenton_lag4.get_value(scenario_index) -
                              self.mrf_target_individual_agg_nyc.get_value(scenario_index) -
                              self.flood_release_agg_nyc.get_value(scenario_index) +
-                             self.max_flow_delivery_nj.get_value(scenario_index),
+                             self.predicted_demand_nj_lag4.get_value(scenario_index),
                              0.)
         return max(req_delMontague, req_delTrenton)
 
@@ -466,13 +466,13 @@ class VolBalanceNYCDownstreamMRFTargetAgg_step1CanPep(Parameter):
         predicted_nonnyc_gage_flow_delMontague_lag2 = load_parameter(model, 'predicted_nonnyc_gage_flow_delMontague_lag2')
         mrf_target_delMontague = load_parameter(model, 'mrf_target_delMontague')
         predicted_nonnyc_gage_flow_delTrenton_lag4 = load_parameter(model, 'predicted_nonnyc_gage_flow_delTrenton_lag4')
-        max_flow_delivery_nj = load_parameter(model, 'max_flow_delivery_nj')
+        predicted_demand_nj_lag4 = load_parameter(model, 'predicted_demand_nj_lag4')
         mrf_target_delTrenton = load_parameter(model, 'mrf_target_delTrenton')
         mrf_target_individual_agg_nyc = load_parameter(model, 'mrf_target_individual_agg_nyc')
         flood_release_agg_nyc = load_parameter(model, 'flood_release_agg_nyc')
 
         return cls(model, predicted_nonnyc_gage_flow_delMontague_lag2, mrf_target_delMontague,\
-                   predicted_nonnyc_gage_flow_delTrenton_lag4, max_flow_delivery_nj, mrf_target_delTrenton,
+                   predicted_nonnyc_gage_flow_delTrenton_lag4, predicted_demand_nj_lag4, mrf_target_delTrenton,
                    mrf_target_individual_agg_nyc, flood_release_agg_nyc, **data)
 
 ### have to register the custom parameter so Pywr recognizes it
@@ -627,7 +627,7 @@ class VolBalanceNYCDownstreamMRF_step2Nev(Parameter):
         predicted_nonnyc_gage_flow_delMontague_lag2 (Parameter): The volume balance flow aggregate non-NYC Montague delivery parameter.
         mrf_target_delMontague (Parameter): The MRF target Montague delivery parameter.
         volbalance_flow_agg_nonnyc_delTrenton (Parameter): The volume balance flow aggregate non-NYC Trenton delivery parameter.
-        max_flow_delivery_nj (Parameter): The maximum flow delivery to NJ parameter.
+        predicted_demand_nj_lag3 (Parameter): The lagged predicted NJ demand in 3 days
         mrf_target_delTrenton (Parameter): The MRF target Trenton delivery parameter.
 
     Methods:
@@ -638,14 +638,14 @@ class VolBalanceNYCDownstreamMRF_step2Nev(Parameter):
 
     """
     def __init__(self, model, predicted_nonnyc_gage_flow_delMontague_lag1, mrf_target_delMontague,\
-                 predicted_nonnyc_gage_flow_delTrenton_lag3, max_flow_delivery_nj, mrf_target_delTrenton,
+                 predicted_nonnyc_gage_flow_delTrenton_lag3, predicted_demand_nj_lag3, mrf_target_delTrenton,
                  mrf_target_individual_neversink, flood_release_neversink, max_release_neversink,
                  prev_release_reservoirs, **kwargs):
         super().__init__(model, **kwargs)
         self.predicted_nonnyc_gage_flow_delMontague_lag1 = predicted_nonnyc_gage_flow_delMontague_lag1
         self.mrf_target_delMontague = mrf_target_delMontague
         self.predicted_nonnyc_gage_flow_delTrenton_lag3 = predicted_nonnyc_gage_flow_delTrenton_lag3
-        self.max_flow_delivery_nj = max_flow_delivery_nj
+        self.predicted_demand_nj_lag3 = predicted_demand_nj_lag3
         self.mrf_target_delTrenton = mrf_target_delTrenton
         self.mrf_target_individual_neversink = mrf_target_individual_neversink
         self.flood_release_neversink = flood_release_neversink
@@ -655,7 +655,7 @@ class VolBalanceNYCDownstreamMRF_step2Nev(Parameter):
         self.children.add(predicted_nonnyc_gage_flow_delMontague_lag1)
         self.children.add(mrf_target_delMontague)
         self.children.add(predicted_nonnyc_gage_flow_delTrenton_lag3)
-        self.children.add(max_flow_delivery_nj)
+        self.children.add(predicted_demand_nj_lag3)
         self.children.add(mrf_target_delTrenton)
         self.children.add(mrf_target_individual_neversink)
         self.children.add(flood_release_neversink)
@@ -690,7 +690,7 @@ class VolBalanceNYCDownstreamMRF_step2Nev(Parameter):
                                  self.mrf_target_individual_neversink.get_value(scenario_index) - \
                                  self.flood_release_neversink.get_value(scenario_index) - \
                                  prev_release_CanPep_total + \
-                                 self.max_flow_delivery_nj.get_value(scenario_index),
+                                 self.predicted_demand_nj_lag3.get_value(scenario_index),
                                  max_release_neversink),
                              0)
         return max(req_delMontague, req_delTrenton)
@@ -710,7 +710,7 @@ class VolBalanceNYCDownstreamMRF_step2Nev(Parameter):
         predicted_nonnyc_gage_flow_delMontague_lag1 = load_parameter(model, 'predicted_nonnyc_gage_flow_delMontague_lag1')
         mrf_target_delMontague = load_parameter(model, 'mrf_target_delMontague')
         predicted_nonnyc_gage_flow_delTrenton_lag3 = load_parameter(model, 'predicted_nonnyc_gage_flow_delTrenton_lag3')
-        max_flow_delivery_nj = load_parameter(model, 'max_flow_delivery_nj')
+        predicted_demand_nj_lag3 = load_parameter(model, 'predicted_demand_nj_lag3')
         mrf_target_delTrenton = load_parameter(model, 'mrf_target_delTrenton')
         mrf_target_individual_neversink = load_parameter(model, 'mrf_target_individual_neversink')
         flood_release_neversink = load_parameter(model, 'flood_release_neversink')
@@ -718,7 +718,7 @@ class VolBalanceNYCDownstreamMRF_step2Nev(Parameter):
         prev_release_reservoirs = [load_parameter(model, f'prev_release_{reservoir}') for reservoir in ['cannonsville','pepacton']]
 
         return cls(model, predicted_nonnyc_gage_flow_delMontague_lag1, mrf_target_delMontague,\
-                   predicted_nonnyc_gage_flow_delTrenton_lag3, max_flow_delivery_nj, mrf_target_delTrenton,
+                   predicted_nonnyc_gage_flow_delTrenton_lag3, predicted_demand_nj_lag3, mrf_target_delTrenton,
                    mrf_target_individual_neversink, flood_release_neversink, max_release_neversink,
                    prev_release_reservoirs, **data)
 

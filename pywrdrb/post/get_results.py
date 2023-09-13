@@ -103,6 +103,10 @@ def get_pywr_results(output_dir, model, results_set='all', scenario=0, datetime_
             keys = ['delivery_nyc','delivery_nj']
             for k in keys:
                 results[k] = f[k][:, scenario]
+        elif results_set == 'mrf_targets':
+            keys = ['mrf_target_delMontague','mrf_target_delTrenton']
+            for k in keys:
+                results[k] = f[k][:, scenario]
 
         else:
             print('Invalid results_set specified.')

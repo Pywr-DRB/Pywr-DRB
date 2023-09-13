@@ -16,7 +16,7 @@ from utils.directories import input_dir, weap_dir
 from utils.lists import reservoir_list_nyc
 from pre.disaggregate_DRBC_demands import disaggregate_DRBC_demands
 from pre.extrapolate_NYC_NJ_diversions import extrapolate_NYC_NJ_diversions, download_USGS_data_NYC_NJ_diversions
-from pre.predict_Montague_Trenton_inflows import predict_Montague_Trenton_inflows
+from pre.predict_inflows_diversions import predict_inflows_diversions
 from pre.prep_input_data_functions import *
 from pre.reorganize_data import combine_nwmv21_datasets
 
@@ -54,24 +54,21 @@ if __name__ == "__main__":
     combine_modeled_observed_datasets('nhmv10', 'nhmv10', df_nhm.index)
     combine_modeled_observed_datasets('nhmv10', 'nwmv21', df_nhm.index)
 
-    ### create predicted future Montague & Trenton inflows based on lagged regressions, for scheduling NYC releases
-    start_date_training = '1983/10/01'
-    end_date_training = '2008/01/01'
-    predict_Montague_Trenton_inflows('nhmv10', start_date_training, end_date_training)
-    predict_Montague_Trenton_inflows('nwmv21', start_date_training, end_date_training)
-    predict_Montague_Trenton_inflows('nhmv10_withObsScaled', start_date_training, end_date_training)
-    predict_Montague_Trenton_inflows('nwmv21_withObsScaled', start_date_training, end_date_training)
-    
-    # Repeat using historic reconstruction
-    predict_Montague_Trenton_inflows('obs_pub_nhmv10_ObsScaled', '1945/01/01', '2022/12/31')
-    predict_Montague_Trenton_inflows('obs_pub_nwmv21_ObsScaled', '1945/01/01', '2022/12/31')
-
-
     ### now get NYC & NJ diversions. for time periods we dont have historical record, extrapolate by seasonal relationship to flow.
-    ### uses obs_pub_nhmv10_NYCScaling for inflow regressions & extrapolation -> this needs to be created first from Historic_reconstruction repo.
     # download_USGS_data_NYC_NJ_diversions()    ### dont need to rerun this every time
     extrapolate_NYC_NJ_diversions('nyc')
     extrapolate_NYC_NJ_diversions('nj')
+
+    ### create predicted future Montague & Trenton inflows & NJ diversions based on lagged regressions, for scheduling NYC releases
+    start_date_training = '1983/10/01'
+    end_date_training = '2008/01/01'
+    predict_inflows_diversions('nhmv10', start_date_training, end_date_training)
+    predict_inflows_diversions('nwmv21', start_date_training, end_date_training)
+    predict_inflows_diversions('nhmv10_withObsScaled', start_date_training, end_date_training)
+    predict_inflows_diversions('nwmv21_withObsScaled', start_date_training, end_date_training)
+    
+
+
 
     ### get catchment demands based on DRBC data
     sw_demand = disaggregate_DRBC_demands()

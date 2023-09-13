@@ -13,8 +13,12 @@ from pywrdrb.pywr_drb_node_data import upstream_nodes_dict, immediate_downstream
 
 EPS = 1e-8
 nhm_inflow_scaling = True
-flow_prediction_mode = 'regression_disagg'   ### 'regression_agg', 'regression_disagg', 'perfect_foresight', 'same_day', 'moving_average'
+use_lags = True
+flow_prediction_mode = 'regression_agg'   ### 'regression_agg', 'regression_disagg', 'perfect_foresight', 'same_day', 'moving_average'
 use_neversink_update = True
+### note: if use_lags is False, then use_neversink update must be false and flow_prediction_mode must be 'same_day'
+assert (use_lags == True or use_neversink_update == False)
+assert (use_lags == True or flow_prediction_mode == 'same_day')
 
 def get_reservoir_capacity(reservoir):
     istarf = pd.read_csv(f'{model_data_dir}drb_model_istarf_conus.csv')
@@ -143,7 +147,7 @@ def add_major_node(model, name, node_type, inflow_type, outflow_type=None, downs
         consumption = {
             'name': f'catchmentConsumption_{name}',
             'type': 'output',
-            'cost': -200.0,
+            'cost': -2000.0,
             'max_flow': f'max_flow_catchmentConsumption_{name}'
         }
         model['nodes'].append(consumption)
@@ -404,7 +408,10 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
             outflow_type = None
 
         ### get flow lag (days) between current node and its downstream connection
-        downstream_lag = downstream_node_lags[node]
+        if use_lags:
+            downstream_lag = downstream_node_lags[node]
+        else:
+            downstream_lag = 0
             
         variable_cost = True if (outflow_type == 'regulatory') else False
         if node_type == 'reservoir':
@@ -800,14 +807,23 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
             ]
         }
 
-    # ### total predicted lagged non-NYC inflows to Montague & Trenton
+    # ### total predicted lagged non-NYC inflows to Montague & Trenton, and predicted lagged NJ demands
     if inflow_ensemble_indices is None:
         for mrf, lag in zip(('delMontague', 'delMontague', 'delTrenton', 'delTrenton'), (1,2,3,4)):
             label = f'{mrf}_lag{lag}_{flow_prediction_mode}'
-
             model['parameters'][f'predicted_nonnyc_gage_flow_{mrf}_lag{lag}'] = {
                 'type': 'dataframe',
-                'url': f'{input_dir}predicted_nonnyc_gage_flow_{inflow_type}.csv',
+                'url': f'{input_dir}predicted_inflows_diversions_{inflow_type}.csv',
+                'column': label,
+                'index_col': 'datetime',
+                'parse_dates': True
+            }
+        ### now get predicted nj demand
+        for demand, lag in zip(('demand_nj', 'demand_nj'), (3,4)):
+            label = f'{demand}_lag{lag}_{flow_prediction_mode}'
+            model['parameters'][f'predicted_{demand}_lag{lag}'] = {
+                'type': 'dataframe',
+                'url': f'{input_dir}predicted_inflows_diversions_{inflow_type}.csv',
                 'column': label,
                 'index_col': 'datetime',
                 'parse_dates': True

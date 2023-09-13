@@ -9,9 +9,11 @@ import sys
 import os
 import math
 import time
-
 from pywr.model import Model
 from pywr.recorders import TablesRecorder
+
+sys.path.insert(0, os.path.abspath('./'))
+sys.path.insert(0, os.path.abspath('../'))
 
 import parameters.ffmp
 import parameters.starfit

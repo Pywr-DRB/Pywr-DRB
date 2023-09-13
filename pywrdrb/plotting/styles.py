@@ -65,25 +65,36 @@ model_colors_diagnostics_paper = {'obs': '0.5',
 #                                   'pywr_nhmv10_withObsScaled': '#02401B',
 #                                   'pywr_nwmv21_withObsScaled': '#02401B'
 #                                   }
+# model_colors_diagnostics_paper2 = {'obs': '0.4',
+#                                   'nhmv10': '#D8B70A',
+#                                   'nwmv21': '#D8B70A',
+#                                   'nhmv10_withObsScaled': '#D8B70A',
+#                                   'nwmv21_withObsScaled': '#D8B70A',
+#                                   'pywr_nhmv10': cm.get_cmap('Purples')(0.8),
+#                                   'pywr_nwmv21': cm.get_cmap('Purples')(0.8),
+#                                   'pywr_nhmv10_withObsScaled': cm.get_cmap('Purples')(0.8),
+#                                   'pywr_nwmv21_withObsScaled': cm.get_cmap('Purples')(0.8)
+#                                   }
 model_colors_diagnostics_paper2 = {'obs': '0.4',
-                                  'nhmv10': '#D8B70A',
-                                  'nwmv21': '#D8B70A',
-                                  'nhmv10_withObsScaled': '#D8B70A',
-                                  'nwmv21_withObsScaled': '#D8B70A',
-                                  'pywr_nhmv10': cm.get_cmap('Purples')(0.8),
-                                  'pywr_nwmv21': cm.get_cmap('Purples')(0.8),
-                                  'pywr_nhmv10_withObsScaled': cm.get_cmap('Purples')(0.8),
-                                  'pywr_nwmv21_withObsScaled': cm.get_cmap('Purples')(0.8)
+                                  'nhmv10': cm.get_cmap('Greens')(0.6),
+                                  'nwmv21': cm.get_cmap('Greens')(0.6),
+                                  'nhmv10_withObsScaled': cm.get_cmap('Greens')(0.6),
+                                  'nwmv21_withObsScaled': cm.get_cmap('Greens')(0.6),
+                                  'pywr_nhmv10': cm.get_cmap('Purples')(0.6),
+                                  'pywr_nwmv21': cm.get_cmap('Purples')(0.6),
+                                  'pywr_nhmv10_withObsScaled': cm.get_cmap('Purples')(0.6),
+                                  'pywr_nwmv21_withObsScaled': cm.get_cmap('Purples')(0.6),
                                   }
+
 model_colors_diagnostics_paper3 = {'obs': '0.4',
-                                  'nhmv10': '#D8B70A',
-                                  'nwmv21': '#D8B70A',
-                                  'nhmv10_withObsScaled': '#D8B70A',
-                                  'nwmv21_withObsScaled': '#D8B70A',
-                                  'pywr_nhmv10': '#D8B70A',
-                                  'pywr_nwmv21': '#A2A475',
-                                  'pywr_nhmv10_withObsScaled': '#02401B',
-                                  'pywr_nwmv21_withObsScaled': '#81A88D'
+                                  'nhmv10': cm.get_cmap('Greens')(0.3),
+                                  'nwmv21': cm.get_cmap('Greens')(0.5),
+                                  'nhmv10_withObsScaled': cm.get_cmap('Greens')(0.7),
+                                  'nwmv21_withObsScaled': cm.get_cmap('Greens')(0.9),
+                                  'pywr_nhmv10': cm.get_cmap('Purples')(0.3),
+                                  'pywr_nwmv21': cm.get_cmap('Purples')(0.5),
+                                  'pywr_nhmv10_withObsScaled': cm.get_cmap('Purples')(0.7),
+                                  'pywr_nwmv21_withObsScaled': cm.get_cmap('Purples')(0.9),
                                   }
 
 model_label_dict = {'obs': 'Observed',

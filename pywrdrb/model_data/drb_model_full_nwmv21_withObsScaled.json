@@ -38,7 +38,7 @@
         {
             "name": "catchmentConsumption_cannonsville",
             "type": "output",
-            "cost": -200.0,
+            "cost": -2000.0,
             "max_flow": "max_flow_catchmentConsumption_cannonsville"
         },
         {
@@ -74,7 +74,7 @@
         {
             "name": "catchmentConsumption_pepacton",
             "type": "output",
-            "cost": -200.0,
+            "cost": -2000.0,
             "max_flow": "max_flow_catchmentConsumption_pepacton"
         },
         {
@@ -110,7 +110,7 @@
         {
             "name": "catchmentConsumption_neversink",
             "type": "output",
-            "cost": -200.0,
+            "cost": -2000.0,
             "max_flow": "max_flow_catchmentConsumption_neversink"
         },
         {
@@ -146,7 +146,7 @@
         {
             "name": "catchmentConsumption_wallenpaupack",
             "type": "output",
-            "cost": -200.0,
+            "cost": -2000.0,
             "max_flow": "max_flow_catchmentConsumption_wallenpaupack"
         },
         {
@@ -187,7 +187,7 @@
         {
             "name": "catchmentConsumption_prompton",
             "type": "output",
-            "cost": -200.0,
+            "cost": -2000.0,
             "max_flow": "max_flow_catchmentConsumption_prompton"
         },
         {
@@ -228,7 +228,7 @@
         {
             "name": "catchmentConsumption_shoholaMarsh",
             "type": "output",
-            "cost": -200.0,
+            "cost": -2000.0,
             "max_flow": "max_flow_catchmentConsumption_shoholaMarsh"
         },
         {
@@ -269,7 +269,7 @@
         {
             "name": "catchmentConsumption_mongaupeCombined",
             "type": "output",
-            "cost": -200.0,
+            "cost": -2000.0,
             "max_flow": "max_flow_catchmentConsumption_mongaupeCombined"
         },
         {
@@ -305,7 +305,7 @@
         {
             "name": "catchmentConsumption_beltzvilleCombined",
             "type": "output",
-            "cost": -200.0,
+            "cost": -2000.0,
             "max_flow": "max_flow_catchmentConsumption_beltzvilleCombined"
         },
         {
@@ -341,7 +341,7 @@
         {
             "name": "catchmentConsumption_fewalter",
             "type": "output",
-            "cost": -200.0,
+            "cost": -2000.0,
             "max_flow": "max_flow_catchmentConsumption_fewalter"
         },
         {
@@ -377,7 +377,7 @@
         {
             "name": "catchmentConsumption_merrillCreek",
             "type": "output",
-            "cost": -200.0,
+            "cost": -2000.0,
             "max_flow": "max_flow_catchmentConsumption_merrillCreek"
         },
         {
@@ -418,7 +418,7 @@
         {
             "name": "catchmentConsumption_hopatcong",
             "type": "output",
-            "cost": -200.0,
+            "cost": -2000.0,
             "max_flow": "max_flow_catchmentConsumption_hopatcong"
         },
         {
@@ -459,7 +459,7 @@
         {
             "name": "catchmentConsumption_nockamixon",
             "type": "output",
-            "cost": -200.0,
+            "cost": -2000.0,
             "max_flow": "max_flow_catchmentConsumption_nockamixon"
         },
         {
@@ -495,7 +495,7 @@
         {
             "name": "catchmentConsumption_assunpink",
             "type": "output",
-            "cost": -200.0,
+            "cost": -2000.0,
             "max_flow": "max_flow_catchmentConsumption_assunpink"
         },
         {
@@ -531,7 +531,7 @@
         {
             "name": "catchmentConsumption_ontelaunee",
             "type": "output",
-            "cost": -200.0,
+            "cost": -2000.0,
             "max_flow": "max_flow_catchmentConsumption_ontelaunee"
         },
         {
@@ -572,7 +572,7 @@
         {
             "name": "catchmentConsumption_stillCreek",
             "type": "output",
-            "cost": -200.0,
+            "cost": -2000.0,
             "max_flow": "max_flow_catchmentConsumption_stillCreek"
         },
         {
@@ -613,7 +613,7 @@
         {
             "name": "catchmentConsumption_blueMarsh",
             "type": "output",
-            "cost": -200.0,
+            "cost": -2000.0,
             "max_flow": "max_flow_catchmentConsumption_blueMarsh"
         },
         {
@@ -649,7 +649,7 @@
         {
             "name": "catchmentConsumption_greenLane",
             "type": "output",
-            "cost": -200.0,
+            "cost": -2000.0,
             "max_flow": "max_flow_catchmentConsumption_greenLane"
         },
         {
@@ -686,7 +686,7 @@
         {
             "name": "catchmentConsumption_01425000",
             "type": "output",
-            "cost": -200.0,
+            "cost": -2000.0,
             "max_flow": "max_flow_catchmentConsumption_01425000"
         },
         {
@@ -707,7 +707,7 @@
         {
             "name": "catchmentConsumption_01417000",
             "type": "output",
-            "cost": -200.0,
+            "cost": -2000.0,
             "max_flow": "max_flow_catchmentConsumption_01417000"
         },
         {
@@ -728,7 +728,7 @@
         {
             "name": "catchmentConsumption_delLordville",
             "type": "output",
-            "cost": -200.0,
+            "cost": -2000.0,
             "max_flow": "max_flow_catchmentConsumption_delLordville"
         },
         {
@@ -754,7 +754,7 @@
         {
             "name": "catchmentConsumption_01436000",
             "type": "output",
-            "cost": -200.0,
+            "cost": -2000.0,
             "max_flow": "max_flow_catchmentConsumption_01436000"
         },
         {
@@ -780,7 +780,7 @@
         {
             "name": "catchmentConsumption_01433500",
             "type": "output",
-            "cost": -200.0,
+            "cost": -2000.0,
             "max_flow": "max_flow_catchmentConsumption_01433500"
         },
         {
@@ -801,7 +801,7 @@
         {
             "name": "catchmentConsumption_delMontague",
             "type": "output",
-            "cost": -200.0,
+            "cost": -2000.0,
             "max_flow": "max_flow_catchmentConsumption_delMontague"
         },
         {
@@ -827,7 +827,7 @@
         {
             "name": "catchmentConsumption_01449800",
             "type": "output",
-            "cost": -200.0,
+            "cost": -2000.0,
             "max_flow": "max_flow_catchmentConsumption_01449800"
         },
         {
@@ -853,7 +853,7 @@
         {
             "name": "catchmentConsumption_01447800",
             "type": "output",
-            "cost": -200.0,
+            "cost": -2000.0,
             "max_flow": "max_flow_catchmentConsumption_01447800"
         },
         {
@@ -879,7 +879,7 @@
         {
             "name": "catchmentConsumption_delDRCanal",
             "type": "output",
-            "cost": -200.0,
+            "cost": -2000.0,
             "max_flow": "max_flow_catchmentConsumption_delDRCanal"
         },
         {
@@ -904,7 +904,7 @@
         {
             "name": "catchmentConsumption_01463620",
             "type": "output",
-            "cost": -200.0,
+            "cost": -2000.0,
             "max_flow": "max_flow_catchmentConsumption_01463620"
         },
         {
@@ -925,7 +925,7 @@
         {
             "name": "catchmentConsumption_outletAssunpink",
             "type": "output",
-            "cost": -200.0,
+            "cost": -2000.0,
             "max_flow": "max_flow_catchmentConsumption_outletAssunpink"
         },
         {
@@ -946,7 +946,7 @@
         {
             "name": "catchmentConsumption_01470960",
             "type": "output",
-            "cost": -200.0,
+            "cost": -2000.0,
             "max_flow": "max_flow_catchmentConsumption_01470960"
         },
         {
@@ -972,7 +972,7 @@
         {
             "name": "catchmentConsumption_outletSchuylkill",
             "type": "output",
-            "cost": -200.0,
+            "cost": -2000.0,
             "max_flow": "max_flow_catchmentConsumption_outletSchuylkill"
         },
         {
@@ -3945,29 +3945,43 @@
         },
         "predicted_nonnyc_gage_flow_delMontague_lag1": {
             "type": "dataframe",
-            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_nonnyc_gage_flow_nwmv21_withObsScaled.csv",
-            "column": "delMontague_lag1_regression_disagg",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_inflows_diversions_nwmv21_withObsScaled.csv",
+            "column": "delMontague_lag1_perfect_foresight",
             "index_col": "datetime",
             "parse_dates": true
         },
         "predicted_nonnyc_gage_flow_delMontague_lag2": {
             "type": "dataframe",
-            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_nonnyc_gage_flow_nwmv21_withObsScaled.csv",
-            "column": "delMontague_lag2_regression_disagg",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_inflows_diversions_nwmv21_withObsScaled.csv",
+            "column": "delMontague_lag2_perfect_foresight",
             "index_col": "datetime",
             "parse_dates": true
         },
         "predicted_nonnyc_gage_flow_delTrenton_lag3": {
             "type": "dataframe",
-            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_nonnyc_gage_flow_nwmv21_withObsScaled.csv",
-            "column": "delTrenton_lag3_regression_disagg",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_inflows_diversions_nwmv21_withObsScaled.csv",
+            "column": "delTrenton_lag3_perfect_foresight",
             "index_col": "datetime",
             "parse_dates": true
         },
         "predicted_nonnyc_gage_flow_delTrenton_lag4": {
             "type": "dataframe",
-            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_nonnyc_gage_flow_nwmv21_withObsScaled.csv",
-            "column": "delTrenton_lag4_regression_disagg",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_inflows_diversions_nwmv21_withObsScaled.csv",
+            "column": "delTrenton_lag4_perfect_foresight",
+            "index_col": "datetime",
+            "parse_dates": true
+        },
+        "predicted_demand_nj_lag3": {
+            "type": "dataframe",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_inflows_diversions_nwmv21_withObsScaled.csv",
+            "column": "demand_nj_lag3_perfect_foresight",
+            "index_col": "datetime",
+            "parse_dates": true
+        },
+        "predicted_demand_nj_lag4": {
+            "type": "dataframe",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_inflows_diversions_nwmv21_withObsScaled.csv",
+            "column": "demand_nj_lag4_perfect_foresight",
             "index_col": "datetime",
             "parse_dates": true
         },
@@ -3982,40 +3996,9 @@
             "type": "VolBalanceNYCDownstreamMRF_step1CanPep",
             "node": "reservoir_pepacton"
         },
-        "prev_outflow_cannonsville": {
-            "type": "flow",
-            "node": "outflow_cannonsville"
-        },
-        "prev_spill_cannonsville": {
-            "type": "flow",
-            "node": "spill_cannonsville"
-        },
-        "prev_release_cannonsville": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "prev_outflow_cannonsville",
-                "prev_spill_cannonsville"
-            ]
-        },
-        "prev_outflow_pepacton": {
-            "type": "flow",
-            "node": "outflow_pepacton"
-        },
-        "prev_spill_pepacton": {
-            "type": "flow",
-            "node": "spill_pepacton"
-        },
-        "prev_release_pepacton": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "prev_outflow_pepacton",
-                "prev_spill_pepacton"
-            ]
-        },
         "mrf_montagueTrenton_neversink": {
-            "type": "VolBalanceNYCDownstreamMRF_step2Nev"
+            "type": "VolBalanceNYCDownstreamMRF_step1CanPep",
+            "node": "reservoir_neversink"
         },
         "downstream_release_target_cannonsville": {
             "type": "aggregated",
