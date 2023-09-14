@@ -7,7 +7,7 @@ from pywrdrb.utils.directories import input_dir
 from pywrdrb.utils.lists import reservoir_list, majorflow_list
 from pywrdrb.plotting.plotting_functions import subset_timeseries
 from pywrdrb.pre.prep_input_data_functions import add_upstream_catchment_inflows
-
+from pywrdrb.utils.hdf5 import extract_realization_from_hdf5, get_hdf5_realization_numbers, export_ensemble_to_hdf5
 
 ### Predicting future timeseries (catchment inflows or interbasin diversions) at a particular lag (days) using linear regression
 def regress_future_timeseries(timeseries, node, lag, use_log, remove_zeros, use_const,
@@ -137,14 +137,22 @@ def get_rollmean_timeseries(timeseries, window):
 
 ### function for creating lagged prediction datasets for catchment inflows & NJ diversions
 def predict_inflows_diversions(dataset_label, start_date, end_date,
-                               use_log=False, remove_zeros=False, use_const=False):
+                               use_log=False, remove_zeros=False, use_const=False,
+                               realization=None, ensemble_inflows=False,
+                               save_predictions=True, return_predictions=False):
 
-    ### read in catchment inflows
-    catchment_inflows = pd.read_csv(f'{input_dir}/catchment_inflow_{dataset_label}.csv')
-    catchment_inflows.index = pd.DatetimeIndex(catchment_inflows['datetime'])
-    catchment_inflows_training = subset_timeseries(catchment_inflows, start_date, end_date)
+    ### read in catchment inflows and withdrawals/consumptions
+    if ensemble_inflows:
+        ensemble_filename = f'{input_dir}/historic_ensembles/catchment_inflow_{dataset_label}.hdf5'
+        catchment_inflows = extract_realization_from_hdf5(ensemble_filename, realization, 
+                                                          stored_by_node=True)
+        catchment_inflows_training = subset_timeseries(catchment_inflows, start_date, end_date)
+    else:
+        catchment_inflows = pd.read_csv(f'{input_dir}/catchment_inflow_{dataset_label}.csv')
+        catchment_inflows.index = pd.DatetimeIndex(catchment_inflows['datetime'])
+        catchment_inflows_training = subset_timeseries(catchment_inflows, start_date, end_date)
 
-    ### read in catchment withdrawals/consumptions
+    # Withdrawas and currently the same across ensemble realizations
     catchment_wc = pd.read_csv(f'{input_dir}/sw_avg_wateruse_Pywr-DRB_Catchments.csv')
     catchment_wc.index = catchment_wc['node']
 
@@ -308,8 +316,46 @@ def predict_inflows_diversions(dataset_label, start_date, end_date,
     for pred_lag in [2, 3, 4]:
         predicted_timeseries[f'{pred_node}_lag{pred_lag}_{mode}'] = rollmean_timeseries[pred_node]
 
-
-
-
     ### save to csv
-    predicted_timeseries.to_csv(f'{input_dir}/predicted_inflows_diversions_{dataset_label}.csv', index=False)
+    if save_predictions:
+        predicted_timeseries.to_csv(f'{input_dir}/predicted_inflows_diversions_{dataset_label}.csv', index=False)
+    if return_predictions:
+        return predicted_timeseries
+    
+    
+    
+    
+def predict_ensemble_inflows_diversions(dataset_label, start_date, end_date,
+                                     use_log=False, remove_zeros=False, use_const=False):
+    """Makes predictions for inflows and diversions at non-NYC gage flows, 
+    using the specified ensemble dataset, looping through each realization. 
+    Ensemble of predictions is exported to hdf5 file.
+    
+    Args:
+        dataset_label (str): The dataset label; Options: 'obs_pub_nhmv10_ObsScaled_ensemble', 'obs_pub_nwmv10_ObsScaled_ensemble'
+        start_date (str): The start date for the predictions
+        end_date (str): The end date for the predictions
+        use_log (bool): Whether to use log-transformed data for prediction
+        remove_zeros (bool): Whether to remove zero values from the data
+        use_const (bool): Whether to include a constant in the regression
+    """
+    # Storage:
+    ensemble_pred_nonnyc_gage_flows = {}
+    
+    ensemble_filename= f'{input_dir}/historic_ensembles/catchment_inflow_{dataset_label}.hdf5'
+    
+    # Loop over realizations
+    realization_numbers = get_hdf5_realization_numbers(ensemble_filename)
+    print('Starting inflow/diversion predictions for ensemble')
+    for i in realization_numbers:
+        df_predictions = predict_inflows_diversions(dataset_label, start_date, end_date,
+                                                                   use_log=use_log, remove_zeros=remove_zeros, 
+                                                                   use_const=use_const,
+                                                                   ensemble_inflows=True, realization=i,
+                                                                   save_predictions=False, return_predictions=True)
+        ensemble_pred_nonnyc_gage_flows[f'realization_{i}'] = df_predictions.copy()
+    print('Exporting ensemble of inflows/diversions to hdf5.')
+    # Export to HDF5
+    output_filename= f'{input_dir}/historic_ensembles/predicted_nonnyc_gage_flow_{dataset_label}.hdf5'
+    export_ensemble_to_hdf5(ensemble_pred_nonnyc_gage_flows, output_filename)
+    return 

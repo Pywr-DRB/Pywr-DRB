@@ -829,10 +829,28 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
                 'parse_dates': True
             }
     else:
-        print('WARNING: Ensemble mode not set up yet for Montague & Trenton flow forecasts')
-
-
-
+        ### Use custom PredictionEnsemble parameter to handle scenario indexing
+        for mrf, lag in zip(('delMontague', 'delMontague', 'delTrenton', 'delTrenton'), (1,2,3,4)):
+            label = f'{mrf}_lag{lag}_{flow_prediction_mode}'
+            
+            model['parameters'][f'predicted_nonnyc_gage_flow_{mrf}_lag{lag}'] = {
+                'type': 'PredictionEnsemble',
+                'column': label,
+                'inflow_type': inflow_type,
+                'ensemble_indices': inflow_ensemble_indices
+                }
+        
+        ### now get predicted nj demand (this is the same across ensemble)
+        for demand, lag in zip(('demand_nj', 'demand_nj'), (3,4)):
+            label = f'{demand}_lag{lag}_{flow_prediction_mode}'
+            model['parameters'][f'predicted_{demand}_lag{lag}'] = {
+                'type': 'dataframe',
+                'url': f'{input_dir}predicted_inflows_diversions_{inflow_type}.csv',
+                'column': label,
+                'index_col': 'datetime',
+                'parse_dates': True
+            }
+        print('WARNING: Ensemble mode not tested/verified for Montague & Trenton flow forecasts')
 
 
     ### Get total release needed from NYC reservoirs to satisfy Montague & Trenton flow targets,
