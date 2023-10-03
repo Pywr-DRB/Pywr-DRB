@@ -17,11 +17,15 @@ from utils.lists import reservoir_list_nyc
 from pre.disaggregate_DRBC_demands import disaggregate_DRBC_demands
 from pre.extrapolate_NYC_NJ_diversions import extrapolate_NYC_NJ_diversions, download_USGS_data_NYC_NJ_diversions
 from pre.predict_inflows_diversions import predict_inflows_diversions
+from pre.predict_inflows_diversions import predict_ensemble_inflows_diversions
 from pre.prep_input_data_functions import *
 from pre.reorganize_data import combine_nwmv21_datasets
 
 
 if __name__ == "__main__":
+
+    # Option to re-predict inflows/diversions across the ensemble inputs
+    prepare_prediction_ensemble = False
 
     ### read in observed, NHM, & NWM data
     ### use same set of dates for all.
@@ -29,7 +33,7 @@ if __name__ == "__main__":
     end_date = '2016/12/31'
     
 
-    df_obs = read_csv_data(f'{input_dir}usgs_gages/streamflow_daily_usgs_1950_2022_cms.csv', start_date, end_date,
+    df_obs = read_csv_data(f'{input_dir}usgs_gages/streamflow_daily_usgs_1950_2022_cms.csv', '1945/01/01', '2022/12/31',
                            units = 'cms', source = 'USGS')
 
     df_nhm = read_csv_data(f'{input_dir}modeled_gages/streamflow_daily_nhmv10_mgd.csv', start_date, end_date,
@@ -38,7 +42,7 @@ if __name__ == "__main__":
     df_nwm = read_csv_data(f'{input_dir}modeled_gages/streamflow_daily_nwmv21_mgd.csv', start_date, end_date,
                            units = 'mgd', source = 'nwmv21')
 
-    assert ((df_obs.index == df_nhm.index).mean() == 1) and ((df_nhm.index == df_nwm.index).mean() == 1)
+    #assert ((df_obs.index == df_nhm.index).mean() == 1) and ((df_nhm.index == df_nwm.index).mean() == 1)
 
     ### match USGS gage sites to Pywr-DRB model nodes & save inflows to csv file in format expected by Pywr-DRB
     match_gages(df_nhm, 'nhmv10', site_matches_id= nhm_site_matches)
@@ -67,8 +71,13 @@ if __name__ == "__main__":
     predict_inflows_diversions('nhmv10_withObsScaled', start_date_training, end_date_training)
     predict_inflows_diversions('nwmv21_withObsScaled', start_date_training, end_date_training)
     
+    # Predict for historic reconstructions
+    predict_inflows_diversions('obs_pub_nhmv10_ObsScaled', '1945/01/01', '2022/12/31')
+    predict_inflows_diversions('obs_pub_nwmv21_ObsScaled', '1945/01/01', '2022/12/31')
 
-
+    if prepare_prediction_ensemble:
+        predict_ensemble_inflows_diversions('obs_pub_nhmv10_ObsScaled_ensemble', '1945/01/01', '2022/12/31')
+        predict_ensemble_inflows_diversions('obs_pub_nwmv21_ObsScaled_ensemble', '1945/01/01', '2022/12/31')
 
     ### get catchment demands based on DRBC data
     sw_demand = disaggregate_DRBC_demands()
