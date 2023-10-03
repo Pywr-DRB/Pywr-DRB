@@ -3946,42 +3946,42 @@
         "predicted_nonnyc_gage_flow_delMontague_lag1": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_inflows_diversions_nhmv10_withObsScaled.csv",
-            "column": "delMontague_lag1_perfect_foresight",
+            "column": "delMontague_lag1_regression_disagg",
             "index_col": "datetime",
             "parse_dates": true
         },
         "predicted_nonnyc_gage_flow_delMontague_lag2": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_inflows_diversions_nhmv10_withObsScaled.csv",
-            "column": "delMontague_lag2_perfect_foresight",
+            "column": "delMontague_lag2_regression_disagg",
             "index_col": "datetime",
             "parse_dates": true
         },
         "predicted_nonnyc_gage_flow_delTrenton_lag3": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_inflows_diversions_nhmv10_withObsScaled.csv",
-            "column": "delTrenton_lag3_perfect_foresight",
+            "column": "delTrenton_lag3_regression_disagg",
             "index_col": "datetime",
             "parse_dates": true
         },
         "predicted_nonnyc_gage_flow_delTrenton_lag4": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_inflows_diversions_nhmv10_withObsScaled.csv",
-            "column": "delTrenton_lag4_perfect_foresight",
+            "column": "delTrenton_lag4_regression_disagg",
             "index_col": "datetime",
             "parse_dates": true
         },
         "predicted_demand_nj_lag3": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_inflows_diversions_nhmv10_withObsScaled.csv",
-            "column": "demand_nj_lag3_perfect_foresight",
+            "column": "demand_nj_lag3_regression_disagg",
             "index_col": "datetime",
             "parse_dates": true
         },
         "predicted_demand_nj_lag4": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_inflows_diversions_nhmv10_withObsScaled.csv",
-            "column": "demand_nj_lag4_perfect_foresight",
+            "column": "demand_nj_lag4_regression_disagg",
             "index_col": "datetime",
             "parse_dates": true
         },
@@ -3996,9 +3996,40 @@
             "type": "VolBalanceNYCDownstreamMRF_step1CanPep",
             "node": "reservoir_pepacton"
         },
+        "prev_outflow_cannonsville": {
+            "type": "flow",
+            "node": "outflow_cannonsville"
+        },
+        "prev_spill_cannonsville": {
+            "type": "flow",
+            "node": "spill_cannonsville"
+        },
+        "prev_release_cannonsville": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "prev_outflow_cannonsville",
+                "prev_spill_cannonsville"
+            ]
+        },
+        "prev_outflow_pepacton": {
+            "type": "flow",
+            "node": "outflow_pepacton"
+        },
+        "prev_spill_pepacton": {
+            "type": "flow",
+            "node": "spill_pepacton"
+        },
+        "prev_release_pepacton": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "prev_outflow_pepacton",
+                "prev_spill_pepacton"
+            ]
+        },
         "mrf_montagueTrenton_neversink": {
-            "type": "VolBalanceNYCDownstreamMRF_step1CanPep",
-            "node": "reservoir_neversink"
+            "type": "VolBalanceNYCDownstreamMRF_step2Nev"
         },
         "downstream_release_target_cannonsville": {
             "type": "aggregated",

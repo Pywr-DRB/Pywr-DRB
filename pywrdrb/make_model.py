@@ -14,7 +14,7 @@ from pywrdrb.pywr_drb_node_data import upstream_nodes_dict, immediate_downstream
 EPS = 1e-8
 nhm_inflow_scaling = True
 use_lags = True
-flow_prediction_mode = 'regression_agg'   ### 'regression_agg', 'regression_disagg', 'perfect_foresight', 'same_day', 'moving_average'
+flow_prediction_mode = 'regression_disagg'   ### 'regression_agg', 'regression_disagg', 'perfect_foresight', 'same_day', 'moving_average'
 use_neversink_update = True
 ### note: if use_lags is False, then use_neversink update must be false and flow_prediction_mode must be 'same_day'
 assert (use_lags == True or use_neversink_update == False)

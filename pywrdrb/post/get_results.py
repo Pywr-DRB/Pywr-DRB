@@ -60,6 +60,9 @@ def get_pywr_results(output_dir, model, results_set='all', scenario=0, datetime_
             keys_spill = [k for k in keys if k.split('_')[0] == 'spill' and k.split('_')[1] in reservoir_list]
             for k in keys_spill:
                 results[k.split('_')[1]] += f[k][:, scenario]
+        elif results_set == 'downstream_release_target':
+            for reservoir in reservoir_list_nyc:
+                results[reservoir] = f[f'{results_set}_{reservoir}'][:, scenario]
         elif results_set == 'inflow':
             keys = [k for k in keys if k.split('_')[0] == 'catchment']
             for k in keys:

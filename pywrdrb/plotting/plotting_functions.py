@@ -425,7 +425,7 @@ def plot_gridded_error_metrics(results_metrics, models, nodes, start_date, end_d
 
     ax.annotate(labels[0], xy=(-1.3, 105.3), va='top', ha='left', weight='bold', fontsize=fontsize)
     for x, metric in enumerate(metrics):
-        print(metric, vrange_dict[metric])
+        # print(metric, vrange_dict[metric])
         vs = np.arange(vrange_dict[metric][0], vrange_dict[metric][1]+0.001,
                            (vrange_dict[metric][1]-vrange_dict[metric][0]) / num_gradations)
         dy = 3 / num_gradations
@@ -770,7 +770,7 @@ def plot_combined_nyc_storage_vs_diversion(storages, ffmp_level_boundaries, ibt_
 
 
 
-def plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major_flows, mrf_targets, reservoir_releases,
+def plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major_flows, mrf_targets, reservoir_releases, downstream_release_targets,
                                           base_model, shortfall_metrics, colordict = paired_model_colors,
                                            start_date = '1999-10-01', end_date = '2010-05-31', fig_dir=fig_dir):
     """
@@ -856,7 +856,7 @@ def plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major
             ax.fill_between([event_start, event_end], [ylims[0]] * 2, [ylims[1]] * 2, color='lightcoral', alpha=1)
 
         ### clean up
-        ax.annotate(labels[1], xy=(0.005, 0.05), xycoords='axes fraction', ha='left', va='bottom', weight='bold',
+        ax.annotate(labels[1 + i*2], xy=(0.005, 0.05), xycoords='axes fraction', ha='left', va='bottom', weight='bold',
                      fontsize=fontsize, color='k')
         ax.set_xlim(axs[0].get_xlim())
         ax.set_xticks(ax.get_xticks(), [''] * len(ax.get_xticks()), fontsize=fontsize)
@@ -871,25 +871,31 @@ def plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major
         satisfaction = np.minimum(flow.divide(target_max) * 100, np.ones(len(flow)) * 100)
 
         releases = subset_timeseries(reservoir_releases[pywr_model], start_date, end_date)
+        dstargets = subset_timeseries(downstream_release_targets[pywr_model], start_date, end_date)
 
         leftlinecolor = 'k'
         ax.plot(satisfaction, color=leftlinecolor)
+        yticks = [0, 50, 100]
         ax.set_ylim(ylims)
+        ax.set_yticks(yticks, fontsize=fontsize, color=leftlinecolor)
         ax.set_ylabel('Normal\nMin. Flow\nSatisfied (%)', fontsize=fontsize, color=leftlinecolor)
-        ax.set_yticks(ax.get_yticks(), ax.get_yticklabels(), fontsize=fontsize, color=leftlinecolor)
         ax.tick_params(axis='y', colors=leftlinecolor)
         ax.set_ylim(ylims)
 
         ### add shortfall events
         event_starts = shortfall_metrics[mrf][pywr_model]['event_starts']
         event_ends = shortfall_metrics[mrf][pywr_model]['event_ends']
-        print(pywr_model, mrf)
-        print()
+        # print(pywr_model, mrf)
+        # print()
         for event_start, event_end in zip(event_starts, event_ends):
             ax.fill_between([event_start, event_end], [ylims[0]]*2, [ylims[1]]*2, color='lightcoral', alpha=1)
-            print(event_start, event_end,
-                  releases[reservoir_list_nyc].loc[event_start:event_end+datetime.timedelta(days = 1)])
-            print(releases[reservoir_list_nyc].loc[event_start:event_end+datetime.timedelta(days = 1)].sum(axis=1))
+            # print(event_start, event_end,
+            #       releases[reservoir_list_nyc].loc[event_start:event_end+datetime.timedelta(days = 1)])
+            # print(releases[reservoir_list_nyc].loc[event_start:event_end+datetime.timedelta(days = 1)].sum(axis=1))
+            # print(event_start, event_end,
+            #       dstargets[reservoir_list_nyc].loc[event_start:event_end+datetime.timedelta(days = 1)])
+            # print(dstargets[reservoir_list_nyc].loc[event_start:event_end+datetime.timedelta(days = 1)].sum(axis=1))
+            # print()
         ax.set_xlim(axs[0].get_xlim())
         if mrf == 'delMontague':
             ax.set_xticks(ax.get_xticks(), [''] * len(ax.get_xticks()), fontsize=fontsize)
@@ -905,8 +911,10 @@ def plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major
 
         ax2.set_ylabel('Dynamic\nMin. Flow\nTarget (MGD)', fontsize=fontsize, rotation=270,
                        labelpad=35, color=twincolor)
-        ax2.annotate(labels[2], xy=(0.005, 0.05), xycoords='axes fraction', ha='left', va='bottom', weight='bold',
+        ax2.annotate(labels[2 + i*2], xy=(0.005, 0.05), xycoords='axes fraction', ha='left', va='bottom', weight='bold',
                      fontsize=fontsize, color='k')
+        yticks = [0, 500, 1000] if mrf == 'delMontague' else [0, 1000, 2000]
+        ax.set_yticks(yticks)
         ax2.tick_params(axis='y', colors=twincolor)
 
 
@@ -1302,16 +1310,16 @@ def get_shortfall_metrics(major_flows, mrf_targets, ibt_demands, ibt_diversions,
 
 
 ###
-def plot_shortfall_metrics(RRV_metrics, models_mrf, models_ibt, nodes, shortfall_type='absolute',
+def plot_shortfall_metrics(shortfall_metrics, models_mrf, models_ibt, nodes, shortfall_type='absolute',
                            colordict = base_model_colors, fig_dir = fig_dir):
     """
 
     """
     ### 3x4 figure with RRV metrics (rows) & nodes (cols). Montague/Trenton use 8 models, NYC/NJ only 4.
-    fig, axs = plt.subplots(4, 4, figsize=(8, 6), gridspec_kw={'width_ratios': [3,3,1.4, 1.4],
-                                                               'hspace':0.2, 'wspace':0.4})
+    fig, axs = plt.subplots(4, 4, figsize=(8, 6), gridspec_kw={'width_ratios': [3,3,3,3],
+                                                               'hspace':0.15, 'wspace':0.4})
     fontsize = 8
-    metrics = ['reliability','resiliency','exp_vulnerability','max_vulnerability']
+    metrics = ['reliability','durations','intensities','vulnerabilities']
     labels = [['a)','b)','c)','d)'],
               ['e)', 'f)', 'g)', 'h)'],
               ['i)', 'j)', 'k)', 'l)'],
@@ -1321,78 +1329,86 @@ def plot_shortfall_metrics(RRV_metrics, models_mrf, models_ibt, nodes, shortfall
     for col, node in enumerate(nodes):
         for row, metric in enumerate(metrics):
             ax = axs[row, col]
-
             models = models_mrf if node in majorflow_list else models_ibt
             colors = [colordict[model] for model in models]
-            heights = [RRV_metrics[metric].loc[np.logical_and(RRV_metrics['node']==node,
-                                                              RRV_metrics['model']==m)].iloc[0] for m in models]
-            ### subtract reliability & resiliency from 1 so that downward hanging bars are larger for worse outcomes.
-            # if row < 2:
-            #     heights = [-(1 - h) for h in heights]
-            #     bottom = 1
-            # else:
-            #     bottom = 0
 
-            bottom = 0
-            positions = range(len(heights))
+            ### for reliability, do a bar chart
+            if metric == 'reliability':
+                heights = [shortfall_metrics[node][m][metric] for m in models]
+                bottom = 0
+                positions = range(8) if len(heights) == 8 else range(4, 8)
 
-            ### Add bars
-            ax.bar(positions, heights, bottom = bottom, width=0.8, linewidth=0.5, color=colors, edgecolor='w')
+                ### Add bars
+                ax.bar(positions, heights, bottom = bottom, width=0.8, linewidth=0.5, color=colors, edgecolor='w')
+
+            ### for other metrics, do cdfs
+            else:
+                for m in models:
+                    values_ordered = np.sort(np.array(shortfall_metrics[node][m][metric]))[::-1]
+                    x = np.arange(len(values_ordered))
+                    ax.plot(x, values_ordered, color='k', lw=1.7)
+                    ax.plot(x, values_ordered, color=colordict[m], lw=1.4, label=model_label_dict[m])
+
 
             ### fix ticks/labels/etc
             if row == 0:
-                ax.set_ylim([70, 100])
-                ax.set_yticks([70, 80, 90, 100], [70, 80, 90, 100], fontsize=fontsize)
-            if row == 1:
-                ax.set_ylim([0,100])
-                ax.set_yticks([0,25,50,75,100], [0,25,50,75,100], fontsize=fontsize)
-            if row == 2:
-                if vulnerability_type == 'absolute':
+                ax.set_ylim([80, 100])
+                ax.set_yticks([80, 90, 100], [80, 90, 100], fontsize=fontsize)
+                ax.set_xlim([-0.7, 7.7])
+                ax.set_xticks([])
+            else:
+                if shortfall_type == 'absolute':
                     ax.set_ylim([0, ax.get_ylim()[1]])
                     yticks = np.zeros(len(ax.get_yticks()) + 1)
                     yticks[1:] = ax.get_yticks()
-                    ax.set_yticks(yticks)
-                elif vulnerability_type == 'percent':
+                    ax.set_yticks(yticks, [str(round(y)) for y in yticks], fontsize=fontsize)
+                elif shortfall_type == 'percent':
                     ax.set_ylim([0,30])
                     ax.set_yticks([0,10,20,30], [0,10,20,30], fontsize=fontsize)
-            if row == 3:
-                if vulnerability_type == 'absolute':
-                    ax.set_ylim([0, ax.get_ylim()[1]])
-                    yticks = np.zeros(len(ax.get_yticks())+1)
-                    yticks[1:] = ax.get_yticks()
-                    ax.set_yticks(yticks)
-                elif vulnerability_type == 'percent':
-                    ax.set_ylim([0,80])
-                    ax.set_yticks([0,20,40,60,80], [0,20,40,60,80], fontsize=fontsize)
+            if col == 0:
+                xticks = [0, 20, 40]
+            elif col == 1:
+                xticks = [0, 15, 30]
+            elif col == 2:
+                xticks = [0, 10, 20]
+            else:
+                xticks = [0, 15, 30]
 
-            ax.set_yticklabels(ax.get_yticklabels(), fontsize=fontsize)
-            ax.set_xticks([])
+            if row == 3:
+                ax.set_xlabel('Exceedance\n(Num. shortfall events)', fontsize=fontsize)
+                ax.set_xticks(xticks, xticks, fontsize=fontsize)
+                ax.set_xlim([0, ax.get_xlim()[1]])
+            elif row > 0:
+                ax.set_xticks(xticks, ['']*len(xticks), fontsize=fontsize)
+                ax.set_xlim([0, ax.get_xlim()[1]])
+
 
             ### subfig label
-            x = 0.015 if col < 2 else 0.04
+            x = 0.05 if row == 0 else 0.95
+            ha = 'left' if row == 0 else 'right'
             ax.annotate(labels[row][col], xy=(x,0.96), xycoords='axes fraction', fontsize=fontsize, weight='bold',
-                        va='top', ha='left')
+                        va='top', ha=ha)
 
             ### legend
             if row == 3 and col == 1:
                 legend_elements = []
                 for m in models_mrf:
                     legend_elements.append(Patch(facecolor=colordict[m], edgecolor='w', label=model_label_dict[m]))
-                leg = ax.legend(handles=legend_elements, loc='upper center', ncols=4, bbox_to_anchor=(0.7, -0.15),
+                leg = ax.legend(handles=legend_elements, loc='upper center', ncols=4, bbox_to_anchor=(1.1, -0.5),
                                 frameon=False, fontsize=fontsize)
 
     ### ylabels & legend
     axs[0,0].set_ylabel('Reliability (%)', fontsize=fontsize)
-    axs[1,0].set_ylabel('Resiliency (%)', fontsize=fontsize)
-    if vulnerability_type == 'percent':
-        axs[2,0].set_ylabel('Exp. Vulnerability\n(%)', fontsize=fontsize)
-        axs[3,0].set_ylabel('Max. Vulnerability\n(%)', fontsize=fontsize)
-    elif vulnerability_type == 'absolute':
-        axs[2,0].set_ylabel('Exp. Vulnerability\n(MGD)', fontsize=fontsize)
-        axs[3,0].set_ylabel('Max. Vulnerability\n(MGD)', fontsize=fontsize)
+    axs[1,0].set_ylabel('Duration (days)', fontsize=fontsize)
+    if shortfall_type == 'percent':
+        axs[2,0].set_ylabel('Intensity\n(%)', fontsize=fontsize)
+        axs[3,0].set_ylabel('Vulnerability\n(%)', fontsize=fontsize)
+    elif shortfall_type == 'absolute':
+        axs[2,0].set_ylabel('Intensity\n(MGD)', fontsize=fontsize)
+        axs[3,0].set_ylabel('Vulnerability\n(MGD)', fontsize=fontsize)
 
 
-    fig.savefig(f'{fig_dir}/rrv_comparison.png', bbox_inches='tight', dpi=300)
+    fig.savefig(f'{fig_dir}/shortfall_comparison.png', bbox_inches='tight', dpi=300)
     plt.close()
 
     return

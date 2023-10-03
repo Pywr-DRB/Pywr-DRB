@@ -534,52 +534,86 @@ class VolBalanceNYCDownstreamMRF_step1CanPep(Parameter):
         ### first calculate contributions to Trenton&Montague flow targets based on volume balancing formula.
         ### These are above and beyond what is needed for individual FFMP mandated releases
         requirement_total = self.volbalance_relative_mrf_montagueTrenton_step1CanPep.get_value(scenario_index)
-        max_releases_reservoirs = [max(self.max_release_reservoirs[i].get_value(scenario_index) - \
-                                       self.mrf_target_individual_reservoirs[i].get_value(scenario_index) -
-                                       self.flood_release_reservoirs[i].get_value(scenario_index),
-                                       0) for i in range(self.num_reservoirs)]
-        targets = [-1] * self.num_reservoirs
-        for i in range(self.num_reservoirs):
-            targets[i] = self.vol_reservoirs[i].get_value(scenario_index) + \
-                         self.flow_reservoirs[i].get_value(scenario_index) - \
-                         self.mrf_target_individual_reservoirs[i].get_value(scenario_index) - \
-                         self.flood_release_reservoirs[i].get_value(scenario_index) - \
-                         (self.max_vol_reservoirs[i].get_value(scenario_index) / \
-                          self.max_volume_agg_nyc.get_value(scenario_index)) * \
-                         (self.volume_agg_nyc.get_value(scenario_index) + \
-                          self.flow_agg_nyc.get_value(scenario_index) - \
-                          self.mrf_target_individual_agg_nyc.get_value(scenario_index) - \
-                          self.flood_release_agg_nyc.get_value(scenario_index) - \
-                          requirement_total)
-            ### enforce nonnegativity and reservoir max release constraint
-            targets[i] = min(max(targets[i], 0), max_releases_reservoirs[i])
-
-        ### sum total release across 3 reservoirs. if this is less than volbalance_relative_mrf_montagueTrenton_step1CanPep,
-        ### that means one of the reservoirs had negative value or exceeded max release above
-        ### -> rescale unconstrained reservoirs to counteract
-        target_sum = sum(targets)
-        fully_constrained = False
-        count = 0
-        while requirement_total - epsilon > target_sum and not fully_constrained:
-            increasable_flow = 0
-            ### find the total "increasable" flow that is not coming from reservoirs with 0 release or max_release
+        if requirement_total < epsilon:
+            return 0.0
+        else:
+            max_releases_reservoirs = [max(self.max_release_reservoirs[i].get_value(scenario_index) -
+                                           self.mrf_target_individual_reservoirs[i].get_value(scenario_index) -
+                                           self.flood_release_reservoirs[i].get_value(scenario_index),
+                                           0) for i in range(self.num_reservoirs)]
+            targets = [-1] * self.num_reservoirs
             for i in range(self.num_reservoirs):
-                if targets[i] < max_releases_reservoirs[i]:
-                    increasable_flow += targets[i]
-            if increasable_flow > epsilon:
-                for i in range(self.num_reservoirs):
-                    targets[i] = min(targets[i] * requirement_total / increasable_flow, max_releases_reservoirs[i])
-            else:
-                fully_constrained = True
-            target_sum = sum(targets)
-            count += 1
-            if count > 5:
-                print(count, requirement_total, target_sum, increasable_flow, targets, max_releases_reservoirs)
+                targets[i] = self.vol_reservoirs[i].get_value(scenario_index) + \
+                             self.flow_reservoirs[i].get_value(scenario_index) - \
+                             self.mrf_target_individual_reservoirs[i].get_value(scenario_index) - \
+                             self.flood_release_reservoirs[i].get_value(scenario_index) - \
+                             (self.max_vol_reservoirs[i].get_value(scenario_index) / \
+                              self.max_volume_agg_nyc.get_value(scenario_index)) * \
+                             (self.volume_agg_nyc.get_value(scenario_index) + \
+                              self.flow_agg_nyc.get_value(scenario_index) - \
+                              self.mrf_target_individual_agg_nyc.get_value(scenario_index) - \
+                              self.flood_release_agg_nyc.get_value(scenario_index) - \
+                              requirement_total)
+                ### enforce nonnegativity and reservoir max release constraint. Set min to 0.01 instead of 0 so that it can be activated if extra flow needed below.
+                targets[i] = min(max(targets[i], 0.01), max_releases_reservoirs[i])
 
-        ### now return target for the reservoir of interest
-        for i in range(self.num_reservoirs):
-            if self.reservoir == reservoir_list_nyc[i]:
-                return targets[i]
+            ### sum total release across 3 reservoirs.
+            target_sum = sum(targets)
+
+            ### if target_sum > requirement_total (which happens if one of targets was initially negative before
+            ###   taking max(0)) -> fix this by reducing nonzero releases proportionally
+            if target_sum > requirement_total + epsilon:
+                for i in range(self.num_reservoirs):
+                    targets[i] *= requirement_total / target_sum
+            target_sum = sum(targets)
+
+            ###if sum this is less than volbalance_relative_mrf_montagueTrenton_step1CanPep,
+            ### that means one of the reservoirs had exceeded max release before min() above
+            ### -> rescale unconstrained reservoirs to counteract
+            fully_constrained = False
+            count = 0
+            while requirement_total - epsilon > target_sum and not fully_constrained:
+                increasable_flow = 0
+                unincreasable_flow = 0
+                ### find the total "increasable" flow that is not coming from reservoirs with 0 release or max_release
+                for i in range(self.num_reservoirs):
+                    if targets[i] < max_releases_reservoirs[i]:
+                        increasable_flow += targets[i]
+                    else:
+                        unincreasable_flow += targets[i]
+                if increasable_flow > epsilon:
+                    for i in range(self.num_reservoirs):
+                        targets[i] = min(targets[i] * (requirement_total - unincreasable_flow) / increasable_flow,
+                                         max_releases_reservoirs[i])
+                else:
+                    fully_constrained = True
+                target_sum = sum(targets)
+                count += 1
+                if count > 5:
+                    print('shouldnt be here 1 VolBalanceNYCDownstreamMRF_step1CanPep. ', count, requirement_total,
+                          target_sum, increasable_flow, targets, max_releases_reservoirs)
+
+            if target_sum > requirement_total + epsilon:
+                print('shouldnt be here 2 VolBalanceNYCDownstreamMRF_step1CanPep. ', count, target_sum, requirement_total)
+                print([self.vol_reservoirs[i].get_value(scenario_index) for i in range(3)])
+                print([self.flow_reservoirs[i].get_value(scenario_index) for i in range(3)])
+                print([self.mrf_target_individual_reservoirs[i].get_value(scenario_index) for i in range(3)])
+                print([self.flood_release_reservoirs[i].get_value(scenario_index) for i in range(3)])
+                print([self.max_vol_reservoirs[i].get_value(scenario_index) for i in range(3)])
+                print(self.max_volume_agg_nyc.get_value(scenario_index))
+                print(self.volume_agg_nyc.get_value(scenario_index))
+                print(self.flow_agg_nyc.get_value(scenario_index))
+                print(self.mrf_target_individual_agg_nyc.get_value(scenario_index))
+                print(self.flood_release_agg_nyc.get_value(scenario_index) )
+                print(requirement_total)
+                print(max_releases_reservoirs)
+                print(targets)
+                print()
+
+            ### now return target for the reservoir of interest
+            for i in range(self.num_reservoirs):
+                if self.reservoir == reservoir_list_nyc[i]:
+                    return targets[i]
 
 
     @classmethod
@@ -802,48 +836,66 @@ class VolBalanceNYCDemand(Parameter):
         mrf_target_total = sum([self.downstream_release_target_reservoirs[i].get_value(scenario_index) for i in range(self.num_reservoirs)])
         flood_release_total = sum([self.flood_release_reservoirs[i].get_value(scenario_index) for i in range(self.num_reservoirs)])
 
-        targets = [-1] * self.num_reservoirs
-        for i in range(self.num_reservoirs):
-            targets[i] = self.vol_reservoirs[i].get_value(scenario_index) + \
-                         self.flow_reservoirs[i].get_value(scenario_index) - \
-                         self.downstream_release_target_reservoirs[i].get_value(scenario_index) - \
-                         self.flood_release_reservoirs[i].get_value(scenario_index) - \
-                         (self.max_vol_reservoirs[i].get_value(scenario_index) / \
-                          self.max_volume_agg_nyc.get_value(scenario_index)) * \
-                         (self.volume_agg_nyc.get_value(scenario_index) + \
-                          self.flow_agg_nyc.get_value(scenario_index) - \
-                          mrf_target_total - flood_release_total - requirement_total)
-            ### enforce nonnegativity and reservoir max release constraint
-            targets[i] = min(max(targets[i], 0), max_diversions[i])
-
-
-
-        ### sum total diversions across 3 reservoirs. if this is less than requirement_total,
-        ### that means one of the reservoirs had negative value or exceeded max diversion above
-        ### -> rescale unconstrained reservoirs to counteract
-        target_sum = sum(targets)
-        fully_constrained = False
-        count = 0
-        while requirement_total - epsilon > target_sum and not fully_constrained:
-            increasable_flow = 0
-            ### find the total "increasable" flow that is not coming from reservoirs with 0 release or max_release
+        if requirement_total < epsilon:
+            return 0.
+        else:
+            targets = [-1] * self.num_reservoirs
             for i in range(self.num_reservoirs):
-                if targets[i] < max_diversions[i]:
-                    increasable_flow += targets[i]
-            if increasable_flow > epsilon:
-                for i in range(self.num_reservoirs):
-                    targets[i] = min(targets[i] * requirement_total / increasable_flow, max_diversions[i])
-            else:
-                fully_constrained = True
-            target_sum = sum(targets)
-            count += 1
-            if count > 5:
-                print(count, requirement_total, target_sum, increasable_flow, targets, max_diversions)
+                targets[i] = self.vol_reservoirs[i].get_value(scenario_index) + \
+                             self.flow_reservoirs[i].get_value(scenario_index) - \
+                             self.downstream_release_target_reservoirs[i].get_value(scenario_index) - \
+                             self.flood_release_reservoirs[i].get_value(scenario_index) - \
+                             (self.max_vol_reservoirs[i].get_value(scenario_index) / \
+                              self.max_volume_agg_nyc.get_value(scenario_index)) * \
+                             (self.volume_agg_nyc.get_value(scenario_index) + \
+                              self.flow_agg_nyc.get_value(scenario_index) - \
+                              mrf_target_total - flood_release_total - requirement_total)
+                ### enforce nonnegativity and reservoir max release constraint. Set min to 0.01 instead of 0 so that it can be activated if extra flow needed below.
+                targets[i] = min(max(targets[i], 0.01), max_diversions[i])
 
-        ### now return target for the reservoir of interest
-        for i in range(self.num_reservoirs):
-            if self.reservoir == reservoir_list_nyc[i]:
-                return targets[i]
+            ### sum total release across 3 reservoirs.
+            target_sum = sum(targets)
+
+            ### if target_sum > requirement_total (which happens if one of targets was initially negative before
+            ###   taking max(0)) -> fix this by reducing nonzero releases proportionally
+            if target_sum > requirement_total + epsilon:
+                for i in range(self.num_reservoirs):
+                    targets[i] *= requirement_total / target_sum
+            target_sum = sum(targets)
+
+            ###if sum this is less than requirement_total,
+            ### that means one of the reservoirs had exceeded max release before min() above
+            ### -> rescale unconstrained reservoirs to counteract
+            fully_constrained = False
+            count = 0
+            while requirement_total - epsilon > target_sum and not fully_constrained:
+                increasable_flow = 0
+                unincreasable_flow = 0
+                ### find the total "increasable" flow that is not coming from reservoirs with 0 release or max_release
+                for i in range(self.num_reservoirs):
+                    if targets[i] < max_diversions[i]:
+                        increasable_flow += targets[i]
+                    else:
+                        unincreasable_flow += targets[i]
+                if increasable_flow > epsilon:
+                    for i in range(self.num_reservoirs):
+                        targets[i] = min(targets[i] * (requirement_total - unincreasable_flow) / increasable_flow,
+                                         max_diversions[i])
+                else:
+                    fully_constrained = True
+                    print('fully constrained', targets)
+                target_sum = sum(targets)
+                count += 1
+                if count > 5:
+                    print('shouldnt be here 1 VolBalanceNYCDemand, ', count, requirement_total, target_sum,
+                          increasable_flow, targets, max_diversions)
+            if target_sum > requirement_total + epsilon:
+                print('shouldnt be here 2 VolBalanceNYCDemand, ', count, target_sum, requirement_total)
+
+            ### now return target for the reservoir of interest
+            for i in range(self.num_reservoirs):
+                if self.reservoir == reservoir_list_nyc[i]:
+                    return targets[i]
 
 
     @classmethod
