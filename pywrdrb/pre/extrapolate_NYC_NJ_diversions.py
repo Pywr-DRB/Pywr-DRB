@@ -106,11 +106,13 @@ def extrapolate_NYC_NJ_diversions(loc):
         elif m in (9,10,11):
             return 'SON'
 
-    df['quarter'] = [get_quarter(m) for m in df['m']]
-    quarters = ('DJF','MAM','JJA','SON')
+
 
     ### dataframe of monthly mean states
     df_m = df.resample('m').mean()
+
+    quarters = ('DJF','MAM','JJA','SON')
+    df['quarter'] = [get_quarter(m) for m in df['m']]
     df_m['quarter'] = [get_quarter(m) for m in df_m['m']]
 
     ### NJ diversion data are left skewed, so negate and then apply log transform
@@ -131,15 +133,15 @@ def extrapolate_NYC_NJ_diversions(loc):
     if loc == 'nyc':
         df_long = pd.DataFrame({'flow_log': np.log(flow['NYC_inflow']),
                                 'm': flow.index.month,
-                                'y': flow.index.year,
-                                'q': [get_quarter(m) for m in flow.index.month]})
+                                'y': flow.index.year})
     elif loc == 'nj':
         df_long = pd.DataFrame({'flow_log': np.log(flow['delTrenton']),
                                 'm': flow.index.month,
-                                'y': flow.index.year,
-                                'q': [get_quarter(m) for m in flow.index.month]})
+                                'y': flow.index.year})
 
     df_long_m = df_long.resample('m').mean()
+
+    df_long['quarter'] = [get_quarter(m) for m in df_long['m']]
     df_long_m['quarter'] = [get_quarter(m) for m in df_long_m['m']]
 
     ### use trained regression model to sample a delivery value for each month based on log flow.
@@ -215,7 +217,7 @@ def extrapolate_NYC_NJ_diversions(loc):
 
         ### format & save to csv for use in Pywr-DRB
         df_long = df_long.loc[np.logical_or(df_long.index < diversion.index.min(), df_long.index > diversion.index.max())]
-        diversion = diversion.append(pd.DataFrame({'aggregate': df_long['diversion_pred']}))
+        diversion = pd.concat([diversion, pd.DataFrame({'aggregate': df_long['diversion_pred']})])
         diversion = diversion.sort_index()
         diversion['datetime'] = diversion.index
         diversion.columns = ['pepacton','cannonsville','neversink','aggregate', 'datetime']
@@ -245,7 +247,7 @@ def extrapolate_NYC_NJ_diversions(loc):
 
         ### format & save to csv for use in Pywr-DRB
         df_long = df_long.loc[np.logical_or(df_long.index < diversion.index.min(), df_long.index > diversion.index.max())]
-        diversion = diversion.append(pd.DataFrame({'D_R_Canal': df_long['diversion_pred']}))
+        diversion = pd.concat([diversion, pd.DataFrame({'D_R_Canal': df_long['diversion_pred']})])
         diversion = diversion.sort_index()
         diversion['datetime'] = diversion.index
         diversion = diversion.iloc[:, [-1, 0]]

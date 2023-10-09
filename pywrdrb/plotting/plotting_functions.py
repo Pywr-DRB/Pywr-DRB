@@ -40,17 +40,19 @@ from pywrdrb.plotting.styles import base_model_colors, model_hatch_styles, paire
 
 
 ### function to return subset of dates for timeseries data
-def subset_timeseries(timeseries, start_date, end_date):
-    timeseries = timeseries.copy()
+def subset_timeseries(timeseries, start_date, end_date, end_inclusive=True):
+    data = timeseries.copy()
     if isinstance(start_date, str):
         start_date = pd.to_datetime(start_date)
         end_date = pd.to_datetime(end_date)
+    if not end_inclusive:
+        end_date = end_date - dt.timedelta(days=1)
 
     if start_date is not None:
-        timeseries = timeseries.loc[start_date:]
+        data = data.loc[start_date:]
     if end_date is not None:
-        timeseries = timeseries.loc[:end_date]
-    return timeseries
+        data = data.loc[:end_date]
+    return data
 
 
 
@@ -58,7 +60,7 @@ def subset_timeseries(timeseries, start_date, end_date):
 
 
 def plot_3part_flows_hier(reservoir_downstream_gages, major_flows, models, colordict = paired_model_colors,
-                            markerdict = scatter_model_markers, start_date=None, end_date=None,
+                            markerdict = scatter_model_markers, start_date=None, end_date=None, end_inclusive=False,
                             uselog=False, save_fig=True, fig_dir = fig_dir):
 
     use2nd = True if len(models) > 1 else False
@@ -78,13 +80,16 @@ def plot_3part_flows_hier(reservoir_downstream_gages, major_flows, models, color
     def get_fig_data(model, row):
         if row == 0:
             ### cannonsville only
-            data = subset_timeseries(reservoir_downstream_gages[model]['cannonsville'], start_date, end_date)
+            data = subset_timeseries(reservoir_downstream_gages[model]['cannonsville'], start_date, end_date,
+                                     end_inclusive=end_inclusive)
         elif row == 1:
             ### sum of NYC reservoirs
-            data = subset_timeseries(reservoir_downstream_gages[model]['NYCAgg'], start_date, end_date)
+            data = subset_timeseries(reservoir_downstream_gages[model]['NYCAgg'], start_date, end_date,
+                                     end_inclusive=end_inclusive)
         else:
             ### trenton
-            data = subset_timeseries(major_flows[model]['delTrenton'], start_date, end_date)
+            data = subset_timeseries(major_flows[model]['delTrenton'], start_date, end_date,
+                                     end_inclusive=end_inclusive)
         return data
 
 
@@ -127,7 +132,6 @@ def plot_3part_flows_hier(reservoir_downstream_gages, major_flows, models, color
             if use2nd or i == 0:
                 ### first plot time series of observed vs modeled
                 modeled = get_fig_data(m, row)
-
                 ax.scatter(obs, modeled, alpha=alpha_dots, zorder=2, color=colordict[m], marker=markerdict[m])
                 diagmax = min(ax.get_xlim()[1], ax.get_ylim()[1])
                 ax.plot([0, diagmax], [0, diagmax], color=colordict['obs'], ls='--')
@@ -186,7 +190,8 @@ def plot_3part_flows_hier(reservoir_downstream_gages, major_flows, models, color
 
 
 ###
-def get_error_metrics(reservoir_downstream_gages, major_flows, models, nodes, start_date=None, end_date=None):
+def get_error_metrics(reservoir_downstream_gages, major_flows, models, nodes, start_date=None, end_date=None,
+                      end_inclusive=False):
     """
     Generate error metrics (NSE, KGE, correlation, bias, etc.) for a specific model and node.
 
@@ -208,8 +213,8 @@ def get_error_metrics(reservoir_downstream_gages, major_flows, models, nodes, st
         for i, m in enumerate(models):
             resultsdict = {}
             for timescale in ['D','M']:
-                obs = subset_timeseries(results['obs'][node], start_date, end_date)
-                modeled = subset_timeseries(results[m][node], start_date, end_date)
+                obs = subset_timeseries(results['obs'][node], start_date, end_date, end_inclusive=end_inclusive)
+                modeled = subset_timeseries(results[m][node], start_date, end_date, end_inclusive=end_inclusive)
                 if timescale == 'M':
                     obs = obs.resample('M').mean()
                     modeled = modeled.resample('M').mean()
@@ -301,7 +306,7 @@ def get_error_metrics(reservoir_downstream_gages, major_flows, models, nodes, st
             if i == 0 and j == 0:
                 results_metrics = pd.DataFrame(resultsdict, index=[0])
             else:
-                results_metrics = results_metrics.append(pd.DataFrame(resultsdict, index=[0]))
+                results_metrics = pd.concat([results_metrics, pd.DataFrame(resultsdict, index=[0])])
 
     results_metrics.reset_index(inplace=True, drop=True)
     return results_metrics
@@ -425,7 +430,6 @@ def plot_gridded_error_metrics(results_metrics, models, nodes, start_date, end_d
 
     ax.annotate(labels[0], xy=(-1.3, 105.3), va='top', ha='left', weight='bold', fontsize=fontsize)
     for x, metric in enumerate(metrics):
-        # print(metric, vrange_dict[metric])
         vs = np.arange(vrange_dict[metric][0], vrange_dict[metric][1]+0.001,
                            (vrange_dict[metric][1]-vrange_dict[metric][0]) / num_gradations)
         dy = 3 / num_gradations
@@ -877,7 +881,7 @@ def plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major
         ax.plot(satisfaction, color=leftlinecolor)
         yticks = [0, 50, 100]
         ax.set_ylim(ylims)
-        ax.set_yticks(yticks, fontsize=fontsize, color=leftlinecolor)
+        ax.set_yticks(yticks, yticks, fontsize=fontsize, color=leftlinecolor)
         ax.set_ylabel('Normal\nMin. Flow\nSatisfied (%)', fontsize=fontsize, color=leftlinecolor)
         ax.tick_params(axis='y', colors=leftlinecolor)
         ax.set_ylim(ylims)
@@ -885,17 +889,10 @@ def plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major
         ### add shortfall events
         event_starts = shortfall_metrics[mrf][pywr_model]['event_starts']
         event_ends = shortfall_metrics[mrf][pywr_model]['event_ends']
-        # print(pywr_model, mrf)
-        # print()
+
         for event_start, event_end in zip(event_starts, event_ends):
             ax.fill_between([event_start, event_end], [ylims[0]]*2, [ylims[1]]*2, color='lightcoral', alpha=1)
-            # print(event_start, event_end,
-            #       releases[reservoir_list_nyc].loc[event_start:event_end+datetime.timedelta(days = 1)])
-            # print(releases[reservoir_list_nyc].loc[event_start:event_end+datetime.timedelta(days = 1)].sum(axis=1))
-            # print(event_start, event_end,
-            #       dstargets[reservoir_list_nyc].loc[event_start:event_end+datetime.timedelta(days = 1)])
-            # print(dstargets[reservoir_list_nyc].loc[event_start:event_end+datetime.timedelta(days = 1)].sum(axis=1))
-            # print()
+
         ax.set_xlim(axs[0].get_xlim())
         if mrf == 'delMontague':
             ax.set_xticks(ax.get_xticks(), [''] * len(ax.get_xticks()), fontsize=fontsize)
@@ -906,15 +903,13 @@ def plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major
         ax2 = ax.twinx()
         twincolor = 'sienna'
         ax2.plot(target, color=twincolor, label='Daily')
-        # ax2.plot(flow, color='0.5')
-        # ax2.plot(releases[reservoir_list_nyc].sum(axis=1), color='0.5')
 
         ax2.set_ylabel('Dynamic\nMin. Flow\nTarget (MGD)', fontsize=fontsize, rotation=270,
                        labelpad=35, color=twincolor)
         ax2.annotate(labels[2 + i*2], xy=(0.005, 0.05), xycoords='axes fraction', ha='left', va='bottom', weight='bold',
                      fontsize=fontsize, color='k')
         yticks = [0, 500, 1000] if mrf == 'delMontague' else [0, 1000, 2000]
-        ax.set_yticks(yticks)
+        ax2.set_yticks(yticks)
         ax2.tick_params(axis='y', colors=twincolor)
 
 
@@ -1141,7 +1136,6 @@ def plot_NYC_release_components_combined(nyc_release_components, reservoir_relea
             while downstream_node != node:
                 lag += downstream_node_lags[downstream_node]
                 downstream_node = immediate_downstream_nodes_dict[downstream_node]
-            # print(c, lag)
             if lag > 0:
                 inflow_contributions[c].iloc[lag:] = inflow_contributions[c].iloc[:-lag]
         elif c in non_nyc_release_contributions.columns:
@@ -1150,7 +1144,6 @@ def plot_NYC_release_components_combined(nyc_release_components, reservoir_relea
             while downstream_node != node:
                 lag += downstream_node_lags[downstream_node]
                 downstream_node = immediate_downstream_nodes_dict[downstream_node]
-            # print(c, lag)
             if lag > 0:
                 non_nyc_release_contributions[c].iloc[lag:] = non_nyc_release_contributions[c].iloc[:-lag]
         elif c in mrf_target_individuals.columns:
@@ -1159,13 +1152,12 @@ def plot_NYC_release_components_combined(nyc_release_components, reservoir_relea
             while downstream_node != node:
                 lag += downstream_node_lags[downstream_node]
                 downstream_node = immediate_downstream_nodes_dict[downstream_node]
-            # print(c, lag)
             if lag > 0:
                 mrf_target_individuals[c].iloc[lag:] = mrf_target_individuals[c].iloc[:-lag]
                 mrf_montagueTrentons[c].iloc[lag:] = mrf_montagueTrentons[c].iloc[:-lag]
                 flood_releases[c].iloc[lag:] = flood_releases[c].iloc[:-lag]
                 spills[c].iloc[lag:] = spills[c].iloc[:-lag]
-    # print()
+
     inflow_contributions = subset_timeseries(inflow_contributions, start_date, end_date).sum(axis=1)
     non_nyc_release_contributions = subset_timeseries(non_nyc_release_contributions, start_date, end_date).sum(axis=1)
     mrf_target_individuals = subset_timeseries(mrf_target_individuals, start_date, end_date).sum(axis=1)

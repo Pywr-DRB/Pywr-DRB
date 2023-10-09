@@ -55,8 +55,8 @@ if __name__ == "__main__":
     prep_WEAP_data()
 
     ### create hybrid datasets
-    combine_modeled_observed_datasets('nhmv10', 'nhmv10', df_nhm.index)
-    combine_modeled_observed_datasets('nhmv10', 'nwmv21', df_nhm.index)
+    create_hybrid_modeled_observed_datasets('nhmv10', 'nhmv10', df_nhm.index)
+    create_hybrid_modeled_observed_datasets('nwmv21', 'nhmv10', df_nwm.index)
 
     ### now get NYC & NJ diversions. for time periods we dont have historical record, extrapolate by seasonal relationship to flow.
     # download_USGS_data_NYC_NJ_diversions()    ### dont need to rerun this every time
@@ -71,13 +71,13 @@ if __name__ == "__main__":
     predict_inflows_diversions('nhmv10_withObsScaled', start_date_training, end_date_training)
     predict_inflows_diversions('nwmv21_withObsScaled', start_date_training, end_date_training)
     
-    # Predict for historic reconstructions
-    predict_inflows_diversions('obs_pub_nhmv10_ObsScaled', '1945/01/01', '2022/12/31')
-    predict_inflows_diversions('obs_pub_nwmv21_ObsScaled', '1945/01/01', '2022/12/31')
-
-    if prepare_prediction_ensemble:
-        predict_ensemble_inflows_diversions('obs_pub_nhmv10_ObsScaled_ensemble', '1945/01/01', '2022/12/31')
-        predict_ensemble_inflows_diversions('obs_pub_nwmv21_ObsScaled_ensemble', '1945/01/01', '2022/12/31')
+    # # Predict for historic reconstructions
+    # predict_inflows_diversions('obs_pub_nhmv10_ObsScaled', '1945/01/01', '2022/12/31')
+    # predict_inflows_diversions('obs_pub_nwmv21_ObsScaled', '1945/01/01', '2022/12/31')
+    #
+    # if prepare_prediction_ensemble:
+    #     predict_ensemble_inflows_diversions('obs_pub_nhmv10_ObsScaled_ensemble', '1945/01/01', '2022/12/31')
+    #     predict_ensemble_inflows_diversions('obs_pub_nwmv21_ObsScaled_ensemble', '1945/01/01', '2022/12/31')
 
     ### get catchment demands based on DRBC data
     sw_demand = disaggregate_DRBC_demands()

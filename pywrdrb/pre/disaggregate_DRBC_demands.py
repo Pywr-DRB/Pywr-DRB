@@ -46,7 +46,7 @@ def disaggregate_DRBC_demands():
                 upstream_drb = 'reservoir_' + upstream
             overlay = g1.loc[g1['node'] == node_drb].overlay(g1.loc[g1['node'] == upstream_drb], how='difference')
             g1 = g1.loc[g1['node'] != node_drb]
-            g1 = g1.append(overlay)
+            g1 = pd.concat([g1, overlay])
 
     g1.reset_index(inplace=True, drop=True)
     g1['idx'] = list(g1.index)
@@ -168,10 +168,10 @@ def disaggregate_DRBC_demands():
     ###    or because the gage is too close to reservoir to deliniate marginal catchment.
     for reservoir in reservoir_list:
         if f'reservoir_{reservoir}' not in sw_model.index:
-            sw_model = sw_model.append(pd.DataFrame({k: 0. for k in sw_model.columns}, index=[f'reservoir_{reservoir}']))
+            sw_model = pd.concat([sw_model, pd.DataFrame({k: 0. for k in sw_model.columns}, index=[f'reservoir_{reservoir}'])])
     for majorflow in majorflow_list:
         if f'link_{majorflow}' not in sw_model.index:
-            sw_model = sw_model.append(pd.DataFrame({k: 0. for k in sw_model.columns}, index=[f'link_{majorflow}']))
+            sw_model = pd.concat([sw_model, pd.DataFrame({k: 0. for k in sw_model.columns}, index=[f'link_{majorflow}'])])
     sw_model.loc['reservoir_merrillCreek', :] = np.zeros(sw_model.shape[1])
     # for reservoir in reservoir_list:
     #     if f'reservoir_{reservoir}' not in gw_model.index:

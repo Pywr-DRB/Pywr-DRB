@@ -21,7 +21,7 @@ from pywrdrb.post.get_results import get_base_results, get_pywr_results
 ## Execution - Generate all figures
 if __name__ == "__main__":
 
-    rerun_all = False
+    rerun_all = True
 
     ## Load data    
     # Load Pywr-DRB simulation models
@@ -76,14 +76,15 @@ if __name__ == "__main__":
     ### different time periods for different type of figures.
     start_date_obs = pd.to_datetime('2008-01-01')   ### comparison to observed record, error metrics
     end_date_obs = pd.to_datetime('2017-01-01')
+    start_date_short_obs = pd.to_datetime('2011-01-01')   ### comparison to observed record, error metrics
+    end_date_short_obs = pd.to_datetime('2013-01-01')
     start_date_full = pd.to_datetime('1984-01-01')  ### full NHM/NWM time series
     end_date_full = pd.to_datetime('2017-01-01')
-    start_date_short = pd.to_datetime('2011-01-01') ### short 2-year period in observed record for zoomed dynamics
-    end_date_short = pd.to_datetime('2013-01-01')
-    start_date_short_preobs = pd.to_datetime('1990-01-01') ### short 2-year period pre observed record for zoomed dynamics
-    end_date_short_preobs = pd.to_datetime('2000-01-01')
-    # start_date_short_preobs = pd.to_datetime('1991-01-01') ### short 2-year period pre observed record for zoomed dynamics
-    # end_date_short_preobs = pd.to_datetime('1992-01-01')
+    start_date_medium_preobs = pd.to_datetime('1990-01-01') ### 10-year period in pre-observed record for zoomed dynamics
+    end_date_medium_preobs = pd.to_datetime('2000-01-01')
+    start_date_short_preobs = pd.to_datetime('1993-01-01') ### short 2-year period pre observed record for zoomed dynamics
+    end_date_short_preobs = pd.to_datetime('1996-01-01')
+
 
 
     ### first set of subplots showing comparison of modeled & observed flows at 3 locations, top to bottom of basin
@@ -96,7 +97,7 @@ if __name__ == "__main__":
                                   colordict=model_colors_diagnostics_paper2, start_date=start_date_obs, end_date=end_date_obs)
             ### now zoomed in 2 year period where it is easier to see time series
             plot_3part_flows_hier(reservoir_downstream_gages, major_flows, [model.replace('pywr_', ''), model], uselog=True,
-                                  colordict=model_colors_diagnostics_paper2, start_date=start_date_short, end_date=end_date_short)
+                                  colordict=model_colors_diagnostics_paper2, start_date=start_date_short_obs, end_date=end_date_short_obs)
 
 
     ### compare modeled vs observed NYC storages
@@ -104,8 +105,7 @@ if __name__ == "__main__":
         print('Plotting new NYC storage figure')
         plot_combined_nyc_storage_new(storages, ffmp_level_boundaries, pywr_models, colordict = model_colors_diagnostics_paper3,
                                       start_date=start_date_obs, end_date=end_date_obs, fig_dir=fig_dir)
-        plot_combined_nyc_storage_new(storages, ffmp_level_boundaries, pywr_models, colordict = model_colors_diagnostics_paper3,
-                                      start_date=start_date_short, end_date=end_date_short, fig_dir=fig_dir)
+
 
 
 
@@ -132,16 +132,6 @@ if __name__ == "__main__":
 
 
 
-    ### gridded low flow metrics based on full record
-    # if rerun_all:
-    # print('Plotting gridded low flow metrics')
-    # lowflow_models = base_models[1:] + pywr_models
-    # nodes = reservoir_list_nyc + ['NYCAgg','delMontague','delTrenton']
-    # node_metrics = get_lowflow_metrics(reservoir_downstream_gages, major_flows, lowflow_models, nodes,
-    #                                     start_date=start_date_full, end_date=end_date_full)
-    # plot_gridded_lowflow_metrics(node_metrics, lowflow_models, nodes,
-    #                               start_date=start_date_full, end_date=end_date_full)
-
 
     ### gridded low flow exceedances based on full record
     if rerun_all:
@@ -151,27 +141,6 @@ if __name__ == "__main__":
         plot_lowflow_exceedances(reservoir_downstream_gages, major_flows, models, nodes,
                                  start_date=start_date_full, end_date=end_date_full,
                                  colordict=model_colors_diagnostics_paper3)
-
-
-    #
-    # ## RRV metrics
-    # if rerun_all:
-    #     print('Plotting RRV metrics.')
-    #     rrv_models = base_models + pywr_models
-    #
-    #     nodes = ['delMontague','delTrenton']
-    #     rrv_metrics = get_RRV_metrics(major_flows, rrv_models, nodes, start_date=start_date_obs, end_date=end_date_obs)
-    #     plot_rrv_metrics(rrv_metrics, rrv_models, nodes, colordict=model_colors_diagnostics_paper)
-    #
-
-
-    #
-    # ### xQn grid low flow comparison figure
-    # if rerun_all:
-    #     print('Plotting low flow grid.')
-    #     plot_xQn_grid(reservoir_downstream_gages, major_flows,  base_models + pywr_models,
-    #                   reservoir_list_nyc + majorflow_list_figs, xlist = [1,7,30,90, 365], nlist = [5, 10, 20, 30],
-    #                   start_date=start_date_obs, end_date=end_date_obs, fig_dir=fig_dir)
 
 
 
@@ -187,27 +156,24 @@ if __name__ == "__main__":
                                                      start_date=start_date_short_preobs, end_date=end_date_short_preobs,
                                                      fig_dir=fig_dir)
 
-                plot_NYC_release_components_combined(nyc_release_components, reservoir_releases, major_flows, inflows,
-                                                     ibt_diversions, catchment_consumptions, model, node,
-                                                     use_proportional=True, use_log=True,
-                                                     start_date=start_date_short, end_date=end_date_short, fig_dir=fig_dir)
+
 
 
 
 
     ### plot shortfall event metrics (reliability/duration/intensity/vulnerability) distributions for min flows and ibt diversions
-    # if rerun_all:
-    print('Plotting shortfall event metrics for min flows and ibt diversions')
-    models_mrf = base_models[1:] + pywr_models
-    models_ibt = pywr_models
-    nodes = ['delMontague', 'delTrenton', 'nyc', 'nj']
-    shortfall_type = 'absolute' ### 'absolute' or 'percent'
-    shortfall_metrics = get_shortfall_metrics(major_flows, mrf_targets, ibt_demands, ibt_diversions, models_mrf,
-                                              models_ibt, nodes,
-                                              shortfall_type=shortfall_type,shortfall_threshold=0.99,  shortfall_break_length=30,
-                                              start_date=start_date_full, end_date=end_date_full)
-    plot_shortfall_metrics(shortfall_metrics, models_mrf, models_ibt, nodes,
-                           colordict=model_colors_diagnostics_paper3, shortfall_type=shortfall_type)
+    if rerun_all:
+        print('Plotting shortfall event metrics for min flows and ibt diversions')
+        models_mrf = base_models[1:] + pywr_models
+        models_ibt = pywr_models
+        nodes = ['delMontague', 'delTrenton', 'nyc', 'nj']
+        shortfall_type = 'absolute' ### 'absolute' or 'percent'
+        shortfall_metrics = get_shortfall_metrics(major_flows, mrf_targets, ibt_demands, ibt_diversions, models_mrf,
+                                                  models_ibt, nodes,
+                                                  shortfall_type=shortfall_type,shortfall_threshold=0.99,  shortfall_break_length=30,
+                                                  start_date=start_date_full, end_date=end_date_full)
+        plot_shortfall_metrics(shortfall_metrics, models_mrf, models_ibt, nodes,
+                               colordict=model_colors_diagnostics_paper3, shortfall_type=shortfall_type)
 
 
 
@@ -221,7 +187,7 @@ if __name__ == "__main__":
                                                   reservoir_releases, downstream_release_targets, base_model,
                                                   shortfall_metrics,
                                                   colordict=model_colors_diagnostics_paper3,
-                                                   start_date=start_date_short_preobs, end_date=end_date_short_preobs,
+                                                   start_date=start_date_medium_preobs, end_date=end_date_medium_preobs,
                                                    fig_dir=fig_dir)
             plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major_flows, mrf_targets,
                                                   reservoir_releases, downstream_release_targets, base_model,
@@ -237,7 +203,7 @@ if __name__ == "__main__":
             plot_combined_nyc_storage_vs_diversion(storages, ffmp_level_boundaries, ibt_demands, ibt_diversions,
                                                    pywr_models, customer, shortfall_metrics,
                                                    colordict=model_colors_diagnostics_paper3,
-                                                   start_date=start_date_short_preobs, end_date=end_date_short_preobs,
+                                                   start_date=start_date_medium_preobs, end_date=end_date_medium_preobs,
                                                    fig_dir=fig_dir)
             plot_combined_nyc_storage_vs_diversion(storages, ffmp_level_boundaries, ibt_demands, ibt_diversions,
                                                    pywr_models, customer, shortfall_metrics,
@@ -250,16 +216,3 @@ if __name__ == "__main__":
 
     print(f'Done! Check the {fig_dir} folder.')
 
-    ### plot Hashimoto metrics for min flows and ibt diversions
-    # if rerun_all:
-    #     print('Plotting Hashimoto/RRV metrics for min flows and ibt diversions')
-    #     models_mrf = base_models[1:] + pywr_models
-    #     models_ibt = pywr_models
-    #     nodes = ['delMontague', 'delTrenton', 'nyc', 'nj']
-    #     RRV_metrics = get_RRV_metrics(major_flows, mrf_targets, ibt_demands, ibt_diversions, models_mrf, models_ibt, nodes,
-    #                                   vulnerability_type='percent', start_date=start_date_full, end_date=end_date_full)
-    #     print(RRV_metrics)
-    #     plot_RRV_metrics(RRV_metrics, models_mrf, models_ibt, nodes, colordict=model_colors_diagnostics_paper3,
-    #                      vulnerability_type='percent')
-    #
-    #     print(f'Done! Check the {fig_dir} folder.')

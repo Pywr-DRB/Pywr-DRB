@@ -14,6 +14,7 @@ def regress_future_timeseries(timeseries, node, lag, use_log, remove_zeros, use_
                               print_summary=False, plot_scatter=False):
 
     Y = timeseries[node].iloc[lag:].values
+
     if use_const:
         X = np.ones((len(Y), 2))
         X[:, 1] = timeseries[node].iloc[:-lag].values
@@ -129,9 +130,18 @@ def get_known_or_predicted_value(timeseries, catchment_wc, regressions, node, la
 
 
 def get_rollmean_timeseries(timeseries, window):
+    try:
+        datetime = timeseries['datetime']
+        timeseries.drop('datetime', axis=1, inplace=True)
+    except:
+        pass
     rollmean_timeseries = timeseries.rolling(window=window).mean()
     rollmean_timeseries.iloc[:window] = [timeseries.rolling(window=i + 1).mean().iloc[i] for i in range(window)]
-    rollmean_timeseries['datetime'] = timeseries['datetime']
+    try:
+        rollmean_timeseries['datetime'] = datetime
+    except:
+        pass
+
     return rollmean_timeseries
 
 
@@ -144,8 +154,7 @@ def predict_inflows_diversions(dataset_label, start_date, end_date,
     ### read in catchment inflows and withdrawals/consumptions
     if ensemble_inflows:
         ensemble_filename = f'{input_dir}/historic_ensembles/catchment_inflow_{dataset_label}.hdf5'
-        catchment_inflows = extract_realization_from_hdf5(ensemble_filename, realization, 
-                                                          stored_by_node=True)
+        catchment_inflows = extract_realization_from_hdf5(ensemble_filename, realization, stored_by_node=True)
         catchment_inflows_training = subset_timeseries(catchment_inflows, start_date, end_date)
     else:
         catchment_inflows = pd.read_csv(f'{input_dir}/catchment_inflow_{dataset_label}.csv')
@@ -294,7 +303,6 @@ def predict_inflows_diversions(dataset_label, start_date, end_date,
     nj_diversions['demand_nj'] = nj_diversions['D_R_Canal']
     nj_diversions = subset_timeseries(nj_diversions, catchment_inflows.index[0], catchment_inflows.index[-1])
     nj_diversions_training = subset_timeseries(nj_diversions, start_date, end_date)
-
     pred_node = 'demand_nj'
     regressions = {}
 
