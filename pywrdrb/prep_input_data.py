@@ -55,8 +55,8 @@ if __name__ == "__main__":
     prep_WEAP_data()
 
     ### create hybrid datasets
-    create_hybrid_modeled_observed_datasets('nhmv10', 'nhmv10', df_nhm.index)
-    create_hybrid_modeled_observed_datasets('nwmv21', 'nhmv10', df_nwm.index)
+    create_hybrid_modeled_observed_datasets('nhmv10', df_nhm.index)
+    create_hybrid_modeled_observed_datasets('nwmv21', df_nwm.index)
 
     ### now get NYC & NJ diversions. for time periods we dont have historical record, extrapolate by seasonal relationship to flow.
     # download_USGS_data_NYC_NJ_diversions()    ### dont need to rerun this every time

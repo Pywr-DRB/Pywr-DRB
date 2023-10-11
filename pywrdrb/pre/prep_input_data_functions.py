@@ -204,25 +204,18 @@ def match_gages(df, dataset_label, site_matches_id):
 
 
 
-def create_hybrid_modeled_observed_datasets(modeled_inflow_type, backup_scaling_modeled_inflow_type, datetime_index):
+def create_hybrid_modeled_observed_datasets(modeled_inflow_type, datetime_index):
     ### create combo dataset that uses observed scaled data where available & NHM/NWM data everywhere else
     inflow_label_scaled = f'obs_pub_{modeled_inflow_type}_ObsScaled'
-    backup_inflow_label_scaled = f'obs_pub_{backup_scaling_modeled_inflow_type}_ObsScaled'
     inflow_label_nonScaled = modeled_inflow_type
     inflows = pd.read_csv(f'{input_dir}/catchment_inflow_{inflow_label_nonScaled}.csv')
     scaled_obs = pd.read_csv(f'{input_dir}/catchment_inflow_{inflow_label_scaled}.csv')
-    backup_scaled_obs = pd.read_csv(f'{input_dir}/catchment_inflow_{backup_inflow_label_scaled}.csv')
     inflows.index = pd.DatetimeIndex(inflows['datetime'])
     scaled_obs.index = pd.DatetimeIndex(scaled_obs['datetime'])
-    backup_scaled_obs.index = pd.DatetimeIndex(backup_scaled_obs['datetime'])
     inflows = inflows.loc[datetime_index]
     scaled_obs = scaled_obs.loc[datetime_index]
-    backup_scaled_obs = backup_scaled_obs.loc[datetime_index]
     for reservoir in reservoir_list_nyc + ['fewalter','beltzvilleCombined']:
-        if reservoir == 'neversink':    ### Neversink doesnt have scaling available for NWM, so use NHM scaling as backup
-            inflows[reservoir] = backup_scaled_obs[reservoir]
-        else:
-            inflows[reservoir] = scaled_obs[reservoir]
+        inflows[reservoir] = scaled_obs[reservoir]
 
     new_label = inflow_label_nonScaled + '_withObsScaled'
 
