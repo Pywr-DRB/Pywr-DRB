@@ -84,6 +84,7 @@ if __name__ == "__main__":
     end_date_medium_preobs = pd.to_datetime('2000-01-01')
     start_date_short_preobs = pd.to_datetime('1993-01-01') ### short 2-year period pre observed record for zoomed dynamics
     end_date_short_preobs = pd.to_datetime('1996-01-01')
+    start_date_storage_obs = pd.to_datetime('2000-01-01')  ### full NHM/NWM time series
 
 
 
@@ -102,9 +103,13 @@ if __name__ == "__main__":
 
     ### compare modeled vs observed NYC storages
     if rerun_all:
-        print('Plotting new NYC storage figure')
-        plot_combined_nyc_storage_new(storages, ffmp_level_boundaries, pywr_models, colordict = model_colors_diagnostics_paper3,
+        print('Plotting NYC storage modeled vs observed')
+        plot_combined_nyc_storage(storages, ffmp_level_boundaries, pywr_models, colordict = model_colors_diagnostics_paper3,
                                       start_date=start_date_obs, end_date=end_date_obs, fig_dir=fig_dir)
+        plot_combined_nyc_storage(storages, ffmp_level_boundaries, pywr_models, colordict = model_colors_diagnostics_paper3,
+                                      start_date=start_date_storage_obs, end_date=end_date_full, fig_dir=fig_dir)
+        plot_combined_nyc_storage(storages, ffmp_level_boundaries, pywr_models, colordict = model_colors_diagnostics_paper3,
+                                      start_date=start_date_full, end_date=end_date_full, fig_dir=fig_dir)
 
 
 
@@ -150,9 +155,11 @@ if __name__ == "__main__":
         print('Plotting NYC releases by components, combined with downstream flow components')
         for model in pywr_models:
             for node in ['delMontague','delTrenton']:
-                plot_NYC_release_components_combined(nyc_release_components, reservoir_releases, major_flows, inflows,
+                plot_NYC_release_components_combined(storages, ffmp_level_boundaries,
+                                                     nyc_release_components, reservoir_releases, major_flows, inflows,
                                                      ibt_diversions, catchment_consumptions, model, node,
-                                                     use_proportional=True, use_log=True,
+                                                     colordict=model_colors_diagnostics_paper3,
+                                                     use_proportional=True, use_log=False,
                                                      start_date=start_date_short_preobs, end_date=end_date_short_preobs,
                                                      fig_dir=fig_dir)
 
@@ -210,6 +217,13 @@ if __name__ == "__main__":
                                                    colordict = model_colors_diagnostics_paper3,
                                                    start_date=start_date_full, end_date=end_date_full,
                                                    fig_dir=fig_dir)
+
+
+
+    ### Make DRB map
+    if rerun_all:
+        print('Making DRB map')
+        make_DRB_map(fig_dir=fig_dir)
 
 
 

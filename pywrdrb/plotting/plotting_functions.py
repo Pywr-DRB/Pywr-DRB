@@ -31,12 +31,13 @@ from pywrdrb.pywr_drb_node_data import upstream_nodes_dict, downstream_node_lags
 # Custom modules
 from pywrdrb.utils.constants import cms_to_mgd, cm_to_mg, cfs_to_mgd
 from pywrdrb.utils.lists import reservoir_list, reservoir_list_nyc, majorflow_list, reservoir_link_pairs, seasons_dict
-from pywrdrb.utils.directories import input_dir, fig_dir, output_dir, model_data_dir
+from pywrdrb.utils.directories import input_dir, fig_dir, output_dir, model_data_dir, spatial_data_dir
 from pywrdrb.make_model import get_reservoir_max_release
 from pywrdrb.plotting.styles import base_model_colors, model_hatch_styles, paired_model_colors, scatter_model_markers, \
     node_label_dict, node_label_full_dict, model_label_dict, month_dict, model_linestyle_dict
 
 
+dpi=400
 
 
 ### function to return subset of dates for timeseries data
@@ -53,9 +54,6 @@ def subset_timeseries(timeseries, start_date, end_date, end_inclusive=True):
     if end_date is not None:
         data = data.loc[:end_date]
     return data
-
-
-
 
 
 
@@ -175,10 +173,10 @@ def plot_3part_flows_hier(reservoir_downstream_gages, major_flows, models, color
     if save_fig:
         if use2nd:
             fig.savefig(f'{fig_dir}streamflow_3plots_{models[0]}_{models[1]}_hier_' + \
-                f'{modeled.index.year[0]}_{modeled.index.year[-1]}.png', bbox_inches='tight', dpi = 250)
+                f'{modeled.index.year[0]}_{modeled.index.year[-1]}.png', bbox_inches='tight', dpi = dpi)
         else:
             fig.savefig(f'{fig_dir}streamflow_3plots_{models[0]}_hier_' + \
-                f'{modeled.index.year[0]}_{modeled.index.year[-1]}.png', bbox_inches='tight', dpi = 250)
+                f'{modeled.index.year[0]}_{modeled.index.year[-1]}.png', bbox_inches='tight', dpi = dpi)
         plt.close()
     return
 
@@ -566,7 +564,7 @@ def plot_gridded_error_metrics(results_metrics, models, nodes, start_date, end_d
     ax.add_collection(pc)
 
     fig.savefig(f'{fig_dir}/griddedErrorMetrics_{start_date.year}_{end_date.year}_{figstage}.png',
-                bbox_inches='tight', dpi=300)
+                bbox_inches='tight', dpi=dpi)
     plt.close()
     return
 
@@ -578,13 +576,14 @@ def plot_gridded_error_metrics(results_metrics, models, nodes, start_date, end_d
 
 
 
-def plot_combined_nyc_storage_new(storages, ffmp_level_boundaries, models, colordict = paired_model_colors,
+def plot_combined_nyc_storage(storages, ffmp_level_boundaries, models, colordict = paired_model_colors,
                       start_date = '1999-10-01', end_date = '2010-05-31', fig_dir=fig_dir):
     """
 
     """
 
-    fig, ax = plt.subplots(1,1,figsize=(8, 3.5))
+    fig, ax = plt.subplots(1,1,figsize=(7,3))
+    fontsize = 8
 
     ### get reservoir storage capacities
     istarf = pd.read_csv(f'{model_data_dir}drb_model_istarf_conus.csv')
@@ -604,12 +603,12 @@ def plot_combined_nyc_storage_new(storages, ffmp_level_boundaries, models, color
 
     ### First plot FFMP levels as background color
     levels = [f'level{l}' for l in ['1a','1b','1c','2','3','4','5']]
-    # cmap = cm.get_cmap('RdYlBu')
-    # level_colors = [cmap(v) for v in [0.65, 0.6, 0.55, 0.5, 0.45, 0.4, 0.35]]
+    level_labels = ['Flood A', 'Flood B', 'Flood C', 'Normal', 'Drought Watch', 'Drought Warning', 'Drought Emergency']
+
     level_colors = [cm.get_cmap('Blues')(v) for v in [0.3, 0.2, 0.1]] +\
                     ['papayawhip'] +\
                     [cm.get_cmap('Reds')(v) for v in [0.1, 0.2, 0.3]]
-    level_alpha = [1]*3 + [1] + [1]*3
+    level_alpha = [0.7]*3 + [0.7] + [0.7]*3
     x = ffmp_level_boundaries.index
     for i in range(len(levels)):
         y0 = ffmp_level_boundaries[levels[i]]
@@ -618,7 +617,7 @@ def plot_combined_nyc_storage_new(storages, ffmp_level_boundaries, models, color
         else:
             y1 = ffmp_level_boundaries[levels[i+1]]
         ax.fill_between(x, y0, y1, color=level_colors[i], lw=0.2, edgecolor='k',
-                        alpha=level_alpha[i], zorder=1, label=levels[i])
+                        alpha=level_alpha[i], zorder=1, label=level_labels[i])
 
 
     ax.plot(historic_storage, color='k', ls = ':', label=model_label_dict['obs'], zorder=3)
@@ -626,22 +625,22 @@ def plot_combined_nyc_storage_new(storages, ffmp_level_boundaries, models, color
     for m,c in zip(models,line_colors):
         modeled_storage = subset_timeseries(storages[m][reservoir_list_nyc], start_date, end_date).sum(axis=1)
         modeled_storage *= 100/capacities['combined']
-        ax.plot(modeled_storage, color='k', ls='-', zorder=2, lw=2)
-        ax.plot(modeled_storage, color=c, ls='-', label=model_label_dict[m], zorder=2, lw=1.6)
-
-
+        ax.plot(modeled_storage, color='k', ls='-', zorder=2, lw=1.5)
+        ax.plot(modeled_storage, color=c, ls='-', label=model_label_dict[m], zorder=2, lw=1.2)
 
 
     ### clean up figure
     ax.set_xlim([start_date, end_date])
-    ax.set_ylabel('Combined NYC Storage (%)')
+    ax.set_ylabel('Combined NYC Storage (%)', fontsize=fontsize)
     ax.set_ylim([0,110])
-    ax.legend(frameon=False, loc='center left', bbox_to_anchor=(1.02,0.5))
+    ax.set_yticklabels(ax.get_yticklabels(), fontsize=fontsize)
+    ax.set_xticklabels(ax.get_xticklabels(), fontsize=fontsize)
+    ax.legend(frameon=False, loc='upper center', bbox_to_anchor=(0.5, -0.1), ncols=4, fontsize=fontsize)
 
     ### save fig
     plt.savefig(f'{fig_dir}NYC_storages_' + \
                 f'{ffmp_level_boundaries.index.year[0]}_{ffmp_level_boundaries.index.year[-1]}.png',
-                bbox_inches='tight', dpi=250)
+                bbox_inches='tight', dpi=dpi)
 
     return
 
@@ -657,8 +656,9 @@ def plot_combined_nyc_storage_vs_diversion(storages, ffmp_level_boundaries, ibt_
 
     """
 
-    fig, axs= plt.subplots(6,1,figsize=(8, 10), gridspec_kw={'height_ratios':[2,1,1,1,1,1], 'hspace':0.1})
+    fig, axs= plt.subplots(6,1,figsize=(6,7), gridspec_kw={'height_ratios':[2,1,1,1,1,1], 'hspace':0.1})
 
+    fontsize = 8
     labels = ['a)','b)','c)','d)','e)','f)']
 
     ### subplot a: Reservoir modeled storages, no observed
@@ -675,10 +675,12 @@ def plot_combined_nyc_storage_vs_diversion(storages, ffmp_level_boundaries, ibt_
 
     ### First plot FFMP levels as background color
     levels = [f'level{l}' for l in ['1a','1b','1c','2','3','4','5']]
+    level_labels = ['Flood A', 'Flood B', 'Flood C', 'Normal', 'Drought Watch', 'Drought Warning', 'Drought Emergency']
+
     level_colors = [cm.get_cmap('Blues')(v) for v in [0.3, 0.2, 0.1]] +\
                     ['papayawhip'] +\
                     [cm.get_cmap('Reds')(v) for v in [0.1, 0.2, 0.3]]
-    level_alpha = [1]*3 + [1] + [1]*3
+    level_alpha = [0.7]*3 + [0.7] + [0.7]*3
     x = ffmp_level_boundaries.index
     for i in range(len(levels)):
         y0 = ffmp_level_boundaries[levels[i]]
@@ -687,7 +689,7 @@ def plot_combined_nyc_storage_vs_diversion(storages, ffmp_level_boundaries, ibt_
         else:
             y1 = ffmp_level_boundaries[levels[i+1]]
         ax.fill_between(x, y0, y1, color=level_colors[i], lw=0.2, edgecolor='k',
-                        alpha=level_alpha[i], zorder=1, label=levels[i])
+                        alpha=level_alpha[i], zorder=1, label=level_labels[i])
 
     line_colors = [colordict[m] for m in models]
     for m,c in zip(models,line_colors):
@@ -699,26 +701,31 @@ def plot_combined_nyc_storage_vs_diversion(storages, ffmp_level_boundaries, ibt_
     ### clean up figure
     ax.set_xlim([start_date, end_date + datetime.timedelta(days=-1)])
     ax.set_xticks(ax.get_xticks(), ['']*len(ax.get_xticks()))
-    ax.set_ylabel('Combined NYC Storage (%)')
+    ax.set_yticklabels(ax.get_yticklabels(), fontsize = fontsize)
+    ax.set_ylabel('Combined NYC\nStorage (%)', fontsize=fontsize)
     ax.set_ylim([0,100])
-    ax.legend(frameon=False, loc='center left', bbox_to_anchor=(1.02,0.5))
-    ax.annotate(labels[0], xy=(0.005, 0.025), xycoords='axes fraction', ha='left', va='bottom', weight='bold')
+    ax.legend(frameon=False, loc='center left', bbox_to_anchor=(1.02,0.4), fontsize=fontsize)
+    ax.annotate(labels[0], xy=(0.005, 0.025), xycoords='axes fraction', ha='left', va='bottom', weight='bold',
+                fontsize=fontsize)
 
 
     ### subfigure b: IBT demands
     ax = axs[1]
     customer_key = 'demand_nyc' if customer == 'nyc' else 'demand_nj' if customer == 'nj' else 'error'
     dems = subset_timeseries(ibt_demands[m][customer_key], start_date, end_date) + 0.01  ### add a small amt to avoid dividing by zero
-    ax.plot(dems, color='k', label='Daily')
+    ax.plot(dems, color='k')
+
     ### also plot monthly rolling average
     dems_rolling = dems.rolling(30, center=True).mean()
-    ax.plot(dems_rolling, color='0.6', label='30-Day Avg.')
-    ax.set_ylabel('Demand\n(MGD)')
+    ax.plot(dems_rolling, color='0.6')
+    ax.set_ylabel('Demand\n(MGD)', fontsize=fontsize)
     ax.set_xlim(axs[0].get_xlim())
     ax.set_xticks(ax.get_xticks(), ['']*len(ax.get_xticks()))
     ax.set_ylim([0, ax.get_ylim()[1]])
-    ax.legend(frameon=False, loc='center left', bbox_to_anchor=(1.02,0.5))
-    ax.annotate(labels[1], xy=(0.005, 0.95), xycoords='axes fraction', ha='left', va='top', weight='bold')
+    ax.set_yticklabels(ax.get_yticklabels(), fontsize=fontsize)
+
+    ax.annotate(labels[1], xy=(0.005, 0.95), xycoords='axes fraction', ha='left', va='top', weight='bold',
+                fontsize=fontsize)
 
     ### subfigure c-f IBT demand satisfaction for each of 4 pywr models
     for i, m in enumerate(models):
@@ -727,14 +734,23 @@ def plot_combined_nyc_storage_vs_diversion(storages, ffmp_level_boundaries, ibt_
         customer_key = 'delivery_nyc' if customer == 'nyc' else 'delivery_nj' if customer == 'nj' else 'error'
         divs = subset_timeseries(ibt_diversions[m][customer_key], start_date, end_date) + 0.01
         divs = divs.divide(dems) * 100
-        ax.plot(divs, color='k')
+        ax.plot(divs, color='k', label='Daily Value')
 
         ### monthly rolling average
         divs_rolling = divs.rolling(30, center=True).mean()
+        ax.plot(divs_rolling, color='0.6', label='30-Day Avg.')
 
-        ax.plot(divs_rolling, color='0.6')
-        ax.set_ylabel('Demand\nSatisfied (%)')
+        ### add shortfall events
+        m = models[i-2]
+        event_starts = shortfall_metrics[customer][m]['event_starts']
+        event_ends = shortfall_metrics[customer][m]['event_ends']
+        event_labels = ['Shortfall Event' if i==0 else '' for i in range(len(event_starts))]
+        for event_start, event_end, label in zip(event_starts, event_ends, event_labels):
+            ax.fill_between([event_start, event_end], [0,0], [110,110], color='lightcoral', alpha=1, label=label)
 
+        ax.set_ylabel('Demand\nSatisfied (%)', fontsize=fontsize)
+        if i == 0:
+            ax.legend(frameon=False, loc='center left', bbox_to_anchor=(1.02, 1), fontsize=fontsize)
 
     ### clean up, standardize y ranges
     ymin = 100
@@ -746,19 +762,19 @@ def plot_combined_nyc_storage_vs_diversion(storages, ffmp_level_boundaries, ibt_
         ax.set_xlim(axs[0].get_xlim())
         if i < 5:
             ax.set_xticks(ax.get_xticks(), [''] * len(ax.get_xticks()))
-        ax.annotate(labels[i], xy=(0.005, 0.05), xycoords='axes fraction', ha='left', va='bottom', weight='bold')
+        else:
+            ax.set_xticklabels(ax.get_xticklabels(), fontsize=fontsize)
 
-        ### add shortfall events
-        m = models[i-2]
-        event_starts = shortfall_metrics[customer][m]['event_starts']
-        event_ends = shortfall_metrics[customer][m]['event_ends']
-        for event_start, event_end in zip(event_starts, event_ends):
-            ax.fill_between([event_start, event_end], [0,0], [110,110], color='lightcoral', alpha=1)
+        ax.set_yticklabels(ax.get_yticklabels(), fontsize=fontsize)
+        ax.annotate(labels[i], xy=(0.005, 0.05), xycoords='axes fraction', ha='left', va='bottom', weight='bold',
+                    fontsize=fontsize)
+
+
 
     ### save fig
     plt.savefig(f'{fig_dir}storages_diversions_{customer}_' + \
                 f'{ffmp_level_boundaries.index.year[0]}_{ffmp_level_boundaries.index.year[-1]}.png',
-                bbox_inches='tight', dpi=300)
+                bbox_inches='tight', dpi=dpi)
 
     return
 
@@ -781,7 +797,7 @@ def plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major
 
     """
 
-    fig, axs= plt.subplots(5,1,figsize=(8, 7), gridspec_kw={'height_ratios':[2,1,1,1,1], 'hspace':0.1})
+    fig, axs= plt.subplots(5,1,figsize=(6, 7), gridspec_kw={'height_ratios':[2,1,1,1,1], 'hspace':0.1})
 
     fontsize = 8
     labels = ['a)','b)','c)','d)','e)']
@@ -801,10 +817,12 @@ def plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major
 
     ### First plot FFMP levels as background color
     levels = [f'level{l}' for l in ['1a','1b','1c','2','3','4','5']]
+    level_labels = ['Flood A', 'Flood B', 'Flood C', 'Normal', 'Drought Watch', 'Drought Warning', 'Drought Emergency']
+
     level_colors = [cm.get_cmap('Blues')(v) for v in [0.3, 0.2, 0.1]] +\
                     ['papayawhip'] +\
                     [cm.get_cmap('Reds')(v) for v in [0.1, 0.2, 0.3]]
-    level_alpha = [1]*3 + [1] + [1]*3
+    level_alpha = [0.7]*3 + [0.7] + [0.7]*3
     x = ffmp_level_boundaries.index
     for i in range(len(levels)):
         y0 = ffmp_level_boundaries[levels[i]]
@@ -813,7 +831,7 @@ def plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major
         else:
             y1 = ffmp_level_boundaries[levels[i+1]]
         ax.fill_between(x, y0, y1, color=level_colors[i], lw=0.2, edgecolor='k',
-                        alpha=level_alpha[i], zorder=1, label=levels[i])
+                        alpha=level_alpha[i], zorder=1, label=level_labels[i])
 
     line_color = colordict[pywr_model]
     modeled_storage = subset_timeseries(storages[pywr_model][reservoir_list_nyc], start_date, end_date).sum(axis=1)
@@ -843,7 +861,12 @@ def plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major
         flow = subset_timeseries(major_flows[base_model][mrf], start_date, end_date)
         satisfaction = np.minimum(flow.divide(target_max) * 100, np.ones(len(flow)) * 100)
         leftlinecolor = 'k'
-        ax.plot(satisfaction, color=leftlinecolor)
+        ax.plot(satisfaction, color=leftlinecolor, label='Daily Value')
+
+        ### monthly rolling average
+        satisfaction_rolling = satisfaction.rolling(30, center=True).mean()
+        ax.plot(satisfaction_rolling, color='0.6', label='30-Day Avg.')
+
         ylims = [0, 110]# if mrf == 'delMontague' else [40, 105]
         yticks = [0, 50, 100]
         ax.set_ylim(ylims)
@@ -856,8 +879,10 @@ def plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major
         ### add shortfall events
         event_starts = shortfall_metrics[mrf][base_model]['event_starts']
         event_ends = shortfall_metrics[mrf][base_model]['event_ends']
-        for event_start, event_end in zip(event_starts, event_ends):
-            ax.fill_between([event_start, event_end], [ylims[0]] * 2, [ylims[1]] * 2, color='lightcoral', alpha=1)
+        event_labels = ['Shortfall Event' if i==0 else '' for i in range(len(event_ends))]
+        for event_start, event_end, event_label in zip(event_starts, event_ends, event_labels):
+            ax.fill_between([event_start, event_end], [ylims[0]] * 2, [ylims[1]] * 2, color='lightcoral', alpha=1,
+                            label=event_label)
 
         ### clean up
         ax.annotate(labels[1 + i*2], xy=(0.005, 0.05), xycoords='axes fraction', ha='left', va='bottom', weight='bold',
@@ -865,6 +890,8 @@ def plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major
         ax.set_xlim(axs[0].get_xlim())
         ax.set_xticks(ax.get_xticks(), [''] * len(ax.get_xticks()), fontsize=fontsize)
 
+        if i == 0:
+            ax.legend(frameon=False, loc='center left', bbox_to_anchor=(1.02, 0.5), fontsize=fontsize)
 
 
         ### now repeat with pywr model, and also add time varying min flow constraint
@@ -879,6 +906,11 @@ def plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major
 
         leftlinecolor = 'k'
         ax.plot(satisfaction, color=leftlinecolor)
+
+        ### monthly rolling average
+        satisfaction_rolling = satisfaction.rolling(30, center=True).mean()
+        ax.plot(satisfaction_rolling, color='0.6')
+
         yticks = [0, 50, 100]
         ax.set_ylim(ylims)
         ax.set_yticks(yticks, yticks, fontsize=fontsize, color=leftlinecolor)
@@ -921,7 +953,7 @@ def plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major
     ### save fig
     plt.savefig(f'{fig_dir}storages_minflows_{base_model}_{pywr_model}_' + \
                 f'{ffmp_level_boundaries.index.year[0]}_{ffmp_level_boundaries.index.year[-1]}.png',
-                bbox_inches='tight', dpi=300)
+                bbox_inches='tight', dpi=dpi)
 
     return
 
@@ -1010,7 +1042,7 @@ def plot_lowflow_exceedances(reservoir_downstream_gages, major_flows, models, no
                         va='top', ha='right')
 
     fig.savefig(f'{fig_dir}/lowFlowReturnPeriods_{start_date.year}_{end_date.year}.png',
-                bbox_inches='tight', dpi=300)
+                bbox_inches='tight', dpi=dpi)
     plt.close()
     return
 
@@ -1020,16 +1052,74 @@ def plot_lowflow_exceedances(reservoir_downstream_gages, major_flows, models, no
 
 
 
-def plot_NYC_release_components_combined(nyc_release_components, reservoir_releases, major_flows, inflows, diversions,
-                                         consumptions, model, node, start_date = None, end_date = None,
+def plot_NYC_release_components_combined(storages, ffmp_level_boundaries,
+                                         nyc_release_components, reservoir_releases, major_flows, inflows, diversions,
+                                         consumptions, model, node,
+                                         colordict = base_model_colors, start_date = None, end_date = None,
                                          use_proportional=False, use_log=False, fig_dir=fig_dir):
-    fig, axs = plt.subplots(2,1,figsize=(8,5))
 
-    ### subfig a: first split up NYC releases into components
+    fig, axs = plt.subplots(3,1,figsize=(7,7), gridspec_kw={'hspace':0.1})
+    fontsize = 8
+    labels = ['a)','b)','c)']
+
+
+    ########################################################
+    ### subplot a: Reservoir modeled storages
+    ########################################################
+
+    ax = axs[0]
+    ### get reservoir storage capacities
+    istarf = pd.read_csv(f'{model_data_dir}drb_model_istarf_conus.csv')
+    def get_reservoir_capacity(reservoir):
+        return float(istarf['Adjusted_CAP_MG'].loc[istarf['reservoir'] == reservoir].iloc[0])
+    capacities = {r: get_reservoir_capacity(r) for r in reservoir_list_nyc}
+    capacities['combined'] = sum([capacities[r] for r in reservoir_list_nyc])
+
+    ffmp_level_boundaries = subset_timeseries(ffmp_level_boundaries, start_date, end_date) * 100
+    ffmp_level_boundaries['level1a'] = 100.
+
+    ### First plot FFMP levels as background color
+    levels = [f'level{l}' for l in ['1a','1b','1c','2','3','4','5']]
+    level_labels = ['Flood A', 'Flood B', 'Flood C', 'Normal', 'Drought Watch', 'Drought Warning', 'Drought Emergency']
+    level_colors = [cm.get_cmap('Blues')(v) for v in [0.3, 0.2, 0.1]] +\
+                    ['papayawhip'] +\
+                    [cm.get_cmap('Reds')(v) for v in [0.1, 0.2, 0.3]]
+    level_alpha = [0.7]*3 + [0.7] + [0.7]*3
+    x = ffmp_level_boundaries.index
+    for i in range(len(levels)):
+        y0 = ffmp_level_boundaries[levels[i]]
+        if i == len(levels)-1:
+            y1 = 0.
+        else:
+            y1 = ffmp_level_boundaries[levels[i+1]]
+        ax.fill_between(x, y0, y1, color=level_colors[i], lw=0.2, edgecolor='k',
+                        alpha=level_alpha[i], zorder=1, label=level_labels[i])
+
+    line_color = colordict[model]
+    modeled_storage = subset_timeseries(storages[model][reservoir_list_nyc], start_date, end_date).sum(axis=1)
+    modeled_storage *= 100/capacities['combined']
+    ax.plot(modeled_storage, color='k', ls='-', zorder=2, lw=2)
+    ax.plot(modeled_storage, color=line_color, ls='-', label=model_label_dict[model], zorder=2, lw=1.6)
+
+    ### clean up figure
+    ax.set_xlim([start_date, end_date + datetime.timedelta(days=-1)])
+    ax.set_xticks(ax.get_xticks(), ['']*len(ax.get_xticks()), fontsize=fontsize)
+    ax.set_yticks(ax.get_yticks(), ax.get_yticklabels(), fontsize=fontsize)
+    ax.set_ylabel('Combined NYC Storage (%)', fontsize=fontsize)
+    ax.set_ylim([0,100])
+    ax.legend(frameon=False, loc='lower center', bbox_to_anchor=(0.5,1.03), ncols=4, fontsize=fontsize)
+    ax.annotate(labels[0], xy=(0.005, 0.975), xycoords='axes fraction', ha='left', va='top', weight='bold',
+                fontsize=fontsize)
+
+
+    ########################################################
+    # ### subfig b: first split up NYC releases into components
+    ########################################################
+
     release_total = subset_timeseries(reservoir_releases[model][reservoir_list_nyc], start_date, end_date).sum(axis=1)
     x = release_total.index
     if use_proportional:
-        ax2 = axs[0]
+        ax2 = axs[1]
         ax2.plot(release_total, color='k', lw=1)
         ax2.set_xlim([x[0], x[-1]])
         ax = ax2.twinx()
@@ -1039,7 +1129,7 @@ def plot_NYC_release_components_combined(nyc_release_components, reservoir_relea
             ax2.semilogy()
 
     else:
-        ax = axs[0]
+        ax = axs[1]
         ax.plot(release_total, color='k', lw=1)
         ax.set_xlim([x[0], x[-1]])
         if use_log:
@@ -1068,21 +1158,32 @@ def plot_NYC_release_components_combined(nyc_release_components, reservoir_relea
     ax.fill_between(x, y1, y2, label='NYC FFMP Downstream', color=colors[3], alpha=alpha)
 
     if use_proportional:
-        ax2.set_ylabel('Total Release (MGD)')
-        ax.set_ylabel('Release Contribution (%)')
+        ax2.set_ylabel('Total Release (MGD)', fontsize=fontsize)
+        ax.set_ylabel('Release Contribution (%)', fontsize=fontsize)
     else:
-        ax.set_ylabel('Total Release (MGD)')
-
+        ax.set_ylabel('Total Release (MGD)', fontsize=fontsize)
+    ax.set_xticks(ax.get_xticks(), ['']*len(ax.get_xticks()), fontsize=fontsize)
 
     if use_proportional:
         ax.set_zorder(1)
         ax2.set_zorder(2)
         ax2.patch.set_visible(False)
 
+    if not use_log:
+        ax2.set_ylim([0, ax2.get_ylim()[1]])
+
+    ax.set_yticks(ax.get_yticks(), ax.get_yticklabels(), fontsize=fontsize)
+    ax2.set_yticks(ax2.get_yticks(), ax2.get_yticklabels(), fontsize=fontsize)
+    ax.annotate(labels[1], xy=(0.005, 0.975), xycoords='axes fraction', ha='left', va='top', weight='bold',
+                fontsize=fontsize)
 
 
 
-    ### subfig b: split up trenton flow into components
+
+
+    ########################################################
+    ### subfig c: split up trenton flow into components
+    ########################################################
 
     # Get total sim and obs flow
     total_sim_node_flow = subset_timeseries(major_flows[model][node], start_date, end_date)
@@ -1094,7 +1195,7 @@ def plot_NYC_release_components_combined(nyc_release_components, reservoir_relea
 
 
     if use_proportional:
-        ax2 = axs[1]
+        ax2 = axs[2]
         ax2.plot(total_sim_node_flow, color='k', lw=1)
         ax = ax2.twinx()
         ax.set_ylim([0,100])
@@ -1102,12 +1203,12 @@ def plot_NYC_release_components_combined(nyc_release_components, reservoir_relea
         if use_log:
             ax2.semilogy()
 
-        ax2.set_ylabel('Total Flow (MGD)')
-        ax.set_ylabel('Flow Contribution (%)')
+        ax2.set_ylabel('Total Flow (MGD)', fontsize=fontsize)
+        ax.set_ylabel('Flow Contribution (%)', fontsize=fontsize)
     else:
-        ax = axs[1]
+        ax = axs[2]
         ax.plot(total_sim_node_flow, color='k', lw=1)
-        ax.set_ylabel('Total Release (MGD)')
+        ax.set_ylabel('Total Release (MGD)', fontsize=fontsize)
 
 
     # Get contributing flows
@@ -1187,18 +1288,28 @@ def plot_NYC_release_components_combined(nyc_release_components, reservoir_relea
     ax.fill_between(x, y2, y3, label='Non-NYC Release', color=colors[5], alpha=alpha)
     ax.fill_between(x, y1, y2, label='Uncontrolled Flow', color=colors[4], alpha=alpha)
 
-    ax.legend(frameon=False, loc='center', bbox_to_anchor=(0.5, -0.3), ncols=3)
+    ax.legend(frameon=False, fontsize=fontsize, loc='upper center', bbox_to_anchor=(0.5, -0.15), ncols=3)
+    ax.annotate(labels[2], xy=(0.005, 0.975), xycoords='axes fraction', ha='left', va='top', weight='bold',
+                fontsize=fontsize)
 
     if use_proportional:
         ax.set_zorder(1)
         ax2.set_zorder(2)
         ax2.patch.set_visible(False)
+    if not use_log:
+        ax2.set_ylim([0, ax2.get_ylim()[1]])
+
+    ax.set_yticks(ax.get_yticks(), ax.get_yticklabels(), fontsize=fontsize)
+    ax2.set_yticks(ax2.get_yticks(), ax2.get_yticklabels(), fontsize=fontsize)
+    ax2.set_xticks(ax2.get_xticks(), ax2.get_xticklabels(), fontsize=fontsize)
+
+
 
 
 
     plt.savefig(f'{fig_dir}NYC_release_components_combined_{model}_{node}_' + \
                 f'{release_total.index.year[0]}_{release_total.index.year[-1]}.png',
-                bbox_inches='tight', dpi=500)
+                bbox_inches='tight', dpi=dpi)
 
 
 
@@ -1400,11 +1511,233 @@ def plot_shortfall_metrics(shortfall_metrics, models_mrf, models_ibt, nodes, sho
         axs[3,0].set_ylabel('Vulnerability\n(MGD)', fontsize=fontsize)
 
 
-    fig.savefig(f'{fig_dir}/shortfall_comparison.png', bbox_inches='tight', dpi=300)
+    fig.savefig(f'{fig_dir}/shortfall_comparison.png', bbox_inches='tight', dpi=dpi)
     plt.close()
 
     return
 
+
+
+### Map of major DRB nodes
+def make_DRB_map(fig_dir=fig_dir):
+    import os
+    # os.environ['USE_PYGEOS'] = '0'
+    import geopandas as gpd
+    from shapely import ops
+    from shapely.geometry import Point, LineString, MultiLineString
+    import numpy as np
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    import json
+    import folium
+    from folium.plugins import MarkerCluster
+    import contextily as cx
+    import sys
+    from pywrdrb.pywr_drb_node_data import obs_pub_site_matches, obs_site_matches, nhm_site_matches
+
+    ### set crs consistent with contextily basemap
+    crs = 'EPSG:3857'
+
+
+    # # Reservoir data
+    reservoir_data = pd.read_csv('pywrdrb/model_data/drb_model_istarf_conus.csv', sep=',')
+
+    ### Load general shapefiles
+    drb_boundary = gpd.read_file(f'{spatial_data_dir}/DRB_shapefiles/drb_bnd_polygon.shp').to_crs(crs)
+    states = gpd.read_file(f'{spatial_data_dir}/states/tl_2010_us_state10.shp').to_crs(crs)
+    nhd = gpd.read_file(f'{spatial_data_dir}/NHD_0204/Shape/NHDFlowline.shp').to_crs(crs)
+    drc = gpd.read_file(f'{spatial_data_dir}/NHD_NJ/DRCanal.shp').to_crs(crs)
+
+    ### load drb node info into geodataframes
+    crs_nodedata = 4386
+    major_nodes = gpd.read_file(f'{spatial_data_dir}/model_components/drb_model_major_nodes.csv', sep=',')
+    reservoirs = major_nodes.loc[major_nodes['type'] == 'reservoir']
+    reservoirs = gpd.GeoDataFrame(reservoirs.drop('geometry', axis=1),
+                                  geometry=gpd.points_from_xy(reservoirs.long, reservoirs.lat,
+                                                              crs=crs_nodedata)).to_crs(crs)
+    flow_reqs = major_nodes.loc[major_nodes['type'] == 'regulatory']
+    flow_reqs = gpd.GeoDataFrame(flow_reqs.drop('geometry', axis=1),
+                                 geometry=gpd.points_from_xy(flow_reqs.long, flow_reqs.lat,
+                                                             crs=crs_nodedata)).to_crs(crs)
+
+    ### get river network from NHD
+    mainstem = nhd.loc[nhd['gnis_name'] == 'Delaware River']
+    ## for river/stream objects, merge rows into single geometry to avoid white space on plot
+    multi_linestring = MultiLineString([ls for ls in mainstem['geometry'].values])
+    merged_linestring = ops.linemerge(multi_linestring)
+    mainstem = gpd.GeoDataFrame({'geometry': [merged_linestring]})
+
+    ### get all other tributary streams containing a Pywr-DRB reservoir, or downstream of one. Note that 2 different regions have Tulpehocken Creek - use only the correct one.
+    trib_names = ['West Branch Delaware River', 'East Branch Delaware River', 'Neversink River',
+                  'Mongaup River', 'Lackawaxen River', 'West Branch Lackawaxen River', 'Wallenpaupack Creek',
+                  'Lehigh River', 'Shohola Creek', 'Pohopoco Creek', 'Merrill Creek', 'Musconetcong River',
+                  'Pohatcong Creek', 'Tohickon Creek', 'Assunpink Creek', 'Schuylkill River', 'Maiden Creek',
+                  'Tulpehocken Creek', 'Still Creek', 'Little Schuylkill River',
+                  'Perkiomen Creek']
+    tribs = []
+    for trib_name in trib_names:
+        trib = nhd.loc[[(n == trib_name) and ((n != 'Tulpehocken Creek') or ('02040203' in c)) for n, c in
+                        zip(nhd['gnis_name'], nhd['reachcode'])]]
+        multi_linestring = MultiLineString([ls for ls in trib['geometry'].values])
+        merged_linestring = ops.linemerge(multi_linestring)
+        trib = gpd.GeoDataFrame({'geometry': [merged_linestring], 'name': trib_name})
+        tribs.append(trib)
+
+    ### rough lines for NYC Delaware Aqueduct system
+    ### cannonsville to rondout
+    lines = [LineString([Point(-75.37462, 42.065872), Point(-74.4296, 41.79926)])]
+    ### pepacton to rondout
+    lines.append(LineString([Point(-74.965531, 42.073603), Point(-74.4296, 41.79926)]))
+    ### neversink to rondout
+    lines.append(LineString([Point(-74.643266, 41.821286), Point(-74.4296, 41.79926)]))
+    ### rondout to west branch reservoir
+    lines.append(LineString([Point(-74.4296, 41.79926), Point(-73.69541, 41.41176)]))
+    ### west branch reservoir to kensico reservoir
+    lines.append(LineString([Point(-73.69541, 41.41176), Point(-73.7659656, 41.0737078)]))
+    ### kensico reservoir to hillside reservoir
+    lines.append(LineString([Point(-73.7659656, 41.0737078), Point(-73.8693806, 40.90715556)]))
+
+    ### convert projection
+    crs_longlat = 'EPSG:4326'
+    aqueducts = gpd.GeoDataFrame({'geometry': lines}, crs=crs_longlat)
+    aqueducts = aqueducts.to_crs(crs)
+
+    ### create map figures
+    fig, ax = plt.subplots(1, 1, figsize=(6, 10))
+    use_basemap = True
+
+    ### plot drb boundary
+    drb_boundary.plot(ax=ax, color='none', edgecolor='k', lw=1, zorder=0.9)
+
+    ### plot river network
+    mainstem.plot(ax=ax, color='navy', lw=3, zorder=1.1)
+    for trib in tribs:
+        trib.plot(ax=ax, color='cornflowerblue', lw=2, zorder=1)
+
+    ### plot reservoirs & min flow locations
+    list_nyc_reservoirs = ('reservoir_cannonsville', 'reservoir_pepacton', 'reservoir_neversink')
+    for r in reservoirs['name']:
+        color = 'firebrick' if r in list_nyc_reservoirs else 'sandybrown'
+        r_abbrev = r.split('_')[1]
+        try:
+            s = 50 + reservoir_data['Adjusted_CAP_MG'].loc[reservoir_data['reservoir'] == r_abbrev].iloc[0] / 1000 * 2
+        except:
+            s = 50
+        reservoirs.loc[reservoirs['name'] == r].plot(ax=ax, color=color, edgecolor='k', markersize=s, zorder=2)
+    flow_reqs.plot(ax=ax, color='mediumseagreen', edgecolor='k', markersize=250, zorder=2.1, marker='*')
+
+    ### NYC tunnel systsem
+    aqueducts.plot(ax=ax, color='darkmagenta', lw=2, zorder=1.2, ls=':')
+
+    ### plot NJ diversion - Delaware & Raritan Canal
+    drc.plot(ax=ax, color='darkmagenta', lw=2, zorder=1.2, ls=':')
+
+    ### add state boundaries
+    if use_basemap:
+        states.plot(ax=ax, color='none', edgecolor='0.5', lw=0.7, zorder=0)
+    else:
+        states.plot(ax=ax, color='0.95', edgecolor='0.5', lw=0.7, zorder=0)
+
+    ### map limits
+    ax.set_xlim([-8.517e6, -8.197e6])  # -8.215e6])
+    ax.set_ylim([4.75e6, 5.235e6])
+
+    ### annotations
+    fontsize = 10
+    fontcolor = '0.5'
+    plt.annotate('New York', xy=(-8.46e6, 5.168e6), ha='center', va='center', fontsize=fontsize, color=fontcolor)
+    plt.annotate('Pennsylvania', xy=(-8.46e6, 5.152e6), ha='center', va='center', fontsize=fontsize, color=fontcolor)
+    plt.annotate('New York', xy=(-8.245e6, 5.032e6), rotation=-31, ha='center', va='center', fontsize=fontsize,
+                 color=fontcolor)
+    plt.annotate('New Jersey', xy=(-8.257e6, 5.019e6), rotation=-31, ha='center', va='center', fontsize=fontsize,
+                 color=fontcolor)
+    plt.annotate('Pennsylvania', xy=(-8.48e6, 4.833e6), ha='center', va='center', fontsize=fontsize, color=fontcolor)
+    plt.annotate('Maryland', xy=(-8.48e6, 4.817e6), ha='center', va='center', fontsize=fontsize, color=fontcolor)
+    plt.annotate('Delaware', xy=(-8.43e6, 4.8e6), rotation=-85, ha='center', va='center', fontsize=fontsize,
+                 color=fontcolor)
+    plt.annotate('Pennsylvania', xy=(-8.359e6, 5.03e6), rotation=50, ha='center', va='center', fontsize=fontsize,
+                 color=fontcolor)
+    plt.annotate('New Jersey', xy=(-8.337e6, 5.024e6), rotation=50, ha='center', va='center', fontsize=fontsize,
+                 color=fontcolor)
+
+    fontcolor = 'firebrick'
+    plt.annotate('Cannonsville', xy=(-8.404e6, 5.1835e6), ha='center', va='center', fontsize=fontsize, color=fontcolor,
+                 fontweight='bold')
+    plt.annotate('Pepacton', xy=(-8.306e6, 5.168e6), ha='center', va='center', fontsize=fontsize, color=fontcolor,
+                 fontweight='bold')
+    plt.annotate('Neversink', xy=(-8.268e6, 5.143e6), ha='center', va='center', fontsize=fontsize, color=fontcolor,
+                 fontweight='bold')
+    fontcolor = 'mediumseagreen'
+    plt.annotate('Montague', xy=(-8.284e6, 5.055e6), ha='center', va='center', fontsize=fontsize, color=fontcolor,
+                 fontweight='bold')
+    plt.annotate('Trenton', xy=(-8.353e6, 4.894e6), ha='center', va='center', fontsize=fontsize, color=fontcolor,
+                 fontweight='bold')
+    fontcolor = 'darkmagenta'
+    plt.annotate('NYC\nDiversion', xy=(-8.25e6, 5.085e6), ha='center', va='center', fontsize=fontsize, color=fontcolor,
+                 fontweight='bold')
+    plt.annotate('NJ\nDiversion', xy=(-8.315e6, 4.959e6), ha='center', va='center', fontsize=fontsize, color=fontcolor,
+                 fontweight='bold')
+
+    ### legend
+    axin = ax.inset_axes([0.58, 0.006, 0.41, 0.25])
+    axin.set_xlim([0, 1])
+    axin.set_ylim([0, 1])
+    ### mainstem
+    axin.plot([0.05, 0.15], [0.93, 0.93], color='navy', lw=3)
+    axin.annotate('Delaware River', xy=(0.18, 0.93), ha='left', va='center', color='k', fontsize=fontsize)
+    ### tributaries
+    axin.plot([0.05, 0.15], [0.83, 0.83], color='cornflowerblue', lw=2)
+    axin.annotate('Tributary', xy=(0.18, 0.83), ha='left', va='center', color='k', fontsize=fontsize)
+    ### DRB boundary
+    axin.plot([0.05, 0.15], [0.73, 0.73], color='k', lw=1)
+    axin.annotate('Basin Boundary', xy=(0.18, 0.73), ha='left', va='center', color='k', fontsize=fontsize)
+    ### Diversions
+    axin.plot([0.05, 0.15], [0.63, 0.63], color='darkmagenta', lw=2, ls=':')
+    axin.annotate('Interbasin Transfer', xy=(0.18, 0.63), ha='left', va='center', color='darkmagenta',
+                  fontweight='bold', fontsize=fontsize)
+    ### Minimum flow targets
+    axin.scatter([0.1], [0.53], color='mediumseagreen', edgecolor='k', s=200, marker='*')
+    axin.annotate('Flow Target', xy=(0.18, 0.53), ha='left', va='center', color='mediumseagreen', fontweight='bold',
+                  fontsize=fontsize)
+    ### NYC Reservoirs
+    axin.scatter([0.1], [0.43], color='firebrick', edgecolor='k', s=100)
+    axin.annotate('NYC Reservoir', xy=(0.18, 0.43), ha='left', va='center', color='firebrick', fontweight='bold',
+                  fontsize=fontsize)
+    ### Non-NYC Reservoirs
+    axin.scatter([0.1], [0.33], color='sandybrown', edgecolor='k', s=100)
+    axin.annotate('Non-NYC Reservoir', xy=(0.18, 0.33), ha='left', va='center', color='k', fontsize=fontsize)
+    ### marker size for reservoirs
+    # axin.annotate('Reservoir Capacity', xy=(0.05, 0.3), ha='left', va='center', color='k', fontsize=fontsize)
+    axin.scatter([0.15], [0.18], color='0.5', edgecolor='k', s=50 + 3000 / 1000 * 2)
+    axin.scatter([0.45], [0.18], color='0.5', edgecolor='k', s=50 + 50000 / 1000 * 2)
+    axin.scatter([0.8], [0.18], color='0.5', edgecolor='k', s=50 + 140000 / 1000 * 2)
+    axin.annotate('3 BG', xy=(0.15, 0.05), ha='center', va='center', color='k', fontsize=fontsize)
+    axin.annotate('50 BG', xy=(0.45, 0.05), ha='center', va='center', color='k', fontsize=fontsize)
+    axin.annotate('140 BG', xy=(0.8, 0.05), ha='center', va='center', color='k', fontsize=fontsize)
+    ### clean up
+    axin.set_xticks([])
+    axin.set_yticks([])
+    axin.patch.set_alpha(0.9)
+
+    # ### basemap - this is slow and breaks sometimes, if so just try later
+    if use_basemap:
+        cx.add_basemap(ax=ax, alpha=0.5, attribution_size=6)
+        figname = f'{fig_dir}/static_map_withbasemap.png'
+    else:
+        figname = f'{fig_dir}static_map.png'
+
+    ax.set_xticks([])
+    ax.set_yticks([])
+
+    plt.savefig(figname, bbox_inches='tight', dpi=dpi)
+
+
+
+
+
+################################################################################################
+### Old figures
+###############################################################################################
 
 
 
@@ -2251,7 +2584,7 @@ def plot_shortfall_metrics(shortfall_metrics, models_mrf, models_ibt, nodes, sho
 
 
 #
-# def plot_combined_nyc_storage(storages, releases, all_drought_levels, models,
+# def plot_combined_nyc_storage_old(storages, releases, all_drought_levels, models,
 #                       start_date = '1999-10-01',
 #                       end_date = '2010-05-31',
 #                       reservoir = 'agg',
