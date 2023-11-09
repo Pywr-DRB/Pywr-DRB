@@ -3,7 +3,9 @@ import pandas as pd
 import h5py
 
 from utils.lists import reservoir_list, reservoir_list_nyc, majorflow_list, reservoir_link_pairs
+from utils.lists import drbc_lower_basin_reservoirs
 from utils.constants import cms_to_mgd, cfs_to_mgd, cm_to_mg
+from utils.hdf5 import get_hdf5_realization_numbers
 
 ### Contains functions used to process Pywr-DRB data.  
 
@@ -96,6 +98,10 @@ def get_pywr_results(output_dir, model, results_set='all', scenario=0, datetime_
                     [f'flood_release_{reservoir}' for reservoir in reservoir_list_nyc] + \
                     [f'mrf_montagueTrenton_{reservoir}' for reservoir in reservoir_list_nyc] + \
                     [f'spill_{reservoir}' for reservoir in reservoir_list_nyc]
+            for k in keys:
+                results[k] = f[k][:, scenario]
+        elif results_set == 'lower_basin_mrf_contributions':
+            keys = [f'mrf_montagueTrenton_{reservoir}' for reservoir in drbc_lower_basin_reservoirs]
             for k in keys:
                 results[k] = f[k][:, scenario]
         elif results_set == 'ibt_demands':
@@ -199,3 +205,53 @@ def get_base_results(input_dir, model, datetime_index=None, results_set='all', e
     return gage_flow, datetime_index
 
 
+
+
+def get_all_historic_reconstruction_pywr_results(output_dir, model_list, 
+                                                results_set,
+                                                start_date, end_date):
+    """Loads all historic reconstruction results, 
+    stored in a single dictionary.
+
+    Args:
+        output_dir (str): Output folder directory.
+        model_list (list): List of model names.
+        results_set (str): Types of results to return.
+        start_date (str): Start date.
+        end_date (str): End date.
+
+    Returns:
+        dict: A dictionary of results.
+    """
+    reults_type_options = ['all', 'reservoir_downstream_gage', 
+                           'res_storage', 'major_flow', 'inflow', 'res_release', 
+                           'catchment_withdrawal', 'catchment_consumption', 
+                           'res_level', 'ffmp_level_boundaries', 'mrf_target', 
+                           'nyc_release_components', 'ibt_demands']
+    
+    assert(results_set in reults_type_options), f'results_set must be one of {reults_type_options}'
+    
+    datetime_index = pd.date_range(start_date, end_date, freq='D')
+    results = {}
+    # Loop through models
+    for model in model_list:
+        output_filename = f'{output_dir}drb_output_{model}.hdf5'
+        
+        # Handle ensembles differently
+        if 'ensemble' in model:
+            input_filename = f'{output_dir}../input_data/historic_ensembles/gage_flow_{model}.hdf5'
+            realization_numbers = get_hdf5_realization_numbers(input_filename)    
+
+            results[f'pywr_{model}'] = {}
+            # Loop through ensemble realizations
+            for real in realization_numbers:
+                results[f'pywr_{model}'][f'realization_{real}'], datetime_index = get_pywr_results(output_dir, model, 
+                                                                                                results_set=results_set, 
+                                                                                                datetime_index=datetime_index, 
+                                                                                                scenario= real)
+
+        else:
+            results[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, 
+                                                                        results_set=results_set, 
+                                                                        datetime_index=datetime_index) 
+    return results

@@ -7,17 +7,8 @@ from pywr.parameters import Parameter, load_parameter
 from utils.directories import model_data_dir
 from utils.constants import cfs_to_mgd
 from utils.lists import modified_starfit_reservoir_list
+from .lower_basin_ffmp import conservation_releases, max_discharges
 
-## Conservation releases at lower reservoirs
-# These are DRBC specified for Normal conditions
-conservation_releases= {'blueMarsh': 50*cfs_to_mgd,
-                        'beltzvilleCombined': 35*cfs_to_mgd,
-                        'fewalter': 50*cfs_to_mgd}
-
-# FE Walter and Beltzville max discharges are linked to one another in practice, not implemented
-max_discharges= {'blueMarsh': 5400*cfs_to_mgd, 
-                 'beltzvilleCombined': 4000*cfs_to_mgd,
-                 'fewalter': 4000*cfs_to_mgd}
 
 ### Load STARFIT parameter values
 starfit_params = pd.read_csv(f'{model_data_dir}drb_model_istarf_conus.csv', sep = ',', index_col=0)
@@ -265,7 +256,6 @@ class STARFITReservoirRelease(Parameter):
                                                       NORhi_t, NORlo_t)
         
         # Get target release
-        
         target_release = self.calculate_target_release(S_hat = S_hat_t,
                                                     I = I_t,
                                                     NORhi=NORhi_t,

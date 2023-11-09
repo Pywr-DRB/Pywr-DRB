@@ -31,6 +31,7 @@ from pywrdrb.pywr_drb_node_data import upstream_nodes_dict, downstream_node_lags
 # Custom modules
 from pywrdrb.utils.constants import cms_to_mgd, cm_to_mg, cfs_to_mgd
 from pywrdrb.utils.lists import reservoir_list, reservoir_list_nyc, majorflow_list, reservoir_link_pairs, seasons_dict
+from pywrdrb.utils.lists import drbc_lower_basin_reservoirs
 from pywrdrb.utils.directories import input_dir, fig_dir, output_dir, model_data_dir
 from pywrdrb.make_model import get_reservoir_max_release
 from pywrdrb.plotting.styles import base_model_colors, model_hatch_styles, paired_model_colors, scatter_model_markers, \
@@ -55,8 +56,208 @@ def subset_timeseries(timeseries, start_date, end_date, end_inclusive=True):
     return data
 
 
+## This new version includes lower basin contributions
+def new_plot_NYC_release_components_combined(nyc_release_components,
+                                             lower_basin_mrf_contributions, 
+                                             reservoir_releases, major_flows, inflows, diversions,
+                                         consumptions, model, node, start_date = None, end_date = None,
+                                         use_proportional=False, use_log=False, fig_dir=fig_dir):
+    fig, axs = plt.subplots(2,1,figsize=(8,5))
+
+    ### subfig a: first split up NYC releases into components
+    release_total = subset_timeseries(reservoir_releases[model][reservoir_list_nyc], start_date, end_date).sum(axis=1)
+    x = release_total.index
+    if use_proportional:
+        ax2 = axs[0]
+        ax2.plot(release_total, color='k', lw=1)
+        ax2.set_xlim([x[0], x[-1]])
+        ax = ax2.twinx()
+        ax.set_ylim([0,100])
+
+        if use_log:
+            ax2.semilogy()
+
+    else:
+        ax = axs[0]
+        ax.plot(release_total, color='k', lw=1)
+        ax.set_xlim([x[0], x[-1]])
+        if use_log:
+            ax.semilogy()
+
+    ### colorbrewer brown/teal palette https://colorbrewer2.org/#type=diverging&scheme=BrBG&n=4
+    colors = ['#01665e', '#35978f', '#80cdc1', '#c7eae5', '#f6e8c3', '#dfc27d', '#bf812d', '#8c510a']
+    alpha = 1
 
 
+    release_components_full = subset_timeseries(nyc_release_components[model], start_date, end_date)
+    release_types = ['mrf_target_individual', 'mrf_montagueTrenton', 'flood_release', 'spill']
+    release_components = pd.DataFrame({release_type: release_components_full[[c for c in release_components_full.columns if release_type in c]].sum(axis=1) for release_type in release_types})
+
+    lower_basin_mrf_contributions = subset_timeseries(lower_basin_mrf_contributions[model], start_date, end_date)
+    lower_basin_mrf_contributions.columns = [c.split('_')[-1] for c in lower_basin_mrf_contributions.columns]
+    
+    if use_proportional:
+        release_components = release_components.divide(release_total, axis=0) * 100
+
+    y1 = 0
+    y2 = y1 + release_components[f'mrf_montagueTrenton'].values
+    y3 = y2 + release_components[f'mrf_target_individual'].values
+    y4 = y3 + release_components[f'flood_release'].values
+    y5 = y4 + release_components[f'spill'].values
+    ax.fill_between(x, y4, y5, label='NYC Spill', color=colors[0], alpha=alpha)
+    ax.fill_between(x, y3, y4, label='NYC FFMP Flood', color=colors[1], alpha=alpha)
+    ax.fill_between(x, y2, y3, label='NYC FFMP Individual', color=colors[2], alpha=alpha)
+    ax.fill_between(x, y1, y2, label='NYC FFMP Downstream', color=colors[3], alpha=alpha)
+
+    if use_proportional:
+        ax2.set_ylabel('Total Release (MGD)')
+        ax.set_ylabel('Release Contribution (%)')
+    else:
+        ax.set_ylabel('Total Release (MGD)')
+
+
+    if use_proportional:
+        ax.set_zorder(1)
+        ax2.set_zorder(2)
+        ax2.patch.set_visible(False)
+
+    ### subfig b: split up trenton flow into components
+
+    # Get total sim and obs flow
+    total_sim_node_flow = subset_timeseries(major_flows[model][node], start_date, end_date)
+
+    ### for Trenton, we use "Trenton Equivalent Flow" 
+    # add NJ diversion to simulated flow
+    # add blueMarsh MRF contribution (not connected in simulated but is included in "equivelent flow")
+    if node == 'delTrenton':
+        nj_diversion = subset_timeseries(diversions[model]['delivery_nj'], start_date, end_date)
+        total_sim_node_flow += nj_diversion
+        
+        blueMarsh_mrf_contribution = subset_timeseries(lower_basin_mrf_contributions['blueMarsh'], start_date, end_date)
+        total_sim_node_flow += blueMarsh_mrf_contribution
+        
+    if use_proportional:
+        ax2 = axs[1]
+        ax2.plot(total_sim_node_flow, color='k', lw=1)
+        ax = ax2.twinx()
+        ax.set_ylim([0,100])
+        ax.set_xlim(total_sim_node_flow.index[0], total_sim_node_flow.index[-1])
+        if use_log:
+            ax2.semilogy()
+
+        ax2.set_ylabel('Total Flow (MGD)')
+        ax.set_ylabel('Flow Contribution (%)')
+    else:
+        ax = axs[1]
+        ax.plot(total_sim_node_flow, color='k', lw=1)
+        ax.set_ylabel('Total Release (MGD)')
+
+
+    # Get contributing flows
+    contributing = upstream_nodes_dict[node]
+    non_nyc_reservoirs = [i for i in contributing if (i in reservoir_list) and (i not in reservoir_list_nyc)]
+    
+    non_nyc_release_contributions = reservoir_releases[model][non_nyc_reservoirs]         
+        
+    use_inflows = [i for i in contributing if (i in majorflow_list)]
+    if node == 'delMontague':
+        use_inflows.append('delMontague')
+    inflow_contributions = inflows[model][use_inflows] - consumptions[model][use_inflows]
+    mrf_target_individuals = nyc_release_components[model][[c for c in nyc_release_components[model].columns if 'mrf_target_individual' in c]]
+    mrf_target_individuals.columns = [c.rsplit('_',1)[1] for c in mrf_target_individuals.columns]
+    mrf_montagueTrentons = nyc_release_components[model][[c for c in nyc_release_components[model].columns if 'mrf_montagueTrenton' in c]]
+    mrf_montagueTrentons.columns = [c.rsplit('_',1)[1] for c in mrf_montagueTrentons.columns]
+    flood_releases = nyc_release_components[model][[c for c in nyc_release_components[model].columns if 'flood_release' in c]]
+    flood_releases.columns = [c.rsplit('_',1)[1] for c in flood_releases.columns]
+    spills = nyc_release_components[model][[c for c in nyc_release_components[model].columns if 'spill' in c]]
+    spills.columns = [c.rsplit('_',1)[1] for c in spills.columns]
+
+
+    # Impose lag
+    for c in upstream_nodes_dict[node][::-1]:
+        if c in inflow_contributions.columns:
+            lag = downstream_node_lags[c]
+            downstream_node = immediate_downstream_nodes_dict[c]
+            while downstream_node != node:
+                lag += downstream_node_lags[downstream_node]
+                downstream_node = immediate_downstream_nodes_dict[downstream_node]
+            if lag > 0:
+                inflow_contributions[c].iloc[lag:] = inflow_contributions[c].iloc[:-lag]
+        elif c in non_nyc_release_contributions.columns:
+            lag = downstream_node_lags[c]
+            downstream_node = immediate_downstream_nodes_dict[c]
+            while downstream_node != node:
+                lag += downstream_node_lags[downstream_node]
+                downstream_node = immediate_downstream_nodes_dict[downstream_node]
+            if lag > 0:
+                non_nyc_release_contributions[c].iloc[lag:] = non_nyc_release_contributions[c].iloc[:-lag]
+        elif c in mrf_target_individuals.columns:
+            lag = downstream_node_lags[c]
+            downstream_node = immediate_downstream_nodes_dict[c]
+            while downstream_node != node:
+                lag += downstream_node_lags[downstream_node]
+                downstream_node = immediate_downstream_nodes_dict[downstream_node]
+            if lag > 0:
+                mrf_target_individuals[c].iloc[lag:] = mrf_target_individuals[c].iloc[:-lag]
+                mrf_montagueTrentons[c].iloc[lag:] = mrf_montagueTrentons[c].iloc[:-lag]
+                flood_releases[c].iloc[lag:] = flood_releases[c].iloc[:-lag]
+                spills[c].iloc[lag:] = spills[c].iloc[:-lag]
+        elif c in lower_basin_mrf_contributions.columns:
+            lag = downstream_node_lags[c]
+            downstream_node = immediate_downstream_nodes_dict[c]
+            while downstream_node != node:
+                lag += downstream_node_lags[downstream_node]
+                downstream_node = immediate_downstream_nodes_dict[downstream_node]
+            if lag > 0:
+                lower_basin_mrf_contributions[c].iloc[lag:] = lower_basin_mrf_contributions[c].iloc[:-lag]
+                
+
+
+    inflow_contributions = subset_timeseries(inflow_contributions, start_date, end_date).sum(axis=1)
+    non_nyc_release_contributions = subset_timeseries(non_nyc_release_contributions, start_date, end_date).sum(axis=1)
+    mrf_target_individuals = subset_timeseries(mrf_target_individuals, start_date, end_date).sum(axis=1)
+    mrf_montagueTrentons = subset_timeseries(mrf_montagueTrentons, start_date, end_date).sum(axis=1)
+    flood_releases = subset_timeseries(flood_releases, start_date, end_date).sum(axis=1)
+    spills = subset_timeseries(spills, start_date, end_date).sum(axis=1)
+    lower_basin_mrf_contributions = subset_timeseries(lower_basin_mrf_contributions, start_date, end_date).sum(axis=1)
+    
+    if use_proportional:
+        inflow_contributions = inflow_contributions.divide(total_sim_node_flow) * 100
+        non_nyc_release_contributions = non_nyc_release_contributions.divide(total_sim_node_flow) * 100
+        mrf_target_individuals = mrf_target_individuals.divide(total_sim_node_flow) * 100
+        mrf_montagueTrentons = mrf_montagueTrentons.divide(total_sim_node_flow) * 100
+        flood_releases = flood_releases.divide(total_sim_node_flow) * 100
+        spills = spills.divide(total_sim_node_flow) * 100
+        lower_basin_mrf_contributions = lower_basin_mrf_contributions.divide(total_sim_node_flow) * 100
+
+    y1 = 0
+    y2 = y1 + inflow_contributions
+    y3 = y2 + non_nyc_release_contributions
+    y3_5 = y3 + lower_basin_mrf_contributions
+    y4 = y3_5 + mrf_montagueTrentons
+    y5 = y4 + mrf_target_individuals
+    y6 = y5 + flood_releases
+    y7 = y6 + spills
+    ax.fill_between(x, y6, y7, label='NYC Spill', color=colors[0], alpha=alpha)
+    ax.fill_between(x, y5, y6, label='NYC FFMP Flood', color=colors[1], alpha=alpha)
+    ax.fill_between(x, y4, y5, label='NYC FFMP Individual', color=colors[2], alpha=alpha)
+    ax.fill_between(x, y3_5, y4, label='NYC FFMP Downstream', color=colors[3], alpha=alpha)
+    ax.fill_between(x, y3, y3_5, label = 'Lower Basin FFMP', color = 'purple', alpha=alpha)
+    ax.fill_between(x, y2, y3, label='Non-NYC Release', color=colors[5], alpha=alpha)
+    ax.fill_between(x, y1, y2, label='Uncontrolled Flow', color=colors[4], alpha=alpha)
+
+    ax.legend(frameon=False, loc='center', bbox_to_anchor=(0.5, -0.3), ncols=3)
+
+    if use_proportional:
+        ax.set_zorder(1)
+        ax2.set_zorder(2)
+        ax2.patch.set_visible(False)
+
+
+
+    plt.savefig(f'{fig_dir}NYC_release_components_combined_{model}_{node}_' + \
+                f'{release_total.index.year[0]}_{release_total.index.year[-1]}.png',
+                bbox_inches='tight', dpi=500)
 
 
 def plot_3part_flows_hier(reservoir_downstream_gages, major_flows, models, colordict = paired_model_colors,
@@ -644,8 +845,6 @@ def plot_combined_nyc_storage_new(storages, ffmp_level_boundaries, models, color
                 bbox_inches='tight', dpi=250)
 
     return
-
-
 
 
 

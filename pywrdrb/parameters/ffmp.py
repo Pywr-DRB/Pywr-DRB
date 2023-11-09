@@ -8,8 +8,9 @@ for the three NYC reservoirs.
 import numpy as np
 import pandas as pd
 from pywr.parameters import Parameter, load_parameter
-from utils.lists import reservoir_list_nyc
+from utils.lists import reservoir_list_nyc, drbc_lower_basin_reservoirs
 from utils.constants import epsilon
+from utils.directories import model_data_dir
 
 class FfmpNycRunningAvgParameter(Parameter):
     """
@@ -470,10 +471,13 @@ class VolBalanceNYCDownstreamMRFTargetAgg_step1CanPep(Parameter):
         mrf_target_delTrenton = load_parameter(model, 'mrf_target_delTrenton')
         mrf_target_individual_agg_nyc = load_parameter(model, 'mrf_target_individual_agg_nyc')
         flood_release_agg_nyc = load_parameter(model, 'flood_release_agg_nyc')
+        
+
 
         return cls(model, predicted_nonnyc_gage_flow_delMontague_lag2, mrf_target_delMontague,\
                    predicted_nonnyc_gage_flow_delTrenton_lag4, predicted_demand_nj_lag4, mrf_target_delTrenton,
                    mrf_target_individual_agg_nyc, flood_release_agg_nyc, **data)
+
 
 ### have to register the custom parameter so Pywr recognizes it
 VolBalanceNYCDownstreamMRFTargetAgg_step1CanPep.register()
@@ -487,41 +491,105 @@ VolBalanceNYCDownstreamMRFTargetAgg_step1CanPep.register()
 
 class VolBalanceNYCDownstreamMRF_step1CanPep(Parameter):
 
-    def __init__(self, model, reservoir, nodes, max_volume_agg_nyc, volume_agg_nyc, volbalance_relative_mrf_montagueTrenton_step1CanPep,
-                 flow_agg_nyc, max_vol_reservoirs, vol_reservoirs, flow_reservoirs, max_release_reservoirs,
-                 mrf_target_individual_reservoirs, mrf_target_individual_agg_nyc,
-                 flood_release_reservoirs, flood_release_agg_nyc, **kwargs):
+    def __init__(self, model, reservoir, nodes, parameters, **kwargs):
         super().__init__(model, **kwargs)
         self.reservoir = reservoir
         self.nodes = nodes
+        self.parameters = parameters
+        
         self.num_reservoirs = len(nodes)
-        self.max_volume_agg_nyc = max_volume_agg_nyc
-        self.volume_agg_nyc = volume_agg_nyc
-        self.volbalance_relative_mrf_montagueTrenton_step1CanPep = volbalance_relative_mrf_montagueTrenton_step1CanPep
-        self.flow_agg_nyc = flow_agg_nyc
-        self.max_vol_reservoirs = max_vol_reservoirs
-        self.vol_reservoirs = vol_reservoirs
-        self.flow_reservoirs = flow_reservoirs
-        self.max_release_reservoirs = max_release_reservoirs
-        self.mrf_target_individual_reservoirs = mrf_target_individual_reservoirs
-        self.mrf_target_individual_agg_nyc  = mrf_target_individual_agg_nyc
-        self.flood_release_reservoirs = flood_release_reservoirs
-        self.flood_release_agg_nyc = flood_release_agg_nyc
 
-        self.children.add(max_volume_agg_nyc)
-        self.children.add(volume_agg_nyc)
-        self.children.add(volbalance_relative_mrf_montagueTrenton_step1CanPep)
-        self.children.add(flow_agg_nyc)
-        self.children.add(mrf_target_individual_agg_nyc)
-        self.children.add(flood_release_agg_nyc)
-        for i in range(len(reservoir_list_nyc)):
-            self.children.add(max_vol_reservoirs[i])
-            self.children.add(vol_reservoirs[i])
-            self.children.add(flow_reservoirs[i])
-            self.children.add(max_release_reservoirs[i])
-            self.children.add(mrf_target_individual_reservoirs[i])
-            self.children.add(flood_release_reservoirs[i])
+        # Individual parameters
+        for param_name, param in parameters.items():
+            setattr(self, param_name, param)
+            self.children.add(param)
 
+        # Grouped NYC parameters
+        self.max_vol_reservoirs = [parameters[f'max_volume_{res}'] for res in reservoir_list_nyc]
+        self.vol_reservoirs = [parameters[f'volume_{res}'] for res in reservoir_list_nyc]
+        self.flow_reservoirs = [parameters[f'flow_{res}'] for res in reservoir_list_nyc]
+        self.max_release_reservoirs = [parameters[f'controlled_max_release_{res}'] for res in reservoir_list_nyc]
+        self.mrf_target_individual_reservoirs = [parameters[f'mrf_target_individual_{res}'] for res in reservoir_list_nyc]
+        self.flood_release_reservoirs = [parameters[f'flood_release_{res}'] for res in reservoir_list_nyc]
+
+    def split_required_mrf_across_nyc_reservoirs(self, requirement_total, scenario_index):
+        
+        # Get max release constraints
+        max_releases_reservoirs = [max(self.max_release_reservoirs[i].get_value(scenario_index) -
+                                        self.mrf_target_individual_reservoirs[i].get_value(scenario_index) -
+                                        self.flood_release_reservoirs[i].get_value(scenario_index),
+                                        0) for i in range(self.num_reservoirs)]
+        
+        ## Use only NYC releases to meet Montague & Trenton targets
+        targets = [-1] * self.num_reservoirs
+        for i in range(self.num_reservoirs):
+            targets[i] = self.vol_reservoirs[i].get_value(scenario_index) + \
+                            self.flow_reservoirs[i].get_value(scenario_index) - \
+                            self.mrf_target_individual_reservoirs[i].get_value(scenario_index) - \
+                            self.flood_release_reservoirs[i].get_value(scenario_index) - \
+                            (self.max_vol_reservoirs[i].get_value(scenario_index) / \
+                            self.max_volume_agg_nyc.get_value(scenario_index)) * \
+                            (self.volume_agg_nyc.get_value(scenario_index) + \
+                            self.flow_agg_nyc.get_value(scenario_index) - \
+                            self.mrf_target_individual_agg_nyc.get_value(scenario_index) - \
+                            self.flood_release_agg_nyc.get_value(scenario_index) - \
+                            requirement_total)
+            ### enforce nonnegativity and reservoir max release constraint. Set min to 0.01 instead of 0 so that it can be activated if extra flow needed below.
+            targets[i] = min(max(targets[i], 0.01), max_releases_reservoirs[i])
+
+        ### sum total release across 3 reservoirs.
+        target_sum = sum(targets)
+
+        ### if target_sum > requirement_total (which happens if one of targets was initially negative before
+        ###   taking max(0)) -> fix this by reducing nonzero releases proportionally
+        if target_sum > requirement_total + epsilon:
+            for i in range(self.num_reservoirs):
+                targets[i] *= requirement_total / target_sum
+        target_sum = sum(targets)
+
+        ###if sum this is less than total_agg_mrf_montagueTrenton,
+        ### that means one of the reservoirs had exceeded max release before min() above
+        ### -> rescale unconstrained reservoirs to counteract
+        fully_constrained = False
+        count = 0
+        while requirement_total - epsilon > target_sum and not fully_constrained:
+            increasable_flow = 0
+            unincreasable_flow = 0
+            ### find the total "increasable" flow that is not coming from reservoirs with 0 release or max_release
+            for i in range(self.num_reservoirs):
+                if targets[i] < max_releases_reservoirs[i]:
+                    increasable_flow += targets[i]
+                else:
+                    unincreasable_flow += targets[i]
+            if increasable_flow > epsilon:
+                for i in range(self.num_reservoirs):
+                    targets[i] = min(targets[i] * (requirement_total - unincreasable_flow) / increasable_flow,
+                                        max_releases_reservoirs[i])
+            else:
+                fully_constrained = True
+            target_sum = sum(targets)
+            count += 1
+            if count > 5:
+                print('shouldnt be here 1 VolBalanceNYCDownstreamMRF_step1CanPep. ', count, requirement_total,
+                        target_sum, increasable_flow, targets, max_releases_reservoirs)
+
+        if target_sum > requirement_total + epsilon:
+            print('shouldnt be here 2 VolBalanceNYCDownstreamMRF_step1CanPep. ', count, target_sum, requirement_total)
+            print([self.vol_reservoirs[i].get_value(scenario_index) for i in range(3)])
+            print([self.flow_reservoirs[i].get_value(scenario_index) for i in range(3)])
+            print([self.mrf_target_individual_reservoirs[i].get_value(scenario_index) for i in range(3)])
+            print([self.flood_release_reservoirs[i].get_value(scenario_index) for i in range(3)])
+            print([self.max_vol_reservoirs[i].get_value(scenario_index) for i in range(3)])
+            print(self.max_volume_agg_nyc.get_value(scenario_index))
+            print(self.volume_agg_nyc.get_value(scenario_index))
+            print(self.flow_agg_nyc.get_value(scenario_index))
+            print(self.mrf_target_individual_agg_nyc.get_value(scenario_index))
+            print(self.flood_release_agg_nyc.get_value(scenario_index) )
+            print(requirement_total)
+            print(max_releases_reservoirs)
+            print(targets)
+        return targets
+        
 
     def value(self, timestep, scenario_index):
         """
@@ -533,88 +601,21 @@ class VolBalanceNYCDownstreamMRF_step1CanPep(Parameter):
 
         ### first calculate contributions to Trenton&Montague flow targets based on volume balancing formula.
         ### These are above and beyond what is needed for individual FFMP mandated releases
-        requirement_total = self.volbalance_relative_mrf_montagueTrenton_step1CanPep.get_value(scenario_index)
-        if requirement_total < epsilon:
+        nyc_requirement_total = self.total_agg_mrf_montagueTrenton.get_value(scenario_index) - \
+                            self.lower_basin_agg_mrf_montagueTrenton.get_value(scenario_index)
+        
+        # If no downstream flow required, return 0.0
+        if nyc_requirement_total < epsilon:
             return 0.0
         else:
-            max_releases_reservoirs = [max(self.max_release_reservoirs[i].get_value(scenario_index) -
-                                           self.mrf_target_individual_reservoirs[i].get_value(scenario_index) -
-                                           self.flood_release_reservoirs[i].get_value(scenario_index),
-                                           0) for i in range(self.num_reservoirs)]
-            targets = [-1] * self.num_reservoirs
-            for i in range(self.num_reservoirs):
-                targets[i] = self.vol_reservoirs[i].get_value(scenario_index) + \
-                             self.flow_reservoirs[i].get_value(scenario_index) - \
-                             self.mrf_target_individual_reservoirs[i].get_value(scenario_index) - \
-                             self.flood_release_reservoirs[i].get_value(scenario_index) - \
-                             (self.max_vol_reservoirs[i].get_value(scenario_index) / \
-                              self.max_volume_agg_nyc.get_value(scenario_index)) * \
-                             (self.volume_agg_nyc.get_value(scenario_index) + \
-                              self.flow_agg_nyc.get_value(scenario_index) - \
-                              self.mrf_target_individual_agg_nyc.get_value(scenario_index) - \
-                              self.flood_release_agg_nyc.get_value(scenario_index) - \
-                              requirement_total)
-                ### enforce nonnegativity and reservoir max release constraint. Set min to 0.01 instead of 0 so that it can be activated if extra flow needed below.
-                targets[i] = min(max(targets[i], 0.01), max_releases_reservoirs[i])
-
-            ### sum total release across 3 reservoirs.
-            target_sum = sum(targets)
-
-            ### if target_sum > requirement_total (which happens if one of targets was initially negative before
-            ###   taking max(0)) -> fix this by reducing nonzero releases proportionally
-            if target_sum > requirement_total + epsilon:
-                for i in range(self.num_reservoirs):
-                    targets[i] *= requirement_total / target_sum
-            target_sum = sum(targets)
-
-            ###if sum this is less than volbalance_relative_mrf_montagueTrenton_step1CanPep,
-            ### that means one of the reservoirs had exceeded max release before min() above
-            ### -> rescale unconstrained reservoirs to counteract
-            fully_constrained = False
-            count = 0
-            while requirement_total - epsilon > target_sum and not fully_constrained:
-                increasable_flow = 0
-                unincreasable_flow = 0
-                ### find the total "increasable" flow that is not coming from reservoirs with 0 release or max_release
-                for i in range(self.num_reservoirs):
-                    if targets[i] < max_releases_reservoirs[i]:
-                        increasable_flow += targets[i]
-                    else:
-                        unincreasable_flow += targets[i]
-                if increasable_flow > epsilon:
-                    for i in range(self.num_reservoirs):
-                        targets[i] = min(targets[i] * (requirement_total - unincreasable_flow) / increasable_flow,
-                                         max_releases_reservoirs[i])
-                else:
-                    fully_constrained = True
-                target_sum = sum(targets)
-                count += 1
-                if count > 5:
-                    print('shouldnt be here 1 VolBalanceNYCDownstreamMRF_step1CanPep. ', count, requirement_total,
-                          target_sum, increasable_flow, targets, max_releases_reservoirs)
-
-            if target_sum > requirement_total + epsilon:
-                print('shouldnt be here 2 VolBalanceNYCDownstreamMRF_step1CanPep. ', count, target_sum, requirement_total)
-                print([self.vol_reservoirs[i].get_value(scenario_index) for i in range(3)])
-                print([self.flow_reservoirs[i].get_value(scenario_index) for i in range(3)])
-                print([self.mrf_target_individual_reservoirs[i].get_value(scenario_index) for i in range(3)])
-                print([self.flood_release_reservoirs[i].get_value(scenario_index) for i in range(3)])
-                print([self.max_vol_reservoirs[i].get_value(scenario_index) for i in range(3)])
-                print(self.max_volume_agg_nyc.get_value(scenario_index))
-                print(self.volume_agg_nyc.get_value(scenario_index))
-                print(self.flow_agg_nyc.get_value(scenario_index))
-                print(self.mrf_target_individual_agg_nyc.get_value(scenario_index))
-                print(self.flood_release_agg_nyc.get_value(scenario_index) )
-                print(requirement_total)
-                print(max_releases_reservoirs)
-                print(targets)
-                print()
-
-            ### now return target for the reservoir of interest
+            # Split required MRF releases across NYC reservoirs
+            nyc_targets = self.split_required_mrf_across_nyc_reservoirs(nyc_requirement_total, scenario_index)
+            
+            ## Return target for the reservoir of interest
             for i in range(self.num_reservoirs):
                 if self.reservoir == reservoir_list_nyc[i]:
-                    return targets[i]
-
+                    return nyc_targets[i]
+            print('shouldnt be here 3 VolBalanceNYCDownstreamMRF_step1CanPep. ', self.reservoir, nyc_targets)
 
     @classmethod
     def load(cls, model, data):
@@ -622,24 +623,34 @@ class VolBalanceNYCDownstreamMRF_step1CanPep(Parameter):
         """
         reservoir = data.pop("node")
         reservoir = reservoir.split('_')[1]
-        nodes = [model.nodes[f'reservoir_{reservoir}'] for reservoir in reservoir_list_nyc]
-        max_volume_agg_nyc = load_parameter(model, 'max_volume_agg_nyc')
-        volume_agg_nyc = load_parameter(model, 'volume_agg_nyc')
-        volbalance_relative_mrf_montagueTrenton_step1CanPep = load_parameter(model, 'volbalance_relative_mrf_montagueTrenton_step1CanPep')
-        flow_agg_nyc = load_parameter(model, 'flow_agg_nyc')
-        max_vol_reservoirs = [load_parameter(model, f'max_volume_{reservoir}') for reservoir in reservoir_list_nyc]
-        vol_reservoirs = [load_parameter(model, f'volume_{reservoir}') for reservoir in reservoir_list_nyc]
-        flow_reservoirs = [load_parameter(model, f'flow_{reservoir}') for reservoir in reservoir_list_nyc]
-        max_release_reservoirs = [load_parameter(model, f'controlled_max_release_{reservoir}') for reservoir in reservoir_list_nyc]
-        mrf_target_individual_reservoirs = [load_parameter(model, f'mrf_target_individual_{reservoir}') for reservoir in reservoir_list_nyc]
-        mrf_target_individual_agg_nyc = load_parameter(model, 'mrf_target_individual_agg_nyc')
-        flood_release_reservoirs = [load_parameter(model, f'flood_release_{reservoir}') for reservoir in reservoir_list_nyc]
-        flood_release_agg_nyc = load_parameter(model, 'flood_release_agg_nyc')
 
-        return cls(model, reservoir, nodes, max_volume_agg_nyc, volume_agg_nyc, volbalance_relative_mrf_montagueTrenton_step1CanPep,
-                   flow_agg_nyc, max_vol_reservoirs, vol_reservoirs, flow_reservoirs, max_release_reservoirs,
-                   mrf_target_individual_reservoirs, mrf_target_individual_agg_nyc,
-                   flood_release_reservoirs, flood_release_agg_nyc, **data)
+        node_list = [f'reservoir_{i}' for i in reservoir_list_nyc]
+        
+        parameter_list = ['max_volume_agg_nyc', 'volume_agg_nyc',
+                          'drought_level_agg_nyc', 
+                          'total_agg_mrf_montagueTrenton', 'lower_basin_agg_mrf_montagueTrenton',
+                          'flow_agg_nyc', 'mrf_target_individual_agg_nyc',
+                          'flood_release_agg_nyc'] 
+        
+        for res in reservoir_list_nyc:
+            parameter_list += [f'max_volume_{res}', 
+                               f'volume_{res}', 
+                               f'flow_{res}', 
+                               f'controlled_max_release_{res}',
+                               f'mrf_target_individual_{res}', 
+                               f'flood_release_{res}']
+        
+        # Load nodes
+        nodes = {}
+        for node in node_list:
+            nodes[node] = model.nodes[node]
+                        
+        # Load parameters
+        parameters = {}
+        for param in parameter_list:
+            parameters[param] = load_parameter(model, param)
+        
+        return cls(model, reservoir, nodes, parameters, **data)
 
 ### have to register the custom parameter so Pywr recognizes it
 VolBalanceNYCDownstreamMRF_step1CanPep.register()
@@ -850,6 +861,7 @@ class VolBalanceNYCDemand(Parameter):
                              (self.volume_agg_nyc.get_value(scenario_index) + \
                               self.flow_agg_nyc.get_value(scenario_index) - \
                               mrf_target_total - flood_release_total - requirement_total)
+                             
                 ### enforce nonnegativity and reservoir max release constraint. Set min to 0.01 instead of 0 so that it can be activated if extra flow needed below.
                 targets[i] = min(max(targets[i], 0.01), max_diversions[i])
 
