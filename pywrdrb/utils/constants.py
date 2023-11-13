@@ -8,4 +8,4 @@ epsilon = 1e-5
 
 # Flow targets
 delTrenton_target = 3000*cfs_to_mgd
-delMontague_target = 1131.05*cfs_to_mgd
+delMontague_target = 1750*cfs_to_mgd
