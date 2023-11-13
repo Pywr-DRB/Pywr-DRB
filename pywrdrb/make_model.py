@@ -11,16 +11,15 @@ from pywrdrb.utils.lists import majorflow_list, reservoir_list, reservoir_list_n
 from pywrdrb.utils.lists import drbc_lower_basin_reservoirs
 from pywrdrb.utils.constants import cfs_to_mgd
 from pywrdrb.pywr_drb_node_data import upstream_nodes_dict, immediate_downstream_nodes_dict, downstream_node_lags
+from pywrdrb.parameters.lower_basin_ffmp import lag_days_from_Trenton
+
+### model options/parameters
+flow_prediction_mode = 'regression_disagg'   ### 'regression_agg', 'regression_disagg', 'perfect_foresight', 'same_day', 'moving_average'
+use_lower_basin_mrf_contributions = True
+
+
 
 EPS = 1e-8
-nhm_inflow_scaling = True
-use_lags = True
-flow_prediction_mode = 'regression_disagg'   ### 'regression_agg', 'regression_disagg', 'perfect_foresight', 'same_day', 'moving_average'
-use_neversink_update = True
-use_lower_basin_mrf_contributions = True
-### note: if use_lags is False, then use_neversink update must be false and flow_prediction_mode must be 'same_day'
-assert (use_lags == True or use_neversink_update == False)
-assert (use_lags == True or flow_prediction_mode == 'same_day')
 
 def get_reservoir_capacity(reservoir):
     istarf = pd.read_csv(f'{model_data_dir}drb_model_istarf_conus.csv')
@@ -406,16 +405,13 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
             starfit_release = False    
 
         ### get flow lag (days) between current node and its downstream connection
-        if use_lags:
-            downstream_lag = downstream_node_lags[node]
-        else:
-            downstream_lag = 0
+        downstream_lag = downstream_node_lags[node]
             
         variable_cost = True if (regulatory_release and not starfit_release) else False
         if node_type == 'reservoir':
             capacity = get_reservoir_capacity(f'modified_{node}') if node in modified_starfit_reservoir_list else get_reservoir_capacity(node)
     
-        has_catchment = True if (node != 'delTrenton') else False
+        has_catchment = False if node == 'delTrenton' else True
 
         ### set up major node
         model = add_major_node(model, node, node_type, inflow_type, 
@@ -810,7 +806,8 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
 
     # ### total predicted lagged non-NYC inflows to Montague & Trenton, and predicted lagged NJ demands
     if inflow_ensemble_indices is None:
-        for mrf, lag in zip(('delMontague', 'delMontague', 'delTrenton', 'delTrenton'), (1,2,3,4)):
+        for mrf, lag in zip(('delMontague', 'delMontague', 'delTrenton', 'delTrenton', 'delTrenton', 'delTrenton'),
+                        (1,2,1,2,3,4)):
             label = f'{mrf}_lag{lag}_{flow_prediction_mode}'
             model['parameters'][f'predicted_nonnyc_gage_flow_{mrf}_lag{lag}'] = {
                 'type': 'dataframe',
@@ -820,9 +817,9 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
                 'parse_dates': True
             }
         ### now get predicted nj demand
-        for demand, lag in zip(('demand_nj', 'demand_nj'), (3,4)):
-            label = f'{demand}_lag{lag}_{flow_prediction_mode}'
-            model['parameters'][f'predicted_{demand}_lag{lag}'] = {
+        for lag in range(1,5):
+            label = f'demand_nj_lag{lag}_{flow_prediction_mode}'
+            model['parameters'][f'predicted_demand_nj_lag{lag}'] = {
                 'type': 'dataframe',
                 'url': f'{input_dir}predicted_inflows_diversions_{inflow_type}.csv',
                 'column': label,
@@ -831,7 +828,8 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
             }
     else:
         ### Use custom PredictionEnsemble parameter to handle scenario indexing
-        for mrf, lag in zip(('delMontague', 'delMontague', 'delTrenton', 'delTrenton'), (1,2,3,4)):
+        for mrf, lag in zip(('delMontague', 'delMontague', 'delTrenton', 'delTrenton', 'delTrenton', 'delTrenton'),
+                            (1,2,1,2,3,4)):
             label = f'{mrf}_lag{lag}_{flow_prediction_mode}'
             
             model['parameters'][f'predicted_nonnyc_gage_flow_{mrf}_lag{lag}'] = {
@@ -844,9 +842,9 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
         ### now get predicted nj demand (this is the same across ensemble)
         # Drop the '_ensemble' suffix from the inflow_type
         predicted_inflow_type = inflow_type[:-9]
-        for demand, lag in zip(('demand_nj', 'demand_nj'), (3,4)):
-            label = f'{demand}_lag{lag}_{flow_prediction_mode}'
-            model['parameters'][f'predicted_{demand}_lag{lag}'] = {
+        for lag in range(1,5):
+            label = f'demand_nj_lag{lag}_{flow_prediction_mode}'
+            model['parameters'][f'predicted_demand_nj_lag{lag}'] = {
                 'type': 'dataframe',
                 'url': f'{input_dir}predicted_inflows_diversions_{predicted_inflow_type}.csv',
                 'column': label,
@@ -855,77 +853,285 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
             }
         print('WARNING: Ensemble mode not tested/verified for Montague & Trenton flow forecasts')
 
-
     ### Get total release needed from NYC reservoirs to satisfy Montague & Trenton flow targets,
     ### above and beyond their individually mandated releases, & after accting for non-NYC inflows and NJ diversions.
     ### THis first step is based on predicted inflows to Montague in 2 days and Trenton in 4 days, and is used
     ### to calculate balanced releases from all 3 reservoirs. But only Cannonsville & Pepacton actually use these
     ### releases, because Neversink is adjusted later because it is 1 day closer travel time & has more info.
     ### Uses custom Pywr parameter.
-    model['parameters']['total_agg_mrf_montagueTrenton'] = {
-        'type': 'VolBalanceNYCDownstreamMRFTargetAgg_step1CanPep'
+
+    step = 1
+    ### first get release needed to meet Montague target in 2 days
+    model['parameters'][f'release_needed_mrf_montague_step{step}'] = {
+        'type': 'TotalReleaseNeededForDownstreamMRF',
+        'mrf': 'delMontague',
+        'step': step
+    }
+    ### now get addl release (above Montague release) needed to meet Trenton target in 4 days
+    model['parameters'][f'release_needed_mrf_trenton_step{step}'] = {
+        'type': 'TotalReleaseNeededForDownstreamMRF',
+        'mrf': 'delTrenton',
+        'step': step
+    }
+    ### total mrf release needed is sum of Montague & Trenton. This Step 1 is for Cannonsville/Pepacton releases.
+    model['parameters'][f'total_agg_mrf_montagueTrenton_step{step}'] = {
+        'type': 'aggregated',
+        'agg_func': 'sum',
+        'parameters': [f'release_needed_mrf_montague_step{step}', f'release_needed_mrf_trenton_step{step}']
     }
 
-    ## Max available Montague/Trenton contribution from each available lower basin reservoir 
+    ## Max available Trenton contribution from each available lower basin reservoir. Step 1 is for Cannonsville/Pepacton release, so 4 days ahead for Trenton.
     for reservoir in drbc_lower_basin_reservoirs:
-        model['parameters'][f'max_mrf_montagueTrenton_{reservoir}'] = {
+        model['parameters'][f'max_mrf_trenton_step{step}_{reservoir}'] = {
             'type': 'LowerBasinMaxMRFContribution',
-            'node': f'reservoir_{reservoir}'        
+            'node': f'reservoir_{reservoir}',
+            'step': step
         }
 
-    ## Aggregate total lower basin contribution to Montague/Trenton
-    model['parameters']['lower_basin_agg_mrf_montagueTrenton'] = {
-        'type': 'VolBalanceLowerBasinMRFAggregate'
+    ## Aggregate total expected lower basin contribution to Trenton
+    model['parameters'][f'lower_basin_agg_mrf_trenton_step{step}'] = {
+        'type': 'VolBalanceLowerBasinMRFAggregate',
+        'step': step
     }
-    
-    ## Individual lower basin contribution to Montague/Trenton
-    for reservoir in drbc_lower_basin_reservoirs:
+
+    ### now calculate actual Cannonsville & Pepacton releases to meet Montague&Trenton, with assumed releases for Neversink & lower basin
+    for reservoir in ['cannonsville','pepacton']:
         model['parameters'][f'mrf_montagueTrenton_{reservoir}'] = {
-            'type': 'VolBalanceLowerBasinMRFIndividual',
+            'type': f'VolBalanceNYCDownstreamMRF_step{step}',
             'node': f'reservoir_{reservoir}'
         }
 
 
-    ### Target release from each NYC reservoir to satisfy Montague & Trenton flow targets,on top of individually mandated FFMP releases.
-    ### Uses custom Pywr parameter.
-    if use_neversink_update:
-        for reservoir in ['cannonsville','pepacton']:
-            model['parameters'][f'mrf_montagueTrenton_{reservoir}'] = {
-                'type': 'VolBalanceNYCDownstreamMRF_step1CanPep',
-                'node': f'reservoir_{reservoir}'
-            }
-
-        ### now update Neversink release requirement based on yesterday's Can&Pep releases & extra day of flow observations
-        for reservoir in ['cannonsville','pepacton']:
-            model['parameters'][f'prev_outflow_{reservoir}'] = {
-                'type': 'flow',
-                'node': f'outflow_{reservoir}'
-            }
-            model['parameters'][f'prev_spill_{reservoir}'] = {
-                'type': 'flow',
-                'node': f'spill_{reservoir}'
-            }
-            model['parameters'][f'prev_release_{reservoir}'] = {
-                'type': 'aggregated',
-                'agg_func': 'sum',
-                'parameters': [f'prev_outflow_{reservoir}', f'prev_spill_{reservoir}']
-            }
-        model['parameters'][f'mrf_montagueTrenton_neversink'] = {
-            'type': 'VolBalanceNYCDownstreamMRF_step2Nev',
+    ### step 2:
+    ### now update Neversink release requirement based on yesterday's Can&Pep releases & extra day of flow observations,
+    ### and similarly update lower basin releases with extra day of information
+    step = 2
+    ### get previous day's releases from Can & Pep
+    for reservoir in ['cannonsville','pepacton']:
+        lag = 1
+        model['parameters'][f'outflow_{reservoir}_rollmean{lag}'] = {
+            'type': 'rollingmeanflownode',
+            'node': f'outflow_{reservoir}',
+            'days': lag
         }
-    else:
-        for reservoir in reservoir_list_nyc:
-            model['parameters'][f'mrf_montagueTrenton_{reservoir}'] = {
-                'type': 'VolBalanceNYCDownstreamMRF_step1CanPep',
-                'node': f'reservoir_{reservoir}'
-            }
-        
+        model['parameters'][f'spill_{reservoir}_rollmean{lag}'] = {
+            'type': 'rollingmeanflownode',
+            'node': f'spill_{reservoir}',
+            'days': lag
+        }
+        model['parameters'][f'release_{reservoir}_lag{lag}'] = {
+            'type': 'LaggedReservoirRelease',
+            'node': reservoir,
+            'lag': lag
+        }
 
-    ### finally, get final downstream release from each NYC reservoir, which is the sum of its
+
+    ### get release needed to meet Montague target in 1 days
+    model['parameters'][f'release_needed_mrf_montague_step{step}'] = {
+        'type': 'TotalReleaseNeededForDownstreamMRF',
+        'mrf': 'delMontague',
+        'step': step
+    }
+    ### now get addl release (above Montague release) needed to meet Trenton target in 3 days
+    model['parameters'][f'release_needed_mrf_trenton_step{step}'] = {
+        'type': 'TotalReleaseNeededForDownstreamMRF',
+        'mrf': 'delTrenton',
+        'step': step
+    }
+    ### total mrf release needed is sum of Montague & Trenton. This Step 2 is for Neversink releases.
+    model['parameters'][f'total_agg_mrf_montagueTrenton_step{step}'] = {
+        'type': 'aggregated',
+        'agg_func': 'sum',
+        'parameters': [f'release_needed_mrf_montague_step{step}', f'release_needed_mrf_trenton_step{step}']
+    }
+
+    ## Max available Trenton contribution from each available lower basin reservoir. Step 2 is for Neversink release, so 3 days ahead for Trenton.
+    for reservoir in drbc_lower_basin_reservoirs:
+        model['parameters'][f'max_mrf_trenton_step{step}_{reservoir}'] = {
+            'type': 'LowerBasinMaxMRFContribution',
+            'node': f'reservoir_{reservoir}',
+            'step': step
+        }
+
+    ## Aggregate total expected lower basin contribution to Trenton
+    model['parameters'][f'lower_basin_agg_mrf_trenton_step{step}'] = {
+        'type': 'VolBalanceLowerBasinMRFAggregate',
+        'step': step
+    }
+
+    ### Now assign Neversink releases to meet Montague/Trenton mrf, after accting for previous Can/Pep releases & expected lower basin contribution
+    model['parameters'][f'mrf_montagueTrenton_neversink'] = {
+        'type': f'VolBalanceNYCDownstreamMRF_step{step}',
+    }
+
+
+    ### step 3:
+    ### Update lower basin releases that are 2 days from Trenton equivalent (Beltzville & Blue Marsh)
+    step = 3
+
+    ### get previous day's releases from Neversink
+    for reservoir in ['neversink']:
+        lag = 1
+        model['parameters'][f'outflow_{reservoir}_rollmean{lag}'] = {
+            'type': 'rollingmeanflownode',
+            'node': f'outflow_{reservoir}',
+            'days': lag
+        }
+        model['parameters'][f'spill_{reservoir}_rollmean{lag}'] = {
+            'type': 'rollingmeanflownode',
+            'node': f'spill_{reservoir}',
+            'days': lag
+        }
+        model['parameters'][f'release_{reservoir}_lag{lag}'] = {
+            'type': 'LaggedReservoirRelease',
+            'node': reservoir,
+            'lag': lag
+        }
+    ### and get 2-days ago release from Can/Pep
+    for reservoir in ['cannonsville','pepacton']:
+        lag = 2
+        model['parameters'][f'outflow_{reservoir}_rollmean{lag}'] = {
+            'type': 'rollingmeanflownode',
+            'node': f'outflow_{reservoir}',
+            'days': lag
+        }
+        model['parameters'][f'spill_{reservoir}_rollmean{lag}'] = {
+            'type': 'rollingmeanflownode',
+            'node': f'spill_{reservoir}',
+            'days': lag
+        }
+        model['parameters'][f'release_{reservoir}_lag{lag}'] = {
+            'type': 'LaggedReservoirRelease',
+            'node': reservoir,
+            'lag': lag
+        }
+
+    ### now get addl release (above NYC releases from last 2 days) needed to meet Trenton target in 2 days
+    model['parameters'][f'release_needed_mrf_trenton_step{step}'] = {
+        'type': 'TotalReleaseNeededForDownstreamMRF',
+        'mrf': 'delTrenton',
+        'step': step
+    }
+
+    ## Max available Trenton contribution from each available lower basin reservoir. Step 3 is for Beltzville/BlueMarsh release, so 2 days ahead for Trenton.
+    for reservoir in drbc_lower_basin_reservoirs:
+        model['parameters'][f'max_mrf_trenton_step{step}_{reservoir}'] = {
+            'type': 'LowerBasinMaxMRFContribution',
+            'node': f'reservoir_{reservoir}',
+            'step': step
+        }
+
+    ## Aggregate total expected lower basin contribution to Trenton
+    model['parameters'][f'lower_basin_agg_mrf_trenton_step{step}'] = {
+        'type': 'VolBalanceLowerBasinMRFAggregate',
+        'step': step
+    }
+
+    ## Now dispatch actual individual releases from lower basin reservoirs for meeting Trenton - step 3 is Blue marsh/beltzville
+    for reservoir in ['beltzvilleCombined', 'blueMarsh']:
+        model['parameters'][f'mrf_trenton_{reservoir}'] = {
+            'type': 'VolBalanceLowerBasinMRFIndividual',
+            'node': f'reservoir_{reservoir}',
+            'step': step
+        }
+
+
+
+    ### step 4:
+    ### Update lower basin releases that are 1 days from Trenton equivalent (Nockamixon)
+    step = 4
+
+    ### get previous day's releases from Beltzville & Blue Marsh
+    for reservoir in ['beltzvilleCombined', 'blueMarsh']:
+        lag = 1
+        model['parameters'][f'outflow_{reservoir}_rollmean{lag}'] = {
+            'type': 'rollingmeanflownode',
+            'node': f'outflow_{reservoir}',
+            'days': lag
+        }
+        model['parameters'][f'spill_{reservoir}_rollmean{lag}'] = {
+            'type': 'rollingmeanflownode',
+            'node': f'spill_{reservoir}',
+            'days': lag
+        }
+        model['parameters'][f'release_{reservoir}_lag{lag}'] = {
+            'type': 'LaggedReservoirRelease',
+            'node': reservoir,
+            'lag': lag
+        }
+
+    ### and get 2-days ago releases from Neversink
+    for reservoir in ['neversink']:
+        lag = 2
+        model['parameters'][f'outflow_{reservoir}_rollmean{lag}'] = {
+            'type': 'rollingmeanflownode',
+            'node': f'outflow_{reservoir}',
+            'days': lag
+        }
+        model['parameters'][f'spill_{reservoir}_rollmean{lag}'] = {
+            'type': 'rollingmeanflownode',
+            'node': f'spill_{reservoir}',
+            'days': lag
+        }
+        model['parameters'][f'release_{reservoir}_lag{lag}'] = {
+            'type': 'LaggedReservoirRelease',
+            'node': reservoir,
+            'lag': lag
+        }
+    ### and get 3-days ago release from Can/Pep
+    for reservoir in ['cannonsville','pepacton']:
+        lag = 3
+        model['parameters'][f'outflow_{reservoir}_rollmean{lag}'] = {
+            'type': 'rollingmeanflownode',
+            'node': f'outflow_{reservoir}',
+            'days': lag
+        }
+        model['parameters'][f'spill_{reservoir}_rollmean{lag}'] = {
+            'type': 'rollingmeanflownode',
+            'node': f'spill_{reservoir}',
+            'days': lag
+        }
+        model['parameters'][f'release_{reservoir}_lag{lag}'] = {
+            'type': 'LaggedReservoirRelease',
+            'node': reservoir,
+            'lag': lag
+        }
+
+    ### now get addl release (above NYC releases from steps 1-2 & lower basin releases from step 3) needed to meet Trenton target in 1 days
+    model['parameters'][f'release_needed_mrf_trenton_step{step}'] = {
+        'type': 'TotalReleaseNeededForDownstreamMRF',
+        'mrf': 'delTrenton',
+        'step': step
+    }
+
+    ## Max available Trenton contribution from each available lower basin reservoir. Step 4 is just for Nockamixon, 1 day above Trenton.
+    for reservoir in drbc_lower_basin_reservoirs:
+        model['parameters'][f'max_mrf_trenton_step{step}_{reservoir}'] = {
+            'type': 'LowerBasinMaxMRFContribution',
+            'node': f'reservoir_{reservoir}',
+            'step': step
+        }
+
+    ## Aggregate total expected lower basin contribution to Trenton
+    model['parameters'][f'lower_basin_agg_mrf_trenton_step{step}'] = {
+        'type': 'VolBalanceLowerBasinMRFAggregate',
+        'step': step
+    }
+
+    ## Now dispatch actual individual releases from lower basin reservoirs for meeting Trenton - step 4 is just Nockamixon
+    for reservoir in ['nockamixon']:
+        model['parameters'][f'mrf_trenton_{reservoir}'] = {
+            'type': 'VolBalanceLowerBasinMRFIndividual',
+            'node': f'reservoir_{reservoir}',
+            'step': step
+        }
+
+
+
+
+    ### get final downstream release from each NYC reservoir, which is the sum of its
     ###    individually-mandated release from FFMP, flood control release, and its contribution to the
-    
     ### Montague/Trenton targets
-    ## From NYC reservoirs
     for reservoir in reservoir_list_nyc:
         model['parameters'][f'downstream_release_target_{reservoir}'] = {
             'type': 'aggregated',
@@ -939,9 +1145,12 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
         model['parameters'][f'downstream_release_target_{reservoir}'] = {
             'type': 'aggregated',
             'agg_func': 'sum',
-            'parameters': [f'mrf_montagueTrenton_{reservoir}',
+            'parameters': [f'mrf_trenton_{reservoir}',
                            f'starfit_release_{reservoir}']
         }
+
+
+
 
     ### now distribute NYC deliveries across 3 reservoirs with volume balancing after accounting for downstream releases
     for reservoir in reservoir_list_nyc:

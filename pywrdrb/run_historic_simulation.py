@@ -15,6 +15,7 @@ from pywr.recorders import TablesRecorder
 sys.path.insert(0, os.path.abspath('./'))
 sys.path.insert(0, os.path.abspath('../'))
 
+import parameters.general
 import parameters.ffmp
 import parameters.starfit
 import parameters.lower_basin_ffmp

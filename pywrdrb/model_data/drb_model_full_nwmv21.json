@@ -474,6 +474,11 @@
             "cost": 5000.0
         },
         {
+            "name": "delay_nockamixon",
+            "type": "DelayNode",
+            "days": 1
+        },
+        {
             "name": "reservoir_assunpink",
             "type": "storage",
             "max_volume": "max_volume_assunpink",
@@ -1414,6 +1419,10 @@
         ],
         [
             "outflow_nockamixon",
+            "delay_nockamixon"
+        ],
+        [
+            "delay_nockamixon",
             "link_delDRCanal"
         ],
         [
@@ -1422,7 +1431,7 @@
         ],
         [
             "spill_nockamixon",
-            "link_delDRCanal"
+            "delay_nockamixon"
         ],
         [
             "catchment_assunpink",
@@ -1931,21 +1940,21 @@
         },
         "flow_cannonsville": {
             "type": "dataframe",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nwmv21.csv",
             "column": "cannonsville",
             "index_col": "datetime",
             "parse_dates": true
         },
         "max_flow_catchmentWithdrawal_cannonsville": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "reservoir_cannonsville"
         },
         "catchmentConsumptionRatio_cannonsville": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "reservoir_cannonsville"
@@ -1979,21 +1988,21 @@
         },
         "flow_pepacton": {
             "type": "dataframe",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nwmv21.csv",
             "column": "pepacton",
             "index_col": "datetime",
             "parse_dates": true
         },
         "max_flow_catchmentWithdrawal_pepacton": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "reservoir_pepacton"
         },
         "catchmentConsumptionRatio_pepacton": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "reservoir_pepacton"
@@ -2027,21 +2036,21 @@
         },
         "flow_neversink": {
             "type": "dataframe",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nwmv21.csv",
             "column": "neversink",
             "index_col": "datetime",
             "parse_dates": true
         },
         "max_flow_catchmentWithdrawal_neversink": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "reservoir_neversink"
         },
         "catchmentConsumptionRatio_neversink": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "reservoir_neversink"
@@ -2071,21 +2080,21 @@
         },
         "flow_wallenpaupack": {
             "type": "dataframe",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nwmv21.csv",
             "column": "wallenpaupack",
             "index_col": "datetime",
             "parse_dates": true
         },
         "max_flow_catchmentWithdrawal_wallenpaupack": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "reservoir_wallenpaupack"
         },
         "catchmentConsumptionRatio_wallenpaupack": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "reservoir_wallenpaupack"
@@ -2115,21 +2124,21 @@
         },
         "flow_prompton": {
             "type": "dataframe",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nwmv21.csv",
             "column": "prompton",
             "index_col": "datetime",
             "parse_dates": true
         },
         "max_flow_catchmentWithdrawal_prompton": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "reservoir_prompton"
         },
         "catchmentConsumptionRatio_prompton": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "reservoir_prompton"
@@ -2159,21 +2168,21 @@
         },
         "flow_shoholaMarsh": {
             "type": "dataframe",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nwmv21.csv",
             "column": "shoholaMarsh",
             "index_col": "datetime",
             "parse_dates": true
         },
         "max_flow_catchmentWithdrawal_shoholaMarsh": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "reservoir_shoholaMarsh"
         },
         "catchmentConsumptionRatio_shoholaMarsh": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "reservoir_shoholaMarsh"
@@ -2203,21 +2212,21 @@
         },
         "flow_mongaupeCombined": {
             "type": "dataframe",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nwmv21.csv",
             "column": "mongaupeCombined",
             "index_col": "datetime",
             "parse_dates": true
         },
         "max_flow_catchmentWithdrawal_mongaupeCombined": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "reservoir_mongaupeCombined"
         },
         "catchmentConsumptionRatio_mongaupeCombined": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "reservoir_mongaupeCombined"
@@ -2247,21 +2256,21 @@
         },
         "flow_beltzvilleCombined": {
             "type": "dataframe",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nwmv21.csv",
             "column": "beltzvilleCombined",
             "index_col": "datetime",
             "parse_dates": true
         },
         "max_flow_catchmentWithdrawal_beltzvilleCombined": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "reservoir_beltzvilleCombined"
         },
         "catchmentConsumptionRatio_beltzvilleCombined": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "reservoir_beltzvilleCombined"
@@ -2291,21 +2300,21 @@
         },
         "flow_fewalter": {
             "type": "dataframe",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nwmv21.csv",
             "column": "fewalter",
             "index_col": "datetime",
             "parse_dates": true
         },
         "max_flow_catchmentWithdrawal_fewalter": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "reservoir_fewalter"
         },
         "catchmentConsumptionRatio_fewalter": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "reservoir_fewalter"
@@ -2335,21 +2344,21 @@
         },
         "flow_merrillCreek": {
             "type": "dataframe",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nwmv21.csv",
             "column": "merrillCreek",
             "index_col": "datetime",
             "parse_dates": true
         },
         "max_flow_catchmentWithdrawal_merrillCreek": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "reservoir_merrillCreek"
         },
         "catchmentConsumptionRatio_merrillCreek": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "reservoir_merrillCreek"
@@ -2379,21 +2388,21 @@
         },
         "flow_hopatcong": {
             "type": "dataframe",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nwmv21.csv",
             "column": "hopatcong",
             "index_col": "datetime",
             "parse_dates": true
         },
         "max_flow_catchmentWithdrawal_hopatcong": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "reservoir_hopatcong"
         },
         "catchmentConsumptionRatio_hopatcong": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "reservoir_hopatcong"
@@ -2423,21 +2432,21 @@
         },
         "flow_nockamixon": {
             "type": "dataframe",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nwmv21.csv",
             "column": "nockamixon",
             "index_col": "datetime",
             "parse_dates": true
         },
         "max_flow_catchmentWithdrawal_nockamixon": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "reservoir_nockamixon"
         },
         "catchmentConsumptionRatio_nockamixon": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "reservoir_nockamixon"
@@ -2467,21 +2476,21 @@
         },
         "flow_assunpink": {
             "type": "dataframe",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nwmv21.csv",
             "column": "assunpink",
             "index_col": "datetime",
             "parse_dates": true
         },
         "max_flow_catchmentWithdrawal_assunpink": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "reservoir_assunpink"
         },
         "catchmentConsumptionRatio_assunpink": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "reservoir_assunpink"
@@ -2511,21 +2520,21 @@
         },
         "flow_ontelaunee": {
             "type": "dataframe",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nwmv21.csv",
             "column": "ontelaunee",
             "index_col": "datetime",
             "parse_dates": true
         },
         "max_flow_catchmentWithdrawal_ontelaunee": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "reservoir_ontelaunee"
         },
         "catchmentConsumptionRatio_ontelaunee": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "reservoir_ontelaunee"
@@ -2555,21 +2564,21 @@
         },
         "flow_stillCreek": {
             "type": "dataframe",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nwmv21.csv",
             "column": "stillCreek",
             "index_col": "datetime",
             "parse_dates": true
         },
         "max_flow_catchmentWithdrawal_stillCreek": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "reservoir_stillCreek"
         },
         "catchmentConsumptionRatio_stillCreek": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "reservoir_stillCreek"
@@ -2599,21 +2608,21 @@
         },
         "flow_blueMarsh": {
             "type": "dataframe",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nwmv21.csv",
             "column": "blueMarsh",
             "index_col": "datetime",
             "parse_dates": true
         },
         "max_flow_catchmentWithdrawal_blueMarsh": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "reservoir_blueMarsh"
         },
         "catchmentConsumptionRatio_blueMarsh": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "reservoir_blueMarsh"
@@ -2643,21 +2652,21 @@
         },
         "flow_greenLane": {
             "type": "dataframe",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nwmv21.csv",
             "column": "greenLane",
             "index_col": "datetime",
             "parse_dates": true
         },
         "max_flow_catchmentWithdrawal_greenLane": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "reservoir_greenLane"
         },
         "catchmentConsumptionRatio_greenLane": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "reservoir_greenLane"
@@ -2676,21 +2685,21 @@
         },
         "flow_01425000": {
             "type": "dataframe",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nwmv21.csv",
             "column": "01425000",
             "index_col": "datetime",
             "parse_dates": true
         },
         "max_flow_catchmentWithdrawal_01425000": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "link_01425000"
         },
         "catchmentConsumptionRatio_01425000": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "link_01425000"
@@ -2709,21 +2718,21 @@
         },
         "flow_01417000": {
             "type": "dataframe",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nwmv21.csv",
             "column": "01417000",
             "index_col": "datetime",
             "parse_dates": true
         },
         "max_flow_catchmentWithdrawal_01417000": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "link_01417000"
         },
         "catchmentConsumptionRatio_01417000": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "link_01417000"
@@ -2742,21 +2751,21 @@
         },
         "flow_delLordville": {
             "type": "dataframe",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nwmv21.csv",
             "column": "delLordville",
             "index_col": "datetime",
             "parse_dates": true
         },
         "max_flow_catchmentWithdrawal_delLordville": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "link_delLordville"
         },
         "catchmentConsumptionRatio_delLordville": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "link_delLordville"
@@ -2775,21 +2784,21 @@
         },
         "flow_01436000": {
             "type": "dataframe",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nwmv21.csv",
             "column": "01436000",
             "index_col": "datetime",
             "parse_dates": true
         },
         "max_flow_catchmentWithdrawal_01436000": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "link_01436000"
         },
         "catchmentConsumptionRatio_01436000": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "link_01436000"
@@ -2808,21 +2817,21 @@
         },
         "flow_01433500": {
             "type": "dataframe",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nwmv21.csv",
             "column": "01433500",
             "index_col": "datetime",
             "parse_dates": true
         },
         "max_flow_catchmentWithdrawal_01433500": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "link_01433500"
         },
         "catchmentConsumptionRatio_01433500": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "link_01433500"
@@ -2841,21 +2850,21 @@
         },
         "flow_delMontague": {
             "type": "dataframe",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nwmv21.csv",
             "column": "delMontague",
             "index_col": "datetime",
             "parse_dates": true
         },
         "max_flow_catchmentWithdrawal_delMontague": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "link_delMontague"
         },
         "catchmentConsumptionRatio_delMontague": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "link_delMontague"
@@ -2874,21 +2883,21 @@
         },
         "flow_01449800": {
             "type": "dataframe",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nwmv21.csv",
             "column": "01449800",
             "index_col": "datetime",
             "parse_dates": true
         },
         "max_flow_catchmentWithdrawal_01449800": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "link_01449800"
         },
         "catchmentConsumptionRatio_01449800": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "link_01449800"
@@ -2907,21 +2916,21 @@
         },
         "flow_01447800": {
             "type": "dataframe",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nwmv21.csv",
             "column": "01447800",
             "index_col": "datetime",
             "parse_dates": true
         },
         "max_flow_catchmentWithdrawal_01447800": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "link_01447800"
         },
         "catchmentConsumptionRatio_01447800": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "link_01447800"
@@ -2940,21 +2949,21 @@
         },
         "flow_delDRCanal": {
             "type": "dataframe",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nwmv21.csv",
             "column": "delDRCanal",
             "index_col": "datetime",
             "parse_dates": true
         },
         "max_flow_catchmentWithdrawal_delDRCanal": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "link_delDRCanal"
         },
         "catchmentConsumptionRatio_delDRCanal": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "link_delDRCanal"
@@ -2973,21 +2982,21 @@
         },
         "flow_01463620": {
             "type": "dataframe",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nwmv21.csv",
             "column": "01463620",
             "index_col": "datetime",
             "parse_dates": true
         },
         "max_flow_catchmentWithdrawal_01463620": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "link_01463620"
         },
         "catchmentConsumptionRatio_01463620": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "link_01463620"
@@ -3006,21 +3015,21 @@
         },
         "flow_outletAssunpink": {
             "type": "dataframe",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nwmv21.csv",
             "column": "outletAssunpink",
             "index_col": "datetime",
             "parse_dates": true
         },
         "max_flow_catchmentWithdrawal_outletAssunpink": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "link_outletAssunpink"
         },
         "catchmentConsumptionRatio_outletAssunpink": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "link_outletAssunpink"
@@ -3039,21 +3048,21 @@
         },
         "flow_01470960": {
             "type": "dataframe",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nwmv21.csv",
             "column": "01470960",
             "index_col": "datetime",
             "parse_dates": true
         },
         "max_flow_catchmentWithdrawal_01470960": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "link_01470960"
         },
         "catchmentConsumptionRatio_01470960": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "link_01470960"
@@ -3072,21 +3081,21 @@
         },
         "flow_outletSchuylkill": {
             "type": "dataframe",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/catchment_inflow_nwmv21.csv",
             "column": "outletSchuylkill",
             "index_col": "datetime",
             "parse_dates": true
         },
         "max_flow_catchmentWithdrawal_outletSchuylkill": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "link_outletSchuylkill"
         },
         "catchmentConsumptionRatio_outletSchuylkill": {
             "type": "constant",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": "link_outletSchuylkill"
@@ -3112,14 +3121,14 @@
         },
         "demand_nyc": {
             "type": "dataframe",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/deliveryNYC_ODRM_extrapolated.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/deliveryNYC_ODRM_extrapolated.csv",
             "column": "aggregate",
             "index_col": "datetime",
             "parse_dates": true
         },
         "demand_nj": {
             "type": "dataframe",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/deliveryNJ_DRCanal_extrapolated.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/deliveryNJ_DRCanal_extrapolated.csv",
             "index_col": "datetime",
             "parse_dates": true
         },
@@ -3945,118 +3954,371 @@
         },
         "predicted_nonnyc_gage_flow_delMontague_lag1": {
             "type": "dataframe",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/predicted_inflows_diversions_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_inflows_diversions_nwmv21.csv",
             "column": "delMontague_lag1_regression_disagg",
             "index_col": "datetime",
             "parse_dates": true
         },
         "predicted_nonnyc_gage_flow_delMontague_lag2": {
             "type": "dataframe",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/predicted_inflows_diversions_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_inflows_diversions_nwmv21.csv",
             "column": "delMontague_lag2_regression_disagg",
+            "index_col": "datetime",
+            "parse_dates": true
+        },
+        "predicted_nonnyc_gage_flow_delTrenton_lag1": {
+            "type": "dataframe",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_inflows_diversions_nwmv21.csv",
+            "column": "delTrenton_lag1_regression_disagg",
+            "index_col": "datetime",
+            "parse_dates": true
+        },
+        "predicted_nonnyc_gage_flow_delTrenton_lag2": {
+            "type": "dataframe",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_inflows_diversions_nwmv21.csv",
+            "column": "delTrenton_lag2_regression_disagg",
             "index_col": "datetime",
             "parse_dates": true
         },
         "predicted_nonnyc_gage_flow_delTrenton_lag3": {
             "type": "dataframe",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/predicted_inflows_diversions_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_inflows_diversions_nwmv21.csv",
             "column": "delTrenton_lag3_regression_disagg",
             "index_col": "datetime",
             "parse_dates": true
         },
         "predicted_nonnyc_gage_flow_delTrenton_lag4": {
             "type": "dataframe",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/predicted_inflows_diversions_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_inflows_diversions_nwmv21.csv",
             "column": "delTrenton_lag4_regression_disagg",
+            "index_col": "datetime",
+            "parse_dates": true
+        },
+        "predicted_demand_nj_lag1": {
+            "type": "dataframe",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_inflows_diversions_nwmv21.csv",
+            "column": "demand_nj_lag1_regression_disagg",
+            "index_col": "datetime",
+            "parse_dates": true
+        },
+        "predicted_demand_nj_lag2": {
+            "type": "dataframe",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_inflows_diversions_nwmv21.csv",
+            "column": "demand_nj_lag2_regression_disagg",
             "index_col": "datetime",
             "parse_dates": true
         },
         "predicted_demand_nj_lag3": {
             "type": "dataframe",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/predicted_inflows_diversions_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_inflows_diversions_nwmv21.csv",
             "column": "demand_nj_lag3_regression_disagg",
             "index_col": "datetime",
             "parse_dates": true
         },
         "predicted_demand_nj_lag4": {
             "type": "dataframe",
-            "url": "C:\\Users\\tjame\\Desktop\\Research\\DRB\\Pywr-DRB\\Pywr-DRB\\input_data/predicted_inflows_diversions_nwmv21.csv",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_inflows_diversions_nwmv21.csv",
             "column": "demand_nj_lag4_regression_disagg",
             "index_col": "datetime",
             "parse_dates": true
         },
-        "total_agg_mrf_montagueTrenton": {
-            "type": "VolBalanceNYCDownstreamMRFTargetAgg_step1CanPep"
+        "release_needed_mrf_montague_step1": {
+            "type": "TotalReleaseNeededForDownstreamMRF",
+            "mrf": "delMontague",
+            "step": 1
         },
-        "max_mrf_montagueTrenton_beltzvilleCombined": {
+        "release_needed_mrf_trenton_step1": {
+            "type": "TotalReleaseNeededForDownstreamMRF",
+            "mrf": "delTrenton",
+            "step": 1
+        },
+        "total_agg_mrf_montagueTrenton_step1": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "release_needed_mrf_montague_step1",
+                "release_needed_mrf_trenton_step1"
+            ]
+        },
+        "max_mrf_trenton_step1_beltzvilleCombined": {
             "type": "LowerBasinMaxMRFContribution",
-            "node": "reservoir_beltzvilleCombined"
+            "node": "reservoir_beltzvilleCombined",
+            "step": 1
         },
-        "max_mrf_montagueTrenton_blueMarsh": {
+        "max_mrf_trenton_step1_blueMarsh": {
             "type": "LowerBasinMaxMRFContribution",
-            "node": "reservoir_blueMarsh"
+            "node": "reservoir_blueMarsh",
+            "step": 1
         },
-        "max_mrf_montagueTrenton_nockamixon": {
+        "max_mrf_trenton_step1_nockamixon": {
             "type": "LowerBasinMaxMRFContribution",
-            "node": "reservoir_nockamixon"
+            "node": "reservoir_nockamixon",
+            "step": 1
         },
-        "lower_basin_agg_mrf_montagueTrenton": {
-            "type": "VolBalanceLowerBasinMRFAggregate"
-        },
-        "mrf_montagueTrenton_beltzvilleCombined": {
-            "type": "VolBalanceLowerBasinMRFIndividual",
-            "node": "reservoir_beltzvilleCombined"
-        },
-        "mrf_montagueTrenton_blueMarsh": {
-            "type": "VolBalanceLowerBasinMRFIndividual",
-            "node": "reservoir_blueMarsh"
-        },
-        "mrf_montagueTrenton_nockamixon": {
-            "type": "VolBalanceLowerBasinMRFIndividual",
-            "node": "reservoir_nockamixon"
+        "lower_basin_agg_mrf_trenton_step1": {
+            "type": "VolBalanceLowerBasinMRFAggregate",
+            "step": 1
         },
         "mrf_montagueTrenton_cannonsville": {
-            "type": "VolBalanceNYCDownstreamMRF_step1CanPep",
+            "type": "VolBalanceNYCDownstreamMRF_step1",
             "node": "reservoir_cannonsville"
         },
         "mrf_montagueTrenton_pepacton": {
-            "type": "VolBalanceNYCDownstreamMRF_step1CanPep",
+            "type": "VolBalanceNYCDownstreamMRF_step1",
             "node": "reservoir_pepacton"
         },
-        "prev_outflow_cannonsville": {
-            "type": "flow",
-            "node": "outflow_cannonsville"
+        "outflow_cannonsville_rollmean1": {
+            "type": "rollingmeanflownode",
+            "node": "outflow_cannonsville",
+            "days": 1
         },
-        "prev_spill_cannonsville": {
-            "type": "flow",
-            "node": "spill_cannonsville"
+        "spill_cannonsville_rollmean1": {
+            "type": "rollingmeanflownode",
+            "node": "spill_cannonsville",
+            "days": 1
         },
-        "prev_release_cannonsville": {
+        "release_cannonsville_lag1": {
+            "type": "LaggedReservoirRelease",
+            "node": "cannonsville",
+            "lag": 1
+        },
+        "outflow_pepacton_rollmean1": {
+            "type": "rollingmeanflownode",
+            "node": "outflow_pepacton",
+            "days": 1
+        },
+        "spill_pepacton_rollmean1": {
+            "type": "rollingmeanflownode",
+            "node": "spill_pepacton",
+            "days": 1
+        },
+        "release_pepacton_lag1": {
+            "type": "LaggedReservoirRelease",
+            "node": "pepacton",
+            "lag": 1
+        },
+        "release_needed_mrf_montague_step2": {
+            "type": "TotalReleaseNeededForDownstreamMRF",
+            "mrf": "delMontague",
+            "step": 2
+        },
+        "release_needed_mrf_trenton_step2": {
+            "type": "TotalReleaseNeededForDownstreamMRF",
+            "mrf": "delTrenton",
+            "step": 2
+        },
+        "total_agg_mrf_montagueTrenton_step2": {
             "type": "aggregated",
             "agg_func": "sum",
             "parameters": [
-                "prev_outflow_cannonsville",
-                "prev_spill_cannonsville"
+                "release_needed_mrf_montague_step2",
+                "release_needed_mrf_trenton_step2"
             ]
         },
-        "prev_outflow_pepacton": {
-            "type": "flow",
-            "node": "outflow_pepacton"
+        "max_mrf_trenton_step2_beltzvilleCombined": {
+            "type": "LowerBasinMaxMRFContribution",
+            "node": "reservoir_beltzvilleCombined",
+            "step": 2
         },
-        "prev_spill_pepacton": {
-            "type": "flow",
-            "node": "spill_pepacton"
+        "max_mrf_trenton_step2_blueMarsh": {
+            "type": "LowerBasinMaxMRFContribution",
+            "node": "reservoir_blueMarsh",
+            "step": 2
         },
-        "prev_release_pepacton": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "prev_outflow_pepacton",
-                "prev_spill_pepacton"
-            ]
+        "max_mrf_trenton_step2_nockamixon": {
+            "type": "LowerBasinMaxMRFContribution",
+            "node": "reservoir_nockamixon",
+            "step": 2
+        },
+        "lower_basin_agg_mrf_trenton_step2": {
+            "type": "VolBalanceLowerBasinMRFAggregate",
+            "step": 2
         },
         "mrf_montagueTrenton_neversink": {
-            "type": "VolBalanceNYCDownstreamMRF_step2Nev"
+            "type": "VolBalanceNYCDownstreamMRF_step2"
+        },
+        "outflow_neversink_rollmean1": {
+            "type": "rollingmeanflownode",
+            "node": "outflow_neversink",
+            "days": 1
+        },
+        "spill_neversink_rollmean1": {
+            "type": "rollingmeanflownode",
+            "node": "spill_neversink",
+            "days": 1
+        },
+        "release_neversink_lag1": {
+            "type": "LaggedReservoirRelease",
+            "node": "neversink",
+            "lag": 1
+        },
+        "outflow_cannonsville_rollmean2": {
+            "type": "rollingmeanflownode",
+            "node": "outflow_cannonsville",
+            "days": 2
+        },
+        "spill_cannonsville_rollmean2": {
+            "type": "rollingmeanflownode",
+            "node": "spill_cannonsville",
+            "days": 2
+        },
+        "release_cannonsville_lag2": {
+            "type": "LaggedReservoirRelease",
+            "node": "cannonsville",
+            "lag": 2
+        },
+        "outflow_pepacton_rollmean2": {
+            "type": "rollingmeanflownode",
+            "node": "outflow_pepacton",
+            "days": 2
+        },
+        "spill_pepacton_rollmean2": {
+            "type": "rollingmeanflownode",
+            "node": "spill_pepacton",
+            "days": 2
+        },
+        "release_pepacton_lag2": {
+            "type": "LaggedReservoirRelease",
+            "node": "pepacton",
+            "lag": 2
+        },
+        "release_needed_mrf_trenton_step3": {
+            "type": "TotalReleaseNeededForDownstreamMRF",
+            "mrf": "delTrenton",
+            "step": 3
+        },
+        "max_mrf_trenton_step3_beltzvilleCombined": {
+            "type": "LowerBasinMaxMRFContribution",
+            "node": "reservoir_beltzvilleCombined",
+            "step": 3
+        },
+        "max_mrf_trenton_step3_blueMarsh": {
+            "type": "LowerBasinMaxMRFContribution",
+            "node": "reservoir_blueMarsh",
+            "step": 3
+        },
+        "max_mrf_trenton_step3_nockamixon": {
+            "type": "LowerBasinMaxMRFContribution",
+            "node": "reservoir_nockamixon",
+            "step": 3
+        },
+        "lower_basin_agg_mrf_trenton_step3": {
+            "type": "VolBalanceLowerBasinMRFAggregate",
+            "step": 3
+        },
+        "mrf_trenton_beltzvilleCombined": {
+            "type": "VolBalanceLowerBasinMRFIndividual",
+            "node": "reservoir_beltzvilleCombined",
+            "step": 3
+        },
+        "mrf_trenton_blueMarsh": {
+            "type": "VolBalanceLowerBasinMRFIndividual",
+            "node": "reservoir_blueMarsh",
+            "step": 3
+        },
+        "outflow_beltzvilleCombined_rollmean1": {
+            "type": "rollingmeanflownode",
+            "node": "outflow_beltzvilleCombined",
+            "days": 1
+        },
+        "spill_beltzvilleCombined_rollmean1": {
+            "type": "rollingmeanflownode",
+            "node": "spill_beltzvilleCombined",
+            "days": 1
+        },
+        "release_beltzvilleCombined_lag1": {
+            "type": "LaggedReservoirRelease",
+            "node": "beltzvilleCombined",
+            "lag": 1
+        },
+        "outflow_blueMarsh_rollmean1": {
+            "type": "rollingmeanflownode",
+            "node": "outflow_blueMarsh",
+            "days": 1
+        },
+        "spill_blueMarsh_rollmean1": {
+            "type": "rollingmeanflownode",
+            "node": "spill_blueMarsh",
+            "days": 1
+        },
+        "release_blueMarsh_lag1": {
+            "type": "LaggedReservoirRelease",
+            "node": "blueMarsh",
+            "lag": 1
+        },
+        "outflow_neversink_rollmean2": {
+            "type": "rollingmeanflownode",
+            "node": "outflow_neversink",
+            "days": 2
+        },
+        "spill_neversink_rollmean2": {
+            "type": "rollingmeanflownode",
+            "node": "spill_neversink",
+            "days": 2
+        },
+        "release_neversink_lag2": {
+            "type": "LaggedReservoirRelease",
+            "node": "neversink",
+            "lag": 2
+        },
+        "outflow_cannonsville_rollmean3": {
+            "type": "rollingmeanflownode",
+            "node": "outflow_cannonsville",
+            "days": 3
+        },
+        "spill_cannonsville_rollmean3": {
+            "type": "rollingmeanflownode",
+            "node": "spill_cannonsville",
+            "days": 3
+        },
+        "release_cannonsville_lag3": {
+            "type": "LaggedReservoirRelease",
+            "node": "cannonsville",
+            "lag": 3
+        },
+        "outflow_pepacton_rollmean3": {
+            "type": "rollingmeanflownode",
+            "node": "outflow_pepacton",
+            "days": 3
+        },
+        "spill_pepacton_rollmean3": {
+            "type": "rollingmeanflownode",
+            "node": "spill_pepacton",
+            "days": 3
+        },
+        "release_pepacton_lag3": {
+            "type": "LaggedReservoirRelease",
+            "node": "pepacton",
+            "lag": 3
+        },
+        "release_needed_mrf_trenton_step4": {
+            "type": "TotalReleaseNeededForDownstreamMRF",
+            "mrf": "delTrenton",
+            "step": 4
+        },
+        "max_mrf_trenton_step4_beltzvilleCombined": {
+            "type": "LowerBasinMaxMRFContribution",
+            "node": "reservoir_beltzvilleCombined",
+            "step": 4
+        },
+        "max_mrf_trenton_step4_blueMarsh": {
+            "type": "LowerBasinMaxMRFContribution",
+            "node": "reservoir_blueMarsh",
+            "step": 4
+        },
+        "max_mrf_trenton_step4_nockamixon": {
+            "type": "LowerBasinMaxMRFContribution",
+            "node": "reservoir_nockamixon",
+            "step": 4
+        },
+        "lower_basin_agg_mrf_trenton_step4": {
+            "type": "VolBalanceLowerBasinMRFAggregate",
+            "step": 4
+        },
+        "mrf_trenton_nockamixon": {
+            "type": "VolBalanceLowerBasinMRFIndividual",
+            "node": "reservoir_nockamixon",
+            "step": 4
         },
         "downstream_release_target_cannonsville": {
             "type": "aggregated",
@@ -4089,7 +4351,7 @@
             "type": "aggregated",
             "agg_func": "sum",
             "parameters": [
-                "mrf_montagueTrenton_beltzvilleCombined",
+                "mrf_trenton_beltzvilleCombined",
                 "starfit_release_beltzvilleCombined"
             ]
         },
@@ -4097,7 +4359,7 @@
             "type": "aggregated",
             "agg_func": "sum",
             "parameters": [
-                "mrf_montagueTrenton_blueMarsh",
+                "mrf_trenton_blueMarsh",
                 "starfit_release_blueMarsh"
             ]
         },
@@ -4105,7 +4367,7 @@
             "type": "aggregated",
             "agg_func": "sum",
             "parameters": [
-                "mrf_montagueTrenton_nockamixon",
+                "mrf_trenton_nockamixon",
                 "starfit_release_nockamixon"
             ]
         },
