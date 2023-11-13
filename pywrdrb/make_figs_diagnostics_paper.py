@@ -42,6 +42,7 @@ if __name__ == "__main__":
     catchment_consumptions = {}
     mrf_targets = {}
     downstream_release_targets = {}
+    lower_basin_mrf_contributions = {}
 
     datetime_index = None
     for model in pywr_models:
@@ -54,6 +55,7 @@ if __name__ == "__main__":
         ffmp_levels[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, results_set='res_level', datetime_index=datetime_index)
         inflows[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, 'inflow', datetime_index=datetime_index)
         nyc_release_components[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, 'nyc_release_components', datetime_index=datetime_index)
+        lower_basin_mrf_contributions[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, 'lower_basin_mrf_contributions', datetime_index=datetime_index)
         ibt_demands[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, 'ibt_demands', datetime_index=datetime_index)
         ibt_diversions[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, 'ibt_diversions', datetime_index=datetime_index)
         catchment_consumptions[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, 'catchment_consumption', datetime_index=datetime_index)
@@ -83,8 +85,10 @@ if __name__ == "__main__":
     end_date_full = pd.to_datetime('2017-01-01')
     start_date_medium_preobs = pd.to_datetime('1990-01-01') ### 10-year period in pre-observed record for zoomed dynamics
     end_date_medium_preobs = pd.to_datetime('2000-01-01')
-    start_date_short_preobs = pd.to_datetime('1993-01-01') ### short 2-year period pre observed record for zoomed dynamics
-    end_date_short_preobs = pd.to_datetime('1996-01-01')
+    # start_date_short_preobs = pd.to_datetime('1993-01-01') ### short 3-year period pre observed record for zoomed dynamics
+    # end_date_short_preobs = pd.to_datetime('1996-01-01')
+    start_date_short_preobs = pd.to_datetime('2001-01-01') ### short 2-year period pre observed record for zoomed dynamics
+    end_date_short_preobs = pd.to_datetime('2004-01-01')
     start_date_storage_obs = pd.to_datetime('2000-01-01')  ### full NHM/NWM time series
 
 
@@ -144,10 +148,9 @@ if __name__ == "__main__":
         print('\nPlotting low flow return period figs\n')
         models = base_models[1:] + pywr_models
         nodes = ['cannonsville', 'NYCAgg', 'delMontague']
-        plot_lowflow_exceedances(reservoir_downstream_gages, major_flows, models, nodes,
+        plot_lowflow_exceedances(reservoir_downstream_gages, major_flows, lower_basin_mrf_contributions, models, nodes,
                                  start_date=start_date_full, end_date=end_date_full,
                                  colordict=model_colors_diagnostics_paper3)
-
 
 
 
@@ -157,25 +160,21 @@ if __name__ == "__main__":
         for model in base_models[1:]:
             for node in ['delMontague','delTrenton']:
                 plot_NYC_release_components_combined(storages, ffmp_level_boundaries, nyc_release_components,
-                                                     reservoir_releases, reservoir_downstream_gages, major_flows, inflows,
+                                                     lower_basin_mrf_contributions, reservoir_releases,
+                                                     reservoir_downstream_gages, major_flows, inflows,
                                                      ibt_diversions, catchment_consumptions, model, node,
                                                      colordict=model_colors_diagnostics_paper3,
                                                      use_log=True, use_observed=False,
                                                      start_date=start_date_short_preobs, end_date=end_date_short_preobs,
                                                      fig_dir=fig_dir)
+
                 plot_NYC_release_components_combined(storages, ffmp_level_boundaries, nyc_release_components,
-                                                     reservoir_releases, reservoir_downstream_gages, major_flows, inflows,
+                                                     lower_basin_mrf_contributions, reservoir_releases,
+                                                     reservoir_downstream_gages, major_flows, inflows,
                                                      ibt_diversions, catchment_consumptions, model, node,
                                                      colordict=model_colors_diagnostics_paper3,
                                                      use_log=True, use_observed=False,
-                                                     start_date=start_date_short_obs, end_date=end_date_short_obs,
-                                                     fig_dir=fig_dir)
-                plot_NYC_release_components_combined(storages, ffmp_level_boundaries, nyc_release_components,
-                                                     reservoir_releases, reservoir_downstream_gages, major_flows, inflows,
-                                                     ibt_diversions, catchment_consumptions, model, node,
-                                                     colordict=model_colors_diagnostics_paper3,
-                                                     use_log=True, use_observed=False,
-                                                     start_date=start_date_storage_obs, end_date=end_date_obs,
+                                                     start_date=start_date_full, end_date=end_date_full,
                                                      fig_dir=fig_dir)
 
 
@@ -183,27 +182,29 @@ if __name__ == "__main__":
 
 
     ### plot shortfall event metrics (reliability/duration/intensity/vulnerability) distributions for min flows and ibt diversions
-    if rerun_all:
-        print('\nPlotting shortfall event metrics for min flows and NYC/NJ diversions\n')
-        models_mrf = base_models[1:] + pywr_models
-        models_ibt = pywr_models
-        nodes = ['delMontague', 'delTrenton', 'nyc', 'nj']
-        shortfall_type = 'absolute' ### 'absolute' or 'percent'
-        shortfall_metrics = get_shortfall_metrics(major_flows, mrf_targets, ibt_demands, ibt_diversions, models_mrf,
-                                                  models_ibt, nodes,
-                                                  shortfall_type=shortfall_type, shortfall_threshold=0.99,
-                                                  shortfall_break_length=30,
-                                                  start_date=start_date_medium_preobs, end_date=end_date_medium_preobs)
-        plot_shortfall_metrics(shortfall_metrics, models_mrf, models_ibt, nodes,
-                               colordict=model_colors_diagnostics_paper3, shortfall_type=shortfall_type,
-                               print_reliabilities=False, print_events=True)
-        shortfall_metrics = get_shortfall_metrics(major_flows, mrf_targets, ibt_demands, ibt_diversions, models_mrf,
-                                                  models_ibt, nodes,
-                                                  shortfall_type=shortfall_type,shortfall_threshold=0.99,  shortfall_break_length=30,
-                                                  start_date=start_date_full, end_date=end_date_full)
-        plot_shortfall_metrics(shortfall_metrics, models_mrf, models_ibt, nodes,
-                               colordict=model_colors_diagnostics_paper3, shortfall_type=shortfall_type,
-                               print_reliabilities=True, print_events=False)
+    # if rerun_all:
+    print('\nPlotting shortfall event metrics for min flows and NYC/NJ diversions\n')
+    models_mrf = base_models[1:] + pywr_models
+    models_ibt = pywr_models
+    nodes = ['delMontague', 'delTrenton', 'nyc', 'nj']
+    shortfall_type = 'absolute' ### 'absolute' or 'percent'
+
+    shortfall_metrics = get_shortfall_metrics(major_flows, lower_basin_mrf_contributions, mrf_targets, ibt_demands,
+                                              ibt_diversions, models_mrf, models_ibt, nodes,
+                                              shortfall_type=shortfall_type, shortfall_threshold=0.99,
+                                              shortfall_break_length=30,
+                                              start_date=start_date_medium_preobs, end_date=end_date_medium_preobs)
+    plot_shortfall_metrics(shortfall_metrics, models_mrf, models_ibt, nodes,
+                           colordict=model_colors_diagnostics_paper3, shortfall_type=shortfall_type,
+                           print_reliabilities=False, print_events=True)
+    shortfall_metrics = get_shortfall_metrics(major_flows, lower_basin_mrf_contributions, mrf_targets, ibt_demands,
+                                              ibt_diversions, models_mrf, models_ibt, nodes,
+                                              shortfall_type=shortfall_type,shortfall_threshold=0.99,
+                                              shortfall_break_length=30,
+                                              start_date=start_date_full, end_date=end_date_full)
+    plot_shortfall_metrics(shortfall_metrics, models_mrf, models_ibt, nodes,
+                           colordict=model_colors_diagnostics_paper3, shortfall_type=shortfall_type,
+                           print_reliabilities=True, print_events=False)
 
 
 
@@ -213,15 +214,15 @@ if __name__ == "__main__":
     if rerun_all:
         print('\nPlotting NYC storages vs Montague/Trenton min flow targets\n')
         for base_model in base_models[1:]:  ### should be a base model, and we will compare base vs pywr version
-            plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major_flows, mrf_targets,
-                                                  reservoir_releases, downstream_release_targets, base_model,
-                                                  shortfall_metrics,
+            plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major_flows,
+                                                  lower_basin_mrf_contributions, mrf_targets, reservoir_releases,
+                                                  downstream_release_targets, base_model, shortfall_metrics,
                                                   colordict=model_colors_diagnostics_paper3,
                                                    start_date=start_date_medium_preobs, end_date=end_date_medium_preobs,
                                                    fig_dir=fig_dir)
-            plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major_flows, mrf_targets,
-                                                  reservoir_releases, downstream_release_targets, base_model,
-                                                  shortfall_metrics,
+            plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major_flows,
+                                                  lower_basin_mrf_contributions, mrf_targets, reservoir_releases,
+                                                  downstream_release_targets, base_model, shortfall_metrics,
                                                    colordict=model_colors_diagnostics_paper3,
                                                    start_date=start_date_full, end_date=end_date_full,
                                                    fig_dir=fig_dir)

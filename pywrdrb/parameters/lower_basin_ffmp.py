@@ -163,7 +163,7 @@ class LowerBasinMaxMRFContribution(Parameter):
                     max_allowable = max(max_allowable, 0.0)
                 # Min release constraint
                 else:
-                    max_allowable =  max((max_allowable - self.R_min), 0.0)
+                    max_allowable = max((max_allowable - self.R_min), 0.0)
                 
                 # Return max allowable
                 assert(max_allowable is not None), f'LowerBasinMaxMRFContribution: max_allowable is None'

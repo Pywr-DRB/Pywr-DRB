@@ -12,7 +12,6 @@
 #	time python3 -W ignore ./pywrdrb/run_historic_simulation.py $inflow_type
 #done
 
-
 ### analyze results, make figures
 echo Analyzing results...
 time python3 -W ignore ./pywrdrb/make_figs_diagnostics_paper.py

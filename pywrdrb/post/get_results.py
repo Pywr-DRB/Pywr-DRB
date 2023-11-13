@@ -56,10 +56,10 @@ def get_pywr_results(output_dir, model, results_set='all', scenario=0, datetime_
                 results[k.split('_')[1]] = f[k][:, scenario]
         elif results_set == 'res_release':
             ### reservoir releases are "outflow" plus "spill". Not all reservoirs have spill.
-            keys_outflow = [k for k in keys if k.split('_')[0] == 'outflow' and k.split('_')[1] in reservoir_list]
+            keys_outflow = [f'outflow_{r}' for r in reservoir_list]
             for k in keys_outflow:
                 results[k.split('_')[1]] = f[k][:, scenario]
-            keys_spill = [k for k in keys if k.split('_')[0] == 'spill' and k.split('_')[1] in reservoir_list]
+            keys_spill = [f'spill_{r}' for r in reservoir_list]
             for k in keys_spill:
                 results[k.split('_')[1]] += f[k][:, scenario]
         elif results_set == 'downstream_release_target':
@@ -101,7 +101,7 @@ def get_pywr_results(output_dir, model, results_set='all', scenario=0, datetime_
             for k in keys:
                 results[k] = f[k][:, scenario]
         elif results_set == 'lower_basin_mrf_contributions':
-            keys = [f'mrf_montagueTrenton_{reservoir}' for reservoir in drbc_lower_basin_reservoirs]
+            keys = [f'mrf_trenton_{reservoir}' for reservoir in drbc_lower_basin_reservoirs]
             for k in keys:
                 results[k] = f[k][:, scenario]
         elif results_set == 'ibt_demands':

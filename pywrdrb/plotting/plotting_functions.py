@@ -30,7 +30,9 @@ from pywrdrb.pywr_drb_node_data import upstream_nodes_dict, downstream_node_lags
 
 # Custom modules
 from pywrdrb.utils.constants import cms_to_mgd, cm_to_mg, cfs_to_mgd
-from pywrdrb.utils.lists import reservoir_list, reservoir_list_nyc, majorflow_list, reservoir_link_pairs, seasons_dict
+from pywrdrb.utils.lists import reservoir_list, reservoir_list_nyc, majorflow_list, reservoir_link_pairs, seasons_dict,\
+    drbc_lower_basin_reservoirs
+
 from pywrdrb.utils.directories import input_dir, fig_dir, output_dir, model_data_dir, spatial_data_dir
 from pywrdrb.make_model import get_reservoir_max_release
 from pywrdrb.plotting.styles import base_model_colors, model_hatch_styles, paired_model_colors, scatter_model_markers, \
@@ -798,7 +800,8 @@ def plot_combined_nyc_storage_vs_diversion(storages, ffmp_level_boundaries, ibt_
 
 
 
-def plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major_flows, mrf_targets, reservoir_releases, downstream_release_targets,
+def plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major_flows, lower_basin_mrf_contributions,
+                                          mrf_targets, reservoir_releases, downstream_release_targets,
                                           base_model, shortfall_metrics, colordict = paired_model_colors,
                                            start_date = '1999-10-01', end_date = '2010-05-31', fig_dir=fig_dir):
     """
@@ -869,6 +872,7 @@ def plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major
         target = subset_timeseries(mrf_targets[pywr_model][f'mrf_target_{mrf}'], start_date, end_date)
         target_max = np.ones(len(target)) * target.max()
         flow = subset_timeseries(major_flows[base_model][mrf], start_date, end_date)
+
         satisfaction = np.minimum(flow.divide(target_max) * 100, np.ones(len(flow)) * 100)
         leftlinecolor = 'k'
         ax.plot(satisfaction, color=leftlinecolor, label='Daily Value')
@@ -923,6 +927,23 @@ def plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major
 
         ###  plot fraction of static/max min flow satisfied on right y axis
         flow = subset_timeseries(major_flows[pywr_model][mrf], start_date, end_date)
+
+        ### for Trenton, include BLue Marsh FFMP releases in Trenton Equiv flow
+        if mrf == 'delTrenton':
+            lower_basin_mrf = subset_timeseries(lower_basin_mrf_contributions[pywr_model], start_date, end_date)
+            lower_basin_mrf.columns = [c.split('_')[-1] for c in lower_basin_mrf.columns]
+            # acct for lag at blue marsh so it can be added to trenton equiv flow.
+            for c in ['blueMarsh']:
+                lag = downstream_node_lags[c]
+                downstream_node = immediate_downstream_nodes_dict[c]
+                while downstream_node != 'output_del':
+                    lag += downstream_node_lags[downstream_node]
+                    downstream_node = immediate_downstream_nodes_dict[downstream_node]
+                if lag > 0:
+                    lower_basin_mrf[c].iloc[lag:] = lower_basin_mrf[c].iloc[:-lag]
+            flow += lower_basin_mrf['blueMarsh']
+
+        ### calculate minimum flow threshold satisfaction
         satisfaction = np.minimum(flow.divide(target_max) * 100, np.ones(len(flow)) * 100)
 
         releases = subset_timeseries(reservoir_releases[pywr_model], start_date, end_date)
@@ -974,7 +995,7 @@ def plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major
 
 
 
-def plot_lowflow_exceedances(reservoir_downstream_gages, major_flows, models, nodes,
+def plot_lowflow_exceedances(reservoir_downstream_gages, major_flows, lower_basin_mrf_contributions, models, nodes,
                              start_date=None, end_date=None, colordict = paired_model_colors):
     fontsize = 8
     windows = [1, 7, 30, 90, 365]#, 365*5]
@@ -1008,6 +1029,26 @@ def plot_lowflow_exceedances(reservoir_downstream_gages, major_flows, models, no
             ax = axs[row, col]
             for i, m in enumerate(models):
                 modeled = subset_timeseries(results[m][node], start_date, end_date) / 1000 # convert to BGD for smaller labels
+
+                ### for Trenton & Pywr models, include BLue Marsh FFMP releases in Trenton Equiv flow
+                if 'pywr' in m and node == 'delTrenton':
+                    lower_basin_mrf_contributions = subset_timeseries(lower_basin_mrf_contributions[m],
+                                                                      start_date, end_date) / 1000
+                    lower_basin_mrf_contributions.columns = [c.split('_')[-1] for c in
+                                                             lower_basin_mrf_contributions.columns]
+                    # acct for lag at blue marsh so it can be added to trenton equiv flow.
+                    for c in ['blueMarsh']:
+                        lag = downstream_node_lags[c]
+                        downstream_node = immediate_downstream_nodes_dict[c]
+                        while downstream_node != 'output_del':
+                            lag += downstream_node_lags[downstream_node]
+                            downstream_node = immediate_downstream_nodes_dict[downstream_node]
+                        if lag > 0:
+                            lower_basin_mrf_contributions[c].iloc[lag:] = lower_basin_mrf_contributions[c].iloc[:-lag]
+
+                    modeled += lower_basin_mrf_contributions['blueMarsh']
+
+                ### now get rolling average & plot xQn statistics
                 modeled_rollingavg = modeled.rolling(window).mean()
                 modeled_rollingavg_annmin = modeled_rollingavg.resample('A').min().values
                 modeled_rollingavg_annmin_ordered = np.sort(modeled_rollingavg_annmin)[::-1]
@@ -1071,8 +1112,8 @@ def plot_lowflow_exceedances(reservoir_downstream_gages, major_flows, models, no
 
 
 def plot_NYC_release_components_combined(storages, ffmp_level_boundaries, nyc_release_components,
-                                         reservoir_releases, reservoir_downstream_gages, major_flows, inflows,
-                                         diversions, consumptions, base_model, node,
+                                         lower_basin_mrf_contributions, reservoir_releases, reservoir_downstream_gages,
+                                         major_flows, inflows, diversions, consumptions, base_model, node,
                                          colordict = base_model_colors, start_date = None, end_date = None,
                                          use_log=False, use_observed=False, fig_dir=fig_dir):
 
@@ -1195,10 +1236,12 @@ def plot_NYC_release_components_combined(storages, ffmp_level_boundaries, nyc_re
     colors = ['#2166ac', '#4393c3', '#92c5de', '#d1e5f0', '#f6e8c3', '#dfc27d', '#bf812d', '#8c510a']
     alpha = 1
 
-
     release_components_full = subset_timeseries(nyc_release_components[pywr_model], start_date, end_date)
+
     release_types = ['mrf_target_individual', 'mrf_montagueTrenton', 'flood_release', 'spill']
-    release_components = pd.DataFrame({release_type: release_components_full[[c for c in release_components_full.columns if release_type in c]].sum(axis=1) for release_type in release_types})
+    release_components = pd.DataFrame({release_type: release_components_full[[c for c in release_components_full.columns
+                                                                              if release_type in c]].sum(axis=1)
+                                       for release_type in release_types})
     release_components['uncontrolled'] = downstream_uncontrolled_pywr
 
     release_components = release_components.divide(downstream_gage_pywr, axis=0) * 100
@@ -1238,19 +1281,39 @@ def plot_NYC_release_components_combined(storages, ffmp_level_boundaries, nyc_re
     ### subfig c: split up montague/trenton flow into components
     ########################################################
 
+
     # Get total sim and obs flow
     total_sim_node_flow = subset_timeseries(major_flows[pywr_model][node], start_date, end_date)
     total_base_node_flow = subset_timeseries(major_flows[base_model][node], start_date, end_date)
     if use_observed:
         total_obs_node_flow = subset_timeseries(major_flows['obs'][node], start_date, end_date)
 
-    ### for Trenton, add NJ diversion to simulated flow
+    ### for Trenton, add NJ diversion to simulated flow. also add Blue Marsh MRF contribution for FFMP Trenton equivalent flow
     if node == 'delTrenton':
         nj_diversion = subset_timeseries(diversions[pywr_model]['delivery_nj'], start_date, end_date)
         total_sim_node_flow += nj_diversion
-        total_base_node_flow += nj_diversion
+        # total_base_node_flow += nj_diversion
         if use_observed:
             total_obs_node_flow += nj_diversion
+
+        ### get drbc contributions from lower basin reservoirs
+        lower_basin_mrf_contributions = subset_timeseries(lower_basin_mrf_contributions[pywr_model], start_date, end_date)
+        lower_basin_mrf_contributions.columns = [c.split('_')[-1] for c in lower_basin_mrf_contributions.columns]
+
+        # acct for lag at blue marsh so it can be added to trenton equiv flow. other flows lagged below
+        if node == 'delTrenton':
+            for c in ['blueMarsh']:
+                lag = downstream_node_lags[c]
+                downstream_node = immediate_downstream_nodes_dict[c]
+                while downstream_node != 'output_del':
+                    lag += downstream_node_lags[downstream_node]
+                    downstream_node = immediate_downstream_nodes_dict[downstream_node]
+                if lag > 0:
+                    lower_basin_mrf_contributions[c].iloc[lag:] = lower_basin_mrf_contributions[c].iloc[:-lag]
+
+
+        total_sim_node_flow += lower_basin_mrf_contributions['blueMarsh']
+
 
 
 
@@ -1291,18 +1354,30 @@ def plot_NYC_release_components_combined(storages, ffmp_level_boundaries, nyc_re
     contributing = upstream_nodes_dict[node]
     non_nyc_reservoirs = [i for i in contributing if (i in reservoir_list) and (i not in reservoir_list_nyc)]
     non_nyc_release_contributions = reservoir_releases[pywr_model][non_nyc_reservoirs]
+
+    if node == 'delTrenton':
+        ### subtract lower basin ffmp releases from their non-ffmp releases
+        for r in drbc_lower_basin_reservoirs:
+            if r != 'blueMarsh':
+                non_nyc_release_contributions[r] = np.maximum(non_nyc_release_contributions[r] -
+                                                                lower_basin_mrf_contributions[r], 0)
+
     use_inflows = [i for i in contributing if (i in majorflow_list)]
     if node == 'delMontague':
         use_inflows.append('delMontague')
     inflow_contributions = inflows[pywr_model][use_inflows] - consumptions[pywr_model][use_inflows]
-    mrf_target_individuals = nyc_release_components[pywr_model][[c for c in nyc_release_components[pywr_model].columns if 'mrf_target_individual' in c]]
+    mrf_target_individuals = nyc_release_components[pywr_model][[c for c in nyc_release_components[pywr_model].columns
+                                                                 if 'mrf_target_individual' in c]]
     mrf_target_individuals.columns = [c.rsplit('_',1)[1] for c in mrf_target_individuals.columns]
-    mrf_montagueTrentons = nyc_release_components[pywr_model][[c for c in nyc_release_components[pywr_model].columns if 'mrf_montagueTrenton' in c]]
+    mrf_montagueTrentons = nyc_release_components[pywr_model][[c for c in nyc_release_components[pywr_model].columns
+                                                               if 'mrf_montagueTrenton' in c]]
     mrf_montagueTrentons.columns = [c.rsplit('_',1)[1] for c in mrf_montagueTrentons.columns]
-    flood_releases = nyc_release_components[pywr_model][[c for c in nyc_release_components[pywr_model].columns if 'flood_release' in c]]
+    flood_releases = nyc_release_components[pywr_model][[c for c in nyc_release_components[pywr_model].columns if
+                                                         'flood_release' in c]]
     flood_releases.columns = [c.rsplit('_',1)[1] for c in flood_releases.columns]
     spills = nyc_release_components[pywr_model][[c for c in nyc_release_components[pywr_model].columns if 'spill' in c]]
     spills.columns = [c.rsplit('_',1)[1] for c in spills.columns]
+
 
 
     # Impose lag
@@ -1323,6 +1398,9 @@ def plot_NYC_release_components_combined(storages, ffmp_level_boundaries, nyc_re
                 downstream_node = immediate_downstream_nodes_dict[downstream_node]
             if lag > 0:
                 non_nyc_release_contributions[c].iloc[lag:] = non_nyc_release_contributions[c].iloc[:-lag]
+                if node == 'delTrenton' and c in drbc_lower_basin_reservoirs:
+                    lower_basin_mrf_contributions[c].iloc[lag:] = lower_basin_mrf_contributions[c].iloc[:-lag]
+                ### note: blue marsh lower_basin_mrf_contribution lagged above. It wont show up in upstream_nodes_dict here, so not double lagging.
         elif c in mrf_target_individuals.columns:
             lag = downstream_node_lags[c]
             downstream_node = immediate_downstream_nodes_dict[c]
@@ -1335,8 +1413,12 @@ def plot_NYC_release_components_combined(storages, ffmp_level_boundaries, nyc_re
                 flood_releases[c].iloc[lag:] = flood_releases[c].iloc[:-lag]
                 spills[c].iloc[lag:] = spills[c].iloc[:-lag]
 
+
     inflow_contributions = subset_timeseries(inflow_contributions, start_date, end_date).sum(axis=1)
+
     non_nyc_release_contributions = subset_timeseries(non_nyc_release_contributions, start_date, end_date).sum(axis=1)
+    if node == 'delTrenton':
+        lower_basin_mrf_contributions = lower_basin_mrf_contributions.sum(axis=1)
     mrf_target_individuals = subset_timeseries(mrf_target_individuals, start_date, end_date).sum(axis=1)
     mrf_montagueTrentons = subset_timeseries(mrf_montagueTrentons, start_date, end_date).sum(axis=1)
     flood_releases = subset_timeseries(flood_releases, start_date, end_date).sum(axis=1)
@@ -1344,23 +1426,35 @@ def plot_NYC_release_components_combined(storages, ffmp_level_boundaries, nyc_re
 
     inflow_contributions = inflow_contributions.divide(total_sim_node_flow) * 100
     non_nyc_release_contributions = non_nyc_release_contributions.divide(total_sim_node_flow) * 100
+    if node == 'delTrenton':
+        lower_basin_mrf_contributions = lower_basin_mrf_contributions.divide(total_sim_node_flow) * 100
     mrf_target_individuals = mrf_target_individuals.divide(total_sim_node_flow) * 100
     mrf_montagueTrentons = mrf_montagueTrentons.divide(total_sim_node_flow) * 100
     flood_releases = flood_releases.divide(total_sim_node_flow) * 100
     spills = spills.divide(total_sim_node_flow) * 100
 
+
+
     y1 = 0
     y2 = y1 + inflow_contributions
     y3 = y2 + non_nyc_release_contributions
-    y4 = y3 + mrf_montagueTrentons
-    y5 = y4 + mrf_target_individuals
-    y6 = y5 + flood_releases
-    y7 = y6 + spills
-    ax.fill_between(x, y6, y7, label='NYC Spill', color=colors[0], alpha=alpha, lw=0)
-    ax.fill_between(x, y5, y6, label='NYC FFMP Flood', color=colors[1], alpha=alpha, lw=0)
-    ax.fill_between(x, y4, y5, label='NYC FFMP Individual', color=colors[2], alpha=alpha, lw=0)
-    ax.fill_between(x, y3, y4, label='NYC FFMP Downstream', color=colors[3], alpha=alpha, lw=0)
-    ax.fill_between(x, y2, y3, label='Non-NYC Release', color=colors[5], alpha=alpha, lw=0)
+    if node == 'delTrenton':
+        y4 = y3 + lower_basin_mrf_contributions
+        y5 = y4 + mrf_montagueTrentons
+    else:
+        y5 = y3 + mrf_montagueTrentons
+    y6 = y5 + mrf_target_individuals
+    y7 = y6 + flood_releases
+    y8 = y7 + spills
+    ax.fill_between(x, y7, y8, label='NYC Spill', color=colors[0], alpha=alpha, lw=0)
+    ax.fill_between(x, y6, y7, label='NYC FFMP Flood', color=colors[1], alpha=alpha, lw=0)
+    ax.fill_between(x, y5, y6, label='NYC FFMP Individual', color=colors[2], alpha=alpha, lw=0)
+    if node == 'delTrenton':
+        ax.fill_between(x, y4, y5, label='NYC FFMP Downstream', color=colors[3], alpha=alpha, lw=0)
+        ax.fill_between(x, y3, y4, label='Non-NYC FFMP', color=colors[6], alpha=alpha, lw=0)
+    else:
+        ax.fill_between(x, y3, y5, label='NYC FFMP Downstream', color=colors[3], alpha=alpha, lw=0)
+    ax.fill_between(x, y2, y3, label='Non-NYC Other', color=colors[5], alpha=alpha, lw=0)
     ax.fill_between(x, y1, y2, label='Uncontrolled Flow', color=colors[4], alpha=alpha, lw=0)
 
     ax.legend(frameon=False, fontsize=fontsize, loc='upper center', bbox_to_anchor=(0.37, -0.15), ncols=3)
@@ -1388,7 +1482,7 @@ def plot_NYC_release_components_combined(storages, ffmp_level_boundaries, nyc_re
 
 
 
-def get_shortfall_metrics(major_flows, mrf_targets, ibt_demands, ibt_diversions, models_mrf, models_ibt, nodes,
+def get_shortfall_metrics(major_flows, lower_basin_mrf_contributions, mrf_targets, ibt_demands, ibt_diversions, models_mrf, models_ibt, nodes,
                           shortfall_type='percent', shortfall_threshold=0.95, shortfall_break_length=7,
                           start_date=None, end_date=None):
     """
@@ -1406,6 +1500,24 @@ def get_shortfall_metrics(major_flows, mrf_targets, ibt_demands, ibt_diversions,
             resultsdict[node][m] = {}
             if node in majorflow_list:
                 flows = subset_timeseries(major_flows[m][node], start_date, end_date)
+
+                ### for Trenton & Pywr models, include BLue Marsh FFMP releases in Trenton Equiv flow
+                if 'pywr' in m and node == 'delTrenton':
+                    lower_basin_mrf = subset_timeseries(lower_basin_mrf_contributions[m],
+                                                                      start_date, end_date)
+                    lower_basin_mrf.columns = [c.split('_')[-1] for c in lower_basin_mrf.columns]
+                    # acct for lag at blue marsh so it can be added to trenton equiv flow.
+                    for c in ['blueMarsh']:
+                        lag = downstream_node_lags[c]
+                        downstream_node = immediate_downstream_nodes_dict[c]
+                        while downstream_node != 'output_del':
+                            lag += downstream_node_lags[downstream_node]
+                            downstream_node = immediate_downstream_nodes_dict[downstream_node]
+                        if lag > 0:
+                            lower_basin_mrf[c].iloc[lag:] = lower_basin_mrf[c].iloc[:-lag]
+
+                    flows += lower_basin_mrf['blueMarsh']
+
                 dates = flows.index
                 flows = flows.values
                 thresholds = np.ones(len(flows)) * mrf_targets[models_ibt[0]][f'mrf_target_{node}'].max() * \
