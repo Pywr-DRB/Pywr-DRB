@@ -169,8 +169,10 @@ def predict_inflows_diversions(dataset_label, start_date, end_date,
     ### first loop through lags of 1-4 days and get each node's regression that is needed for that lag.
     regressions = {}
     lag = 1
-    lag_1_nodes = ['01436000', 'wallenpaupack', 'prompton', 'shoholaMarsh', 'mongaupeCombined', '01433500',
-                   'delMontague', 'beltzvilleCombined', '01447800', 'fewalter', '01449800']
+    lag_1_nodes = ['01436000', 'wallenpaupack', 'prompton', 'shoholaMarsh',
+                   'mongaupeCombined', '01433500', 'delMontague', 'beltzvilleCombined', '01447800', 'fewalter',
+                   '01449800',
+                   'merrillCreek', 'hopatcong', 'nockamixon', 'delDRCanal']
     for node in lag_1_nodes:
         const, slope = regress_future_timeseries(catchment_inflows_training, node, lag, use_log=use_log,
                                               remove_zeros=remove_zeros, use_const=use_const)
@@ -178,7 +180,8 @@ def predict_inflows_diversions(dataset_label, start_date, end_date,
 
     lag = 2
     lag_2_nodes = ['mongaupeCombined', '01433500', 'delMontague', 'beltzvilleCombined','01447800','fewalter',
-                   '01449800', 'merrillCreek','hopatcong']
+                   '01449800',
+                   'merrillCreek', 'hopatcong', 'nockamixon', 'delDRCanal']
     for node in lag_2_nodes:
         for l in [lag, lag-1]:
             const, slope = regress_future_timeseries(catchment_inflows_training, node, l, use_log=use_log,
@@ -194,7 +197,7 @@ def predict_inflows_diversions(dataset_label, start_date, end_date,
             regressions[(node, l)] = {'const': const, 'slope': slope}
 
     lag = 4
-    lag_4_nodes = ['nockamixon', 'delDRCanal']
+    lag_4_nodes = ['delDRCanal']
     for node in lag_4_nodes:
         for l in [lag, lag-1]:
             const, slope = regress_future_timeseries(catchment_inflows_training, node, l, use_log=use_log,
@@ -202,66 +205,44 @@ def predict_inflows_diversions(dataset_label, start_date, end_date,
             regressions[(node, l)] = {'const': const, 'slope': slope}
 
 
-    ### now get 2-/1-day lagged predictions for total non-NYC flow for Montague, & 4-/3-day predictions for Trenton.
+    ### now get 2-/1-day lagged predictions for total non-NYC flow for Montague, & 1-4-day predictions for Trenton.
     ### do both prediction (with lagged linear regression) and perfect foresight (actual inflow)
     predicted_timeseries = pd.DataFrame({'datetime': catchment_inflows['datetime']})
     pred_node = 'delMontague'
-    pred_lag = 2
-    node_lags = [('01425000', 0), ('01417000', 0), ('delLordville', 0),
-                 ('01436000', 1), ('wallenpaupack', 1), ('prompton', 1), ('shoholaMarsh', 1),
-                 ('mongaupeCombined', 2), ('01433500', 2), ('delMontague', 2)]
+    for pred_lag in [2,1]:
+        node_lags = [('01425000', pred_lag-2), ('01417000', pred_lag-2), ('delLordville', pred_lag-2),
+                     ('01436000', pred_lag-1), ('wallenpaupack', pred_lag-1), ('prompton', pred_lag-1),
+                     ('shoholaMarsh', pred_lag-1),
+                     ('mongaupeCombined', pred_lag), ('01433500', pred_lag), ('delMontague', pred_lag-1)]
 
-    for mode in ['regression_disagg','perfect_foresight','same_day']:
-        predicted_timeseries[f'{pred_node}_lag{pred_lag}_{mode}'] = np.zeros(catchment_inflows.shape[0])
-        for node, lag in node_lags:
-            predicted_timeseries[f'{pred_node}_lag{pred_lag}_{mode}'] += np.array(
-                [get_known_or_predicted_value(catchment_inflows, catchment_wc, regressions, node,
-                                              lag, idx, use_log, mode) for idx in range(catchment_inflows.shape[0])])
+        for mode in ['regression_disagg', 'perfect_foresight', 'same_day']:
+            predicted_timeseries[f'{pred_node}_lag{pred_lag}_{mode}'] = np.zeros(catchment_inflows.shape[0])
+            for node, lag in node_lags:
+                predicted_timeseries[f'{pred_node}_lag{pred_lag}_{mode}'] += np.array(
+                    [get_known_or_predicted_value(catchment_inflows, catchment_wc, regressions, node,
+                                                  lag, idx, use_log, mode) for idx in
+                     range(catchment_inflows.shape[0])])
 
-    pred_node = 'delMontague'
-    pred_lag = 1
-    node_lags = [('01425000', -1), ('01417000', -1), ('delLordville', -1),
-                 ('01436000', 0), ('wallenpaupack', 0), ('prompton', 0), ('shoholaMarsh', 0),
-                 ('mongaupeCombined', 1), ('01433500', 1), ('delMontague', 1)]
-
-    for mode in ['regression_disagg','perfect_foresight','same_day']:
-        predicted_timeseries[f'{pred_node}_lag{pred_lag}_{mode}'] = np.zeros(catchment_inflows.shape[0])
-        for node, lag in node_lags:
-            predicted_timeseries[f'{pred_node}_lag{pred_lag}_{mode}'] += np.array(
-                [get_known_or_predicted_value(catchment_inflows, catchment_wc, regressions, node,
-                                              lag, idx, use_log, mode) for idx in range(catchment_inflows.shape[0])])
 
     pred_node = 'delTrenton'
-    pred_lag = 4
-    node_lags = [('01425000', 0), ('01417000', 0), ('delLordville', 0),
-                 ('01436000', 1), ('wallenpaupack', 1), ('prompton', 1), ('shoholaMarsh', 1),
-                 ('mongaupeCombined', 2), ('01433500', 2), ('delMontague', 2),
-                 ('beltzvilleCombined', 2), ('01447800', 2), ('fewalter', 2), ('01449800', 2),
-                 ('hopatcong', 3), ('merrillCreek', 3),
-                 ('nockamixon', 4), ('delDRCanal', 4)]
+    for pred_lag in range(4, 0, -1):
+        node_lags = [('01425000', pred_lag-4), ('01417000', pred_lag-4), ('delLordville', pred_lag-4),
+                     ('01436000', pred_lag-3), ('wallenpaupack', pred_lag-3), ('prompton', pred_lag-3),
+                     ('shoholaMarsh', pred_lag-3),
+                     ('mongaupeCombined', pred_lag-2), ('01433500', pred_lag-2), ('delMontague', pred_lag-2),
+                     ('beltzvilleCombined', pred_lag-2), ('01447800', pred_lag-2), ('fewalter', pred_lag-2),
+                     ('01449800', pred_lag-2),
+                     ('hopatcong', pred_lag-1), ('merrillCreek', pred_lag-1), ('nockamixon', pred_lag-1),
+                     ('delDRCanal', pred_lag)]
 
-    for mode in ['regression_disagg','perfect_foresight','same_day']:
-        predicted_timeseries[f'{pred_node}_lag{pred_lag}_{mode}'] = np.zeros(catchment_inflows.shape[0])
-        for node, lag in node_lags:
-            predicted_timeseries[f'{pred_node}_lag{pred_lag}_{mode}'] += np.array(
-                [get_known_or_predicted_value(catchment_inflows, catchment_wc, regressions, node,
-                                              lag, idx, use_log, mode) for idx in range(catchment_inflows.shape[0])])
+        for mode in ['regression_disagg', 'perfect_foresight', 'same_day']:
+            predicted_timeseries[f'{pred_node}_lag{pred_lag}_{mode}'] = np.zeros(catchment_inflows.shape[0])
+            for node, lag in node_lags:
+                predicted_timeseries[f'{pred_node}_lag{pred_lag}_{mode}'] += np.array(
+                    [get_known_or_predicted_value(catchment_inflows, catchment_wc, regressions, node,
+                                                  lag, idx, use_log, mode) for idx in
+                     range(catchment_inflows.shape[0])])
 
-    pred_node = 'delTrenton'
-    pred_lag = 3
-    node_lags = [('01425000', -1), ('01417000', -1), ('delLordville', -1),
-                 ('01436000', 0), ('wallenpaupack', 0), ('prompton', 0), ('shoholaMarsh', 0),
-                 ('mongaupeCombined', 1), ('01433500', 1), ('delMontague', 1),
-                 ('beltzvilleCombined', 1), ('01447800', 1), ('fewalter', 1), ('01449800', 1),
-                 ('hopatcong', 2), ('merrillCreek', 2),
-                 ('nockamixon', 3), ('delDRCanal', 3)]
-
-    for mode in ['regression_disagg','perfect_foresight','same_day']:
-        predicted_timeseries[f'{pred_node}_lag{pred_lag}_{mode}'] = np.zeros(catchment_inflows.shape[0])
-        for node, lag in node_lags:
-            predicted_timeseries[f'{pred_node}_lag{pred_lag}_{mode}'] += np.array(
-                [get_known_or_predicted_value(catchment_inflows, catchment_wc, regressions, node,
-                                              lag, idx, use_log, mode) for idx in range(catchment_inflows.shape[0])])
 
 
 
@@ -274,13 +255,15 @@ def predict_inflows_diversions(dataset_label, start_date, end_date,
 
     regressions = {}
     for pred_node, pred_lag in zip(('delMontague', 'delMontague', 'delMontague',
-                                    'delTrenton', 'delTrenton', 'delTrenton'), (0, 1, 2, 2, 3, 4)):
+                                    'delTrenton', 'delTrenton', 'delTrenton', 'delTrenton', 'delTrenton'),
+                                   (0, 1, 2,
+                                    0, 1, 2, 3, 4)):
         const, slope = regress_future_timeseries(nonnyc_gage_flow_training, pred_node, pred_lag, use_log=use_log,
                                               remove_zeros=remove_zeros, use_const=use_const)
         regressions[(pred_node, pred_lag)] = {'const': const, 'slope': slope}
 
     for pred_node, pred_lag in zip(('delMontague', 'delMontague',
-                                    'delTrenton', 'delTrenton'), (1, 2, 3, 4)):
+                                    'delTrenton', 'delTrenton', 'delTrenton', 'delTrenton'), (1, 2, 1, 2, 3, 4)):
         predicted_timeseries[f'{pred_node}_lag{pred_lag}_{mode}'] = np.array(
             [get_known_or_predicted_value(catchment_inflows, catchment_wc, regressions, pred_node,
                                           pred_lag, idx, use_log, mode) for idx in range(catchment_inflows.shape[0])])
@@ -290,13 +273,15 @@ def predict_inflows_diversions(dataset_label, start_date, end_date,
     window = 7
     rollmean_timeseries = get_rollmean_timeseries(nonnyc_gage_flow, window)
     for pred_node, pred_lag in zip(('delMontague', 'delMontague', 'delMontague',
-                                    'delTrenton', 'delTrenton', 'delTrenton'), (0, 1, 2, 2, 3, 4)):
+                                    'delTrenton', 'delTrenton', 'delTrenton', 'delTrenton', 'delTrenton'),
+                                   (0, 1, 2,
+                                    0, 1, 2, 3, 4)):
         predicted_timeseries[f'{pred_node}_lag{pred_lag}_{mode}'] = rollmean_timeseries[pred_node]
 
 
 
 
-    ### now do predictions for NJ diversions as well
+    ### now do predictions for 1-4 days for NJ diversions as well
     ### read in NJ diversions (used as demands)
     nj_diversions = pd.read_csv(f'{input_dir}/deliveryNJ_DRCanal_extrapolated.csv')
     nj_diversions.index = pd.DatetimeIndex(nj_diversions['datetime'])
@@ -306,11 +291,11 @@ def predict_inflows_diversions(dataset_label, start_date, end_date,
     pred_node = 'demand_nj'
     regressions = {}
 
-    for pred_lag in [2,3,4]:
+    for pred_lag in [0,1,2,3,4]:
         const, slope = regress_future_timeseries(nj_diversions_training, pred_node, pred_lag, use_log=use_log,
                                                  remove_zeros=remove_zeros, use_const=use_const)
         regressions[(pred_node, pred_lag)] = {'const': const, 'slope': slope}
-    for pred_lag in [3,4]:
+    for pred_lag in [1,2,3,4]:
         for mode in ['regression_disagg', 'perfect_foresight', 'same_day']:
             predicted_timeseries[f'{pred_node}_lag{pred_lag}_{mode}'] = np.array(
                 [get_known_or_predicted_value(nj_diversions, catchment_wc, regressions, pred_node,
@@ -321,7 +306,7 @@ def predict_inflows_diversions(dataset_label, start_date, end_date,
     mode = 'moving_average'
     window = 7
     rollmean_timeseries = get_rollmean_timeseries(nj_diversions, window)
-    for pred_lag in [2, 3, 4]:
+    for pred_lag in [0, 1, 2, 3, 4]:
         predicted_timeseries[f'{pred_node}_lag{pred_lag}_{mode}'] = rollmean_timeseries[pred_node]
 
     ### save to csv
@@ -334,7 +319,7 @@ def predict_inflows_diversions(dataset_label, start_date, end_date,
     
     
 def predict_ensemble_inflows_diversions(dataset_label, start_date, end_date,
-                                     use_log=False, remove_zeros=False, use_const=False):
+                                        use_log=False, remove_zeros=False, use_const=False):
     """Makes predictions for inflows and diversions at non-NYC gage flows, 
     using the specified ensemble dataset, looping through each realization. 
     Ensemble of predictions is exported to hdf5 file.

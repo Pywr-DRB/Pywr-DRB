@@ -79,7 +79,7 @@ downstream_node_lags = {'cannonsville': 0,
                         'fewalter': 0,
                         'merrillCreek': 1,
                         'hopatcong': 1,
-                        'nockamixon': 0,
+                        'nockamixon': 1,
                         'assunpink': 0,
                         'ontelaunee': 2,
                         'stillCreek': 2,
@@ -214,7 +214,7 @@ nwm_site_matches = {'cannonsville': ['2613174'],    # Lake inflow
                     'fewalter': ['4185065'],        # Lake inflow
                     'merrillCreek': ['2588031'],    # No NWM lake; using available segment flow
                     'hopatcong': ['2585287'],       # Lake inflow
-                    'nockamixon': ['2591099'],      # No NWM lake; using available segment flow
+                    'nockamixon': ['2591099'],      # No NWM lake; using available segment flow  2591187 2591219
                     'assunpink': ['2589015'],       # Lake inflow
                     'ontelaunee': ['4779981'],      # Lake inflow
                     'stillCreek': ['4778721'],      # Lake inflow

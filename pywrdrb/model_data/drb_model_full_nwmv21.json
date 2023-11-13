@@ -44,7 +44,7 @@
         {
             "name": "outflow_cannonsville",
             "type": "link",
-            "cost": -1000,
+            "cost": -1000.0,
             "max_flow": "downstream_release_target_cannonsville"
         },
         {
@@ -80,7 +80,7 @@
         {
             "name": "outflow_pepacton",
             "type": "link",
-            "cost": -1000,
+            "cost": -1000.0,
             "max_flow": "downstream_release_target_pepacton"
         },
         {
@@ -116,7 +116,7 @@
         {
             "name": "outflow_neversink",
             "type": "link",
-            "cost": -1000,
+            "cost": -1000.0,
             "max_flow": "downstream_release_target_neversink"
         },
         {
@@ -312,7 +312,7 @@
             "name": "outflow_beltzvilleCombined",
             "type": "link",
             "cost": -500.0,
-            "max_flow": "starfit_release_beltzvilleCombined"
+            "max_flow": "downstream_release_target_beltzvilleCombined"
         },
         {
             "name": "spill_beltzvilleCombined",
@@ -466,12 +466,17 @@
             "name": "outflow_nockamixon",
             "type": "link",
             "cost": -500.0,
-            "max_flow": "starfit_release_nockamixon"
+            "max_flow": "downstream_release_target_nockamixon"
         },
         {
             "name": "spill_nockamixon",
             "type": "link",
             "cost": 5000.0
+        },
+        {
+            "name": "delay_nockamixon",
+            "type": "DelayNode",
+            "days": 1
         },
         {
             "name": "reservoir_assunpink",
@@ -620,7 +625,7 @@
             "name": "outflow_blueMarsh",
             "type": "link",
             "cost": -500.0,
-            "max_flow": "starfit_release_blueMarsh"
+            "max_flow": "downstream_release_target_blueMarsh"
         },
         {
             "name": "spill_blueMarsh",
@@ -1414,6 +1419,10 @@
         ],
         [
             "outflow_nockamixon",
+            "delay_nockamixon"
+        ],
+        [
+            "delay_nockamixon",
             "link_delDRCanal"
         ],
         [
@@ -1422,7 +1431,7 @@
         ],
         [
             "spill_nockamixon",
-            "link_delDRCanal"
+            "delay_nockamixon"
         ],
         [
             "catchment_assunpink",
@@ -3957,6 +3966,20 @@
             "index_col": "datetime",
             "parse_dates": true
         },
+        "predicted_nonnyc_gage_flow_delTrenton_lag1": {
+            "type": "dataframe",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_inflows_diversions_nwmv21.csv",
+            "column": "delTrenton_lag1_regression_disagg",
+            "index_col": "datetime",
+            "parse_dates": true
+        },
+        "predicted_nonnyc_gage_flow_delTrenton_lag2": {
+            "type": "dataframe",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_inflows_diversions_nwmv21.csv",
+            "column": "delTrenton_lag2_regression_disagg",
+            "index_col": "datetime",
+            "parse_dates": true
+        },
         "predicted_nonnyc_gage_flow_delTrenton_lag3": {
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_inflows_diversions_nwmv21.csv",
@@ -3968,6 +3991,20 @@
             "type": "dataframe",
             "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_inflows_diversions_nwmv21.csv",
             "column": "delTrenton_lag4_regression_disagg",
+            "index_col": "datetime",
+            "parse_dates": true
+        },
+        "predicted_demand_nj_lag1": {
+            "type": "dataframe",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_inflows_diversions_nwmv21.csv",
+            "column": "demand_nj_lag1_regression_disagg",
+            "index_col": "datetime",
+            "parse_dates": true
+        },
+        "predicted_demand_nj_lag2": {
+            "type": "dataframe",
+            "url": "/home/alh/PycharmProjects/Pywr-DRB/input_data/predicted_inflows_diversions_nwmv21.csv",
+            "column": "demand_nj_lag2_regression_disagg",
             "index_col": "datetime",
             "parse_dates": true
         },
@@ -3985,51 +4022,303 @@
             "index_col": "datetime",
             "parse_dates": true
         },
-        "volbalance_relative_mrf_montagueTrenton_step1CanPep": {
-            "type": "VolBalanceNYCDownstreamMRFTargetAgg_step1CanPep"
+        "release_needed_mrf_montague_step1": {
+            "type": "TotalReleaseNeededForDownstreamMRF",
+            "mrf": "delMontague",
+            "step": 1
+        },
+        "release_needed_mrf_trenton_step1": {
+            "type": "TotalReleaseNeededForDownstreamMRF",
+            "mrf": "delTrenton",
+            "step": 1
+        },
+        "total_agg_mrf_montagueTrenton_step1": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "release_needed_mrf_montague_step1",
+                "release_needed_mrf_trenton_step1"
+            ]
+        },
+        "max_mrf_trenton_step1_beltzvilleCombined": {
+            "type": "LowerBasinMaxMRFContribution",
+            "node": "reservoir_beltzvilleCombined",
+            "step": 1
+        },
+        "max_mrf_trenton_step1_blueMarsh": {
+            "type": "LowerBasinMaxMRFContribution",
+            "node": "reservoir_blueMarsh",
+            "step": 1
+        },
+        "max_mrf_trenton_step1_nockamixon": {
+            "type": "LowerBasinMaxMRFContribution",
+            "node": "reservoir_nockamixon",
+            "step": 1
+        },
+        "lower_basin_agg_mrf_trenton_step1": {
+            "type": "VolBalanceLowerBasinMRFAggregate",
+            "step": 1
         },
         "mrf_montagueTrenton_cannonsville": {
-            "type": "VolBalanceNYCDownstreamMRF_step1CanPep",
+            "type": "VolBalanceNYCDownstreamMRF_step1",
             "node": "reservoir_cannonsville"
         },
         "mrf_montagueTrenton_pepacton": {
-            "type": "VolBalanceNYCDownstreamMRF_step1CanPep",
+            "type": "VolBalanceNYCDownstreamMRF_step1",
             "node": "reservoir_pepacton"
         },
-        "prev_outflow_cannonsville": {
-            "type": "flow",
-            "node": "outflow_cannonsville"
+        "outflow_cannonsville_rollmean1": {
+            "type": "rollingmeanflownode",
+            "node": "outflow_cannonsville",
+            "days": 1
         },
-        "prev_spill_cannonsville": {
-            "type": "flow",
-            "node": "spill_cannonsville"
+        "spill_cannonsville_rollmean1": {
+            "type": "rollingmeanflownode",
+            "node": "spill_cannonsville",
+            "days": 1
         },
-        "prev_release_cannonsville": {
+        "release_cannonsville_lag1": {
+            "type": "LaggedReservoirRelease",
+            "node": "cannonsville",
+            "lag": 1
+        },
+        "outflow_pepacton_rollmean1": {
+            "type": "rollingmeanflownode",
+            "node": "outflow_pepacton",
+            "days": 1
+        },
+        "spill_pepacton_rollmean1": {
+            "type": "rollingmeanflownode",
+            "node": "spill_pepacton",
+            "days": 1
+        },
+        "release_pepacton_lag1": {
+            "type": "LaggedReservoirRelease",
+            "node": "pepacton",
+            "lag": 1
+        },
+        "release_needed_mrf_montague_step2": {
+            "type": "TotalReleaseNeededForDownstreamMRF",
+            "mrf": "delMontague",
+            "step": 2
+        },
+        "release_needed_mrf_trenton_step2": {
+            "type": "TotalReleaseNeededForDownstreamMRF",
+            "mrf": "delTrenton",
+            "step": 2
+        },
+        "total_agg_mrf_montagueTrenton_step2": {
             "type": "aggregated",
             "agg_func": "sum",
             "parameters": [
-                "prev_outflow_cannonsville",
-                "prev_spill_cannonsville"
+                "release_needed_mrf_montague_step2",
+                "release_needed_mrf_trenton_step2"
             ]
         },
-        "prev_outflow_pepacton": {
-            "type": "flow",
-            "node": "outflow_pepacton"
+        "max_mrf_trenton_step2_beltzvilleCombined": {
+            "type": "LowerBasinMaxMRFContribution",
+            "node": "reservoir_beltzvilleCombined",
+            "step": 2
         },
-        "prev_spill_pepacton": {
-            "type": "flow",
-            "node": "spill_pepacton"
+        "max_mrf_trenton_step2_blueMarsh": {
+            "type": "LowerBasinMaxMRFContribution",
+            "node": "reservoir_blueMarsh",
+            "step": 2
         },
-        "prev_release_pepacton": {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                "prev_outflow_pepacton",
-                "prev_spill_pepacton"
-            ]
+        "max_mrf_trenton_step2_nockamixon": {
+            "type": "LowerBasinMaxMRFContribution",
+            "node": "reservoir_nockamixon",
+            "step": 2
+        },
+        "lower_basin_agg_mrf_trenton_step2": {
+            "type": "VolBalanceLowerBasinMRFAggregate",
+            "step": 2
         },
         "mrf_montagueTrenton_neversink": {
-            "type": "VolBalanceNYCDownstreamMRF_step2Nev"
+            "type": "VolBalanceNYCDownstreamMRF_step2"
+        },
+        "outflow_neversink_rollmean1": {
+            "type": "rollingmeanflownode",
+            "node": "outflow_neversink",
+            "days": 1
+        },
+        "spill_neversink_rollmean1": {
+            "type": "rollingmeanflownode",
+            "node": "spill_neversink",
+            "days": 1
+        },
+        "release_neversink_lag1": {
+            "type": "LaggedReservoirRelease",
+            "node": "neversink",
+            "lag": 1
+        },
+        "outflow_cannonsville_rollmean2": {
+            "type": "rollingmeanflownode",
+            "node": "outflow_cannonsville",
+            "days": 2
+        },
+        "spill_cannonsville_rollmean2": {
+            "type": "rollingmeanflownode",
+            "node": "spill_cannonsville",
+            "days": 2
+        },
+        "release_cannonsville_lag2": {
+            "type": "LaggedReservoirRelease",
+            "node": "cannonsville",
+            "lag": 2
+        },
+        "outflow_pepacton_rollmean2": {
+            "type": "rollingmeanflownode",
+            "node": "outflow_pepacton",
+            "days": 2
+        },
+        "spill_pepacton_rollmean2": {
+            "type": "rollingmeanflownode",
+            "node": "spill_pepacton",
+            "days": 2
+        },
+        "release_pepacton_lag2": {
+            "type": "LaggedReservoirRelease",
+            "node": "pepacton",
+            "lag": 2
+        },
+        "release_needed_mrf_trenton_step3": {
+            "type": "TotalReleaseNeededForDownstreamMRF",
+            "mrf": "delTrenton",
+            "step": 3
+        },
+        "max_mrf_trenton_step3_beltzvilleCombined": {
+            "type": "LowerBasinMaxMRFContribution",
+            "node": "reservoir_beltzvilleCombined",
+            "step": 3
+        },
+        "max_mrf_trenton_step3_blueMarsh": {
+            "type": "LowerBasinMaxMRFContribution",
+            "node": "reservoir_blueMarsh",
+            "step": 3
+        },
+        "max_mrf_trenton_step3_nockamixon": {
+            "type": "LowerBasinMaxMRFContribution",
+            "node": "reservoir_nockamixon",
+            "step": 3
+        },
+        "lower_basin_agg_mrf_trenton_step3": {
+            "type": "VolBalanceLowerBasinMRFAggregate",
+            "step": 3
+        },
+        "mrf_trenton_beltzvilleCombined": {
+            "type": "VolBalanceLowerBasinMRFIndividual",
+            "node": "reservoir_beltzvilleCombined",
+            "step": 3
+        },
+        "mrf_trenton_blueMarsh": {
+            "type": "VolBalanceLowerBasinMRFIndividual",
+            "node": "reservoir_blueMarsh",
+            "step": 3
+        },
+        "outflow_beltzvilleCombined_rollmean1": {
+            "type": "rollingmeanflownode",
+            "node": "outflow_beltzvilleCombined",
+            "days": 1
+        },
+        "spill_beltzvilleCombined_rollmean1": {
+            "type": "rollingmeanflownode",
+            "node": "spill_beltzvilleCombined",
+            "days": 1
+        },
+        "release_beltzvilleCombined_lag1": {
+            "type": "LaggedReservoirRelease",
+            "node": "beltzvilleCombined",
+            "lag": 1
+        },
+        "outflow_blueMarsh_rollmean1": {
+            "type": "rollingmeanflownode",
+            "node": "outflow_blueMarsh",
+            "days": 1
+        },
+        "spill_blueMarsh_rollmean1": {
+            "type": "rollingmeanflownode",
+            "node": "spill_blueMarsh",
+            "days": 1
+        },
+        "release_blueMarsh_lag1": {
+            "type": "LaggedReservoirRelease",
+            "node": "blueMarsh",
+            "lag": 1
+        },
+        "outflow_neversink_rollmean2": {
+            "type": "rollingmeanflownode",
+            "node": "outflow_neversink",
+            "days": 2
+        },
+        "spill_neversink_rollmean2": {
+            "type": "rollingmeanflownode",
+            "node": "spill_neversink",
+            "days": 2
+        },
+        "release_neversink_lag2": {
+            "type": "LaggedReservoirRelease",
+            "node": "neversink",
+            "lag": 2
+        },
+        "outflow_cannonsville_rollmean3": {
+            "type": "rollingmeanflownode",
+            "node": "outflow_cannonsville",
+            "days": 3
+        },
+        "spill_cannonsville_rollmean3": {
+            "type": "rollingmeanflownode",
+            "node": "spill_cannonsville",
+            "days": 3
+        },
+        "release_cannonsville_lag3": {
+            "type": "LaggedReservoirRelease",
+            "node": "cannonsville",
+            "lag": 3
+        },
+        "outflow_pepacton_rollmean3": {
+            "type": "rollingmeanflownode",
+            "node": "outflow_pepacton",
+            "days": 3
+        },
+        "spill_pepacton_rollmean3": {
+            "type": "rollingmeanflownode",
+            "node": "spill_pepacton",
+            "days": 3
+        },
+        "release_pepacton_lag3": {
+            "type": "LaggedReservoirRelease",
+            "node": "pepacton",
+            "lag": 3
+        },
+        "release_needed_mrf_trenton_step4": {
+            "type": "TotalReleaseNeededForDownstreamMRF",
+            "mrf": "delTrenton",
+            "step": 4
+        },
+        "max_mrf_trenton_step4_beltzvilleCombined": {
+            "type": "LowerBasinMaxMRFContribution",
+            "node": "reservoir_beltzvilleCombined",
+            "step": 4
+        },
+        "max_mrf_trenton_step4_blueMarsh": {
+            "type": "LowerBasinMaxMRFContribution",
+            "node": "reservoir_blueMarsh",
+            "step": 4
+        },
+        "max_mrf_trenton_step4_nockamixon": {
+            "type": "LowerBasinMaxMRFContribution",
+            "node": "reservoir_nockamixon",
+            "step": 4
+        },
+        "lower_basin_agg_mrf_trenton_step4": {
+            "type": "VolBalanceLowerBasinMRFAggregate",
+            "step": 4
+        },
+        "mrf_trenton_nockamixon": {
+            "type": "VolBalanceLowerBasinMRFIndividual",
+            "node": "reservoir_nockamixon",
+            "step": 4
         },
         "downstream_release_target_cannonsville": {
             "type": "aggregated",
@@ -4056,6 +4345,30 @@
                 "mrf_target_individual_neversink",
                 "flood_release_neversink",
                 "mrf_montagueTrenton_neversink"
+            ]
+        },
+        "downstream_release_target_beltzvilleCombined": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "mrf_trenton_beltzvilleCombined",
+                "starfit_release_beltzvilleCombined"
+            ]
+        },
+        "downstream_release_target_blueMarsh": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "mrf_trenton_blueMarsh",
+                "starfit_release_blueMarsh"
+            ]
+        },
+        "downstream_release_target_nockamixon": {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                "mrf_trenton_nockamixon",
+                "starfit_release_nockamixon"
             ]
         },
         "hist_max_flow_delivery_nyc_cannonsville": {

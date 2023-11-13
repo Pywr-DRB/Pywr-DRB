@@ -1,7 +1,13 @@
 import h5py
+import sys
 import pandas as pd
 import numpy as np
 
+from .directories import ROOT_DIR
+
+from pywr_drb_node_data import obs_site_matches
+
+pywrdrb_all_nodes = list(obs_site_matches.keys())
 
 def combine_batched_hdf5_outputs(batch_files, combined_output_file):
     with h5py.File(combined_output_file, 'w') as hf_out:
@@ -85,7 +91,8 @@ def get_hdf5_realization_numbers(filename):
     return realization_numbers
 
 
-def extract_realization_from_hdf5(hdf5_file, realization):
+def extract_realization_from_hdf5(hdf5_file, realization,
+                                  stored_by_node=False):
     """_summary_
 
     Args:
@@ -96,19 +103,32 @@ def extract_realization_from_hdf5(hdf5_file, realization):
         pandas.DataFrame: A DataFrame containing the realization
     """
     with h5py.File(hdf5_file, 'r') as f:
-        realization_group = f[f"realization_{realization}"]
-        
-        # Extract column labels
-        column_labels = realization_group.attrs['column_labels']
-        # Extract timeseries data for each location
-        data = {}
-        for label in column_labels:
-            dataset = realization_group[label]
-            data[label] = dataset[:]
-        
-        # Get date indices
-        dates = realization_group['date'][:].tolist()
-        # dates = pd.to_datetime([d[1:] for d in dates])
+        if stored_by_node:
+            # Extract timeseries data from realization for each node
+            data = {}
+                
+            for node in pywrdrb_all_nodes:
+                node_data = f[node]
+                column_labels = node_data.attrs['column_labels']
+                assert(f'realization_{realization}' in column_labels),f'The specified realization {realization} is not available in the HDF file.'
+                data[node] = node_data[f'realization_{realization}'][:]
+            
+            dates = node_data['date'][:].tolist()
+            
+        else:
+            realization_group = f[f"realization_{realization}"]
+            
+            # Extract column labels
+            column_labels = realization_group.attrs['column_labels']
+            # Extract timeseries data for each location
+            data = {}
+            for label in column_labels:
+                dataset = realization_group[label]
+                data[label] = dataset[:]
+            
+            # Get date indices
+            dates = realization_group['date'][:].tolist()
+        data['datetime'] = dates
         
     # Combine into dataframe
     df = pd.DataFrame(data, index = dates)

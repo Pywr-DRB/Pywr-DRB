@@ -81,6 +81,3 @@ if __name__ == "__main__":
 
     ### get catchment demands based on DRBC data
     sw_demand = disaggregate_DRBC_demands()
-
-
-
