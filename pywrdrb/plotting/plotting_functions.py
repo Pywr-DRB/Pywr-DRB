@@ -254,13 +254,13 @@ def get_error_metrics(reservoir_downstream_gages, major_flows, models, nodes, st
                 ### FDC slope relative bias. follow Yan et al JAMES SI, but switch to relative value so 1 is best, like bias/std.
                 ### Do this in log space, even though Yan et al doesnt do that. seems like real space is just measuring size of higher quantile.
                 sfdc_2575_obs_log = (np.log(np.quantile(obs, 0.75)) - np.log(np.quantile(obs, 0.25))) / 0.5
-                sfdc_0595_obs_log = (np.log(np.quantile(obs, 0.95)) - np.log(np.quantile(obs, 0.05))) / 0.9
+                sfdc_0199_obs_log = (np.log(np.quantile(obs, 0.99)) - np.log(np.quantile(obs, 0.01))) / 0.98
                 sfdc_MinMax_obs_log = (np.log(obs.max()) - np.log(obs.min()))
                 sfdc_2575_mod_log = (np.log(np.quantile(modeled, 0.75)) - np.log(np.quantile(modeled, 0.25))) / 0.5
-                sfdc_0595_mod_log = (np.log(np.quantile(modeled, 0.95)) - np.log(np.quantile(modeled, 0.05))) / 0.9
+                sfdc_0199_mod_log = (np.log(np.quantile(modeled, 0.99)) - np.log(np.quantile(modeled, 0.01))) / 0.98
                 sfdc_MinMax_mod_log = (np.log(modeled.max()) - np.log(modeled.min()))
                 sfdc_relBias_2575_log = sfdc_2575_mod_log / sfdc_2575_obs_log
-                sfdc_relBias_0595_log = sfdc_0595_mod_log / sfdc_0595_obs_log
+                sfdc_relBias_0199_log = sfdc_0199_mod_log / sfdc_0199_obs_log
                 sfdc_relBias_MinMax_log = sfdc_MinMax_mod_log / sfdc_MinMax_obs_log
 
                 ### relative biases in different seasons
@@ -272,7 +272,7 @@ def get_error_metrics(reservoir_downstream_gages, major_flows, models, nodes, st
                     relbiases[season] = modeled.loc[bools].mean() / obs.loc[bools].mean()
 
                 ### relative biases in different quantiles of observed series
-                qgroups = [(0,5),(5,25),(25,75),(75,95),(95,100)]
+                qgroups = [(0,1),(1,25),(25,75),(75,99),(99,100)]
                 for qgroup in qgroups:
                     if qgroup[1] == 100:
                         bools = obs >= np.quantile(obs, qgroup[0]/100)
@@ -294,7 +294,7 @@ def get_error_metrics(reservoir_downstream_gages, major_flows, models, nodes, st
                                      'rel_roughness_log': rel_roughness_log,
                                      'fdc_match_horiz': fdc_match_horiz, 'fdc_match_vert': fdc_match_vert,
                                      'sfdc_relBias_2575_log': sfdc_relBias_2575_log,
-                                     'sfdc_relBias_0595_log': sfdc_relBias_0595_log,
+                                     'sfdc_relBias_0199_log': sfdc_relBias_0199_log,
                                      'sfdc_relBias_MinMax_log': sfdc_relBias_MinMax_log,
                                      'bias_Annual': relbiases['Annual']}
 
@@ -337,40 +337,55 @@ def plot_gridded_error_metrics(results_metrics, models, nodes, start_date, end_d
 
     fig, ax = plt.subplots(1,1, figsize=(9,9))
 
-    # metrics = ['nse', 'kge', 'r', 'alpha', 'beta', 'kss', 'lognse', 'logkge', 'sfdc_relBias_2575', 'sfdc_relBias_0595']
+    # metrics = ['nse', 'kge', 'r', 'alpha', 'beta', 'kss', 'lognse', 'logkge', 'sfdc_relBias_2575', 'sfdc_relBias_0199']
     # metrics = [f'{timescale}_{metric}' for metric in metrics for timescale in ('D','M')]
-    if figstage < 2:
-        metrics = ['D_nse', 'D_kge', 'D_r', 'D_fdc_match_horiz', 'D_fdc_match_vert',
-                   'D_sfdc_relBias_2575_log', 'D_sfdc_relBias_0595_log', 'D_alpha',
-                   'D_rel_autocorr1', 'D_rel_roughness_log',
-                   'D_bias_Annual', 'D_bias_DJF', 'D_bias_MAM', 'D_bias_JJA', 'D_bias_SON',
-                   'D_bias_qMin', 'D_bias_q0-5', 'D_bias_q5-25', 'D_bias_q25-75', 'D_bias_q75-95',
-                   'D_bias_q95-100', 'D_bias_qMax']
+    if figstage == 0:
+        fig, ax = plt.subplots(1, 1, figsize=(4, 6))
+        fontsize = 6
+        metrics = ['D_nse', 'D_r',
+                   'D_alpha', 'D_bias_Annual',
+                   'D_bias_q0-1',
+                   'D_bias_q99-100', 'D_fdc_match_horiz', ]
     else:
-        metrics = ['M_nse', 'M_kge', 'M_r', 'M_fdc_match_horiz', 'M_fdc_match_vert',
-                   'M_sfdc_relBias_2575_log', 'M_sfdc_relBias_0595_log', 'M_alpha',
-                   'M_rel_autocorr1', 'M_rel_roughness_log',
-                   'M_bias_Annual', 'M_bias_DJF', 'M_bias_MAM', 'M_bias_JJA', 'M_bias_SON',
-                   'M_bias_qMin', 'M_bias_q0-5', 'M_bias_q5-25', 'M_bias_q25-75', 'M_bias_q75-95',
-                   'M_bias_q95-100', 'M_bias_qMax']
+        fig, ax = plt.subplots(1, 1, figsize=(9, 9))
+        fontsize = 7
 
-    # metric_label_dict = {'nse': 'Nash-Sutcliffe Efficiency', 'kge': 'Kling-Gupta Efficiency', 'r': 'Correlation', 'alpha': 'Relative STD', 'beta': 'Relative Bias',
-    #                      'kss': 'Kolmogorov-Smirnov Metric', 'lognse': 'Log Nash-Sutcliffe Efficiency', 'logkge': 'Log Kling-Gupta Efficiency'}
-    metric_label_dict = {'nse': 'NSE', 'kge': 'KGE', 'r': 'Corr.', 'alpha': 'Rel. STD', 'beta': 'Rel. Bias',
-                         'fdc_match_horiz': 'FDC Horiz. Match', 'fdc_match_vert': 'FDC Vert. Match', 'lognse': 'Log NSE', 'logkge': 'Log KGE',
-                         'sfdc_relBias_2575':'FDC Q25-75 Slope Rel. Bias',
-                         'sfdc_relBias_0595':'FDC Q5-95 Slope Rel. Bias',
+        if figstage == 1:
+            metrics = ['D_nse', 'D_kge', 'D_r', 'D_fdc_match_horiz', 'D_fdc_match_vert',
+                       'D_sfdc_relBias_2575_log', 'D_sfdc_relBias_0199_log', 'D_alpha',
+                       'D_rel_autocorr1', 'D_rel_roughness_log',
+                       'D_bias_Annual', 'D_bias_DJF', 'D_bias_MAM', 'D_bias_JJA', 'D_bias_SON',
+                       'D_bias_qMin', 'D_bias_q0-1', 'D_bias_q1-25', 'D_bias_q25-75', 'D_bias_q75-99',
+                       'D_bias_q99-100', 'D_bias_qMax']
+        else:
+            metrics = ['M_nse', 'M_kge', 'M_r', 'M_fdc_match_horiz', 'M_fdc_match_vert',
+                       'M_sfdc_relBias_2575_log', 'M_sfdc_relBias_0199_log', 'M_alpha',
+                       'M_rel_autocorr1', 'M_rel_roughness_log',
+                       'M_bias_Annual', 'M_bias_DJF', 'M_bias_MAM', 'M_bias_JJA', 'M_bias_SON',
+                       'M_bias_qMin', 'M_bias_q0-1', 'M_bias_q1-25', 'M_bias_q25-75', 'M_bias_q75-99',
+                       'M_bias_q99-100', 'M_bias_qMax']
+
+
+    metric_label_dict = {'nse': 'NSE', 'kge': 'KGE', 'r': 'Correlation', 'alpha': 'Rel. STD', 'beta': 'Rel. Bias',
+                         'fdc_match_horiz': 'FDC Horiz. Closeness', 'fdc_match_vert': 'FDC Vert. Closeness',
+                         'lognse': 'Log NSE', 'logkge': 'Log KGE',
+                         'sfdc_relBias_2575': 'FDC Q25-75 Slope Rel. Bias',
+                         'sfdc_relBias_0199': 'FDC Q1-99 Slope Rel. Bias',
                          'sfdc_relBias_2575_log': 'Log FDC Q25-75 Slope Rel. Bias',
-                         'sfdc_relBias_0595_log': 'Log FDC Q5-95 Slope Rel. Bias',
-                         'bias_Annual':'Annual Rel. Bias', 'bias_DJF':'DJF Rel. Bias', 'bias_MAM':'MAM Rel. Bias',
-                         'bias_JJA':'JJA Rel. Bias', 'bias_SON':'SON Rel. Bias',
-                         'bias_qMin': 'QMin Rel. Bias', 'bias_q0-5': 'Q0-5 Rel. Bias', 'bias_q5-25': 'Q5-25 Rel. Bias',
-                         'bias_q25-75': 'Q25-75 Rel. Bias', 'bias_q75-95': 'Q75-95 Rel. Bias',
-                         'bias_q95-100': 'Q95-100 Rel. Bias', 'bias_qMax': 'QMax Rel. Bias'}
+                         'sfdc_relBias_0199_log': 'Log FDC Q1-99 Slope Rel. Bias',
+                         'bias_Annual': 'Rel. Bias', 'bias_DJF': 'Rel. Bias DJF', 'bias_MAM': 'Rel. Bias MAM',
+                         'bias_JJA': 'Rel. Bias JJA', 'bias_SON': 'Rel. Bias SON',
+                         'bias_qMin': 'Rel. Bias Q0', 'bias_q0-1': 'Rel. Bias Q0-1', 'bias_q1-25': 'Rel. Bias Q1-25',
+                         'bias_q25-75': 'Rel. Bias Q25-75', 'bias_q75-99': 'Rel. Bias Q75-99',
+                         'bias_q99-100': 'Rel. Bias Q99-100', 'bias_qMax': 'Rel. Bias Q100'}
 
-    timescale_label_dict = {'D': 'Daily', 'M':'Monthly'}
-    metric_label_dict = {f'{timescale}_{k}': f'{timescale_label_dict[timescale]} {v}' \
-                         for k,v in metric_label_dict.items() for timescale in ('D','M')}
+    timescale_label_dict = {'D': 'Daily', 'M': 'Monthly'}
+    if figstage == 0:
+        metric_label_dict = {f'{timescale}_{k}': f'{v}' for k, v in metric_label_dict.items() for timescale in
+                             ('D', 'M')}
+    else:
+        metric_label_dict = {f'{timescale}_{k}': f'{timescale_label_dict[timescale]} {v}' \
+                             for k, v in metric_label_dict.items() for timescale in ('D', 'M')}
 
     labels = ['a)','b)','c)','d)','e)','f)','g)','h)','i)']
 
@@ -381,21 +396,6 @@ def plot_gridded_error_metrics(results_metrics, models, nodes, start_date, end_d
     for metric in metrics:
         vmin = results_metrics[metric].min()
         vmax = results_metrics[metric].max()
-        ### linear color palette for relative bias type metrics
-        # if vmax > 1:
-        #     ### set vmin & vmax to be centered at 1, with widest allowed limits of (0,2)
-        #     vabs = max(abs(vmin-1), abs(vmax-1))
-        #     vmin = - min(vabs, 1) + 1
-        #     vmax = min(vabs, 1) + 1
-        #     vrange_dict[metric] = (vmin, vmax)
-        #     # ### now expand slightly for colormap so that colors aren't too dark to read text
-        #     range = vmax - vmin
-        #     vmax += range * 0.1
-        #     vmin -= range * 0.1
-        #     ### separate norm/cmap for above and below 1
-        #     cmaps = [cm.get_cmap('Reds_r'), cm.get_cmap('Purples')]
-        #     ## note: Purples palette starts off slower than Reds (more white), so add a bit of bias here to even out colors
-        #     norms = [mpl.colors.Normalize(vmin=vmin, vmax=1), mpl.colors.Normalize(vmin=0.93, vmax=vmax)]
 
         ### log color palette for relative bias type metrics
         if vmax > 1:
@@ -406,12 +406,13 @@ def plot_gridded_error_metrics(results_metrics, models, nodes, start_date, end_d
             vrange_dict[metric] = (vmin_log2, vmax_log2)
             # ### now expand slightly for colormap so that colors aren't too dark to read text
             range = vmax_log2 - vmin_log2
-            vmax_log2 += range * 0.12
-            vmin_log2 -= range * 0.12
+            vmax_log2 += range * 0.2
+            vmin_log2 -= range * 0.2
             ### separate norm/cmap for above and below 1
             cmaps = [cm.get_cmap('Greens_r'), cm.get_cmap('Purples')]
-            ## note: Purples palette starts off slower than Reds (more white), so add a bit of buffer here to even out colors
-            norms = [mpl.colors.Normalize(vmin=vmin_log2, vmax=0), mpl.colors.Normalize(vmin=-0.05 * vmax_log2,
+            # ## note: Purples palette starts off slower than greens (more white), so add a bit of buffer here to even out colors
+            # norms = [mpl.colors.Normalize(vmin=vmin_log2, vmax=0), mpl.colors.Normalize(vmin=0, vmax=vmax_log2)]
+            norms = [mpl.colors.Normalize(vmin=vmin_log2, vmax=0), mpl.colors.Normalize(vmin=-0.08 * vmax_log2,
                                                                                         vmax=vmax_log2)]
             scale_dict[metric] = 'log2'
 
@@ -421,7 +422,7 @@ def plot_gridded_error_metrics(results_metrics, models, nodes, start_date, end_d
             # vmin = max(vmin, -1)
             vrange_dict[metric] = (vmin, vmax)
             # ### now expand slightly for colormap so that colors aren't too dark to read text
-            vmin -= (vmax - vmin) * 0.15
+            vmin -= (vmax - vmin) * 0.2
             ### norm/cmap
             cmaps = [cm.get_cmap('Reds_r')]
             norms = [mpl.colors.Normalize(vmin=vmin, vmax=vmax)]
@@ -431,9 +432,9 @@ def plot_gridded_error_metrics(results_metrics, models, nodes, start_date, end_d
 
     ### Add metric-specific colorbars annotate metrics
     num_gradations = 200
-    # has_upper_extension = False
+    subfig_label_x = -1.5 if figstage == 0 else -1.3
+    ax.annotate(labels[0], xy=(subfig_label_x, 105.3), va='top', ha='left', weight='bold', fontsize=fontsize)
 
-    ax.annotate(labels[0], xy=(-1.3, 105.3), va='top', ha='left', weight='bold', fontsize=fontsize)
     for x, metric in enumerate(metrics):
         vs = np.arange(vrange_dict[metric][0], vrange_dict[metric][1]+0.001,
                            (vrange_dict[metric][1]-vrange_dict[metric][0]) / num_gradations)
@@ -468,35 +469,10 @@ def plot_gridded_error_metrics(results_metrics, models, nodes, start_date, end_d
         for lines in [[(x,x), (101.5,104.5)],[(x+1,x+1), (101.5,104.5)]]:
             ax.plot(lines[0], lines[1], lw=0.5, color='0.8', zorder=2)
 
-        #
-        # ### now add triangular extension for metrics that have values beyond colorscale limits
-        # if results_metrics[metric].min() < vrange_dict[metric][0]:
-        #     v_color = vrange_dict[metric][0]
-        #     cmap_idx = 0 if v_color <= 1 else 1
-        #     ax.fill_between([x, x+0.5, x+1], [101+dy, 100, 101+dy], [101+dy, 101+dy, 101+dy],
-        #                     lw=0, alpha=1, color=sm_dict[metric][cmap_idx].to_rgba(v_color))
-        #     ax.annotate(text=f'{results_metrics[metric].min():.2f}', xy=(x + 0.5, 100), ha='center', va='top',
-        #                 fontsize=fontsize, color='k', annotation_clip=False)
-        #     ### add outer boundary
-        #     for lines in ([(x, x+0.5), (101, 100)], [(x+0.5, x+1), (100, 101)]):
-        #         ax.plot(lines[0], lines[1], lw=0.5, color='0.8', zorder=2)
-        # else:
         ### add outer boundary
         for lines in [[(x, x+1), (101.5, 101.5)]]:
             ax.plot(lines[0], lines[1], lw=0.5, color='0.8', zorder=2)
-        #
-        # if results_metrics[metric].max() > vrange_dict[metric][1]:
-        #     v_color = vrange_dict[metric][1]
-        #     cmap_idx = 0 if v_color <= 1 else 1
-        #     ax.fill_between([x, x+0.5, x+1], [104-dy, 105, 104-dy], [104-dy, 104-dy, 104-dy],
-        #                     lw=0, alpha=1, color=sm_dict[metric][cmap_idx].to_rgba(v_color))
-        #     ax.annotate(text=f'{results_metrics[metric].max():.2f}', xy=(x + 0.5, 105), ha='center', va='bottom',
-        #                 fontsize=fontsize, color='k', annotation_clip=False)
-        #     has_upper_extension = True
-        #     ### add outer boundary
-        #     for lines in ([(x, x+0.5), (104, 105)], [(x+0.5, x+1), (105, 104)]):
-        #         ax.plot(lines[0], lines[1], lw=0.5, color='0.8', zorder=2)
-        # else:
+
         ### add outer boundary
         for lines in [[(x, x+1), (104.5, 104.5)]]:
             ax.plot(lines[0], lines[1], lw=0.5, color='0.8', zorder=2)
@@ -505,10 +481,6 @@ def plot_gridded_error_metrics(results_metrics, models, nodes, start_date, end_d
     ### annotate color scale
     ax.annotate(text='Color\nScale', xy=(-0.2, 103), rotation=90, ha='right', va='center', ma='center',
                 fontsize=fontsize+1, color='k', annotation_clip=False)
-    # upper_text_y = 106 if has_upper_extension else 105
-    # for x, metric in enumerate(metrics):
-    #     ax.annotate(text=metric_label_dict[metric], xy=(x+0.3, upper_text_y), rotation=30, ha='left', va='bottom',
-    #                 fontsize=fontsize, color='k', annotation_clip=False)
 
 
     ### loop over models, nodes, & metrics. Color squares based on metrics, plus annotations.
@@ -517,7 +489,7 @@ def plot_gridded_error_metrics(results_metrics, models, nodes, start_date, end_d
         y -= 1
         if i==4:
             y -= 1
-        ax.annotate(labels[i+1], xy=(-1.3, y-0.2), va='top', ha='left', weight='bold', fontsize=fontsize)
+        ax.annotate(labels[i + 1], xy=(subfig_label_x, y - 0.2), va='top', ha='left', weight='bold', fontsize=fontsize)
 
         for j,node in enumerate(nodes):
             y -= 1
@@ -534,7 +506,12 @@ def plot_gridded_error_metrics(results_metrics, models, nodes, start_date, end_d
                 elif scale_dict[metric] == 'log2':
                     cmap_idx = 0 if v_color <= 0 else 1
 
-                c = sm_dict[metric][cmap_idx].to_rgba(v_color)
+                v_ideal = 1 if scale_dict[metric] == 'linear_max1' else np.log2(1)
+                if np.abs(v_ideal - v_color) < 0.01:
+                    c = 'w'
+                else:
+                    c = sm_dict[metric][cmap_idx].to_rgba(v_color)
+
                 box = [Rectangle((x,y), 1, 1)]
                 pc = PatchCollection(box, facecolor=c, edgecolor='0.8', lw=0.5)
                 ax.add_collection(pc)
@@ -551,11 +528,16 @@ def plot_gridded_error_metrics(results_metrics, models, nodes, start_date, end_d
                     fontsize=fontsize+1, color='k', annotation_clip=False)
 
     ### annotate metric numbers
-    for x, metric in enumerate(metrics):
-        ax.annotate(text=str(x+1), xy=(x+0.5, 106), ha='center', va='bottom',
-                    fontsize=fontsize+1, color='k', annotation_clip=False)
-    ax.annotate(text='Error Metric', xy=(10, 107.25), ha='center', va='bottom',
-                fontsize=fontsize+1, color='k', annotation_clip=False)
+    if figstage == 0:
+        for x, metric in enumerate(metrics):
+            ax.annotate(text=metric_label_dict[metric], xy=(x + 0.4, 106), ha='left', va='bottom', rotation=30,
+                        fontsize=fontsize + 1, color='k', annotation_clip=False)
+    else:
+        for x, metric in enumerate(metrics):
+            ax.annotate(text=str(x + 1), xy=(x + 0.5, 106), ha='center', va='bottom',
+                        fontsize=fontsize + 1, color='k', annotation_clip=False)
+        ax.annotate(text='Error Metric', xy=(10, 107.25), ha='center', va='bottom',
+                    fontsize=fontsize + 1, color='k', annotation_clip=False)
 
     ### clean up
     ax.set_xlim([-1.7,x+4])
@@ -565,8 +547,14 @@ def plot_gridded_error_metrics(results_metrics, models, nodes, start_date, end_d
     ax.set_yticks([])
 
     ### add boundaries around sections
-    box = [Rectangle((-1.5, 99.5+0.5), 26.25, 6), Rectangle((-1.5, 99.5-28.25), 26.25, 28.25),
-           Rectangle((-1.5, 99.5-28.5*2), 26.25, 28.25)]
+    if figstage == 0:
+        box = [Rectangle((-1.65, 99.5 + 0.5), 11.25, 6),
+               Rectangle((-1.65, 99.5 - 16.25), 11.25, 16.25),
+               Rectangle((-1.65, 99.5 - 16.5 * 2), 11.25, 16.25)]
+    else:
+        box = [Rectangle((-1.5, 99.5 + 0.5), 26.25, 6),
+               Rectangle((-1.5, 99.5 - 28.25), 26.25, 28.25),
+               Rectangle((-1.5, 99.5 - 28.5 * 2), 26.25, 28.25)]
     pc = PatchCollection(box, facecolor='none', edgecolor='k', lw=1)
     ax.add_collection(pc)
 
@@ -658,15 +646,23 @@ def plot_combined_nyc_storage(storages, ffmp_level_boundaries, models, colordict
 
 def plot_combined_nyc_storage_vs_diversion(storages, ffmp_level_boundaries, ibt_demands, ibt_diversions, models,
                                            customer, shortfall_metrics, colordict = paired_model_colors,
-                                           start_date = '1999-10-01', end_date = '2010-05-31', fig_dir=fig_dir):
+                                           start_date='1999-10-01', end_date='2010-05-31', fig_dir=fig_dir,
+                                           figstage=1):
     """
 
     """
 
-    fig, axs= plt.subplots(6,1,figsize=(6,7), gridspec_kw={'height_ratios':[2,1,1,1,1,1], 'hspace':0.1})
+    ### figstage=0 -> smaller fig with 2 models for main paper
+    ### figstage=1 -> larger fig with 4 models for supplement
+    if figstage == 0:
+        fig, axs = plt.subplots(4, 1, figsize=(6, 3.5), gridspec_kw={'hspace': 0.15})
+        fontsize = 7
+        labels = ['a)', 'b)', 'c)', 'd)']
 
-    fontsize = 8
-    labels = ['a)','b)','c)','d)','e)','f)']
+    elif figstage == 1:
+        fig, axs = plt.subplots(6, 1, figsize=(6, 6), gridspec_kw={'hspace': 0.1})
+        fontsize = 8
+        labels = ['a)', 'b)', 'c)', 'd)', 'e)', 'f)']
 
     ### subplot a: Reservoir modeled storages, no observed
     ax = axs[0]
@@ -709,7 +705,7 @@ def plot_combined_nyc_storage_vs_diversion(storages, ffmp_level_boundaries, ibt_
     ax.set_xlim([start_date, end_date + datetime.timedelta(days=-1)])
     ax.set_xticks(ax.get_xticks(), ['']*len(ax.get_xticks()))
     ax.set_yticklabels(ax.get_yticklabels(), fontsize = fontsize)
-    ax.set_ylabel('Combined NYC\nStorage (%)', fontsize=fontsize)
+    ax.set_ylabel('NYC\nStorage (%)', fontsize=fontsize)
     ax.set_ylim([0,100])
     ax.legend(frameon=False, loc='lower center', bbox_to_anchor=(0.44, 1.04), fontsize=fontsize, ncols=4)
     # ax.legend(frameon=False, loc='center left', bbox_to_anchor=(1.02,0.4), fontsize=fontsize)
@@ -741,7 +737,7 @@ def plot_combined_nyc_storage_vs_diversion(storages, ffmp_level_boundaries, ibt_
         ax = axs[2+i]
 
         ### add shortfall events
-        m = models[i-2]
+        m = models[i]
         event_starts = shortfall_metrics[customer][m]['event_starts']
         event_ends = shortfall_metrics[customer][m]['event_ends']
         event_labels = ['Shortfall Event' if i==0 else '' for i in range(len(event_starts))]
@@ -766,11 +762,11 @@ def plot_combined_nyc_storage_vs_diversion(storages, ffmp_level_boundaries, ibt_
     yrange = 100 - ymin
     ymin = max(ymin - 0.15 * yrange, 0)
     ymax = 100 + 0.15 * yrange
-    for i in range(2, 6):
+    for i in range(2, 2+len(models)):
         ax = axs[i]
         ax.set_ylim([ymin, ymax])
         ax.set_xlim(axs[0].get_xlim())
-        if i < 5:
+        if i != 2+len(models)-1:
             ax.set_xticks(ax.get_xticks(), [''] * len(ax.get_xticks()))
         else:
             ax.set_xticklabels(ax.get_xticklabels(), fontsize=fontsize)
@@ -783,7 +779,7 @@ def plot_combined_nyc_storage_vs_diversion(storages, ffmp_level_boundaries, ibt_
 
     ### save fig
     plt.savefig(f'{fig_dir}storages_diversions_{customer}_' + \
-                f'{ffmp_level_boundaries.index.year[0]}_{ffmp_level_boundaries.index.year[-1]}.png',
+                f'{ffmp_level_boundaries.index.year[0]}_{ffmp_level_boundaries.index.year[-1]}_{figstage}.png',
                 bbox_inches='tight', dpi=dpi)
 
     return
@@ -795,22 +791,25 @@ def plot_combined_nyc_storage_vs_diversion(storages, ffmp_level_boundaries, ibt_
 
 
 
-
-
-
-
-
 def plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major_flows, lower_basin_mrf_contributions,
                                           mrf_targets, reservoir_releases, downstream_release_targets,
-                                          base_model, shortfall_metrics, colordict = paired_model_colors,
+                                          base_model, shortfall_metrics, figstage,
+                                          colordict = paired_model_colors,
                                            start_date = '1999-10-01', end_date = '2010-05-31', fig_dir=fig_dir):
     """
 
     """
 
-    fig, axs= plt.subplots(5,1,figsize=(6, 7), gridspec_kw={'height_ratios':[2,1,1,1,1], 'hspace':0.1})
+    ### figstage 0 -> just Montague.
+    if figstage == 0:
+        fontsize = 8
+        fig, axs = plt.subplots(3, 1, figsize=(6, 3.3), gridspec_kw={'height_ratios': [1, 1, 1], 'hspace': 0.1})
+        mrf = 'delMontague'
+    ### figstage 1 -> Montague & Trenton
+    else:
+        fontsize = 8
+        fig, axs = plt.subplots(5, 1, figsize=(6, 6), gridspec_kw={'height_ratios': [1, 1, 1, 1, 1], 'hspace': 0.1})
 
-    fontsize = 8
     labels = ['a)','b)','c)','d)','e)']
     pywr_model = 'pywr_'+base_model
 
@@ -855,7 +854,7 @@ def plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major
     ax.set_xlim([start_date, end_date + datetime.timedelta(days=-1)])
     ax.set_xticks(ax.get_xticks(), ['']*len(ax.get_xticks()), fontsize=fontsize)
     ax.set_yticks(ax.get_yticks(), ax.get_yticklabels(), fontsize=fontsize)
-    ax.set_ylabel('Combined NYC Storage (%)', fontsize=fontsize)
+    ax.set_ylabel('NYC\nStorage (%)', fontsize=fontsize)
     ax.set_ylim([0,100])
     ax.legend(frameon=False, loc='lower center', bbox_to_anchor=(0.5, 1.04), ncols=4, fontsize=fontsize)
     # ax.legend(frameon=False, loc='center left', bbox_to_anchor=(1.02,0.5), fontsize=fontsize)
@@ -864,7 +863,8 @@ def plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major
 
 
     ### now show base & pywr shortfall events for Montague then Trenton
-    for i, mrf in enumerate(['delMontague', 'delTrenton']):
+    mrfs = ['delMontague'] if figstage == 0 else ['delMontague', 'delTrenton']
+    for i, mrf in enumerate(mrfs):
         ### First do shortfall events with base model
         ax = axs[1 + i*2]
 
@@ -885,7 +885,7 @@ def plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major
         yticks = [0, 50, 100]
         ax.set_ylim(ylims)
         ax.set_yticks(yticks)
-        ax.set_ylabel('Normal\nMin. Flow\nSatisfied (%)', fontsize=fontsize, color=leftlinecolor)
+        ax.set_ylabel('Normal Target\nSatisfied (%)', fontsize=fontsize, color=leftlinecolor)
         ax.set_yticks(ax.get_yticks(), ax.get_yticklabels(), fontsize=fontsize, color=leftlinecolor)
         ax.tick_params(axis='y', colors=leftlinecolor)
         ax.set_ylim(ylims)
@@ -913,7 +913,7 @@ def plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major
         yticks = [0, 50, 100]
         ax.set_ylim(ylims)
         ax.set_yticks(yticks, yticks, fontsize=fontsize, color=leftlinecolor)
-        ax.set_ylabel('Normal\nMin. Flow\nSatisfied (%)', fontsize=fontsize, color=leftlinecolor)
+        ax.set_ylabel('Normal Target\nSatisfied (%)', fontsize=fontsize, color=leftlinecolor)
         ax.tick_params(axis='y', colors=leftlinecolor)
         ax.set_ylim(ylims)
 
@@ -946,9 +946,6 @@ def plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major
         ### calculate minimum flow threshold satisfaction
         satisfaction = np.minimum(flow.divide(target_max) * 100, np.ones(len(flow)) * 100)
 
-        releases = subset_timeseries(reservoir_releases[pywr_model], start_date, end_date)
-        dstargets = subset_timeseries(downstream_release_targets[pywr_model], start_date, end_date)
-
         leftlinecolor = 'k'
         ax.plot(satisfaction, color=leftlinecolor, label='Daily Satisfied')
 
@@ -962,16 +959,18 @@ def plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major
         twincolor = 'cornflowerblue'
         ax2.plot(target, color=twincolor, ls='-', label='Dynamic Target')
 
-        ax2.set_ylabel('Dynamic\nMin. Flow\nTarget (MGD)', fontsize=fontsize, rotation=270,
-                       labelpad=30, color=twincolor)
+        ax2.set_ylabel('Dynamic Target (BGD)', fontsize=fontsize, rotation=270, labelpad=10, color=twincolor)
+
         ax2.annotate(labels[2 + i*2], xy=(0.005, 0.05), xycoords='axes fraction', ha='left', va='bottom', weight='bold',
                      fontsize=fontsize, color='k')
         yticks = [0, 500, 1000] if mrf == 'delMontague' else [0, 1000, 2000]
+        yticklabels = [0, 0.5, 1] if mrf == 'delMontague' else [0, 1, 2]
         ax2.set_yticks(yticks)
+        ax2.set_yticks(yticks, yticklabels, fontsize=fontsize, color=twincolor)
         ax2.tick_params(axis='y', colors=twincolor)
 
         ax.set_xlim(axs[0].get_xlim())
-        if mrf == 'delMontague':
+        if mrf == 'delMontague' and figstage > 0:
             ax.set_xticks(ax.get_xticks(), [''] * len(ax.get_xticks()), fontsize=fontsize)
         else:
             ax.set_xticks(ax.get_xticks(), ax.get_xticklabels(), fontsize=fontsize)
@@ -980,42 +979,60 @@ def plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major
         ax2.set_ylim([target_max[0] * ylims[0]/100, target_max[0] * ylims[1]/100])
 
         ### bottom legend
-        if i == 1:
-            ax.legend(frameon=False, loc='upper center', bbox_to_anchor=(0.36, -0.3), fontsize=fontsize, ncols=3)
-            ax2.legend(frameon=False, loc='upper center', bbox_to_anchor=(0.99, -0.3), fontsize=fontsize, ncols=3)
+        if i == 1 or figstage == 0:
+            ax.legend(frameon=False, loc='upper center', bbox_to_anchor=(0.33, -0.3), fontsize=fontsize, ncols=3)
+            ax2.legend(frameon=False, loc='upper center', bbox_to_anchor=(0.96, -0.3), fontsize=fontsize, ncols=3)
 
     ### save fig
     plt.savefig(f'{fig_dir}storages_minflows_{base_model}_{pywr_model}_' + \
-                f'{ffmp_level_boundaries.index.year[0]}_{ffmp_level_boundaries.index.year[-1]}.png',
+                f'{ffmp_level_boundaries.index.year[0]}_{ffmp_level_boundaries.index.year[-1]}_{figstage}.png',
                 bbox_inches='tight', dpi=dpi)
-
     return
 
 
 
 
 
-def plot_lowflow_exceedances(reservoir_downstream_gages, major_flows, lower_basin_mrf_contributions, models, nodes,
-                             start_date=None, end_date=None, colordict = paired_model_colors):
-    fontsize = 8
-    windows = [1, 7, 30, 90, 365]#, 365*5]
+def plot_lowflow_exceedances(reservoir_downstream_gages, major_flows, lower_basin_mrf_contributions_full, models, nodes,
+                             start_date=None, end_date=None, colordict=paired_model_colors, figstage=0):
+    if figstage == 0:
+        ### 3x2 grid of rolling avg windows (rows) & nodes (cols)
+        fontsize = 7
+        fontsize_ticks = 5.5
+        windows = [7, 30, 365]
+        fig, axs = plt.subplots(len(windows), len(nodes), figsize=(4, 4), gridspec_kw={'wspace': 0.2, 'hspace': 0.2})
 
-    ### 6x3 grid of rolling avg windows (rows) & nodes (cols)
-    fig, axs = plt.subplots(len(windows), len(nodes), figsize=(8,7), gridspec_kw={'wspace':0.2, 'hspace':0.2})
+        ### set y ticks manually, default is terrible for some reason
+        yticks = [[(0, 0.2, 0.4, 0.6), (0, 1, 2)],
+                  [(0, 0.5, 1.0), (0, 1, 2, 3)],
+                  [(0, 0.6, 1.2, 1.8), (0, 2, 4, 6)]
+                  ]
+        labels = [['a)', 'd)'],
+                  ['b)', 'e)'],
+                  ['c)', 'f)'],
+                  ]
 
-    ### set y ticks manually, default is terrible for some reason
-    yticks = [[(0, 0.1, 0.2), (0, 0.25, 0.5), (0, 2, 4)],
-              [(0, 0.1, 0.2), (0, 0.25, 0.5), (0, 2, 4)],
-              [(0, 0.1, 0.2, 0.3), (0, 0.25, 0.5, 0.75), (0, 2, 4)],
-              [(0, 0.2, 0.4), (0, 0.5, 1), (0, 4, 8)],
-              [(0, 0.4, 0.8), (0, 0.5, 1, 1.5), (0, 4, 8)]
-              ]
-    labels = [['a)','f)','k)'],
-              ['b)', 'g)', 'l)'],
-              ['c)', 'h)', 'm)'],
-              ['d)', 'i)', 'n)'],
-              ['e)', 'j)', 'o)'],
-              ]
+    elif figstage == 1:
+        fontsize = 8
+        fontsize_ticks = 6
+        windows = [1, 7, 30, 90, 365]
+        ### 5x4 grid of rolling avg windows (rows) & nodes (cols)
+        fig, axs = plt.subplots(len(windows), len(nodes), figsize=(8, 7), gridspec_kw={'wspace': 0.25, 'hspace': 0.25})
+
+        ### set y ticks manually, default is terrible for some reason
+        yticks = [[(0, 0.1, 0.2), (0, 0.3, 0.6), (0, 1, 2), (0, 2, 4)],
+                  [(0, 0.1, 0.2), (0, 0.3, 0.6), (0, 1, 2), (0, 2, 4)],
+                  [(0, 0.1, 0.2, 0.3), (0, 0.4, 0.8), (0, 1, 2), (0, 2, 4)],
+                  [(0, 0.2, 0.4), (0, 0.5, 1), (0, 2, 4), (0, 4, 8)],
+                  [(0, 0.4, 0.8), (0, 0.5, 1, 1.5), (0, 3, 6), (0, 4, 8)]
+                  ]
+        labels = [['a)', 'f)', 'k)', 'p)'],
+                  ['b)', 'g)', 'l)', 'q)'],
+                  ['c)', 'h)', 'm)', 'r)'],
+                  ['d)', 'i)', 'n)', 's)'],
+                  ['e)', 'j)', 'o)', 't)'],
+                  ]
+
     ### compile low flow metrics across models/nodes/metrics
     for col, node in enumerate(nodes):
 
@@ -1032,7 +1049,7 @@ def plot_lowflow_exceedances(reservoir_downstream_gages, major_flows, lower_basi
 
                 ### for Trenton & Pywr models, include BLue Marsh FFMP releases in Trenton Equiv flow
                 if 'pywr' in m and node == 'delTrenton':
-                    lower_basin_mrf_contributions = subset_timeseries(lower_basin_mrf_contributions[m],
+                    lower_basin_mrf_contributions = subset_timeseries(lower_basin_mrf_contributions_full[m],
                                                                       start_date, end_date) / 1000
                     lower_basin_mrf_contributions.columns = [c.split('_')[-1] for c in
                                                              lower_basin_mrf_contributions.columns]
@@ -1071,11 +1088,18 @@ def plot_lowflow_exceedances(reservoir_downstream_gages, major_flows, lower_basi
 
             if j == len(windows)-1:
                 ax.set_xlabel('Exceedance (%)', fontsize=fontsize)
-                ax.set_xticks(ticks_X_bottom, ticks_T_bottom, fontsize=fontsize-1)
-                if col == 1:
-                    ax.legend(frameon=False, loc='upper center', bbox_to_anchor=(0.5, -0.4), ncols=4, fontsize=fontsize)
+                ax.set_xticks(ticks_X_bottom, ticks_T_bottom, fontsize=fontsize_ticks)
+                if figstage == 0:
+                    if col == 1:
+                        ax.legend(frameon=False, loc='upper center', bbox_to_anchor=(-0.25, -0.4), ncols=4,
+                                  fontsize=fontsize)
+                elif figstage == 1:
+                    if col == 1:
+                        ax.legend(frameon=False, loc='upper center', bbox_to_anchor=(1.1, -0.4), ncols=4,
+                                  fontsize=fontsize)
             else:
                 ax.set_xticks(ticks_X_bottom, [''] * len(ticks_X_bottom), fontsize=fontsize)
+            ax.set_xlim([ticks_X_bottom[0], ticks_X_bottom[-1]])
 
             ###set top x tick locations based on return intervals. & labels etc.
             ax2 = ax.twiny()
@@ -1084,23 +1108,24 @@ def plot_lowflow_exceedances(reservoir_downstream_gages, major_flows, lower_basi
             ticks_X_top = [np.interp(T, return_periods, x) for T in ticks_T_top]
 
             if j == 0:
-                # ax.set_title(node_label_full_dict[node], fontsize=fontsize)
                 ax2.set_xlabel('Return Period (years)', fontsize=fontsize)
-                ax2.set_xticks(ticks_X_top, ticks_T_top, fontsize=fontsize-1)
+                ax2.set_xticks(ticks_X_top, ticks_T_top, fontsize=fontsize_ticks)
 
             else:
                 ax2.set_xticks(ticks_X_top, ['']*len(ticks_X_top), fontsize=fontsize)
 
+            ### plot 10-year recurrence interval
+            ax2.axvline([ticks_X_top[i] for i in range(len(ticks_X_top)) if ticks_T_top[i] == 10], color='0.5', ls=':')
 
             if col == 0:
                 ax.set_ylabel(f'Annual Min\n{window}-Day-Avg\nDaily Flow\n(BGD)', fontsize=fontsize)
 
             ax.set_ylim([0, ax.get_ylim()[1]])
-            ax.set_yticks(yticks[row][col], yticks[row][col], fontsize=fontsize)
-            ax.annotate(labels[row][col], xy=(0.98,0.95), xycoords='axes fraction', fontsize=fontsize, weight='bold',
+            ax.set_yticks(yticks[row][col], yticks[row][col], fontsize=fontsize_ticks)
+            ax.annotate(labels[row][col], xy=(0.9, 0.95), xycoords='axes fraction', fontsize=fontsize, weight='bold',
                         va='top', ha='right')
 
-    fig.savefig(f'{fig_dir}/lowFlowReturnPeriods_{start_date.year}_{end_date.year}.png',
+    fig.savefig(f'{fig_dir}/lowFlowReturnPeriods_{start_date.year}_{end_date.year}_{figstage}.png',
                 bbox_inches='tight', dpi=dpi)
     plt.close()
     return
@@ -1116,8 +1141,7 @@ def plot_NYC_release_components_combined(storages, ffmp_level_boundaries, nyc_re
                                          major_flows, inflows, diversions, consumptions, base_model, node,
                                          colordict = base_model_colors, start_date = None, end_date = None,
                                          use_log=False, use_observed=False, fig_dir=fig_dir):
-
-    fig, axs = plt.subplots(3,1,figsize=(7,7), gridspec_kw={'hspace':0.1})
+    fig, axs = plt.subplots(3, 1, figsize=(7, 5), gridspec_kw={'hspace': 0.1, 'height_ratios': [0.6, 1, 1]})
     fontsize = 8
     labels = ['a)','b)','c)']
 
@@ -1175,8 +1199,8 @@ def plot_NYC_release_components_combined(storages, ffmp_level_boundaries, nyc_re
     ### clean up figure
     ax.set_xlim([start_date, end_date + datetime.timedelta(days=-1)])
     ax.set_xticks(ax.get_xticks(), ['']*len(ax.get_xticks()), fontsize=fontsize)
-    ax.set_yticks(ax.get_yticks(), ax.get_yticklabels(), fontsize=fontsize)
-    ax.set_ylabel('Combined NYC Storage (%)', fontsize=fontsize)
+    ax.set_yticks([0, 25, 50, 75, 100], [0, 25, 50, 75, 100], fontsize=fontsize)
+    ax.set_ylabel('NYC Storage (%)', fontsize=fontsize)
     ax.set_ylim([0,100])
     # ax.legend(frameon=False, loc='center left', bbox_to_anchor=(1.1,0.5), ncols=1, fontsize=fontsize)
     ax.legend(frameon=False, loc='lower center', bbox_to_anchor=(0.5,1.03), ncols=4, fontsize=fontsize)
@@ -1483,7 +1507,7 @@ def plot_NYC_release_components_combined(storages, ffmp_level_boundaries, nyc_re
 
 
 def get_shortfall_metrics(major_flows, lower_basin_mrf_contributions, mrf_targets, ibt_demands, ibt_diversions, models_mrf, models_ibt, nodes,
-                          shortfall_type='percent', shortfall_threshold=0.95, shortfall_break_length=7,
+                          shortfall_threshold=0.95, shortfall_break_length=7,
                           start_date=None, end_date=None):
     """
 
@@ -1564,10 +1588,7 @@ def get_shortfall_metrics(major_flows, lower_basin_mrf_contributions, mrf_target
                             event_starts.append(d)
                         ### if this is part of event, we add to metrics whether today is deficit or not
                         duration += 1
-                        if shortfall_type == 'absolute':
-                            s = max(t - v, 0)
-                        elif shortfall_type == 'percent':
-                            s = max((t - v) / t * 100, 0)
+                        s = max(t - v, 0)
                         severity += s
                         vulnerability = max(vulnerability, s)
                         ### now check if next shortfall_break_length days include any deficits. if not, end event.
@@ -1598,21 +1619,19 @@ def get_shortfall_metrics(major_flows, lower_basin_mrf_contributions, mrf_target
 
 
 ###
-def plot_shortfall_metrics(shortfall_metrics, models_mrf, models_ibt, nodes, shortfall_type='absolute',
+def plot_shortfall_metrics(shortfall_metrics, models_mrf, models_ibt, nodes,
                            colordict = base_model_colors, fig_dir = fig_dir,
                            print_reliabilities=True, print_events=False):
     """
 
     """
-    ### 3x4 figure with RRV metrics (rows) & nodes (cols). Montague/Trenton use 8 models, NYC/NJ only 4.
-    fig, axs = plt.subplots(4, 4, figsize=(8, 6), gridspec_kw={'width_ratios': [3,3,3,3],
-                                                               'hspace':0.15, 'wspace':0.4})
+    ### 3x4 figure with shortfall metrics (rows) & nodes (cols). Montague/Trenton use 8 models, NYC/NJ only 4.
+    fig, axs = plt.subplots(3, 4, figsize=(7,3.5), gridspec_kw={'hspace':0.15, 'wspace':0.4})
     fontsize = 8
-    metrics = ['reliability','durations','intensities','vulnerabilities']
+    metrics = ['reliability','durations','intensities']
     labels = [['a)','b)','c)','d)'],
               ['e)', 'f)', 'g)', 'h)'],
-              ['i)', 'j)', 'k)', 'l)'],
-              ['m)', 'n)', 'o)', 'p)']
+              ['i)', 'j)', 'k)', 'l)']
               ]
 
     for col, node in enumerate(nodes):
@@ -1641,22 +1660,16 @@ def plot_shortfall_metrics(shortfall_metrics, models_mrf, models_ibt, nodes, sho
                     ax.plot(x, values_ordered, color='k', lw=1.7)
                     ax.plot(x, values_ordered, color=colordict[m], lw=1.4, label=model_label_dict[m])
 
-
             ### fix ticks/labels/etc
+            yticks = [[(80, 90, 100), (80, 90, 100), (80, 90, 100), (80, 90, 100)],
+                      [(0, 100, 200), (0, 75, 150), (0, 300, 600), (0, 100, 200)],
+                      [(0, 300, 600), (0, 500, 1000), (0, 200, 400), (0, 6, 12)]]
+            ax.set_ylim([yticks[row][col][0], yticks[row][col][1]])
+            ax.set_yticks(yticks[row][col], yticks[row][col], fontsize=fontsize)
             if row == 0:
-                ax.set_ylim([80, 100])
-                ax.set_yticks([80, 90, 100], [80, 90, 100], fontsize=fontsize)
-                ax.set_xlim([-0.7, 7.7])
                 ax.set_xticks([])
-            else:
-                if shortfall_type == 'absolute':
-                    ax.set_ylim([0, ax.get_ylim()[1]])
-                    yticks = np.zeros(len(ax.get_yticks()) + 1)
-                    yticks[1:] = ax.get_yticks()
-                    ax.set_yticks(yticks, [str(round(y)) for y in yticks], fontsize=fontsize)
-                elif shortfall_type == 'percent':
-                    ax.set_ylim([0,30])
-                    ax.set_yticks([0,10,20,30], [0,10,20,30], fontsize=fontsize)
+                ax.set_xlim([-0.7, 7.7])
+
             if col == 0:
                 xticks = [0, 20, 40]
             elif col == 1:
@@ -1666,8 +1679,8 @@ def plot_shortfall_metrics(shortfall_metrics, models_mrf, models_ibt, nodes, sho
             else:
                 xticks = [0, 15, 30]
 
-            if row == 3:
-                ax.set_xlabel('Exceedance\n(Num. shortfall events)', fontsize=fontsize)
+            if row == 2:
+                ax.set_xlabel('Exceedance\n(# shortfall events)', fontsize=fontsize)
                 ax.set_xticks(xticks, xticks, fontsize=fontsize)
                 ax.set_xlim([0, ax.get_xlim()[1]])
             elif row > 0:
@@ -1682,33 +1695,33 @@ def plot_shortfall_metrics(shortfall_metrics, models_mrf, models_ibt, nodes, sho
                         va='top', ha=ha)
 
             ### legend
-            if row == 3 and col == 1:
+            if row == 2 and col == 1:
                 legend_elements = []
                 for m in models_mrf:
                     legend_elements.append(Patch(facecolor=colordict[m], edgecolor='w', label=model_label_dict[m]))
-                leg = ax.legend(handles=legend_elements, loc='upper center', ncols=4, bbox_to_anchor=(1.1, -0.5),
+                leg = ax.legend(handles=legend_elements, loc='upper center', ncols=4, bbox_to_anchor=(1.1, -0.65),
                                 frameon=False, fontsize=fontsize)
 
-    ### ylabels & legend
-    axs[0,0].set_ylabel('Reliability (%)', fontsize=fontsize)
-    axs[1,0].set_ylabel('Duration (days)', fontsize=fontsize)
-    if shortfall_type == 'percent':
-        axs[2,0].set_ylabel('Intensity\n(%)', fontsize=fontsize)
-        axs[3,0].set_ylabel('Vulnerability\n(%)', fontsize=fontsize)
-    elif shortfall_type == 'absolute':
-        axs[2,0].set_ylabel('Intensity\n(MGD)', fontsize=fontsize)
-        axs[3,0].set_ylabel('Vulnerability\n(MGD)', fontsize=fontsize)
+    ### ylabels
+    axs[0, 0].set_ylabel('Reliability (%)', fontsize=fontsize)
+    axs[1, 0].set_ylabel('Duration (days)', fontsize=fontsize)
+    axs[2, 0].set_ylabel('Intensity (MGD)', fontsize=fontsize)
+
+    ### node labels
+    axs[0, 0].set_title('Montague\nflow target', fontsize=fontsize)
+    axs[0, 1].set_title('Trenton\nflow target', fontsize=fontsize)
+    axs[0, 2].set_title('NYC\ndiversion', fontsize=fontsize)
+    axs[0, 3].set_title('NJ\ndiversion', fontsize=fontsize)
 
 
     fig.savefig(f'{fig_dir}/shortfall_comparison.png', bbox_inches='tight', dpi=dpi)
     plt.close()
-
     if print_events:
         for node in nodes:
             models = models_mrf if node in majorflow_list else models_ibt
             for m in models:
-                print(f"{node}, {m}, event durations, intensities, vulnerabilities: {shortfall_metrics[node][m]['durations']}, " + \
-                      f"{shortfall_metrics[node][m]['intensities']}, {shortfall_metrics[node][m]['vulnerabilities']}")
+                print(f"{node}, {m}, event durations, intensities: {shortfall_metrics[node][m]['durations']}, " + \
+                      f"{shortfall_metrics[node][m]['intensities']}")
 
     return
 

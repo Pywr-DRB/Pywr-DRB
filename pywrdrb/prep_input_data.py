@@ -27,6 +27,9 @@ if __name__ == "__main__":
     # Option to re-predict inflows/diversions across the ensemble inputs
     prepare_prediction_ensemble = False
 
+    ### set random seed for consistency
+    np.random.seed(1)
+
     ### read in observed, NHM, & NWM data
     ### use same set of dates for all.
     start_date = '1983/10/01'
