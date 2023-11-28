@@ -271,25 +271,30 @@ def get_error_metrics(reservoir_downstream_gages, major_flows, models, nodes, st
                     bools = np.array([s == season for s in season_ts])
                     relbiases[season] = modeled.loc[bools].mean() / obs.loc[bools].mean()
 
-                ### relative biases in different quantiles of observed series
+                ### relative biases in different quantiles
                 qgroups = [(0,1),(1,25),(25,75),(75,99),(99,100)]
                 for qgroup in qgroups:
                     if qgroup[1] == 100:
-                        bools = obs >= np.quantile(obs, qgroup[0]/100)
+                        bools_obs = obs >= np.quantile(obs, qgroup[0]/100)
+                        bools_mod = modeled >= np.quantile(modeled, qgroup[0]/100)
                     elif qgroup[0] == 0:
-                        bools = obs < np.quantile(obs, qgroup[1]/100)
+                        bools_obs = obs < np.quantile(obs, qgroup[1]/100)
+                        bools_mod = modeled < np.quantile(modeled, qgroup[1]/100)
                     else:
-                        bools = np.logical_and(obs >= np.quantile(obs, qgroup[0]/100),
-                                               obs < np.quantile(obs, qgroup[1]/100))
+                        bools_obs = np.logical_and(obs >= np.quantile(obs, qgroup[0]/100),
+                                                   obs < np.quantile(obs, qgroup[1]/100))
+                        bools_mod = np.logical_and(modeled >= np.quantile(modeled, qgroup[0] / 100),
+                                                   modeled < np.quantile(modeled, qgroup[1] / 100))
 
-                    relbiases[f'q{qgroup[0]}-{qgroup[1]}'] = modeled.loc[bools].mean() / obs.loc[bools].mean()
+                    relbiases[f'q{qgroup[0]}-{qgroup[1]}'] = modeled.loc[bools_mod].mean() / obs.loc[bools_obs].mean()
+
                 ### rel bias in min/max flow
                 relbiases['qMin'] = modeled.min() / obs.min()
                 relbiases['qMax'] = modeled.max() / obs.max()
 
                 resultsdict_inner = {'nse': nse[0], 'kge': kge[0], 'r': r[0], 'alpha': alpha[0], 'beta': beta[0],
-                                   'lognse': lognse[0], 'logkge': logkge[0], 'logr': logr[0], 'logalpha': logalpha[0],
-                                   'logbeta': logbeta[0],
+                                     'lognse': lognse[0], 'logkge': logkge[0], 'logr': logr[0], 'logalpha': logalpha[0],
+                                     'logbeta': logbeta[0],
                                      'rel_autocorr1': rel_autocorr1, 'rel_autocorr7': rel_autocorr7,
                                      'rel_roughness_log': rel_roughness_log,
                                      'fdc_match_horiz': fdc_match_horiz, 'fdc_match_vert': fdc_match_vert,
