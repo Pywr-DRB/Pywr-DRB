@@ -102,10 +102,18 @@ model_label_dict = {'obs': 'Observed',
                       'nwmv21': 'NWM',
                       'nhmv10_withObsScaled': 'hNHM',
                       'nwmv21_withObsScaled': 'hNWM',
+                      'obs_pub_nhmv10_ObsScaled': 'PUB-NHM',
+                      'obs_pub_nwmv21_ObsScaled': 'PUB-NWM',
+                      'obs_pub_nhmv10_ObsScaled_ensemble': 'EPUB-NHM',
+                      'obs_pub_nwmv21_ObsScaled_ensemble': 'EPUB-NWM',
                       'pywr_nhmv10': 'Pywr-NHM',
                       'pywr_nwmv21': 'Pywr-NWM',
                       'pywr_nhmv10_withObsScaled': 'Pywr-hNHM',
-                      'pywr_nwmv21_withObsScaled': 'Pywr-hNWM'
+                      'pywr_nwmv21_withObsScaled': 'Pywr-hNWM',
+                      'pywr_obs_pub_nhmv10_ObsScaled': 'Pywr-PUB-NHM',
+                      'pywr_obs_pub_nwmv21_ObsScaled': 'Pywr-PUB-NWM',
+                      'pywr_obs_pub_nhmv10_ObsScaled_ensemble': 'Pywr-EPUB-NHM',
+                      'pywr_obs_pub_nwmv21_ObsScaled_ensemble': 'Pywr-EPUB-NWM',
                       }
 
 model_linestyle_dict = {'obs': '-',
@@ -129,24 +137,24 @@ month_dict = {1:'Jan', 2:'Feb', 3:'Mar', 4:'Apr', 5:'May', 6:'Jun', 7:'Jul', 8:'
 
 base_marker = "o"
 pywr_marker = "x"
-scatter_model_markers = {'obs': base_marker, #
-                         'obs_pub_nhmv10_ObsScaled': base_marker, #
-                         'obs_pub_nwmv21_ObsScaled': base_marker, #
-                         'nhmv10': base_marker,
-                         'nwmv21': base_marker,
-                         'nwmv21_withLakes': base_marker,
-                         'nhmv10_withObsScaled': base_marker,
-                         'nwmv21_withObsScaled': base_marker,
-                         'WEAP_29June2023_gridmet': base_marker,
-                         'pywr_obs_pub_nhmv10_ObsScaled': pywr_marker, #
-                         'pywr_obs_pub_nwmv21_ObsScaled': pywr_marker, #
-                         'pywr_nhmv10': pywr_marker, #
-                         'pywr_nwmv21': pywr_marker, #
-                         'pywr_nwmv21_withLakes': pywr_marker, #
-                         'pywr_WEAP_29June2023_gridmet': pywr_marker,
-                         'pywr_nhmv10_withObsScaled': pywr_marker,
-                         'pywr_nwmv21_withObsScaled': pywr_marker
-                         }
+scatter_model_markers = {'obs': base_marker,
+                      'nhmv10': base_marker,
+                      'nwmv21': base_marker,
+                      'nhmv10_withObsScaled': base_marker,
+                      'nwmv21_withObsScaled': base_marker,
+                      'obs_pub_nwmv21_ObsScaled': base_marker, 
+                      'obs_pub_nhmv10_ObsScaled': base_marker, 
+                      'obs_pub_nhmv10_ObsScaled_ensemble': base_marker, 
+                      'obs_pub_nwmv21_ObsScaled_ensemble': base_marker, 
+                      'pywr_nhmv10': pywr_marker,
+                      'pywr_nwmv21': pywr_marker,
+                      'pywr_nhmv10_withObsScaled': pywr_marker, 
+                      'pywr_nwmv21_withObsScaled': pywr_marker, 
+                      'pywr_obs_pub_nhmv10_ObsScaled': pywr_marker,
+                      'pywr_obs_pub_nwmv21_ObsScaled': pywr_marker,
+                      'pywr_obs_pub_nhmv10_ObsScaled_ensemble': pywr_marker,
+                      'pywr_obs_pub_nwmv21_ObsScaled_ensemble': pywr_marker,
+                      }
 
 node_colors = {}
 
@@ -174,3 +182,20 @@ model_hatch_styles = {'obs': '',
                         'pywr_nwmv21_withObsScaled': '///'
 }
 
+model_colors_historic_reconstruction = {
+    'obs': 'black',
+    'nhmv10' : '#925736', 
+    'nwmv21' : '#385723',
+    'obs_pub_nhmv10' : '#F27300',
+    'obs_pub_nhmv10_ObsScaled': '#F27300', 
+    'obs_pub_nhmv10_ensemble' : '#F9B572', 
+    'obs_pub_nhmv10_ObsScaled_ensemble' : '#F9B572', 
+    'obs_pub_nhmv10_ObsScaled_ensemble' : '#F9B572', 
+    'obs_pub_nwmv21' : '#0174BE', 
+    'obs_pub_nwmv21_ensemble': '#9CD2F6',
+    'obs_pub_nwmv21_ObsScaled' : '#0174BE', 
+    'obs_pub_nwmv21_ObsScaled_ensemble': '#9CD2F6'
+    }
+
+for m in list(model_colors_historic_reconstruction.keys()):
+    model_colors_historic_reconstruction[f'pywr_{m}'] = model_colors_historic_reconstruction[m]

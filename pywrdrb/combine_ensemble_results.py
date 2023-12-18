@@ -14,9 +14,16 @@ inflow_type = sys.argv[1]
 assert(inflow_type in inflow_type_options), f'Invalid inflow_type specified. Options: {inflow_type_options}'
 
 
+
 # Combine outputs into single HDF5
 print(f'Combining all ensemble results files to single HDF5 file.')
-batched_filenames = glob.glob(f'{output_dir}drb_output_{inflow_type}_rank*_batch*.hdf5')
+
+use_mpi = False
+if use_mpi:
+    batched_filenames = glob.glob(f'{output_dir}drb_output_{inflow_type}_rank*_batch*.hdf5')
+else:
+    batched_filenames = glob.glob(f'{output_dir}drb_output_{inflow_type}_batch*.hdf5')
+
 # print(batched_filenames)
 combined_output_filename = f'{output_dir}drb_output_{inflow_type}.hdf5'
 combine_batched_hdf5_outputs(batch_files=batched_filenames, combined_output_file=combined_output_filename)

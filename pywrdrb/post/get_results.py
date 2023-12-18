@@ -116,6 +116,10 @@ def get_pywr_results(output_dir, model, results_set='all', scenario=0, datetime_
             keys = ['mrf_target_delMontague','mrf_target_delTrenton']
             for k in keys:
                 results[k] = f[k][:, scenario]
+        elif results_set == 'all_mrf':
+            keys = [k for k in keys if 'mrf' in k]
+            for k in keys:
+                results[k] = f[k][:, scenario]
 
         else:
             print('Invalid results_set specified.')
@@ -209,7 +213,8 @@ def get_base_results(input_dir, model, datetime_index=None, results_set='all', e
 
 def get_all_historic_reconstruction_pywr_results(output_dir, model_list, 
                                                 results_set,
-                                                start_date, end_date):
+                                                start_date, end_date,
+                                                realization_subset = None):
     """Loads all historic reconstruction results, 
     stored in a single dictionary.
 
@@ -226,8 +231,11 @@ def get_all_historic_reconstruction_pywr_results(output_dir, model_list,
     reults_type_options = ['all', 'reservoir_downstream_gage', 
                            'res_storage', 'major_flow', 'inflow', 'res_release', 
                            'catchment_withdrawal', 'catchment_consumption', 
-                           'res_level', 'ffmp_level_boundaries', 'mrf_target', 
-                           'nyc_release_components', 'ibt_demands']
+                           'res_level', 'ffmp_level_boundaries', 'mrf_targets', 'mrf_target', 
+                           'nyc_release_components', 'ibt_demands',
+                           'lower_basin_mrf_contributions', 'ibt_diversions',
+                           'release_needed_mrf_trenton_step1', 
+                           'all_mrf']
     
     assert(results_set in reults_type_options), f'results_set must be one of {reults_type_options}'
     
@@ -240,7 +248,7 @@ def get_all_historic_reconstruction_pywr_results(output_dir, model_list,
         # Handle ensembles differently
         if 'ensemble' in model:
             input_filename = f'{output_dir}../input_data/historic_ensembles/gage_flow_{model}.hdf5'
-            realization_numbers = get_hdf5_realization_numbers(input_filename)    
+            realization_numbers = get_hdf5_realization_numbers(input_filename) if realization_subset is None else realization_subset
 
             results[f'pywr_{model}'] = {}
             # Loop through ensemble realizations

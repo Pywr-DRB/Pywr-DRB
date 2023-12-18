@@ -338,8 +338,9 @@ def predict_ensemble_inflows_diversions(dataset_label, start_date, end_date,
     
     # Loop over realizations
     realization_numbers = get_hdf5_realization_numbers(ensemble_filename)
-    print('Starting inflow/diversion predictions for ensemble')
+    print(f'Starting inflow/diversion predictions for {dataset_label}')
     for i in realization_numbers:
+        print(f'Making predictions for realization {i+1} of {len(realization_numbers)}')
         df_predictions = predict_inflows_diversions(dataset_label, start_date, end_date,
                                                                    use_log=use_log, remove_zeros=remove_zeros, 
                                                                    use_const=use_const,

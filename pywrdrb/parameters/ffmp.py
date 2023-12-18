@@ -8,6 +8,7 @@ for the three NYC reservoirs.
 import numpy as np
 import pandas as pd
 from pywr.parameters import Parameter, load_parameter
+
 from utils.lists import reservoir_list_nyc, drbc_lower_basin_reservoirs
 from utils.constants import epsilon
 from utils.directories import model_data_dir
@@ -600,6 +601,10 @@ class VolBalanceNYCDownstreamMRF_step1(Parameter):
             ### enforce nonnegativity and reservoir max release constraint. Set min to 0.01 instead of 0 so that it can be activated if extra flow needed below.
             targets[i] = min(max(targets[i], 0.01), max_releases_reservoirs[i])
 
+        if np.isnan(targets).any():
+            print(f'Warning: NaNs present in NYC release target. Possibly due to zero storage.')
+            targets = [target if not np.isnan(target) else 0.0 for target in targets]
+        
         ### sum total release across 3 reservoirs.
         target_sum = sum(targets)
 
@@ -613,7 +618,7 @@ class VolBalanceNYCDownstreamMRF_step1(Parameter):
         ###if sum this is less than total_agg_mrf_montagueTrenton,
         ### that means one of the reservoirs had exceeded max release before min() above
         ### -> rescale unconstrained reservoirs to counteract
-        fully_constrained = False
+        fully_constrained = False if (target_sum > epsilon) else True
         count = 0
         while requirement_total - epsilon > target_sum and not fully_constrained:
             increasable_flow = 0
@@ -630,6 +635,10 @@ class VolBalanceNYCDownstreamMRF_step1(Parameter):
                                         max_releases_reservoirs[i])
             else:
                 fully_constrained = True
+                # Check for nans which occur when fully empty
+                if np.isnan(targets).any():
+                    print(f'Warning: NaNs present in NYC release target. Possibly due to zero storage.')
+                targets = [target if not np.isnan(target) else 0.0 for target in targets]
             target_sum = sum(targets)
             count += 1
             if count > 5:
