@@ -180,8 +180,7 @@ def predict_inflows_diversions(dataset_label, start_date, end_date,
 
     lag = 2
     lag_2_nodes = ['mongaupeCombined', '01433500', 'delMontague', 'beltzvilleCombined','01447800','fewalter',
-                   '01449800',
-                   'merrillCreek', 'hopatcong', 'nockamixon', 'delDRCanal']
+                   '01449800', 'merrillCreek', 'hopatcong', 'nockamixon', 'delDRCanal']
     for node in lag_2_nodes:
         for l in [lag, lag-1]:
             const, slope = regress_future_timeseries(catchment_inflows_training, node, l, use_log=use_log,

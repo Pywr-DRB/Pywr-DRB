@@ -7,7 +7,7 @@ import datetime
 
 from pywrdrb.pywr_drb_node_data import upstream_nodes_dict
 from pywrdrb.utils.constants import cfs_to_mgd, cms_to_mgd, cm_to_mg
-from pywrdrb.utils.directories import input_dir
+from pywrdrb.utils.directories import input_dir, fig_dir
 
 
 def download_USGS_data_NYC_NJ_diversions():
@@ -31,7 +31,7 @@ def download_USGS_data_NYC_NJ_diversions():
     return hist_flows
 
 
-def extrapolate_NYC_NJ_diversions(loc):
+def extrapolate_NYC_NJ_diversions(loc, make_figs):
     """
     Function for retrieving NYC and NJ historical diversions and extrapolating them into time periods
     where we don't have data based on seasonal flow regressions.

@@ -51,9 +51,12 @@ class STARFITReservoirRelease(Parameter):
         # Pull data from node
         if use_adjusted_storage:
             self.S_cap = starfit_params.loc[self.starfit_name, 'Adjusted_CAP_MG']
+            self.I_bar = starfit_params.loc[self.starfit_name, 'Adjusted_MEANFLOW_MGD']
+
         else:
             self.S_cap = starfit_params.loc[self.starfit_name, 'GRanD_CAP_MG']
-        
+            self.I_bar = starfit_params.loc[self.starfit_name, 'GRanD_MEANFLOW_MGD']
+
         # Store STARFIT parameters
         self.NORhi_mu = starfit_params.loc[self.starfit_name, 'NORhi_mu']
         self.NORhi_min = starfit_params.loc[self.starfit_name, 'NORhi_min']
@@ -76,8 +79,7 @@ class STARFITReservoirRelease(Parameter):
         self.Release_p1 = starfit_params.loc[self.starfit_name, 'Release_p1']
         self.Release_p2 = starfit_params.loc[self.starfit_name, 'Release_p2']
         
-        self.I_bar = starfit_params.loc[self.starfit_name, 'GRanD_MEANFLOW_MGD']
-        
+
         # Override STARFIT max releases at DRBC lower reservoirs
         if self.name in list(max_discharges.keys()):
             self.R_max = max_discharges[self.name]
