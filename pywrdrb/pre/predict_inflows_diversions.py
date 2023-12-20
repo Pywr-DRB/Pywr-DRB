@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
 
-from pywrdrb.utils.directories import input_dir
+from pywrdrb.utils.directories import input_dir, fig_dir
 from pywrdrb.utils.lists import reservoir_list, majorflow_list
 from pywrdrb.plotting.plotting_functions import subset_timeseries
 from pywrdrb.pre.prep_input_data_functions import add_upstream_catchment_inflows
@@ -145,11 +145,13 @@ def get_rollmean_timeseries(timeseries, window):
     return rollmean_timeseries
 
 
+
+
 ### function for creating lagged prediction datasets for catchment inflows & NJ diversions
 def predict_inflows_diversions(dataset_label, start_date, end_date,
-                               use_log=False, remove_zeros=False, use_const=False,
+                               use_log=True, remove_zeros=False, use_const=False,
                                realization=None, ensemble_inflows=False,
-                               save_predictions=True, return_predictions=False):
+                               save_predictions=True, return_predictions=False, make_figs=False):
 
     ### read in catchment inflows and withdrawals/consumptions
     if ensemble_inflows:
@@ -161,7 +163,7 @@ def predict_inflows_diversions(dataset_label, start_date, end_date,
         catchment_inflows.index = pd.DatetimeIndex(catchment_inflows['datetime'])
         catchment_inflows_training = subset_timeseries(catchment_inflows, start_date, end_date)
 
-    # Withdrawas and currently the same across ensemble realizations
+    # Withdrawals are currently the same across ensemble realizations
     catchment_wc = pd.read_csv(f'{input_dir}/sw_avg_wateruse_Pywr-DRB_Catchments.csv')
     catchment_wc.index = catchment_wc['node']
 
@@ -313,12 +315,52 @@ def predict_inflows_diversions(dataset_label, start_date, end_date,
         predicted_timeseries.to_csv(f'{input_dir}/predicted_inflows_diversions_{dataset_label}.csv', index=False)
     if return_predictions:
         return predicted_timeseries
-    
-    
-    
-    
+
+
+    ### plot performance at different locations & modes
+    if make_figs:
+        loc_dict = {'delMontague':'Montague', 'delTrenton':'Trenton', 'demand_nj':'NJ diversion'}
+        for mode in ['regression_disagg']:#, 'regression_agg', 'same_day', 'moving_average', 'perfect_foresight']
+            fig, axs = plt.subplots(4, 3, figsize=(8, 8), gridspec_kw={'hspace': 0.3, 'wspace': 0.3})
+            for row, lag in enumerate(range(1, 5)):
+                for col, loc in enumerate(['delMontague','delTrenton','demand_nj']):
+                    ax = axs[row,col]
+                    if use_log:
+                        ax.loglog('log')
+                    if f'{loc}_lag{lag}_{mode}' in predicted_timeseries.columns:
+                        ax.scatter(predicted_timeseries[f'{loc}_lag{lag}_perfect_foresight'],
+                                   predicted_timeseries[f'{loc}_lag{lag}_{mode}'],
+                                   color='cornflowerblue', alpha=0.2, zorder=1)
+                        lims = [min(ax.get_xlim()[0], ax.get_ylim()[0]), max(ax.get_xlim()[1], ax.get_ylim()[1])]
+                        ax.plot([lims[0], lims[1]], [lims[0], lims[1]], color='k', alpha=1, lw=0.5, ls=':', zorder=2)
+                        ax.annotate(f'{loc_dict[loc]}, {lag} day', xy=(0.01, 0.98), xycoords='axes fraction', ha='left',
+                                    va='top')
+                    else:
+                        ax.tick_params(
+                            axis='x',
+                            which='both',
+                            bottom=False,
+                            labelbottom=False)
+                        ax.tick_params(
+                            axis='y',
+                            which='both',
+                            left=False,
+                            labelleft=False)
+                        ax.set_frame_on(False)
+                    if (col == 0 and row <= 1) or (col == 1 and row > 1):
+                        ax.set_ylabel('Predicted (MGD)')
+                    if (row == 3 and col > 0) or (col == 0 and row == 1):
+                        ax.set_xlabel('Observed (MGD)')
+
+
+
+            plt.savefig(f'{fig_dir}/predict_flows_{mode}_{dataset_label}.png', dpi=400, bbox_inches='tight')
+
+
+
+
 def predict_ensemble_inflows_diversions(dataset_label, start_date, end_date,
-                                        use_log=False, remove_zeros=False, use_const=False):
+                                        use_log=True, remove_zeros=False, use_const=False):
     """Makes predictions for inflows and diversions at non-NYC gage flows, 
     using the specified ensemble dataset, looping through each realization. 
     Ensemble of predictions is exported to hdf5 file.

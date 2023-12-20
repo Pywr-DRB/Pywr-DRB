@@ -21,7 +21,7 @@ from pywrdrb.post.get_results import get_base_results, get_pywr_results
 ## Execution - Generate all figures
 if __name__ == "__main__":
 
-    rerun_all = False
+    rerun_all = True
     remake_map = False
 
     ## Load data    
@@ -158,35 +158,35 @@ if __name__ == "__main__":
 
 
     ### plot breaking down NYC flows & Trenton flows into components
-    # if rerun_all:
-    print('\nPlotting NYC releases by components, combined with downstream flow components\n')
-    model = 'nwmv21_withObsScaled'
-    plot_NYC_release_components_combined(storages, ffmp_level_boundaries, nyc_release_components,
-                                         lower_basin_mrf_contributions, reservoir_releases,
-                                         reservoir_downstream_gages, major_flows, inflows,
-                                         ibt_diversions, catchment_consumptions, model, figstage=0,
-                                         colordict=model_colors_diagnostics_paper3,
-                                         use_log=True, use_observed=False,
-                                         start_date=start_date_short_obs, end_date=end_date_short_obs,
-                                         fig_dir=fig_dir)
-    for model in base_models[1:]:
+    if rerun_all:
+        print('\nPlotting NYC releases by components, combined with downstream flow components\n')
+        model = 'nwmv21_withObsScaled'
         plot_NYC_release_components_combined(storages, ffmp_level_boundaries, nyc_release_components,
                                              lower_basin_mrf_contributions, reservoir_releases,
                                              reservoir_downstream_gages, major_flows, inflows,
-                                             ibt_diversions, catchment_consumptions, model, figstage=1,
+                                             ibt_diversions, catchment_consumptions, model, figstage=0,
                                              colordict=model_colors_diagnostics_paper3,
                                              use_log=True, use_observed=False,
                                              start_date=start_date_short_obs, end_date=end_date_short_obs,
                                              fig_dir=fig_dir)
+        for model in base_models[1:]:
+            plot_NYC_release_components_combined(storages, ffmp_level_boundaries, nyc_release_components,
+                                                 lower_basin_mrf_contributions, reservoir_releases,
+                                                 reservoir_downstream_gages, major_flows, inflows,
+                                                 ibt_diversions, catchment_consumptions, model, figstage=1,
+                                                 colordict=model_colors_diagnostics_paper3,
+                                                 use_log=True, use_observed=False,
+                                                 start_date=start_date_short_obs, end_date=end_date_short_obs,
+                                                 fig_dir=fig_dir)
 
-        plot_NYC_release_components_combined(storages, ffmp_level_boundaries, nyc_release_components,
-                                             lower_basin_mrf_contributions, reservoir_releases,
-                                             reservoir_downstream_gages, major_flows, inflows,
-                                             ibt_diversions, catchment_consumptions, model, figstage=1,
-                                             colordict=model_colors_diagnostics_paper3,
-                                             use_log=True, use_observed=False,
-                                             start_date=start_date_full, end_date=end_date_full,
-                                             fig_dir=fig_dir)
+            plot_NYC_release_components_combined(storages, ffmp_level_boundaries, nyc_release_components,
+                                                 lower_basin_mrf_contributions, reservoir_releases,
+                                                 reservoir_downstream_gages, major_flows, inflows,
+                                                 ibt_diversions, catchment_consumptions, model, figstage=1,
+                                                 colordict=model_colors_diagnostics_paper3,
+                                                 use_log=True, use_observed=False,
+                                                 start_date=start_date_full, end_date=end_date_full,
+                                                 fig_dir=fig_dir)
 
 
 
