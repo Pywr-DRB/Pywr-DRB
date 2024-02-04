@@ -4,12 +4,12 @@ import h5py
 
 from utils.lists import reservoir_list, reservoir_list_nyc, majorflow_list, reservoir_link_pairs
 from utils.lists import drbc_lower_basin_reservoirs
-from utils.constants import cms_to_mgd, cfs_to_mgd, cm_to_mg
+from utils.constants import cms_to_mgd, cfs_to_mgd, cm_to_mg, mg_to_mcm
 from utils.hdf5 import get_hdf5_realization_numbers
 
 ### Contains functions used to process Pywr-DRB data.  
 
-def get_pywr_results(output_dir, model, results_set='all', scenario=0, datetime_index=None):
+def get_pywr_results(output_dir, model, results_set='all', scenario=0, datetime_index=None, units=None):
     """
     Gathers simulation results from Pywr model run and returns a pd.DataFrame.
 
@@ -143,11 +143,17 @@ def get_pywr_results(output_dir, model, results_set='all', scenario=0, datetime_
             datetime_index = pd.to_datetime(date)
             results.index = datetime_index
 
+        if units is not None:
+            if units == 'MG':
+                pass
+            elif units == 'MCM':
+                results *= mg_to_mcm
+
         return results, datetime_index
 
 
 ### load flow estimates from raw input datasets
-def get_base_results(input_dir, model, datetime_index=None, results_set='all', ensemble_scenario=None):
+def get_base_results(input_dir, model, datetime_index=None, results_set='all', ensemble_scenario=None, units=None):
     """
     Function for retrieving and organizing results from non-pywr streamflows (NHM, NWM, WEAP).
 
@@ -203,6 +209,12 @@ def get_base_results(input_dir, model, datetime_index=None, results_set='all', e
         for c in gage_flow.columns:
             if c not in majorflow_list:
                 gage_flow = gage_flow.drop(c, axis=1)
+
+    if units is not None:
+        if units == 'MG':
+            pass
+        elif units == 'MCM':
+            gage_flow *= mg_to_mcm
     # print(f'Index with notation {gage_flow.index[0]} and type {type(gage_flow.index)}')
     # gage_flow = gage_flow.loc[datetime_index, :]
 

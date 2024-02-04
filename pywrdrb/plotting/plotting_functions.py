@@ -29,7 +29,7 @@ import datetime as dt
 from pywrdrb.pywr_drb_node_data import upstream_nodes_dict, downstream_node_lags, immediate_downstream_nodes_dict
 
 # Custom modules
-from pywrdrb.utils.constants import cms_to_mgd, cm_to_mg, cfs_to_mgd
+from pywrdrb.utils.constants import cms_to_mgd, cm_to_mg, cfs_to_mgd, mg_to_mcm
 from pywrdrb.utils.lists import reservoir_list, reservoir_list_nyc, majorflow_list, reservoir_link_pairs, seasons_dict,\
     drbc_lower_basin_reservoirs
 
@@ -59,10 +59,10 @@ def subset_timeseries(timeseries, start_date, end_date, end_inclusive=True):
 
 
 
-def plot_3part_flows_hier(reservoir_downstream_gages, major_flows, nodes, models, colordict = paired_model_colors,
+def plot_3part_flows_hier(reservoir_downstream_gages, major_flows, nodes, models, colordict = paired_model_colors, units='MG',
                             markerdict = scatter_model_markers, start_date=None, end_date=None, end_inclusive=False,
                             uselog=False, save_fig=True, fig_dir = fig_dir):
-
+    units_daily = 'MGD' if units == 'MG' else 'MCM/D' 
     use2nd = True if len(models) > 1 else False
     alpha_lines = 1
     alpha_dots = 0.25
@@ -109,7 +109,7 @@ def plot_3part_flows_hier(reservoir_downstream_gages, major_flows, nodes, models
                     ax.plot(obs, label=model_label_dict['obs'], color=colordict['obs'], zorder=2, alpha=alpha_lines)
                 ax.plot(modeled, label=model_label_dict[m], color=colordict[m], zorder=1, alpha=alpha_lines)
 
-                ax.set_ylabel('Daily Flow (MGD)', fontsize=fontsize)
+                ax.set_ylabel(f'Daily Flow ({units_daily})', fontsize=fontsize)
 
                 if uselog:
                     ax.semilogy()
@@ -140,8 +140,8 @@ def plot_3part_flows_hier(reservoir_downstream_gages, major_flows, nodes, models
 
                 ax.loglog()
                 if row == 2:
-                    ax.set_xlabel('Observed Flow (MGD)', fontsize=fontsize)
-                ax.set_ylabel('Modeled Flow (MGD)', fontsize=fontsize)
+                    ax.set_xlabel(f'Observed Flow ({units_daily})', fontsize=fontsize)
+                ax.set_ylabel(f'Modeled Flow ({units_daily})', fontsize=fontsize)
 
         ax.annotate(labels[row][1], xy=(0.05, 0.95), xycoords='axes fraction', fontsize=fontsize, weight='bold',
                     va='top', ha='left')
@@ -165,7 +165,7 @@ def plot_3part_flows_hier(reservoir_downstream_gages, major_flows, nodes, models
                     ax.semilogy()
                     if row == 2:
                         ax.set_xlabel('Exceedence (%)', fontsize=fontsize)
-                    ax.set_ylabel('Daily Flow (MGD)', fontsize=fontsize)
+                    ax.set_ylabel(f'Daily Flow ({units_daily})', fontsize=fontsize)
 
                 plot_exceedance(modeled, ax, color = colordict[m], label=model_label_dict[m],
                                 alpha = alpha_lines, zorder=1)
@@ -652,10 +652,11 @@ def plot_combined_nyc_storage(storages, ffmp_level_boundaries, models, colordict
 def plot_combined_nyc_storage_vs_diversion(storages, ffmp_level_boundaries, ibt_demands, ibt_diversions, models,
                                            customer, shortfall_metrics, colordict = paired_model_colors,
                                            start_date='1999-10-01', end_date='2010-05-31', fig_dir=fig_dir,
-                                           figstage=1):
+                                           figstage=1, units='MG'):
     """
 
     """
+    units_daily = 'MGD' if units == 'MG' else 'MCM/D' 
 
     ### figstage=0 -> smaller fig with 2 models for main paper
     ### figstage=1 -> larger fig with 4 models for supplement
@@ -674,7 +675,10 @@ def plot_combined_nyc_storage_vs_diversion(storages, ffmp_level_boundaries, ibt_
     ### get reservoir storage capacities
     istarf = pd.read_csv(f'{model_data_dir}drb_model_istarf_conus.csv')
     def get_reservoir_capacity(reservoir):
-        return float(istarf['Adjusted_CAP_MG'].loc[istarf['reservoir'] == reservoir].iloc[0])
+        cap = float(istarf['Adjusted_CAP_MG'].loc[istarf['reservoir'] == reservoir].iloc[0])
+        if units == 'MCM':
+            cap *= mg_to_mcm
+        return cap
     capacities = {r: get_reservoir_capacity(r) for r in reservoir_list_nyc}
     capacities['combined'] = sum([capacities[r] for r in reservoir_list_nyc])
 
@@ -727,11 +731,18 @@ def plot_combined_nyc_storage_vs_diversion(storages, ffmp_level_boundaries, ibt_
     ### also plot monthly rolling average
     dems_rolling = dems.rolling(30, center=True).mean()
     ax.plot(dems_rolling, color='0.6')
-    ax.set_ylabel('Demand\n(MGD)', fontsize=fontsize)
+    ax.set_ylabel(f'Demand\n({units_daily})', fontsize=fontsize)
     ax.set_xlim(axs[0].get_xlim())
     ax.set_xticks(ax.get_xticks(), ['']*len(ax.get_xticks()))
-    ax.set_ylim([0, ax.get_ylim()[1]])
-    ax.set_yticklabels(ax.get_yticklabels(), fontsize=fontsize)
+    if units == 'MCM':
+        if customer == 'nyc':
+            ax.set_yticks([0, 2, 4], [0, 2, 4], fontsize=fontsize)
+        else:
+            ax.set_yticks([0, 0.2, 0.4], [0, 0.2, 0.4], fontsize=fontsize)
+
+    else:
+        ax.set_ylim([0, ax.get_ylim()[1]])
+        ax.set_yticklabels(ax.get_yticklabels(), fontsize=fontsize)
 
     ax.annotate(labels[1], xy=(0.005, 0.95), xycoords='axes fraction', ha='left', va='top', weight='bold',
                 fontsize=fontsize)
@@ -753,11 +764,11 @@ def plot_combined_nyc_storage_vs_diversion(storages, ffmp_level_boundaries, ibt_
         divs = subset_timeseries(ibt_diversions[m][customer_key], start_date, end_date) + 0.01  ### add a small amt to match dems
         divs = divs.divide(dems) * 100
         ymin = min(ymin, divs.min())
-        ax.plot(divs, color='k', label='Daily Satisfied')
+        ax.plot(divs, color='k', label='Daily')
 
         ### monthly rolling average
         divs_rolling = divs.rolling(30, center=True).mean()
-        ax.plot(divs_rolling, color='0.6', label='30-Day Avg. Satisfied')
+        ax.plot(divs_rolling, color='0.6', label='30-Day Avg.')
 
         ax.set_ylabel('Demand\nSatisfied (%)', fontsize=fontsize)
         if i == len(models)-1:
@@ -799,11 +810,12 @@ def plot_combined_nyc_storage_vs_diversion(storages, ffmp_level_boundaries, ibt_
 def plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major_flows, lower_basin_mrf_contributions,
                                           mrf_targets, reservoir_releases, downstream_release_targets,
                                           base_model, shortfall_metrics, figstage,
-                                          colordict = paired_model_colors,
+                                          colordict = paired_model_colors, units='MG',
                                            start_date = '1999-10-01', end_date = '2010-05-31', fig_dir=fig_dir):
     """
 
     """
+    units_daily = 'BGD' if units == 'MG' else 'MCM/D' 
 
     ### figstage 0 -> just Montague.
     if figstage == 0:
@@ -823,7 +835,10 @@ def plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major
     ### get reservoir storage capacities
     istarf = pd.read_csv(f'{model_data_dir}drb_model_istarf_conus.csv')
     def get_reservoir_capacity(reservoir):
-        return float(istarf['Adjusted_CAP_MG'].loc[istarf['reservoir'] == reservoir].iloc[0])
+        cap = float(istarf['Adjusted_CAP_MG'].loc[istarf['reservoir'] == reservoir].iloc[0])
+        if units == 'MCM':
+            cap *= mg_to_mcm
+        return cap
     capacities = {r: get_reservoir_capacity(r) for r in reservoir_list_nyc}
     capacities['combined'] = sum([capacities[r] for r in reservoir_list_nyc])
 
@@ -952,11 +967,11 @@ def plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major
         satisfaction = np.minimum(flow.divide(target_max) * 100, np.ones(len(flow)) * 100)
 
         leftlinecolor = 'k'
-        ax.plot(satisfaction, color=leftlinecolor, label='Daily Satisfied')
+        ax.plot(satisfaction, color=leftlinecolor, label='Daily')
 
         ### monthly rolling average
         satisfaction_rolling = satisfaction.rolling(30, center=True).mean()
-        ax.plot(satisfaction_rolling, color='0.6', label='30-Day Avg. Satisfied')
+        ax.plot(satisfaction_rolling, color='0.6', label='30-Day Avg.')
 
 
         ### now plot dynamic min flow target on right y axis
@@ -964,12 +979,16 @@ def plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major
         twincolor = 'cornflowerblue'
         ax2.plot(target, color=twincolor, ls='-', label='Dynamic Target')
 
-        ax2.set_ylabel('Dynamic Target (BGD)', fontsize=fontsize, rotation=270, labelpad=10, color=twincolor)
+        ax2.set_ylabel(f'Dynamic Target\n({units_daily})', fontsize=fontsize, rotation=270, labelpad=20, color=twincolor)
 
         ax2.annotate(labels[2 + i*2], xy=(0.005, 0.05), xycoords='axes fraction', ha='left', va='bottom', weight='bold',
                      fontsize=fontsize, color='k')
-        yticks = [0, 500, 1000] if mrf == 'delMontague' else [0, 1000, 2000]
-        yticklabels = [0, 0.5, 1] if mrf == 'delMontague' else [0, 1, 2]
+        if units_daily == 'MGD':
+            yticks = [0, 500, 1000] if mrf == 'delMontague' else [0, 1000, 2000]
+            yticklabels = [0, 0.5, 1] if mrf == 'delMontague' else [0, 1, 2]
+        else:
+            yticks = [0, 2, 4] if mrf == 'delMontague' else [0, 4, 8]
+            yticklabels = yticks
         ax2.set_yticks(yticks)
         ax2.set_yticks(yticks, yticklabels, fontsize=fontsize, color=twincolor)
         ax2.tick_params(axis='y', colors=twincolor)
@@ -986,7 +1005,8 @@ def plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major
         ### bottom legend
         if i == 1 or figstage == 0:
             ax.legend(frameon=False, loc='upper center', bbox_to_anchor=(0.33, -0.3), fontsize=fontsize, ncols=3)
-            ax2.legend(frameon=False, loc='upper center', bbox_to_anchor=(0.96, -0.3), fontsize=fontsize, ncols=3)
+            leg2_x = 0.96 if units_daily == 'MGD' else 0.85
+            ax2.legend(frameon=False, loc='upper center', bbox_to_anchor=(leg2_x, -0.3), fontsize=fontsize, ncols=3)
 
     ### save fig
     plt.savefig(f'{fig_dir}storages_minflows_{base_model}_{pywr_model}_' + \
@@ -999,22 +1019,28 @@ def plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major
 
 
 def plot_lowflow_exceedances(reservoir_downstream_gages, major_flows, lower_basin_mrf_contributions_full, models, nodes,
-                             start_date=None, end_date=None, colordict=paired_model_colors, figstage=0):
+                             start_date=None, end_date=None, colordict=paired_model_colors, figstage=0, units='MG'):
+    
+    units_daily = 'BGD' if units == 'MG' else 'MCM/D' 
+
     if figstage == 0:
-        ### 3x2 grid of rolling avg windows (rows) & nodes (cols)
+        ### 1x2 grid of rolling avg windows (rows) & nodes (cols)
         fontsize = 8
-        fontsize_ticks = 5.5
-        windows = [7, 30, 365]
-        fig, axs = plt.subplots(len(windows), len(nodes), figsize=(4, 4), gridspec_kw={'wspace': 0.2, 'hspace': 0.2})
+        fontsize_ticks = 7
+        windows = [7, 365]
+        fig, axs = plt.subplots(len(windows), len(nodes), figsize=(5, 3), gridspec_kw={'wspace': 0.2, 'hspace': 0.2})
 
         ### set y ticks manually, default is terrible for some reason
-        yticks = [[(0, 0.2, 0.4, 0.6), (0, 1, 2)],
-                  [(0, 0.5, 1.0), (0, 1, 2, 3)],
-                  [(0, 0.6, 1.2, 1.8), (0, 2, 4, 6)]
-                  ]
-        labels = [['a)', 'd)'],
-                  ['b)', 'e)'],
-                  ['c)', 'f)'],
+        if units_daily == 'BGD':
+            yticks = [[(0, 0.2, 0.4, 0.6), (0, 1, 2)],
+                        [(0, 0.6, 1.2, 1.8), (0, 2, 4, 6)]
+                        ]
+        else:
+            yticks = [[(0, 0.5,1, 1.5,2), (0, 2, 4, 6, 8)],
+                    [(0, 2, 4, 6), (0, 8, 16, 24)]
+                    ]
+        labels = [['a)', 'b)'],
+                  ['c)', 'd)'],
                   ]
 
     elif figstage == 1:
@@ -1025,12 +1051,20 @@ def plot_lowflow_exceedances(reservoir_downstream_gages, major_flows, lower_basi
         fig, axs = plt.subplots(len(windows), len(nodes), figsize=(8, 7), gridspec_kw={'wspace': 0.25, 'hspace': 0.25})
 
         ### set y ticks manually, default is terrible for some reason
-        yticks = [[(0, 0.1, 0.2), (0, 0.3, 0.6), (0, 1, 2), (0, 2, 4)],
-                  [(0, 0.1, 0.2), (0, 0.3, 0.6), (0, 1, 2), (0, 2, 4)],
-                  [(0, 0.1, 0.2, 0.3), (0, 0.4, 0.8), (0, 1, 2), (0, 2, 4)],
-                  [(0, 0.2, 0.4), (0, 0.5, 1), (0, 2, 4), (0, 4, 8)],
-                  [(0, 0.4, 0.8), (0, 0.5, 1, 1.5), (0, 3, 6), (0, 4, 8)]
-                  ]
+        if units_daily == 'BGD':
+            yticks = [[(0, 0.1, 0.2), (0, 0.3, 0.6), (0, 1, 2), (0, 2, 4)],
+                    [(0, 0.1, 0.2), (0, 0.3, 0.6), (0, 1, 2), (0, 2, 4)],
+                    [(0, 0.1, 0.2, 0.3), (0, 0.4, 0.8), (0, 1, 2), (0, 2, 4)],
+                    [(0, 0.2, 0.4), (0, 0.5, 1), (0, 2, 4), (0, 4, 8)],
+                    [(0, 0.4, 0.8), (0, 0.5, 1, 1.5), (0, 3, 6), (0, 4, 8)]
+                    ]
+        else:
+            yticks = [[(0, 0.5, 1), (0, 1., 2.), (0, 4, 8), (0, 8, 16)],
+                    [(0, 0.5, 1), (0, 1., 2.), (0, 4, 8), (0, 8, 16)],
+                    [(0, 0.5, 1.), (0, 1.5, 3.), (0, 5, 10), (0, 10, 20)],
+                    [(0, 1, 2), (0, 2, 4), (0, 7.5, 15), (0, 15, 30)],
+                    [(0, 1.5, 3.), (0, 3, 6), (0, 10, 20), (0, 15, 30)]
+                    ]
         labels = [['a)', 'f)', 'k)', 'p)'],
                   ['b)', 'g)', 'l)', 'q)'],
                   ['c)', 'h)', 'm)', 'r)'],
@@ -1050,12 +1084,16 @@ def plot_lowflow_exceedances(reservoir_downstream_gages, major_flows, lower_basi
             row = j
             ax = axs[row, col]
             for i, m in enumerate(models):
-                modeled = subset_timeseries(results[m][node], start_date, end_date) / 1000 # convert to BGD for smaller labels
+                modeled = subset_timeseries(results[m][node], start_date, end_date) 
+                if units_daily == 'BGD':
+                    modeled /= 1000 # convert to BGD for smaller labels
 
                 ### for Trenton & Pywr models, include BLue Marsh FFMP releases in Trenton Equiv flow
                 if 'pywr' in m and node == 'delTrenton':
                     lower_basin_mrf_contributions = subset_timeseries(lower_basin_mrf_contributions_full[m],
-                                                                      start_date, end_date) / 1000
+                                                                      start_date, end_date) 
+                    if units_daily == 'BGD':
+                        lower_basin_mrf_contributions /= 1000
                     lower_basin_mrf_contributions.columns = [c.split('_')[-1] for c in
                                                              lower_basin_mrf_contributions.columns]
                     # acct for lag at blue marsh so it can be added to trenton equiv flow.
@@ -1096,7 +1134,7 @@ def plot_lowflow_exceedances(reservoir_downstream_gages, major_flows, lower_basi
                 ax.set_xticks(ticks_X_bottom, ticks_T_bottom, fontsize=fontsize_ticks)
                 if figstage == 0:
                     if col == 1:
-                        ax.legend(frameon=False, loc='upper center', bbox_to_anchor=(-0.25, -0.4), ncols=4,
+                        ax.legend(frameon=False, loc='upper center', bbox_to_anchor=(-0.25, -0.3), ncols=4,
                                   fontsize=fontsize)
                 elif figstage == 1:
                     if col == 1:
@@ -1115,7 +1153,8 @@ def plot_lowflow_exceedances(reservoir_downstream_gages, major_flows, lower_basi
             if j == 0:
                 ax2.set_xlabel('Return Period (years)', fontsize=fontsize)
                 ax2.set_xticks(ticks_X_top, ticks_T_top, fontsize=fontsize_ticks)
-                ax2.set_title(node_label_full_dict[node], fontsize=fontsize)
+                if figstage > 0:
+                    ax2.set_title(node_label_full_dict[node], fontsize=fontsize)
 
             else:
                 ax2.set_xticks(ticks_X_top, ['']*len(ticks_X_top), fontsize=fontsize)
@@ -1124,7 +1163,7 @@ def plot_lowflow_exceedances(reservoir_downstream_gages, major_flows, lower_basi
             ax2.axvline([ticks_X_top[i] for i in range(len(ticks_X_top)) if ticks_T_top[i] == 10], color='0.5', ls=':')
 
             if col == 0:
-                ax.set_ylabel(f'Annual Min\n{window}-Day-Avg\nDaily Flow\n(BGD)', fontsize=fontsize)
+                ax.set_ylabel(f'Annual Min\n{window}-Day-Avg\nDaily Flow\n({units_daily})', fontsize=fontsize)
 
             ax.set_ylim([0, ax.get_ylim()[1]])
             ax.set_yticks(yticks[row][col], yticks[row][col], fontsize=fontsize_ticks)
@@ -1146,7 +1185,9 @@ def plot_NYC_release_components_combined(storages, ffmp_level_boundaries, nyc_re
                                          lower_basin_mrf_contributions, reservoir_releases, reservoir_downstream_gages,
                                          major_flows, inflows, diversions, consumptions, base_model, figstage,
                                          colordict = base_model_colors, start_date = None, end_date = None,
-                                         use_log=False, use_observed=False, fig_dir=fig_dir):
+                                         use_log=False, use_observed=False, fig_dir=fig_dir, units='MG'):
+
+    units_daily = 'BGD' if units == 'MG' else 'MCM/D' 
 
     if figstage == 0:
         fig, axs = plt.subplots(3, 1, figsize=(7, 5), gridspec_kw={'hspace': 0.1, 'height_ratios': [0.6, 1, 1]})
@@ -1170,7 +1211,10 @@ def plot_NYC_release_components_combined(storages, ffmp_level_boundaries, nyc_re
     ### get reservoir storage capacities
     istarf = pd.read_csv(f'{model_data_dir}drb_model_istarf_conus.csv')
     def get_reservoir_capacity(reservoir):
-        return float(istarf['Adjusted_CAP_MG'].loc[istarf['reservoir'] == reservoir].iloc[0])
+        cap = float(istarf['Adjusted_CAP_MG'].loc[istarf['reservoir'] == reservoir].iloc[0])
+        if units == 'MCM':
+            cap *= mg_to_mcm
+        return cap
     capacities = {r: get_reservoir_capacity(r) for r in reservoir_list_nyc}
     capacities['combined'] = sum([capacities[r] for r in reservoir_list_nyc])
 
@@ -1297,7 +1341,7 @@ def plot_NYC_release_components_combined(storages, ffmp_level_boundaries, nyc_re
     ax.fill_between(x, y2, y3, label='NYC FFMP Downstream', color=colors[3], alpha=alpha, lw=0)
     ax.fill_between(x, y1, y2, label='Uncontrolled', color=colors[4], alpha=alpha, lw=0)
 
-    ax2.set_ylabel('Total Flow (MGD)', fontsize=fontsize)
+    ax2.set_ylabel(f'Total Flow ({units_daily})', fontsize=fontsize)
     ax.set_ylabel('Flow Contribution (%)', fontsize=fontsize)
 
     ax.set_xticks(ax.get_xticks(), ['']*len(ax.get_xticks()), fontsize=fontsize)
@@ -1388,7 +1432,7 @@ def plot_NYC_release_components_combined(storages, ffmp_level_boundaries, nyc_re
         else:
             ax2.set_ylim([0, ax2.get_ylim()[1]])
 
-        ax2.set_ylabel('Total Flow (MGD)', fontsize=fontsize)
+        ax2.set_ylabel(f'Total Flow ({units_daily})', fontsize=fontsize)
         ax.set_ylabel('Flow Contribution (%)', fontsize=fontsize)
 
 
@@ -1526,15 +1570,59 @@ def plot_NYC_release_components_combined(storages, ffmp_level_boundaries, nyc_re
 
 
 
+def plot_ratio_managed_unmanaged(lower_basin_mrf_contributions, reservoir_releases, reservoir_downstream_gages,
+                                major_flows, inflows, diversions, consumptions, base_model, 
+                                colordict = base_model_colors, start_date = None, end_date = None,
+                                use_log=False, fig_dir=fig_dir, units='MG'):
+    
+    units_daily = 'BGD' if units == 'MG' else 'MCM/D' 
+
+    fig, ax = plt.subplots(1, 1, figsize=(7, 3))
+    fontsize = 8
+    
+    pywr_model = 'pywr_' + base_model
+
+    ### NYC Total
+    release_total = subset_timeseries(reservoir_releases[pywr_model][reservoir_list_nyc], start_date, end_date).sum(axis=1)
+    x = release_total.index
+
+    downstream_gage_pywr = subset_timeseries(reservoir_downstream_gages[pywr_model]['NYCAgg'], start_date, end_date)
+    downstream_gage_base = subset_timeseries(reservoir_downstream_gages[base_model]['NYCAgg'], start_date, end_date)
+    ax.plot(downstream_gage_pywr / downstream_gage_base, label='NYC Total')
+
+    ### Montague
+    downstream_gage_pywr = subset_timeseries(major_flows[pywr_model]['delMontague'], start_date, end_date)
+    downstream_gage_base = subset_timeseries(major_flows[base_model]['delMontague'], start_date, end_date)
+    ax.plot(downstream_gage_pywr / downstream_gage_base, label='Montague')
+
+    ax.legend(fontsize=fontsize, frameon=False, loc='center left', bbox_to_anchor=(1.01, 0.5))
+    ax.set_xlim([x[0], x[-1]])
+   
+    if use_log:
+        ax.semilogy()
+
+    ax.set_xticklabels(ax.get_xticklabels(), fontsize=fontsize)
+    ax.set_yticks([0.01, 0.1, 1, 10], [0.01, 0.1, 1, 10], fontsize=fontsize)
+    ax.set_ylabel('Ratio of managed to\nunmanaged flow estimates')
+    ax.grid(which='both', color='0.5', linestyle='-', lw=0.5)
+
+    plt.savefig(f'{fig_dir}ratio_managed_unmanaged_flows_{pywr_model}_' + \
+                f'{release_total.index.year[0]}_{release_total.index.year[-1]}.png',
+                bbox_inches='tight', dpi=dpi)
+
+
+
+
+
+
 
 def get_shortfall_metrics(major_flows, lower_basin_mrf_contributions, mrf_targets, ibt_demands, ibt_diversions, models_mrf, models_ibt, nodes,
-                          shortfall_threshold=0.95, shortfall_break_length=7,
+                          shortfall_threshold=0.95, shortfall_break_length=7, units='MG',
                           start_date=None, end_date=None):
     """
 
     """
-
-    ###
+    units_daily = 'BGD' if units == 'MG' else 'MCM/D' 
     eps = 1e-9
 
     resultsdict = {}
@@ -1567,7 +1655,7 @@ def get_shortfall_metrics(major_flows, lower_basin_mrf_contributions, mrf_target
                 flows = flows.values
                 thresholds = np.ones(len(flows)) * mrf_targets[models_ibt[0]][f'mrf_target_{node}'].max() * \
                              shortfall_threshold - eps
-                print(f'{node} normal minimum flow target: {thresholds[0]}')
+                print(f'{node} normal minimum flow target: {thresholds[0]} {units_daily}')
             else:
                 flows = subset_timeseries(ibt_diversions[m][f'delivery_{node}'], start_date, end_date)
                 dates = flows.index
@@ -1641,11 +1729,13 @@ def get_shortfall_metrics(major_flows, lower_basin_mrf_contributions, mrf_target
 
 ###
 def plot_shortfall_metrics(shortfall_metrics, models_mrf, models_ibt, nodes,
-                           colordict = base_model_colors, fig_dir = fig_dir,
+                           colordict = base_model_colors, fig_dir = fig_dir, units='MG',
                            print_reliabilities=True, print_events=False):
     """
 
     """
+    units_daily = 'MGD' if units == 'MG' else 'MCM/D' 
+
     ### 3x4 figure with shortfall metrics (rows) & nodes (cols). Montague/Trenton use 8 models, NYC/NJ only 4.
     fig, axs = plt.subplots(3, 4, figsize=(7,3.5), gridspec_kw={'hspace':0.15, 'wspace':0.4})
     fontsize = 8
@@ -1682,9 +1772,14 @@ def plot_shortfall_metrics(shortfall_metrics, models_mrf, models_ibt, nodes,
                     ax.plot(x, values_ordered, color=colordict[m], lw=1.4, label=model_label_dict[m])
 
             ### fix ticks/labels/etc
-            yticks = [[(80, 90, 100), (80, 90, 100), (80, 90, 100), (80, 90, 100)],
+            if units_daily == 'MGD':
+                yticks = [[(80, 90, 100), (80, 90, 100), (80, 90, 100), (80, 90, 100)],
+                        [(0, 100, 200), (0, 75, 150), (0, 300, 600), (0, 100, 200)],
+                        [(0, 300, 600), (0, 500, 1000), (0, 200, 400), (0, 6, 12)]]
+            else:
+                yticks = [[(80, 90, 100), (80, 90, 100), (80, 90, 100), (80, 90, 100)],
                       [(0, 100, 200), (0, 75, 150), (0, 300, 600), (0, 100, 200)],
-                      [(0, 300, 600), (0, 500, 1000), (0, 200, 400), (0, 6, 12)]]
+                      [(0, 1, 2), (0, 2, 4), (0, 0.6, 1.2), (0, 0.03, 0.06)]]
             ax.set_ylim([yticks[row][col][0], yticks[row][col][1]])
             ax.set_yticks(yticks[row][col], yticks[row][col], fontsize=fontsize)
             if row == 0:
@@ -1726,7 +1821,7 @@ def plot_shortfall_metrics(shortfall_metrics, models_mrf, models_ibt, nodes,
     ### ylabels
     axs[0, 0].set_ylabel('Reliability (%)', fontsize=fontsize)
     axs[1, 0].set_ylabel('Duration (days)', fontsize=fontsize)
-    axs[2, 0].set_ylabel('Intensity (MGD)', fontsize=fontsize)
+    axs[2, 0].set_ylabel(f'Intensity\n({units_daily})', fontsize=fontsize)
 
     ### node labels
     axs[0, 0].set_title('Montague\nflow target', fontsize=fontsize)
@@ -1741,15 +1836,15 @@ def plot_shortfall_metrics(shortfall_metrics, models_mrf, models_ibt, nodes,
         for node in nodes:
             models = models_mrf if node in majorflow_list else models_ibt
             for m in models:
-                print(f"{node}, {m}, event durations, intensities: {shortfall_metrics[node][m]['durations']}, " + \
-                      f"{shortfall_metrics[node][m]['intensities']}")
+                print(f"{node}, {m}, event durations, intensities, vulnerabilities: {shortfall_metrics[node][m]['durations']}, " + \
+                      f"{shortfall_metrics[node][m]['intensities']}, {shortfall_metrics[node][m]['vulnerabilities']}")
 
     return
 
 
 
 ### Map of major DRB nodes
-def make_DRB_map(fig_dir=fig_dir):
+def make_DRB_map(fig_dir=fig_dir, units='MG'):
     import os
     # os.environ['USE_PYGEOS'] = '0'
     import geopandas as gpd
@@ -1849,10 +1944,16 @@ def make_DRB_map(fig_dir=fig_dir):
     for r in reservoirs['name']:
         color = 'firebrick' if r in list_nyc_reservoirs else 'sandybrown'
         r_abbrev = r.split('_')[1]
-        try:
-            s = 50 + reservoir_data['Adjusted_CAP_MG'].loc[reservoir_data['reservoir'] == r_abbrev].iloc[0] / 1000 * 2
-        except:
-            s = 50
+        if units == 'MG':
+            try:
+                s = 50 + reservoir_data['Adjusted_CAP_MG'].loc[reservoir_data['reservoir'] == r_abbrev].iloc[0] / 1000 * 2
+            except:
+                s = 50
+        elif units == 'MCM':
+            try:
+                s = 50 + reservoir_data['Adjusted_CAP_MG'].loc[reservoir_data['reservoir'] == r_abbrev].iloc[0] * mg_to_mcm / 2
+            except:
+                s = 50
         reservoirs.loc[reservoirs['name'] == r].plot(ax=ax, color=color, edgecolor='k', markersize=s, zorder=2)
     flow_reqs.plot(ax=ax, color='mediumseagreen', edgecolor='k', markersize=250, zorder=2.1, marker='*')
 
@@ -1938,12 +2039,12 @@ def make_DRB_map(fig_dir=fig_dir):
     axin.annotate('Non-NYC Reservoir', xy=(0.18, 0.33), ha='left', va='center', color='k', fontsize=fontsize)
     ### marker size for reservoirs
     # axin.annotate('Reservoir Capacity', xy=(0.05, 0.3), ha='left', va='center', color='k', fontsize=fontsize)
-    axin.scatter([0.15], [0.18], color='0.5', edgecolor='k', s=50 + 3000 / 1000 * 2)
-    axin.scatter([0.45], [0.18], color='0.5', edgecolor='k', s=50 + 50000 / 1000 * 2)
-    axin.scatter([0.8], [0.18], color='0.5', edgecolor='k', s=50 + 140000 / 1000 * 2)
-    axin.annotate('3 BG', xy=(0.15, 0.05), ha='center', va='center', color='k', fontsize=fontsize)
-    axin.annotate('50 BG', xy=(0.45, 0.05), ha='center', va='center', color='k', fontsize=fontsize)
-    axin.annotate('140 BG', xy=(0.8, 0.05), ha='center', va='center', color='k', fontsize=fontsize)
+    axin.scatter([0.15], [0.18], color='0.5', edgecolor='k', s=50 + 10  / 2)
+    axin.scatter([0.45], [0.18], color='0.5', edgecolor='k', s=50 + 200  / 2)
+    axin.scatter([0.8], [0.18], color='0.5', edgecolor='k', s=50 + 530  / 2)
+    axin.annotate('10', xy=(0.15, 0.05), ha='center', va='center', color='k', fontsize=fontsize)
+    axin.annotate('200', xy=(0.45, 0.05), ha='center', va='center', color='k', fontsize=fontsize)
+    axin.annotate('530 MCM', xy=(0.8, 0.05), ha='center', va='center', color='k', fontsize=fontsize)
     ### clean up
     axin.set_xticks([])
     axin.set_yticks([])

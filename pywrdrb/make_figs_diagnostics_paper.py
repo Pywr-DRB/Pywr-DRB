@@ -21,8 +21,10 @@ from pywrdrb.post.get_results import get_base_results, get_pywr_results
 ## Execution - Generate all figures
 if __name__ == "__main__":
 
-    rerun_all = True
+    rerun_all = False
     remake_map = False
+    units = 'MCM'
+    assert units in ['MCM', 'MG']
 
     ## Load data    
     # Load Pywr-DRB simulation models
@@ -47,20 +49,20 @@ if __name__ == "__main__":
     datetime_index = None
     for model in pywr_models:
         print(f'pywr_{model}')
-        reservoir_downstream_gages[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, results_set='reservoir_downstream_gage', datetime_index=datetime_index)
+        reservoir_downstream_gages[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, results_set='reservoir_downstream_gage', datetime_index=datetime_index, units=units)
         reservoir_downstream_gages[f'pywr_{model}']['NYCAgg'] = reservoir_downstream_gages[f'pywr_{model}'][reservoir_list_nyc].sum(axis=1)
-        major_flows[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, results_set='major_flow', datetime_index=datetime_index)
-        storages[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, results_set='res_storage', datetime_index=datetime_index)
-        reservoir_releases[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, results_set='res_release', datetime_index=datetime_index)
+        major_flows[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, results_set='major_flow', datetime_index=datetime_index, units=units)
+        storages[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, results_set='res_storage', datetime_index=datetime_index, units=units)
+        reservoir_releases[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, results_set='res_release', datetime_index=datetime_index, units=units)
         ffmp_levels[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, results_set='res_level', datetime_index=datetime_index)
-        inflows[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, 'inflow', datetime_index=datetime_index)
-        nyc_release_components[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, 'nyc_release_components', datetime_index=datetime_index)
-        lower_basin_mrf_contributions[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, 'lower_basin_mrf_contributions', datetime_index=datetime_index)
-        ibt_demands[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, 'ibt_demands', datetime_index=datetime_index)
-        ibt_diversions[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, 'ibt_diversions', datetime_index=datetime_index)
-        catchment_consumptions[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, 'catchment_consumption', datetime_index=datetime_index)
-        mrf_targets[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, 'mrf_targets', datetime_index=datetime_index)
-        downstream_release_targets[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, 'downstream_release_target', datetime_index=datetime_index)
+        inflows[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, 'inflow', datetime_index=datetime_index, units=units)
+        nyc_release_components[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, 'nyc_release_components', datetime_index=datetime_index, units=units)
+        lower_basin_mrf_contributions[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, 'lower_basin_mrf_contributions', datetime_index=datetime_index, units=units)
+        ibt_demands[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, 'ibt_demands', datetime_index=datetime_index, units=units)
+        ibt_diversions[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, 'ibt_diversions', datetime_index=datetime_index, units=units)
+        catchment_consumptions[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, 'catchment_consumption', datetime_index=datetime_index, units=units)
+        mrf_targets[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, 'mrf_targets', datetime_index=datetime_index, units=units)
+        downstream_release_targets[f'pywr_{model}'], datetime_index = get_pywr_results(output_dir, model, 'downstream_release_target', datetime_index=datetime_index, units=units)
 
     ffmp_level_boundaries, datetime_index = get_pywr_results(output_dir, model, results_set='ffmp_level_boundaries', datetime_index=datetime_index)
 
@@ -72,9 +74,9 @@ if __name__ == "__main__":
     datetime_index = list(reservoir_downstream_gages.values())[0].index
     for model in base_models:
         print(model)
-        reservoir_downstream_gages[model], datetime_index = get_base_results(input_dir, model, results_set='reservoir_downstream_gage', datetime_index=datetime_index)
+        reservoir_downstream_gages[model], datetime_index = get_base_results(input_dir, model, results_set='reservoir_downstream_gage', datetime_index=datetime_index, units=units)
         reservoir_downstream_gages[model]['NYCAgg'] = reservoir_downstream_gages[model][reservoir_list_nyc].sum(axis=1)
-        major_flows[model], datetime_index = get_base_results(input_dir, model, results_set='major_flow', datetime_index=datetime_index)
+        major_flows[model], datetime_index = get_base_results(input_dir, model, results_set='major_flow', datetime_index=datetime_index, units=units)
 
     ### different time periods for different type of figures.
     start_date_obs = pd.to_datetime('2008-01-01')   ### comparison to observed record, error metrics
@@ -99,11 +101,11 @@ if __name__ == "__main__":
         nodes = ['cannonsville','NYCAgg','delMontague']
         for model in pywr_models:
             # ### first with full observational record
-            plot_3part_flows_hier(reservoir_downstream_gages, major_flows, nodes, [model.replace('pywr_',''), model], uselog=True,
-                                  colordict=model_colors_diagnostics_paper2, start_date=start_date_obs, end_date=end_date_obs)
+            plot_3part_flows_hier(reservoir_downstream_gages, major_flows, nodes, [model.replace('pywr_',''), model], uselog=True, units=units,
+                                    colordict=model_colors_diagnostics_paper2, start_date=start_date_obs, end_date=end_date_obs)
             ### now zoomed in 2 year period where it is easier to see time series
-            plot_3part_flows_hier(reservoir_downstream_gages, major_flows, nodes, [model.replace('pywr_', ''), model], uselog=True,
-                                  colordict=model_colors_diagnostics_paper2, start_date=start_date_short_obs, end_date=end_date_short_obs)
+            plot_3part_flows_hier(reservoir_downstream_gages, major_flows, nodes, [model.replace('pywr_', ''), model], uselog=True, units=units,
+                                    colordict=model_colors_diagnostics_paper2, start_date=start_date_short_obs, end_date=end_date_short_obs)
 
 
     ### compare modeled vs observed NYC storages
@@ -148,12 +150,12 @@ if __name__ == "__main__":
         models = base_models[1:] + pywr_models
         nodes = ['NYCAgg', 'delMontague']
         plot_lowflow_exceedances(reservoir_downstream_gages, major_flows, lower_basin_mrf_contributions, models, nodes,
-                                 start_date=start_date_full, end_date=end_date_full,
-                                 colordict=model_colors_diagnostics_paper3, figstage=0)
+                                    start_date=start_date_full, end_date=end_date_full,
+                                    colordict=model_colors_diagnostics_paper3, figstage=0, units=units)
         nodes = ['cannonsville', 'NYCAgg', 'delMontague', 'delTrenton']
         plot_lowflow_exceedances(reservoir_downstream_gages, major_flows, lower_basin_mrf_contributions, models, nodes,
-                                 start_date=start_date_full, end_date=end_date_full,
-                                 colordict=model_colors_diagnostics_paper3, figstage=1)
+                                    start_date=start_date_full, end_date=end_date_full,
+                                    colordict=model_colors_diagnostics_paper3, figstage=1, units=units)
 
 
 
@@ -162,80 +164,86 @@ if __name__ == "__main__":
         print('\nPlotting NYC releases by components, combined with downstream flow components\n')
         model = 'nwmv21_withObsScaled'
         plot_NYC_release_components_combined(storages, ffmp_level_boundaries, nyc_release_components,
-                                             lower_basin_mrf_contributions, reservoir_releases,
-                                             reservoir_downstream_gages, major_flows, inflows,
-                                             ibt_diversions, catchment_consumptions, model, figstage=0,
-                                             colordict=model_colors_diagnostics_paper3,
-                                             use_log=True, use_observed=False,
-                                             start_date=start_date_short_obs, end_date=end_date_short_obs,
-                                             fig_dir=fig_dir)
+                                                lower_basin_mrf_contributions, reservoir_releases,
+                                                reservoir_downstream_gages, major_flows, inflows,
+                                                ibt_diversions, catchment_consumptions, model, figstage=0,
+                                                colordict=model_colors_diagnostics_paper3,
+                                                use_log=True, use_observed=False,
+                                                start_date=start_date_short_obs, end_date=end_date_short_obs,
+                                                fig_dir=fig_dir, units=units)
         for model in base_models[1:]:
             plot_NYC_release_components_combined(storages, ffmp_level_boundaries, nyc_release_components,
-                                                 lower_basin_mrf_contributions, reservoir_releases,
-                                                 reservoir_downstream_gages, major_flows, inflows,
-                                                 ibt_diversions, catchment_consumptions, model, figstage=1,
-                                                 colordict=model_colors_diagnostics_paper3,
-                                                 use_log=True, use_observed=False,
-                                                 start_date=start_date_short_obs, end_date=end_date_short_obs,
-                                                 fig_dir=fig_dir)
+                                                    lower_basin_mrf_contributions, reservoir_releases,
+                                                    reservoir_downstream_gages, major_flows, inflows,
+                                                    ibt_diversions, catchment_consumptions, model, figstage=1,
+                                                    colordict=model_colors_diagnostics_paper3,
+                                                    use_log=True, use_observed=False,
+                                                    start_date=start_date_short_obs, end_date=end_date_short_obs,
+                                                    fig_dir=fig_dir, units=units)
 
             plot_NYC_release_components_combined(storages, ffmp_level_boundaries, nyc_release_components,
-                                                 lower_basin_mrf_contributions, reservoir_releases,
-                                                 reservoir_downstream_gages, major_flows, inflows,
-                                                 ibt_diversions, catchment_consumptions, model, figstage=1,
-                                                 colordict=model_colors_diagnostics_paper3,
-                                                 use_log=True, use_observed=False,
-                                                 start_date=start_date_full, end_date=end_date_full,
-                                                 fig_dir=fig_dir)
+                                                    lower_basin_mrf_contributions, reservoir_releases,
+                                                    reservoir_downstream_gages, major_flows, inflows,
+                                                    ibt_diversions, catchment_consumptions, model, figstage=1,
+                                                    colordict=model_colors_diagnostics_paper3,
+                                                    use_log=True, use_observed=False,
+                                                    start_date=start_date_full, end_date=end_date_full,
+                                                    fig_dir=fig_dir, units=units)
 
 
-
-
+    ### companion figure to the flow component figure to show timeseries of ratio between unmanaged & managed flows
+    if rerun_all:
+        plot_ratio_managed_unmanaged(lower_basin_mrf_contributions, reservoir_releases,
+                                        reservoir_downstream_gages, major_flows, inflows,
+                                        ibt_diversions, catchment_consumptions, model, 
+                                        colordict=model_colors_diagnostics_paper3, use_log=True, 
+                                        start_date=start_date_short_obs, end_date=end_date_short_obs,
+                                        fig_dir=fig_dir, units=units)
 
     ### plot shortfall event metrics (reliability/duration/intensity/vulnerability) distributions for min flows and ibt diversions
-    if rerun_all:
-        print('\nPlotting shortfall event metrics for min flows and NYC/NJ diversions\n')
-        models_mrf = base_models[1:] + pywr_models
-        models_ibt = pywr_models
-        nodes = ['delMontague', 'delTrenton', 'nyc', 'nj']
-        shortfall_type = 'absolute' ### 'absolute' or 'percent'
+    # if rerun_all:
+    print('\nPlotting shortfall event metrics for min flows and NYC/NJ diversions\n')
+    models_mrf = base_models[1:] + pywr_models
+    models_ibt = pywr_models
+    nodes = ['delMontague', 'delTrenton', 'nyc', 'nj']
+    shortfall_type = 'absolute'
 
-        shortfall_metrics = get_shortfall_metrics(major_flows, lower_basin_mrf_contributions, mrf_targets, ibt_demands,
-                                                  ibt_diversions, models_mrf, models_ibt, nodes,
-                                                  shortfall_threshold=0.99, shortfall_break_length=30,
-                                                  start_date=start_date_medium_preobs, end_date=end_date_medium_preobs)
-        plot_shortfall_metrics(shortfall_metrics, models_mrf, models_ibt, nodes,
-                               colordict=model_colors_diagnostics_paper3,
-                               print_reliabilities=False, print_events=True)
-        shortfall_metrics = get_shortfall_metrics(major_flows, lower_basin_mrf_contributions, mrf_targets, ibt_demands,
-                                                  ibt_diversions, models_mrf, models_ibt, nodes,
-                                                  shortfall_threshold=0.99, shortfall_break_length=30,
-                                                  start_date=start_date_full, end_date=end_date_full)
-        plot_shortfall_metrics(shortfall_metrics, models_mrf, models_ibt, nodes,
-                               colordict=model_colors_diagnostics_paper3,
-                               print_reliabilities=True, print_events=False)
+    shortfall_metrics = get_shortfall_metrics(major_flows, lower_basin_mrf_contributions, mrf_targets, ibt_demands,
+                                                ibt_diversions, models_mrf, models_ibt, nodes,
+                                                shortfall_threshold=0.99, shortfall_break_length=30, units=units,
+                                                start_date=start_date_medium_preobs, end_date=end_date_medium_preobs)
+    plot_shortfall_metrics(shortfall_metrics, models_mrf, models_ibt, nodes, 
+                            colordict=model_colors_diagnostics_paper3, units=units,
+                            print_reliabilities=False, print_events=True)
+    shortfall_metrics = get_shortfall_metrics(major_flows, lower_basin_mrf_contributions, mrf_targets, ibt_demands,
+                                                ibt_diversions, models_mrf, models_ibt, nodes,
+                                                shortfall_threshold=0.99, shortfall_break_length=30, units=units,
+                                                start_date=start_date_full, end_date=end_date_full)
+    plot_shortfall_metrics(shortfall_metrics, models_mrf, models_ibt, nodes,
+                            colordict=model_colors_diagnostics_paper3, units=units,
+                            print_reliabilities=True, print_events=False)
 
 
 
 
     ### show NYC storage vs min flow satisfaction dynamics
-    if rerun_all:
-        print('\nPlotting NYC storages vs Montague/Trenton min flow targets\n')
-        base_model = 'nwmv21_withObsScaled'
+    # if rerun_all:
+    print('\nPlotting NYC storages vs Montague/Trenton min flow targets\n')
+    base_model = 'nwmv21_withObsScaled'
+    plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major_flows,
+                                            lower_basin_mrf_contributions, mrf_targets,
+                                            reservoir_releases, downstream_release_targets, base_model,
+                                            shortfall_metrics, figstage=0,
+                                            colordict=model_colors_diagnostics_paper3, units=units,
+                                            start_date=start_date_medium_preobs, end_date=end_date_medium_preobs,
+                                            fig_dir=fig_dir)
+    for base_model in base_models[1:]:  ### should be a base model, and we will compare base vs pywr version
         plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major_flows,
-                                              lower_basin_mrf_contributions, mrf_targets,
-                                              reservoir_releases, downstream_release_targets, base_model,
-                                              shortfall_metrics, figstage=0,
-                                              colordict=model_colors_diagnostics_paper3,
-                                              start_date=start_date_medium_preobs, end_date=end_date_medium_preobs,
-                                              fig_dir=fig_dir)
-        for base_model in base_models[1:]:  ### should be a base model, and we will compare base vs pywr version
-            plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major_flows,
-                                                  lower_basin_mrf_contributions, mrf_targets, reservoir_releases,
-                                                  downstream_release_targets, base_model, shortfall_metrics, figstage=1,
-                                                   colordict=model_colors_diagnostics_paper3,
-                                                   start_date=start_date_full, end_date=end_date_full,
-                                                   fig_dir=fig_dir)
+                                                lower_basin_mrf_contributions, mrf_targets, reservoir_releases,
+                                                downstream_release_targets, base_model, shortfall_metrics, figstage=1,
+                                                colordict=model_colors_diagnostics_paper3, units=units,
+                                                start_date=start_date_full, end_date=end_date_full,
+                                                fig_dir=fig_dir)
 
 
 
@@ -245,23 +253,23 @@ if __name__ == "__main__":
         customer = 'nyc'
         models = pywr_models[-2:]
         plot_combined_nyc_storage_vs_diversion(storages, ffmp_level_boundaries, ibt_demands, ibt_diversions,
-                                               models, customer, shortfall_metrics,
-                                               colordict=model_colors_diagnostics_paper3,
-                                               start_date=start_date_medium_preobs, end_date=end_date_medium_preobs,
-                                               fig_dir=fig_dir, figstage=0)
+                                                models, customer, shortfall_metrics,
+                                                colordict=model_colors_diagnostics_paper3,
+                                                start_date=start_date_medium_preobs, end_date=end_date_medium_preobs,
+                                                fig_dir=fig_dir, figstage=0, units=units)
         for customer in ['nyc','nj']:
             plot_combined_nyc_storage_vs_diversion(storages, ffmp_level_boundaries, ibt_demands, ibt_diversions,
-                                                   pywr_models, customer, shortfall_metrics,
-                                                   colordict = model_colors_diagnostics_paper3,
-                                                   start_date=start_date_full, end_date=end_date_full,
-                                                   fig_dir=fig_dir, figstage=1)
+                                                    pywr_models, customer, shortfall_metrics,
+                                                    colordict = model_colors_diagnostics_paper3,
+                                                    start_date=start_date_full, end_date=end_date_full,
+                                                    fig_dir=fig_dir, figstage=1, units=units)
 
 
 
     ### Make DRB map
-    if rerun_all and remake_map:
+    if remake_map:
         print('\nMaking DRB map\n')
-        make_DRB_map(fig_dir=fig_dir)
+        make_DRB_map(fig_dir=fig_dir, units=units)
 
 
 
