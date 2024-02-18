@@ -319,6 +319,9 @@ def predict_inflows_diversions(dataset_label, start_date, end_date,
 
     ### plot performance at different locations & modes
     if make_figs:
+        units = 'MCM/D'
+        assert units in ['MCM/D', 'MGD']
+        units_conversion = 0.0037854118 if units == 'MCM/D' else 1.
         loc_dict = {'delMontague':'Montague', 'delTrenton':'Trenton', 'demand_nj':'NJ diversion'}
         for mode in ['regression_disagg']:#, 'regression_agg', 'same_day', 'moving_average', 'perfect_foresight']
             fig, axs = plt.subplots(4, 3, figsize=(8, 8), gridspec_kw={'hspace': 0.3, 'wspace': 0.3})
@@ -328,8 +331,8 @@ def predict_inflows_diversions(dataset_label, start_date, end_date,
                     if use_log:
                         ax.loglog('log')
                     if f'{loc}_lag{lag}_{mode}' in predicted_timeseries.columns:
-                        ax.scatter(predicted_timeseries[f'{loc}_lag{lag}_perfect_foresight'],
-                                   predicted_timeseries[f'{loc}_lag{lag}_{mode}'],
+                        ax.scatter(predicted_timeseries[f'{loc}_lag{lag}_perfect_foresight'] * units_conversion,
+                                   predicted_timeseries[f'{loc}_lag{lag}_{mode}'] * units_conversion,
                                    color='cornflowerblue', alpha=0.2, zorder=1)
                         lims = [min(ax.get_xlim()[0], ax.get_ylim()[0]), max(ax.get_xlim()[1], ax.get_ylim()[1])]
                         ax.plot([lims[0], lims[1]], [lims[0], lims[1]], color='k', alpha=1, lw=0.5, ls=':', zorder=2)
@@ -348,9 +351,9 @@ def predict_inflows_diversions(dataset_label, start_date, end_date,
                             labelleft=False)
                         ax.set_frame_on(False)
                     if (col == 0 and row <= 1) or (col == 1 and row > 1):
-                        ax.set_ylabel('Predicted (MGD)')
+                        ax.set_ylabel(f'Predicted ({units})')
                     if (row == 3 and col > 0) or (col == 0 and row == 1):
-                        ax.set_xlabel('Observed (MGD)')
+                        ax.set_xlabel(f'Observed ({units})')
 
 
 

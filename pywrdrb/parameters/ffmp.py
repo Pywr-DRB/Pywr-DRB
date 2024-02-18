@@ -833,7 +833,7 @@ class VolBalanceNYCDemand(Parameter):
     """
     def __init__(self, model, reservoir, nodes, max_volume_agg_nyc, volume_agg_nyc, max_flow_delivery_nyc,
                  flow_agg_nyc, max_vol_reservoirs, vol_reservoirs, flow_reservoirs, hist_max_flow_delivery_nycs,
-                 downstream_release_target_reservoirs, flood_release_reservoirs, **kwargs):
+                 mrf_target_individual_reservoirs, downstream_release_target_reservoirs, flood_release_reservoirs, **kwargs):
         super().__init__(model, **kwargs)
         self.reservoir = reservoir
         self.nodes = nodes
@@ -846,6 +846,7 @@ class VolBalanceNYCDemand(Parameter):
         self.vol_reservoirs = vol_reservoirs
         self.flow_reservoirs = flow_reservoirs
         self.hist_max_flow_delivery_nycs = hist_max_flow_delivery_nycs
+        self.mrf_target_individual_reservoirs = mrf_target_individual_reservoirs
         self.downstream_release_target_reservoirs = downstream_release_target_reservoirs
         self.flood_release_reservoirs = flood_release_reservoirs
 
@@ -858,6 +859,7 @@ class VolBalanceNYCDemand(Parameter):
             self.children.add(vol_reservoirs[i])
             self.children.add(flow_reservoirs[i])
             self.children.add(hist_max_flow_delivery_nycs[i])
+            self.children.add(mrf_target_individual_reservoirs[i])
             self.children.add(downstream_release_target_reservoirs[i])
             self.children.add(flood_release_reservoirs[i])
 
@@ -872,7 +874,8 @@ class VolBalanceNYCDemand(Parameter):
         ### first calculate the contributions to NYC delivery for this reservoir to balance storages across reservoirs
         requirement_total = self.max_flow_delivery_nyc.get_value(scenario_index)
         max_diversions = [self.hist_max_flow_delivery_nycs[i].get_value(scenario_index) for i in range(self.num_reservoirs)]
-        mrf_target_total = sum([self.downstream_release_target_reservoirs[i].get_value(scenario_index) for i in range(self.num_reservoirs)])
+        mrf_individual_total = sum([self.mrf_target_individual_reservoirs[i].get_value(scenario_index) for i in range(self.num_reservoirs)])
+        mrf_downstream_total = sum([self.downstream_release_target_reservoirs[i].get_value(scenario_index) for i in range(self.num_reservoirs)])
         flood_release_total = sum([self.flood_release_reservoirs[i].get_value(scenario_index) for i in range(self.num_reservoirs)])
 
         if requirement_total < epsilon:
@@ -882,13 +885,14 @@ class VolBalanceNYCDemand(Parameter):
             for i in range(self.num_reservoirs):
                 targets[i] = self.vol_reservoirs[i].get_value(scenario_index) + \
                              self.flow_reservoirs[i].get_value(scenario_index) - \
+                             self.mrf_target_individual_reservoirs[i].get_value(scenario_index) - \
                              self.downstream_release_target_reservoirs[i].get_value(scenario_index) - \
                              self.flood_release_reservoirs[i].get_value(scenario_index) - \
                              (self.max_vol_reservoirs[i].get_value(scenario_index) / \
                               self.max_volume_agg_nyc.get_value(scenario_index)) * \
                              (self.volume_agg_nyc.get_value(scenario_index) + \
                               self.flow_agg_nyc.get_value(scenario_index) - \
-                              mrf_target_total - flood_release_total - requirement_total)
+                              mrf_individual_total - mrf_downstream_total - flood_release_total - requirement_total)
                              
                 ### enforce nonnegativity and reservoir max release constraint. Set min to 0.01 instead of 0 so that it can be activated if extra flow needed below.
                 targets[i] = min(max(targets[i], 0.01), max_diversions[i])
@@ -953,11 +957,12 @@ class VolBalanceNYCDemand(Parameter):
         vol_reservoirs = [load_parameter(model, f'volume_{reservoir}') for reservoir in reservoir_list_nyc]
         flow_reservoirs = [load_parameter(model, f'flow_{reservoir}') for reservoir in reservoir_list_nyc]
         hist_max_flow_delivery_nycs = [load_parameter(model, f'hist_max_flow_delivery_nyc_{reservoir}') for reservoir in reservoir_list_nyc]
+        mrf_target_individual_reservoirs = [load_parameter(model, f'mrf_target_individual_{reservoir}') for reservoir in reservoir_list_nyc]
         downstream_release_target_reservoirs = [load_parameter(model, f'downstream_release_target_{reservoir}') for reservoir in reservoir_list_nyc]
         flood_release_reservoirs = [load_parameter(model, f'flood_release_{reservoir}') for reservoir in reservoir_list_nyc]
         return cls(model, reservoir, nodes, max_volume_agg_nyc, volume_agg_nyc, max_flow_delivery_nyc,
                    flow_agg_nyc, max_vol_reservoirs, vol_reservoirs, flow_reservoirs, hist_max_flow_delivery_nycs,
-                   downstream_release_target_reservoirs, flood_release_reservoirs, **data)
+                   mrf_target_individual_reservoirs, downstream_release_target_reservoirs, flood_release_reservoirs, **data)
 
 ### have to register the custom parameter so Pywr recognizes it
 VolBalanceNYCDemand.register()

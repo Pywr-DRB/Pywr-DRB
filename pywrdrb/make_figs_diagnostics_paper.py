@@ -21,8 +21,8 @@ from pywrdrb.post.get_results import get_base_results, get_pywr_results
 ## Execution - Generate all figures
 if __name__ == "__main__":
 
-    rerun_all = False
-    remake_map = False
+    rerun_all = True
+    remake_map = True
     units = 'MCM'
     assert units in ['MCM', 'MG']
 
@@ -112,11 +112,11 @@ if __name__ == "__main__":
     if rerun_all:
         print('\nPlotting NYC storage modeled vs observed\n')
         plot_combined_nyc_storage(storages, ffmp_level_boundaries, pywr_models, colordict = model_colors_diagnostics_paper3,
-                                      start_date=start_date_obs, end_date=end_date_obs, fig_dir=fig_dir)
+                                        start_date=start_date_obs, end_date=end_date_obs, fig_dir=fig_dir, units=units)
         plot_combined_nyc_storage(storages, ffmp_level_boundaries, pywr_models, colordict = model_colors_diagnostics_paper3,
-                                      start_date=start_date_storage_obs, end_date=end_date_full, fig_dir=fig_dir)
+                                        start_date=start_date_storage_obs, end_date=end_date_full, fig_dir=fig_dir, units=units)
         plot_combined_nyc_storage(storages, ffmp_level_boundaries, pywr_models, colordict = model_colors_diagnostics_paper3,
-                                      start_date=start_date_full, end_date=end_date_full, fig_dir=fig_dir)
+                                        start_date=start_date_full, end_date=end_date_full, fig_dir=fig_dir, units=units)
 
 
 
@@ -201,49 +201,49 @@ if __name__ == "__main__":
                                         fig_dir=fig_dir, units=units)
 
     ### plot shortfall event metrics (reliability/duration/intensity/vulnerability) distributions for min flows and ibt diversions
-    # if rerun_all:
-    print('\nPlotting shortfall event metrics for min flows and NYC/NJ diversions\n')
-    models_mrf = base_models[1:] + pywr_models
-    models_ibt = pywr_models
-    nodes = ['delMontague', 'delTrenton', 'nyc', 'nj']
-    shortfall_type = 'absolute'
+    if rerun_all:
+        print('\nPlotting shortfall event metrics for min flows and NYC/NJ diversions\n')
+        models_mrf = base_models[1:] + pywr_models
+        models_ibt = pywr_models
+        nodes = ['delMontague', 'delTrenton', 'nyc', 'nj']
+        shortfall_type = 'absolute'
 
-    shortfall_metrics = get_shortfall_metrics(major_flows, lower_basin_mrf_contributions, mrf_targets, ibt_demands,
-                                                ibt_diversions, models_mrf, models_ibt, nodes,
-                                                shortfall_threshold=0.99, shortfall_break_length=30, units=units,
-                                                start_date=start_date_medium_preobs, end_date=end_date_medium_preobs)
-    plot_shortfall_metrics(shortfall_metrics, models_mrf, models_ibt, nodes, 
-                            colordict=model_colors_diagnostics_paper3, units=units,
-                            print_reliabilities=False, print_events=True)
-    shortfall_metrics = get_shortfall_metrics(major_flows, lower_basin_mrf_contributions, mrf_targets, ibt_demands,
-                                                ibt_diversions, models_mrf, models_ibt, nodes,
-                                                shortfall_threshold=0.99, shortfall_break_length=30, units=units,
-                                                start_date=start_date_full, end_date=end_date_full)
-    plot_shortfall_metrics(shortfall_metrics, models_mrf, models_ibt, nodes,
-                            colordict=model_colors_diagnostics_paper3, units=units,
-                            print_reliabilities=True, print_events=False)
+        shortfall_metrics = get_shortfall_metrics(major_flows, lower_basin_mrf_contributions, mrf_targets, ibt_demands,
+                                                    ibt_diversions, models_mrf, models_ibt, nodes,
+                                                    shortfall_threshold=0.99, shortfall_break_length=30, units=units,
+                                                    start_date=start_date_medium_preobs, end_date=end_date_medium_preobs)
+        plot_shortfall_metrics(shortfall_metrics, models_mrf, models_ibt, nodes, 
+                                colordict=model_colors_diagnostics_paper3, units=units,
+                                print_reliabilities=False, print_events=True)
+        shortfall_metrics = get_shortfall_metrics(major_flows, lower_basin_mrf_contributions, mrf_targets, ibt_demands,
+                                                    ibt_diversions, models_mrf, models_ibt, nodes,
+                                                    shortfall_threshold=0.99, shortfall_break_length=30, units=units,
+                                                    start_date=start_date_full, end_date=end_date_full)
+        plot_shortfall_metrics(shortfall_metrics, models_mrf, models_ibt, nodes,
+                                colordict=model_colors_diagnostics_paper3, units=units,
+                                print_reliabilities=True, print_events=False)
 
 
 
 
     ### show NYC storage vs min flow satisfaction dynamics
-    # if rerun_all:
-    print('\nPlotting NYC storages vs Montague/Trenton min flow targets\n')
-    base_model = 'nwmv21_withObsScaled'
-    plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major_flows,
-                                            lower_basin_mrf_contributions, mrf_targets,
-                                            reservoir_releases, downstream_release_targets, base_model,
-                                            shortfall_metrics, figstage=0,
-                                            colordict=model_colors_diagnostics_paper3, units=units,
-                                            start_date=start_date_medium_preobs, end_date=end_date_medium_preobs,
-                                            fig_dir=fig_dir)
-    for base_model in base_models[1:]:  ### should be a base model, and we will compare base vs pywr version
+    if rerun_all:
+        print('\nPlotting NYC storages vs Montague/Trenton min flow targets\n')
+        base_model = 'nwmv21_withObsScaled'
         plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major_flows,
-                                                lower_basin_mrf_contributions, mrf_targets, reservoir_releases,
-                                                downstream_release_targets, base_model, shortfall_metrics, figstage=1,
+                                                lower_basin_mrf_contributions, mrf_targets,
+                                                reservoir_releases, downstream_release_targets, base_model,
+                                                shortfall_metrics, figstage=0,
                                                 colordict=model_colors_diagnostics_paper3, units=units,
-                                                start_date=start_date_full, end_date=end_date_full,
+                                                start_date=start_date_medium_preobs, end_date=end_date_medium_preobs,
                                                 fig_dir=fig_dir)
+        for base_model in base_models[1:]:  ### should be a base model, and we will compare base vs pywr version
+            plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major_flows,
+                                                    lower_basin_mrf_contributions, mrf_targets, reservoir_releases,
+                                                    downstream_release_targets, base_model, shortfall_metrics, figstage=1,
+                                                    colordict=model_colors_diagnostics_paper3, units=units,
+                                                    start_date=start_date_full, end_date=end_date_full,
+                                                    fig_dir=fig_dir)
 
 
 

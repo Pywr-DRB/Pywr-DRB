@@ -577,7 +577,7 @@ def plot_gridded_error_metrics(results_metrics, models, nodes, start_date, end_d
 
 
 def plot_combined_nyc_storage(storages, ffmp_level_boundaries, models, colordict = paired_model_colors,
-                      start_date = '1999-10-01', end_date = '2010-05-31', fig_dir=fig_dir):
+                      start_date = '1999-10-01', end_date = '2010-05-31', fig_dir=fig_dir, units='MG'):
     """
 
     """
@@ -586,13 +586,18 @@ def plot_combined_nyc_storage(storages, ffmp_level_boundaries, models, colordict
     fontsize = 8
 
     ### get reservoir storage capacities
+    assert units in ['MCM','MG']
+    units_multiplier = mg_to_mcm if units == 'MCM' else 1.
+        
     istarf = pd.read_csv(f'{model_data_dir}drb_model_istarf_conus.csv')
     def get_reservoir_capacity(reservoir):
-        return float(istarf['Adjusted_CAP_MG'].loc[istarf['reservoir'] == reservoir].iloc[0])
+        return float(istarf['Adjusted_CAP_MG'].loc[istarf['reservoir'] == reservoir].iloc[0]) * units_multiplier
     capacities = {r: get_reservoir_capacity(r) for r in reservoir_list_nyc}
     capacities['combined'] = sum([capacities[r] for r in reservoir_list_nyc])
 
-    historic_storage = pd.read_csv(f'{input_dir}/historic_NYC/NYC_storage_daily_2000-2021.csv', sep=',', index_col=0)
+
+
+    historic_storage = pd.read_csv(f'{input_dir}/historic_NYC/NYC_storage_daily_2000-2021.csv', sep=',', index_col=0) * units_multiplier
     historic_storage.index = pd.to_datetime(historic_storage.index)
     historic_storage = subset_timeseries(historic_storage['Total'], start_date, end_date)
     historic_storage *= 100/capacities['combined']
