@@ -4,8 +4,7 @@ import pandas as pd
 import numpy as np
 
 from .directories import ROOT_DIR
-
-from pywr_drb_node_data import obs_site_matches
+from .pywr_drb_node_data import obs_site_matches
 
 pywrdrb_all_nodes = list(obs_site_matches.keys())
 
