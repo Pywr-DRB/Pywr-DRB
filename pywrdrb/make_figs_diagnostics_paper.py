@@ -12,11 +12,6 @@ from pywrdrb.utils.constants import cms_to_mgd, cm_to_mg, cfs_to_mgd
 from pywrdrb.utils.directories import input_dir, output_dir, fig_dir
 from pywrdrb.post.get_results import get_base_results, get_pywr_results
 
-### I was having trouble with interactive console plotting in Pycharm for some reason - comment this out if you want to use that and not having issues
-# mpl.use('TkAgg')
-
-
-
 
 ## Execution - Generate all figures
 if __name__ == "__main__":
@@ -87,8 +82,6 @@ if __name__ == "__main__":
     end_date_full = pd.to_datetime('2017-01-01')
     start_date_medium_preobs = pd.to_datetime('1990-01-01') ### 10-year period in pre-observed record for zoomed dynamics
     end_date_medium_preobs = pd.to_datetime('2000-01-01')
-    # start_date_short_preobs = pd.to_datetime('1993-01-01') ### short 3-year period pre observed record for zoomed dynamics
-    # end_date_short_preobs = pd.to_datetime('1996-01-01')
     start_date_short_preobs = pd.to_datetime('2001-01-01') ### short 2-year period pre observed record for zoomed dynamics
     end_date_short_preobs = pd.to_datetime('2004-01-01')
     start_date_storage_obs = pd.to_datetime('2000-01-01')  ### full NHM/NWM time series
@@ -265,13 +258,10 @@ if __name__ == "__main__":
                                                     fig_dir=fig_dir, figstage=1, units=units)
 
 
-
     ### Make DRB map
     if remake_map:
         print('\nMaking DRB map\n')
         make_DRB_map(fig_dir=fig_dir, units=units)
-
-
 
 
     print(f'Done! Check the {fig_dir} folder.')
