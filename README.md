@@ -8,4 +8,4 @@ and background material.
 
 *This research was funded by the U.S. Geological Survey (USGS) Water Availability and Use Science Program as part of 
 the Water Resources Mission Area Predictive Understanding of Multiscale Processes Project 
-(USGS Grant Number G21AC10668)*.
+(USGS Grant Number G21AC10668). The views expressed in this work are those of the authors and do not reflect the views or policies of the USGS.*
