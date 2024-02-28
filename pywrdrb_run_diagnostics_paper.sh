@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-# ### prep inputs from raw data
+### prep inputs from raw data
 echo Prepping data...
 time python3 -W ignore ./pywrdrb/prep_input_data.py
 
