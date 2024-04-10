@@ -72,7 +72,8 @@ def add_major_node(model, name, node_type, inflow_type,
                    starfit_release, regulatory_release, 
                    downstream_node=None, downstream_lag=0,
                    capacity=None, initial_volume_frac=None, variable_cost=None, has_catchment=True,
-                   inflow_ensemble_indices=None):
+                   inflow_ensemble_indices=None,
+                   withdrawal_scaling_indices=None):
     """
     Add a major node to the model.
 
@@ -295,13 +296,38 @@ def add_major_node(model, name, node_type, inflow_type,
             }
 
 
+        ### Demand withdrawl and consumptions
+
+        if withdrawal_scaling_indices:
+            # Scaling withdrawal each each node
+            model['parameters'][f'withdrawl_scaling_{name}'] = {
+                'type': 'NodeWithdrawlScalingFactor',
+                'node': name,
+                'withdrawal_scaling_indices': withdrawal_scaling_indices
+            }
+        else:
+            # No demand scaling
+            model['parameters'][f'withdrawl_scaling_{name}'] = {
+                'type': 'constant',
+                'value': 1.0
+            }
+
         ### get max flow for catchment withdrawal nodes based on DRBC data
-        model['parameters'][f'max_flow_catchmentWithdrawal_{name}'] = {
+        model['parameters'][f'drbc_avg_catchmentWithdrawal_{name}'] = {
             'type': 'constant',
             'url': f'{input_dir}sw_avg_wateruse_Pywr-DRB_Catchments.csv',
             'column': 'Total_WD_MGD',
             'index_col': 'node',
             'index': node_name
+        }
+
+        model['parameters'][f'max_flow_catchmentWithdrawal_{name}'] = {
+            'type': 'aggregated',
+            'agg_func': 'product',
+            'parameters': [
+                f'drbc_avg_catchmentWithdrawal_{name}',
+                f'withdrawl_scaling_{name}'
+            ]
         }
 
         ### get max flow for catchment consumption nodes based on DRBC data
@@ -334,7 +360,8 @@ def add_major_node(model, name, node_type, inflow_type,
 ##########################################################################################
 
 def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNjDeliveries=True,
-                   inflow_ensemble_indices = None):
+                   inflow_ensemble_indices = None,
+                   withdrawal_scaling_indices = None):
     """
     Creates the JSON file used by Pywr to define the model, including all nodes, edges, and parameters.
 
@@ -354,6 +381,9 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
 
     if inflow_ensemble_indices:
         N_SCENARIOS = len(inflow_ensemble_indices)
+    
+    elif withdrawal_scaling_indices and not inflow_ensemble_indices:
+        N_SCENARIOS = len(withdrawal_scaling_indices)
     else:
         N_SCENARIOS = 1
         
