@@ -4,12 +4,12 @@ import h5py
 
 from utils.lists import reservoir_list, reservoir_list_nyc, majorflow_list, reservoir_link_pairs
 from utils.lists import drbc_lower_basin_reservoirs
-from utils.constants import cms_to_mgd, cfs_to_mgd, cm_to_mg
+from utils.constants import cms_to_mgd, cfs_to_mgd, cm_to_mg, mg_to_mcm
 from utils.hdf5 import get_hdf5_realization_numbers
 
 ### Contains functions used to process Pywr-DRB data.  
 
-def get_pywr_results(output_dir, model, results_set='all', scenario=0, datetime_index=None):
+def get_pywr_results(output_dir, model, results_set='all', scenario=0, datetime_index=None, units=None):
     """
     Gathers simulation results from Pywr model run and returns a pd.DataFrame.
 
@@ -56,10 +56,10 @@ def get_pywr_results(output_dir, model, results_set='all', scenario=0, datetime_
                 results[k.split('_')[1]] = f[k][:, scenario]
         elif results_set == 'res_release':
             ### reservoir releases are "outflow" plus "spill". Not all reservoirs have spill.
-            keys_outflow = [k for k in keys if k.split('_')[0] == 'outflow' and k.split('_')[1] in reservoir_list]
+            keys_outflow = [f'outflow_{r}' for r in reservoir_list]
             for k in keys_outflow:
                 results[k.split('_')[1]] = f[k][:, scenario]
-            keys_spill = [k for k in keys if k.split('_')[0] == 'spill' and k.split('_')[1] in reservoir_list]
+            keys_spill = [f'spill_{r}' for r in reservoir_list]
             for k in keys_spill:
                 results[k.split('_')[1]] += f[k][:, scenario]
         elif results_set == 'downstream_release_target':
@@ -101,7 +101,7 @@ def get_pywr_results(output_dir, model, results_set='all', scenario=0, datetime_
             for k in keys:
                 results[k] = f[k][:, scenario]
         elif results_set == 'lower_basin_mrf_contributions':
-            keys = [f'mrf_montagueTrenton_{reservoir}' for reservoir in drbc_lower_basin_reservoirs]
+            keys = [f'mrf_trenton_{reservoir}' for reservoir in drbc_lower_basin_reservoirs]
             for k in keys:
                 results[k] = f[k][:, scenario]
         elif results_set == 'ibt_demands':
@@ -114,6 +114,10 @@ def get_pywr_results(output_dir, model, results_set='all', scenario=0, datetime_
                 results[k] = f[k][:, scenario]
         elif results_set == 'mrf_targets':
             keys = ['mrf_target_delMontague','mrf_target_delTrenton']
+            for k in keys:
+                results[k] = f[k][:, scenario]
+        elif results_set == 'all_mrf':
+            keys = [k for k in keys if 'mrf' in k]
             for k in keys:
                 results[k] = f[k][:, scenario]
 
@@ -139,11 +143,17 @@ def get_pywr_results(output_dir, model, results_set='all', scenario=0, datetime_
             datetime_index = pd.to_datetime(date)
             results.index = datetime_index
 
+        if units is not None:
+            if units == 'MG':
+                pass
+            elif units == 'MCM':
+                results *= mg_to_mcm
+
         return results, datetime_index
 
 
 ### load flow estimates from raw input datasets
-def get_base_results(input_dir, model, datetime_index=None, results_set='all', ensemble_scenario=None):
+def get_base_results(input_dir, model, datetime_index=None, results_set='all', ensemble_scenario=None, units=None):
     """
     Function for retrieving and organizing results from non-pywr streamflows (NHM, NWM, WEAP).
 
@@ -199,6 +209,12 @@ def get_base_results(input_dir, model, datetime_index=None, results_set='all', e
         for c in gage_flow.columns:
             if c not in majorflow_list:
                 gage_flow = gage_flow.drop(c, axis=1)
+
+    if units is not None:
+        if units == 'MG':
+            pass
+        elif units == 'MCM':
+            gage_flow *= mg_to_mcm
     # print(f'Index with notation {gage_flow.index[0]} and type {type(gage_flow.index)}')
     # gage_flow = gage_flow.loc[datetime_index, :]
 
@@ -209,7 +225,8 @@ def get_base_results(input_dir, model, datetime_index=None, results_set='all', e
 
 def get_all_historic_reconstruction_pywr_results(output_dir, model_list, 
                                                 results_set,
-                                                start_date, end_date):
+                                                start_date, end_date,
+                                                realization_subset = None):
     """Loads all historic reconstruction results, 
     stored in a single dictionary.
 
@@ -226,8 +243,11 @@ def get_all_historic_reconstruction_pywr_results(output_dir, model_list,
     reults_type_options = ['all', 'reservoir_downstream_gage', 
                            'res_storage', 'major_flow', 'inflow', 'res_release', 
                            'catchment_withdrawal', 'catchment_consumption', 
-                           'res_level', 'ffmp_level_boundaries', 'mrf_target', 
-                           'nyc_release_components', 'ibt_demands']
+                           'res_level', 'ffmp_level_boundaries', 'mrf_targets', 'mrf_target', 
+                           'nyc_release_components', 'ibt_demands',
+                           'lower_basin_mrf_contributions', 'ibt_diversions',
+                           'release_needed_mrf_trenton_step1', 
+                           'all_mrf']
     
     assert(results_set in reults_type_options), f'results_set must be one of {reults_type_options}'
     
@@ -240,7 +260,7 @@ def get_all_historic_reconstruction_pywr_results(output_dir, model_list,
         # Handle ensembles differently
         if 'ensemble' in model:
             input_filename = f'{output_dir}../input_data/historic_ensembles/gage_flow_{model}.hdf5'
-            realization_numbers = get_hdf5_realization_numbers(input_filename)    
+            realization_numbers = get_hdf5_realization_numbers(input_filename) if realization_subset is None else realization_subset
 
             results[f'pywr_{model}'] = {}
             # Loop through ensemble realizations

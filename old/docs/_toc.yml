@@ -1,0 +1,53 @@
+# Table of contents
+# Learn more at https://jupyterbook.org/customize/toc.html
+
+format: jb-book
+# =============== Landing Page =================
+root: intro.md
+parts:
+  - chapters:
+    # =============== Model & DRB description =================
+    - title: Delaware River Basin Overview
+      file: DRB/drb.md
+      sections:
+        - title: Hydrology
+          file: DRB/drb_hydrology.md
+        - title: Planning & Management
+          file: DRB/drb_planning_management.md
+    - title: Pywr-DRB Overview
+      file: Model/pywr_drb.md
+      sections:
+        - title: Model Overview
+          file: Model/pywr_drb_overview.md
+        - title: Model Nodes
+          file: Model/pywr_drb_model_nodes.md
+        - title: Representing Reservoir Operations
+          file: Model/pywr_drb_resops.md
+        - title: Available Inflow Scenarios
+          file: Model/pywr_drb_inflow_scenarios.md
+    # =============== Getting Started =================
+    - file: Getting_Started/getting_started.md
+      sections:
+        - title: Quick-Start
+          file: Getting_Started/quick_start.md
+        - title: Running Simulations
+          file: Getting_Started/Running_Simulations/run_all_simulations.md
+        - title: Analyzing outputs
+          file: Getting_Started/Interpret_Results/explore_model_outputs.ipynb
+    # =============== References =================
+    - file: api/api.md
+      sections:
+        - title: Plotting
+          file: api/plotting.rst
+        - title: Post-Processing
+          file: api/post.rst
+        - title: Parameters
+          file: api/parameters.rst
+    # =============== Supplemental  =================
+    - file: Supplemental/supplemental.md
+      sections:
+      - title: Pywr-DRB Node List
+        file: Supplemental/node_list.md
+      - title: Streamflow Prediction in Ungauged Basins
+        file: Supplemental/pub.md
+

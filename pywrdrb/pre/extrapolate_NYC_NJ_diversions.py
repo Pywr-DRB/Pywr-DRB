@@ -1,13 +1,15 @@
 import numpy as np
 import pandas as pd
 import glob
+import matplotlib.pyplot as plt
+import seaborn as sns
 import statsmodels.api as sm
 from pygeohydro import NWIS
 import datetime
 
 from pywrdrb.pywr_drb_node_data import upstream_nodes_dict
 from pywrdrb.utils.constants import cfs_to_mgd, cms_to_mgd, cm_to_mg
-from pywrdrb.utils.directories import input_dir
+from pywrdrb.utils.directories import input_dir, fig_dir
 
 
 def download_USGS_data_NYC_NJ_diversions():
@@ -31,7 +33,7 @@ def download_USGS_data_NYC_NJ_diversions():
     return hist_flows
 
 
-def extrapolate_NYC_NJ_diversions(loc):
+def extrapolate_NYC_NJ_diversions(loc, make_figs):
     """
     Function for retrieving NYC and NJ historical diversions and extrapolating them into time periods
     where we don't have data based on seasonal flow regressions.
@@ -160,10 +162,64 @@ def extrapolate_NYC_NJ_diversions(loc):
             pred = lrm.get_distribution(lrr.params, scale=np.var(lrr.resid), exog=exog).rvs()[0]
         df_long_m['diversion_pred'].iloc[i] = pred
 
+
+
+    ### plot regressions
+    if make_figs == True:
+        fig, axs = plt.subplots(2, 2, figsize=(8,8), gridspec_kw={'hspace':0.2, 'wspace':0.2})
+        for i, q in enumerate(quarters):
+            if i >= 2:
+                row = 1
+            else:
+                row = 0
+            if i % 2 == 1:
+                col = 1
+            else:
+                col = 0
+            ax = axs[row, col]
+
+            ### first plot observed data
+            data = df_m.loc[df_m['quarter'] == q].copy()
+            ax.scatter(data['flow_log'], data['diversion'], zorder=2, alpha=0.7, color='cornflowerblue',
+                       label='Observed')
+            ### now plot sampled data during observed period
+            data = df_long_m.loc[df_m.index].copy()
+            data = data.loc[data['quarter'] == q]
+            ax.scatter(data['flow_log'], data['diversion_pred'], zorder=1, alpha=0.7, color='firebrick',
+                       label='Extrapolated over\nobserved period')
+            ### now plot sampled data during unobserved period
+            data = df_long_m.loc[[i not in df_m.index for i in df_long_m.index]].copy()
+            ax.scatter(data['flow_log'], data['diversion_pred'], zorder=0, alpha=0.7, color='darkgoldenrod',
+                       label = 'Extrapolated over\nunobserved period')
+
+            ### plot regression line
+            xlim = ax.get_xlim()
+            ax.plot(xlim, [lrrs[q].params[0] + lrrs[q].params[1] * x for x in xlim], color='k', label='Regression')
+
+            ### legend
+            if row == 1 and col == 1:
+                ax.legend(loc='center left', bbox_to_anchor=(1.0, 1.1), frameon=False)
+
+            ### clean up
+            ax.set_title(q)
+            if row == 1:
+                ax.set_xlabel('Log inflow (log MGD)')
+            if loc == 'nyc':
+                ax.set_ylim([0, ax.get_ylim()[1]])
+            if loc == 'nyc' and col == 0:
+                ax.set_ylabel('Monthly NYC diversion (MGD)')
+            elif loc == 'nj' and col == 0:
+                ax.set_ylabel('Transformed monthly NJ diversion')
+
+        plt.savefig(f'{fig_dir}/extrapolation_{loc}_pt1.png', dpi=400, bbox_inches='tight')
+
+
     ### for NJ, transform data back to original scale
     if loc == 'nj':
         df_m['diversion'] = np.maximum(nj_trans_max - np.exp(df_m['diversion']), 0)
         df_long_m['diversion_pred'] = np.maximum(nj_trans_max - np.exp(df_long_m['diversion_pred']), 0)
+
+
 
     ### now get nearest neighbor in normalized 2d space of log-flow&diversion, within q.
     flow_bounds = [df_m['flow_log'].min(), df_m['flow_log'].max()]
@@ -206,6 +262,28 @@ def extrapolate_NYC_NJ_diversions(loc):
         elif len_match < len_new:
             new_diversion = np.append(new_diversion, [new_diversion[-1]]*(len_new - len_match))
         df_long['diversion_pred'].loc[df_long_idx] = new_diversion
+
+
+    ### plot timeseries
+    if make_figs == True:
+        fig, ax = plt.subplots(1,1, figsize=(5,3), gridspec_kw={'hspace':0.2, 'wspace':0.2})
+
+        ### plot observed diversion daily timeseries
+        ax.plot(df['diversion'], color='cornflowerblue', label='Observed', zorder=2, lw=0.5, alpha=0.7)
+        ### plot extrapolated
+        ax.plot(df_long['diversion_pred'], color='darkgoldenrod', label='Extrapolated', zorder=1, lw=0.5, alpha=0.7)
+
+        ax.legend(loc='center left', bbox_to_anchor=(1.0, 0.5), frameon=False)
+
+        ### clean up
+        ax.set_ylim([0, ax.get_ylim()[1]])
+        if loc == 'nyc':
+            ax.set_ylabel('Daily NYC diversion (MGD)')
+        elif loc == 'nj':
+            ax.set_ylabel('Daily NJ diversion (MGD)')
+
+        plt.savefig(f'{fig_dir}/extrapolation_{loc}_pt2.png', dpi=400, bbox_inches='tight')
+
 
     ### Now reload historical diversion dataset, & add extrapolated data for the dates we don't have
     if loc == 'nyc':
@@ -254,4 +332,7 @@ def extrapolate_NYC_NJ_diversions(loc):
         diversion = diversion.iloc[:, [-1, 0]]
 
         diversion.to_csv(f'{input_dir}deliveryNJ_DRCanal_extrapolated.csv', index=False)
+
+
+
 

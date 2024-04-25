@@ -1,0 +1,14 @@
+jupyter-book
+matplotlib
+numpy
+pandas
+seaborn
+rpy2
+ghp-import
+h5py
+hydroeval
+scipy
+seaborn
+# pywr #NOTE: this is needed for Pywr-DRB, but it is causing docs to fail on GitHub actions, so commenting out for now
+geopandas
+statsmodels
