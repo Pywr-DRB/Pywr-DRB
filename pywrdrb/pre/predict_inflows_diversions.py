@@ -3,7 +3,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
 
-from pywrdrb.utils.directories import input_dir
+from mpi4py import MPI
+
+from mpi4py import MPI
+
+from pywrdrb.utils.directories import input_dir, fig_dir
 from pywrdrb.utils.lists import reservoir_list, majorflow_list
 from pywrdrb.plotting.plotting_functions import subset_timeseries
 from pywrdrb.pre.prep_input_data_functions import add_upstream_catchment_inflows
@@ -149,7 +153,8 @@ def get_rollmean_timeseries(timeseries, window):
 def predict_inflows_diversions(dataset_label, start_date, end_date,
                                use_log=False, remove_zeros=False, use_const=False,
                                realization=None, ensemble_inflows=False,
-                               save_predictions=True, return_predictions=False):
+                               save_predictions=True, return_predictions=False,
+                               make_figs=True):
 
     ### read in catchment inflows and withdrawals/consumptions
     if ensemble_inflows:
@@ -329,41 +334,111 @@ def predict_inflows_diversions(dataset_label, start_date, end_date,
         predicted_timeseries.to_csv(f'{input_dir}/predicted_inflows_diversions_{dataset_label}.csv', index=False)
     if return_predictions:
         return predicted_timeseries
-    
-    
-    
-    
+
+
+    ### plot performance at different locations & modes
+    if make_figs:
+        units = 'MCM/D'
+        assert units in ['MCM/D', 'MGD']
+        units_conversion = 0.0037854118 if units == 'MCM/D' else 1.
+        loc_dict = {'delMontague':'Montague', 'delTrenton':'Trenton', 'demand_nj':'NJ diversion'}
+        for mode in ['regression_disagg']:#, 'regression_agg', 'same_day', 'moving_average', 'perfect_foresight']
+            fig, axs = plt.subplots(4, 3, figsize=(8, 8), gridspec_kw={'hspace': 0.3, 'wspace': 0.3})
+            for row, lag in enumerate(range(1, 5)):
+                for col, loc in enumerate(['delMontague','delTrenton','demand_nj']):
+                    ax = axs[row,col]
+                    if use_log:
+                        ax.loglog('log')
+                    if f'{loc}_lag{lag}_{mode}' in predicted_timeseries.columns:
+                        ax.scatter(predicted_timeseries[f'{loc}_lag{lag}_perfect_foresight'] * units_conversion,
+                                   predicted_timeseries[f'{loc}_lag{lag}_{mode}'] * units_conversion,
+                                   color='cornflowerblue', alpha=0.2, zorder=1)
+                        lims = [min(ax.get_xlim()[0], ax.get_ylim()[0]), max(ax.get_xlim()[1], ax.get_ylim()[1])]
+                        ax.plot([lims[0], lims[1]], [lims[0], lims[1]], color='k', alpha=1, lw=0.5, ls=':', zorder=2)
+                        ax.annotate(f'{loc_dict[loc]}, {lag} day', xy=(0.01, 0.98), xycoords='axes fraction', ha='left',
+                                    va='top')
+                    else:
+                        ax.tick_params(
+                            axis='x',
+                            which='both',
+                            bottom=False,
+                            labelbottom=False)
+                        ax.tick_params(
+                            axis='y',
+                            which='both',
+                            left=False,
+                            labelleft=False)
+                        ax.set_frame_on(False)
+                    if (col == 0 and row <= 1) or (col == 1 and row > 1):
+                        ax.set_ylabel(f'Predicted ({units})')
+                    if (row == 3 and col > 0) or (col == 0 and row == 1):
+                        ax.set_xlabel(f'Observed ({units})')
+
+
+
+            plt.savefig(f'{fig_dir}/predict_flows_{mode}_{dataset_label}.png', dpi=400, bbox_inches='tight')
+
+
+
 def predict_ensemble_inflows_diversions(dataset_label, start_date, end_date,
-                                     use_log=False, remove_zeros=False, use_const=False):
-    """Makes predictions for inflows and diversions at non-NYC gage flows, 
-    using the specified ensemble dataset, looping through each realization. 
-    Ensemble of predictions is exported to hdf5 file.
+                                        use_log=True, remove_zeros=False, 
+                                        use_const=False):
+    """
+    Makes predictions for inflows and diversions at non-NYC gage flows, 
+    using the specified ensemble dataset. 
+    Predictions are parallelizing using MPI.
     
     Args:
-        dataset_label (str): The dataset label; Options: 'obs_pub_nhmv10_ObsScaled_ensemble', 'obs_pub_nwmv10_ObsScaled_ensemble'
-        start_date (str): The start date for the predictions
-        end_date (str): The end date for the predictions
-        use_log (bool): Whether to use log-transformed data for prediction
-        remove_zeros (bool): Whether to remove zero values from the data
-        use_const (bool): Whether to include a constant in the regression
+        dataset_label (str): The label for the dataset to use. 
+        start_date (str): The start date for the predictions.
+        end_date (str): The end date for the predictions.
+        use_log (bool): Whether to use log-transformed values for the predictions. Default is True.
+        remove_zeros (bool): Whether to remove zero values from the predictions. Default is False.
+        use_const (bool): Whether to include a constant term in the regression. Default is False.
+    
     """
-    # Storage:
+    comm = MPI.COMM_WORLD
+    rank = comm.Get_rank()
+    size = comm.Get_size()
+    
     ensemble_pred_nonnyc_gage_flows = {}
-    
-    ensemble_filename= f'{input_dir}/historic_ensembles/catchment_inflow_{dataset_label}.hdf5'
-    
-    # Loop over realizations
+
+    if 'obs_pub' in dataset_label:
+        input_dir += 'historic_ensembles/'
+    elif 'syn' in dataset_label:
+        input_dir += 'synthetic_ensembles/'
+    else:
+        if rank == 0:
+            print(f'Invalid dataset label {dataset_label}.')
+            print('Current implementation only supports input of types: obs_pub or syn.')
+        return
+
+    ensemble_filename = f'{input_dir}catchment_inflow_{dataset_label}.hdf5'
     realization_numbers = get_hdf5_realization_numbers(ensemble_filename)
-    print('Starting inflow/diversion predictions for ensemble')
-    for i in realization_numbers:
+
+    # Divide work among MPI processes
+    num_realizations = len(realization_numbers)
+    realizations_per_proc = np.array_split(realization_numbers, size)[rank]
+    num_realizations_per_proc = len(realizations_per_proc)
+    
+    # Each process works on its assigned part
+    for i in realizations_per_proc:
+        print(f'Process {rank}: Making predictions for realization {i+1} of {num_realizations_per_proc}')
         df_predictions = predict_inflows_diversions(dataset_label, start_date, end_date,
-                                                                   use_log=use_log, remove_zeros=remove_zeros, 
-                                                                   use_const=use_const,
-                                                                   ensemble_inflows=True, realization=i,
-                                                                   save_predictions=False, return_predictions=True)
+                                                    use_log=use_log, remove_zeros=remove_zeros, 
+                                                    use_const=use_const,
+                                                    ensemble_inflows=True, realization=i,
+                                                    save_predictions=False, return_predictions=True,
+                                                    make_figs=False)
         ensemble_pred_nonnyc_gage_flows[f'realization_{i}'] = df_predictions.copy()
-    print('Exporting ensemble of inflows/diversions to hdf5.')
-    # Export to HDF5
-    output_filename= f'{input_dir}/historic_ensembles/predicted_nonnyc_gage_flow_{dataset_label}.hdf5'
-    export_ensemble_to_hdf5(ensemble_pred_nonnyc_gage_flows, output_filename)
-    return 
+
+    # Gather all predictions to root process
+    all_ensemble_pred = comm.gather(ensemble_pred_nonnyc_gage_flows, root=0)
+
+    # Export to HDF5 by root process
+    if rank == 0:
+        combined_ensemble_pred = {key: val for d in all_ensemble_pred for key, val in d.items()}
+        output_filename = f'{input_dir}predicted_nonnyc_gage_flow_{dataset_label}.hdf5'
+        print('Exporting ensemble of inflows/diversions to hdf5.')
+        export_ensemble_to_hdf5(combined_ensemble_pred, output_filename)
+    return

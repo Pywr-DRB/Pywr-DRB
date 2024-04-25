@@ -3,9 +3,9 @@ import sys
 import pandas as pd
 import numpy as np
 
-from .directories import ROOT_DIR
+from pywrdrb.utils.directories import ROOT_DIR
 
-from pywr_drb_node_data import obs_site_matches
+from pywrdrb.pywr_drb_node_data import obs_site_matches
 
 pywrdrb_all_nodes = list(obs_site_matches.keys())
 
@@ -87,6 +87,9 @@ def get_hdf5_realization_numbers(filename):
             if col.startswith('realization_'):
                 # Extract the realization number from the key
                 realization_number = int(col.split('_')[1])
+                realization_numbers.append(realization_number)
+            else:
+                realization_number = col
                 realization_numbers.append(realization_number)
     return realization_numbers
 

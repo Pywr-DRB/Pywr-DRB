@@ -4,9 +4,9 @@ import math
 
 from pywr.parameters import Parameter, load_parameter
 
-from utils.directories import model_data_dir
-from utils.constants import cfs_to_mgd, epsilon
-from utils.lists import modified_starfit_reservoir_list, drbc_lower_basin_reservoirs
+from pywrdrb.utils.directories import model_data_dir
+from pywrdrb.utils.constants import cfs_to_mgd, epsilon
+from pywrdrb.utils.lists import modified_starfit_reservoir_list, drbc_lower_basin_reservoirs
 
 # Drought emergency lower basin staging levels
 # Taken from section 2.5.5 of the DRB Water Code

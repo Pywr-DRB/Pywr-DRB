@@ -9,8 +9,8 @@ import h5py
 
 from pywr.parameters import Parameter, load_parameter, TablesArrayParameter
 
-from utils.hdf5 import get_hdf5_realization_numbers, extract_realization_from_hdf5
-from utils.directories import input_dir
+from pywrdrb.utils.hdf5 import get_hdf5_realization_numbers, extract_realization_from_hdf5
+from pywrdrb.utils.directories import input_dir
 
 
 class FlowEnsemble(Parameter):

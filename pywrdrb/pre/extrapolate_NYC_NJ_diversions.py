@@ -38,6 +38,7 @@ def extrapolate_NYC_NJ_diversions(loc):
 
     Args:
         loc (str): The location to extrapolate. Can be either "nyc" or "nj".
+        make_figs (bool): Whether to make figures of the extrapolation process.
 
     Returns:
         pd.DataFrame: The dataframe containing the extrapolated diversions.
