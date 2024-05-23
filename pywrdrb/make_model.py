@@ -841,7 +841,9 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
         
         ### now get predicted nj demand (this is the same across ensemble)
         # Drop the '_ensemble' suffix from the inflow_type
-        predicted_inflow_type = inflow_type[:-9]
+        predicted_inflow_type = inflow_type.replace('_ensemble', '')
+        predicted_inflow_type = predicted_inflow_type.replace('syn_', '') if 'syn_' in predicted_inflow_type else predicted_inflow_type
+        
         for lag in range(1,5):
             label = f'demand_nj_lag{lag}_{flow_prediction_mode}'
             model['parameters'][f'predicted_demand_nj_lag{lag}'] = {
@@ -851,7 +853,6 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
                 'index_col': 'datetime',
                 'parse_dates': True
             }
-        print('WARNING: Ensemble mode not tested/verified for Montague & Trenton flow forecasts')
 
     ### Get total release needed from NYC reservoirs to satisfy Montague & Trenton flow targets,
     ### above and beyond their individually mandated releases, & after accting for non-NYC inflows and NJ diversions.

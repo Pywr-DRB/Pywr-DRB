@@ -18,15 +18,17 @@ class STARFITReservoirRelease(Parameter):
     """
     Custom Pywr Parameter used to implement the STARFIT-inferred reservoir operations policy at non-NYC reservoirs following Turner et al. (2021).
     
-    Args:
-        model (dict): The PywrDRB model.
+    Attributes:
+        model (Model): The PywrDRB model.
         storage_node (str): The storage node associated with the reservoir.
         flow_parameter: The PywrDRB catchment inflow parameter corresponding to the reservoir.
     
-    Returns:
-        None
+    Methods:
+        value(timestep, scenario_index): returns the STARFIT-inferred reservoir release for the current timestep and scenario index
     """
-    def __init__(self, model, storage_node, flow_parameter, **kwargs):
+    def __init__(self, model, 
+                 storage_node, 
+                 flow_parameter, **kwargs):
         super().__init__(model, **kwargs)
 
         self.node = storage_node
@@ -274,6 +276,7 @@ class STARFITReservoirRelease(Parameter):
         
     @classmethod
     def load(cls, model, data):
+        """Set up the parameter."""
         name = data.pop("node")
         storage_node = model.nodes[f'reservoir_{name}']
         flow_parameter = load_parameter(model, f'flow_{name}')

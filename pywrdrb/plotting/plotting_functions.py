@@ -8,23 +8,14 @@ import datetime
 import numpy as np
 import pandas as pd
 import matplotlib as mpl
-import seaborn as sns
 from matplotlib import pyplot as plt
 from matplotlib.patches import Patch
-from matplotlib.lines import Line2D
-from matplotlib import gridspec
 from matplotlib import cm
 from matplotlib.patches import Rectangle
 from matplotlib.collections import PatchCollection
-from matplotlib.colors import Normalize, LogNorm, ListedColormap, BoundaryNorm, LinearSegmentedColormap
-from matplotlib.gridspec import GridSpec
 from scipy import stats
-import sys
-
 
 import hydroeval as he
-import h5py
-import datetime as dt
 
 from pywrdrb.pywr_drb_node_data import upstream_nodes_dict, downstream_node_lags, immediate_downstream_nodes_dict
 
@@ -33,31 +24,12 @@ from pywrdrb.utils.constants import cms_to_mgd, cm_to_mg, cfs_to_mgd, mg_to_mcm
 from pywrdrb.utils.lists import reservoir_list, reservoir_list_nyc, majorflow_list, reservoir_link_pairs, seasons_dict,\
     drbc_lower_basin_reservoirs
 
-from pywrdrb.utils.directories import input_dir, fig_dir, output_dir, model_data_dir, spatial_data_dir
-from pywrdrb.make_model import get_reservoir_max_release
+from pywrdrb.utils.directories import input_dir, fig_dir, model_data_dir, spatial_data_dir
 from pywrdrb.plotting.styles import base_model_colors, model_hatch_styles, paired_model_colors, scatter_model_markers, \
     node_label_dict, node_label_full_dict, model_label_dict, month_dict, model_linestyle_dict
-
+from pywrdrb.utils.timeseries import subset_timeseries
 
 dpi=400
-
-
-### function to return subset of dates for timeseries data
-def subset_timeseries(timeseries, start_date, end_date, end_inclusive=True):
-    data = timeseries.copy()
-    if isinstance(start_date, str):
-        start_date = pd.to_datetime(start_date)
-        end_date = pd.to_datetime(end_date)
-    if not end_inclusive:
-        end_date = end_date - dt.timedelta(days=1)
-
-    if start_date is not None:
-        data = data.loc[start_date:]
-    if end_date is not None:
-        data = data.loc[:end_date]
-    return data
-
-
 
 def plot_3part_flows_hier(reservoir_downstream_gages, major_flows, nodes, models, colordict = paired_model_colors, units='MG',
                             markerdict = scatter_model_markers, start_date=None, end_date=None, end_inclusive=False,
@@ -1614,120 +1586,6 @@ def plot_ratio_managed_unmanaged(lower_basin_mrf_contributions, reservoir_releas
     plt.savefig(f'{fig_dir}ratio_managed_unmanaged_flows_{pywr_model}_' + \
                 f'{release_total.index.year[0]}_{release_total.index.year[-1]}.png',
                 bbox_inches='tight', dpi=dpi)
-
-
-
-
-
-
-
-def get_shortfall_metrics(major_flows, lower_basin_mrf_contributions, mrf_targets, ibt_demands, ibt_diversions, models_mrf, models_ibt, nodes,
-                          shortfall_threshold=0.95, shortfall_break_length=7, units='MG',
-                          start_date=None, end_date=None):
-    """
-
-    """
-    units_daily = 'BGD' if units == 'MG' else 'MCM/D' 
-    eps = 1e-9
-
-    resultsdict = {}
-    for j, node in enumerate(nodes):
-        resultsdict[node] = {}
-        models = models_mrf if j<2 else models_ibt
-        for i, m in enumerate(models):
-            resultsdict[node][m] = {}
-            if node in majorflow_list:
-                flows = subset_timeseries(major_flows[m][node], start_date, end_date)
-
-                ### for Trenton & Pywr models, include BLue Marsh FFMP releases in Trenton Equiv flow
-                if 'pywr' in m and node == 'delTrenton':
-                    lower_basin_mrf = subset_timeseries(lower_basin_mrf_contributions[m],
-                                                                      start_date, end_date)
-                    lower_basin_mrf.columns = [c.split('_')[-1] for c in lower_basin_mrf.columns]
-                    # acct for lag at blue marsh so it can be added to trenton equiv flow.
-                    for c in ['blueMarsh']:
-                        lag = downstream_node_lags[c]
-                        downstream_node = immediate_downstream_nodes_dict[c]
-                        while downstream_node != 'output_del':
-                            lag += downstream_node_lags[downstream_node]
-                            downstream_node = immediate_downstream_nodes_dict[downstream_node]
-                        if lag > 0:
-                            lower_basin_mrf[c].iloc[lag:] = lower_basin_mrf[c].iloc[:-lag]
-
-                    flows += lower_basin_mrf['blueMarsh']
-
-                dates = flows.index
-                flows = flows.values
-                thresholds = np.ones(len(flows)) * mrf_targets[models_ibt[0]][f'mrf_target_{node}'].max() * \
-                             shortfall_threshold - eps
-                print(f'{node} normal minimum flow target: {thresholds[0]} {units_daily}')
-            else:
-                flows = subset_timeseries(ibt_diversions[m][f'delivery_{node}'], start_date, end_date)
-                dates = flows.index
-                flows = flows.values
-                thresholds = subset_timeseries(ibt_demands[m][f'demand_{node}'], start_date, end_date).values * \
-                             shortfall_threshold - eps
-
-            ### reliability is the fraction of time steps above threshold
-            reliability = (flows > thresholds).mean()
-            ### resiliency is the probability of recovering to above threshold if currently under threshold
-            if reliability < 1 - eps:
-                resiliency = np.logical_and(flows[:-1] < thresholds[:-1], \
-                                            (flows[1:] >= thresholds[1:])).mean() / (1 - reliability)
-            else:
-                resiliency = np.nan
-            ### convert to percents
-            resultsdict[node][m]['reliability'] = reliability * 100
-            resultsdict[node][m]['resiliency'] = resiliency * 100
-
-            ### define individual events & get event-specific metrics
-            durations = []  ### length of each event
-            intensities = []  ### intensity of each event = avg deficit within event
-            severities = []  ### severity = duration * intensity
-            vulnerabilities = []  ### vulnerability = max daily deficit within event
-            event_starts = []    ### define event to start with nonzero shortfall and end with the next shortfall date that preceeds shortfall_break_length non-shortfall dates.
-            event_ends = []
-            if reliability > eps and reliability < 1 - eps:
-                duration = 0
-                severity = 0
-                vulnerability = 0
-                in_event = False
-                for i in range(len(flows)):
-                    v = flows[i]
-                    t = thresholds[i]
-                    d = dates[i]
-                    if in_event or v < t:
-                        ### is this the start of a new event?
-                        if not in_event:
-                            event_starts.append(d)
-                        ### if this is part of event, we add to metrics whether today is deficit or not
-                        duration += 1
-                        s = max(t - v, 0)
-                        severity += s
-                        vulnerability = max(vulnerability, s)
-                        ### now check if next shortfall_break_length days include any deficits. if not, end event.
-                        in_event = np.any(flows[i+1: i+1+shortfall_break_length] < \
-                                          thresholds[i+1: i+1+shortfall_break_length])
-                        if not in_event:
-                            event_ends.append(dates[min(i+1, len(dates)-1)])
-                            durations.append(duration)
-                            severities.append(severity)
-                            intensities.append(severity / duration)
-                            vulnerabilities.append(vulnerability)
-                            in_event = False
-                            duration = 0
-                            severity = 0
-                            vulnerability = 0
-
-            resultsdict[node][m]['event_starts'] = event_starts
-            resultsdict[node][m]['event_ends'] = event_ends
-            resultsdict[node][m]['durations'] = durations
-            resultsdict[node][m]['severities'] = severities
-            resultsdict[node][m]['intensities'] = intensities
-            resultsdict[node][m]['vulnerabilities'] = vulnerabilities
-
-
-    return resultsdict
 
 
 

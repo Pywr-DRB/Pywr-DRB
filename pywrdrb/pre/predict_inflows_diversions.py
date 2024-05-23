@@ -5,19 +5,36 @@ import statsmodels.api as sm
 
 from mpi4py import MPI
 
-from mpi4py import MPI
-
 from pywrdrb.utils.directories import input_dir, fig_dir
 from pywrdrb.utils.lists import reservoir_list, majorflow_list
 from pywrdrb.plotting.plotting_functions import subset_timeseries
 from pywrdrb.pre.prep_input_data_functions import add_upstream_catchment_inflows
 from pywrdrb.utils.hdf5 import extract_realization_from_hdf5, get_hdf5_realization_numbers, export_ensemble_to_hdf5
+from pywrdrb.utils.timeseries import get_rollmean_timeseries
 
-### Predicting future timeseries (catchment inflows or interbasin diversions) at a particular lag (days) using linear regression
-def regress_future_timeseries(timeseries, node, lag, use_log, remove_zeros, use_const,
+def regress_future_timeseries(timeseries, node, lag, 
+                              use_log, remove_zeros, use_const,
                               print_summary=False, plot_scatter=False):
+    """
+    Predicting future timeseries (catchment inflows or interbasin diversions) 
+    at a particular lag (days) using linear regression
+    
+    Args:
+        timeseries (pd.DataFrame): The timeseries data, must include the node of interest.
+        node (str): The node of interest.
+        lag (int): The lag in days for the prediction.
+        use_log (bool): Whether to use log-transformed values for the predictions.
+        remove_zeros (bool): Whether to remove zero values from the predictions.
+        use_const (bool): Whether to include a constant term in the regression.
+        print_summary (bool): Whether to print the regression summary. Default is False.
+        plot_scatter (bool): Whether to plot the scatter plot of the regression. Default is False.
+        
+    Returns:
+        const (float): The constant term of the regression.
+        slope (float): The slope of the regression.
+    """
 
-    Y = timeseries[node].iloc[lag:].values
+    Y = timeseries[node].iloc[lag:].values.astype(float)
 
     if use_const:
         X = np.ones((len(Y), 2))
@@ -75,13 +92,33 @@ def regress_future_timeseries(timeseries, node, lag, use_log, remove_zeros, use_
     return const, slope
 
 
-### function for retrieving future prediction or present/past value of timeseries (catchment inflow or diversion).
-def get_known_or_predicted_value(timeseries, catchment_wc, regressions, node, lag, idx, use_log, mode):
-    ### 5 modes available.
-    ###     - perfect foresight: actual values at future date
-    ###     - same_day: assume value at future date is equal to value at current date
-    ###     - regression_disagg: separate regression for each catchment and add together afterwards (Montague & Trenton only. use regular regression for diversions.)
-    ###     - regression_agg: aggregate all catchment inflows for Mont/Tren and do aggregated regression.
+def get_known_or_predicted_value(timeseries, catchment_wc, 
+                                 regressions, node, 
+                                 lag, idx, use_log, 
+                                 mode):
+    """
+    Retrieves future prediction or present/past value of 
+    timeseries (catchment inflow or diversion).
+    
+    5 modes available.
+        - perfect foresight: actual values at future date
+        - same_day: assume value at future date is equal to value at current date
+        - regression_disagg: separate regression for each catchment and add together afterwards (Montague & Trenton only. use regular regression for diversions.)
+        - regression_agg: aggregate all catchment inflows for Mont/Tren and do aggregated regression.
+    
+    Args:  
+        timeseries (pd.DataFrame): The timeseries data, must include the node of interest.
+        catchment_wc (pd.DataFrame): The catchment water consumption data.
+        regressions (dict): A dictionary containing regression models.
+        node (str): The node of interest.
+        lag (int): The lag in days for the prediction.
+        idx (int): The index of the timeseries.
+        use_log (bool): Whether to use log-transformed values for the predictions.
+        mode (str): The mode for the prediction (see list in docstring for options).
+        
+    Returns:
+        value (float): The predicted or known value.
+    """
     assert mode in ['perfect_foresight', 'same_day', 'regression_disagg', 'regression_agg']
 
     if mode == 'same_day':
@@ -104,6 +141,8 @@ def get_known_or_predicted_value(timeseries, catchment_wc, regressions, node, la
             slope = regressions[(node, lag)]['slope']
             timeseries_t = timeseries[node].iloc[idx]
             if use_log:
+                eps = 0.001
+                timeseries_t = timeseries_t + eps if timeseries_t < eps else timeseries_t 
                 timeseries_lag_prediction = np.exp(const + slope * np.log(timeseries_t))
             else:
                 timeseries_lag_prediction = const + slope * timeseries_t
@@ -114,6 +153,8 @@ def get_known_or_predicted_value(timeseries, catchment_wc, regressions, node, la
                 const = regressions[(node, lag-1)]['const']
                 slope = regressions[(node, lag-1)]['slope']
                 if use_log:
+                    eps = 0.001
+                    timeseries_t = eps if timeseries_t < eps else timeseries_t 
                     timeseries_lagm1_prediction = np.exp(const + slope * np.log(timeseries_t))
                 else:
                     timeseries_lagm1_prediction = const + slope * timeseries_t
@@ -133,39 +174,50 @@ def get_known_or_predicted_value(timeseries, catchment_wc, regressions, node, la
     return value
 
 
-def get_rollmean_timeseries(timeseries, window):
-    try:
-        datetime = timeseries['datetime']
-        timeseries.drop('datetime', axis=1, inplace=True)
-    except:
-        pass
-    rollmean_timeseries = timeseries.rolling(window=window).mean()
-    rollmean_timeseries.iloc[:window] = [timeseries.rolling(window=i + 1).mean().iloc[i] for i in range(window)]
-    try:
-        rollmean_timeseries['datetime'] = datetime
-    except:
-        pass
-
-    return rollmean_timeseries
-
-
-
-
 ### function for creating lagged prediction datasets for catchment inflows & NJ diversions
 def predict_inflows_diversions(dataset_label, start_date, end_date,
                                use_log=True, remove_zeros=False, use_const=False,
                                realization=None, ensemble_inflows=False,
-                               save_predictions=True, return_predictions=False, make_figs=False):
+                               save_predictions=True, return_predictions=False, make_figs=False,
+                               catchment_inflows=None):
+    """
+    Creates lagged prediction datasets for catchment inflows & NJ diversions.
+    
+    Args:
+        dataset_label (str): The label for the dataset to use.
+        start_date (str): The start date for the predictions.
+        end_date (str): The end date for the predictions.
+        use_log (bool): Whether to use log-transformed values for the predictions. Default is True.
+        remove_zeros (bool): Whether to remove zero values from the predictions. Default is False.
+        use_const (bool): Whether to include a constant term in the regression. Default is False.
+        realization (str): The realization number for the ensemble inflows. Default is None.
+        ensemble_inflows (bool): Whether ensemble inflows are being used. Default is False.
+        save_predictions (bool): Whether to save the predictions. Default is True.
+        return_predictions (bool): Whether to return the predictions. Default is False.
+        make_figs (bool): Whether to make figures of the predictions. Default is False.
+        catchment_inflows (pd.DataFrame): The catchment inflow data. Default is None.
+        
+    Returns:
+        predicted_timeseries (pd.DataFrame): The predicted timeseries.
+    """
 
     ### read in catchment inflows and withdrawals/consumptions
-    if ensemble_inflows:
-        ensemble_filename = f'{input_dir}/historic_ensembles/catchment_inflow_{dataset_label}.hdf5'
+    if ensemble_inflows and catchment_inflows is None:
+        ensemble_input_dir = input_dir
+        ensemble_input_dir += 'synthetic_ensembles/' if 'syn' in dataset_label else 'historic_ensembles/'
+
+        ensemble_filename = f'{ensemble_input_dir}/catchment_inflow_{dataset_label}.hdf5'
         catchment_inflows = extract_realization_from_hdf5(ensemble_filename, realization, stored_by_node=True)
-        catchment_inflows_training = subset_timeseries(catchment_inflows, start_date, end_date)
+        
+        if 'datetime' in catchment_inflows.columns:
+            catchment_inflows.drop('datetime', axis=1, inplace=True)
+        catchment_inflows = catchment_inflows.astype(float)       
+        catchment_inflows['datetime'] = catchment_inflows.index 
     else:
         catchment_inflows = pd.read_csv(f'{input_dir}/catchment_inflow_{dataset_label}.csv')
         catchment_inflows.index = pd.DatetimeIndex(catchment_inflows['datetime'])
-        catchment_inflows_training = subset_timeseries(catchment_inflows, start_date, end_date)
+    
+    catchment_inflows_training = subset_timeseries(catchment_inflows, start_date, end_date)
 
     # Withdrawals are currently the same across ensemble realizations
     catchment_wc = pd.read_csv(f'{input_dir}/sw_avg_wateruse_Pywr-DRB_Catchments.csv')
@@ -247,10 +299,6 @@ def predict_inflows_diversions(dataset_label, start_date, end_date,
                     [get_known_or_predicted_value(catchment_inflows, catchment_wc, regressions, node,
                                                   lag, idx, use_log, mode) for idx in
                      range(catchment_inflows.shape[0])])
-
-
-
-
 
 
     ### also do regression prediction on delMontague & delTrenton nonnyc gage flows in aggregate, rather than adding individual regressions
@@ -359,8 +407,6 @@ def predict_inflows_diversions(dataset_label, start_date, end_date,
                     if (row == 3 and col > 0) or (col == 0 and row == 1):
                         ax.set_xlabel(f'Observed ({units})')
 
-
-
             plt.savefig(f'{fig_dir}/predict_flows_{mode}_{dataset_label}.png', dpi=400, bbox_inches='tight')
 
 
@@ -368,11 +414,13 @@ def predict_inflows_diversions(dataset_label, start_date, end_date,
 
 def predict_ensemble_inflows_diversions(dataset_label, start_date, end_date,
                                         use_log=True, remove_zeros=False, 
-                                        use_const=False):
+                                        use_const=False,
+                                        input_dir=input_dir):
     """
     Makes predictions for inflows and diversions at non-NYC gage flows, 
     using the specified ensemble dataset. 
-    Predictions are parallelizing using MPI.
+    Predictions are parallelizing using MPI. 
+    Final predictions are saved to an HDF5 file.
     
     Args:
         dataset_label (str): The label for the dataset to use. 
@@ -381,7 +429,10 @@ def predict_ensemble_inflows_diversions(dataset_label, start_date, end_date,
         use_log (bool): Whether to use log-transformed values for the predictions. Default is True.
         remove_zeros (bool): Whether to remove zero values from the predictions. Default is False.
         use_const (bool): Whether to include a constant term in the regression. Default is False.
-    
+        input_dir (str): The input directory for the ensemble data. Default is input_dir.
+        
+    Returns:
+        None
     """
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
@@ -394,16 +445,14 @@ def predict_ensemble_inflows_diversions(dataset_label, start_date, end_date,
     elif 'syn' in dataset_label:
         input_dir += 'synthetic_ensembles/'
     else:
-        if rank == 0:
-            print(f'Invalid dataset label {dataset_label}.')
-            print('Current implementation only supports input of types: obs_pub or syn.')
+        print(f'Invalid dataset label {dataset_label}.')
+        print('Current implementation only supports input of types: obs_pub or syn.')
         return
 
     ensemble_filename = f'{input_dir}catchment_inflow_{dataset_label}.hdf5'
     realization_numbers = get_hdf5_realization_numbers(ensemble_filename)
 
     # Divide work among MPI processes
-    num_realizations = len(realization_numbers)
     realizations_per_proc = np.array_split(realization_numbers, size)[rank]
     num_realizations_per_proc = len(realizations_per_proc)
     
@@ -413,10 +462,10 @@ def predict_ensemble_inflows_diversions(dataset_label, start_date, end_date,
         df_predictions = predict_inflows_diversions(dataset_label, start_date, end_date,
                                                     use_log=use_log, remove_zeros=remove_zeros, 
                                                     use_const=use_const,
-                                                    ensemble_inflows=True, realization=i,
+                                                    ensemble_inflows=True, realization=str(i),
                                                     save_predictions=False, return_predictions=True,
                                                     make_figs=False)
-        ensemble_pred_nonnyc_gage_flows[f'realization_{i}'] = df_predictions.copy()
+        ensemble_pred_nonnyc_gage_flows[f'{i}'] = df_predictions.copy()
 
     # Gather all predictions to root process
     all_ensemble_pred = comm.gather(ensemble_pred_nonnyc_gage_flows, root=0)
@@ -424,7 +473,7 @@ def predict_ensemble_inflows_diversions(dataset_label, start_date, end_date,
     # Export to HDF5 by root process
     if rank == 0:
         combined_ensemble_pred = {key: val for d in all_ensemble_pred for key, val in d.items()}
-        output_filename = f'{input_dir}predicted_nonnyc_gage_flow_{dataset_label}.hdf5'
+        output_filename = f'{input_dir}predicted_inflows_diversions_{dataset_label}.hdf5'
         print('Exporting ensemble of inflows/diversions to hdf5.')
         export_ensemble_to_hdf5(combined_ensemble_pred, output_filename)
     return

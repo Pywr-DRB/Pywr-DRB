@@ -35,7 +35,6 @@ class FfmpNycRunningAvgParameter(Parameter):
 
     Class Methods:
         load(model, data): Loads the parameter from model and data dictionary.
-
     """
     def __init__(self, model, node, max_avg_delivery, **kwargs):
         super().__init__(model, **kwargs)
@@ -298,9 +297,31 @@ class NYCFloodRelease(Parameter):
     """
     Calculates any excess flood control releases needed to reduce NYC reservoir's storage back down to
     level 1b/1c boundary within 7 days. See Page 21 FFMP for details.
+    
+    Attributes:
+        node (Node): The node associated with the parameter.
+        drought_level_reservoir (Parameter): The drought level reservoir parameter.
+        level1c (Parameter): The level 1c parameter.
+        volume_reservoir (Parameter): The volume reservoir parameter.
+        max_volume_reservoir (Parameter): The max volume reservoir parameter.
+        weekly_rolling_mean_flow_reservoir (Parameter): The weekly rolling mean flow reservoir parameter.
+        max_release_reservoir (Parameter): The max release reservoir parameter.
+        mrf_target_individual_reservoir (Parameter): The MRF target individual reservoir parameter.
+    
+    Methods:
+        value(timestep, scenario_index): Returns the excess flood control releases needed to reduce NYC reservoir's storage.
+        
+    Class Methods:
+        load(model, data): Loads the parameter from model and data dictionary.
     """
-    def __init__(self, model, node, drought_level_reservoir, level1c, volume_reservoir, max_volume_reservoir,
-                    weekly_rolling_mean_flow_reservoir, max_release_reservoir, mrf_target_individual_reservoir, **kwargs):
+    def __init__(self, model, node, 
+                 drought_level_reservoir, 
+                 level1c, 
+                 volume_reservoir, 
+                 max_volume_reservoir,
+                 weekly_rolling_mean_flow_reservoir, 
+                 max_release_reservoir, 
+                 mrf_target_individual_reservoir, **kwargs):
         super().__init__(model, **kwargs)
         self.node = node
         self.drought_level_reservoir = drought_level_reservoir
@@ -321,7 +342,15 @@ class NYCFloodRelease(Parameter):
 
     def value(self, timestep, scenario_index):
         """
-
+        Returns the excess flood control releases needed to reduce NYC reservoir's storage back down to
+        level 1b/1c boundary within 7 days.
+        
+        Args:
+            timestep (Timestep): The current timestep.
+            scenario_index (ScenarioIndex): The scenario index.
+            
+        Returns:
+            float: Flood release for given reservoir, timestep, and scenario
         """
         ### extra flood releases needed if we are in level 1a or 1b
         if self.drought_level_reservoir.get_value(scenario_index) < 2:
@@ -382,11 +411,32 @@ NYCFloodRelease.register()
 ###    to meet downstream flow target for any mrf (delMontague or delTrenton) and any step in multi-day staggered process
 class TotalReleaseNeededForDownstreamMRF(Parameter):
     """
-
+    Calculates the total releases needed from FFMP reservoirs to meet Montague or Trenton target,
+    above and beyond their individual direct mandated releases and flood control releases.
+    
+    Attributes:
+        model (Model): The Pywr model instance.
+        mrf (str): The MRF target for which we are calculating the total release needed.
+        step (int): The step in the calculation process, to account for lag travel to downstream sites.
+        predicted_nonnyc_gage_flow_mrf (Parameter): The predicted non-NYC gage flow MRF parameter.
+        predicted_demand_nj (Parameter): The predicted demand NJ parameter.
+        mrf_target_flow (Parameter): The MRF target flow parameter.
+        release_needed_mrf_montague (Parameter): The release needed MRF Montague parameter.
+        mrf_target_individual_nyc (Parameter): The MRF target individual NYC parameter.
+        flood_release_nyc (Parameter): The flood release NYC parameter.
+        previous_release_reservoirs (list): The list of previous release reservoirs parameters.
+        
+    Methods:
+        value(timestep, scenario_index): Returns the total releases needed from FFMP reservoirs to meet Montague or Trenton target.
     """
 
-    def __init__(self, model, step, mrf, predicted_nonnyc_gage_flow_mrf, predicted_demand_nj, mrf_target_flow, \
-                 release_needed_mrf_montague, mrf_target_individual_nyc, flood_release_nyc, \
+    def __init__(self, model, step, mrf, 
+                 predicted_nonnyc_gage_flow_mrf, 
+                 predicted_demand_nj, 
+                 mrf_target_flow, 
+                 release_needed_mrf_montague,
+                 mrf_target_individual_nyc, 
+                 flood_release_nyc, 
                  previous_release_reservoirs, **kwargs):
         super().__init__(model, **kwargs)
         self.mrf = mrf
@@ -428,7 +478,7 @@ class TotalReleaseNeededForDownstreamMRF(Parameter):
             scenario_index (ScenarioIndex): The scenario index.
 
         Returns:
-            float: The total flow needed from NYC reservoirs to meet Montague and Trenton targets.
+            float: NYC releases needed to help meet flow target
         """
         ### we only have to acct for previous NYC releases after step 1
         if self.step > 1:
@@ -554,6 +604,27 @@ TotalReleaseNeededForDownstreamMRF.register()
 ###     - accounts for max release constraints at each reservoir
 
 class VolBalanceNYCDownstreamMRF_step1(Parameter):
+    """
+    Assigns release targets for all 3 NYC reservoirs, above and beyond individual mandated releases,
+    to meet Montague & Trenton targets. Accounts for max release constraints at each reservoir.
+    
+    Attributes:
+        model (Model): The Pywr model instance.
+        reservoir (str): The reservoir associated with the parameter.
+        nodes (list): The list of nodes associated with the parameter.
+        parameters (dict): The dictionary of parameters associated with the parameter.
+        max_vol_reservoirs (list): The list of max volume reservoir parameters.
+        vol_reservoirs (list): The list of volume reservoir parameters.
+        flow_reservoirs (list): The list of flow reservoir parameters.
+        max_release_reservoirs (list): The list of max release reservoir parameters.
+        mrf_target_individual_reservoirs (list): The list of MRF target individual reservoir parameters.
+        flood_release_reservoirs (list): The list of flood release reservoir parameters.
+        num_reservoirs (int): The number of coordinating reservoirs.
+    
+    Methods:
+        split_required_mrf_across_nyc_reservoirs(requirement_total, scenario_index): 
+        value(timestep, scenario_index): 
+    """
 
     def __init__(self, model, reservoir, nodes, parameters, **kwargs):
         super().__init__(model, **kwargs)
@@ -691,8 +762,7 @@ class VolBalanceNYCDownstreamMRF_step1(Parameter):
 
     @classmethod
     def load(cls, model, data):
-        """
-        """
+        """Setup the parameter."""
         reservoir = data.pop("node")
         reservoir = reservoir.split('_')[1]
 
@@ -736,8 +806,12 @@ class VolBalanceNYCDownstreamMRF_step2(Parameter):
 
 
     """
-    def __init__(self, model, step, total_agg_mrf_montagueTrenton, mrf_target_individual_neversink, flood_release_neversink,
-                   max_release_neversink, lower_basin_agg_mrf_trenton, **kwargs):
+    def __init__(self, model, step, 
+                 total_agg_mrf_montagueTrenton, 
+                 mrf_target_individual_neversink, 
+                 flood_release_neversink,
+                 max_release_neversink, 
+                 lower_basin_agg_mrf_trenton, **kwargs):
         super().__init__(model, **kwargs)
         self.step = step
         self.total_agg_mrf_montagueTrenton = total_agg_mrf_montagueTrenton
@@ -815,6 +889,7 @@ class VolBalanceNYCDemand(Parameter):
         node (Node): The node associated with the parameter.
 
     Attributes:
+        reservoir (str): The reservoir associated with the parameter.
         node (Node): The node associated with the parameter.
         max_volume_agg_nyc (Parameter): The maximum volume aggregate NYC parameter.
         volume_agg_nyc (Parameter): The volume aggregate NYC parameter.
@@ -831,9 +906,18 @@ class VolBalanceNYCDemand(Parameter):
         load(model, data): Loads the parameter from model and data dictionary.
 
     """
-    def __init__(self, model, reservoir, nodes, max_volume_agg_nyc, volume_agg_nyc, max_flow_delivery_nyc,
-                 flow_agg_nyc, max_vol_reservoirs, vol_reservoirs, flow_reservoirs, hist_max_flow_delivery_nycs,
-                 mrf_target_individual_reservoirs, downstream_release_target_reservoirs, flood_release_reservoirs, **kwargs):
+    def __init__(self, model, reservoir, nodes, 
+                 max_volume_agg_nyc, 
+                 volume_agg_nyc, 
+                 max_flow_delivery_nyc,
+                 flow_agg_nyc, 
+                 max_vol_reservoirs, 
+                 vol_reservoirs, 
+                 flow_reservoirs, 
+                 hist_max_flow_delivery_nycs,
+                 mrf_target_individual_reservoirs, 
+                 downstream_release_target_reservoirs, 
+                 flood_release_reservoirs, **kwargs):
         super().__init__(model, **kwargs)
         self.reservoir = reservoir
         self.nodes = nodes
@@ -944,8 +1028,7 @@ class VolBalanceNYCDemand(Parameter):
 
     @classmethod
     def load(cls, model, data):
-        """
-        """
+        """Setup the parameter."""
         reservoir = data.pop("node")
         reservoir = reservoir.split('_')[1]
         nodes = [model.nodes[f'reservoir_{reservoir}'] for reservoir in reservoir_list_nyc]

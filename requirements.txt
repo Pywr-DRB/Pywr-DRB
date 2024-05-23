@@ -1,4 +1,3 @@
-python>=3.8
 pywr
 h5py
 numpy
@@ -12,12 +11,12 @@ statsmodels
 scipy
 pygeohydro
 hydroeval
-sklearn
+scikit-learn
 altair
 jupyter-book
 ghp-import
 shapely
 folium
 pynhd
-
+mpi4py
 

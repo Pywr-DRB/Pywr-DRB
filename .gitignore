@@ -31,3 +31,8 @@ local/*
 cache/
 
 input_data/historic_ensembles/historic_reconstruction_daily_ensemble.hdf5
+*.err
+*.out
+
+input_data/*.hdf5
+input_data/*/*.hdf5

@@ -30,9 +30,17 @@ inflow_type_options = ['obs_pub', 'nhmv10', 'nwmv21', 'WEAP_29June2023_gridmet',
                         'nhmv10_withObsScaled', 'nwmv21_withObsScaled',
                        'obs_pub_nhmv10_ObsScaled', 'obs_pub_nwmv21_ObsScaled',
                        'obs_pub_nhmv10', 'obs_pub_nwmv21',
-                       'obs_pub_nhmv10_ObsScaled_ensemble', 'obs_pub_nwmv21_ObsScaled_ensemble']
+                       'obs_pub_nhmv10_ObsScaled_ensemble,', 'obs_pub_nwmv21_ObsScaled_ensemble',
+                       'syn_obs_pub_nhmv10_ObsScaled_ensemble', 'syn_obs_pub_nwmv21_ObsScaled_ensemble']
 inflow_type = sys.argv[1]
 assert(inflow_type in inflow_type_options), f'Invalid inflow_type specified. Options: {inflow_type_options}'
+
+# modify input directory for ensemble sets
+if 'syn' in inflow_type:
+    input_dir = f'{input_dir}/synthetic_ensembles/'
+elif ('pub' in inflow_type) and ('ensemble' in inflow_type):
+    input_dir = f'{input_dir}/historic_ensembles/'
+
 
 ### specify whether to use MPI or not. This only matters for ensemble mode.
 if len(sys.argv) > 2:
@@ -54,8 +62,11 @@ else:
 if inflow_type in ('nwmv21', 'nhmv10', 'WEAP_29June2023_gridmet') or 'withObsScaled' in inflow_type:
     start_date = '1983-10-01'
     end_date = '2016-12-31'
+elif 'syn_obs_pub' in inflow_type:
+    start_date = '1945-01-01'
+    end_date = '2021-12-31'
 elif 'obs_pub' in inflow_type:
-    start_date = '1952-01-01'
+    start_date = '1945-01-01'
     end_date = '2022-12-31'
 
 # Set the filename based on inflow type
@@ -84,7 +95,7 @@ if 'ensemble' not in inflow_type:
 ## Run ensemble reconstruction in batches
 elif 'ensemble' in inflow_type:
     # Get the IDs for the realizations
-    ensemble_input_filename= f'{input_dir}/historic_ensembles/catchment_inflow_{inflow_type}.hdf5'
+    ensemble_input_filename= f'{input_dir}/catchment_inflow_{inflow_type}.hdf5'
     realization_ids= get_hdf5_realization_numbers(ensemble_input_filename)
     n_realizations=len(realization_ids)
 
@@ -100,7 +111,6 @@ elif 'ensemble' in inflow_type:
             count += 1
             if count == size:
                 count = 0
-        print(f'hello from rank {rank} out of {size}. realizations: {rank_realization_ids}')
         realization_ids = rank_realization_ids
         n_realizations = len(realization_ids)
 

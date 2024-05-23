@@ -2,24 +2,16 @@
 Organize data records into appropriate format for Pywr-DRB.
 
 Observed records (USGS gages) & modeled estimates (NHM, NWM, WEAP).
-
 """
  
 import numpy as np
-import pandas as pd
-import datetime
 
-from pywr_drb_node_data import obs_site_matches, obs_pub_site_matches, nhm_site_matches, nwm_site_matches, \
-                               upstream_nodes_dict, WEAP_29June2023_gridmet_NatFlows_matches, downstream_node_lags
-from utils.constants import cfs_to_mgd, cms_to_mgd, cm_to_mg, mcm_to_mg
-from utils.directories import input_dir, weap_dir
-from utils.lists import reservoir_list_nyc
+from pywr_drb_node_data import obs_site_matches, nhm_site_matches, nwm_site_matches
+from utils.directories import input_dir
 from pre.disaggregate_DRBC_demands import disaggregate_DRBC_demands
 from pre.extrapolate_NYC_NJ_diversions import extrapolate_NYC_NJ_diversions, download_USGS_data_NYC_NJ_diversions
 from pre.predict_inflows_diversions import predict_inflows_diversions
-from pre.predict_inflows_diversions import predict_ensemble_inflows_diversions
 from pre.prep_input_data_functions import *
-from pre.reorganize_data import combine_nwmv21_datasets
 
 
 if __name__ == "__main__":
@@ -34,7 +26,6 @@ if __name__ == "__main__":
     ### use same set of dates for all.
     start_date = '1983/10/01'
     end_date = '2016/12/31'
-
     
     df_obs = read_csv_data(f'{input_dir}usgs_gages/streamflow_daily_usgs_1950_2022_cms.csv', '1945/01/01', '2022/12/31',
                            units = 'cms', source = 'USGS')
@@ -56,7 +47,7 @@ if __name__ == "__main__":
 
     # now get NYC & NJ diversions. for time periods we dont have historical record, extrapolate by seasonal relationship to flow.
     np.random.seed(1)
-    # download_USGS_data_NYC_NJ_diversions()    ### dont need to rerun this every time
+    download_USGS_data_NYC_NJ_diversions()    ### dont need to rerun this every time
     extrapolate_NYC_NJ_diversions('nyc', make_figs=True)
     extrapolate_NYC_NJ_diversions('nj', make_figs=True)
 

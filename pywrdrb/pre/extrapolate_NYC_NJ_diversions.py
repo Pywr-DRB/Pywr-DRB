@@ -1,20 +1,27 @@
 import numpy as np
 import pandas as pd
-import glob
 import matplotlib.pyplot as plt
-import seaborn as sns
 import statsmodels.api as sm
 from pygeohydro import NWIS
 import datetime
 
-from pywrdrb.pywr_drb_node_data import upstream_nodes_dict
-from pywrdrb.utils.constants import cfs_to_mgd, cms_to_mgd, cm_to_mg
+from pywrdrb.utils.constants import cfs_to_mgd, cms_to_mgd
 from pywrdrb.utils.directories import input_dir, fig_dir
 
 
-def download_USGS_data_NYC_NJ_diversions():
+def download_USGS_data_NYC_NJ_diversions(dates = ('1952-01-01', '2022-12-31')):
+    """
+    Gets daily streamflow from NWIS for NYC reservoirs, D&R Canal, and Delaware at Trenton. 
+    These are used to extrapolate NYC and NJ diversions for full simulation period.
+    
+    Args:
+        dates (tuple): The start and end dates for the data to be retrieved.
+        
+    Returns:
+        pd.DataFrame: The dataframe containing the daily streamflow data.
+    """
+    
     ### NYC reservoir upstream gages are selected based on historical data. all of these have complete data back to 1952.
-    dates = ('1952-01-01', '2022-12-31')
     nwis = NWIS()
     gages = ['01460440', '01463500', '01423000', '01415000', '01413500', '01414500', '01435000']
     labels = ['D_R_Canal', 'delTrenton','cannonsville1', 'pepacton1', 'pepacton2', 'pepacton3', 'neversink1']
@@ -39,7 +46,7 @@ def extrapolate_NYC_NJ_diversions(loc, make_figs):
     where we don't have data based on seasonal flow regressions.
 
     Args:
-        loc (str): The location to extrapolate. Can be either "nyc" or "nj".
+        loc (str): The location to extrapolate. Options: "nyc" or "nj".
         make_figs (bool): Whether to make figures of the extrapolation process.
 
     Returns:
@@ -70,7 +77,8 @@ def extrapolate_NYC_NJ_diversions(loc, make_figs):
         ### infill NA values with previous day's flow
         for i in range(1, diversion.shape[0]):
             if np.isnan(diversion['D_R_Canal'].iloc[i]):
-                diversion['D_R_Canal'].iloc[i] = diversion['D_R_Canal'].iloc[i-1]
+                ind = diversion.index[i]
+                diversion.loc[ind, 'D_R_Canal'] = diversion['D_R_Canal'].iloc[i-1]
 
         ### convert cms to mgd
         diversion *= cms_to_mgd
@@ -150,6 +158,7 @@ def extrapolate_NYC_NJ_diversions(loc, make_figs):
     ### use trained regression model to sample a delivery value for each month based on log flow.
     df_long_m['diversion_pred'] = 0.
     for i in range(df_long_m.shape[0]):
+        ind = df_long_m.index[i]
         q = df_long_m['quarter'].iloc[i]
         f = df_long_m['flow_log'].iloc[i]
         lrm = lrms[q]
@@ -160,7 +169,7 @@ def extrapolate_NYC_NJ_diversions(loc, make_figs):
         pred = -1
         while pred < 0:
             pred = lrm.get_distribution(lrr.params, scale=np.var(lrr.resid), exog=exog).rvs()[0]
-        df_long_m['diversion_pred'].iloc[i] = pred
+        df_long_m.loc[ind, 'diversion_pred'] = pred
 
 
 
@@ -232,13 +241,14 @@ def extrapolate_NYC_NJ_diversions(loc, make_figs):
 
     df_long_m['nn'] = -1
     for i in range(df_long_m.shape[0]):
+        ind = df_long_m.index[i]
         q = df_long_m['quarter'].iloc[i]
         f = df_long_m['flow_log_norm'].iloc[i]
         n = df_long_m['diversion_pred_norm'].iloc[i]
         df_m_sub = df_m.loc[df_m['quarter'] == q]
         dist_squ = (f - df_m_sub['flow_log_norm']) **2 + (n - df_m_sub['diversion_norm']) **2
         nn = np.argmin(dist_squ)
-        df_long_m['nn'].iloc[i] = df_m_sub.index[nn]
+        df_long_m.loc[ind, 'nn'] = df_m_sub.index[nn]
     df_long_m['nn'].hist()
 
     ### now use each month's nearest neighbor to get flow shape for predicted diversion at daily time step
@@ -261,7 +271,7 @@ def extrapolate_NYC_NJ_diversions(loc, make_figs):
             new_diversion = new_diversion[:len_new]
         elif len_match < len_new:
             new_diversion = np.append(new_diversion, [new_diversion[-1]]*(len_new - len_match))
-        df_long['diversion_pred'].loc[df_long_idx] = new_diversion
+        df_long.loc[df_long_idx, 'diversion_pred'] = new_diversion
 
 
     ### plot timeseries
@@ -317,7 +327,8 @@ def extrapolate_NYC_NJ_diversions(loc, make_figs):
         ### infill NA values with previous day's flow
         for i in range(1, diversion.shape[0]):
             if np.isnan(diversion['D_R_Canal'].iloc[i]):
-                diversion['D_R_Canal'].iloc[i] = diversion['D_R_Canal'].iloc[i - 1]
+                ind = diversion.index[i]
+                diversion.loc[ind, 'D_R_Canal'] = diversion['D_R_Canal'].iloc[i - 1]
 
         ### convert cms to mgd
         diversion *= cms_to_mgd
