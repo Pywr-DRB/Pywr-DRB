@@ -11,13 +11,16 @@ from pywrdrb.utils.lists import reservoir_list, reservoir_list_nyc, majorflow_li
 from pywrdrb.utils.constants import cms_to_mgd, cm_to_mg, cfs_to_mgd
 from pywrdrb.utils.directories import input_dir, output_dir, fig_dir
 from pywrdrb.post.get_results import get_base_results, get_pywr_results
+from pywrdrb.post.metrics import get_shortfall_metrics
 
 
 ## Execution - Generate all figures
 if __name__ == "__main__":
 
+    fig_dir = fig_dir + 'diagnostics_paper/'
+
     rerun_all = True
-    remake_map = True
+    remake_map = False
     units = 'MCM'
     assert units in ['MCM', 'MG']
 

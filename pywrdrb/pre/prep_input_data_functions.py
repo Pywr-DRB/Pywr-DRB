@@ -98,19 +98,18 @@ def subtract_upstream_catchment_inflows(inflows):
         for upstream in upstreams:
             lag = downstream_node_lags[upstream]
             if lag > 0:
-                inflows[node].iloc[lag:] -= inflows[upstream].iloc[:-lag].values
+                inflows.loc[inflows.index[lag:], node] -= inflows.loc[inflows.index[:-lag], upstream].values
                 ### subtract same-day flow without lagging for first lag days, since we don't have data before 0 for lagging
-                inflows[node].iloc[:lag] -= inflows[upstream].iloc[:lag].values
+                inflows.loc[inflows.index[:lag], node] -= inflows.loc[inflows.index[:lag], upstream].values
             else:
                 inflows[node] -= inflows[upstream]
 
         ### if catchment inflow is negative after subtracting upstream, set to 0
-        inflows[node].loc[inflows[node] < 0] = 0
+        inflows.loc[inflows[node] < 0, node] = 0
 
         ### delTrenton node should have zero catchment inflow because coincident with DRCanal
         ### -> make sure that is still so after subtraction process
         inflows['delTrenton'] *= 0.
-
     return inflows
 
 
@@ -134,15 +133,14 @@ def add_upstream_catchment_inflows(inflows, exclude_NYC = False):
             if exclude_NYC == False or upstream not in reservoir_list_nyc:
                 lag = downstream_node_lags[upstream]
                 if lag > 0:
-                    inflows[node].iloc[lag:] += inflows[upstream].iloc[:-lag].values
+                    inflows.loc[inflows.index[lag:], node] += inflows.loc[inflows.index[:-lag], upstream].values
                     ### add same-day flow without lagging for first lag days, since we don't have data before 0 for lagging
-                    inflows[node].iloc[:lag] += inflows[upstream].iloc[:lag].values
+                    inflows.loc[inflows.index[:lag], node] += inflows.loc[inflows.index[:lag], upstream].values
                 else:
                     inflows[node] += inflows[upstream]
 
         ### if catchment inflow is negative after adding upstream, set to 0 (note: this shouldnt happen)
-        inflows[node].loc[inflows[node] < 0] = 0
-
+        inflows.loc[inflows[node] < 0, node] = 0
     return inflows
 
 

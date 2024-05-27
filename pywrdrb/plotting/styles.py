@@ -5,6 +5,13 @@ import matplotlib.cm as cm
 
 full_node_label_dict = {}
 
+syn_model_colors = {
+    'syn_obs_pub_nhmv10_ObsScaled_ensemble': 'orange',
+    'syn_obs_pub_nwmv21_ObsScaled_ensemble' : 'blue',
+    'pywr_syn_obs_pub_nhmv10_ObsScaled_ensemble': 'orange',
+    'pywr_syn_obs_pub_nwmv21_ObsScaled_ensemble' : 'cornflowerblue'
+}
+
 
 # pywr_{model} and {model} colors are the same
 base_model_colors = {'obs': '#191919', # Dark grey
@@ -55,26 +62,8 @@ model_colors_diagnostics_paper = {'obs': '0.5',
                                   'pywr_nhmv10_withObsScaled': cm.get_cmap('Purples')(0.8),
                                   'pywr_nwmv21_withObsScaled': cm.get_cmap('Blues')(0.9)
                                   }
-# model_colors_diagnostics_paper2 = {'obs': '0.5',
-#                                   'nhmv10': '#D8B70A',
-#                                   'nwmv21': '#D8B70A',
-#                                   'nhmv10_withObsScaled': '#D8B70A',
-#                                   'nwmv21_withObsScaled': '#D8B70A',
-#                                   'pywr_nhmv10': '#02401B',
-#                                   'pywr_nwmv21': '#02401B',
-#                                   'pywr_nhmv10_withObsScaled': '#02401B',
-#                                   'pywr_nwmv21_withObsScaled': '#02401B'
-#                                   }
-# model_colors_diagnostics_paper2 = {'obs': '0.4',
-#                                   'nhmv10': '#D8B70A',
-#                                   'nwmv21': '#D8B70A',
-#                                   'nhmv10_withObsScaled': '#D8B70A',
-#                                   'nwmv21_withObsScaled': '#D8B70A',
-#                                   'pywr_nhmv10': cm.get_cmap('Purples')(0.8),
-#                                   'pywr_nwmv21': cm.get_cmap('Purples')(0.8),
-#                                   'pywr_nhmv10_withObsScaled': cm.get_cmap('Purples')(0.8),
-#                                   'pywr_nwmv21_withObsScaled': cm.get_cmap('Purples')(0.8)
-#                                   }
+
+
 model_colors_diagnostics_paper2 = {'obs': '0.4',
                                   'nhmv10': cm.get_cmap('Greens')(0.6),
                                   'nwmv21': cm.get_cmap('Greens')(0.6),
@@ -114,6 +103,8 @@ model_label_dict = {'obs': 'Observed',
                       'pywr_obs_pub_nwmv21_ObsScaled': 'Pywr-PUB-NWM',
                       'pywr_obs_pub_nhmv10_ObsScaled_ensemble': 'Pywr-EPUB-NHM',
                       'pywr_obs_pub_nwmv21_ObsScaled_ensemble': 'Pywr-EPUB-NWM',
+                      'pywr_syn_obs_pub_nhmv10_ObsScaled_ensemble': 'Pywr-Syn-PUB-NHM',
+                      'pywr_syn_obs_pub_nwmv21_ObsScaled_ensemble': 'Pywr-Syn-PUB-NWM',
                       }
 
 model_linestyle_dict = {'obs': '-',
@@ -199,3 +190,25 @@ model_colors_historic_reconstruction = {
 
 for m in list(model_colors_historic_reconstruction.keys()):
     model_colors_historic_reconstruction[f'pywr_{m}'] = model_colors_historic_reconstruction[m]
+    
+    
+# model_colors_diagnostics_paper2 = {'obs': '0.5',
+#                                   'nhmv10': '#D8B70A',
+#                                   'nwmv21': '#D8B70A',
+#                                   'nhmv10_withObsScaled': '#D8B70A',
+#                                   'nwmv21_withObsScaled': '#D8B70A',
+#                                   'pywr_nhmv10': '#02401B',
+#                                   'pywr_nwmv21': '#02401B',
+#                                   'pywr_nhmv10_withObsScaled': '#02401B',
+#                                   'pywr_nwmv21_withObsScaled': '#02401B'
+#                                   }
+# model_colors_diagnostics_paper2 = {'obs': '0.4',
+#                                   'nhmv10': '#D8B70A',
+#                                   'nwmv21': '#D8B70A',
+#                                   'nhmv10_withObsScaled': '#D8B70A',
+#                                   'nwmv21_withObsScaled': '#D8B70A',
+#                                   'pywr_nhmv10': cm.get_cmap('Purples')(0.8),
+#                                   'pywr_nwmv21': cm.get_cmap('Purples')(0.8),
+#                                   'pywr_nhmv10_withObsScaled': cm.get_cmap('Purples')(0.8),
+#                                   'pywr_nwmv21_withObsScaled': cm.get_cmap('Purples')(0.8)
+#                                   }

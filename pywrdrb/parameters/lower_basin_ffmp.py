@@ -1,12 +1,16 @@
-import numpy as np
-import pandas as pd
-import math
+"""
+Defines custom parameters that are used to determine
+the MRF contributions from the lower basin reservoirs.
 
+Lower basin reservoirs (blueMarsh, beltzvilleCombined, nockaixon) 
+can be used to help NYC meet MRF targets when NYC reservoir is in drought level.
+
+Otherwise, reservoirs use STARFIT estimated releases.
+"""
 from pywr.parameters import Parameter, load_parameter
 
-from utils.directories import model_data_dir
-from utils.constants import cfs_to_mgd, epsilon
-from utils.lists import modified_starfit_reservoir_list, drbc_lower_basin_reservoirs
+from pywrdrb.utils.constants import cfs_to_mgd, epsilon
+from pywrdrb.utils.lists import drbc_lower_basin_reservoirs
 
 # Drought emergency lower basin staging levels
 # Taken from section 2.5.5 of the DRB Water Code
@@ -74,6 +78,17 @@ class LowerBasinMaxMRFContribution(Parameter):
     
     This is provided to VolBalanceLowerBasinMRFAggregate to determine the aggregate
     MRF contribution from the lower basin reservoirs.
+    
+    Attributes:
+        model (Model): Pywr model
+        debugging (bool): Debugging flag
+        reservoir (str): Reservoir of interest
+        step (int): Current step in the iterative flow balancing process
+        reservoirs (dict): Lower basin reservoirs
+        parameters (dict): Parameters used in the calculation
+    
+    Methods:
+        value(timestep, scenario_index): Returns the max allowable aggregate MRF contribution from lower basin reservoirs.        
     """
     def __init__(self, model, 
                  reservoir,
@@ -129,6 +144,17 @@ class LowerBasinMaxMRFContribution(Parameter):
     
     
     def value(self, timestep, scenario_index):
+        """
+        Returns the max allowable aggregate MRF contribution from lower basin reservoirs. 
+        If NYC is in drought stage, contributions allowed. Else, not. As per FFMP.
+        
+        Args:
+            timestep (Timestep): The timestep being evaluated.
+            scenario_index (ScenarioIndex): The index of the scenario.
+
+        Returns: 
+            float: max allowable aggregate MRF contribution from lower basin reservoirs.
+        """
 
         # if reservoir is further lag from Trenton than our current step is working on 
         # (eg Beltzville & BLue Marsh in Step 4), return 0
@@ -243,6 +269,10 @@ class LowerBasinMaxMRFContribution(Parameter):
     
     @classmethod
     def load(cls, model, data):
+        """
+        Load the LowerBasinMaxMRFContribution parameter.
+        """
+        
         reservoir = data.pop("node")
         step = data.pop('step')
         reservoir = reservoir.split('_')[1]
@@ -271,6 +301,21 @@ LowerBasinMaxMRFContribution.register()
 
 
 class VolBalanceLowerBasinMRFAggregate(Parameter):
+    """
+    Calculate the aggregate MRF contribution from the lower basin reservoirs.
+    
+    Attributes:
+        model (Model): Pywr model
+        debugging (bool): Debugging flag
+        release_needed_mrf_trenton (Parameter): NYC and Lower Basin MRF contributions required
+        lower_basin_max_mrf_contributions (dict): Max MRF contributions from lower basin reservoirs
+        drbc_lower_basin_reservoirs (list): List of lower basin reservoirs
+        
+    Methods:
+        value(timestep, scenario_index): Return aggregate MRF contribution from the lower basin reservoirs.
+    """
+    
+    
     def __init__(self, model,
                  release_needed_mrf_trenton,
                  lower_basin_max_mrf_contributions, 
@@ -290,6 +335,13 @@ class VolBalanceLowerBasinMRFAggregate(Parameter):
         """
         Checks how much lower basin reservoir release are needed & allowed to contribute to MRF.
         Returns aggregate MRF contribution from lower basin reservoirs. 
+        
+        Args:
+            timestep (int): Current timestep
+            scenario_index (int): Current scenario index
+            
+        Returns:
+            float: Aggregate MRF contribution from lower basin reservoirs
         """    
         
         # If Montague/Trenton MRF target is 0, then return 0
@@ -315,6 +367,9 @@ class VolBalanceLowerBasinMRFAggregate(Parameter):
     
     @classmethod
     def load(cls, model, data):
+        """
+        Set up the VolBalanceLowerBasinMRFAggregate parameter.
+        """
 
         step = data.pop('step')
 
@@ -343,7 +398,7 @@ class VolBalanceLowerBasinMRFIndividual(Parameter):
                  **kwargs):
         
         super().__init__(model, **kwargs)
-        self.debugging = True
+        self.debugging = False
         self.reservoir = reservoir
         self.lower_basin_max_mrf_contributions = lower_basin_max_mrf_contributions
         self.lower_basin_agg_mrf_trenton = lower_basin_agg_mrf_trenton
@@ -359,7 +414,6 @@ class VolBalanceLowerBasinMRFIndividual(Parameter):
         """
         Split the MRF contributions from the lower basin reservoirs into 
         individual reservoir contributions. 
-
         """
         # Get total allowable MRF contribution from lower basin reservoirs
         requirement_total = self.lower_basin_agg_mrf_trenton.get_value(scenario_index)
@@ -404,6 +458,13 @@ class VolBalanceLowerBasinMRFIndividual(Parameter):
         """
         Checks the aggregate lower basin Montague/Trenton MRF target and 
         the individual reservoir MRF contribution releases.
+        
+        Args: 
+            timestep (int): Current timestep
+            scenario_index (int): Current scenario index
+        
+        Returns:
+            float: MRF contribution in current timestep for reservoir
         """
         
         # Check if lower basin is used for MRF contribution
@@ -422,6 +483,9 @@ class VolBalanceLowerBasinMRFIndividual(Parameter):
     
     @classmethod
     def load(cls, model, data):
+        """
+        Load the VolBalanceLowerBasinMRFIndividual parameter.
+        """
         reservoir = data.pop("node")
         reservoir = reservoir.split('_')[1]
         step = data.pop('step')

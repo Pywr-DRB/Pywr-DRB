@@ -1,5 +1,13 @@
 #!/bin/bash
+#SBATCH --job-name=DRB_diagnostic
+#SBATCH --output=pywrdrb_diagnostic.out
+#SBATCH --error=pywrdrb_diagnostic.err
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --exclusive
 
+module load python/3.11.5
+source venv/bin/activate
 
 ### prep inputs from raw data
 echo Prepping data...
