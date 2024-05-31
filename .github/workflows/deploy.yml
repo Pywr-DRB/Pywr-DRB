@@ -37,8 +37,10 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Install GLPK
-      run: sudo apt-get update && sudo apt-get install -y glpk-utils libglpk-dev
-      
+      run: |
+        sudo apt-get update && sudo apt-get install -y glpk-utils libglpk-dev
+        sudo apt-get install -y lpsolve55-dev
+        
     # install virtual environment with caching, so only updates when requirements.txt changes,
     # based on https://github.com/marketplace/actions/restore-or-create-a-python-virtualenv#custom_virtualenv_dir
     # Note: virtual environment by default will be created under ~/venv
