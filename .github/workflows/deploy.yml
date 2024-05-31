@@ -48,6 +48,7 @@ jobs:
 
     # install python dependencies
     - name: Install python dependencies
+      run: pip install --upgrade pip
       run: pip install -r docs/requirements.txt
       if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
