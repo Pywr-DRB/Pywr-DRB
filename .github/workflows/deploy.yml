@@ -66,6 +66,17 @@ jobs:
         echo "Listing contents:"
         ls -al
 
+    - name: Print Directory Structure
+      run: |
+        echo "Listing contents of ../pywrdrb:"
+        ls -al ../pywrdrb
+        echo "Listing contents of ../pywrdrb/parameters:"
+        ls -al ../pywrdrb/parameters
+
+    - name: Verify pywrdrb.parameters Import
+      run: python -c "import pywrdrb.parameters; print('pywrdrb.parameters imported successfully')"
+
+
     # Build the book
     - name: Build book
       run: |
