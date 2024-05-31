@@ -27,8 +27,8 @@ jobs:
     - uses: actions/checkout@v2
     
     
-    - name: Clear Build Cache
-      run: rm -rf docs/_build
+    # - name: Clear Build Cache
+    #   run: rm -rf docs/_build
 
     # Install python
     - name: Set up Python ${{ matrix.python-version }}
@@ -39,7 +39,16 @@ jobs:
     - name: Install GLPK
       run: |
         sudo apt-get update && sudo apt-get install -y glpk-utils libglpk-dev
-        sudo apt-get install -y lpsolve55-dev
+    
+    - name: Install LpSolve 
+      run: |
+        sudo apt-get install -y wget tar build-essential
+        wget https://sourceforge.net/projects/lpsolve/files/lpsolve/5.5.2.5/lp_solve_5.5.2.5_dev_ux64.tar.gz/download -O lpsolve.tar.gz
+        tar -xzf lpsolve.tar.gz
+        sudo cp lp_solve_5.5.2.5_dev_ux64/bin/* /usr/local/bin/
+        sudo cp lp_solve_5.5.2.5_dev_ux64/lib/* /usr/local/lib/
+        sudo cp -r lp_solve_5.5.2.5_dev_ux64/lpsolve /usr/local/include/
+        sudo ldconfig  # Update shared library cache
         
     # install virtual environment with caching, so only updates when requirements.txt changes,
     # based on https://github.com/marketplace/actions/restore-or-create-a-python-virtualenv#custom_virtualenv_dir
