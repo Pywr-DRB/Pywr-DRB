@@ -36,6 +36,9 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
+    - name: Install GLPK
+      run: sudo apt-get update && sudo apt-get install -y glpk-utils
+      
     # install virtual environment with caching, so only updates when requirements.txt changes,
     # based on https://github.com/marketplace/actions/restore-or-create-a-python-virtualenv#custom_virtualenv_dir
     # Note: virtual environment by default will be created under ~/venv
@@ -46,9 +49,11 @@ jobs:
     - uses: syphar/restore-pip-download-cache@v1
       if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
+    - name: upgrade pip
+      run: pip install --upgrade pip
+      
     # install python dependencies
     - name: Install python dependencies
-      run: pip install --upgrade pip
       run: pip install -r docs/requirements.txt
       if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
