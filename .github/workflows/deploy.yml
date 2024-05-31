@@ -51,6 +51,13 @@ jobs:
       run: pip install -r docs/requirements.txt
       if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
+
+    - name: Print Python Path
+      run: python -c "import sys; print(sys.path)"
+    
+    - name: Verify pywrdrb Import
+      run: python -c "import pywrdrb; print('pywrdrb imported successfully')"
+
     # Print current directory
     - name: Print Current Directory
       run: |
