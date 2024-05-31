@@ -19,10 +19,9 @@ jobs:
   # This job deploys the example book
   deploy-example-book:
     if: contains(github.event.head_commit.message, '[build]')
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [ubuntu-latest]
         python-version: [3.8]
     steps:
     - uses: actions/checkout@v2
@@ -33,7 +32,7 @@ jobs:
 
     # Install python
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -60,11 +59,10 @@ jobs:
         echo "Listing contents:"
         ls -al
 
-    # Build the example book
+    # Build the book
     - name: Build book
       run: |
-        #jupyter-book build --all docs/
-        ### first use jupyter-books to build sphinx config file
+        # first use jupyter-books to build sphinx config file
         jupyter-book config sphinx docs/
 
         # Now manually fix path in config file to include the base dir outside docs, so we can import pywrdrb
@@ -81,12 +79,12 @@ jobs:
         ### now build jupyter book directly from altered sphinx config file
         sphinx-build docs/ docs/_build/html -b html
 
-    # Generate folium map and copy file to _build
-    - name: copy map
-      uses: canastro/copy-file-action@master
-      with:
-        source: "docs/drb_model_map.html"
-        target: "docs/_build/html/drb_model_map.html"
+    # # Generate folium map and copy file to _build
+    # - name: copy map
+    #   uses: canastro/copy-file-action@master
+    #   with:
+    #     source: "docs/drb_model_map.html"
+    #     target: "docs/_build/html/drb_model_map.html"
 
     # Copy images to build
     - name: copy images
@@ -98,7 +96,7 @@ jobs:
 
     # Deploy html to gh-pages
     - name: GitHub Pages action
-      uses: peaceiris/actions-gh-pages@v3.6.1
+      uses: peaceiris/actions-gh-pages@v3.9.1
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: docs/_build/html
