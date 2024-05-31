@@ -27,8 +27,8 @@ jobs:
     - uses: actions/checkout@v2
     
     
-    # - name: Clear Build Cache
-    #   run: rm -rf docs/_build
+    - name: Clear Build Cache
+      run: rm -rf docs/_build
 
     # Install python
     - name: Set up Python ${{ matrix.python-version }}
@@ -65,13 +65,6 @@ jobs:
         pwd
         echo "Listing contents:"
         ls -al
-
-    - name: Print Directory Structure
-      run: |
-        echo "Listing contents of ../pywrdrb:"
-        ls -al ../pywrdrb
-        echo "Listing contents of ../pywrdrb/parameters:"
-        ls -al ../pywrdrb/parameters
 
     - name: Verify pywrdrb.parameters Import
       run: python -c "import pywrdrb.parameters; print('pywrdrb.parameters imported successfully')"
