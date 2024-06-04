@@ -36,6 +36,20 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
+    - name: Install GLPK
+      run: |
+        sudo apt-get update && sudo apt-get install -y glpk-utils libglpk-dev
+    
+    - name: Install LpSolve 
+      run: |
+        sudo apt-get install -y wget tar build-essential
+        wget https://sourceforge.net/projects/lpsolve/files/lpsolve/5.5.2.5/lp_solve_5.5.2.5_dev_ux64.tar.gz/download -O lpsolve.tar.gz
+        tar -xzf lpsolve.tar.gz
+        sudo cp lp_solve_5.5.2.5_dev_ux64/bin/* /usr/local/bin/
+        sudo cp lp_solve_5.5.2.5_dev_ux64/lib/* /usr/local/lib/
+        sudo cp -r lp_solve_5.5.2.5_dev_ux64/lpsolve /usr/local/include/
+        sudo ldconfig  # Update shared library cache
+        
     # install virtual environment with caching, so only updates when requirements.txt changes,
     # based on https://github.com/marketplace/actions/restore-or-create-a-python-virtualenv#custom_virtualenv_dir
     # Note: virtual environment by default will be created under ~/venv
@@ -46,10 +60,20 @@ jobs:
     - uses: syphar/restore-pip-download-cache@v1
       if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
+    - name: upgrade pip
+      run: pip install --upgrade pip
+      
     # install python dependencies
     - name: Install python dependencies
       run: pip install -r docs/requirements.txt
       if: steps.cache-virtualenv.outputs.cache-hit != 'true'
+
+
+    - name: Print Python Path
+      run: python -c "import sys; print(sys.path)"
+    
+    - name: Verify pywrdrb Import
+      run: python -c "import pywrdrb; print('pywrdrb imported successfully')"
 
     # Print current directory
     - name: Print Current Directory
@@ -58,6 +82,10 @@ jobs:
         pwd
         echo "Listing contents:"
         ls -al
+
+    - name: Verify pywrdrb.parameters Import
+      run: python -c "import pywrdrb.parameters; print('pywrdrb.parameters imported successfully')"
+
 
     # Build the book
     - name: Build book
@@ -96,10 +124,3 @@ jobs:
         publish_dir: docs/_build/html
         publish_branch: gh-pages
 
-
-      # # Generate folium map and copy file to _build
-    # - name: copy map
-    #   uses: canastro/copy-file-action@master
-    #   with:
-    #     source: "docs/drb_model_map.html"
-    #     target: "docs/_build/html/drb_model_map.html"
