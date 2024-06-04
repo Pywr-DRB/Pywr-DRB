@@ -45,6 +45,14 @@ jobs:
     - name: Add GLPK to PATH
       run: echo "/usr/local/lib" | sudo tee -a /etc/ld.so.conf.d/glpk.conf && sudo ldconfig
 
+    # Install pywr
+    - name: Install pywr
+      run: |
+        export CFLAGS="-I/usr/include/glpk"
+        export LDFLAGS="-L/usr/lib"
+        pip install pywr
+      if: steps.cache-virtualenv.outputs.cache-hit != 'true'
+
 
     # install virtual environment with caching, so only updates when requirements.txt changes,
     # based on https://github.com/marketplace/actions/restore-or-create-a-python-virtualenv#custom_virtualenv_dir
