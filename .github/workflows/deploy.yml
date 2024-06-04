@@ -40,26 +40,7 @@ jobs:
     # Install GLPK - this is needed for pywr
     - name: Install GLPK
       run: |
-        sudo apt-get update && sudo apt-get install -y glpk-utils libglpk-dev
-        
-
-    # Install LpSolve - this is needed for pywr
-    - name: Install LpSolve
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y python-dev wget
-        wget http://sourceforge.net/projects/lpsolve/files/lpsolve/5.5.2.0/lp_solve_5.5.2.0_dev_ux64.tar.gz
-        wget http://sourceforge.net/projects/lpsolve/files/lpsolve/5.5.2.0/lp_solve_5.5.2.0_Python2.5_exe_ux64.tar.gz
-        tar -xzf lp_solve_5.5.2.0_dev_ux64.tar.gz
-        tar -xzf lp_solve_5.5.2.0_Python2.5_exe_ux64.tar.gz
-        sudo cp lp_solve_5.5.2.0_dev_ux64/liblpsolve55.so /usr/local/lib/
-        sudo cp lp_solve_5.5.2.0_Python2.5_exe_ux64/lpsolve55.so /usr/local/lib/
-        echo "export LD_LIBRARY_PATH=/usr/local/lib:\$LD_LIBRARY_PATH" >> $GITHUB_ENV
-        echo "export PYTHONPATH=$(pwd)/lp_solve_5.5.2.0_Python2.5_exe_ux64" >> $GITHUB_ENV
-        source $GITHUB_ENV
-    - name: Test LpSolve installation
-      run: |
-        python -c "from lpsolve55 import *; lpsolve()"
+        sudo apt-get update && sudo apt-get install -y glpk-utils libglpk-dev 
 
     # install virtual environment with caching, so only updates when requirements.txt changes,
     # based on https://github.com/marketplace/actions/restore-or-create-a-python-virtualenv#custom_virtualenv_dir
@@ -84,6 +65,10 @@ jobs:
     
     - name: Verify pywrdrb Import
       run: python -c "import pywrdrb; print('pywrdrb imported successfully')"
+
+    - name: Verify pywrdrb.parameters Import
+      run: python -c "import pywrdrb.parameters; print('pywrdrb.parameters imported successfully')"
+
 
     # Print current directory
     - name: Print Current Directory
@@ -132,6 +117,13 @@ jobs:
 
 
     
+
+
+
+
+
+
+
     # - name: Install LpSolve 
     #   run: |
     #     sudo apt-get install -y wget tar build-essential
@@ -142,9 +134,25 @@ jobs:
     #     sudo cp -r lp_solve_5.5.2.5_dev_ux64/lpsolve /usr/local/include/
     #     sudo ldconfig  # Update shared library cache
 
-    # - name: Verify pywrdrb.parameters Import
-    #   run: python -c "import pywrdrb.parameters; print('pywrdrb.parameters imported successfully')"
 
 
     # - name: upgrade pip
     #   run: pip install --upgrade pip
+
+        # Install LpSolve - this is needed for pywr
+    # - name: Install LpSolve
+    #   run: |
+    #     sudo apt-get update
+    #     sudo apt-get install -y python-dev wget
+    #     wget http://sourceforge.net/projects/lpsolve/files/lpsolve/5.5.2.0/lp_solve_5.5.2.0_dev_ux64.tar.gz
+    #     wget http://sourceforge.net/projects/lpsolve/files/lpsolve/5.5.2.0/lp_solve_5.5.2.0_Python2.5_exe_ux64.tar.gz
+    #     tar -xzf lp_solve_5.5.2.0_dev_ux64.tar.gz
+    #     tar -xzf lp_solve_5.5.2.0_Python2.5_exe_ux64.tar.gz
+    #     sudo cp lp_solve_5.5.2.0_dev_ux64/liblpsolve55.so /usr/local/lib/
+    #     sudo cp lp_solve_5.5.2.0_Python2.5_exe_ux64/lpsolve55.so /usr/local/lib/
+    #     echo "export LD_LIBRARY_PATH=/usr/local/lib:\$LD_LIBRARY_PATH" >> $GITHUB_ENV
+    #     echo "export PYTHONPATH=$(pwd)/lp_solve_5.5.2.0_Python2.5_exe_ux64" >> $GITHUB_ENV
+    #     source $GITHUB_ENV
+    # - name: Test LpSolve installation
+    #   run: |
+    #     python -c "from lpsolve55 import *; lpsolve()"
