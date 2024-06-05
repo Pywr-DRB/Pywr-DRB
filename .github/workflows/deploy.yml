@@ -16,7 +16,7 @@ on:
     # - cron: '0 0 1 * *'
 
 jobs:
-  # This job deploys the example book
+  # This builds and deploys Pywr-DRB documentation
   build-docs:
     if: contains(github.event.head_commit.message, '[build]')
     runs-on: ubuntu-latest
