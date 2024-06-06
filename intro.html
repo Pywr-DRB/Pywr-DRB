@@ -401,8 +401,7 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#contents">Contents</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#funding">Funding</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#funding-acknowledgements">Funding &amp; Acknowledgements</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#license">License</a></li>
 </ul>
             </nav>
@@ -418,9 +417,12 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="pywr-drb">
 <h1>Pywr-DRB<a class="headerlink" href="#pywr-drb" title="Link to this heading">#</a></h1>
 <p>Pywr-DRB is a water resources model of the Delaware River Basin (DRB) designed to improve our understanding of water availability, drought risk, and long-term water supply planning within the Basin.</p>
-<p>Pywr-DRB builds on the open-source Python package Pywr, which provides a modular, flexible structure for building and simulating complex water resources networks. Pywr uses a linear program to allocate water flows throughout the network within each time step, and updates the flow constraints each time step based on parameterized rules and evolving internal states of the model (e.g., seasonal reservoir releases based on current storages and downstream environmental targets).</p>
-<p>Pywr-DRB is a node-based network simulation model of the DRB system that includes 17 major reservoirs, 14 important river gage flow locations, two major out-of-basin water supply transfers (NYC and NJ), as well as various in-basin water demands. Pywr-DRB represents all reservoir operations and water diversions using state-aware rules that respond to changing conditions within the system. A critical component of the model is its representation of the 2017 FFMP, which defines adaptive rules governing the operations of NYC’s three major water supply reservoirs, the allowable diversions to NYC and NJ, and the minimum flow rules at downstream locations meant to protect habitat, water supply, and water quality. Fifteen other reservoirs in the basin are represented using the CONUS-scale data-driven reservoir operating rules derived in the ISTARF-CONUS dataset.</p>
-<p>Another advantage of Pywr-DRB is its flexibility with respect to input streamflow forcings. Many water management models such as WEAP are built to use meteorological inputs, which are internally converted to streamflows using an embedded hydrologic model. Pywr-DRB, on the other hand, ingests streamflow inputs directly, allowing for alternative scenarios to be run with multiple streamflow estimates from different hydrologic models, observational datasets, or statistical reanalysis datasets. This ensemble modeling approach improves the characterization of uncertainty by decoupling hydrologic modeling errors from water management modeling errors. Pywr-DRB currently has support for modeled streamflow estimates from NHM v1.0, NWM v2.1, and hybrid datasets combining NHM &amp; NWM with observed gauge flow data. Additionally, we have developed a new dataset (obs-pub) that combines historical gaged streamflow records with statistically reconstructed estimates for ungaged locations. As other streamflow modeling datasets become available, they will be integrated into Pywr-DRB as well (e.g., our colleagues at USGS/NCAR are developing WRF-Hydro simulations for the 1960’s drought of record and various future climate scenarios).</p>
+<p>Pywr-DRB is an open-source Python model for exploring the role of reservoir operations, transbasin diversions, minimum flow targets, and other regulatory rules on water availability and drought risk in the DRB. Pywr-DRB is designed to flexibly draw on streamflow estimates from a variety of emerging data resources, such as the National Water Model, the National Hydrologic Model, and hybrid datasets blending modeled and observed data. Pywr-DRB bridges state-of-the-art advances in large-scale hydrologic modeling with an open-source representation of the significant role played by the basin’s evolving water infrastructure and management institutions.</p>
+<p>Pywr-DRB builds on the open-source Python package Pywr, which provides a modular, flexible structure for building and simulating complex water resources networks.</p>
+<p>You can access a pre-print of the Pywr-DRB model release publication here:</p>
+<blockquote>
+<div><p>Hamilton, Andrew L., Amestoy, Trevor J. and Reed, Patrick M., Pywr-Drb: An Open-Source Python Model for Water Availability and Drought Risk Assessment in the Delaware River Basin (Under Review). Available at SSRN: <a class="reference external" href="https://ssrn.com/abstract=4765247">https://ssrn.com/abstract=4765247</a> or <a class="reference external" href="http://dx.doi.org/10.2139/ssrn.4765247">http://dx.doi.org/10.2139/ssrn.4765247</a></p>
+</div></blockquote>
 <p>A graphical representation of the Pywr-DRB model is shown below, where every octogon represents a reservoir in the Basin:</p>
 <div style="padding-bottom:75%; position:relative; display:block; width: 100%">
   <iframe src="drb_model_map.html"
@@ -429,51 +431,17 @@ document.write(`
   frameborder="0" allowfullscreen="" style="position:absolute; top:0; left: 0">
   </iframe>
 </div>
-<section id="contents">
-<h2>Contents<a class="headerlink" href="#contents" title="Link to this heading">#</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="api/api.html">API References</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api/post.html">Post-Processing</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.post.get_base_results.html">pywrdrb.post.get_base_results</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.post.get_pywr_results.html">pywrdrb.post.get_pywr_results</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.post.get_pywrdrb_results.html">pywrdrb.post.get_pywrdrb_results</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="api/parameters.html">Parameters</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.FfmpNycRunningAvgParameter.html">pywrdrb.parameters.FfmpNycRunningAvgParameter</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.FfmpNjRunningAvgParameter.html">pywrdrb.parameters.FfmpNjRunningAvgParameter</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.NYCCombinedReleaseFactor.html">pywrdrb.parameters.NYCCombinedReleaseFactor</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.NYCFloodRelease.html">pywrdrb.parameters.NYCFloodRelease</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.html">pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.html">pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2.html">pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.VolBalanceNYCDemand.html">pywrdrb.parameters.VolBalanceNYCDemand</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.LowerBasinMaxMRFContribution.html">pywrdrb.parameters.LowerBasinMaxMRFContribution</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate.html">pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.VolBalanceLowerBasinMRFIndividual.html">pywrdrb.parameters.VolBalanceLowerBasinMRFIndividual</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html">pywrdrb.parameters.STARFITReservoirRelease</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.FlowEnsemble.html">pywrdrb.parameters.FlowEnsemble</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.PredictionEnsemble.html">pywrdrb.parameters.PredictionEnsemble</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.LaggedReservoirRelease.html">pywrdrb.parameters.LaggedReservoirRelease</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</div>
-</section>
-<section id="funding">
-<h2>Funding<a class="headerlink" href="#funding" title="Link to this heading">#</a></h2>
-<p>This research was funded by the U.S. Geological Survey (USGS) Water Availability and Use Science Program as part of
-the Water Resources Mission Area Predictive Understanding of Multiscale Processes Project
-(USGS Grant Number G21AC10668). The views expressed in this work are those of the authors and do not reflect the views or policies of the USGS.</p>
+<section id="funding-acknowledgements">
+<h2>Funding &amp; Acknowledgements<a class="headerlink" href="#funding-acknowledgements" title="Link to this heading">#</a></h2>
+<p>This research was funded by the U.S. Geological Survey (USGS) Water Availability and Use Science Program as part of the Water Resources Mission Area Predictive Understanding of Multiscale Processes Project (USGS Grant Number G21AC10668). The authors thank Hedeff Essaid and Noah Knowles from USGS and Aubrey Dugger and David Yates from the National Center for Atmospheric Research (NCAR) for providing data and feedback that improved this work. The views expressed in this work are those of the authors and do not reflect the views or policies of the USGS or NCAR.</p>
 </section>
 <section id="license">
 <h2>License<a class="headerlink" href="#license" title="Link to this heading">#</a></h2>
 <p>This program is licensed under the MIT License. See the full license <a class="reference external" href="https://github.com/Pywr-DRB/Pywr-DRB/blob/master/LICENSE">here</a>.</p>
 <p>Copyright (c) 2023 Andrew Hamilton, Trevor Amestoy, Patrick Reed.</p>
 </section>
+<div class="toctree-wrapper compound">
+</div>
 </section>
 
     <script type="text/x-thebe-config">
@@ -531,8 +499,7 @@ the Water Resources Mission Area Predictive Understanding of Multiscale Processe
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#contents">Contents</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#funding">Funding</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#funding-acknowledgements">Funding &amp; Acknowledgements</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#license">License</a></li>
 </ul>
   </nav></div>
