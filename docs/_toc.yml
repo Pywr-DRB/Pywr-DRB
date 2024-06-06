@@ -13,6 +13,12 @@ parts:
           file: api/post.rst
         - title: Parameters
           file: api/parameters.rst
+    # =============== Trainings =================
+    # - file: training/training.md
+    #   sections:
+    #     - title:
+    #       file: 
+    
 
     # =============== Model & DRB description =================
     # - title: Delaware River Basin Overview
