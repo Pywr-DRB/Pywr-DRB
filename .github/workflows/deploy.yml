@@ -26,9 +26,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     
-    
-    - name: Clear Build Cache
-      run: rm -rf docs/_build
 
     # Install python
     - name: Set up Python ${{ matrix.python-version }}
@@ -62,24 +59,10 @@ jobs:
       run: pip install -r docs/requirements.txt
       if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
-
-    - name: Print Python Path
-      run: python -c "import sys; print(sys.path)"
-    
-    - name: Verify pywrdrb Import
-      run: python -c "import pywrdrb; print('pywrdrb imported successfully')"
-
-    - name: Verify pywrdrb.parameters Import
-      run: python -c "import pywrdrb.parameters; print('pywrdrb.parameters imported successfully')"
-
-
-    # Print current directory
-    - name: Print Current Directory
+    - name: Verify pywrdrb import
       run: |
-        echo "Current directory:"
-        pwd
-        echo "Listing contents:"
-        ls -al
+        python -c "import pywrdrb; print('pywrdrb imported successfully')"
+        python -c "import pywrdrb.parameters; print('pywrdrb.parameters imported successfully')"
 
     # Build the book
     - name: Build book
@@ -95,9 +78,6 @@ jobs:
         echo "Contents of conf.py:"
         cat docs/conf.py
 
-        ### now manually fix path in config file to include the base dir outside docs, so we can import pywrdrb
-        ## sed -i '1s:^:import sys\nimport os\nsys.path.insert(0, os.path.abspath("../"))\nsys.path.insert(0, os.path.abspath("../pywrdrb/"))\n:' docs/conf.py
-        
         ### now build jupyter book directly from altered sphinx config file
         sphinx-build docs/ docs/_build/html -b html
 
@@ -109,6 +89,13 @@ jobs:
         source: docs/images/.
         target: docs/_build/html/_images/
         flags: '-r'
+
+    # Copy map to build
+    - name: copy map
+      uses: canastro/copy-file-action@master
+      with:
+        source: "docs/drb_model_map.html"
+        target: "docs/_build/html/drb_model_map.html"
 
     # Deploy html to gh-pages
     - name: GitHub Pages action
@@ -124,38 +111,8 @@ jobs:
 
 
 
-
-
-
-    # - name: Install LpSolve 
-    #   run: |
-    #     sudo apt-get install -y wget tar build-essential
-    #     wget https://sourceforge.net/projects/lpsolve/files/lpsolve/5.5.2.5/lp_solve_5.5.2.5_dev_ux64.tar.gz/download -O lpsolve.tar.gz
-    #     tar -xzf lpsolve.tar.gz
-    #     sudo cp lp_solve_5.5.2.5_dev_ux64/bin/* /usr/local/bin/
-    #     sudo cp lp_solve_5.5.2.5_dev_ux64/lib/* /usr/local/lib/
-    #     sudo cp -r lp_solve_5.5.2.5_dev_ux64/lpsolve /usr/local/include/
-    #     sudo ldconfig  # Update shared library cache
-
-
-
     # - name: upgrade pip
     #   run: pip install --upgrade pip
 
-        # Install LpSolve - this is needed for pywr
-    # - name: Install LpSolve
-    #   run: |
-    #     sudo apt-get update
-    #     sudo apt-get install -y python-dev wget
-    #     wget http://sourceforge.net/projects/lpsolve/files/lpsolve/5.5.2.0/lp_solve_5.5.2.0_dev_ux64.tar.gz
-    #     wget http://sourceforge.net/projects/lpsolve/files/lpsolve/5.5.2.0/lp_solve_5.5.2.0_Python2.5_exe_ux64.tar.gz
-    #     tar -xzf lp_solve_5.5.2.0_dev_ux64.tar.gz
-    #     tar -xzf lp_solve_5.5.2.0_Python2.5_exe_ux64.tar.gz
-    #     sudo cp lp_solve_5.5.2.0_dev_ux64/liblpsolve55.so /usr/local/lib/
-    #     sudo cp lp_solve_5.5.2.0_Python2.5_exe_ux64/lpsolve55.so /usr/local/lib/
-    #     echo "export LD_LIBRARY_PATH=/usr/local/lib:\$LD_LIBRARY_PATH" >> $GITHUB_ENV
-    #     echo "export PYTHONPATH=$(pwd)/lp_solve_5.5.2.0_Python2.5_exe_ux64" >> $GITHUB_ENV
-    #     source $GITHUB_ENV
-    # - name: Test LpSolve installation
-    #   run: |
-    #     python -c "from lpsolve55 import *; lpsolve()"
+    # - name: Clear Build Cache
+    # run: rm -rf docs/_build

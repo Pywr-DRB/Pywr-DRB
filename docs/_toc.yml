@@ -8,11 +8,11 @@ parts:
   - chapters:
     # =============== References =================
     - file: api/api.md
-      # sections:
-      #   - title: Post-Processing
-      #     file: api/post.rst
-      #   - title: Parameters
-      #     file: api/parameters.rst
+      sections:
+        - title: Post-Processing
+          file: api/post.rst
+        - title: Parameters
+          file: api/parameters.rst
 
     # =============== Model & DRB description =================
     # - title: Delaware River Basin Overview
