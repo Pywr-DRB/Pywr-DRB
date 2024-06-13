@@ -64,6 +64,67 @@ def combine_batched_hdf5_outputs(batch_files, combined_output_file):
     return
 
 
+
+import h5py
+import numpy as np
+
+def combine_batched_hdf5_outputs(batch_files, combined_output_file):
+    """
+    Aggregate multiple HDF5 files into a single HDF5 file.
+    
+    Args:
+        batch_files (list): List of HDF5 files to combine.
+        combined_output_file (str): Full output file path & name to write combined HDF5.
+    
+    Returns:
+        None
+    """
+    if not batch_files:
+        raise ValueError("No batch files provided.")
+
+    # Open all input files once and store their references
+    hdf5_files = [h5py.File(file, 'r') for file in batch_files]
+    
+    with h5py.File(combined_output_file, 'w') as hf_out:
+        # Extract keys and time array from the first file
+        first_file = hdf5_files[0]
+        keys = list(first_file.keys())
+        
+        datetime_key_opts = ['time', 'date', 'datetime']
+        time_key = next((dt_key for dt_key in datetime_key_opts if dt_key in keys), None)
+        if time_key is None:
+            err_msg = f'No time key found in HDF5 file {batch_files[0]}.'
+            err_msg += f' Expected keys: {datetime_key_opts}'
+            raise ValueError(err_msg)
+        
+        time_array = first_file[time_key][:]
+        
+        # Process each key except datetime keys and scenarios
+        for key in keys:
+            if key in datetime_key_opts + ['scenarios']:
+                continue
+
+            # Collect data for the current key from all files
+            data_for_key = []
+            for hf_in in hdf5_files:
+                if key in hf_in:
+                    data_for_key.append(hf_in[key][:])
+
+            if data_for_key:
+                # Concatenate data along the second axis (axis=1)
+                combined_data = np.concatenate(data_for_key, axis=1)
+                hf_out.create_dataset(key, data=combined_data)
+        
+        # Write the time array to the output file
+        hf_out.create_dataset(time_key, data=time_array)
+    
+    # Close all input files
+    for hf in hdf5_files:
+        hf.close()
+
+    return
+
+
 def export_ensemble_to_hdf5(dict, 
                             output_file):
     """

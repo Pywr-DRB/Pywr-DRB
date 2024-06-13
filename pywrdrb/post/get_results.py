@@ -10,7 +10,8 @@ import h5py
 from pywrdrb.utils.lists import reservoir_list, reservoir_list_nyc, majorflow_list, reservoir_link_pairs
 from pywrdrb.utils.lists import drbc_lower_basin_reservoirs
 from pywrdrb.utils.constants import cfs_to_mgd, mg_to_mcm  
-
+from pywrdrb.utils.hdf5 import get_hdf5_realization_numbers
+from pywrdrb.utils.directories import input_dir
 
 def get_pywrdrb_results(output_dir, 
                         model, 
@@ -64,16 +65,13 @@ def get_pywrdrb_results(output_dir,
             keys = [k for k in keys if k.split('_')[0] == 'link' and k.split('_')[1] in majorflow_list]
             col_names = [k.split('_')[1] for k in keys]
         elif results_set == 'res_release':
-            ### reservoir releases are "outflow" plus "spill". Not all reservoirs have spill.
+            ### reservoir releases are "outflow" plus "spill". 
+            # These are summed later in this function. 
+            # Not all reservoirs have spill.
             keys_outflow = [f'outflow_{r}' for r in reservoir_list]
-            col_names = []
-            for k in keys_outflow:
-                col_names.append(k.split('_')[1])
-                
             keys_spill = [f'spill_{r}' for r in reservoir_list]
-            for k in keys_spill:
-                col_names.append(k.split('_')[1])
             keys = keys_outflow + keys_spill
+            col_names = keys
             
         elif results_set == 'downstream_release_target':
             keys = [f'{results_set}_{reservoir}' for reservoir in reservoir_list_nyc]
@@ -89,7 +87,9 @@ def get_pywrdrb_results(output_dir,
             keys = [k for k in keys if k.split('_')[0] == 'catchmentConsumption']
             col_names = [k.split('_')[1] for k in keys]
 
-        elif results_set in ('prev_flow_catchmentWithdrawal', 'max_flow_catchmentWithdrawal', 'max_flow_catchmentConsumption'):
+        elif results_set in ('prev_flow_catchmentWithdrawal', 
+                             'max_flow_catchmentWithdrawal', 
+                             'max_flow_catchmentConsumption'):
             keys = [k for k in keys if results_set in k]
             col_names = [k.split('_')[-1] for k in keys]
                 
@@ -125,12 +125,20 @@ def get_pywrdrb_results(output_dir,
         elif results_set == 'all_mrf':
             keys = [k for k in keys if 'mrf' in k]
             col_names = [k for k in keys]
+        elif results_set == 'temperature':
+            keys = [k for k in keys if 'temperature' in k]
+            col_names = [k for k in keys]
+            
+        # resulst_set may be a specific key in the model
+        elif results_set in keys:
+            keys = [results_set]
+            col_names = [results_set]
         else:
             print('Invalid results_set specified.')
             return
 
-        # Now pull the data using keys
         data = []
+        # Now pull the data using keys
         for k in keys:
             data.append(f[k][:, scenarios])                
                 
@@ -166,6 +174,19 @@ def get_pywrdrb_results(output_dir,
                                       columns=col_names,
                                       index=datetime_index)
             
+        # If results_set is 'res_release', sum the outflow and spill data,
+        # columns with the same reservoir name
+        if results_set == 'res_release':
+            for s in scenarios:
+                for r in reservoir_list:
+                    release_cols = [c for c in results_dict[s].columns if r in c]
+                    
+                    # sum 
+                    if len(release_cols) > 1:
+                        results_dict[s][r] = results_dict[s][release_cols].sum(axis=1)
+                        results_dict[s] = results_dict[s].drop(release_cols, axis=1)
+                    else:
+                        results_dict[s] = results_dict[s].rename(columns={release_cols[0]: r})
         return results_dict, datetime_index
 
 
@@ -239,6 +260,66 @@ def get_base_results(input_dir,
 
 
 
+def get_all_historic_reconstruction_pywr_results(output_dir, 
+                                                 model_list,
+                                                 results_set,
+                                                 start_date, 
+                                                 end_date,
+                                                 units='MG'):
+    """
+    Function for retrieving and organizing results from multiple pywr models.
+    
+    """
+    datetime_index = pd.date_range(start=start_date, end=end_date, freq='D')    
+    results_dict = {}
+    for model in model_list:
+        # For ensembles, get realization/scenario numbers
+        if 'ensemble' in model:
+            realizations = get_hdf5_realization_numbers(f'{input_dir}/historic_ensembles/catchment_inflow_{model}.hdf5')
+            scenarios = list(range(len(realizations)))
+        else:
+            scenarios = [0]
+        
+        results_dict[f'pywr_{model}'], datetime_index = get_pywrdrb_results(output_dir,
+                                                                   model,
+                                                                   results_set=results_set,
+                                                                   scenarios=scenarios,
+                                                                   datetime_index=datetime_index,
+                                                                   units=units)
+        
+    return results_dict
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ### WARNING: Depreciated due to poor handling of many-scenario simulations. 
 ### Use get_pywrdrb_results instead. 
 
@@ -264,6 +345,10 @@ def get_pywr_results(output_dir, model, results_set='all', scenario=0, datetime_
     Returns:
         pd.DataFrame: The simulation results with datetime index.
     """
+    
+    # Raise depreciation warning
+    raise DeprecationWarning('This function is depreciated. Use get_pywrdrb_results instead.')
+    
     with h5py.File(f'{output_dir}drb_output_{model}.hdf5', 'r') as f:
         keys = list(f.keys())
         results = pd.DataFrame()

@@ -19,19 +19,15 @@ import parameters.general
 import parameters.ffmp
 import parameters.starfit
 import parameters.lower_basin_ffmp
+import parameters.temperature
 from make_model import make_model
 from utils.directories import output_dir, model_data_dir, input_dir
 from utils.hdf5 import get_hdf5_realization_numbers, combine_batched_hdf5_outputs
+from utils.options import inflow_type_options
 
 t0 = time.time()
 
 ### specify inflow type from command line args
-inflow_type_options = ['obs_pub', 'nhmv10', 'nwmv21', 'WEAP_29June2023_gridmet',
-                        'nhmv10_withObsScaled', 'nwmv21_withObsScaled',
-                       'obs_pub_nhmv10_ObsScaled', 'obs_pub_nwmv21_ObsScaled',
-                       'obs_pub_nhmv10', 'obs_pub_nwmv21',
-                       'obs_pub_nhmv10_ObsScaled_ensemble,', 'obs_pub_nwmv21_ObsScaled_ensemble',
-                       'syn_obs_pub_nhmv10_ObsScaled_ensemble', 'syn_obs_pub_nwmv21_ObsScaled_ensemble']
 inflow_type = sys.argv[1]
 assert(inflow_type in inflow_type_options), f'Invalid inflow_type specified. Options: {inflow_type_options}'
 
@@ -126,7 +122,7 @@ elif 'ensemble' in inflow_type:
     # Run individual batches
     for batch, indices in batched_indices.items():
 
-        print(f'Running {inflow_type} {batch} with inflow scenarios {indices}, {time.time()-t0}')
+        print(f'Running {inflow_type} {batch} with inflow scenarios {indices}')
         sys.stdout.flush()
 
         if use_mpi:

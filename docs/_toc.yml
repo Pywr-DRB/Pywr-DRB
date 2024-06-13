@@ -9,15 +9,26 @@ parts:
     # =============== References =================
     - file: api/api.md
       sections:
+        - title: Pre-Processing
+          file: api/pre.rst
         - title: Post-Processing
           file: api/post.rst
         - title: Parameters
           file: api/parameters.rst
+        - title: Plotting
+          file: api/plotting.rst
+        - title: Utilities
+          file: api/utils.rst
+
     # =============== Trainings =================
     # - file: training/training.md
     #   sections:
-    #     - title:
-    #       file: 
+    #     - title: Intro to PywrDRB
+    #       file: training/Tutorial 01 Introduction to PywrDRB.ipynb
+    #     - title: Prep Model Inputs
+    #       file: training/Tutorial 02 Prepare Model Inputs.ipynb
+    #     - title: Model Parameters
+    #       file: training/Tutorial 03 Model Parameters.ipynb
     
 
     # =============== Model & DRB description =================

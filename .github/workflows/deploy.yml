@@ -64,6 +64,12 @@ jobs:
         python -c "import pywrdrb; print('pywrdrb imported successfully')"
         python -c "import pywrdrb.parameters; print('pywrdrb.parameters imported successfully')"
 
+
+    # Copy training notebooks to docs folder
+    # - name: Copy training notebooks
+    #   run: cp -r notebooks/Tutorial*.ipynb docs/training/
+
+    
     # Build the book
     - name: Build book
       run: |
