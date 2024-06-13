@@ -8,10 +8,10 @@ Hamilton, A.L., Amestoy, T.J., & P.M. Reed. (2024). Pywr-DRB: An open-source Pyt
 
 ## Setup
 
-First clone the Pywr-DRB repository from GitHub.
+First clone `diagnostic_paper` branch of the Pywr-DRB repository from GitHub:
 
 ```bash
-git clone https://github.com/Pywr-DRB/Pywr-DRB.git
+git clone -b diagnostic_paper https://github.com/Pywr-DRB/Pywr-DRB.git
 ```
 
 Next, create and activate a Python virtual environment using your favorite package manager (pip or conda) and install the dependencies listed in ``requirements.txt``.
