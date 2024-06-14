@@ -1,4 +1,4 @@
-`pywrdrb.post`
+pywrdrb.post
 ================
 
 .. autosummary::
