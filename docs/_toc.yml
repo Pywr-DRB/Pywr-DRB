@@ -21,15 +21,15 @@ parts:
           file: api/plotting.rst
 
 
-    # =============== Trainings =================
-    # - file: training/training.md
-    #   sections:
-    #     - title: Intro to PywrDRB
-    #       file: training/Tutorial 01 Introduction to PywrDRB.ipynb
-    #     - title: Prep Model Inputs
-    #       file: training/Tutorial 02 Prepare Model Inputs.ipynb
-    #     - title: Model Parameters
-    #       file: training/Tutorial 03 Model Parameters.ipynb
+    =============== Trainings =================
+    - file: training/training.md
+      sections:
+        - title: Intro to PywrDRB
+          file: training/Tutorial 01 Introduction to PywrDRB.ipynb
+        - title: Prep Model Inputs
+          file: training/Tutorial 02 Prepare Model Inputs.ipynb
+        - title: Model Parameters
+          file: training/Tutorial 03 Model Parameters.ipynb
     
 
     # =============== Model & DRB description =================

@@ -73,8 +73,8 @@ jobs:
 
 
     # Copy training notebooks to docs folder
-    # - name: Copy training notebooks
-    #   run: cp -r notebooks/Tutorial*.ipynb docs/training/
+    - name: Copy training notebooks
+      run: cp -r notebooks/Tutorial 0*.ipynb docs/training/
 
     
     # Build the book
