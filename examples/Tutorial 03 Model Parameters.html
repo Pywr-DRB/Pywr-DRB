@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Pywr-DRB Tutorial 3: Model Parameters &#8212; Pywr-DRB Integrated Water Resource Management Model</title>
+    <title>Model Parameters &#8212; Pywr-DRB Integrated Water Resource Management Model</title>
   
   
   
@@ -62,7 +62,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'examples/Tutorial 03 Model Parameters';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="Overview:" href="Tutorial%2001%20Introduction%20to%20PywrDRB.html" />
+    <link rel="prev" title="Preparing Input Data" href="Tutorial%2002%20Prepare%20Input%20Data.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -228,13 +228,9 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="examples.html">Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="Tutorial%2001%20Introduction%20to%20PywrDRB.html">Overview:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial%2001%20Introduction%20to%20PywrDRB.html">Introduction to Pywr-DRB</a></li>
 
-
-
-
-
-
+<li class="toctree-l2"><a class="reference internal" href="Tutorial%2002%20Prepare%20Input%20Data.html">Prep Model Inputs</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Model Parameters</a></li>
 </ul>
 </details></li>
@@ -423,7 +419,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Pywr-DRB Tutorial 3: Model Parameters</h1>
+    <h1>Model Parameters</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -433,8 +429,11 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#links">Links:</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#content">Content:</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#links">Links:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#content">Content:</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pywr-parameters">1.0 Pywr parameters</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-role-of-parameters">1.1. The role of parameters</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-parameters">1.2 Basic parameters</a><ul class="nav section-nav flex-column">
@@ -468,17 +467,22 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="pywr-drb-tutorial-3-model-parameters">
-<h1>Pywr-DRB Tutorial 3: Model Parameters<a class="headerlink" href="#pywr-drb-tutorial-3-model-parameters" title="Link to this heading">#</a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="model-parameters">
+<h1>Model Parameters<a class="headerlink" href="#model-parameters" title="Link to this heading">#</a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
+<p>The Pywr-DRB model is requires the definition of “parameters” which are able to define values, calculate values, and establish relationships between nodes and other paramters. These are critical to the implementation of the Flexible Flow Management operations policies and every other part of the model simulation.</p>
+<p>This notebook provides an introduction to these parameter, and how they are defined and used in the model. This notebook focuses on the <code class="docutils literal notranslate"><span class="pre">pywrdrb.STARFITReservoirRelease</span></code> parameter as an example.</p>
 <section id="links">
-<h2>Links:<a class="headerlink" href="#links" title="Link to this heading">#</a></h2>
+<h3>Links:<a class="headerlink" href="#links" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>This notebook draws heavily from the <a class="reference external" href="https://pywr.github.io/pywr/extending_pywr/extending_pywr_parameters.html"><code class="docutils literal notranslate"><span class="pre">pywr</span></code> documentation for creating custom parameters.</a> I’d recommend reading that for more detail.</p></li>
 <li><p><a class="reference external" href="https://pywr.github.io/pywr/api/pywr.parameters.html">Pywr parameters API docs</a></p></li>
+<li><p><a class="reference external" href="https://pywr-drb.github.io/Pywr-DRB/api/parameters.html">Pywr-DRB parameters API docs</a></p></li>
 </ul>
 </section>
 <section id="content">
-<h2>Content:<a class="headerlink" href="#content" title="Link to this heading">#</a></h2>
+<h3>Content:<a class="headerlink" href="#content" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Pywr parameters</p>
 <ul>
@@ -497,6 +501,7 @@ document.write(`
 <li><p>Activity: Create a custom parameter</p></li>
 </ul>
 </section>
+</section>
 <hr class="docutils" />
 <section id="pywr-parameters">
 <h2>1.0 Pywr parameters<a class="headerlink" href="#pywr-parameters" title="Link to this heading">#</a></h2>
@@ -509,10 +514,10 @@ document.write(`
 <section id="the-role-of-parameters">
 <h3>1.1. The role of parameters<a class="headerlink" href="#the-role-of-parameters" title="Link to this heading">#</a></h3>
 <p>Parameters are a critical part of a pywr model.  Parameters are used to enforce the “rules” in the model.</p>
-<p>In a linear programming problem, the goal is to find a vector <span class="math notranslate nohighlight">\(x\)</span> which maximizes the objective function such that the constraints are not violated:
-$<span class="math notranslate nohighlight">\(\text{Maximize  }  c^Tx\)</span><span class="math notranslate nohighlight">\(
-\)</span><span class="math notranslate nohighlight">\(\text{s.t.  } Ax \leq b \,\, \text{and} \,\, x \geq 0\)</span><span class="math notranslate nohighlight">\(
-For a water resource model, like Pywr-DRB, the decision variable \)</span>x<span class="math notranslate nohighlight">\( corresponds to the reservoir release for a specific day.  In this context, the parameters are used to calculate, set, and update the *constraints* which consist of \)</span>A<span class="math notranslate nohighlight">\( and \)</span>b$ in this formulation. These constraints correspond to minimum and maximum release requirements.</p>
+<p>In a linear programming problem, the goal is to find a vector <span class="math notranslate nohighlight">\(x\)</span> which maximizes the objective function such that the constraints are not violated:</p>
+<p><span class="math notranslate nohighlight">\(\text{Maximize  }  c^Tx\)</span></p>
+<p><span class="math notranslate nohighlight">\(\text{s.t.  } Ax \leq b \,\, \text{and} \,\, x \geq 0\)</span></p>
+<p>For a water resource model, like Pywr-DRB, the decision variable <span class="math notranslate nohighlight">\(x\)</span> corresponds to the reservoir release for a specific day.  In this context, the parameters are used to calculate, set, and update the <em>constraints</em> which consist of <span class="math notranslate nohighlight">\(A\)</span> and <span class="math notranslate nohighlight">\(b\)</span> in this formulation. These constraints correspond to minimum and maximum release requirements.</p>
 <p>As you will see, we connect specific parameters to different nodes or to other parameters. This is necessary when you have dependencies in the model.</p>
 </section>
 <section id="basic-parameters">
@@ -862,12 +867,12 @@ It’s value is the value of it’s child parameters aggregated using a aggregat
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="Tutorial%2001%20Introduction%20to%20PywrDRB.html"
+       href="Tutorial%2002%20Prepare%20Input%20Data.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Overview:</p>
+        <p class="prev-next-title">Preparing Input Data</p>
       </div>
     </a>
 </div>
@@ -886,8 +891,11 @@ It’s value is the value of it’s child parameters aggregated using a aggregat
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#links">Links:</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#content">Content:</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#links">Links:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#content">Content:</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pywr-parameters">1.0 Pywr parameters</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-role-of-parameters">1.1. The role of parameters</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-parameters">1.2 Basic parameters</a><ul class="nav section-nav flex-column">

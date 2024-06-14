@@ -1,0 +1,846 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Preparing Input Data &#8212; Pywr-DRB Integrated Water Resource Management Model</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=87e54e7c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=3ee479438cf8b5e0d341"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/Tutorial 02 Prepare Input Data';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Model Parameters" href="Tutorial%2003%20Model%20Parameters.html" />
+    <link rel="prev" title="Introduction to Pywr-DRB" href="Tutorial%2001%20Introduction%20to%20PywrDRB.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="../intro.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/logo.png" class="logo__image only-light" alt="Pywr-DRB Integrated Water Resource Management Model - Home"/>
+    <script>document.write(`<img src="../_static/logo.png" class="logo__image only-dark" alt="Pywr-DRB Integrated Water Resource Management Model - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../intro.html">
+                    Pywr-DRB
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/api.html">API References</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api/pre.html">Pre-Processing</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.pre.disaggregate_DRBC_demands.html">pywrdrb.pre.disaggregate_DRBC_demands</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.pre.extrapolate_NYC_NJ_diversions.html">pywrdrb.pre.extrapolate_NYC_NJ_diversions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.pre.predict_inflows_diversions.html">pywrdrb.pre.predict_inflows_diversions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.pre.predict_ensemble_inflows_diversions.html">pywrdrb.pre.predict_ensemble_inflows_diversions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.pre.read_modeled_estimates.html">pywrdrb.pre.read_modeled_estimates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.pre.read_csv_data.html">pywrdrb.pre.read_csv_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.pre.match_gages.html">pywrdrb.pre.match_gages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.pre.create_hybrid_modeled_observed_datasets.html">pywrdrb.pre.create_hybrid_modeled_observed_datasets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.pre.subtract_upstream_catchment_inflows.html">pywrdrb.pre.subtract_upstream_catchment_inflows</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.pre.add_upstream_catchment_inflows.html">pywrdrb.pre.add_upstream_catchment_inflows</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api/post.html">Post-Processing</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.post.get_base_results.html">pywrdrb.post.get_base_results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.post.get_pywrdrb_results.html">pywrdrb.post.get_pywrdrb_results</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api/parameters.html">Parameters</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.FfmpNycRunningAvgParameter.html">pywrdrb.parameters.FfmpNycRunningAvgParameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.FfmpNjRunningAvgParameter.html">pywrdrb.parameters.FfmpNjRunningAvgParameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.NYCCombinedReleaseFactor.html">pywrdrb.parameters.NYCCombinedReleaseFactor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.NYCFloodRelease.html">pywrdrb.parameters.NYCFloodRelease</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.html">pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.html">pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2.html">pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.VolBalanceNYCDemand.html">pywrdrb.parameters.VolBalanceNYCDemand</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.LowerBasinMaxMRFContribution.html">pywrdrb.parameters.LowerBasinMaxMRFContribution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate.html">pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.VolBalanceLowerBasinMRFIndividual.html">pywrdrb.parameters.VolBalanceLowerBasinMRFIndividual</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.STARFITReservoirRelease.html">pywrdrb.parameters.STARFITReservoirRelease</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.FlowEnsemble.html">pywrdrb.parameters.FlowEnsemble</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.PredictionEnsemble.html">pywrdrb.parameters.PredictionEnsemble</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.LaggedReservoirRelease.html">pywrdrb.parameters.LaggedReservoirRelease</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api/utils.html">Utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.utils.hdf5.get_hdf5_realization_numbers.html">pywrdrb.utils.hdf5.get_hdf5_realization_numbers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.utils.hdf5.extract_realization_from_hdf5.html">pywrdrb.utils.hdf5.extract_realization_from_hdf5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.utils.hdf5.combine_batched_hdf5_outputs.html">pywrdrb.utils.hdf5.combine_batched_hdf5_outputs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.utils.timeseries.subset_timeseries.html">pywrdrb.utils.timeseries.subset_timeseries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.utils.timeseries.get_rollmean_timeseries.html">pywrdrb.utils.timeseries.get_rollmean_timeseries</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/plotting.html">Plotting</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="examples.html">Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="Tutorial%2001%20Introduction%20to%20PywrDRB.html">Introduction to Pywr-DRB</a></li>
+
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Prep Model Inputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial%2003%20Model%20Parameters.html">Model Parameters</a></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/Pywr-DRB/Pywr-DRB" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/Pywr-DRB/Pywr-DRB/issues/new?title=Issue%20on%20page%20%2Fexamples/Tutorial 02 Prepare Input Data.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/examples/Tutorial 02 Prepare Input Data.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Preparing Input Data</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview:</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#links">Links:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pre-requisit-reading">Pre-requisit Reading:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#content">Content:</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-input-data-retrieval-repository">1.0 The Input-Data-Retrieval repository</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#nhmv1-0-and-nwmv2-1-data-retrieval">1.1 NHMv1.0 and NWMv2.1 data retrieval:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#inflow-scaling-regression">1.2 Inflow Scaling Regression</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pywr-drb-preprocessing">2.0 Pywr-DRB Preprocessing</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#subtract-upstream-catchment-inflows">2.1 Subtract upstream catchment inflows</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#disaggregate-drbc-demands">2.2 Disaggregate DRBC demands</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#extrapolate-nyc-and-nj-diversions">2.3 Extrapolate NYC and NJ diversions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#predict-inflows-and-diversions">2.4 Predict inflows and diversions</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-scripts">3.0 Key scripts</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#activity">Activity:</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="preparing-input-data">
+<h1>Preparing Input Data<a class="headerlink" href="#preparing-input-data" title="Link to this heading">#</a></h1>
+<section id="overview">
+<h2>Overview:<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
+<p>Pywr-DRB is designed to simulate water resource operations using multiple different input datasets.</p>
+<p>In order to perform a simulation with a given streamflow dataset, there are some necessary pre-processing steps in order to prepare other necessary model inputs.</p>
+<p>This notebook is designed to help demonstrate this preprocessing workflow.</p>
+<section id="links">
+<h3>Links:<a class="headerlink" href="#links" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/Pywr-DRB/Pywr-DRB">The Pywr-DRB GitHub repository</a></p></li>
+<li><p><a class="reference external" href="https://pywr-drb.github.io/Pywr-DRB/intro.html">The Pywr-DRB documentation site</a></p></li>
+<li><p><a class="reference external" href="https://github.com/Pywr-DRB/Input-Data-Retrieval">Input-Data-Retrieval</a></p></li>
+<li><p>NHMv1.0 Source Dataset</p></li>
+<li><p>NWMv2.1 Dataset</p></li>
+</ul>
+</section>
+<section id="pre-requisit-reading">
+<h3>Pre-requisit Reading:<a class="headerlink" href="#pre-requisit-reading" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Supplemental information for Hamilton, Amestoy and Reed (2024)</p></li>
+</ul>
+</section>
+<section id="content">
+<h3>Content:<a class="headerlink" href="#content" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p>The Input-Data-Processing repository</p>
+<ul class="simple">
+<li><p>NHMv1.0 and NWMv2.1 data retrieval</p></li>
+<li><p>Inflow scaling regression</p></li>
+</ul>
+</li>
+<li><p>Pywr-DRB Preprocessing</p>
+<ul class="simple">
+<li><p>Subtract upstream catchment inflows</p></li>
+<li><p>Disaggregate DRBC demands</p></li>
+<li><p>Extrapolate NYC and NJ diversions</p></li>
+<li><p>Predict inflows and diversions</p></li>
+</ul>
+</li>
+<li><p>Running the scripts</p></li>
+</ol>
+</section>
+</section>
+<hr class="docutils" />
+<section id="the-input-data-retrieval-repository">
+<h2>1.0 <a class="reference external" href="https://github.com/Pywr-DRB/Input-Data-Retrieval">The Input-Data-Retrieval repository</a><a class="headerlink" href="#the-input-data-retrieval-repository" title="Link to this heading">#</a></h2>
+<p>This repository is located under the <a class="reference external" href="https://github.com/Pywr-DRB">Pywr-DRB GitHub organization page</a>. This repo was designed to store the code needed to extract/retrieve streamflow from the National Hydrologic Model version 1.0 (NHMv1.0; <code class="docutils literal notranslate"><span class="pre">nhmv10</span></code>) and National Water Model version 2.1 (NWMv2.1; <code class="docutils literal notranslate"><span class="pre">nwmv21</span></code>).</p>
+<p>Since it’s creation, it has slowly started to house more of the input data preparation process. Data which is prepared &amp; stored here now includes:</p>
+<ul class="simple">
+<li><p>USGS gauge streamflow data which is retrieved from the NWIS.</p></li>
+<li><p>NHMv1.0 (NHM-PRMS) modeled streamflow data which is extracted from a CONUS scale dataset.</p></li>
+<li><p>NWMv2.1 modeled streamflow which is extracted from a CONUS scale dataset.</p></li>
+<li><p>Scaled gauge streamflow using NHMv1.0 and NWM2.1 to predict gauge-catchment scaling relationships at some reservoirs in the DRB.</p></li>
+</ul>
+<p>These data are stored in the <code class="docutils literal notranslate"><span class="pre">datasets/</span></code> folder of this repository, within subfolders <code class="docutils literal notranslate"><span class="pre">/USGS/</span></code>, <code class="docutils literal notranslate"><span class="pre">/NHMv10/</span></code>, and <code class="docutils literal notranslate"><span class="pre">/NWMv21/</span></code> respectively.</p>
+<p>Also, some of these streamflow sets are exported directly to the <code class="docutils literal notranslate"><span class="pre">Pywr-DRB/input_data/</span></code> folder.</p>
+<p>The work done in this repository is <strong>not</strong> meant to be replicated by a new Pywr-DRB user. This is partly due to the fact that the original NHM and NWM datasets are very large files and it is not convenient to replicate. Instead, all of the necessary data for running Pywr-DRB is stored in the <code class="docutils literal notranslate"><span class="pre">Input-Data-Retrieval/datasets/</span></code> folder and the <code class="docutils literal notranslate"><span class="pre">Pywr-DRB/input_data/</span></code> folder.</p>
+<p>However, for example, there might be a time when a user wants to consider adding new nodes to the Pywr-DRB model which is not currently available in the <code class="docutils literal notranslate"><span class="pre">datasets/</span></code>. In that case they will need to be able to go through the data retrieval process themselves. Regardless of whether you need to replicate the work yourself or not, it is important to understand how the input data is being sources.</p>
+<section id="nhmv1-0-and-nwmv2-1-data-retrieval">
+<h3>1.1 NHMv1.0 and NWMv2.1 data retrieval:<a class="headerlink" href="#nhmv1-0-and-nwmv2-1-data-retrieval" title="Link to this heading">#</a></h3>
+<p>Before we can extract any NHM/NWM streamflow data, we need to download the sources.  These are publicly available datasets published at the links below:</p>
+<ul class="simple">
+<li><p><strong>National Hydrologic Model Precipitation-Runoff Modeling System (NHM-PRMS; NHMv1.0) Daily Streamflow (92GB):</strong>
+Hay, L.E., and LaFontaine, J.H., 2020, Application of the National Hydrologic Model Infrastructure with the Precipitation-Runoff Modeling System (NHM-PRMS),1980-2016, Daymet Version 3 calibration: U.S. Geological Survey data release, <a class="reference external" href="https://doi.org/10.5066/P9PGZE0S">https://doi.org/10.5066/P9PGZE0S</a>. <a class="reference external" href="https://www.sciencebase.gov/catalog/item/5d826f6ae4b0c4f70d05913f">Download here: ScienceBase</a></p></li>
+<li><p><strong>National Water Model V2.1 (NWMv2.1) NWIS Retrospective (2GB):</strong>
+Blodgett, D.L., 2022, National Water Model V2.1 retrospective for selected NWIS gage locations, (1979-2020): U.S. Geological Survey data release, <a class="reference external" href="https://doi.org/10.5066/P9K5BEJG">https://doi.org/10.5066/P9K5BEJG</a>. <a class="reference external" href="https://www.sciencebase.gov/catalog/item/612e264ed34e40dd9c091228">Download here: ScienceBase</a></p></li>
+</ul>
+<blockquote>
+<div><p><strong>Pause:</strong> Take some time here and go to the NHM and NWM links above. No need to download anything, but read the abstract summary of each of the datasets. Put together some basic notes about each of the different datasets. What are their timespans? What information is used to generate these model predictions? Anything else you think is interesting?</p>
+</div></blockquote>
+<p><img alt="Breath" src="https://media.npr.org/assets/img/2023/06/08/trh_breath_artwork_wide-03d43101990814be81b6a546fbca713d888dd96b-s1100-c50.jpg" /></p>
+</section>
+<section id="inflow-scaling-regression">
+<h3>1.2 Inflow Scaling Regression<a class="headerlink" href="#inflow-scaling-regression" title="Link to this heading">#</a></h3>
+<p>For some reservoirs, we have observation gauges on the inflow streams upstream of the reservoir which is very helpful.  However, these gauges might not capture <em>all</em> of the inflow entering the reservoir.  Especially for a reservoir like Pepacton which is large with lots of different inflow streams. In these cases, we want to <strong>scale</strong> the inflow data to estimate the total inflow.</p>
+<blockquote>
+<div><p><strong>Goal:</strong> Modify the observed inflow data such that we improve the total mass-balance estimate of total inflow, while keeping the daily accuracy of the observed timeseries.</p>
+</div></blockquote>
+<p>We can use the hydrologic models, NHM/NWM, to estimate the scaling relationship.</p>
+<p>In NHM/NWM, the total inflow into the reservoir is modeled at the catchment outlet, termed the hydrologic response unit (<span class="math notranslate nohighlight">\(HRU\)</span>). This flow can be represented as the sum of upstream flows at modeled points of interest (POI) multiplied by some daily scaling coefficient (c_t):</p>
+<div class="math notranslate nohighlight">
+\[HRU = (POI_A + POI_B)c_t\]</div>
+<p>Using the NHM/NWM model, we can calculate the scaling coefficent for every day, as the ratio:</p>
+<div class="math notranslate nohighlight">
+\[c_t = \frac{HRU}{(POI_A + POI_B)}\]</div>
+<p>Ultimately, the goal is to use the value of <span class="math notranslate nohighlight">\(c_t\)</span> to scale the <em>observed</em> flow timeseries at the gauges, such that we can estimate the true inflow into the reservoir:</p>
+<div class="math notranslate nohighlight">
+\[\text{Inflow}_t = c_t(\text{Gauge}_A + \text{Gauge}_B)\]</div>
+<p>However, we cannot use the value of <span class="math notranslate nohighlight">\(c_t\)</span> from the hydrologic models directly, since these don’t align well with the observed series, and we want to prioritize observed data here.</p>
+<p><strong>Linear regression models are used to predict the daily inflow scaling coefficient (<span class="math notranslate nohighlight">\(\hat{c_t}\)</span>) for a specific season <span class="math notranslate nohighlight">\(s\)</span> and day <span class="math notranslate nohighlight">\(t\)</span> using the relationship:</strong></p>
+<div class="math notranslate nohighlight">
+\[\hat{c_t} = \beta_{0,s} + \beta_{1,s}x_t+\epsilon_t\]</div>
+<p>where <span class="math notranslate nohighlight">\(\beta_{0,s}\)</span> is the regression intercept for season <span class="math notranslate nohighlight">\(s\)</span>, <span class="math notranslate nohighlight">\(\beta_{1,s}\)</span> is the regression slope for season <span class="math notranslate nohighlight">\(s\)</span>, and the predictor <span class="math notranslate nohighlight">\(x_t\)</span> is the log of the sum of the <span class="math notranslate nohighlight">\(k\)</span>-day rolling mean observed flows upstream of the reservoir. The value of <span class="math notranslate nohighlight">\(k\)</span> days was determined through trial and error, with <span class="math notranslate nohighlight">\(k=3\)</span> resulting in the best model fit when considering the model’s R-squared values.<br />
+$<span class="math notranslate nohighlight">\(x_t = log(\sum^n_i \bar{q}_{i,t})\)</span>$</p>
+<p>Prior to fitting the linear regression models, the hydrologic model (NHM or NWM) flow estimates are used to calculate <span class="math notranslate nohighlight">\(X = \set{x_1,\dots,x_t}\)</span> and <span class="math notranslate nohighlight">\(C = \set{c_1, \dots, c_t}\)</span>. These data are then used as model training data. Once the regression models have been fit, the observed gage flows are used to calculate observed <span class="math notranslate nohighlight">\(x_t\)</span> which is used to predict <span class="math notranslate nohighlight">\(\hat{c_t}\)</span>. It is assumed that inflows into the reservoir are always greater than or equal to the observed gauge inflow, and the scaling coefficient is capped at a lower bound such that <span class="math notranslate nohighlight">\(\hat{c_t} \geq 1\)</span>. The final estimate of the total inflow into the reservoir during timestep <span class="math notranslate nohighlight">\(t\)</span> is then the product of the estimated scaling coefficient multiplied by the sum of observed inflows on that day:
+$<span class="math notranslate nohighlight">\(\hat{Q}_t = \hat{c_t}\sum_{i}^{n} q_{i,t}\)</span>$</p>
+<p>We repeat this process using both NHM and NWM, so that we end up with two different versions of the scaled inflow data, which uses scaling information from each of the respective models.</p>
+<p>Currently, the list of reservoirs which has scaling inflows are:</p>
+<ul class="simple">
+<li><p>Cannonsville</p></li>
+<li><p>Pepacton</p></li>
+<li><p>Neversink</p></li>
+<li><p>FE Walter</p></li>
+<li><p>Beltzville</p></li>
+</ul>
+<blockquote>
+<div><p>The <code class="docutils literal notranslate"><span class="pre">create_hybrid_modeled_observed_datasets()</span></code> function is used to take the scaled inflow data and combine it with the raw NHM/NWM data.  This function exports the <code class="docutils literal notranslate"><span class="pre">gage_flow_{nhm/nwm}_withObsScaled</span></code> and <code class="docutils literal notranslate"><span class="pre">catchment_inflow_{nhm/nwm}_withObsScaled</span></code> CSV files to the <code class="docutils literal notranslate"><span class="pre">Pywr-DRB/input_data/</span></code> directory so that they can be used for simulation.</p>
+</div></blockquote>
+<p>The following code will create the hybrid dataset:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="n">path_to_pywrdrb</span> <span class="o">=</span> <span class="s1">&#39;../&#39;</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path_to_pywrdrb</span><span class="p">)</span>
+                
+<span class="kn">from</span> <span class="nn">pywrdrb.pre.prep_input_data_functions</span> <span class="kn">import</span> <span class="n">read_csv_data</span><span class="p">,</span> <span class="n">create_hybrid_modeled_observed_datasets</span>
+<span class="kn">from</span> <span class="nn">pywrdrb.utils.directories</span> <span class="kn">import</span> <span class="n">input_dir</span>
+
+<span class="n">start_date</span> <span class="o">=</span> <span class="s1">&#39;1983/10/01&#39;</span>
+<span class="n">end_date</span> <span class="o">=</span> <span class="s1">&#39;2016/12/31&#39;</span>
+
+<span class="c1"># Read in the NHM modeled streamflow data</span>
+<span class="n">df_nhm</span> <span class="o">=</span> <span class="n">read_csv_data</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">input_dir</span><span class="si">}</span><span class="s1">modeled_gages/streamflow_daily_nhmv10_mgd.csv&#39;</span><span class="p">,</span> 
+                       <span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span><span class="p">,</span> <span class="n">units</span> <span class="o">=</span> <span class="s1">&#39;mgd&#39;</span><span class="p">,</span> <span class="n">source</span> <span class="o">=</span> <span class="s1">&#39;nhm&#39;</span><span class="p">)</span>
+
+<span class="c1"># Create the hybrid dataset using scaled observed inflows where available</span>
+<span class="c1"># and the NHM modeled streamflow data where needed</span>
+<span class="n">create_hybrid_modeled_observed_datasets</span><span class="p">(</span><span class="s1">&#39;nhmv10&#39;</span><span class="p">,</span> <span class="n">df_nhm</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>c:\Users\tjame\Desktop\Research\DRB\Pywr-DRB\Pywr-DRB\notebooks\..\pywrdrb\pre\prep_input_data_functions.py:137: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  inflows[node].iloc[lag:] += inflows[upstream].iloc[:-lag].values
+c:\Users\tjame\Desktop\Research\DRB\Pywr-DRB\Pywr-DRB\notebooks\..\pywrdrb\pre\prep_input_data_functions.py:139: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  inflows[node].iloc[:lag] += inflows[upstream].iloc[:lag].values
+c:\Users\tjame\Desktop\Research\DRB\Pywr-DRB\Pywr-DRB\notebooks\..\pywrdrb\pre\prep_input_data_functions.py:144: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  inflows[node].loc[inflows[node] &lt; 0] = 0
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="pywr-drb-preprocessing">
+<h2>2.0 Pywr-DRB Preprocessing<a class="headerlink" href="#pywr-drb-preprocessing" title="Link to this heading">#</a></h2>
+<p>The following sections outline each of the pre-processing steps necessary to prepare the input data for Pywr-DRB.  Some of these processes must be repeated for any new dataset (e.g., subtract upstream catchment inflows) while some others are only done once and can be used for multiple datasets (e.g., demand data).</p>
+<section id="subtract-upstream-catchment-inflows">
+<h3>2.1 Subtract upstream catchment inflows<a class="headerlink" href="#subtract-upstream-catchment-inflows" title="Link to this heading">#</a></h3>
+<p>Pywr-DRB is designed to take marginal catchment inflows as model inputs. However most datasets contain total streamflows.  We designed a function to calculate the marginal catchment flow using the total flow at different nodes.</p>
+<p>The <a class="reference internal" href="#../pywrdrb/pre/prep_input_data_functions.py"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">pywrdrb.pre.prep_input_data_functions.py</span></code></span></a> contains this function, called <code class="docutils literal notranslate"><span class="pre">subtract_upstream_catchment_inflows()</span></code>. This function takes a pd.DataFrame containing total flow at each of the Pywr-DRB nodes and iteratively removes upstream flows.</p>
+<p>Two important pieces of information used in this function are the <code class="docutils literal notranslate"><span class="pre">upstream_nodes_dict</span></code> and the <code class="docutils literal notranslate"><span class="pre">downstream_node_lags</span></code> which are stored in <a class="reference internal" href="#../pywrdrb/utils/pywr_drb_node_data.py"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">pywrdrb.utils.pywr_drb_node_data</span></code></span></a>. Take a look at both of these before going further.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pywrdrb.utils.pywr_drb_node_data</span> <span class="kn">import</span> <span class="n">upstream_nodes_dict</span><span class="p">,</span> <span class="n">downstream_node_lags</span>
+
+<span class="k">def</span> <span class="nf">subtract_upstream_catchment_inflows</span><span class="p">(</span><span class="n">inflows</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Subtracts upstream catchment inflows from the input inflows timeseries.</span>
+
+<span class="sd">    Inflow timeseries are cumulative. For each downstream node, this function subtracts the flow into all upstream nodes so</span>
+<span class="sd">    that it represents only the direct catchment inflows into this node. It also accounts for time lags between distant nodes.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        inflows (pandas.DataFrame): The inflows timeseries dataframe.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pandas.DataFrame: The modified inflows timeseries dataframe with upstream catchment inflows subtracted.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">inflows</span> <span class="o">=</span> <span class="n">inflows</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">node</span><span class="p">,</span> <span class="n">upstreams</span> <span class="ow">in</span> <span class="n">upstream_nodes_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">upstream</span> <span class="ow">in</span> <span class="n">upstreams</span><span class="p">:</span>
+            <span class="n">lag</span> <span class="o">=</span> <span class="n">downstream_node_lags</span><span class="p">[</span><span class="n">upstream</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">lag</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">inflows</span><span class="p">[</span><span class="n">node</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">lag</span><span class="p">:]</span> <span class="o">-=</span> <span class="n">inflows</span><span class="p">[</span><span class="n">upstream</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="o">-</span><span class="n">lag</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+                <span class="c1">### subtract same-day flow without lagging for first lag days, since we don&#39;t have data before 0 for lagging</span>
+                <span class="n">inflows</span><span class="p">[</span><span class="n">node</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="n">lag</span><span class="p">]</span> <span class="o">-=</span> <span class="n">inflows</span><span class="p">[</span><span class="n">upstream</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="n">lag</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">inflows</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="o">-=</span> <span class="n">inflows</span><span class="p">[</span><span class="n">upstream</span><span class="p">]</span>
+
+        <span class="c1">### if catchment inflow is negative after subtracting upstream, set to 0</span>
+        <span class="n">inflows</span><span class="p">[</span><span class="n">node</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">inflows</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1">### delTrenton node should have zero catchment inflow because coincident with DRCanal</span>
+        <span class="c1">### -&gt; make sure that is still so after subtraction process</span>
+        <span class="n">inflows</span><span class="p">[</span><span class="s1">&#39;delTrenton&#39;</span><span class="p">]</span> <span class="o">*=</span> <span class="mf">0.</span>
+
+    <span class="k">return</span> <span class="n">inflows</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="disaggregate-drbc-demands">
+<h3>2.2 Disaggregate DRBC demands<a class="headerlink" href="#disaggregate-drbc-demands" title="Link to this heading">#</a></h3>
+<p>The function <code class="docutils literal notranslate"><span class="pre">disaggregate_DRBC_demands()</span></code> is designed to disaggregate DRBC (Delaware River Basin Commission) water demand data to align with PywrDRB catchments.</p>
+<p>The core of this process lies in the application of geometric operations to align and adjust catchment areas, followed by the statistical disaggregation of water demand data based on the proportional areas of these catchments. The method effectively redistributes aggregated data to a finer spatial resolution aligned with the model’s hydrological catchment areas.</p>
+<p><strong>This is only done once, and the same demand data is currently used for each simulation.</strong></p>
+<p>See the <a class="reference internal" href="#../pywrdrb/pre/disaggregate_DRBC_demands.py"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">pywrdrb.pre.disaggregate_DRBC_demands.py</span></code></span></a> script to see this in action.</p>
+</section>
+<section id="extrapolate-nyc-and-nj-diversions">
+<h3>2.3 Extrapolate NYC and NJ diversions<a class="headerlink" href="#extrapolate-nyc-and-nj-diversions" title="Link to this heading">#</a></h3>
+<p>The NYC diversions from Cannonsville, Pepacton, and Neversink Reservoirs into Rondout Reservoir and the Delaware Aqueduct from 2000-2021 were acquired from ODRM (Office of the Delaware River Master, 2021). The NJ diversion is approximated as the Delaware and Raritan Canal gage flow at Port Mercer, NJ, which has observations from 1991-present. A two-step extrapolation approach is used to fill the NYC 1983-1999 period and the NJ 1983-1990 period. The two-step procedure combines linear regression and nearest neighbor bootstrapping to extrapolate the diversion timeseries based on the observed relationship between diversions and basin inflows.</p>
+<p>The first step in the extrapolation procedure is to build a linear regression model that predicts total monthly diversions as a function of total log monthly inflows. A separate regression model is built for each season (December-February, March-May, June-August, September-November) due to differences in seasonal water use patterns.</p>
+<p>The next step is to disaggregate the monthly diversions into daily values using a nearest neighbor bootstrapping approach. For each monthly prediction in the extrapolation period, we find the nearest neighbor from the training period in the 2D space of monthly log-inflows vs. diversions using the Euclidean norm. The daily diversion profile from this neighbor is used to disaggregate the predicted monthly diversions into daily diversions.</p>
+<p>Since diversions are dependent on streamflow, this <em>can</em> be done uniquely for every dataset. In practice, we are currently only creating 1 version using USGS observation data as the predictor for diversions.</p>
+<p>See the <a class="reference internal" href="#../pywrdrb/pre/extrapolate_NYC_NJ_diversions.py"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">pywrdrb.pre.extrapolate_NYC_NJ_diversions.py</span></code></span></a> script to see this in action.</p>
+</section>
+<section id="predict-inflows-and-diversions">
+<h3>2.4 Predict inflows and diversions<a class="headerlink" href="#predict-inflows-and-diversions" title="Link to this heading">#</a></h3>
+<p>When implementing the FFMP operations, the NYC reservoirs must consider future flow conditions at Trenton since the NYC reservoirs are 4-days upstream of Trenton.</p>
+<p>To help with this, we first generate predictions of the future streamflow 4, 3, 2, and 1-day ahead in time.  These predictions are then used during simulation.</p>
+<p>The <a class="reference internal" href="#../pywrdrb/pre/predict_inflows_diversions.py"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">pywrdrb.pre.predict_inflows_diversions.py</span></code></span></a> script uses a statistical approach for predicting future time series data, specifically catchment inflows and interbasin diversions. The focus is on using linear regression techniques to project future values based on historical data.</p>
+<p>The core method involves predicting future time series (catchment inflows or diversions) using linear regression.
+The prediction is based on a lagged relationship: the future value at a time t+lag is predicted using the value at time t.
+Options are included for using a logarithmic transformation of the data, removing zero values, and adding a constant term in the regression model.</p>
+<p>This must be done for each dataset individually.</p>
+</section>
+</section>
+<section id="key-scripts">
+<h2>3.0 Key scripts<a class="headerlink" href="#key-scripts" title="Link to this heading">#</a></h2>
+<p>All of the pre-processing steps described above are executed by a single script: <a class="reference internal" href="#../pywrdrb/prep_input_data.py"><span class="xref myst">pywrdrb.prep_input_data.py</span></a>.</p>
+<p>Rather than explaining this process here, I think it is best to leave it to you to go through this code and take notes on the workflow.</p>
+</section>
+<hr class="docutils" />
+<section id="activity">
+<h2>Activity:<a class="headerlink" href="#activity" title="Link to this heading">#</a></h2>
+<p>Assume that you want to use a new streamflow dataset for Pywr-DRB.</p>
+<p>You have a dataset with total streamflow at each of the different locations in Pywr-DRB ready to go. However, you need to go through some pre-processing steps before you can run any simulations.</p>
+<p>Write out each step in the preprocessing workflow necessary to set you up for a new Pywr-DRB simulation. At each step, make notes on what other data is necessary and how it is used.</p>
+<p>The <a class="reference internal" href="#../pywrdrb/prep_input_data.py"><span class="xref myst">pywrdrb.prep_input_data.py</span></a> workflow will be helpful here.</p>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./examples"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="Tutorial%2001%20Introduction%20to%20PywrDRB.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Introduction to Pywr-DRB</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="Tutorial%2003%20Model%20Parameters.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Model Parameters</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview:</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#links">Links:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pre-requisit-reading">Pre-requisit Reading:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#content">Content:</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-input-data-retrieval-repository">1.0 The Input-Data-Retrieval repository</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#nhmv1-0-and-nwmv2-1-data-retrieval">1.1 NHMv1.0 and NWMv2.1 data retrieval:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#inflow-scaling-regression">1.2 Inflow Scaling Regression</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pywr-drb-preprocessing">2.0 Pywr-DRB Preprocessing</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#subtract-upstream-catchment-inflows">2.1 Subtract upstream catchment inflows</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#disaggregate-drbc-demands">2.2 Disaggregate DRBC demands</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#extrapolate-nyc-and-nj-diversions">2.3 Extrapolate NYC and NJ diversions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#predict-inflows-and-diversions">2.4 Predict inflows and diversions</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-scripts">3.0 Key scripts</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#activity">Activity:</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The Reed Group at Cornell CEE
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
