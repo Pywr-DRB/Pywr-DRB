@@ -1,8 +1,8 @@
 `pywrdrb.parameters`
 ====================
 
-Flexible Flow Management (FFMP) Parameters
-------------------------------------------
+Flexible Flow Management (FFMP) 
+-------------------------------
 
 .. autosummary::
    :toctree: generated/
@@ -22,8 +22,8 @@ Flexible Flow Management (FFMP) Parameters
 
     
 
-STARFIT Reservoir Operations Parameters
----------------------------------------
+STARFIT Reservoir Operations
+----------------------------
 
 .. autosummary::
    :toctree: generated/
@@ -32,8 +32,8 @@ STARFIT Reservoir Operations Parameters
     pywrdrb.parameters.STARFITReservoirRelease
     
 
-Ensemble Specific Parameters
-----------------------------
+Ensemble Specific
+-----------------
 
 .. autosummary::
    :toctree: generated/
@@ -42,8 +42,8 @@ Ensemble Specific Parameters
     pywrdrb.parameters.FlowEnsemble
     pywrdrb.parameters.PredictionEnsemble
 
-General Parameters
-------------------
+General
+-------
 
 .. autosummary::
    :toctree: generated/

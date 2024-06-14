@@ -1,8 +1,7 @@
-`pywrdrb.utils`
+pywrdrb.utils
 ================
 
-
-`pywrdrb.utils.hdf5`
+pywrdrb.utils.hdf5
 --------------------
 
 .. autosummary::
@@ -14,7 +13,7 @@
    pywrdrb.utils.hdf5.combine_batched_hdf5_outputs
 
 
-`pywrdrb.utils.timeseries`
+pywrdrb.utils.timeseries
 --------------------
 
 .. autosummary::

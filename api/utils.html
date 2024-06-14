@@ -60,6 +60,8 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'api/utils';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pywrdrb.utils.hdf5.get_hdf5_realization_numbers" href="generated/pywrdrb.utils.hdf5.get_hdf5_realization_numbers.html" />
+    <link rel="prev" title="pywrdrb.parameters.LaggedReservoirRelease" href="generated/pywrdrb.parameters.LaggedReservoirRelease.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -122,8 +124,6 @@
       
       
       
-        
-      
       <div class="bd-sidebar-primary bd-sidebar">
         
 
@@ -177,8 +177,8 @@
                 </a>
             </li>
         </ul>
-        <ul class="nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="api.html">API References</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="api.html">API References</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 has-children"><a class="reference internal" href="pre.html">Pre-Processing</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.pre.disaggregate_DRBC_demands.html">pywrdrb.pre.disaggregate_DRBC_demands</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.pre.extrapolate_NYC_NJ_diversions.html">pywrdrb.pre.extrapolate_NYC_NJ_diversions</a></li>
@@ -215,6 +215,15 @@
 <li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.parameters.LaggedReservoirRelease.html">pywrdrb.parameters.LaggedReservoirRelease</a></li>
 </ul>
 </details></li>
+<li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">Utilities</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.utils.hdf5.get_hdf5_realization_numbers.html">pywrdrb.utils.hdf5.get_hdf5_realization_numbers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.utils.hdf5.extract_realization_from_hdf5.html">pywrdrb.utils.hdf5.extract_realization_from_hdf5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.utils.hdf5.combine_batched_hdf5_outputs.html">pywrdrb.utils.hdf5.combine_batched_hdf5_outputs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.utils.timeseries.subset_timeseries.html">pywrdrb.utils.timeseries.subset_timeseries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.utils.timeseries.get_rollmean_timeseries.html">pywrdrb.utils.timeseries.get_rollmean_timeseries</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="plotting.html">Plotting</a></li>
 </ul>
 </details></li>
 </ul>
@@ -412,8 +421,8 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb-utils-hdf5"><cite>pywrdrb.utils.hdf5</cite></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb-utils-timeseries"><cite>pywrdrb.utils.timeseries</cite></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb-utils-hdf5">pywrdrb.utils.hdf5</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb-utils-timeseries">pywrdrb.utils.timeseries</a></li>
 </ul>
             </nav>
         </div>
@@ -426,9 +435,9 @@ document.write(`
                 <article class="bd-article">
                   
   <section id="pywrdrb-utils">
-<h1><cite>pywrdrb.utils</cite><a class="headerlink" href="#pywrdrb-utils" title="Link to this heading">#</a></h1>
+<h1>pywrdrb.utils<a class="headerlink" href="#pywrdrb-utils" title="Link to this heading">#</a></h1>
 <section id="pywrdrb-utils-hdf5">
-<h2><cite>pywrdrb.utils.hdf5</cite><a class="headerlink" href="#pywrdrb-utils-hdf5" title="Link to this heading">#</a></h2>
+<h2>pywrdrb.utils.hdf5<a class="headerlink" href="#pywrdrb-utils-hdf5" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/pywrdrb.utils.hdf5.get_hdf5_realization_numbers.html#pywrdrb.utils.hdf5.get_hdf5_realization_numbers" title="pywrdrb.utils.hdf5.get_hdf5_realization_numbers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pywrdrb.utils.hdf5.get_hdf5_realization_numbers</span></code></a></p></td>
@@ -445,7 +454,7 @@ document.write(`
 </div>
 </section>
 <section id="pywrdrb-utils-timeseries">
-<h2><cite>pywrdrb.utils.timeseries</cite><a class="headerlink" href="#pywrdrb-utils-timeseries" title="Link to this heading">#</a></h2>
+<h2>pywrdrb.utils.timeseries<a class="headerlink" href="#pywrdrb-utils-timeseries" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/pywrdrb.utils.timeseries.subset_timeseries.html#pywrdrb.utils.timeseries.subset_timeseries" title="pywrdrb.utils.timeseries.subset_timeseries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pywrdrb.utils.timeseries.subset_timeseries</span></code></a></p></td>
@@ -490,6 +499,24 @@ document.write(`
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
+    <a class="left-prev"
+       href="generated/pywrdrb.parameters.LaggedReservoirRelease.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">pywrdrb.parameters.LaggedReservoirRelease</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="generated/pywrdrb.utils.hdf5.get_hdf5_realization_numbers.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">pywrdrb.utils.hdf5.get_hdf5_realization_numbers</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
 </div>
                 </footer>
               
@@ -506,8 +533,8 @@ document.write(`
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb-utils-hdf5"><cite>pywrdrb.utils.hdf5</cite></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb-utils-timeseries"><cite>pywrdrb.utils.timeseries</cite></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb-utils-hdf5">pywrdrb.utils.hdf5</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb-utils-timeseries">pywrdrb.utils.timeseries</a></li>
 </ul>
   </nav></div>
 

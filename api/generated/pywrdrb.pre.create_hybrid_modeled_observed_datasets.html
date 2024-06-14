@@ -215,6 +215,15 @@
 <li class="toctree-l3"><a class="reference internal" href="pywrdrb.parameters.LaggedReservoirRelease.html">pywrdrb.parameters.LaggedReservoirRelease</a></li>
 </ul>
 </details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../utils.html">Utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="pywrdrb.utils.hdf5.get_hdf5_realization_numbers.html">pywrdrb.utils.hdf5.get_hdf5_realization_numbers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pywrdrb.utils.hdf5.extract_realization_from_hdf5.html">pywrdrb.utils.hdf5.extract_realization_from_hdf5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pywrdrb.utils.hdf5.combine_batched_hdf5_outputs.html">pywrdrb.utils.hdf5.combine_batched_hdf5_outputs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pywrdrb.utils.timeseries.subset_timeseries.html">pywrdrb.utils.timeseries.subset_timeseries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pywrdrb.utils.timeseries.get_rollmean_timeseries.html">pywrdrb.utils.timeseries.get_rollmean_timeseries</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../plotting.html">Plotting</a></li>
 </ul>
 </details></li>
 </ul>
@@ -429,7 +438,21 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="pywrdrb.pre.create_hybrid_modeled_observed_datasets">
 <span class="sig-prename descclassname"><span class="pre">pywrdrb.pre.</span></span><span class="sig-name descname"><span class="pre">create_hybrid_modeled_observed_datasets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">modeled_inflow_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datetime_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.pre.create_hybrid_modeled_observed_datasets" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Creates the hybrid datasets with scaled observational data where available and NHM/NWM data everywhere else.</p>
+<p>The new hybrid catchment inflows and gage flwos are saved to the input_data directory.
+See Hamilton et al. (Under Review) for more details on the dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>modeled_inflow_type</strong> (<em>str</em>) – The type of modeled inflow data to use. Either ‘nhmv10’ or ‘nwmv21’.</p></li>
+<li><p><strong>datetime_index</strong> (<em>pandas.DatetimeIndex</em>) – The datetime index to use for the dataset.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 
