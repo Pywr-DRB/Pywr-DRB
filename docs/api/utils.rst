@@ -24,7 +24,7 @@ This module contains string variables that provide absolut paths to the followin
 
 pywrdrb.utils.hdf5
 --------------------
-.. automodule:: pywrdrb.utils.directories
+.. automodule:: pywrdrb.utils.hdf5
     :members:
     :undoc-members:
     :show-inheritance:
@@ -40,7 +40,7 @@ pywrdrb.utils.hdf5
 
 pywrdrb.utils.timeseries
 --------------------
-.. automodule:: pywrdrb.utils.directories
+.. automodule:: pywrdrb.utils.timeseries
     :members:
     :undoc-members:
     :show-inheritance:
