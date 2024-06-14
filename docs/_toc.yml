@@ -9,17 +9,17 @@ parts:
     # =============== References =================
     - file: api/api.md
       sections:
-        - title: Pre-Processing
-          file: api/pre.rst
+
         - title: Post-Processing
           file: api/post.rst
         - title: Parameters
           file: api/parameters.rst
-        - title: Plotting
-          file: api/plotting.rst
-        - title: Utilities
-          file: api/utils.rst
-
+        # - title: Plotting
+        #   file: api/plotting.rst
+        # - title: Utilities
+        #   file: api/utils.rst
+        # - title: Pre-Processing
+        #   file: api/pre.rst
     # =============== Trainings =================
     # - file: training/training.md
     #   sections:
