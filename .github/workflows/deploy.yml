@@ -1,5 +1,4 @@
 ### github actions to build & deploy book
-# following https://github.com/executablebooks/cookiecutter-jupyter-book/blob/main/.github/workflows/deploy.yml
 
 name: deploy
 
@@ -7,13 +6,6 @@ on:
   push:
     branches:
       - master
-  # schedule:
-    # jupyter-book is updated regularly, let's run this deployment every month in case something fails
-    # <minute [0,59]> <hour [0,23]> <day of the month [1,31]> <month of the year [1,12]> <day of the week [0,6]>
-    # https://pubs.opengroup.org/onlinepubs/9699919799/utilities/crontab.html#tag_20_25_07
-    # https://crontab.guru/every-month
-    # Run cron job every month
-    # - cron: '0 0 1 * *'
 
 jobs:
   # This builds and deploys Pywr-DRB documentation
@@ -124,7 +116,13 @@ jobs:
     
 
 
-
+  # schedule:
+    # jupyter-book is updated regularly, let's run this deployment every month in case something fails
+    # <minute [0,59]> <hour [0,23]> <day of the month [1,31]> <month of the year [1,12]> <day of the week [0,6]>
+    # https://pubs.opengroup.org/onlinepubs/9699919799/utilities/crontab.html#tag_20_25_07
+    # https://crontab.guru/every-month
+    # Run cron job every month
+    # - cron: '0 0 1 * *'
 
     # - name: upgrade pip
     #   run: pip install --upgrade pip

@@ -21,7 +21,7 @@ parts:
           file: api/plotting.rst
 
 
-    =============== Examples =================
+    # =============== Examples =================
     - file: examples/examples.md
       sections:
         - title: Intro to PywrDRB
