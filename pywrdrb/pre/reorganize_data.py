@@ -5,7 +5,7 @@ Structures it into a pd.DataFrame-friendly format, and saves it to csv files in 
 
 import pandas as pd
 
-from .prep_input_data_functions import read_modeled_estimates
+from pywrdrb.pre.prep_input_data_functions import read_modeled_estimates
 
 from pywrdrb.utils.directories import input_dir
 

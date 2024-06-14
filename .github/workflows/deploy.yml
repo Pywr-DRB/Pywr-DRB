@@ -63,10 +63,13 @@ jobs:
       run: pip install -r docs/requirements.txt
       if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
-    - name: Verify pywrdrb import
+    - name: Verify pywrdrb imports
       run: |
         python -c "import pywrdrb; print('pywrdrb imported successfully')"
         python -c "import pywrdrb.parameters; print('pywrdrb.parameters imported successfully')"
+        python -c "import pywrdrb.pre; print('pywrdrb.pre imported successfully')"
+        python -c "import pywrdrb.utils; print('pywrdrb.utils imported successfully')"
+        python -c "import pywrdrb.plotting; print('pywrdrb.plotting imported successfully')"
 
 
     # Copy training notebooks to docs folder
@@ -89,7 +92,7 @@ jobs:
         cat docs/conf.py
 
         ### now build jupyter book directly from altered sphinx config file
-        sphinx-build docs/ docs/_build/html -b html
+        sphinx-build docs/ docs/_build/html -b html -v
 
 
     # Copy images to build
