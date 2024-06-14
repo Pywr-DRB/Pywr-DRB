@@ -4,7 +4,6 @@ Contains all plotting functions used for Pywr-DRB model assessments, including:
 
 """
 import datetime
-
 import numpy as np
 import pandas as pd
 import matplotlib as mpl
@@ -20,13 +19,13 @@ import hydroeval as he
 from pywrdrb.pywr_drb_node_data import upstream_nodes_dict, downstream_node_lags, immediate_downstream_nodes_dict
 
 # Custom modules
-from pywrdrb.utils.constants import cms_to_mgd, cm_to_mg, cfs_to_mgd, mg_to_mcm
-from pywrdrb.utils.lists import reservoir_list, reservoir_list_nyc, majorflow_list, reservoir_link_pairs, seasons_dict,\
-    drbc_lower_basin_reservoirs
+from pywrdrb.utils.constants import mg_to_mcm
+from pywrdrb.utils.lists import reservoir_list, reservoir_list_nyc, majorflow_list, seasons_dict 
+from pywrdrb.utils.lists import drbc_lower_basin_reservoirs
 
 from pywrdrb.utils.directories import input_dir, fig_dir, model_data_dir, spatial_data_dir
-from pywrdrb.plotting.styles import base_model_colors, model_hatch_styles, paired_model_colors, scatter_model_markers, \
-    node_label_dict, node_label_full_dict, model_label_dict, month_dict, model_linestyle_dict
+from pywrdrb.plotting.styles import base_model_colors, paired_model_colors, scatter_model_markers
+from pywrdrb.plotting.styles import node_label_full_dict, model_label_dict
 from pywrdrb.utils.timeseries import subset_timeseries
 
 dpi=400
@@ -386,7 +385,7 @@ def plot_gridded_error_metrics(results_metrics, models, nodes, start_date, end_d
             vmax_log2 += range * 0.2
             vmin_log2 -= range * 0.2
             ### separate norm/cmap for above and below 1
-            cmaps = [cm.get_cmap('Greens_r'), cm.get_cmap('Purples')]
+            cmaps = [plt.get_cmap('Greens_r'), plt.get_cmap('Purples')]
             # ## note: Purples palette starts off slower than greens (more white), so add a bit of buffer here to even out colors
             # norms = [mpl.colors.Normalize(vmin=vmin_log2, vmax=0), mpl.colors.Normalize(vmin=0, vmax=vmax_log2)]
             norms = [mpl.colors.Normalize(vmin=vmin_log2, vmax=0), mpl.colors.Normalize(vmin=-0.08 * vmax_log2,
@@ -401,7 +400,7 @@ def plot_gridded_error_metrics(results_metrics, models, nodes, start_date, end_d
             # ### now expand slightly for colormap so that colors aren't too dark to read text
             vmin -= (vmax - vmin) * 0.2
             ### norm/cmap
-            cmaps = [cm.get_cmap('Reds_r')]
+            cmaps = [plt.get_cmap('Reds_r')]
             norms = [mpl.colors.Normalize(vmin=vmin, vmax=vmax)]
             scale_dict[metric] = 'linear_max1'
 
@@ -582,9 +581,9 @@ def plot_combined_nyc_storage(storages, ffmp_level_boundaries, models, colordict
     levels = [f'level{l}' for l in ['1a','1b','1c','2','3','4','5']]
     level_labels = ['Flood A', 'Flood B', 'Flood C', 'Normal', 'Drought Watch', 'Drought Warning', 'Drought Emergency']
 
-    level_colors = [cm.get_cmap('Blues')(v) for v in [0.3, 0.2, 0.1]] +\
+    level_colors = [plt.get_cmap('Blues')(v) for v in [0.3, 0.2, 0.1]] +\
                     ['papayawhip'] +\
-                    [cm.get_cmap('Reds')(v) for v in [0.1, 0.2, 0.3]]
+                    [plt.get_cmap('Reds')(v) for v in [0.1, 0.2, 0.3]]
     level_alpha = [0.7]*3 + [0.7] + [0.7]*3
     x = ffmp_level_boundaries.index
     for i in range(len(levels)):
@@ -666,9 +665,9 @@ def plot_combined_nyc_storage_vs_diversion(storages, ffmp_level_boundaries, ibt_
     levels = [f'level{l}' for l in ['1a','1b','1c','2','3','4','5']]
     level_labels = ['Flood A', 'Flood B', 'Flood C', 'Normal', 'Drought Watch', 'Drought Warning', 'Drought Emergency']
 
-    level_colors = [cm.get_cmap('Blues')(v) for v in [0.3, 0.2, 0.1]] +\
+    level_colors = [plt.get_cmap('Blues')(v) for v in [0.3, 0.2, 0.1]] +\
                     ['papayawhip'] +\
-                    [cm.get_cmap('Reds')(v) for v in [0.1, 0.2, 0.3]]
+                    [plt.get_cmap('Reds')(v) for v in [0.1, 0.2, 0.3]]
     level_alpha = [0.7]*3 + [0.7] + [0.7]*3
     x = ffmp_level_boundaries.index
     for i in range(len(levels)):
@@ -826,9 +825,9 @@ def plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major
     levels = [f'level{l}' for l in ['1a','1b','1c','2','3','4','5']]
     level_labels = ['Flood A', 'Flood B', 'Flood C', 'Normal', 'Drought Watch', 'Drought Warning', 'Drought Emergency']
 
-    level_colors = [cm.get_cmap('Blues')(v) for v in [0.3, 0.2, 0.1]] +\
+    level_colors = [plt.get_cmap('Blues')(v) for v in [0.3, 0.2, 0.1]] +\
                     ['papayawhip'] +\
-                    [cm.get_cmap('Reds')(v) for v in [0.1, 0.2, 0.3]]
+                    [plt.get_cmap('Reds')(v) for v in [0.1, 0.2, 0.3]]
     level_alpha = [0.7]*3 + [0.7] + [0.7]*3
     x = ffmp_level_boundaries.index
     for i in range(len(levels)):
@@ -1201,9 +1200,9 @@ def plot_NYC_release_components_combined(storages, ffmp_level_boundaries, nyc_re
     ### First plot FFMP levels as background color
     levels = [f'level{l}' for l in ['1a','1b','1c','2','3','4','5']]
     level_labels = ['Flood A', 'Flood B', 'Flood C', 'Normal', 'Drought Watch', 'Drought Warning', 'Drought Emergency']
-    level_colors = [cm.get_cmap('Blues')(v) for v in [0.3, 0.2, 0.1]] +\
+    level_colors = [plt.get_cmap('Blues')(v) for v in [0.3, 0.2, 0.1]] +\
                     ['papayawhip'] +\
-                    [cm.get_cmap('Reds')(v) for v in [0.1, 0.2, 0.3]]
+                    [plt.get_cmap('Reds')(v) for v in [0.1, 0.2, 0.3]]
     level_alpha = [0.7]*3 + [0.7] + [0.7]*3
     x = ffmp_level_boundaries.index
     for i in range(len(levels)):
@@ -2372,7 +2371,7 @@ def make_DRB_map(fig_dir=fig_dir, units='MG'):
 #         # ### now expand slightly for colormap at purple end so that colors aren't too dark to read text
 #         vmax += (vmax - vmin) * 0.15
 #         ### norm/cmap
-#         cmaps = [cm.get_cmap('viridis_r')]
+#         cmaps = [plt.get_cmap('viridis_r')]
 #         norms = [mpl.colors.Normalize(vmin=vmin, vmax=vmax)]
 #         scale_dict[node] = 'linear'
 #
@@ -3015,14 +3014,14 @@ def make_DRB_map(fig_dir=fig_dir, units='MG'):
 #         # print(a[:,:,0].max().max(), a[:,:,1:].max().max().max(), a[:,:,0].min().min(), a[:,:,1:].min().min().min())
 #
 #         ### create custom cmap following https://stackoverflow.com/questions/14777066/matplotlib-discrete-colorbar
-#         cmap_obs = cm.get_cmap('viridis')
+#         cmap_obs = plt.get_cmap('viridis')
 #         cmaplist_obs = [cmap_obs(i) for i in range(cmap_obs.N)]
 #         cmap_obs = LinearSegmentedColormap.from_list('Custom cmap', cmaplist_obs, cmap_obs.N)
 #         bounds_obs = np.array([0, 25, 50, 100, 250, 500, 1000, 2000, 3000, 6000])
 #         norm_obs = BoundaryNorm(bounds_obs, cmap_obs.N)
 #         sm_obs = cm.ScalarMappable(cmap=cmap_obs, norm=norm_obs)
 #
-#         cmap_mod = cm.get_cmap('RdBu')
+#         cmap_mod = plt.get_cmap('RdBu')
 #         cmaplist_mod = [cmap_mod(i) for i in range(cmap_mod.N)]
 #         cmap_mod = LinearSegmentedColormap.from_list('Custom cmap', cmaplist_mod, cmap_mod.N)
 #         bounds_mod = np.array([-500, -200, -100, -60, -30, -15, -5, 5, 15, 30, 60, 100, 200, 500])
@@ -3266,9 +3265,9 @@ def make_DRB_map(fig_dir=fig_dir, units='MG'):
 #
 #     ### First plot FFMP levels as background color
 #     levels = [f'level{l}' for l in ['1a','1b','1c','2','3','4','5']]
-#     level_colors = [cm.get_cmap('Blues')(v) for v in [0.3, 0.2, 0.1]] +\
+#     level_colors = [plt.get_cmap('Blues')(v) for v in [0.3, 0.2, 0.1]] +\
 #                     ['papayawhip'] +\
-#                     [cm.get_cmap('Reds')(v) for v in [0.1, 0.2, 0.3]]
+#                     [plt.get_cmap('Reds')(v) for v in [0.1, 0.2, 0.3]]
 #     level_alpha = [1]*3 + [1] + [1]*3
 #     x = ffmp_level_boundaries.index
 #     for i in range(len(levels)):
