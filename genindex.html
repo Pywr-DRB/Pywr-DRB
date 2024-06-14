@@ -28,7 +28,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=384b581d" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
     <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=13237357" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
@@ -45,7 +45,7 @@
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="_static/copybutton.js?v=f281be69"></script>
-    <script src="_static/scripts/sphinx-book-theme.js?v=efea14e4"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
     <script>let toggleHintShow = 'Click to show';</script>
     <script>let toggleHintHide = 'Click to hide';</script>
     <script>let toggleOpenOnPrint = 'true';</script>
@@ -178,6 +178,19 @@
         </ul>
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="api/api.html">API References</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="api/pre.html">Pre-Processing</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.pre.disaggregate_DRBC_demands.html">pywrdrb.pre.disaggregate_DRBC_demands</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.pre.extrapolate_NYC_NJ_diversions.html">pywrdrb.pre.extrapolate_NYC_NJ_diversions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.pre.predict_inflows_diversions.html">pywrdrb.pre.predict_inflows_diversions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.pre.predict_ensemble_inflows_diversions.html">pywrdrb.pre.predict_ensemble_inflows_diversions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.pre.read_modeled_estimates.html">pywrdrb.pre.read_modeled_estimates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.pre.read_csv_data.html">pywrdrb.pre.read_csv_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.pre.match_gages.html">pywrdrb.pre.match_gages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.pre.create_hybrid_modeled_observed_datasets.html">pywrdrb.pre.create_hybrid_modeled_observed_datasets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.pre.subtract_upstream_catchment_inflows.html">pywrdrb.pre.subtract_upstream_catchment_inflows</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.pre.add_upstream_catchment_inflows.html">pywrdrb.pre.add_upstream_catchment_inflows</a></li>
+</ul>
+</details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="api/post.html">Post-Processing</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.post.get_base_results.html">pywrdrb.post.get_base_results</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.post.get_pywrdrb_results.html">pywrdrb.post.get_pywrdrb_results</a></li>
@@ -232,9 +245,9 @@
   
     <div class="header-article-items__start">
       
-        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
   <span class="fa-solid fa-bars"></span>
-</label></div>
+</button></div>
       
     </div>
   
@@ -415,6 +428,10 @@ document.write(`
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.pre.add_upstream_catchment_inflows.html#pywrdrb.pre.add_upstream_catchment_inflows">add_upstream_catchment_inflows() (in module pywrdrb.pre)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/pywrdrb.parameters.FfmpNjRunningAvgParameter.html#pywrdrb.parameters.FfmpNjRunningAvgParameter.after">after() (pywrdrb.parameters.FfmpNjRunningAvgParameter method)</a>
 
       <ul>
@@ -431,6 +448,8 @@ document.write(`
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.pre.create_hybrid_modeled_observed_datasets.html#pywrdrb.pre.create_hybrid_modeled_observed_datasets">create_hybrid_modeled_observed_datasets() (in module pywrdrb.pre)</a>
+</li>
       <li><a href="api/generated/pywrdrb.parameters.FfmpNjRunningAvgParameter.html#pywrdrb.parameters.FfmpNjRunningAvgParameter.current_drought_factor">current_drought_factor (pywrdrb.parameters.FfmpNjRunningAvgParameter attribute)</a>
 </li>
   </ul></td>
@@ -445,10 +464,12 @@ document.write(`
         <li><a href="api/generated/pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate.html#pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate.debugging">(pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate attribute)</a>
 </li>
       </ul></li>
-      <li><a href="api/generated/pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate.html#pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate.drbc_lower_basin_reservoirs">drbc_lower_basin_reservoirs (pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate attribute)</a>
+      <li><a href="api/generated/pywrdrb.pre.disaggregate_DRBC_demands.html#pywrdrb.pre.disaggregate_DRBC_demands">disaggregate_DRBC_demands() (in module pywrdrb.pre)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate.html#pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate.drbc_lower_basin_reservoirs">drbc_lower_basin_reservoirs (pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate attribute)</a>
+</li>
       <li><a href="api/generated/pywrdrb.parameters.FfmpNjRunningAvgParameter.html#pywrdrb.parameters.FfmpNjRunningAvgParameter.drought_factor">drought_factor (pywrdrb.parameters.FfmpNjRunningAvgParameter attribute)</a>
 </li>
       <li><a href="api/generated/pywrdrb.parameters.NYCCombinedReleaseFactor.html#pywrdrb.parameters.NYCCombinedReleaseFactor.drought_level_agg_nyc">drought_level_agg_nyc (pywrdrb.parameters.NYCCombinedReleaseFactor attribute)</a>
@@ -462,6 +483,10 @@ document.write(`
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/pywrdrb.utils.hdf5.extract_realization_from_hdf5.html#pywrdrb.utils.hdf5.extract_realization_from_hdf5">extract_realization_from_hdf5() (in module pywrdrb.utils.hdf5)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.pre.extrapolate_NYC_NJ_diversions.html#pywrdrb.pre.extrapolate_NYC_NJ_diversions">extrapolate_NYC_NJ_diversions() (in module pywrdrb.pre)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -531,6 +556,8 @@ document.write(`
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.pre.match_gages.html#pywrdrb.pre.match_gages">match_gages() (in module pywrdrb.pre)</a>
+</li>
       <li><a href="api/generated/pywrdrb.parameters.FfmpNjRunningAvgParameter.html#pywrdrb.parameters.FfmpNjRunningAvgParameter.max_avg_delivery">max_avg_delivery (pywrdrb.parameters.FfmpNjRunningAvgParameter attribute)</a>
 
       <ul>
@@ -557,10 +584,10 @@ document.write(`
 </li>
       <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDemand.html#pywrdrb.parameters.VolBalanceNYCDemand.max_volume_agg_nyc">max_volume_agg_nyc (pywrdrb.parameters.VolBalanceNYCDemand attribute)</a>
 </li>
-      <li><a href="api/generated/pywrdrb.parameters.NYCFloodRelease.html#pywrdrb.parameters.NYCFloodRelease.max_volume_reservoir">max_volume_reservoir (pywrdrb.parameters.NYCFloodRelease attribute)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.parameters.NYCFloodRelease.html#pywrdrb.parameters.NYCFloodRelease.max_volume_reservoir">max_volume_reservoir (pywrdrb.parameters.NYCFloodRelease attribute)</a>
+</li>
       <li><a href="api/generated/pywrdrb.parameters.LowerBasinMaxMRFContribution.html#pywrdrb.parameters.LowerBasinMaxMRFContribution.model">model (pywrdrb.parameters.LowerBasinMaxMRFContribution attribute)</a>
 
       <ul>
@@ -627,10 +654,14 @@ document.write(`
         <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.parameters">(pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1 attribute)</a>
 </li>
       </ul></li>
-      <li><a href="api/generated/pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.html#pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.predicted_demand_nj">predicted_demand_nj (pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF attribute)</a>
+      <li><a href="api/generated/pywrdrb.pre.predict_ensemble_inflows_diversions.html#pywrdrb.pre.predict_ensemble_inflows_diversions">predict_ensemble_inflows_diversions() (in module pywrdrb.pre)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.pre.predict_inflows_diversions.html#pywrdrb.pre.predict_inflows_diversions">predict_inflows_diversions() (in module pywrdrb.pre)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.html#pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.predicted_demand_nj">predicted_demand_nj (pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF attribute)</a>
+</li>
       <li><a href="api/generated/pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.html#pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.predicted_nonnyc_gage_flow_mrf">predicted_nonnyc_gage_flow_mrf (pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF attribute)</a>
 </li>
       <li><a href="api/generated/pywrdrb.parameters.PredictionEnsemble.html#pywrdrb.parameters.PredictionEnsemble">PredictionEnsemble (class in pywrdrb.parameters)</a>
@@ -645,6 +676,10 @@ document.write(`
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.pre.read_csv_data.html#pywrdrb.pre.read_csv_data">read_csv_data() (in module pywrdrb.pre)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.pre.read_modeled_estimates.html#pywrdrb.pre.read_modeled_estimates">read_modeled_estimates() (in module pywrdrb.pre)</a>
+</li>
       <li><a href="api/generated/pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.html#pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.release_needed_mrf_montague">release_needed_mrf_montague (pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF attribute)</a>
 </li>
       <li><a href="api/generated/pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate.html#pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate.release_needed_mrf_trenton">release_needed_mrf_trenton (pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate attribute)</a>
@@ -657,10 +692,10 @@ document.write(`
         <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.reservoir">(pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1 attribute)</a>
 </li>
       </ul></li>
-      <li><a href="api/generated/pywrdrb.parameters.LowerBasinMaxMRFContribution.html#pywrdrb.parameters.LowerBasinMaxMRFContribution.reservoirs">reservoirs (pywrdrb.parameters.LowerBasinMaxMRFContribution attribute)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.parameters.LowerBasinMaxMRFContribution.html#pywrdrb.parameters.LowerBasinMaxMRFContribution.reservoirs">reservoirs (pywrdrb.parameters.LowerBasinMaxMRFContribution attribute)</a>
+</li>
       <li><a href="api/generated/pywrdrb.parameters.FfmpNjRunningAvgParameter.html#pywrdrb.parameters.FfmpNjRunningAvgParameter.reset">reset() (pywrdrb.parameters.FfmpNjRunningAvgParameter method)</a>
 
       <ul>
@@ -702,6 +737,8 @@ document.write(`
       <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.storage_node">storage_node (pywrdrb.parameters.STARFITReservoirRelease attribute)</a>
 </li>
       <li><a href="api/generated/pywrdrb.utils.timeseries.subset_timeseries.html#pywrdrb.utils.timeseries.subset_timeseries">subset_timeseries() (in module pywrdrb.utils.timeseries)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.pre.subtract_upstream_catchment_inflows.html#pywrdrb.pre.subtract_upstream_catchment_inflows">subtract_upstream_catchment_inflows() (in module pywrdrb.pre)</a>
 </li>
   </ul></td>
 </tr></table>
