@@ -27,7 +27,7 @@ parts:
         - title: Intro to PywrDRB
           file: examples/Tutorial 01 Introduction to PywrDRB.ipynb
         - title: Prep Model Inputs
-          file: examples/Tutorial 02 Prepare Model Inputs.ipynb
+          file: examples/Tutorial 02 Prepare Input Data.ipynb
         - title: Model Parameters
           file: examples/Tutorial 03 Model Parameters.ipynb
     
