@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>pywrdrb.post.get_pywr_results &#8212; Pywr-DRB Integrated Water Resource Management Model</title>
+    <title>pywrdrb.utils.hdf5.get_hdf5_realization_numbers &#8212; Pywr-DRB Integrated Water Resource Management Model</title>
   
   
   
@@ -57,11 +57,9 @@
     <script async="async" src="../../_static/sphinx-thebe.js?v=c100c467"></script>
     <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
     <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/pywrdrb.post.get_pywr_results';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/pywrdrb.utils.hdf5.get_hdf5_realization_numbers';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="pywrdrb.post.get_pywrdrb_results" href="pywrdrb.post.get_pywrdrb_results.html" />
-    <link rel="prev" title="pywrdrb.post.get_base_results" href="pywrdrb.post.get_base_results.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -177,11 +175,10 @@
                 </a>
             </li>
         </ul>
-        <ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html">API References</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="../post.html">Post-Processing</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api.html">API References</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../post.html">Post-Processing</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="pywrdrb.post.get_base_results.html">pywrdrb.post.get_base_results</a></li>
-<li class="toctree-l3 current active"><a class="current reference internal" href="#">pywrdrb.post.get_pywr_results</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pywrdrb.post.get_pywrdrb_results.html">pywrdrb.post.get_pywrdrb_results</a></li>
 </ul>
 </details></li>
@@ -276,7 +273,7 @@
       
       
       
-      <li><a href="https://github.com/Pywr-DRB/Pywr-DRB/issues/new?title=Issue%20on%20page%20%2Fapi/generated/pywrdrb.post.get_pywr_results.html&body=Your%20issue%20content%20here." target="_blank"
+      <li><a href="https://github.com/Pywr-DRB/Pywr-DRB/issues/new?title=Issue%20on%20page%20%2Fapi/generated/pywrdrb.utils.hdf5.get_hdf5_realization_numbers.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -306,7 +303,7 @@
       
       
       
-      <li><a href="../../_sources/api/generated/pywrdrb.post.get_pywr_results.rst" target="_blank"
+      <li><a href="../../_sources/api/generated/pywrdrb.utils.hdf5.get_hdf5_realization_numbers.rst" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -390,7 +387,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>pywrdrb.post.get_pywr_results</h1>
+    <h1>pywrdrb.utils.hdf5.get_hdf5_realization_numbers</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -400,7 +397,7 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.post.get_pywr_results"><code class="docutils literal notranslate"><span class="pre">get_pywr_results()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.utils.hdf5.get_hdf5_realization_numbers"><code class="docutils literal notranslate"><span class="pre">get_hdf5_realization_numbers()</span></code></a></li>
 </ul>
             </nav>
         </div>
@@ -412,34 +409,23 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="pywrdrb-post-get-pywr-results">
-<h1>pywrdrb.post.get_pywr_results<a class="headerlink" href="#pywrdrb-post-get-pywr-results" title="Link to this heading">#</a></h1>
+  <section id="pywrdrb-utils-hdf5-get-hdf5-realization-numbers">
+<h1>pywrdrb.utils.hdf5.get_hdf5_realization_numbers<a class="headerlink" href="#pywrdrb-utils-hdf5-get-hdf5-realization-numbers" title="Link to this heading">#</a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="pywrdrb.post.get_pywr_results">
-<span class="sig-prename descclassname"><span class="pre">pywrdrb.post.</span></span><span class="sig-name descname"><span class="pre">get_pywr_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scenario</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datetime_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.post.get_pywr_results" title="Link to this definition">#</a></dt>
-<dd><p>Gathers simulation results from Pywr model run and returns a pd.DataFrame.</p>
-<p>WARNING: Depreciated due to poor handling of many-scenario simulations. Use get_pywrdrb_results instead.</p>
+<dt class="sig sig-object py" id="pywrdrb.utils.hdf5.get_hdf5_realization_numbers">
+<span class="sig-prename descclassname"><span class="pre">pywrdrb.utils.hdf5.</span></span><span class="sig-name descname"><span class="pre">get_hdf5_realization_numbers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.utils.hdf5.get_hdf5_realization_numbers" title="Link to this definition">#</a></dt>
+<dd><p>Checks the contents of an hdf5 file, and returns a list
+of the realization ID numbers contained.
+Realizations have key ‘realization_i’ in the HDF5.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>output_dir</strong> (<em>str</em>) – The output directory.</p></li>
-<li><p><strong>model</strong> (<em>str</em>) – The model datatype name (e.g., “nhmv10”).</p></li>
-<li><p><strong>results_set</strong> (<em>str</em><em>, </em><em>optional</em>) – The results set to return. Can be one of the following:
-- “all”: Return all results.
-- “reservoir_downstream_gage”: Return downstream gage flow below reservoir.
-- “res_storage”: Return reservoir storages.
-- “major_flow”: Return flow at major flow points of interest.
-- “inflow”: Return the inflow at each catchment.
-(Default: ‘all’)</p></li>
-<li><p><strong>scenario</strong> (<em>int</em><em>, </em><em>optional</em>) – The scenario index number. (Default: 0)</p></li>
-<li><p><strong>datetime_index</strong> (<em>Pandas datetime_index</em>) – Creating the dates are slow: if this isn’t our first data retrieval, we can provide the dates from a previous results dataframe.</p></li>
-</ul>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – The HDF5 file of interest</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The simulation results with datetime index.</p>
+<dd class="field-even"><p>Containing realizations ID numbers; realizations have key ‘realization_i’ in the HDF5.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>pd.DataFrame</p>
+<dd class="field-odd"><p>list</p>
 </dd>
 </dl>
 </dd></dl>
@@ -476,24 +462,6 @@ document.write(`
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
-    <a class="left-prev"
-       href="pywrdrb.post.get_base_results.html"
-       title="previous page">
-      <i class="fa-solid fa-angle-left"></i>
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">pywrdrb.post.get_base_results</p>
-      </div>
-    </a>
-    <a class="right-next"
-       href="pywrdrb.post.get_pywrdrb_results.html"
-       title="next page">
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">pywrdrb.post.get_pywrdrb_results</p>
-      </div>
-      <i class="fa-solid fa-angle-right"></i>
-    </a>
 </div>
                 </footer>
               
@@ -510,7 +478,7 @@ document.write(`
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.post.get_pywr_results"><code class="docutils literal notranslate"><span class="pre">get_pywr_results()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.utils.hdf5.get_hdf5_realization_numbers"><code class="docutils literal notranslate"><span class="pre">get_hdf5_realization_numbers()</span></code></a></li>
 </ul>
   </nav></div>
 

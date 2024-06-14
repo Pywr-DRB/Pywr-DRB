@@ -180,7 +180,6 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="api/api.html">API References</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="api/post.html">Post-Processing</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.post.get_base_results.html">pywrdrb.post.get_base_results</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.post.get_pywr_results.html">pywrdrb.post.get_pywr_results</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.post.get_pywrdrb_results.html">pywrdrb.post.get_pywrdrb_results</a></li>
 </ul>
 </details></li>
@@ -361,6 +360,7 @@ document.write(`
  | <a href="#A"><strong>A</strong></a>
  | <a href="#C"><strong>C</strong></a>
  | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#L"><strong>L</strong></a>
@@ -427,6 +427,10 @@ document.write(`
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.utils.hdf5.combine_batched_hdf5_outputs.html#pywrdrb.utils.hdf5.combine_batched_hdf5_outputs">combine_batched_hdf5_outputs() (in module pywrdrb.utils.hdf5)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/pywrdrb.parameters.FfmpNjRunningAvgParameter.html#pywrdrb.parameters.FfmpNjRunningAvgParameter.current_drought_factor">current_drought_factor (pywrdrb.parameters.FfmpNjRunningAvgParameter attribute)</a>
 </li>
   </ul></td>
@@ -450,6 +454,14 @@ document.write(`
       <li><a href="api/generated/pywrdrb.parameters.NYCCombinedReleaseFactor.html#pywrdrb.parameters.NYCCombinedReleaseFactor.drought_level_agg_nyc">drought_level_agg_nyc (pywrdrb.parameters.NYCCombinedReleaseFactor attribute)</a>
 </li>
       <li><a href="api/generated/pywrdrb.parameters.NYCFloodRelease.html#pywrdrb.parameters.NYCFloodRelease.drought_level_reservoir">drought_level_reservoir (pywrdrb.parameters.NYCFloodRelease attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.utils.hdf5.extract_realization_from_hdf5.html#pywrdrb.utils.hdf5.extract_realization_from_hdf5">extract_realization_from_hdf5() (in module pywrdrb.utils.hdf5)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -485,11 +497,13 @@ document.write(`
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/pywrdrb.post.get_base_results.html#pywrdrb.post.get_base_results">get_base_results() (in module pywrdrb.post)</a>
 </li>
+      <li><a href="api/generated/pywrdrb.utils.hdf5.get_hdf5_realization_numbers.html#pywrdrb.utils.hdf5.get_hdf5_realization_numbers">get_hdf5_realization_numbers() (in module pywrdrb.utils.hdf5)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/pywrdrb.post.get_pywr_results.html#pywrdrb.post.get_pywr_results">get_pywr_results() (in module pywrdrb.post)</a>
-</li>
       <li><a href="api/generated/pywrdrb.post.get_pywrdrb_results.html#pywrdrb.post.get_pywrdrb_results">get_pywrdrb_results() (in module pywrdrb.post)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.utils.timeseries.get_rollmean_timeseries.html#pywrdrb.utils.timeseries.get_rollmean_timeseries">get_rollmean_timeseries() (in module pywrdrb.utils.timeseries)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -675,10 +689,10 @@ document.write(`
       </ul></li>
       <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.split_required_mrf_across_nyc_reservoirs">split_required_mrf_across_nyc_reservoirs() (pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1 method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease">STARFITReservoirRelease (class in pywrdrb.parameters)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/pywrdrb.parameters.LowerBasinMaxMRFContribution.html#pywrdrb.parameters.LowerBasinMaxMRFContribution.step">step (pywrdrb.parameters.LowerBasinMaxMRFContribution attribute)</a>
 
       <ul>
@@ -686,6 +700,8 @@ document.write(`
 </li>
       </ul></li>
       <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.storage_node">storage_node (pywrdrb.parameters.STARFITReservoirRelease attribute)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.utils.timeseries.subset_timeseries.html#pywrdrb.utils.timeseries.subset_timeseries">subset_timeseries() (in module pywrdrb.utils.timeseries)</a>
 </li>
   </ul></td>
 </tr></table>

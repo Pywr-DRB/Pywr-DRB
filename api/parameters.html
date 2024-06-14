@@ -181,7 +181,6 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="api.html">API References</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 has-children"><a class="reference internal" href="post.html">Post-Processing</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.post.get_base_results.html">pywrdrb.post.get_base_results</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.post.get_pywr_results.html">pywrdrb.post.get_pywr_results</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.post.get_pywrdrb_results.html">pywrdrb.post.get_pywrdrb_results</a></li>
 </ul>
 </details></li>
@@ -377,7 +376,9 @@ document.write(`
   </button>
 `);
 </script>
-
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
 </div></div>
       
     </div>
@@ -393,6 +394,17 @@ document.write(`
     <div id="print-main-content">
         <div id="jb-print-toc">
             
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#flexible-flow-management-ffmp-parameters">Flexible Flow Management (FFMP) Parameters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#starfit-reservoir-operations-parameters">STARFIT Reservoir Operations Parameters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ensemble-specific-parameters">Ensemble Specific Parameters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#general-parameters">General Parameters</a></li>
+</ul>
+            </nav>
         </div>
     </div>
 </div>
@@ -404,7 +416,8 @@ document.write(`
                   
   <section id="pywrdrb-parameters">
 <h1><cite>pywrdrb.parameters</cite><a class="headerlink" href="#pywrdrb-parameters" title="Link to this heading">#</a></h1>
-<p>Flexible Flow Management (FFMP) Parameters</p>
+<section id="flexible-flow-management-ffmp-parameters">
+<h2>Flexible Flow Management (FFMP) Parameters<a class="headerlink" href="#flexible-flow-management-ffmp-parameters" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/pywrdrb.parameters.FfmpNycRunningAvgParameter.html#pywrdrb.parameters.FfmpNycRunningAvgParameter" title="pywrdrb.parameters.FfmpNycRunningAvgParameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pywrdrb.parameters.FfmpNycRunningAvgParameter</span></code></a></p></td>
@@ -443,7 +456,9 @@ document.write(`
 </tbody>
 </table>
 </div>
-<p>STARFIT Reservoir Operations Parameters</p>
+</section>
+<section id="starfit-reservoir-operations-parameters">
+<h2>STARFIT Reservoir Operations Parameters<a class="headerlink" href="#starfit-reservoir-operations-parameters" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease" title="pywrdrb.parameters.STARFITReservoirRelease"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pywrdrb.parameters.STARFITReservoirRelease</span></code></a></p></td>
@@ -452,7 +467,9 @@ document.write(`
 </tbody>
 </table>
 </div>
-<p>Ensemble Specific Parameters</p>
+</section>
+<section id="ensemble-specific-parameters">
+<h2>Ensemble Specific Parameters<a class="headerlink" href="#ensemble-specific-parameters" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/pywrdrb.parameters.FlowEnsemble.html#pywrdrb.parameters.FlowEnsemble" title="pywrdrb.parameters.FlowEnsemble"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pywrdrb.parameters.FlowEnsemble</span></code></a></p></td>
@@ -464,7 +481,9 @@ document.write(`
 </tbody>
 </table>
 </div>
-<p>General Parameters</p>
+</section>
+<section id="general-parameters">
+<h2>General Parameters<a class="headerlink" href="#general-parameters" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/pywrdrb.parameters.LaggedReservoirRelease.html#pywrdrb.parameters.LaggedReservoirRelease" title="pywrdrb.parameters.LaggedReservoirRelease"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pywrdrb.parameters.LaggedReservoirRelease</span></code></a></p></td>
@@ -473,6 +492,7 @@ document.write(`
 </tbody>
 </table>
 </div>
+</section>
 </section>
 
     <script type="text/x-thebe-config">
@@ -529,6 +549,24 @@ document.write(`
             </div>
             
             
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#flexible-flow-management-ffmp-parameters">Flexible Flow Management (FFMP) Parameters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#starfit-reservoir-operations-parameters">STARFIT Reservoir Operations Parameters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ensemble-specific-parameters">Ensemble Specific Parameters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#general-parameters">General Parameters</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>
