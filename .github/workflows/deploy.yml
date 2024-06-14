@@ -42,6 +42,10 @@ jobs:
     - name: Add GLPK to PATH
       run: echo "/usr/local/lib" | sudo tee -a /etc/ld.so.conf.d/glpk.conf && sudo ldconfig
 
+    - name: Install MPI
+      run: sudo apt-get update && sudo apt-get install -y libopenmpi-dev openmpi-bin
+
+
     # install virtual environment with caching, so only updates when requirements.txt changes,
     # based on https://github.com/marketplace/actions/restore-or-create-a-python-virtualenv#custom_virtualenv_dir
     # Note: virtual environment by default will be created under ~/venv
