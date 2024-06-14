@@ -12,3 +12,5 @@ seaborn
 pywr
 geopandas
 statsmodels
+pygeohydro
+mpi4py

@@ -3,15 +3,10 @@ This script contsins functions to reorganize the NHMv1.0 and NWMv2.1 data origin
 Structures it into a pd.DataFrame-friendly format, and saves it to csv files in the input_data/modeled_gages directory.
 """
 
-import numpy as np
 import pandas as pd
-import datetime
 
 from .prep_input_data_functions import read_modeled_estimates
 
-from pywrdrb.pywr_drb_node_data import nhm_site_matches, nwm_site_matches
-from pywrdrb.utils.constants import cms_to_mgd
-from pywrdrb.utils.lists import reservoir_list, majorflow_list
 from pywrdrb.utils.directories import input_dir
 
 def combine_nwmv21_datasets():
