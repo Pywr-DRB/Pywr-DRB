@@ -201,7 +201,21 @@ def match_gages(df, dataset_label, site_matches_id):
 
 
 
-def create_hybrid_modeled_observed_datasets(modeled_inflow_type, datetime_index):
+def create_hybrid_modeled_observed_datasets(modeled_inflow_type, 
+                                            datetime_index):
+    """
+    Creates the hybrid datasets with scaled observational data where available and NHM/NWM data everywhere else.
+    
+    The new hybrid catchment inflows and gage flwos are saved to the input_data directory. 
+    See Hamilton et al. (Under Review) for more details on the dataset.
+    
+    Args:
+        modeled_inflow_type (str): The type of modeled inflow data to use. Either 'nhmv10' or 'nwmv21'.
+        datetime_index (pandas.DatetimeIndex): The datetime index to use for the dataset.
+    
+    Returns:
+        None
+    """
     ### create combo dataset that uses observed scaled data where available & NHM/NWM data everywhere else
     inflow_label_scaled = f'obs_pub_{modeled_inflow_type}_ObsScaled'
     inflow_label_nonScaled = modeled_inflow_type
@@ -226,49 +240,49 @@ def create_hybrid_modeled_observed_datasets(modeled_inflow_type, datetime_index)
 
 
 
-def get_WEAP_df(filename):
-    ### new file format for 29June2023 WEAP
-    df = pd.read_csv(filename)
-    df.columns = ['year', 'doy', 'flow', '_']
-    df['datetime'] = [datetime.datetime(y, 1, 1) + datetime.timedelta(d - 1) for y, d in zip(df['year'], df['doy'])]
-    df.index = pd.DatetimeIndex(df['datetime'])
-    # df = df.loc[np.logical_or(df['doy'] != 366, df.index.month != 1)]
-    df = df[['flow']]
-    return df
+# def get_WEAP_df(filename):
+#     ### new file format for 29June2023 WEAP
+#     df = pd.read_csv(filename)
+#     df.columns = ['year', 'doy', 'flow', '_']
+#     df['datetime'] = [datetime.datetime(y, 1, 1) + datetime.timedelta(d - 1) for y, d in zip(df['year'], df['doy'])]
+#     df.index = pd.DatetimeIndex(df['datetime'])
+#     # df = df.loc[np.logical_or(df['doy'] != 366, df.index.month != 1)]
+#     df = df[['flow']]
+#     return df
 
 
-def prep_WEAP_data():
-    ### organize WEAP results to use in Pywr-DRB - new for 29June2023 WEAP format
-    for node, filekey in WEAP_29June2023_gridmet_NatFlows_matches.items():
-        if filekey:
-            inflow_filename = f'{weap_dir}/{filekey[0]}_GridMet_NatFlows.csv'
-            df_inflow = get_WEAP_df(inflow_filename)
-            gageflow_filename = f'{weap_dir}/{filekey[0]}_GridMet_ManagedFlows_ObsNYCDiv.csv'
-            df_gageflow = get_WEAP_df(gageflow_filename)
+# def prep_WEAP_data():
+#     ### organize WEAP results to use in Pywr-DRB - new for 29June2023 WEAP format
+#     for node, filekey in WEAP_29June2023_gridmet_NatFlows_matches.items():
+#         if filekey:
+#             inflow_filename = f'{weap_dir}/{filekey[0]}_GridMet_NatFlows.csv'
+#             df_inflow = get_WEAP_df(inflow_filename)
+#             gageflow_filename = f'{weap_dir}/{filekey[0]}_GridMet_ManagedFlows_ObsNYCDiv.csv'
+#             df_gageflow = get_WEAP_df(gageflow_filename)
 
-        ### We dont have inflows for 2 reservoirs that aren't in WEAP. just set to 0 inflow since they are small anyway.
-        ### This wont change overall mass balance because this flow will now be routed through downstream node directly without regulation (next step).
-        else:
-            df_inflow = df_inflow * 0
-            df_gageflow = df_gageflow * 0
+#         ### We dont have inflows for 2 reservoirs that aren't in WEAP. just set to 0 inflow since they are small anyway.
+#         ### This wont change overall mass balance because this flow will now be routed through downstream node directly without regulation (next step).
+#         else:
+#             df_inflow = df_inflow * 0
+#             df_gageflow = df_gageflow * 0
 
-        if node == 'cannonsville':
-            inflows = pd.DataFrame({node: df_inflow['flow']})
-            gageflows = pd.DataFrame({node: df_inflow['flow']})
-        else:
-            inflows[node] = df_inflow['flow']
-            gageflows[node] = df_gageflow['flow']
+#         if node == 'cannonsville':
+#             inflows = pd.DataFrame({node: df_inflow['flow']})
+#             gageflows = pd.DataFrame({node: df_inflow['flow']})
+#         else:
+#             inflows[node] = df_inflow['flow']
+#             gageflows[node] = df_gageflow['flow']
 
-    ### Inflow timeseries are cumulative. So for each downstream node, subtract the flow into all upstream nodes so
-    ###    this represents only direct catchment inflows into this node. Account for time lags between distant nodes.
-    inflows = subtract_upstream_catchment_inflows(inflows)
+#     ### Inflow timeseries are cumulative. So for each downstream node, subtract the flow into all upstream nodes so
+#     ###    this represents only direct catchment inflows into this node. Account for time lags between distant nodes.
+#     inflows = subtract_upstream_catchment_inflows(inflows)
 
-    ### convert cubic meter to MG
-    inflows *= cm_to_mg
-    gageflows *= cm_to_mg
+#     ### convert cubic meter to MG
+#     inflows *= cm_to_mg
+#     gageflows *= cm_to_mg
 
-    ### save
-    inflows.to_csv(f'{input_dir}catchment_inflow_WEAP_29June2023_gridmet.csv')
-    gageflows.to_csv(f'{input_dir}gage_flow_WEAP_29June2023_gridmet.csv')
+#     ### save
+#     inflows.to_csv(f'{input_dir}catchment_inflow_WEAP_29June2023_gridmet.csv')
+#     gageflows.to_csv(f'{input_dir}gage_flow_WEAP_29June2023_gridmet.csv')
 
 

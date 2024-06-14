@@ -1,8 +1,28 @@
-`pywrdrb.utils`
+pywrdrb.utils
 ================
 
+pywrdrb.utils.directories
+--------------------
 
-`pywrdrb.utils.hdf5`
+.. automodule:: pywrdrb.utils.directories
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+This module contains string variables that provide absolut paths to the following directories:
+
+.. py:data:: input_dir
+   :module: pywrdrb.utils.directories
+
+   The folder where all input data is stored. 
+
+.. py:data:: output_dir
+   :module: pywrdrb.utils.directories
+
+   The folder where output data will be stored during and after simulation. 
+
+
+pywrdrb.utils.hdf5
 --------------------
 
 .. autosummary::
@@ -14,7 +34,7 @@
    pywrdrb.utils.hdf5.combine_batched_hdf5_outputs
 
 
-`pywrdrb.utils.timeseries`
+pywrdrb.utils.timeseries
 --------------------
 
 .. autosummary::

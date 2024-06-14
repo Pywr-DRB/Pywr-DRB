@@ -8,7 +8,7 @@ logo: logo.png
 # Force re-execution of notebooks on each build.
 # See https://jupyterbook.org/content/execute.html
 execute:
-  execute_notebooks: force
+  execute_notebooks: 'off' #force will turn this on
 
 # Enable autogeneration of API docs
 sphinx:
@@ -43,3 +43,8 @@ repository:
 html:
   use_issues_button: true
   use_repository_button: true
+
+
+# Only build files that are in the _toc.yml
+# https://jupyterbook.org/en/stable/structure/configure.html#config-exclude-non-toc-files
+only_build_toc_files: true

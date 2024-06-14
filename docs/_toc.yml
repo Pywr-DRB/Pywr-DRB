@@ -15,10 +15,11 @@ parts:
           file: api/post.rst
         - title: Parameters
           file: api/parameters.rst
-        # - title: Plotting
-        #   file: api/plotting.rst
-        # - title: Utilities
-        #   file: api/utils.rst
+        - title: Utilities
+          file: api/utils.rst
+        - title: Plotting
+          file: api/plotting.rst
+
 
     # =============== Trainings =================
     # - file: training/training.md
