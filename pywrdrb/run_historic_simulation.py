@@ -76,8 +76,7 @@ if 'ensemble' not in inflow_type:
     model_filename = f'{model_data_dir}drb_model_full_{inflow_type}.json'
 
     ### make model json files
-    make_model(inflow_type, model_filename, start_date, end_date,
-               predict_salinity=False, predict_temperature=False)
+    make_model(inflow_type, model_filename, start_date, end_date)
 
     ### Load the model
     model = Model.load(model_filename)
