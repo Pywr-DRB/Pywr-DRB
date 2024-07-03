@@ -1,72 +1,67 @@
 import h5py
 import pandas as pd
 import numpy as np
-import warnings
 
 from .pywr_drb_node_data import obs_site_matches
 
 pywrdrb_all_nodes = list(obs_site_matches.keys())
 
-def combine_batched_hdf5_outputs(batch_files, combined_output_file):
-    """
-    Aggregate multiple HDF5 files into a single HDF5 file.
+# def combine_batched_hdf5_outputs(batch_files, combined_output_file):
+#     """
+#     Aggregate multiple HDF5 files into a single HDF5 file.
     
-    Args:
-        batch_files (list): List of HDF5 files to combine.
-        combined_output_file (str): Full output file path & name to write combined HDF5.
+#     Args:
+#         batch_files (list): List of HDF5 files to combine.
+#         combined_output_file (str): Full output file path & name to write combined HDF5.
     
-    Returns:
-        None
-    """
-    with h5py.File(combined_output_file, 'w') as hf_out:
-        # Since keys are same in all files, we just take keys from the first file
-        with h5py.File(batch_files[0], 'r') as hf_in:
-            keys = list(hf_in.keys())
+#     Returns:
+#         None
+#     """
+#     with h5py.File(combined_output_file, 'w') as hf_out:
+#         # Since keys are same in all files, we just take keys from the first file
+#         with h5py.File(batch_files[0], 'r') as hf_in:
+#             keys = list(hf_in.keys())
             
-            time_key = None
-            datetime_key_opts = ['time', 'date', 'datetime']
-            for dt_key in datetime_key_opts:
-                if dt_key in keys:
-                    time_key = dt_key
-                    break
-            if time_key is None:
-                err_msg = f'No time key found in HDF5 file {batch_files[0]}.'
-                err_msg += f' Expected keys: {datetime_key_opts}'
-                raise ValueError(err_msg)
-            time_array=hf_in[time_key][:]
+#             time_key = None
+#             datetime_key_opts = ['time', 'date', 'datetime']
+#             for dt_key in datetime_key_opts:
+#                 if dt_key in keys:
+#                     time_key = dt_key
+#                     break
+#             if time_key is None:
+#                 err_msg = f'No time key found in HDF5 file {batch_files[0]}.'
+#                 err_msg += f' Expected keys: {datetime_key_opts}'
+#                 raise ValueError(err_msg)
+#             time_array=hf_in[time_key][:]
             
-        for key in keys:
-            add_key_to_output = True
+#         for key in keys:
+#             add_key_to_output = True
 
-            # Skip datetime keys and scenarios    
-            if key in datetime_key_opts + ['scenarios']:
-                continue
+#             # Skip datetime keys and scenarios    
+#             if key in datetime_key_opts + ['scenarios']:
+#                 continue
     
-            # Accumulate data from all files for a specific key
-            data_for_key = []
-            for file in batch_files:
-                with h5py.File(file, 'r') as hf_in:
-                    if key not in hf_in:
-                        add_key_to_output = False
+#             # Accumulate data from all files for a specific key
+#             data_for_key = []
+#             for file in batch_files:
+#                 with h5py.File(file, 'r') as hf_in:
+#                     if key not in hf_in:
+#                         add_key_to_output = False
 
-                    if add_key_to_output:
-                        data_for_key.append(hf_in[key][:,:])
+#                     if add_key_to_output:
+#                         data_for_key.append(hf_in[key][:,:])
             
-            if add_key_to_output:
-                # Concatenate along the scenarios axis
-                combined_data = np.concatenate(data_for_key, axis=1)
+#             if add_key_to_output:
+#                 # Concatenate along the scenarios axis
+#                 combined_data = np.concatenate(data_for_key, axis=1)
 
-                # Write combined data to the output file
-                hf_out.create_dataset(key, data=combined_data)
+#                 # Write combined data to the output file
+#                 hf_out.create_dataset(key, data=combined_data)
         
-        # Time needs to be handled differently since 1D
-        hf_out.create_dataset(time_key, data=time_array)
-    return
+#         # Time needs to be handled differently since 1D
+#         hf_out.create_dataset(time_key, data=time_array)
+#     return
 
-
-
-import h5py
-import numpy as np
 
 def combine_batched_hdf5_outputs(batch_files, combined_output_file):
     """
@@ -125,8 +120,7 @@ def combine_batched_hdf5_outputs(batch_files, combined_output_file):
     return
 
 
-def export_ensemble_to_hdf5(dict, 
-                            output_file):
+def export_ensemble_to_hdf5(dict, output_file):
     """
     Export a dictionary of ensemble data to an HDF5 file.
     Data is stored in the dictionary as {realization number (int): pd.DataFrame}.
@@ -140,14 +134,12 @@ def export_ensemble_to_hdf5(dict,
     """
     
     dict_keys = list(dict.keys())
-    N = len(dict)
-    T, M = dict[dict_keys[0]].shape
     column_labels = dict[dict_keys[0]].columns.to_list()
     
     with h5py.File(output_file, 'w') as f:
         for key in dict_keys:
             data = dict[key]
-            datetime = data.index.astype(str).tolist() #.strftime('%Y-%m-%d').tolist()
+            datetime = data.index.to_numpy().astype('S')  # Directly use numpy array for dates
             
             grp = f.create_group(key)
                     
@@ -158,11 +150,9 @@ def export_ensemble_to_hdf5(dict,
             grp.create_dataset('date', data=datetime)
             
             # Create datasets for each array subset from the group
-            for j in range(M):
-                dataset = grp.create_dataset(column_labels[j], 
-                                             data=data[column_labels[j]].to_list())
+            for col in column_labels:
+                grp.create_dataset(col, data=data[col].to_numpy())  # Directly use numpy array
     return
-
 
 def get_hdf5_realization_numbers(filename):
     """
