@@ -6,6 +6,7 @@ simulation results from pywrdrb model runs.
 import numpy as np
 import pandas as pd
 import h5py
+import warnings
 
 from pywrdrb.utils.lists import reservoir_list, reservoir_list_nyc, majorflow_list, reservoir_link_pairs
 from pywrdrb.utils.lists import drbc_lower_basin_reservoirs
@@ -347,7 +348,7 @@ def get_pywr_results(output_dir, model, results_set='all', scenario=0, datetime_
     """
     
     # Raise depreciation warning
-    raise DeprecationWarning('This function is depreciated. Use get_pywrdrb_results instead.')
+    warnings.warn('The get_pywr_results() function is depreciated. Use get_pywrdrb_results instead.', DeprecationWarning)
     
     with h5py.File(f'{output_dir}drb_output_{model}.hdf5', 'r') as f:
         keys = list(f.keys())

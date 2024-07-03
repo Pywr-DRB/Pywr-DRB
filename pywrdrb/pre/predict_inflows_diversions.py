@@ -6,13 +6,12 @@ import statsmodels.api as sm
 from mpi4py import MPI
 
 
-from pywrdrb.pre.prep_input_data_functions import add_upstream_catchment_inflows
-
-from pywrdrb.utils.hdf5 import extract_realization_from_hdf5, get_hdf5_realization_numbers, export_ensemble_to_hdf5
-from pywrdrb.utils.directories import input_dir, fig_dir
-from pywrdrb.utils.lists import reservoir_list, majorflow_list
-from pywrdrb.utils.timeseries import get_rollmean_timeseries
-from pywrdrb.utils.timeseries import subset_timeseries
+from pre.prep_input_data_functions import add_upstream_catchment_inflows
+from utils.hdf5 import extract_realization_from_hdf5, get_hdf5_realization_numbers, export_ensemble_to_hdf5
+from utils.directories import input_dir, fig_dir
+from utils.lists import reservoir_list, majorflow_list
+from utils.timeseries import get_rollmean_timeseries
+from utils.timeseries import subset_timeseries
 
 def regress_future_timeseries(timeseries, node, lag, 
                               use_log, remove_zeros, use_const,
