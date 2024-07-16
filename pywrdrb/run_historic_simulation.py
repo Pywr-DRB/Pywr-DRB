@@ -15,15 +15,15 @@ from pywr.recorders import TablesRecorder
 sys.path.insert(0, os.path.abspath('./'))
 sys.path.insert(0, os.path.abspath('../'))
 
-import parameters.general
-import parameters.ffmp
-import parameters.starfit
-import parameters.lower_basin_ffmp
-import parameters.temperature
-from make_model import make_model
-from utils.directories import output_dir, model_data_dir, input_dir
-from utils.hdf5 import get_hdf5_realization_numbers, combine_batched_hdf5_outputs
-from utils.options import inflow_type_options
+import pywrdrb.parameters.general
+import pywrdrb.parameters.ffmp
+import pywrdrb.parameters.starfit
+import pywrdrb.parameters.lower_basin_ffmp
+
+from pywrdrb.make_model import make_model
+from pywrdrb.utils.directories import output_dir, model_data_dir, input_dir
+from pywrdrb.utils.hdf5 import get_hdf5_realization_numbers, combine_batched_hdf5_outputs
+from pywrdrb.utils.options import inflow_type_options
 
 t0 = time.time()
 

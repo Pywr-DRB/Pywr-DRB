@@ -9,10 +9,10 @@ import numpy as np
 import pandas as pd
 import datetime
 
-from pywrdrb.pywr_drb_node_data import upstream_nodes_dict, WEAP_29June2023_gridmet_NatFlows_matches, downstream_node_lags
-from pywrdrb.utils.constants import cms_to_mgd, cm_to_mg
-from pywrdrb.utils.directories import input_dir, weap_dir
-from pywrdrb.utils.lists import reservoir_list_nyc
+from pywr_drb_node_data import upstream_nodes_dict, WEAP_29June2023_gridmet_NatFlows_matches, downstream_node_lags
+from utils.constants import cms_to_mgd, cm_to_mg
+from utils.directories import input_dir, weap_dir
+from utils.lists import reservoir_list_nyc
 
 
 
