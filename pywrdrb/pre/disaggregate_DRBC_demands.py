@@ -3,9 +3,9 @@ import pandas as pd
 import numpy as np
 import geopandas as gpd
 
-from pywr_drb_node_data import upstream_nodes_dict
-from utils.directories import spatial_data_dir, input_dir
-from utils.lists import majorflow_list, reservoir_list
+from pywrdrb.pywr_drb_node_data import upstream_nodes_dict
+from pywrdrb.utils.directories import spatial_data_dir, input_dir
+from pywrdrb.utils.lists import majorflow_list, reservoir_list
 
 
 def disaggregate_DRBC_demands():

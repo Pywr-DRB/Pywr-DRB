@@ -5,8 +5,8 @@ import statsmodels.api as sm
 from pygeohydro import NWIS
 import datetime
 
-from utils.constants import cfs_to_mgd, cms_to_mgd
-from utils.directories import input_dir, fig_dir
+from pywrdrb.utils.constants import cfs_to_mgd, cms_to_mgd
+from pywrdrb.utils.directories import input_dir, fig_dir
 
 
 def download_USGS_data_NYC_NJ_diversions(dates = ('1952-01-01', '2022-12-31')):

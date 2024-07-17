@@ -5,8 +5,8 @@ Structures it into a pd.DataFrame-friendly format, and saves it to csv files in 
 
 import pandas as pd
 
-from pre.prep_input_data_functions import read_modeled_estimates
-from utils.directories import input_dir
+from pywrdrb.pre.prep_input_data_functions import read_modeled_estimates
+from pywrdrb.utils.directories import input_dir
 
 def combine_nwmv21_datasets():
     """Combines three different NWMv2.1 outputs into a single DataFrame, and exports it to a csv file.
