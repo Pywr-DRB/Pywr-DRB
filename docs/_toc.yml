@@ -31,6 +31,10 @@ parts:
         - title: Model Parameters
           file: examples/Tutorial 03 Model Parameters.ipynb
     
+    # ============== Results sets options ====
+    - file: results_set_options.md
+
+
 
     # =============== Model & DRB description =================
     # - title: Delaware River Basin Overview
