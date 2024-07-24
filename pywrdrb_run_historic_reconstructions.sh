@@ -2,16 +2,27 @@
 #SBATCH --job-name=SimDRB
 #SBATCH --output=SimDRB.out
 #SBATCH --error=SimDRB.err
-#SBATCH --nodes=6
-#SBATCH --ntasks-per-node=30
+#SBATCH --nodes=8
+#SBATCH --ntasks-per-node=33
 
-module load python
+
+module load python/3.11.5
 source venv/bin/activate
+export PYTHONPATH=$(dirname "$0")
 
-# Execute the Python script
-# echo Prepping Obs-PUB reconstruction simulation input data...
-mpirun -np $(($SLURM_NTASKS_PER_NODE * $SLURM_NNODES)) python -u ./pywrdrb/prep_input_data_ensemble.py
+# Number of processors
+np=$(($SLURM_NTASKS_PER_NODE * $SLURM_NNODES))
 
+ensemble_datasets=(
+	'obs_pub_nhmv10_BC_ObsScaled_ensemble'
+)
+
+### Prepare input data
+for inflow_type in "${ensemble_datasets[@]}"
+do
+	echo Prepping simulation input data for $inflow_type...
+	mpirun -np $np python3 -u ./pywrdrb/prep_input_data_ensemble.py  $inflow_type
+done
 
 # echo Running Obs-PUB reconstruction QPPQ aggregate simulations...
 # for inflow_type in obs_pub_nhmv10_ObsScaled obs_pub_nwmv21_ObsScaled
@@ -22,17 +33,17 @@ mpirun -np $(($SLURM_NTASKS_PER_NODE * $SLURM_NNODES)) python -u ./pywrdrb/prep_
 
 
 echo Running Obs-PUB reconstruction ensemble simulations...
-# for inflow_type in obs_pub_nhmv10_ObsScaled_ensemble obs_pub_nwmv21_ObsScaled_ensemble
-# do
-# 	echo Running simulation with $inflow_type ...
-# 	mpirun -np $(($SLURM_NTASKS_PER_NODE * $SLURM_NNODES)) python -W ignore ./pywrdrb/run_historic_simulation.py $inflow_type 'True'
+for inflow_type in "${ensemble_datasets[@]}"
+do
+	echo Running simulation with $inflow_type ...
+	mpirun -np $np python3 -W ignore ./pywrdrb/run_historic_simulation.py $inflow_type 'True'
 
-#     echo Combining batched output files...
-#     python ./pywrdrb/combine_ensemble_results.py $inflow_type 'True'
-# done
+    echo Combining batched output files...
+    python3 ./pywrdrb/combine_ensemble_results.py $inflow_type 'True'
+done
 
 # Make figures
-echo Making figures...
+# echo Making figures...
 # time python ./pywrdrb/make_figs_historic_reconstruction_paper.py
 
-echo Done!
+echo DONE!

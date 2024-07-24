@@ -6,12 +6,9 @@ import warnings
 
 from utils.directories import output_dir, model_data_dir
 from utils.hdf5 import combine_batched_hdf5_outputs
+from utils.options import inflow_type_options
 
 ### specify inflow type from command line args
-inflow_type_options = ['obs_pub', 'nhmv10', 'nwmv21', 'WEAP_29June2023_gridmet',
-                       'obs_pub_nhmv10_ObsScaled', 'obs_pub_nwmv21_ObsScaled',
-                       'obs_pub_nhmv10_ObsScaled_ensemble', 'obs_pub_nwmv21_ObsScaled_ensemble',
-                       'syn_obs_pub_nhmv10_ObsScaled_ensemble', 'syn_obs_pub_nwmv21_ObsScaled_ensemble']
 use_mpi_options = [None,'','True','False']
 
 inflow_type = sys.argv[1]

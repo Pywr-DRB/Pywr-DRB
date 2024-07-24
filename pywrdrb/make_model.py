@@ -10,8 +10,8 @@ from pywrdrb.utils.directories import input_dir, model_data_dir
 from pywrdrb.utils.lists import majorflow_list, reservoir_list, reservoir_list_nyc, modified_starfit_reservoir_list
 from pywrdrb.utils.lists import drbc_lower_basin_reservoirs
 from pywrdrb.utils.constants import cfs_to_mgd
-from pywrdrb.pywr_drb_node_data import upstream_nodes_dict, immediate_downstream_nodes_dict, downstream_node_lags
-from pywrdrb.parameters.lower_basin_ffmp import lag_days_from_Trenton
+from pywrdrb.pywr_drb_node_data import immediate_downstream_nodes_dict, downstream_node_lags
+
 
 ### model options/parameters
 flow_prediction_mode = 'regression_disagg'   ### 'regression_agg', 'regression_disagg', 'perfect_foresight', 'same_day', 'moving_average'
@@ -333,8 +333,11 @@ def add_major_node(model, name, node_type, inflow_type,
 ### drb_make_model()
 ##########################################################################################
 
-def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNjDeliveries=True,
-                   inflow_ensemble_indices = None):
+def make_model(inflow_type, model_filename, start_date, end_date, 
+               use_hist_NycNjDeliveries=True,
+               inflow_ensemble_indices = None,
+               predict_temperature=False,
+               predict_salinity=False):
     """
     Creates the JSON file used by Pywr to define the model, including all nodes, edges, and parameters.
 
@@ -344,6 +347,7 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
         end_date (str): End date of the model.
         use_hist_NycNjDeliveries (bool): Flag indicating whether to use historical NYC and NJ deliveries.
         inflow_ensemble_indices (list): List of inflow ensemble indices.
+        predict_temperature (bool): If True, use LSTM model to predict temperature. Must have BMI repository set up. Default is False.
     Returns:
         dict: Model JSON representation.
     """
@@ -1160,13 +1164,37 @@ def make_model(inflow_type, model_filename, start_date, end_date, use_hist_NycNj
             'type': 'constant',
             'value': get_reservoir_max_diversion_NYC(reservoir)
         }
-        ### Target diversion from each NYC reservoir to satisfy NYC demand, accounting for historical max diversion constraints
+        ### Target diversion from each NYC reservoir to satisfy NYC demand, 
+        ### accounting for historical max diversion constraints
         ### and attempting to balance storages across 3 NYC reservoirs
         ### Uses custom Pywr parameter.
         model['parameters'][f'max_flow_delivery_nyc_{reservoir}'] = {
             'type': 'VolBalanceNYCDemand',
             'node': f'reservoir_{reservoir}'
         }
+
+    
+    ### Temperature prediction at Lordville using LSTM model
+    if predict_temperature:
+        try:
+            from pywrdrb.parameters.temperature import TemperaturePrediction
+
+            model['parameters']['predicted_mu_max_of_temperature'] = {
+                "type": "TemperaturePrediction"
+            }
+        except Exception as e:
+            print(f"Temperature prediction model not available. Error: {e}")
+        
+    ### Salinity prediction at Trenton
+    if predict_salinity:
+        try:
+            from pywrdrb.parameters.salinity import SalinityPrediction
+
+            model['parameters']['predicted_salinity'] = {
+                "type": "SalinityPrediction"
+            }
+        except Exception as e:
+            print(f"Salinity prediction model not available. Error: {e}")
 
     #######################################################################
     ### save full model as json

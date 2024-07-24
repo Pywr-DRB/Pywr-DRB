@@ -12,8 +12,6 @@ from pywrdrb.utils.directories import input_dir, fig_dir, output_dir
 
 
 from pywrdrb.plotting.styles import model_colors_historic_reconstruction
-# from pywrdrb.plotting.ensemble_plots import plot_ensemble_nyc_storage 
-# from pywrdrb.plotting.ensemble_plots import plot_ensemble_nyc_storage_and_deficit
 from pywrdrb.plotting.ensemble_plots import plot_NYC_release_components_combined
 from pywrdrb.utils.lists import reservoir_list_nyc
 
@@ -39,19 +37,6 @@ date_ranges = {'1960s_drought' : (start_1960s_drought, end_1960s_drought),
                'post_ffmp' : (start_ffmp, end_ffmp),
                'full' : (start_date, end_date)}
 
-model_labels = {
-    'obs': 'Observed',
-    'nhmv10' : 'NHMv1.0',
-    'nwmv21' : 'NWMv2.1',
-    'obs_pub_nhmv10' : 'PUB-NHM',
-    'obs_pub_nhmv10_ensemble' : 'PUB-NHM Ensemble',
-    'obs_pub_nwmv21' : 'PUB-NWM',
-    'obs_pub_nwmv21_ensemble':'PUB-NWM Ensemble',
-    'obs_pub_nhmv10_ObsScaled' : 'PUB-NHM',
-    'obs_pub_nhmv10_ObsScaled_ensemble' : 'PUB-NHM Ensemble',
-    'obs_pub_nwmv21_ObsScaled' : 'PUB-NWM',
-    'obs_pub_nwmv21_ObsScaled_ensemble':'PUB-NWM Ensemble'
-    }
 
 
 ## Execution - Generate all figures
@@ -61,13 +46,23 @@ if __name__ == "__main__":
     start_date = '1945-01-01'
     end_date = '2022-12-31'
         
+    # model_list = ['obs_pub_nhmv10_ObsScaled', 
+    #               'obs_pub_nwmv21_ObsScaled',
+    #               'obs_pub_nhmv10_ObsScaled_ensemble', 
+    #               'obs_pub_nwmv21_ObsScaled_ensemble']
+        
+    # ensemble_models = ['obs_pub_nhmv10_ObsScaled_ensemble', 
+    #                    'obs_pub_nwmv21_ObsScaled_ensemble']
+    
     model_list = ['obs_pub_nhmv10_ObsScaled', 
                   'obs_pub_nwmv21_ObsScaled',
                   'obs_pub_nhmv10_ObsScaled_ensemble', 
                   'obs_pub_nwmv21_ObsScaled_ensemble']
-        
+    
     ensemble_models = ['obs_pub_nhmv10_ObsScaled_ensemble', 
                        'obs_pub_nwmv21_ObsScaled_ensemble']
+                    #    'obs_pub_nhmv10_BC_ObsScaled_ensemble', 
+                    #    'obs_pub_nwmv21_BC_ObsScaled_ensemble']
     
     pywr_ensemble_models = ['pywr_' + m for m in ensemble_models]
     pywr_models = [f'pywr_{m}' for m in model_list]
@@ -118,7 +113,7 @@ if __name__ == "__main__":
                                                                     start_date=start_date, end_date=end_date)
     
     # Get datetime index
-    datetime_index= major_flows['pywr_obs_pub_nhmv10_ObsScaled'].index
+    datetime_index= major_flows[pywr_models[0]][0].index
 
     ### Load base (non-pywr) models
     print('Loading "base" models, pre-pywrdrb data...')
@@ -133,11 +128,8 @@ if __name__ == "__main__":
     
     ### Get aggregate NYC data
     for model in pywr_models:
-        if 'ensemble' in model:
-            for real in reservoir_releases[model].keys():
-                reservoir_downstream_gages[model][real]['NYCAgg'] = reservoir_downstream_gages[model][real][reservoir_list_nyc].sum(axis=1)
-        else:
-            reservoir_downstream_gages[model]['NYCAgg'] = reservoir_downstream_gages[model][reservoir_list_nyc].sum(axis=1)
+        for real in reservoir_releases[model].keys():
+            reservoir_downstream_gages[model][real]['NYCAgg'] = reservoir_downstream_gages[model][real][reservoir_list_nyc].sum(axis=1)
             
     for model in base_models:
         reservoir_downstream_gages[model]['NYCAgg'] = reservoir_downstream_gages[model][reservoir_list_nyc].sum(axis=1)
@@ -149,7 +141,7 @@ if __name__ == "__main__":
 
     ### NYC reservoir operations and downstream flow contributions
     for model in pywr_ensemble_models:
-        for node in ['delTrenton', 'delMontague']:
+        for node in ['delMontague', 'delTrenton']:
             for dates in date_ranges.keys():
                 if dates == 'full':
                     continue
@@ -159,7 +151,7 @@ if __name__ == "__main__":
                 start = date_ranges[dates][0]
                 end = date_ranges[dates][1]
                 plot_NYC_release_components_combined(storages, 
-                                     ffmp_level_boundaries=ffmp_levels['pywr_obs_pub_nwmv21_ObsScaled'],
+                                     ffmp_level_boundaries=ffmp_levels[pywr_models[0]][0],
                                      model = model, 
                                      node = node,
                                      nyc_release_components=nyc_releases,
@@ -177,7 +169,7 @@ if __name__ == "__main__":
                                      percentile_cmap=True,
                                      contribution_fill_alpha=0.9,
                                      plot_flow_target=True,
-                                     use_log=False,
+                                     use_log=True,
                                      q_lower_bound=0.01, 
                                      q_upper_bound=0.99,
                                      smoothing_window=7,
