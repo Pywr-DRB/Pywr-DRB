@@ -223,19 +223,22 @@ model_hatch_styles = {
 }
 
 model_colors_historic_reconstruction = {
-    "obs": "black",
-    "nhmv10": "#925736",
-    "nwmv21": "#385723",
-    "obs_pub_nhmv10": "#F27300",
-    "obs_pub_nhmv10_ObsScaled": "#F27300",
-    "obs_pub_nhmv10_ensemble": "#F9B572",
-    "obs_pub_nhmv10_ObsScaled_ensemble": "#F9B572",
-    "obs_pub_nhmv10_ObsScaled_ensemble": "#F9B572",
-    "obs_pub_nwmv21": "#0174BE",
-    "obs_pub_nwmv21_ensemble": "#9CD2F6",
-    "obs_pub_nwmv21_ObsScaled": "#0174BE",
-    "obs_pub_nwmv21_ObsScaled_ensemble": "#9CD2F6",
-}
+    'obs': 'black',
+    'nhmv10' : '#925736', 
+    'nwmv21' : '#385723',
+    'obs_pub_nhmv10' : '#F27300',
+    'obs_pub_nhmv10_ObsScaled': '#F27300', 
+    'obs_pub_nhmv10_BC_ObsScaled': '#F27300', 
+    'obs_pub_nhmv10_ensemble' : '#F9B572', 
+    'obs_pub_nhmv10_ObsScaled_ensemble' : '#F9B572',
+    'obs_pub_nhmv10_BC_ObsScaled_ensemble' : '#F9B572',  
+    'obs_pub_nwmv21' : '#0174BE', 
+    'obs_pub_nwmv21_ensemble': '#9CD2F6',
+    'obs_pub_nwmv21_ObsScaled' : '#0174BE', 
+    'obs_pub_nwmv21_BC_ObsScaled' : '#0174BE', 
+    'obs_pub_nwmv21_ObsScaled_ensemble': '#9CD2F6',
+    'obs_pub_nwmv21_BC_ObsScaled_ensemble': '#9CD2F6'
+    }
 
 for m in list(model_colors_historic_reconstruction.keys()):
     model_colors_historic_reconstruction[

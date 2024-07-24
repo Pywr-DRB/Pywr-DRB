@@ -29,10 +29,9 @@ from pre.extrapolate_NYC_NJ_diversions import (
     download_USGS_data_NYC_NJ_diversions,
 )
 from pre.predict_inflows_diversions import predict_inflows_diversions
+from utils.options import inflow_type_options
 
 from mpi4py import MPI
-
-from utils.options import inflow_type_options
 
 ### specify inflow type from command line args
 inflow_type = sys.argv[1]
