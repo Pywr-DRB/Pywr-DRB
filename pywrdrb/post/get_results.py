@@ -251,6 +251,23 @@ def get_base_results(input_dir,
             if c not in majorflow_list:
                 gage_flow = gage_flow.drop(c, axis=1)
 
+    elif results_set == 'res_storage':
+        observed_storage_path = f'{input_dir}/historic_reservoir_ops/combined_volume_data.csv'
+        try:
+            print(f'Loading observed storage data from {observed_storage_path}')
+            observed_storage = pd.read_csv(observed_storage_path)
+            observed_storage.index = pd.DatetimeIndex(observed_storage['datetime'])
+            observed_storage = observed_storage.drop('datetime', axis=1)
+            return observed_storage, datetime_index
+        except FileNotFoundError:
+            print(f'Observed storage CSV file not found at {observed_storage_path}.')
+            return None, datetime_index
+        except KeyError:
+            print('The observed storage data does not contain the expected "datetime" column.')
+            return None, datetime_index
+    else:
+        raise ValueError('Invalid results_set specified for get_base_results().')
+
     if units is not None:
         if units == 'MG':
             pass
