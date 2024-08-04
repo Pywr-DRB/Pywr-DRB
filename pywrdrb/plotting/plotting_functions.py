@@ -39,7 +39,7 @@ from pywrdrb.plotting.styles import base_model_colors, model_hatch_styles, paire
     node_label_dict, node_label_full_dict, model_label_dict, month_dict, model_linestyle_dict
 
 
-dpi=400
+dpi=450
 
 
 ### function to return subset of dates for timeseries data
@@ -109,7 +109,7 @@ def plot_3part_flows_hier(reservoir_downstream_gages, major_flows, nodes, models
                     ax.plot(obs, label=model_label_dict['obs'], color=colordict['obs'], zorder=2, alpha=alpha_lines)
                 ax.plot(modeled, label=model_label_dict[m], color=colordict[m], zorder=1, alpha=alpha_lines)
 
-                ax.set_ylabel(f'Daily Flow ({units_daily})', fontsize=fontsize)
+                ax.set_ylabel(f'{node_label_full_dict[node]}\nDaily Flow ({units_daily})', fontsize=fontsize)
 
                 if uselog:
                     ax.semilogy()
@@ -736,7 +736,8 @@ def plot_combined_nyc_storage_vs_diversion(storages, ffmp_level_boundaries, ibt_
     ### also plot monthly rolling average
     dems_rolling = dems.rolling(30, center=True).mean()
     ax.plot(dems_rolling, color='0.6')
-    ax.set_ylabel(f'Demand\n({units_daily})', fontsize=fontsize)
+    customer_label = "NYC" if customer == "nyc" else "NJ"
+    ax.set_ylabel(f'{customer_label}\nDemand\n({units_daily})', fontsize=fontsize)
     ax.set_xlim(axs[0].get_xlim())
     ax.set_xticks(ax.get_xticks(), ['']*len(ax.get_xticks()))
     if units == 'MCM':
@@ -775,7 +776,7 @@ def plot_combined_nyc_storage_vs_diversion(storages, ffmp_level_boundaries, ibt_
         divs_rolling = divs.rolling(30, center=True).mean()
         ax.plot(divs_rolling, color='0.6', label='30-Day Avg.')
 
-        ax.set_ylabel('Demand\nSatisfied (%)', fontsize=fontsize)
+        ax.set_ylabel(f'{model_label_dict[m]}\nDemand\nSatisfied (%)', fontsize=fontsize)
         if i == len(models)-1:
             ax.legend(frameon=False, loc='upper center', bbox_to_anchor=(0.5, -0.3), fontsize=fontsize, ncols=3)
 
@@ -910,7 +911,7 @@ def plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major
         yticks = [0, 50, 100]
         ax.set_ylim(ylims)
         ax.set_yticks(yticks)
-        ax.set_ylabel('Normal Target\nSatisfied (%)', fontsize=fontsize, color=leftlinecolor)
+        ax.set_ylabel(f'{model_label_dict[base_model]}\nNormal Target\nSatisfied (%)', fontsize=fontsize, color=leftlinecolor)
         ax.set_yticks(ax.get_yticks(), ax.get_yticklabels(), fontsize=fontsize, color=leftlinecolor)
         ax.tick_params(axis='y', colors=leftlinecolor)
         ax.set_ylim(ylims)
@@ -938,7 +939,7 @@ def plot_combined_nyc_storage_vs_minflows(storages, ffmp_level_boundaries, major
         yticks = [0, 50, 100]
         ax.set_ylim(ylims)
         ax.set_yticks(yticks, yticks, fontsize=fontsize, color=leftlinecolor)
-        ax.set_ylabel('Normal Target\nSatisfied (%)', fontsize=fontsize, color=leftlinecolor)
+        ax.set_ylabel(f'{model_label_dict[pywr_model]}\nNormal Target\nSatisfied (%)', fontsize=fontsize, color=leftlinecolor)
         ax.tick_params(axis='y', colors=leftlinecolor)
         ax.set_ylim(ylims)
 
@@ -1346,7 +1347,7 @@ def plot_NYC_release_components_combined(storages, ffmp_level_boundaries, nyc_re
     ax.fill_between(x, y2, y3, label='NYC FFMP Downstream', color=colors[3], alpha=alpha, lw=0)
     ax.fill_between(x, y1, y2, label='Uncontrolled', color=colors[4], alpha=alpha, lw=0)
 
-    ax2.set_ylabel(f'Total Flow ({units_daily})', fontsize=fontsize)
+    ax2.set_ylabel(f'NYC Total Flow ({units_daily})', fontsize=fontsize)
     ax.set_ylabel('Flow Contribution (%)', fontsize=fontsize)
 
     ax.set_xticks(ax.get_xticks(), ['']*len(ax.get_xticks()), fontsize=fontsize)
@@ -1437,7 +1438,11 @@ def plot_NYC_release_components_combined(storages, ffmp_level_boundaries, nyc_re
         else:
             ax2.set_ylim([0, ax2.get_ylim()[1]])
 
-        ax2.set_ylabel(f'Total Flow ({units_daily})', fontsize=fontsize)
+        if node == "delMontague":
+            ax2.set_ylabel(f'Montague Flow\n({units_daily})', fontsize=fontsize)
+        else:
+            ax2.set_ylabel(f'Trenton Flow\n({units_daily})', fontsize=fontsize)
+        
         ax.set_ylabel('Flow Contribution (%)', fontsize=fontsize)
 
 
