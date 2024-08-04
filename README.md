@@ -4,7 +4,7 @@ Pywr-DRB is an open-source Python model for exploring the role of reservoir oper
 
 For more details, see the following paper:
 
-Hamilton, A.L., Amestoy, T.J., & P.M. Reed. (2024). Pywr-DRB: An open-source Python model for water availability and drought risk assessment in the Delaware River Basin. *(In Review)*.
+Hamilton, A.L., Amestoy, T.J., & P.M. Reed. (2024). Pywr-DRB: An open-source Python model for water availability and drought risk assessment in the Delaware River Basin. *(In Revision) Environmental Modelling and Software*.
 
 ## Setup
 
