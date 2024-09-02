@@ -37,7 +37,7 @@ The NWM is a forecasting system developed by the National Oceanic and Atmospheri
 The NHM is a hydrological model developed by the US Geological Survey (USGS) that simulates water movement and availability across the United States.
 
 ### [Water Evaluation and Planning System (WEAP)](https://www.weap21.org/) Streamflows
-Streamflows throughout the basin are generated within a [WEAP model](https://www.weap21.org/index.asp) model of the basin. These streamflows have been gathered from the model and are available as comparative inputs.  
+Streamflows throughout the basin are generated within a [WEAP model](https://www.weap21.org/index.asp) model of the basin. These streamflows have been gathered from the model and are available as comparative inputs.
 
 ## Data Availability
 

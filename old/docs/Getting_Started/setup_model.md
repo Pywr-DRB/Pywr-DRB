@@ -27,7 +27,7 @@ DRB_water_management/
 ├── drb_make_figs_diagnostics_paper.py
 ├── drb_make_model.py
 ├── drb_run_sim.py
-├── drb_run_all.sh        
+├── drb_run_all.sh
 ├── README.md
 └── requirements.txt
 ```

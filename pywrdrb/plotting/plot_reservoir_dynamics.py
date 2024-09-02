@@ -1,6 +1,6 @@
 #############################################################################
 
-# Marilyn Simth Summer 2024 Plot reservoir dynamics 
+# Marilyn Simth Summer 2024 Plot reservoir dynamics
 # This script is used to plot the inflow, storage, and reservoir releases for a specific node using major data.
 
 #############################################################################
@@ -9,69 +9,86 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from pywrdrb.utils.directories import model_data_dir
-from pywrdrb.plotting.styles import base_model_colors, paired_model_colors, scatter_model_markers
+from pywrdrb.plotting.styles import (
+    base_model_colors,
+    paired_model_colors,
+    scatter_model_markers,
+)
 import matplotlib.ticker as ticker
 
+
 # Function to calculate sin and cos components
-def sinNpi(day, N, first_month='Oct'):
-    if first_month == 'Oct':
+def sinNpi(day, N, first_month="Oct"):
+    if first_month == "Oct":
         return np.sin(N * np.pi * (day) / 52)
-    elif first_month == 'Jan':
+    elif first_month == "Jan":
         return np.sin(N * np.pi * (day + 39) / 52)
 
-def cosNpi(day, N, first_month='Oct'):
-    if first_month == 'Oct':
+
+def cosNpi(day, N, first_month="Oct"):
+    if first_month == "Oct":
         return np.cos(N * np.pi * (day) / 52)
-    elif first_month == 'Jan':
+    elif first_month == "Jan":
         return np.cos(N * np.pi * (day + 39) / 52)
 
+
 # Function to calculate NOR upper bound
-def calc_NOR_hi(data, times, timestep='daily', first_month='Oct'):
-    if timestep == 'daily':
+def calc_NOR_hi(data, times, timestep="daily", first_month="Oct"):
+    if timestep == "daily":
         times = times / 7
-    
+
     NOR_hi = []
     for time in times:
-        NOR_hi.append(data['NORhi_mu'] + data['NORhi_alpha'] * sinNpi(time, 2, first_month=first_month) +
-                      data['NORhi_beta'] * cosNpi(time, 2, first_month=first_month))
-    
+        NOR_hi.append(
+            data["NORhi_mu"]
+            + data["NORhi_alpha"] * sinNpi(time, 2, first_month=first_month)
+            + data["NORhi_beta"] * cosNpi(time, 2, first_month=first_month)
+        )
+
     NOR_hi = np.array(NOR_hi)
-    NOR_hi = np.where(NOR_hi < data['NORhi_min'], data['NORhi_min'], NOR_hi)
-    NOR_hi = np.where(NOR_hi > data['NORhi_max'], data['NORhi_max'], NOR_hi)
-    
+    NOR_hi = np.where(NOR_hi < data["NORhi_min"], data["NORhi_min"], NOR_hi)
+    NOR_hi = np.where(NOR_hi > data["NORhi_max"], data["NORhi_max"], NOR_hi)
+
     return NOR_hi / 100
 
+
 # Function to calculate NOR lower bound
-def calc_NOR_lo(data, times, timestep='daily', first_month='Oct'):
-    if timestep == 'daily':
+def calc_NOR_lo(data, times, timestep="daily", first_month="Oct"):
+    if timestep == "daily":
         times = times / 7
-    
+
     NOR_lo = []
     for time in times:
-        NOR_lo.append(data['NORlo_mu'] + data['NORlo_alpha'] * sinNpi(time, 2, first_month=first_month) +
-                      data['NORlo_beta'] * cosNpi(time, 2, first_month=first_month))
-    
+        NOR_lo.append(
+            data["NORlo_mu"]
+            + data["NORlo_alpha"] * sinNpi(time, 2, first_month=first_month)
+            + data["NORlo_beta"] * cosNpi(time, 2, first_month=first_month)
+        )
+
     NOR_lo = np.array(NOR_lo)
-    NOR_lo = np.where(NOR_lo < data['NORlo_min'], data['NORlo_min'], NOR_lo)
-    NOR_lo = np.where(NOR_lo > data['NORlo_max'], data['NORlo_max'], NOR_lo)
-    
+    NOR_lo = np.where(NOR_lo < data["NORlo_min"], data["NORlo_min"], NOR_lo)
+    NOR_lo = np.where(NOR_lo > data["NORlo_max"], data["NORlo_max"], NOR_lo)
+
     return NOR_lo / 100
+
 
 # Function to get reservoir capacity from ISTARF data
 def get_reservoir_capacity(reservoir, modified=False):
-    istarf = pd.read_csv(f'{model_data_dir}drb_model_istarf_conus.csv', index_col=0)
+    istarf = pd.read_csv(f"{model_data_dir}drb_model_istarf_conus.csv", index_col=0)
     if modified:
-        return float(istarf.loc[f'modified_{reservoir}', 'Adjusted_CAP_MG'])
+        return float(istarf.loc[f"modified_{reservoir}", "Adjusted_CAP_MG"])
     else:
-        return float(istarf.loc[reservoir, 'Adjusted_CAP_MG'])
+        return float(istarf.loc[reservoir, "Adjusted_CAP_MG"])
+
 
 # Function to retrieve Starfit parameters for a reservoir
 def get_starfit_params(reservoir, modified=False):
-    istarf = pd.read_csv(f'{model_data_dir}drb_model_istarf_conus.csv', index_col=0)
+    istarf = pd.read_csv(f"{model_data_dir}drb_model_istarf_conus.csv", index_col=0)
     if modified:
-        return istarf.loc[f'modified_{reservoir}']
+        return istarf.loc[f"modified_{reservoir}"]
     else:
         return istarf.loc[reservoir]
+
 
 # Function to subset time series data
 def subset_timeseries(data, start_date, end_date, end_inclusive=False):
@@ -82,21 +99,46 @@ def subset_timeseries(data, start_date, end_date, end_inclusive=False):
         if end_inclusive:
             data = data.loc[:end_date]
         else:
-            data = data.loc[:end_date - pd.Timedelta(days=1)]  # Subtract one day for non-inclusive end
+            data = data.loc[
+                : end_date - pd.Timedelta(days=1)
+            ]  # Subtract one day for non-inclusive end
     return data
 
-#Function to retrieve observed storage data for a specifc node 
+
+# Function to retrieve observed storage data for a specifc node
 def get_observed_storage(node, start_date=None, end_date=None, end_inclusive=False):
-    observed_storage = pd.read_csv(f'{input_dir}/historic_reservoir_ops/observed_storage_data.csv', index_col=0, parse_dates=True)
-    observed_storage = observed_storage.loc[:, observed_storage.columns.str.contains(node)]
-    observed_storage = subset_timeseries(observed_storage, start_date, end_date, end_inclusive)
+    observed_storage = pd.read_csv(
+        f"{input_dir}/historic_reservoir_ops/observed_storage_data.csv",
+        index_col=0,
+        parse_dates=True,
+    )
+    observed_storage = observed_storage.loc[
+        :, observed_storage.columns.str.contains(node)
+    ]
+    observed_storage = subset_timeseries(
+        observed_storage, start_date, end_date, end_inclusive
+    )
     return observed_storage
 
+
 # Main function to plot reservoir dynamics
-def plot_reservoir_dynamics(inflows, storage, releases, node, model,
-                            start_date=None, end_date=None, end_inclusive=False,
-                            colordict=None, save_fig=False, fig_dir=None,
-                            log_scale=False, plot_percent=True, plot_NOR=True, plot_observed=False):
+def plot_reservoir_dynamics(
+    inflows,
+    storage,
+    releases,
+    node,
+    model,
+    start_date=None,
+    end_date=None,
+    end_inclusive=False,
+    colordict=None,
+    save_fig=False,
+    fig_dir=None,
+    log_scale=False,
+    plot_percent=True,
+    plot_NOR=True,
+    plot_observed=False,
+):
     """
     Plots the inflow, storage, and reservoir releases for a specific node using major data.
 
@@ -123,14 +165,14 @@ def plot_reservoir_dynamics(inflows, storage, releases, node, model,
 
     # Default colors if not provided
     if colordict is None:
-        colordict = {model: 'blue'}
+        colordict = {model: "blue"}
 
     # Function to get the correct data
     def get_fig_data(data_dict, model, node):
         if node in data_dict[model][0]:
             data = subset_timeseries(data_dict[model][0][node], start_date, end_date)
         else:
-            print(f'get_fig_data() not set for node {node}')
+            print(f"get_fig_data() not set for node {node}")
             data = None
         return data
 
@@ -150,14 +192,26 @@ def plot_reservoir_dynamics(inflows, storage, releases, node, model,
     # Plot inflows
     if inflow_data is not None:
         if log_scale:  # Always allow log scale option for inflows
-            ax1.plot(inflow_data.index, np.log(inflow_data.values), color=colordict[model], label='Log Inflow')
-            ax1.set_yscale('log')
-            ax1.yaxis.set_major_formatter(ticker.FuncFormatter(lambda y, _: '{:.0f}'.format(y)))
-            ax1.set_ylabel('Log Inflow (log MG)')
+            ax1.plot(
+                inflow_data.index,
+                np.log(inflow_data.values),
+                color=colordict[model],
+                label="Log Inflow",
+            )
+            ax1.set_yscale("log")
+            ax1.yaxis.set_major_formatter(
+                ticker.FuncFormatter(lambda y, _: "{:.0f}".format(y))
+            )
+            ax1.set_ylabel("Log Inflow (log MG)")
         else:
-            ax1.plot(inflow_data.index, inflow_data.values, color=colordict[model], label='Inflow')
-            ax1.set_ylabel('Inflow (MG)')
-        ax1.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+            ax1.plot(
+                inflow_data.index,
+                inflow_data.values,
+                color=colordict[model],
+                label="Inflow",
+            )
+            ax1.set_ylabel("Inflow (MG)")
+        ax1.legend(loc="center left", bbox_to_anchor=(1, 0.5))
         ax1.grid(True)
     else:
         print(f"Cannot make plot for node: {node} - Inflow Data not available.")
@@ -167,7 +221,12 @@ def plot_reservoir_dynamics(inflows, storage, releases, node, model,
         if plot_percent:
             storage_capacity = get_reservoir_capacity(node)
             percent_capacity = storage_data.values / storage_capacity * 100
-            ax2.plot(storage_data.index, percent_capacity, color=colordict[model], label='Percent Capacity')
+            ax2.plot(
+                storage_data.index,
+                percent_capacity,
+                color=colordict[model],
+                label="Percent Capacity",
+            )
 
             if plot_NOR:
                 times = storage_data.index.day_of_year
@@ -175,58 +234,108 @@ def plot_reservoir_dynamics(inflows, storage, releases, node, model,
                 NOR_hi = calc_NOR_hi(starfit_data, times)
                 NOR_lo = calc_NOR_lo(starfit_data, times)
 
-                ax2.fill_between(storage_data.index, NOR_lo * 100, NOR_hi * 100, color='yellow', alpha=0.3, label='NOR Range')
+                ax2.fill_between(
+                    storage_data.index,
+                    NOR_lo * 100,
+                    NOR_hi * 100,
+                    color="yellow",
+                    alpha=0.3,
+                    label="NOR Range",
+                )
 
-            ax2.set_ylabel('Percent Capacity (%)')
+            ax2.set_ylabel("Percent Capacity (%)")
 
-        elif log_scale and not plot_NOR:  # Log option only if plot_percent is false and plot_NOR is false
-            ax2.plot(storage_data.index, np.log(storage_data.values), color=colordict[model], label='Log Storage')
-            ax2.set_ylabel('Log Storage (log MG)')
+        elif (
+            log_scale and not plot_NOR
+        ):  # Log option only if plot_percent is false and plot_NOR is false
+            ax2.plot(
+                storage_data.index,
+                np.log(storage_data.values),
+                color=colordict[model],
+                label="Log Storage",
+            )
+            ax2.set_ylabel("Log Storage (log MG)")
         else:  # Actual storage plot
-            ax2.plot(storage_data.index, storage_data.values, color=colordict[model], label='Storage')
-            ax2.set_ylabel('Storage (MG)')
+            ax2.plot(
+                storage_data.index,
+                storage_data.values,
+                color=colordict[model],
+                label="Storage",
+            )
+            ax2.set_ylabel("Storage (MG)")
 
-        ax2.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+        ax2.legend(loc="center left", bbox_to_anchor=(1, 0.5))
         ax2.grid(True)
     else:
         print(f"Cannot make plot for node: {node} - Storage Data not available.")
-        
+
     # Plot observed storage if available
     if plot_observed:
-        #get observed storage data
+        # get observed storage data
         print(f"Loading data: {node}.")
         observed_storage = get_observed_storage(node, start_date, end_date)
-        #if observed_storage is not None:
+        # if observed_storage is not None:
         if plot_percent:
             storage_capacity = get_reservoir_capacity(node)
             percent_capacity = observed_storage.values / storage_capacity * 100
-            ax2.plot(observed_storage.index, percent_capacity, color='grey', linestyle='--', label='Observed Percent Capacity')
-            ax2.set_ylabel('Percent Capacity (%)')
-        elif log_scale and not plot_NOR:  # Log option only if plot_percent is false and plot_NOR is false
-            ax2.plot(observed_storage.index, np.log(observed_storage.values), color='grey', linestyle='--', label='Observed Log Storage')
-            ax2.set_ylabel('Log Storage (log MG)')
+            ax2.plot(
+                observed_storage.index,
+                percent_capacity,
+                color="grey",
+                linestyle="--",
+                label="Observed Percent Capacity",
+            )
+            ax2.set_ylabel("Percent Capacity (%)")
+        elif (
+            log_scale and not plot_NOR
+        ):  # Log option only if plot_percent is false and plot_NOR is false
+            ax2.plot(
+                observed_storage.index,
+                np.log(observed_storage.values),
+                color="grey",
+                linestyle="--",
+                label="Observed Log Storage",
+            )
+            ax2.set_ylabel("Log Storage (log MG)")
         else:  # Actual observed storage plot
-            ax2.plot(observed_storage.index, observed_storage.values, color='grey', linestyle='--', label='Observed Storage')
-            ax2.set_ylabel('Storage (MG)')
-    
-        ax2.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+            ax2.plot(
+                observed_storage.index,
+                observed_storage.values,
+                color="grey",
+                linestyle="--",
+                label="Observed Storage",
+            )
+            ax2.set_ylabel("Storage (MG)")
+
+        ax2.legend(loc="center left", bbox_to_anchor=(1, 0.5))
         ax2.grid(True)
     else:
         print(f"Observed Storage data not available for node: {node}.")
 
-
     # Plot releases
     if release_data is not None:
         if log_scale:  # Always allow log scale option for releases
-            ax3.plot(release_data.index, np.log(release_data.values), color=colordict[model], label='Log Releases')
-            ax3.set_yscale('log')
-            ax3.yaxis.set_major_formatter(ticker.FuncFormatter(lambda y, _: '{:.0f}'.format(y)))
-            ax3.set_ylabel('Log Releases (log MG)')
+            ax3.plot(
+                release_data.index,
+                np.log(release_data.values),
+                color=colordict[model],
+                label="Log Releases",
+            )
+            ax3.set_yscale("log")
+            ax3.yaxis.set_major_formatter(
+                ticker.FuncFormatter(lambda y, _: "{:.0f}".format(y))
+            )
+            ax3.set_ylabel("Log Releases (log MG)")
         else:
-            ax3.plot(release_data.index, release_data.values, color=colordict[model], label='Releases')
-            ax3.set_ylabel('Releases (MCM)')
-        ax3.set_xlabel('Date')
-        ax3.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+            ax3.plot(
+                release_data.index,
+                release_data.values,
+                color=colordict[model],
+                label="Releases",
+            )
+            ax3.set_ylabel("Releases (MCM)")
+        ax3.set_xlabel("Date")
+        ax3.legend(loc="center left", bbox_to_anchor=(1, 0.5))
         ax3.grid(True)
     else:
         print(f"Cannot make plot for node: {node} - Release Data not available.")
@@ -235,25 +344,38 @@ def plot_reservoir_dynamics(inflows, storage, releases, node, model,
         if node in data_dict[model]:
             data = subset_timeseries(data_dict[model][node], start_date, end_date)
         else:
-            print(f'get_fig_data() not set for node {node}')
+            print(f"get_fig_data() not set for node {node}")
             data = None
         return data
-    
-    observed_release = get_fig_data_obs(releases, 'obs', node)
 
-    #Plot observed releases if available
+    observed_release = get_fig_data_obs(releases, "obs", node)
+
+    # Plot observed releases if available
     if plot_observed:
-       
-       if observed_release is not None:
-           if log_scale:
-               ax3.plot(observed_release.index, np.log(observed_release.values), color='grey', linestyle='--', label='Observed Log Releases')
-               ax3.set_yscale('log')
-               ax3.yaxis.set_major_formatter(ticker.FuncFormatter(lambda y, _: '{:.0f}'.format(y)))    
-           else:
-               ax3.plot(observed_release.index, observed_release.values, color='grey', linestyle='--', label='Observed Release')
-           ax3.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-       else:
-           print(f"Observed Release data not available for node: {node}.")
+        if observed_release is not None:
+            if log_scale:
+                ax3.plot(
+                    observed_release.index,
+                    np.log(observed_release.values),
+                    color="grey",
+                    linestyle="--",
+                    label="Observed Log Releases",
+                )
+                ax3.set_yscale("log")
+                ax3.yaxis.set_major_formatter(
+                    ticker.FuncFormatter(lambda y, _: "{:.0f}".format(y))
+                )
+            else:
+                ax3.plot(
+                    observed_release.index,
+                    observed_release.values,
+                    color="grey",
+                    linestyle="--",
+                    label="Observed Release",
+                )
+            ax3.legend(loc="center left", bbox_to_anchor=(1, 0.5))
+        else:
+            print(f"Observed Release data not available for node: {node}.")
 
     # Set a title for the entire figure
     fig.suptitle(f"Reservoir Dynamics for {node} in {model}", fontsize=16)

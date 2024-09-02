@@ -4,7 +4,7 @@ pywrdrb.pre
 .. autosummary::
     :toctree: generated/
     :nosignatures:
-    
+
     pywrdrb.pre.disaggregate_DRBC_demands
     pywrdrb.pre.extrapolate_NYC_NJ_diversions
     pywrdrb.pre.predict_inflows_diversions

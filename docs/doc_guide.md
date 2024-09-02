@@ -11,7 +11,7 @@ Consider the following simplified depiction of the Pywr-DRB code base (note that
 Pywr-DRB/
 	.github/workflows/
 		deploy.yml
-	docs/ 
+	docs/
 		_config.yml
 		_toc.yml
 		intro.md
@@ -26,7 +26,7 @@ Pywr-DRB/
 ```
 
 
-Inside the `Pywr-DRB/pywrdrb/post/get_results.py` script we have a function called `get_pywrdrb_results()` with it's own complete docstring. 
+Inside the `Pywr-DRB/pywrdrb/post/get_results.py` script we have a function called `get_pywrdrb_results()` with it's own complete docstring.
 
 The `Pywr-DRB/pywrdrb/post/__init__.py` script is used to import the `get_pywrdrb_results()` function using a relative import (relative from the location of this `__init__.py` file), and simply contains:
 
@@ -39,7 +39,7 @@ We then tell autodocs to generate the documentation summary when building the Ju
 
 ```python
 pywrdrb.post      # Title for the page
-================  # Specifies this is a header (must be as long as title) 
+================  # Specifies this is a header (must be as long as title)
 
 .. autosummary::          # This "directive" tells autodoc to make a table with function docs
    :toctree: generated/   # Tells autodoc to put new pages in ./generated/ folder
@@ -68,7 +68,7 @@ parts:
 ### Configuration file
 The `docs/_config.py` file serves as the primary configuration file that dictates how the book is built and displayed. It provides a centralized place to define settings and parameters that control various aspects of the book.
 
-Below is a look at the contents.  We shouldn't need to modify this anytime in the near future.  However, it is good to be familiar with it's contents and role. 
+Below is a look at the contents.  We shouldn't need to modify this anytime in the near future.  However, it is good to be familiar with it's contents and role.
 
 ```yml
 # Book settings
@@ -116,7 +116,7 @@ html:
 ***
 ## ReStructuredText + Sphinx + autodocs
 
-[reStructuredText](https://docutils.sourceforge.io/rst.html) (reST; `file.rst`) is a plain text markup language used primarily for technical documentation. These files are able to be read with Sphinx which generates the documentation for Pywr-DRB. 
+[reStructuredText](https://docutils.sourceforge.io/rst.html) (reST; `file.rst`) is a plain text markup language used primarily for technical documentation. These files are able to be read with Sphinx which generates the documentation for Pywr-DRB.
 
 Key features of reST files include:
 - Headings: Defined by underline characters (=, -, ~, etc.).
@@ -126,17 +126,17 @@ Key features of reST files include:
 
 Here is a [primer/intro page](https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html) about working with `.rst` files.
 
-Inside of the `.rst` files we include autodoc code, which [the Sphinx autodoc extension](https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#module-sphinx.ext.autodoc) uses to produce the documentation pages. These different formatting options and commands are explained below, but it will be helpful to refer to the [sphinx documentation](https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html) for many issues. This can be finicky. 
+Inside of the `.rst` files we include autodoc code, which [the Sphinx autodoc extension](https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#module-sphinx.ext.autodoc) uses to produce the documentation pages. These different formatting options and commands are explained below, but it will be helpful to refer to the [sphinx documentation](https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html) for many issues. This can be finicky.
 
 Notice the Warning on the `sphinx.ext.autodoc` site:
 
 > **Warning**
 > autodoc imports the modules to be documented. If any modules have side effects on import, these will be executed by autodoc when sphinx-build is run.
-> 
+>
 > If you document scripts (as opposed to library modules), make sure their main routine is protected by a if __name__ == '__main__' condition.
 
 
-### Directives 
+### Directives
 
 Directives in reStructuredText files are special instructions that provide additional information or functionality within the document. They start with a `..` and are followed by the directive name and `::`.  Below the directive, you provide optional arguments and/or content.
 
@@ -150,9 +150,9 @@ Here is an example of a `code-block` directive:
 
 ```
 
-The autodoc extension in Sphinx uses specific directives to automatically generate documentation from docstrings in the source code. 
+The autodoc extension in Sphinx uses specific directives to automatically generate documentation from docstrings in the source code.
 
-Specifically, we use the `.. autosummary::` and `.. automodule::` directives, described below. 
+Specifically, we use the `.. autosummary::` and `.. automodule::` directives, described below.
 
 #### `.. atuosummary::`
 The `.. autosummary` directive in Sphinx is used to generate summary tables for modules, classes, functions, and methods. It is particularly useful for creating organized documentation with minimal effort, as it can automatically extract information from docstrings.
@@ -174,7 +174,7 @@ STARFIT Reservoir Operations
 .. autosummary::
    :toctree: generated/
    :nosignatures:
-   
+
     pywrdrb.parameters.STARFITReservoirRelease
 ```
 
@@ -197,5 +197,5 @@ Options:
 ### API build errors:
 
 - `Extension error (sphinx.ext.autosummary): Handler <function process_generate_options at 0x7f9eaf6a8b80> for event 'builder-inited' threw an exception (exception: no module named pywrdrb.pre)`
-	- Make sure the module has the correct `__init__.py` file 
-	- Make sure all of the packages used in this module are installed in the virtual environment used by GitActions. 
+	- Make sure the module has the correct `__init__.py` file
+	- Make sure all of the packages used in this module are installed in the virtual environment used by GitActions.

@@ -11,12 +11,12 @@ This module contains string variables that provide absolut paths to the followin
 .. py:data:: input_dir
    :module: pywrdrb.utils.directories
 
-   The folder where all input data is stored. 
+   The folder where all input data is stored.
 
 .. py:data:: output_dir
    :module: pywrdrb.utils.directories
 
-   The folder where output data will be stored during and after simulation. 
+   The folder where output data will be stored during and after simulation.
 
 
 pywrdrb.utils.hdf5
@@ -35,7 +35,7 @@ pywrdrb.utils.hdf5
 pywrdrb.utils.timeseries
 -------------------------
 .. automodule:: pywrdrb.utils.timeseries
-    
+
 .. autosummary::
    :toctree: generated/
    :nosignatures:

@@ -23,7 +23,7 @@ All of the processed data will be stored in `Pywr-DRB/input_data/`.
 
 ### [`drb_run_sim.py`](../../API_References/drb_run_sim.md)
 
-The `drb_run_sim.py` script is used to run a simulation of the Pywr-DRB model using a specified streamflow input data type. After data has been prepared, the [`drb_make_model()`](../API_References/drb_make_model.md) function constructs a JSON file defining the Pywr-DRB model (`Pywr-DRB/drb_model_full.json`). 
+The `drb_run_sim.py` script is used to run a simulation of the Pywr-DRB model using a specified streamflow input data type. After data has been prepared, the [`drb_make_model()`](../API_References/drb_make_model.md) function constructs a JSON file defining the Pywr-DRB model (`Pywr-DRB/drb_model_full.json`).
 
 The model is run by calling the `drb_run_sim.py` file from the command line followed by an `inflow_type` argument.
 
