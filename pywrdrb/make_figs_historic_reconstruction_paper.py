@@ -14,9 +14,6 @@ from pywrdrb.utils.directories import input_dir, fig_dir, output_dir
 
 
 from pywrdrb.plotting.styles import model_colors_historic_reconstruction
-
-# from pywrdrb.plotting.ensemble_plots import plot_ensemble_nyc_storage
-# from pywrdrb.plotting.ensemble_plots import plot_ensemble_nyc_storage_and_deficit
 from pywrdrb.plotting.ensemble_plots import plot_NYC_release_components_combined
 from pywrdrb.utils.lists import reservoir_list_nyc
 
@@ -214,11 +211,10 @@ if __name__ == "__main__":
     ### NYC reservoir operations and downstream flow contributions
     for model in pywr_ensemble_models:
         for node in ['delMontague', 'delTrenton']:
-        for node in ["delTrenton", "delMontague"]:
             for dates in date_ranges.keys():
                 if dates == "full":
                     continue
-
+                
                 plot_obs = True if dates == "post_ffmp" else False
 
                 start = date_ranges[dates][0]

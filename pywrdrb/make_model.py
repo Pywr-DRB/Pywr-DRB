@@ -351,15 +351,11 @@ def add_major_node(
 ### drb_make_model()
 ##########################################################################################
 
-
-def make_model(
-    inflow_type,
-    model_filename,
-    start_date,
-    end_date,
-    use_hist_NycNjDeliveries=True,
-    inflow_ensemble_indices=None,
-):
+def make_model(inflow_type, model_filename, start_date, end_date, 
+               use_hist_NycNjDeliveries=True,
+               inflow_ensemble_indices = None,
+               predict_temperature=False,
+               predict_salinity=False):
     """
     Creates the JSON file used by Pywr to define the model, including all nodes, edges, and parameters.
 
