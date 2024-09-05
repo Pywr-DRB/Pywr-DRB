@@ -12,11 +12,8 @@ The WBD for 2-digit Hydrologic Unit 02, which includes the Delaware River Basin,
 This dataset should be downloaded and extracted into the WBD_02/ directory so that it can be used for geospatial analysis.
 
 
-### USGS National Hydrologic Dataset 
+### USGS National Hydrologic Dataset
 
 The NHD for 4-digit Hydrologic Unit 0204, which includes the Delaware River Basin, can be downloaded using the USGS National Map Downloader, or using this link: https://prd-tnm.s3.amazonaws.com/StagedProducts/Hydrography/NHD/HU4/GPKG/NHD_H_0204_HU4_GPKG.zip
 
 This dataset should be downloaded and extracted into the NHD_0204/ directory so that it can be used for geospatial analysis.
-
-
-

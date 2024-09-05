@@ -1,6 +1,6 @@
 # Quick Start
 
-Pywr-DRB is an open-source Python model, and should run with Python >= 3.8 on Windows or Linux systems. 
+Pywr-DRB is an open-source Python model, and should run with Python >= 3.8 on Windows or Linux systems.
 
 ## Accessing Pywr-DRB
 
@@ -30,7 +30,7 @@ Pywr-DRB/
 ├── drb_make_figs_diagnostics_paper.py
 ├── drb_make_model.py
 ├── drb_run_sim.py
-├── drb_run_all.sh        
+├── drb_run_all.sh
 ├── README.md
 └── requirements.txt
 ```
@@ -68,4 +68,3 @@ sh drb_run_all.sh
 ```
 
 Alternatively, the user can perform each of the steps listed above individually using individual Python scripts as described in [Running Simulations](./Running_Simulations/run_all_simulations.md), and detailed in the [API References.](../API_References/api_references.md)
-

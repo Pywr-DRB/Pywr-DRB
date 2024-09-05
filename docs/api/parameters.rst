@@ -1,7 +1,7 @@
 pywrdrb.parameters
 ====================
 
-Flexible Flow Management (FFMP) 
+Flexible Flow Management (FFMP)
 -------------------------------
 
 .. autosummary::
@@ -15,12 +15,12 @@ Flexible Flow Management (FFMP)
     pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF
     pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1
     pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2
-    pywrdrb.parameters.VolBalanceNYCDemand    
+    pywrdrb.parameters.VolBalanceNYCDemand
     pywrdrb.parameters.LowerBasinMaxMRFContribution
     pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate
     pywrdrb.parameters.VolBalanceLowerBasinMRFIndividual
 
-    
+
 
 STARFIT Reservoir Operations
 ----------------------------
@@ -28,9 +28,9 @@ STARFIT Reservoir Operations
 .. autosummary::
    :toctree: generated/
    :nosignatures:
-   
+
     pywrdrb.parameters.STARFITReservoirRelease
-    
+
 
 Ensemble Specific
 -----------------
@@ -38,7 +38,7 @@ Ensemble Specific
 .. autosummary::
    :toctree: generated/
    :nosignatures:
-   
+
     pywrdrb.parameters.FlowEnsemble
     pywrdrb.parameters.PredictionEnsemble
 

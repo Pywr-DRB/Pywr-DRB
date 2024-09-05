@@ -33,4 +33,3 @@ The Pywr-DRB model includes representation of the following aspects of the Basin
 - Water deliveries to NYC and NJ
 - Reservoirs across the basin
 - Regulation governing reservoir operations
-

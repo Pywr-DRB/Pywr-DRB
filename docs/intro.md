@@ -4,7 +4,7 @@ Pywr-DRB is a water resources model of the Delaware River Basin (DRB) designed t
 
 Pywr-DRB is an open-source Python model for exploring the role of reservoir operations, transbasin diversions, minimum flow targets, and other regulatory rules on water availability and drought risk in the DRB. Pywr-DRB is designed to flexibly draw on streamflow estimates from a variety of emerging data resources, such as the National Water Model, the National Hydrologic Model, and hybrid datasets blending modeled and observed data. Pywr-DRB bridges state-of-the-art advances in large-scale hydrologic modeling with an open-source representation of the significant role played by the basin's evolving water infrastructure and management institutions.
 
-Pywr-DRB builds on the open-source Python package Pywr, which provides a modular, flexible structure for building and simulating complex water resources networks. 
+Pywr-DRB builds on the open-source Python package Pywr, which provides a modular, flexible structure for building and simulating complex water resources networks.
 
 You can access a pre-print of the Pywr-DRB model release publication here:
 

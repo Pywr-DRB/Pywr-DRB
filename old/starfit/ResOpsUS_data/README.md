@@ -2,7 +2,7 @@
 *A dataset of historical reservoir operations in the US*
 
 ## Description
-This dataset contains time series of historical reservoir operations contiguous United States (CONUS) (and areas draining to the contiguous US). The database includes: inflows, outflows, change in storage and evaporative losses as available. Data was assembled directly from reservoir operators and spans 1974 to 2020.  
+This dataset contains time series of historical reservoir operations contiguous United States (CONUS) (and areas draining to the contiguous US). The database includes: inflows, outflows, change in storage and evaporative losses as available. Data was assembled directly from reservoir operators and spans 1974 to 2020.
 
 ## Citation
 Steyaert, J., Condon, L., Turner, S., Voisin, N., (2021) *Historical Reservoir Operations in the Contiguous United States*, In Review.
@@ -59,7 +59,7 @@ The database contains four main folders:
   (1) DAILY_AV_INFLOW_CUMECS.csv contains daily records for all the dams (columns) from 1980-01-01 to 2020-12-31. All the records are in cubic meters per second.
 
   (2) DAILY_AV_OUTFLOW_CUMECS.csv contains daily records for all the dams (columns) from 1980-01-01 to 2020-12-31. All the records are in cubic meters per second.
-  
+
   (3) DAILY_AV_STORAGE_MCM.csv contains daily records for all the dams (columns) from 1980-01-01 to 2020-12-31. All the records are in million cubic meters.
 
 ## Contacts:

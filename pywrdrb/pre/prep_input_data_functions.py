@@ -9,14 +9,19 @@ import numpy as np
 import pandas as pd
 import datetime
 
-from pywrdrb.pywr_drb_node_data import upstream_nodes_dict, WEAP_29June2023_gridmet_NatFlows_matches, downstream_node_lags
+from pywrdrb.pywr_drb_node_data import (
+    upstream_nodes_dict,
+    WEAP_29June2023_gridmet_NatFlows_matches,
+    downstream_node_lags,
+)
 from pywrdrb.utils.constants import cms_to_mgd, cm_to_mg
 from pywrdrb.utils.directories import input_dir, weap_dir
 from pywrdrb.utils.lists import reservoir_list_nyc
 
 
-
-def read_modeled_estimates(filename, sep, date_label, site_label, streamflow_label, start_date, end_date):
+def read_modeled_estimates(
+    filename, sep, date_label, site_label, streamflow_label, start_date, end_date
+):
     """
     Reads input streamflows from modeled NHM/NWM estimates and prepares them for Pywr.
 
@@ -34,7 +39,7 @@ def read_modeled_estimates(filename, sep, date_label, site_label, streamflow_lab
     """
 
     ### read in data & filter dates
-    df = pd.read_csv(filename, sep = sep, dtype = {'site_no': str})
+    df = pd.read_csv(filename, sep=sep, dtype={"site_no": str})
     df.sort_values([site_label, date_label], inplace=True)
     df.index = pd.to_datetime(df[date_label])
     df = df.loc[np.logical_and(df.index >= start_date, df.index <= end_date)]
@@ -42,7 +47,7 @@ def read_modeled_estimates(filename, sep, date_label, site_label, streamflow_lab
     ### restructure to have gages as columns
     sites = list(set(df[site_label]))
     ndays = len(set(df[date_label]))
-    df_gages = df.iloc[:ndays ,:].loc[:, [site_label]]
+    df_gages = df.iloc[:ndays, :].loc[:, [site_label]]
     for site in sites:
         df_gages[site] = df.loc[df[site_label] == site, streamflow_label]
     df_gages.drop(site_label, axis=1, inplace=True)
@@ -53,7 +58,7 @@ def read_modeled_estimates(filename, sep, date_label, site_label, streamflow_lab
     return df_gages
 
 
-def read_csv_data(filename, start_date, end_date, units = 'cms', source = 'USGS'):
+def read_csv_data(filename, start_date, end_date, units="cms", source="USGS"):
     """
     Reads in a pandas DataFrame containing USGS gauge data relevant to the model.
 
@@ -67,17 +72,18 @@ def read_csv_data(filename, start_date, end_date, units = 'cms', source = 'USGS'
     Returns:
         pandas.DataFrame: The resulting dataframe containing the filtered data.
     """
-    df = pd.read_csv(filename, sep = ',', index_col=0)
+    df = pd.read_csv(filename, sep=",", index_col=0)
     df.index = pd.to_datetime(df.index)
 
     # Remove USGS- from column names
-    if source == 'USGS':
-        df.columns = [i.split('-')[1] for i in df.columns]
+    if source == "USGS":
+        df.columns = [i.split("-")[1] for i in df.columns]
 
     df = df.loc[np.logical_and(df.index >= start_date, df.index <= end_date)]
-    if units == 'cms':
+    if units == "cms":
         df *= cms_to_mgd
     return df
+
 
 def subtract_upstream_catchment_inflows(inflows):
     """
@@ -97,9 +103,13 @@ def subtract_upstream_catchment_inflows(inflows):
         for upstream in upstreams:
             lag = downstream_node_lags[upstream]
             if lag > 0:
-                inflows.loc[inflows.index[lag:], node] -= inflows.loc[inflows.index[:-lag], upstream].values
+                inflows.loc[inflows.index[lag:], node] -= inflows.loc[
+                    inflows.index[:-lag], upstream
+                ].values
                 ### subtract same-day flow without lagging for first lag days, since we don't have data before 0 for lagging
-                inflows.loc[inflows.index[:lag], node] -= inflows.loc[inflows.index[:lag], upstream].values
+                inflows.loc[inflows.index[:lag], node] -= inflows.loc[
+                    inflows.index[:lag], upstream
+                ].values
             else:
                 inflows[node] -= inflows[upstream]
 
@@ -108,11 +118,11 @@ def subtract_upstream_catchment_inflows(inflows):
 
         ### delTrenton node should have zero catchment inflow because coincident with DRCanal
         ### -> make sure that is still so after subtraction process
-        inflows['delTrenton'] *= 0.
+        inflows["delTrenton"] *= 0.0
     return inflows
 
 
-def add_upstream_catchment_inflows(inflows, exclude_NYC = False):
+def add_upstream_catchment_inflows(inflows, exclude_NYC=False):
     """
     Adds upstream catchment inflows to get cumulative flow at downstream nodes. THis is inverse of subtract_upstream_catchment_inflows()
 
@@ -132,9 +142,13 @@ def add_upstream_catchment_inflows(inflows, exclude_NYC = False):
             if exclude_NYC == False or upstream not in reservoir_list_nyc:
                 lag = downstream_node_lags[upstream]
                 if lag > 0:
-                    inflows.loc[inflows.index[lag:], node] += inflows.loc[inflows.index[:-lag], upstream].values
+                    inflows.loc[inflows.index[lag:], node] += inflows.loc[
+                        inflows.index[:-lag], upstream
+                    ].values
                     ### add same-day flow without lagging for first lag days, since we don't have data before 0 for lagging
-                    inflows.loc[inflows.index[:lag], node] += inflows.loc[inflows.index[:lag], upstream].values
+                    inflows.loc[inflows.index[:lag], node] += inflows.loc[
+                        inflows.index[:lag], upstream
+                    ].values
                 else:
                     inflows[node] += inflows[upstream]
 
@@ -165,25 +179,25 @@ def match_gages(df, dataset_label, site_matches_id):
     ### 1. Match inflows for each Pywr-DRB node
     ## 1.1 Reservoir inflows
     for node, site in site_matches_id.items():
-        if node == 'cannonsville':
-            if ('obs_pub' in dataset_label) and (site == None):
+        if node == "cannonsville":
+            if ("obs_pub" in dataset_label) and (site == None):
                 inflows = pd.DataFrame(df.loc[:, node])
             else:
                 inflows = pd.DataFrame(df.loc[:, site].sum(axis=1))
             inflows.columns = [node]
-            inflows['datetime'] = inflows.index
-            inflows.index = inflows['datetime']
+            inflows["datetime"] = inflows.index
+            inflows.index = inflows["datetime"]
             inflows = inflows.iloc[:, :-1]
         else:
-            if ('obs_pub' in dataset_label) and (site == None):
+            if ("obs_pub" in dataset_label) and (site == None):
                 inflows[node] = df[node]
             else:
                 inflows[node] = df[site].sum(axis=1)
 
-    if 'obs_pub' not in dataset_label:
+    if "obs_pub" not in dataset_label:
         ## Save full flows to csv
         # For downstream nodes, this represents the full flow for results comparison
-        inflows.to_csv(f'{input_dir}gage_flow_{dataset_label}.csv')
+        inflows.to_csv(f"{input_dir}gage_flow_{dataset_label}.csv")
 
     ### 2. Inflow timeseries are cumulative. So for each downstream node, subtract the flow into all upstream nodes so
     ###    this represents only direct catchment inflows into this node. Account for time lags between distant nodes.
@@ -191,53 +205,50 @@ def match_gages(df, dataset_label, site_matches_id):
 
     ## Save catchment inflows to csv
     # For downstream nodes, this represents the catchment inflow with upstream node inflows subtracted
-    inflows.to_csv(f'{input_dir}catchment_inflow_{dataset_label}.csv')
+    inflows.to_csv(f"{input_dir}catchment_inflow_{dataset_label}.csv")
 
-    if 'obs_pub' in dataset_label:
+    if "obs_pub" in dataset_label:
         ## For PUB, to get full gage flow we want to re-add up cumulative flows after doing previous catchment subtraction.
         # For downstream nodes, this represents the full flow for results comparison
         inflows = add_upstream_catchment_inflows(inflows)
-        inflows.to_csv(f'{input_dir}gage_flow_{dataset_label}.csv')
+        inflows.to_csv(f"{input_dir}gage_flow_{dataset_label}.csv")
 
 
-
-def create_hybrid_modeled_observed_datasets(modeled_inflow_type, 
-                                            datetime_index):
+def create_hybrid_modeled_observed_datasets(modeled_inflow_type, datetime_index):
     """
     Creates the hybrid datasets with scaled observational data where available and NHM/NWM data everywhere else.
-    
-    The new hybrid catchment inflows and gage flwos are saved to the input_data directory. 
+
+    The new hybrid catchment inflows and gage flwos are saved to the input_data directory.
     See Hamilton et al. (Under Review) for more details on the dataset.
-    
+
     Args:
         modeled_inflow_type (str): The type of modeled inflow data to use. Either 'nhmv10' or 'nwmv21'.
         datetime_index (pandas.DatetimeIndex): The datetime index to use for the dataset.
-    
+
     Returns:
         None
     """
     ### create combo dataset that uses observed scaled data where available & NHM/NWM data everywhere else
-    inflow_label_scaled = f'obs_pub_{modeled_inflow_type}_ObsScaled'
+    inflow_label_scaled = f"obs_pub_{modeled_inflow_type}_ObsScaled"
     inflow_label_nonScaled = modeled_inflow_type
-    inflows = pd.read_csv(f'{input_dir}/catchment_inflow_{inflow_label_nonScaled}.csv')
-    scaled_obs = pd.read_csv(f'{input_dir}/catchment_inflow_{inflow_label_scaled}.csv')
-    inflows.index = pd.DatetimeIndex(inflows['datetime'])
-    scaled_obs.index = pd.DatetimeIndex(scaled_obs['datetime'])
+    inflows = pd.read_csv(f"{input_dir}/catchment_inflow_{inflow_label_nonScaled}.csv")
+    scaled_obs = pd.read_csv(f"{input_dir}/catchment_inflow_{inflow_label_scaled}.csv")
+    inflows.index = pd.DatetimeIndex(inflows["datetime"])
+    scaled_obs.index = pd.DatetimeIndex(scaled_obs["datetime"])
     inflows = inflows.loc[datetime_index]
     scaled_obs = scaled_obs.loc[datetime_index]
-    for reservoir in reservoir_list_nyc + ['fewalter','beltzvilleCombined']:
+    for reservoir in reservoir_list_nyc + ["fewalter", "beltzvilleCombined"]:
         inflows[reservoir] = scaled_obs[reservoir]
 
-    new_label = inflow_label_nonScaled + '_withObsScaled'
+    new_label = inflow_label_nonScaled + "_withObsScaled"
 
     ## Save catchment inflows to csv
-    inflows.to_csv(f'{input_dir}catchment_inflow_{new_label}.csv', index=False)
+    inflows.to_csv(f"{input_dir}catchment_inflow_{new_label}.csv", index=False)
 
     ## Now get full gage flow we want to re-add up cumulative flows after doing previous catchment subtraction.
     # For downstream nodes, this represents the full flow for results comparison
     inflows = add_upstream_catchment_inflows(inflows)
-    inflows.to_csv(f'{input_dir}gage_flow_{new_label}.csv', index=False)
-
+    inflows.to_csv(f"{input_dir}gage_flow_{new_label}.csv", index=False)
 
 
 # def get_WEAP_df(filename):
@@ -284,5 +295,3 @@ def create_hybrid_modeled_observed_datasets(modeled_inflow_type,
 #     ### save
 #     inflows.to_csv(f'{input_dir}catchment_inflow_WEAP_29June2023_gridmet.csv')
 #     gageflows.to_csv(f'{input_dir}gage_flow_WEAP_29June2023_gridmet.csv')
-
-

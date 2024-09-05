@@ -7,13 +7,13 @@ The Delaware River Basin is a complex system that spans over four states and pro
 The Delaware River Basin faces numerous environmental challenges, including water pollution, habitat loss, and climate change. The potential impacts of climate change are of particular concern as changes in precipitation patterns, increasing temperatures, and increased frequency of extreme weather events may pose challenges for the water supply system.
 
 ### Sensitive Ecosystems
-The Delaware River Basin contains a wide range of sensitive ecosystems. Aquatic species are particularly vulnerable to changes in the hydrologic cycle in the Basin. For example, cold-water fish species are vulnerable to rising stream temperatures at times of low-flow and high temperature. 
+The Delaware River Basin contains a wide range of sensitive ecosystems. Aquatic species are particularly vulnerable to changes in the hydrologic cycle in the Basin. For example, cold-water fish species are vulnerable to rising stream temperatures at times of low-flow and high temperature.
 
 To learn more about how the US Geologic Survey is working understand temperature impacts in the Basin, take a look at their dataviz narrative on the topic: [*How We Monitor Stream Temperature in the DRB* (USGS).](https://labs.waterdata.usgs.gov/visualizations/temperature-prediction/index.html#/monitoring)
 
 ### Salinity Intrusion
 
-As sea levels rise in the DRB estuary, salt water is able to push further up-stream along the river, particularly during low-flow periods. 
+As sea levels rise in the DRB estuary, salt water is able to push further up-stream along the river, particularly during low-flow periods.
 
 ```{figure} ../images/phili_sea_level.png
 :scale: 75%
@@ -34,12 +34,12 @@ The Delaware River Basin is home to several large reservoirs that play a critica
 ```{figure} ../images/drb_reservoir_schematic.png
 :name: drb-reservoir-schematic
 :scale: 45%
-:alt: A graphic which shows a network of reservoirs in the DRB and how they are connected. 
+:alt: A graphic which shows a network of reservoirs in the DRB and how they are connected.
 
 Representative illustration of reservoirs within the DRB. **Figure source:** [Delaware River Basin Commission](https://www.nj.gov/drbc/basin/map/)
 ```
 
-The reservoirs shown in the above illustration have been represented within the Pywr-DRB model, allowing for thier relative impacts on downstream flow conditions to be assessed. 
+The reservoirs shown in the above illustration have been represented within the Pywr-DRB model, allowing for thier relative impacts on downstream flow conditions to be assessed.
 
 
 ### Reservoirs that Provide Water to New York City
@@ -54,6 +54,6 @@ Water from these reservoirs is conveyed to New York City through the Delaware Aq
 Graphical depiction of NYC water supplies, showing contribution from upper DRB reservoirs. **Figure source:** [New York City Environmental Protection](https://www.nyc.gov/site/dep/water/reservoir-levels.page)
 ```
 
-In addition to New York City, New Jersey can divert roughly 100 million gallons per day out of the Basin during normal conditions to meet its water supply needs. 
+In addition to New York City, New Jersey can divert roughly 100 million gallons per day out of the Basin during normal conditions to meet its water supply needs.
 
 The amount of water diverted out of the Basin is subject to regulatory oversight, and changes depending upon hydrologic conditions in the Basin. For more information about the water management regulation in the Basin, see [Planning & Management.](./drb_planning_management.md)

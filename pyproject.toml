@@ -1,0 +1,44 @@
+[project]
+name = "pywr-drb"
+version = "0.0.0"
+authors = [
+    {name = "", email = ""}
+]
+license = "file: LICENSE"
+description = "file: README.md"
+dependencies = [
+    "pywr",
+    "h5py",
+    "numpy",
+    "pandas",
+    "geopandas",
+    "pyarrow",
+    "contextily",
+    "matplotlib",
+    "seaborn",
+    "statsmodels",
+    "scipy",
+    "pygeohydro",
+    "hydroeval",
+    "scikit-learn",
+    "altair",
+    "jupyter-book",
+    "ghp-import",
+    "shapely",
+    "folium",
+    "pynhd",
+    "mpi4py"
+    ]
+
+[project.optional-dependencies]
+dev = [
+    "ipython",
+]
+lint = [
+    "pre-commit>=2.20.0",
+]
+
+# tools
+[tool.black]
+line-length = 88
+target-version = ["py310", "py311", "py312"]
