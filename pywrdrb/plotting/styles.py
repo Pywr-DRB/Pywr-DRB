@@ -93,6 +93,7 @@ model_colors_diagnostics_paper3 = {
     "pywr_nwmv21_withObsScaled": cm.get_cmap("Purples")(0.9),
 }
 
+
 model_label_dict = {
     "obs": "Observed",
     "nhmv10": "NHM",
