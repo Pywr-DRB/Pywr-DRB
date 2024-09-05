@@ -112,26 +112,7 @@ model_colors_diagnostics_paper3 = {'obs': '0.4',
                                   'pywr_nwmv21_withObsScaled': cm.get_cmap('Purples')(0.9),
                                   }
 
-model_label_dict = {'obs': 'Observed',
-                      'nhmv10': 'NHM',
-                      'nwmv21': 'NWM',
-                      'nhmv10_withObsScaled': 'hNHM',
-                      'nwmv21_withObsScaled': 'hNWM',
-                      'obs_pub_nhmv10_ObsScaled': 'PUB-NHM',
-                      'obs_pub_nwmv21_ObsScaled': 'PUB-NWM',
-                      'obs_pub_nhmv10_ObsScaled_ensemble': 'EPUB-NHM',
-                      'obs_pub_nwmv21_ObsScaled_ensemble': 'EPUB-NWM',
-                      'pywr_nhmv10': 'Pywr-NHM',
-                      'pywr_nwmv21': 'Pywr-NWM',
-                      'pywr_nhmv10_withObsScaled': 'Pywr-hNHM',
-                      'pywr_nwmv21_withObsScaled': 'Pywr-hNWM',
-                      'pywr_obs_pub_nhmv10_ObsScaled': 'Pywr-PUB-NHM',
-                      'pywr_obs_pub_nwmv21_ObsScaled': 'Pywr-PUB-NWM',
-                      'pywr_obs_pub_nhmv10_ObsScaled_ensemble': 'Pywr-EPUB-NHM',
-                      'pywr_obs_pub_nwmv21_ObsScaled_ensemble': 'Pywr-EPUB-NWM',
-                      'pywr_syn_obs_pub_nhmv10_ObsScaled_ensemble': 'Pywr-Syn-PUB-NHM',
-                      'pywr_syn_obs_pub_nwmv21_ObsScaled_ensemble': 'Pywr-Syn-PUB-NWM',
-                      }
+
 model_label_dict = {
     'obs': 'Observed',
     'nhmv10' : 'NHMv1.0',
@@ -149,10 +130,11 @@ model_label_dict = {
     'obs_pub_nwmv21_BC_ObsScaled' : 'PUB-NWM Bias Corrected',
     'obs_pub_nwmv21_BC_ObsScaled_ensemble':'PUB-NWM Bias Corrected Ensemble',
     'wrf1960s_calib_nlcd2016' : 'WRF 1960s Calibrated',
+    'wrf2050s_calib_nlcd2016' : 'WRF 2050s Calibrated',
     }
 
 for l in list(model_label_dict.keys()):
-    model_label_dict[f'pywr_{l}'] = model_label_dict[l]
+    model_label_dict[f'pywr_{l}'] = 'Pywr-DRB ' + model_label_dict[l]
     
 model_linestyle_dict = {'obs': '-',
                         'pywr_nhmv10': (0,(1,3)),
