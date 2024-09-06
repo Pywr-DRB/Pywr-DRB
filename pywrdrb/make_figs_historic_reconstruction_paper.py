@@ -185,8 +185,10 @@ if __name__ == "__main__":
     ### Get aggregate NYC data
     for model in pywr_models:
         for real in reservoir_releases[model].keys():
-            reservoir_downstream_gages[model][real]['NYCAgg'] = reservoir_downstream_gages[model][real][reservoir_list_nyc].sum(axis=1)
-            
+            reservoir_downstream_gages[model][real][
+                "NYCAgg"
+            ] = reservoir_downstream_gages[model][real][reservoir_list_nyc].sum(axis=1)
+
         if "ensemble" in model:
             for real in reservoir_releases[model].keys():
                 reservoir_downstream_gages[model][real][
@@ -210,11 +212,11 @@ if __name__ == "__main__":
 
     ### NYC reservoir operations and downstream flow contributions
     for model in pywr_ensemble_models:
-        for node in ['delMontague', 'delTrenton']:
+        for node in ["delMontague", "delTrenton"]:
             for dates in date_ranges.keys():
                 if dates == "full":
                     continue
-                
+
                 plot_obs = True if dates == "post_ffmp" else False
 
                 start = date_ranges[dates][0]

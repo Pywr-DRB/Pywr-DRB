@@ -351,11 +351,17 @@ def add_major_node(
 ### drb_make_model()
 ##########################################################################################
 
-def make_model(inflow_type, model_filename, start_date, end_date, 
-               use_hist_NycNjDeliveries=True,
-               inflow_ensemble_indices = None,
-               predict_temperature=False,
-               predict_salinity=False):
+
+def make_model(
+    inflow_type,
+    model_filename,
+    start_date,
+    end_date,
+    use_hist_NycNjDeliveries=True,
+    inflow_ensemble_indices=None,
+    predict_temperature=False,
+    predict_salinity=False,
+):
     """
     Creates the JSON file used by Pywr to define the model, including all nodes, edges, and parameters.
 
@@ -1197,7 +1203,7 @@ def make_model(inflow_type, model_filename, start_date, end_date,
             "type": "constant",
             "value": get_reservoir_max_diversion_NYC(reservoir),
         }
-        ### Target diversion from each NYC reservoir to satisfy NYC demand, 
+        ### Target diversion from each NYC reservoir to satisfy NYC demand,
         ### accounting for historical max diversion constraints
         ### and attempting to balance storages across 3 NYC reservoirs
         ### Uses custom Pywr parameter.
@@ -1206,26 +1212,23 @@ def make_model(inflow_type, model_filename, start_date, end_date,
             "node": f"reservoir_{reservoir}",
         }
 
-    
     ### Temperature prediction at Lordville using LSTM model
     if predict_temperature:
         try:
             from pywrdrb.parameters.temperature import TemperaturePrediction
 
-            model['parameters']['predicted_mu_max_of_temperature'] = {
+            model["parameters"]["predicted_mu_max_of_temperature"] = {
                 "type": "TemperaturePrediction"
             }
         except Exception as e:
             print(f"Temperature prediction model not available. Error: {e}")
-        
+
     ### Salinity prediction at Trenton
     if predict_salinity:
         try:
             from pywrdrb.parameters.salinity import SalinityPrediction
 
-            model['parameters']['predicted_salinity'] = {
-                "type": "SalinityPrediction"
-            }
+            model["parameters"]["predicted_salinity"] = {"type": "SalinityPrediction"}
         except Exception as e:
             print(f"Salinity prediction model not available. Error: {e}")
 
