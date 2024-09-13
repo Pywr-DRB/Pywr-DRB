@@ -5,6 +5,7 @@ import warnings
 
 from utils.directories import output_dir, model_data_dir
 from utils.hdf5 import combine_batched_hdf5_outputs
+from utils.options import inflow_type_options
 
 ### specify inflow type from command line args
 inflow_type_options = [

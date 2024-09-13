@@ -14,9 +14,6 @@ from pywrdrb.utils.directories import input_dir, fig_dir, output_dir
 
 
 from pywrdrb.plotting.styles import model_colors_historic_reconstruction
-
-# from pywrdrb.plotting.ensemble_plots import plot_ensemble_nyc_storage
-# from pywrdrb.plotting.ensemble_plots import plot_ensemble_nyc_storage_and_deficit
 from pywrdrb.plotting.ensemble_plots import plot_NYC_release_components_combined
 from pywrdrb.utils.lists import reservoir_list_nyc
 
@@ -187,6 +184,11 @@ if __name__ == "__main__":
 
     ### Get aggregate NYC data
     for model in pywr_models:
+        for real in reservoir_releases[model].keys():
+            reservoir_downstream_gages[model][real][
+                "NYCAgg"
+            ] = reservoir_downstream_gages[model][real][reservoir_list_nyc].sum(axis=1)
+
         if "ensemble" in model:
             for real in reservoir_releases[model].keys():
                 reservoir_downstream_gages[model][real][
@@ -210,7 +212,7 @@ if __name__ == "__main__":
 
     ### NYC reservoir operations and downstream flow contributions
     for model in pywr_ensemble_models:
-        for node in ["delTrenton", "delMontague"]:
+        for node in ["delMontague", "delTrenton"]:
             for dates in date_ranges.keys():
                 if dates == "full":
                     continue

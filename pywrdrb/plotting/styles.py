@@ -13,6 +13,34 @@ syn_model_colors = {
 }
 
 
+def get_model_color(model, colordict, default="darkorange"):
+    """
+    Return color for a specific model from a dictionary;
+    if model is not in the dictionary, return the default color.
+
+    Args:
+        model (str): Model name.
+        colordict (dict): Dictionary of model colors.
+        default (str): Default color to use if model is not in the dictionary.
+
+    Returns:
+        str: Color for the model.
+    """
+
+    # check if model is in the dict
+    if model in colordict.keys():
+        return colordict[model]
+    elif f"pywr_{model}" in colordict.keys():
+        return colordict[f"pywr_{model}"]
+    elif f"syn_{model}" in colordict.keys():
+        return colordict[f"syn_{model}"]
+    else:
+        print(
+            "Warning: Model not found in color dictionary. Using default color: {default}."
+        )
+        return default
+
+
 # pywr_{model} and {model} colors are the same
 base_model_colors = {
     "obs": "#191919",  # Dark grey
@@ -93,27 +121,29 @@ model_colors_diagnostics_paper3 = {
     "pywr_nwmv21_withObsScaled": cm.get_cmap("Purples")(0.9),
 }
 
+
 model_label_dict = {
     "obs": "Observed",
-    "nhmv10": "NHM",
-    "nwmv21": "NWM",
-    "nhmv10_withObsScaled": "hNHM",
-    "nwmv21_withObsScaled": "hNWM",
+    "nhmv10": "NHMv1.0",
+    "nwmv21": "NWMv2.1",
+    "obs_pub_nhmv10": "PUB-NHM",
+    "obs_pub_nhmv10_ensemble": "PUB-NHM Ensemble",
+    "obs_pub_nwmv21": "PUB-NWM",
+    "obs_pub_nwmv21_ensemble": "PUB-NWM Ensemble",
     "obs_pub_nhmv10_ObsScaled": "PUB-NHM",
+    "obs_pub_nhmv10_ObsScaled_ensemble": "PUB-NHM Ensemble",
     "obs_pub_nwmv21_ObsScaled": "PUB-NWM",
-    "obs_pub_nhmv10_ObsScaled_ensemble": "EPUB-NHM",
-    "obs_pub_nwmv21_ObsScaled_ensemble": "EPUB-NWM",
-    "pywr_nhmv10": "Pywr-NHM",
-    "pywr_nwmv21": "Pywr-NWM",
-    "pywr_nhmv10_withObsScaled": "Pywr-hNHM",
-    "pywr_nwmv21_withObsScaled": "Pywr-hNWM",
-    "pywr_obs_pub_nhmv10_ObsScaled": "Pywr-PUB-NHM",
-    "pywr_obs_pub_nwmv21_ObsScaled": "Pywr-PUB-NWM",
-    "pywr_obs_pub_nhmv10_ObsScaled_ensemble": "Pywr-EPUB-NHM",
-    "pywr_obs_pub_nwmv21_ObsScaled_ensemble": "Pywr-EPUB-NWM",
-    "pywr_syn_obs_pub_nhmv10_ObsScaled_ensemble": "Pywr-Syn-PUB-NHM",
-    "pywr_syn_obs_pub_nwmv21_ObsScaled_ensemble": "Pywr-Syn-PUB-NWM",
+    "obs_pub_nwmv21_ObsScaled_ensemble": "PUB-NWM Ensemble",
+    "obs_pub_nhmv10_BC_ObsScaled": "PUB-NHM Bias Corrected",
+    "obs_pub_nhmv10_BC_ObsScaled_ensemble": "PUB-NHM Bias Corrected Ensemble",
+    "obs_pub_nwmv21_BC_ObsScaled": "PUB-NWM Bias Corrected",
+    "obs_pub_nwmv21_BC_ObsScaled_ensemble": "PUB-NWM Bias Corrected Ensemble",
+    "wrf1960s_calib_nlcd2016": "WRF 1960s Calibrated",
+    "wrf2050s_calib_nlcd2016": "WRF 2050s Calibrated",
 }
+
+for l in list(model_label_dict.keys()):
+    model_label_dict[f"pywr_{l}"] = "Pywr-DRB " + model_label_dict[l]
 
 model_linestyle_dict = {
     "obs": "-",
@@ -228,13 +258,16 @@ model_colors_historic_reconstruction = {
     "nwmv21": "#385723",
     "obs_pub_nhmv10": "#F27300",
     "obs_pub_nhmv10_ObsScaled": "#F27300",
+    "obs_pub_nhmv10_BC_ObsScaled": "#F27300",
     "obs_pub_nhmv10_ensemble": "#F9B572",
     "obs_pub_nhmv10_ObsScaled_ensemble": "#F9B572",
-    "obs_pub_nhmv10_ObsScaled_ensemble": "#F9B572",
+    "obs_pub_nhmv10_BC_ObsScaled_ensemble": "#F9B572",
     "obs_pub_nwmv21": "#0174BE",
     "obs_pub_nwmv21_ensemble": "#9CD2F6",
     "obs_pub_nwmv21_ObsScaled": "#0174BE",
+    "obs_pub_nwmv21_BC_ObsScaled": "#0174BE",
     "obs_pub_nwmv21_ObsScaled_ensemble": "#9CD2F6",
+    "obs_pub_nwmv21_BC_ObsScaled_ensemble": "#9CD2F6",
 }
 
 for m in list(model_colors_historic_reconstruction.keys()):
