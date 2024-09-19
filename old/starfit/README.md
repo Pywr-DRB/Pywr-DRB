@@ -45,4 +45,4 @@ This folder is used to store and process usgs gage data.
 
 The ```process_usgs_data``` script takes gauge IDs, downloads .txt files, then takes the .txt files and produces cleaned .csv files.  The resulting files have names clean_usgs_<gauge_id>.csv.
 
-This was a modified version of Andrew's original script which did something similar. 
+This was a modified version of Andrew's original script which did something similar.

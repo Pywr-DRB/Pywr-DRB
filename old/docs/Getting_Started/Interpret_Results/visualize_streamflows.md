@@ -10,7 +10,7 @@ If the simulation was perfect, these streamflow contributions would stack-up to 
 
 ```{admonition} Interactive plot
 :class: tip
-Zoom in on the upper-panel of the figure to look more closely at a specific time period. 
+Zoom in on the upper-panel of the figure to look more closely at a specific time period.
 
 Notice how the relative streamflow contributions from the NYC reservoirs is greatest during periods when the total flow at Trenton at is near the minimum flow target; this is due to the FFMP and the way in which this policy is intended to maintain the minimum flow target.
 ```

@@ -30,7 +30,7 @@ parts:
           file: examples/Tutorial 02 Prepare Input Data.ipynb
         - title: Model Parameters
           file: examples/Tutorial 03 Model Parameters.ipynb
-    
+
     # ============== Results sets options ====
     - file: results_set_options.md
 
@@ -71,4 +71,3 @@ parts:
     #     file: Supplemental/node_list.md
     #   - title: Streamflow Prediction in Ungauged Basins
     #     file: Supplemental/pub.md
-

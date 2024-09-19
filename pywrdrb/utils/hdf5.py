@@ -9,11 +9,11 @@ pywrdrb_all_nodes = list(obs_site_matches.keys())
 # def combine_batched_hdf5_outputs(batch_files, combined_output_file):
 #     """
 #     Aggregate multiple HDF5 files into a single HDF5 file.
-    
+
 #     Args:
 #         batch_files (list): List of HDF5 files to combine.
 #         combined_output_file (str): Full output file path & name to write combined HDF5.
-    
+
 #     Returns:
 #         None
 #     """
@@ -21,7 +21,7 @@ pywrdrb_all_nodes = list(obs_site_matches.keys())
 #         # Since keys are same in all files, we just take keys from the first file
 #         with h5py.File(batch_files[0], 'r') as hf_in:
 #             keys = list(hf_in.keys())
-            
+
 #             time_key = None
 #             datetime_key_opts = ['time', 'date', 'datetime']
 #             for dt_key in datetime_key_opts:
@@ -33,14 +33,14 @@ pywrdrb_all_nodes = list(obs_site_matches.keys())
 #                 err_msg += f' Expected keys: {datetime_key_opts}'
 #                 raise ValueError(err_msg)
 #             time_array=hf_in[time_key][:]
-            
+
 #         for key in keys:
 #             add_key_to_output = True
 
-#             # Skip datetime keys and scenarios    
+#             # Skip datetime keys and scenarios
 #             if key in datetime_key_opts + ['scenarios']:
 #                 continue
-    
+
 #             # Accumulate data from all files for a specific key
 #             data_for_key = []
 #             for file in batch_files:
@@ -50,14 +50,14 @@ pywrdrb_all_nodes = list(obs_site_matches.keys())
 
 #                     if add_key_to_output:
 #                         data_for_key.append(hf_in[key][:,:])
-            
+
 #             if add_key_to_output:
 #                 # Concatenate along the scenarios axis
 #                 combined_data = np.concatenate(data_for_key, axis=1)
 
 #                 # Write combined data to the output file
 #                 hf_out.create_dataset(key, data=combined_data)
-        
+
 #         # Time needs to be handled differently since 1D
 #         hf_out.create_dataset(time_key, data=time_array)
 #     return
@@ -66,11 +66,11 @@ pywrdrb_all_nodes = list(obs_site_matches.keys())
 def combine_batched_hdf5_outputs(batch_files, combined_output_file):
     """
     Aggregate multiple HDF5 files into a single HDF5 file.
-    
+
     Args:
         batch_files (list): List of HDF5 files to combine.
         combined_output_file (str): Full output file path & name to write combined HDF5.
-    
+
     Returns:
         None
     """
@@ -78,25 +78,27 @@ def combine_batched_hdf5_outputs(batch_files, combined_output_file):
         raise ValueError("No batch files provided.")
 
     # Open all input files once and store their references
-    hdf5_files = [h5py.File(file, 'r') for file in batch_files]
-    
-    with h5py.File(combined_output_file, 'w') as hf_out:
+    hdf5_files = [h5py.File(file, "r") for file in batch_files]
+
+    with h5py.File(combined_output_file, "w") as hf_out:
         # Extract keys and time array from the first file
         first_file = hdf5_files[0]
         keys = list(first_file.keys())
-        
-        datetime_key_opts = ['time', 'date', 'datetime']
-        time_key = next((dt_key for dt_key in datetime_key_opts if dt_key in keys), None)
+
+        datetime_key_opts = ["time", "date", "datetime"]
+        time_key = next(
+            (dt_key for dt_key in datetime_key_opts if dt_key in keys), None
+        )
         if time_key is None:
-            err_msg = f'No time key found in HDF5 file {batch_files[0]}.'
-            err_msg += f' Expected keys: {datetime_key_opts}'
+            err_msg = f"No time key found in HDF5 file {batch_files[0]}."
+            err_msg += f" Expected keys: {datetime_key_opts}"
             raise ValueError(err_msg)
-        
+
         time_array = first_file[time_key][:]
-        
+
         # Process each key except datetime keys and scenarios
         for key in keys:
-            if key in datetime_key_opts + ['scenarios']:
+            if key in datetime_key_opts + ["scenarios"]:
                 continue
 
             # Collect data for the current key from all files
@@ -109,10 +111,10 @@ def combine_batched_hdf5_outputs(batch_files, combined_output_file):
                 # Concatenate data along the second axis (axis=1)
                 combined_data = np.concatenate(data_for_key, axis=1)
                 hf_out.create_dataset(key, data=combined_data)
-        
+
         # Write the time array to the output file
         hf_out.create_dataset(time_key, data=time_array)
-    
+
     # Close all input files
     for hf in hdf5_files:
         hf.close()
@@ -124,39 +126,44 @@ def export_ensemble_to_hdf5(dict, output_file):
     """
     Export a dictionary of ensemble data to an HDF5 file.
     Data is stored in the dictionary as {realization number (int): pd.DataFrame}.
-    
+
     Args:
         dict (dict): A dictionary of ensemble data.
         output_file (str): Full output file path & name to write HDF5.
-        
+
     Returns:
-        None    
+        None
     """
-    
+
     dict_keys = list(dict.keys())
     column_labels = dict[dict_keys[0]].columns.to_list()
-    
-    with h5py.File(output_file, 'w') as f:
+
+    with h5py.File(output_file, "w") as f:
         for key in dict_keys:
             data = dict[key]
-            datetime = data.index.to_numpy().astype('S')  # Directly use numpy array for dates
-            
+            datetime = data.index.to_numpy().astype(
+                "S"
+            )  # Directly use numpy array for dates
+
             grp = f.create_group(key)
-                    
+
             # Store column labels as an attribute
-            grp.attrs['column_labels'] = column_labels
+            grp.attrs["column_labels"] = column_labels
 
             # Create dataset for dates
-            grp.create_dataset('date', data=datetime)
-            
+            grp.create_dataset("date", data=datetime)
+
             # Create datasets for each array subset from the group
             for col in column_labels:
-                grp.create_dataset(col, data=data[col].to_numpy())  # Directly use numpy array
+                grp.create_dataset(
+                    col, data=data[col].to_numpy()
+                )  # Directly use numpy array
     return
+
 
 def get_hdf5_realization_numbers(filename):
     """
-    Checks the contents of an hdf5 file, and returns a list 
+    Checks the contents of an hdf5 file, and returns a list
     of the realization ID numbers contained.
     Realizations have key 'realization_i' in the HDF5.
 
@@ -167,38 +174,35 @@ def get_hdf5_realization_numbers(filename):
         list: Containing realizations ID numbers; realizations have key 'realization_i' in the HDF5.
     """
     realization_numbers = []
-    with h5py.File(filename, 'r') as file:
+    with h5py.File(filename, "r") as file:
         # Get the keys in the HDF5 file
         keys = list(file.keys())
 
         # Get the df using a specific node key
         node_data = file[keys[0]]
-        column_labels = node_data.attrs['column_labels']
-        
+        column_labels = node_data.attrs["column_labels"]
+
         # Iterate over the columns and extract the realization numbers
         for col in column_labels:
-            
             # handle different types of column labels
             if type(col) == str:
-                if col.startswith('realization_'):
+                if col.startswith("realization_"):
                     # Extract the realization number from the key
-                    realization_numbers.append(int(col.split('_')[1]))
+                    realization_numbers.append(int(col.split("_")[1]))
                 else:
                     realization_numbers.append(col)
             elif type(col) == int:
                 realization_numbers.append(col)
             else:
-                err_msg = f'Unexpected type {type(col)} for column label {col}.'
-                err_msg +=  f'in HDF5 file {filename}'
+                err_msg = f"Unexpected type {type(col)} for column label {col}."
+                err_msg += f"in HDF5 file {filename}"
                 raise ValueError(err_msg)
     return realization_numbers
 
 
-def extract_realization_from_hdf5(hdf5_file, 
-                                  realization,
-                                  stored_by_node=False):
+def extract_realization_from_hdf5(hdf5_file, realization, stored_by_node=False):
     """
-    Pull a single inflow realization from an HDF5 file of inflows. 
+    Pull a single inflow realization from an HDF5 file of inflows.
 
     Args:
         hdf5_file (str): The filename for the hdf5 file
@@ -208,38 +212,40 @@ def extract_realization_from_hdf5(hdf5_file,
     Returns:
         pandas.DataFrame: A DataFrame containing the realization
     """
-    
-    with h5py.File(hdf5_file, 'r') as f:
+
+    with h5py.File(hdf5_file, "r") as f:
         if stored_by_node:
             # Extract timeseries data from realization for each node
             data = {}
-                
+
             for node in pywrdrb_all_nodes:
                 node_data = f[node]
-                column_labels = node_data.attrs['column_labels']
-                
-                err_msg = f'The specified realization {realization} is not available in the HDF file.'
-                assert(realization in column_labels), err_msg + f' Realizations available: {column_labels}'
+                column_labels = node_data.attrs["column_labels"]
+
+                err_msg = f"The specified realization {realization} is not available in the HDF file."
+                assert realization in column_labels, (
+                    err_msg + f" Realizations available: {column_labels}"
+                )
                 data[node] = node_data[realization][:]
-            
-            dates = node_data['date'][:].tolist()
-            
+
+            dates = node_data["date"][:].tolist()
+
         else:
             realization_group = f[realization]
-            
+
             # Extract column labels
-            column_labels = realization_group.attrs['column_labels']
+            column_labels = realization_group.attrs["column_labels"]
             # Extract timeseries data for each location
             data = {}
             for label in column_labels:
                 dataset = realization_group[label]
                 data[label] = dataset[:]
-            
+
             # Get date indices
-            dates = realization_group['date'][:].tolist()
-        data['datetime'] = dates
-        
+            dates = realization_group["date"][:].tolist()
+        data["datetime"] = dates
+
     # Combine into dataframe
-    df = pd.DataFrame(data, index = dates)
+    df = pd.DataFrame(data, index=dates)
     df.index = pd.to_datetime(df.index.astype(str))
     return df

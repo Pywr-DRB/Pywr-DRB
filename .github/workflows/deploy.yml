@@ -17,7 +17,7 @@ jobs:
         python-version: [3.11]
     steps:
     - uses: actions/checkout@v2
-    
+
 
     # Install python
     - name: Set up Python ${{ matrix.python-version }}
@@ -29,7 +29,7 @@ jobs:
     # Install GLPK - this is needed for pywr
     - name: Install GLPK
       run: |
-        sudo apt-get update && sudo apt-get install -y glpk-utils libglpk-dev 
+        sudo apt-get update && sudo apt-get install -y glpk-utils libglpk-dev
 
     - name: Add GLPK to PATH
       run: echo "/usr/local/lib" | sudo tee -a /etc/ld.so.conf.d/glpk.conf && sudo ldconfig
@@ -49,7 +49,7 @@ jobs:
       if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
 
-      
+
     # install python dependencies
     - name: Install python dependencies
       run: pip install -r docs/requirements.txt
@@ -70,7 +70,7 @@ jobs:
         mkdir -p docs/examples
         cp -r notebooks/Tutorial\ 0*.ipynb docs/examples/
 
-    
+
     # Build the book
     - name: Build book
       run: |
@@ -113,7 +113,7 @@ jobs:
         publish_branch: gh-pages
 
 
-    
+
 
 
   # schedule:
