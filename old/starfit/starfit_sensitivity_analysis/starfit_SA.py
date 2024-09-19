@@ -7,12 +7,18 @@ from SALib.analyze import sobol
 from SALib.plotting.bar import plot as barplot
 from reservoir_models_for_SA import sim_reservoir_S
 
+# Add custom path for pywrdrb
+path_to_pywrdrb = '../../../'
+import sys
+sys.path.append(path_to_pywrdrb)
+from pywrdrb.utils.directories import model_data_dir
+
 ################################################################################
 # Find parameter bounds: See find_starfit_param_bounds.py for
 #                       visual value distribution
 ################################################################################
 
-starfit_conus = pd.read_csv('ISTARF-CONUS.csv')
+starfit_conus = pd.read_csv(f'{model_data_dir}drb_model_istarf_conus.csv', index_col=0)
 param_bounds = pd.DataFrame()
 param_bounds_mat = []
 
@@ -41,7 +47,7 @@ for param in consider_params:
 ################################################################################
 
 # Test a single reservoir
-test_reservoir = 'beltzville'
+test_reservoir = 'blueMarsh'
 
 # Select the bounds according to above percentile ranges
 problem = {

@@ -6,7 +6,7 @@
     },
     "timestepper": {
         "start": "1983-10-01",
-        "end": "2016-12-31",
+        "end": "2016-09-30",
         "timestep": 1
     },
     "scenarios": [
@@ -1940,17 +1940,29 @@
         },
         "flow_cannonsville": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_obs_pub_nwmv21.csv",
             "column": "cannonsville",
             "index_col": "datetime",
             "parse_dates": true
         },
-        "max_flow_catchmentWithdrawal_cannonsville": {
+        "withdrawal_scaling_cannonsville": {
+            "type": "constant",
+            "value": 1.0
+        },
+        "drbc_avg_catchmentWithdrawal_cannonsville": {
             "type": "constant",
             "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "reservoir_cannonsville"
+        },
+        "max_flow_catchmentWithdrawal_cannonsville": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "drbc_avg_catchmentWithdrawal_cannonsville",
+                "withdrawal_scaling_cannonsville"
+            ]
         },
         "catchmentConsumptionRatio_cannonsville": {
             "type": "constant",
@@ -1988,17 +2000,29 @@
         },
         "flow_pepacton": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_obs_pub_nwmv21.csv",
             "column": "pepacton",
             "index_col": "datetime",
             "parse_dates": true
         },
-        "max_flow_catchmentWithdrawal_pepacton": {
+        "withdrawal_scaling_pepacton": {
+            "type": "constant",
+            "value": 1.0
+        },
+        "drbc_avg_catchmentWithdrawal_pepacton": {
             "type": "constant",
             "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "reservoir_pepacton"
+        },
+        "max_flow_catchmentWithdrawal_pepacton": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "drbc_avg_catchmentWithdrawal_pepacton",
+                "withdrawal_scaling_pepacton"
+            ]
         },
         "catchmentConsumptionRatio_pepacton": {
             "type": "constant",
@@ -2036,17 +2060,29 @@
         },
         "flow_neversink": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_obs_pub_nwmv21.csv",
             "column": "neversink",
             "index_col": "datetime",
             "parse_dates": true
         },
-        "max_flow_catchmentWithdrawal_neversink": {
+        "withdrawal_scaling_neversink": {
+            "type": "constant",
+            "value": 1.0
+        },
+        "drbc_avg_catchmentWithdrawal_neversink": {
             "type": "constant",
             "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "reservoir_neversink"
+        },
+        "max_flow_catchmentWithdrawal_neversink": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "drbc_avg_catchmentWithdrawal_neversink",
+                "withdrawal_scaling_neversink"
+            ]
         },
         "catchmentConsumptionRatio_neversink": {
             "type": "constant",
@@ -2080,17 +2116,29 @@
         },
         "flow_wallenpaupack": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_obs_pub_nwmv21.csv",
             "column": "wallenpaupack",
             "index_col": "datetime",
             "parse_dates": true
         },
-        "max_flow_catchmentWithdrawal_wallenpaupack": {
+        "withdrawal_scaling_wallenpaupack": {
+            "type": "constant",
+            "value": 1.0
+        },
+        "drbc_avg_catchmentWithdrawal_wallenpaupack": {
             "type": "constant",
             "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "reservoir_wallenpaupack"
+        },
+        "max_flow_catchmentWithdrawal_wallenpaupack": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "drbc_avg_catchmentWithdrawal_wallenpaupack",
+                "withdrawal_scaling_wallenpaupack"
+            ]
         },
         "catchmentConsumptionRatio_wallenpaupack": {
             "type": "constant",
@@ -2124,17 +2172,29 @@
         },
         "flow_prompton": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_obs_pub_nwmv21.csv",
             "column": "prompton",
             "index_col": "datetime",
             "parse_dates": true
         },
-        "max_flow_catchmentWithdrawal_prompton": {
+        "withdrawal_scaling_prompton": {
+            "type": "constant",
+            "value": 1.0
+        },
+        "drbc_avg_catchmentWithdrawal_prompton": {
             "type": "constant",
             "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "reservoir_prompton"
+        },
+        "max_flow_catchmentWithdrawal_prompton": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "drbc_avg_catchmentWithdrawal_prompton",
+                "withdrawal_scaling_prompton"
+            ]
         },
         "catchmentConsumptionRatio_prompton": {
             "type": "constant",
@@ -2168,17 +2228,29 @@
         },
         "flow_shoholaMarsh": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_obs_pub_nwmv21.csv",
             "column": "shoholaMarsh",
             "index_col": "datetime",
             "parse_dates": true
         },
-        "max_flow_catchmentWithdrawal_shoholaMarsh": {
+        "withdrawal_scaling_shoholaMarsh": {
+            "type": "constant",
+            "value": 1.0
+        },
+        "drbc_avg_catchmentWithdrawal_shoholaMarsh": {
             "type": "constant",
             "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "reservoir_shoholaMarsh"
+        },
+        "max_flow_catchmentWithdrawal_shoholaMarsh": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "drbc_avg_catchmentWithdrawal_shoholaMarsh",
+                "withdrawal_scaling_shoholaMarsh"
+            ]
         },
         "catchmentConsumptionRatio_shoholaMarsh": {
             "type": "constant",
@@ -2212,17 +2284,29 @@
         },
         "flow_mongaupeCombined": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_obs_pub_nwmv21.csv",
             "column": "mongaupeCombined",
             "index_col": "datetime",
             "parse_dates": true
         },
-        "max_flow_catchmentWithdrawal_mongaupeCombined": {
+        "withdrawal_scaling_mongaupeCombined": {
+            "type": "constant",
+            "value": 1.0
+        },
+        "drbc_avg_catchmentWithdrawal_mongaupeCombined": {
             "type": "constant",
             "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "reservoir_mongaupeCombined"
+        },
+        "max_flow_catchmentWithdrawal_mongaupeCombined": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "drbc_avg_catchmentWithdrawal_mongaupeCombined",
+                "withdrawal_scaling_mongaupeCombined"
+            ]
         },
         "catchmentConsumptionRatio_mongaupeCombined": {
             "type": "constant",
@@ -2256,17 +2340,29 @@
         },
         "flow_beltzvilleCombined": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_obs_pub_nwmv21.csv",
             "column": "beltzvilleCombined",
             "index_col": "datetime",
             "parse_dates": true
         },
-        "max_flow_catchmentWithdrawal_beltzvilleCombined": {
+        "withdrawal_scaling_beltzvilleCombined": {
+            "type": "constant",
+            "value": 1.0
+        },
+        "drbc_avg_catchmentWithdrawal_beltzvilleCombined": {
             "type": "constant",
             "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "reservoir_beltzvilleCombined"
+        },
+        "max_flow_catchmentWithdrawal_beltzvilleCombined": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "drbc_avg_catchmentWithdrawal_beltzvilleCombined",
+                "withdrawal_scaling_beltzvilleCombined"
+            ]
         },
         "catchmentConsumptionRatio_beltzvilleCombined": {
             "type": "constant",
@@ -2300,17 +2396,29 @@
         },
         "flow_fewalter": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_obs_pub_nwmv21.csv",
             "column": "fewalter",
             "index_col": "datetime",
             "parse_dates": true
         },
-        "max_flow_catchmentWithdrawal_fewalter": {
+        "withdrawal_scaling_fewalter": {
+            "type": "constant",
+            "value": 1.0
+        },
+        "drbc_avg_catchmentWithdrawal_fewalter": {
             "type": "constant",
             "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "reservoir_fewalter"
+        },
+        "max_flow_catchmentWithdrawal_fewalter": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "drbc_avg_catchmentWithdrawal_fewalter",
+                "withdrawal_scaling_fewalter"
+            ]
         },
         "catchmentConsumptionRatio_fewalter": {
             "type": "constant",
@@ -2344,17 +2452,29 @@
         },
         "flow_merrillCreek": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_obs_pub_nwmv21.csv",
             "column": "merrillCreek",
             "index_col": "datetime",
             "parse_dates": true
         },
-        "max_flow_catchmentWithdrawal_merrillCreek": {
+        "withdrawal_scaling_merrillCreek": {
+            "type": "constant",
+            "value": 1.0
+        },
+        "drbc_avg_catchmentWithdrawal_merrillCreek": {
             "type": "constant",
             "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "reservoir_merrillCreek"
+        },
+        "max_flow_catchmentWithdrawal_merrillCreek": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "drbc_avg_catchmentWithdrawal_merrillCreek",
+                "withdrawal_scaling_merrillCreek"
+            ]
         },
         "catchmentConsumptionRatio_merrillCreek": {
             "type": "constant",
@@ -2388,17 +2508,29 @@
         },
         "flow_hopatcong": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_obs_pub_nwmv21.csv",
             "column": "hopatcong",
             "index_col": "datetime",
             "parse_dates": true
         },
-        "max_flow_catchmentWithdrawal_hopatcong": {
+        "withdrawal_scaling_hopatcong": {
+            "type": "constant",
+            "value": 1.0
+        },
+        "drbc_avg_catchmentWithdrawal_hopatcong": {
             "type": "constant",
             "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "reservoir_hopatcong"
+        },
+        "max_flow_catchmentWithdrawal_hopatcong": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "drbc_avg_catchmentWithdrawal_hopatcong",
+                "withdrawal_scaling_hopatcong"
+            ]
         },
         "catchmentConsumptionRatio_hopatcong": {
             "type": "constant",
@@ -2432,17 +2564,29 @@
         },
         "flow_nockamixon": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_obs_pub_nwmv21.csv",
             "column": "nockamixon",
             "index_col": "datetime",
             "parse_dates": true
         },
-        "max_flow_catchmentWithdrawal_nockamixon": {
+        "withdrawal_scaling_nockamixon": {
+            "type": "constant",
+            "value": 1.0
+        },
+        "drbc_avg_catchmentWithdrawal_nockamixon": {
             "type": "constant",
             "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "reservoir_nockamixon"
+        },
+        "max_flow_catchmentWithdrawal_nockamixon": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "drbc_avg_catchmentWithdrawal_nockamixon",
+                "withdrawal_scaling_nockamixon"
+            ]
         },
         "catchmentConsumptionRatio_nockamixon": {
             "type": "constant",
@@ -2476,17 +2620,29 @@
         },
         "flow_assunpink": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_obs_pub_nwmv21.csv",
             "column": "assunpink",
             "index_col": "datetime",
             "parse_dates": true
         },
-        "max_flow_catchmentWithdrawal_assunpink": {
+        "withdrawal_scaling_assunpink": {
+            "type": "constant",
+            "value": 1.0
+        },
+        "drbc_avg_catchmentWithdrawal_assunpink": {
             "type": "constant",
             "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "reservoir_assunpink"
+        },
+        "max_flow_catchmentWithdrawal_assunpink": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "drbc_avg_catchmentWithdrawal_assunpink",
+                "withdrawal_scaling_assunpink"
+            ]
         },
         "catchmentConsumptionRatio_assunpink": {
             "type": "constant",
@@ -2520,17 +2676,29 @@
         },
         "flow_ontelaunee": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_obs_pub_nwmv21.csv",
             "column": "ontelaunee",
             "index_col": "datetime",
             "parse_dates": true
         },
-        "max_flow_catchmentWithdrawal_ontelaunee": {
+        "withdrawal_scaling_ontelaunee": {
+            "type": "constant",
+            "value": 1.0
+        },
+        "drbc_avg_catchmentWithdrawal_ontelaunee": {
             "type": "constant",
             "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "reservoir_ontelaunee"
+        },
+        "max_flow_catchmentWithdrawal_ontelaunee": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "drbc_avg_catchmentWithdrawal_ontelaunee",
+                "withdrawal_scaling_ontelaunee"
+            ]
         },
         "catchmentConsumptionRatio_ontelaunee": {
             "type": "constant",
@@ -2564,17 +2732,29 @@
         },
         "flow_stillCreek": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_obs_pub_nwmv21.csv",
             "column": "stillCreek",
             "index_col": "datetime",
             "parse_dates": true
         },
-        "max_flow_catchmentWithdrawal_stillCreek": {
+        "withdrawal_scaling_stillCreek": {
+            "type": "constant",
+            "value": 1.0
+        },
+        "drbc_avg_catchmentWithdrawal_stillCreek": {
             "type": "constant",
             "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "reservoir_stillCreek"
+        },
+        "max_flow_catchmentWithdrawal_stillCreek": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "drbc_avg_catchmentWithdrawal_stillCreek",
+                "withdrawal_scaling_stillCreek"
+            ]
         },
         "catchmentConsumptionRatio_stillCreek": {
             "type": "constant",
@@ -2608,17 +2788,29 @@
         },
         "flow_blueMarsh": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_obs_pub_nwmv21.csv",
             "column": "blueMarsh",
             "index_col": "datetime",
             "parse_dates": true
         },
-        "max_flow_catchmentWithdrawal_blueMarsh": {
+        "withdrawal_scaling_blueMarsh": {
+            "type": "constant",
+            "value": 1.0
+        },
+        "drbc_avg_catchmentWithdrawal_blueMarsh": {
             "type": "constant",
             "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "reservoir_blueMarsh"
+        },
+        "max_flow_catchmentWithdrawal_blueMarsh": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "drbc_avg_catchmentWithdrawal_blueMarsh",
+                "withdrawal_scaling_blueMarsh"
+            ]
         },
         "catchmentConsumptionRatio_blueMarsh": {
             "type": "constant",
@@ -2652,17 +2844,29 @@
         },
         "flow_greenLane": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_obs_pub_nwmv21.csv",
             "column": "greenLane",
             "index_col": "datetime",
             "parse_dates": true
         },
-        "max_flow_catchmentWithdrawal_greenLane": {
+        "withdrawal_scaling_greenLane": {
+            "type": "constant",
+            "value": 1.0
+        },
+        "drbc_avg_catchmentWithdrawal_greenLane": {
             "type": "constant",
             "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "reservoir_greenLane"
+        },
+        "max_flow_catchmentWithdrawal_greenLane": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "drbc_avg_catchmentWithdrawal_greenLane",
+                "withdrawal_scaling_greenLane"
+            ]
         },
         "catchmentConsumptionRatio_greenLane": {
             "type": "constant",
@@ -2685,17 +2889,29 @@
         },
         "flow_01425000": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_obs_pub_nwmv21.csv",
             "column": "01425000",
             "index_col": "datetime",
             "parse_dates": true
         },
-        "max_flow_catchmentWithdrawal_01425000": {
+        "withdrawal_scaling_01425000": {
+            "type": "constant",
+            "value": 1.0
+        },
+        "drbc_avg_catchmentWithdrawal_01425000": {
             "type": "constant",
             "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "link_01425000"
+        },
+        "max_flow_catchmentWithdrawal_01425000": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "drbc_avg_catchmentWithdrawal_01425000",
+                "withdrawal_scaling_01425000"
+            ]
         },
         "catchmentConsumptionRatio_01425000": {
             "type": "constant",
@@ -2718,17 +2934,29 @@
         },
         "flow_01417000": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_obs_pub_nwmv21.csv",
             "column": "01417000",
             "index_col": "datetime",
             "parse_dates": true
         },
-        "max_flow_catchmentWithdrawal_01417000": {
+        "withdrawal_scaling_01417000": {
+            "type": "constant",
+            "value": 1.0
+        },
+        "drbc_avg_catchmentWithdrawal_01417000": {
             "type": "constant",
             "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "link_01417000"
+        },
+        "max_flow_catchmentWithdrawal_01417000": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "drbc_avg_catchmentWithdrawal_01417000",
+                "withdrawal_scaling_01417000"
+            ]
         },
         "catchmentConsumptionRatio_01417000": {
             "type": "constant",
@@ -2751,17 +2979,29 @@
         },
         "flow_delLordville": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_obs_pub_nwmv21.csv",
             "column": "delLordville",
             "index_col": "datetime",
             "parse_dates": true
         },
-        "max_flow_catchmentWithdrawal_delLordville": {
+        "withdrawal_scaling_delLordville": {
+            "type": "constant",
+            "value": 1.0
+        },
+        "drbc_avg_catchmentWithdrawal_delLordville": {
             "type": "constant",
             "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "link_delLordville"
+        },
+        "max_flow_catchmentWithdrawal_delLordville": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "drbc_avg_catchmentWithdrawal_delLordville",
+                "withdrawal_scaling_delLordville"
+            ]
         },
         "catchmentConsumptionRatio_delLordville": {
             "type": "constant",
@@ -2784,17 +3024,29 @@
         },
         "flow_01436000": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_obs_pub_nwmv21.csv",
             "column": "01436000",
             "index_col": "datetime",
             "parse_dates": true
         },
-        "max_flow_catchmentWithdrawal_01436000": {
+        "withdrawal_scaling_01436000": {
+            "type": "constant",
+            "value": 1.0
+        },
+        "drbc_avg_catchmentWithdrawal_01436000": {
             "type": "constant",
             "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "link_01436000"
+        },
+        "max_flow_catchmentWithdrawal_01436000": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "drbc_avg_catchmentWithdrawal_01436000",
+                "withdrawal_scaling_01436000"
+            ]
         },
         "catchmentConsumptionRatio_01436000": {
             "type": "constant",
@@ -2817,17 +3069,29 @@
         },
         "flow_01433500": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_obs_pub_nwmv21.csv",
             "column": "01433500",
             "index_col": "datetime",
             "parse_dates": true
         },
-        "max_flow_catchmentWithdrawal_01433500": {
+        "withdrawal_scaling_01433500": {
+            "type": "constant",
+            "value": 1.0
+        },
+        "drbc_avg_catchmentWithdrawal_01433500": {
             "type": "constant",
             "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "link_01433500"
+        },
+        "max_flow_catchmentWithdrawal_01433500": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "drbc_avg_catchmentWithdrawal_01433500",
+                "withdrawal_scaling_01433500"
+            ]
         },
         "catchmentConsumptionRatio_01433500": {
             "type": "constant",
@@ -2850,17 +3114,29 @@
         },
         "flow_delMontague": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_obs_pub_nwmv21.csv",
             "column": "delMontague",
             "index_col": "datetime",
             "parse_dates": true
         },
-        "max_flow_catchmentWithdrawal_delMontague": {
+        "withdrawal_scaling_delMontague": {
+            "type": "constant",
+            "value": 1.0
+        },
+        "drbc_avg_catchmentWithdrawal_delMontague": {
             "type": "constant",
             "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "link_delMontague"
+        },
+        "max_flow_catchmentWithdrawal_delMontague": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "drbc_avg_catchmentWithdrawal_delMontague",
+                "withdrawal_scaling_delMontague"
+            ]
         },
         "catchmentConsumptionRatio_delMontague": {
             "type": "constant",
@@ -2883,17 +3159,29 @@
         },
         "flow_01449800": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_obs_pub_nwmv21.csv",
             "column": "01449800",
             "index_col": "datetime",
             "parse_dates": true
         },
-        "max_flow_catchmentWithdrawal_01449800": {
+        "withdrawal_scaling_01449800": {
+            "type": "constant",
+            "value": 1.0
+        },
+        "drbc_avg_catchmentWithdrawal_01449800": {
             "type": "constant",
             "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "link_01449800"
+        },
+        "max_flow_catchmentWithdrawal_01449800": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "drbc_avg_catchmentWithdrawal_01449800",
+                "withdrawal_scaling_01449800"
+            ]
         },
         "catchmentConsumptionRatio_01449800": {
             "type": "constant",
@@ -2916,17 +3204,29 @@
         },
         "flow_01447800": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_obs_pub_nwmv21.csv",
             "column": "01447800",
             "index_col": "datetime",
             "parse_dates": true
         },
-        "max_flow_catchmentWithdrawal_01447800": {
+        "withdrawal_scaling_01447800": {
+            "type": "constant",
+            "value": 1.0
+        },
+        "drbc_avg_catchmentWithdrawal_01447800": {
             "type": "constant",
             "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "link_01447800"
+        },
+        "max_flow_catchmentWithdrawal_01447800": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "drbc_avg_catchmentWithdrawal_01447800",
+                "withdrawal_scaling_01447800"
+            ]
         },
         "catchmentConsumptionRatio_01447800": {
             "type": "constant",
@@ -2949,17 +3249,29 @@
         },
         "flow_delDRCanal": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_obs_pub_nwmv21.csv",
             "column": "delDRCanal",
             "index_col": "datetime",
             "parse_dates": true
         },
-        "max_flow_catchmentWithdrawal_delDRCanal": {
+        "withdrawal_scaling_delDRCanal": {
+            "type": "constant",
+            "value": 1.0
+        },
+        "drbc_avg_catchmentWithdrawal_delDRCanal": {
             "type": "constant",
             "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "link_delDRCanal"
+        },
+        "max_flow_catchmentWithdrawal_delDRCanal": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "drbc_avg_catchmentWithdrawal_delDRCanal",
+                "withdrawal_scaling_delDRCanal"
+            ]
         },
         "catchmentConsumptionRatio_delDRCanal": {
             "type": "constant",
@@ -2982,17 +3294,29 @@
         },
         "flow_01463620": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_obs_pub_nwmv21.csv",
             "column": "01463620",
             "index_col": "datetime",
             "parse_dates": true
         },
-        "max_flow_catchmentWithdrawal_01463620": {
+        "withdrawal_scaling_01463620": {
+            "type": "constant",
+            "value": 1.0
+        },
+        "drbc_avg_catchmentWithdrawal_01463620": {
             "type": "constant",
             "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "link_01463620"
+        },
+        "max_flow_catchmentWithdrawal_01463620": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "drbc_avg_catchmentWithdrawal_01463620",
+                "withdrawal_scaling_01463620"
+            ]
         },
         "catchmentConsumptionRatio_01463620": {
             "type": "constant",
@@ -3015,17 +3339,29 @@
         },
         "flow_outletAssunpink": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_obs_pub_nwmv21.csv",
             "column": "outletAssunpink",
             "index_col": "datetime",
             "parse_dates": true
         },
-        "max_flow_catchmentWithdrawal_outletAssunpink": {
+        "withdrawal_scaling_outletAssunpink": {
+            "type": "constant",
+            "value": 1.0
+        },
+        "drbc_avg_catchmentWithdrawal_outletAssunpink": {
             "type": "constant",
             "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "link_outletAssunpink"
+        },
+        "max_flow_catchmentWithdrawal_outletAssunpink": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "drbc_avg_catchmentWithdrawal_outletAssunpink",
+                "withdrawal_scaling_outletAssunpink"
+            ]
         },
         "catchmentConsumptionRatio_outletAssunpink": {
             "type": "constant",
@@ -3048,17 +3384,29 @@
         },
         "flow_01470960": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_obs_pub_nwmv21.csv",
             "column": "01470960",
             "index_col": "datetime",
             "parse_dates": true
         },
-        "max_flow_catchmentWithdrawal_01470960": {
+        "withdrawal_scaling_01470960": {
+            "type": "constant",
+            "value": 1.0
+        },
+        "drbc_avg_catchmentWithdrawal_01470960": {
             "type": "constant",
             "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "link_01470960"
+        },
+        "max_flow_catchmentWithdrawal_01470960": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "drbc_avg_catchmentWithdrawal_01470960",
+                "withdrawal_scaling_01470960"
+            ]
         },
         "catchmentConsumptionRatio_01470960": {
             "type": "constant",
@@ -3081,17 +3429,29 @@
         },
         "flow_outletSchuylkill": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/catchment_inflow_obs_pub_nwmv21.csv",
             "column": "outletSchuylkill",
             "index_col": "datetime",
             "parse_dates": true
         },
-        "max_flow_catchmentWithdrawal_outletSchuylkill": {
+        "withdrawal_scaling_outletSchuylkill": {
+            "type": "constant",
+            "value": 1.0
+        },
+        "drbc_avg_catchmentWithdrawal_outletSchuylkill": {
             "type": "constant",
             "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/sw_avg_wateruse_Pywr-DRB_Catchments.csv",
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": "link_outletSchuylkill"
+        },
+        "max_flow_catchmentWithdrawal_outletSchuylkill": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "drbc_avg_catchmentWithdrawal_outletSchuylkill",
+                "withdrawal_scaling_outletSchuylkill"
+            ]
         },
         "catchmentConsumptionRatio_outletSchuylkill": {
             "type": "constant",
@@ -3954,70 +4314,70 @@
         },
         "predicted_nonnyc_gage_flow_delMontague_lag1": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/predicted_inflows_diversions_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/predicted_inflows_diversions_obs_pub_nwmv21.csv",
             "column": "delMontague_lag1_regression_disagg",
             "index_col": "datetime",
             "parse_dates": true
         },
         "predicted_nonnyc_gage_flow_delMontague_lag2": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/predicted_inflows_diversions_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/predicted_inflows_diversions_obs_pub_nwmv21.csv",
             "column": "delMontague_lag2_regression_disagg",
             "index_col": "datetime",
             "parse_dates": true
         },
         "predicted_nonnyc_gage_flow_delTrenton_lag1": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/predicted_inflows_diversions_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/predicted_inflows_diversions_obs_pub_nwmv21.csv",
             "column": "delTrenton_lag1_regression_disagg",
             "index_col": "datetime",
             "parse_dates": true
         },
         "predicted_nonnyc_gage_flow_delTrenton_lag2": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/predicted_inflows_diversions_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/predicted_inflows_diversions_obs_pub_nwmv21.csv",
             "column": "delTrenton_lag2_regression_disagg",
             "index_col": "datetime",
             "parse_dates": true
         },
         "predicted_nonnyc_gage_flow_delTrenton_lag3": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/predicted_inflows_diversions_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/predicted_inflows_diversions_obs_pub_nwmv21.csv",
             "column": "delTrenton_lag3_regression_disagg",
             "index_col": "datetime",
             "parse_dates": true
         },
         "predicted_nonnyc_gage_flow_delTrenton_lag4": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/predicted_inflows_diversions_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/predicted_inflows_diversions_obs_pub_nwmv21.csv",
             "column": "delTrenton_lag4_regression_disagg",
             "index_col": "datetime",
             "parse_dates": true
         },
         "predicted_demand_nj_lag1": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/predicted_inflows_diversions_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/predicted_inflows_diversions_obs_pub_nwmv21.csv",
             "column": "demand_nj_lag1_regression_disagg",
             "index_col": "datetime",
             "parse_dates": true
         },
         "predicted_demand_nj_lag2": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/predicted_inflows_diversions_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/predicted_inflows_diversions_obs_pub_nwmv21.csv",
             "column": "demand_nj_lag2_regression_disagg",
             "index_col": "datetime",
             "parse_dates": true
         },
         "predicted_demand_nj_lag3": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/predicted_inflows_diversions_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/predicted_inflows_diversions_obs_pub_nwmv21.csv",
             "column": "demand_nj_lag3_regression_disagg",
             "index_col": "datetime",
             "parse_dates": true
         },
         "predicted_demand_nj_lag4": {
             "type": "dataframe",
-            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/predicted_inflows_diversions_nhmv10.csv",
+            "url": "C:\\Users\\ms3654\\Desktop\\Research\\Delaware\\Pywr-DRB\\Pywr-DRB\\input_data/predicted_inflows_diversions_obs_pub_nwmv21.csv",
             "column": "demand_nj_lag4_regression_disagg",
             "index_col": "datetime",
             "parse_dates": true

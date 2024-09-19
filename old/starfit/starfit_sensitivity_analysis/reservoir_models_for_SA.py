@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 from math import pi, sin, cos
 
-def sim_reservoir_S(params, reservoir_name = 'beltzville'):
+def sim_reservoir_S(params, reservoir_name = 'blueMarsh'):
     """
     Parameters:
     ----------
@@ -36,7 +36,8 @@ def sim_reservoir_S(params, reservoir_name = 'beltzville'):
         'Release_p2']
 
     # Load starfit data for DRB reservoirs
-    starfit_df = pd.read_csv('../../model_data/drb_model_istarf_conus.csv')
+    starfit_df = pd.read_csv('../../pywrdrb/model_data/drb_model_istarf_conus.csv')
+
     reservoirs = [res for res in starfit_df['reservoir']]
 
     # Find the index of the desired reservoir

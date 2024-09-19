@@ -46,7 +46,10 @@ class STARFIT:
         return
 
     def source_starfit_data(self):
-
+        # Check if 'reservoir' column exists
+        if 'reservoir' not in self.starfit_df.columns:
+            raise ValueError("Column 'reservoir' not found in starfit_df")
+    
         # Find the index of the desired reservoir
         res_index = self.starfit_df.index[self.starfit_df['reservoir'] == self.reservoir_name].tolist()
 
@@ -59,10 +62,10 @@ class STARFIT:
         self.data = self.starfit_df.iloc[res_index]
 
         # Define reservoir constant characteristics daily
-        self.R_max = ((self.data['Release_max'] + 1) * self.data['GRanD_MEANFLOW_MGD']).values
-        self.R_min = ((self.data['Release_min'] + 1) * self.data['GRanD_MEANFLOW_MGD']).values
-        self.I_bar = self.data['GRanD_MEANFLOW_MGD'].values
-        self.S_cap = self.data['GRanD_CAP_MG'].values
+        self.R_max = ((self.data['Release_max'] + 1) * self.data['Adjusted_MEANFLOW_MGD']).values
+        self.R_min = ((self.data['Release_min'] + 1) * self.data['Adjusted_MEANFLOW_MGD']).values
+        self.I_bar = self.data['Adjusted_MEANFLOW_MGD'].values
+        self.S_cap = self.data['Adjusted_CAP_MG'].values
         return
 
     def sinNpi(self, day, N):
@@ -89,6 +92,7 @@ class STARFIT:
         return R_avg_t.values[0]
 
     # Calculate daily values of the upper NOR bound
+    # Function to calculate NOR upper bound
     def calc_NOR_hi(self, time):
         # NOR harmonic is at weekly step
         if self.timestep == 'daily':
@@ -118,7 +122,7 @@ class STARFIT:
         elif (NOR_lo > self.data['NORlo_max']).bool():
             NOR_lo = self.data['NORlo_max']
         return (NOR_lo.values/100)
-
+    
     # Standardize inflow using annual average
     def standardize_inflow(self, I_t):
         return (I_t - self.I_bar) / self.I_bar

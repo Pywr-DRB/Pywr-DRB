@@ -28,7 +28,7 @@ statisticCodes = ["00003", "00002", "00001"]  # Mean, Minimum, Maximum
 
 ACRE_FEET_TO_MG = 0.325851  # Conversion factor from Acre-Feet to Million Gallons
 
-def retrieve_reservoir_data(gage_id, parameter_code, statistic_codes, start_date='1986-03-14', end_date='2021-09-30'):
+def retrieve_reservoir_data(gage_id, parameter_code, statistic_codes, start_date='1986-03-14', end_date='2022-12-31'):
     try:
         data = nwis.get_dv(sites=gage_id, parameterCd=parameter_code, statCd=statistic_codes, start=start_date, end=end_date)
         df = data[0]
