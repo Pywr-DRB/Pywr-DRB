@@ -14,7 +14,7 @@ from pywrdrb.utils.hdf5 import get_hdf5_realization_numbers
 default_kwargs = {
     "output_dir": output_dir,
     "results_sets": [],
-    "datetime_index": True,
+    "datetime_index": None,
     "scenarios": None,
     "units": "MG",
     "print_status": False,
