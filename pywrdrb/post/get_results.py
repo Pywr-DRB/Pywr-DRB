@@ -18,6 +18,7 @@ from pywrdrb.utils.lists import drbc_lower_basin_reservoirs
 from pywrdrb.utils.constants import cfs_to_mgd, mg_to_mcm
 from pywrdrb.utils.hdf5 import get_hdf5_realization_numbers
 from pywrdrb.utils.directories import input_dir
+from pywrdrb.utils.results_sets import pywrdrb_results_set_opts
 
 
 def get_pywrdrb_results(
@@ -40,10 +41,19 @@ def get_pywrdrb_results(
             (Default: 'all')
         scenarios (list(int), optional): The scenario index numbers. Default: [0]
         datetime_index (Pandas datetime_index): Creating the dates are slow: if this isn't our first data retrieval, we can provide the dates from a previous results dataframe.
+        units (str, optional): The units to convert the flow data to. Options: "MG", "MCM"
 
     Returns:
         dict(pd.DataFrame): Dictionary containing simulation results for each scenario.
     """
+
+    # Validate results_set
+    if results_set not in pywrdrb_results_set_opts:
+        err_msg = f"Invalid results_set specified for get_pywrdrb_results().\n"
+        err_msg += f" Valid results_set options: {pywrdrb_results_set_opts}"
+        raise ValueError(err_msg)
+
+    # Get result data from HDF5 output file
     with h5py.File(f"{output_dir}drb_output_{model}.hdf5", "r") as f:
         keys = list(f.keys())
         if results_set == "all":
