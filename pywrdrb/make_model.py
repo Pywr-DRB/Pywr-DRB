@@ -100,6 +100,8 @@ def add_major_node(
     variable_cost=None,
     has_catchment=True,
     inflow_ensemble_indices=None,
+    run_starfit_sensitivity_analysis=True,
+    sensitivity_analysis_scenarios=[1,2,3,4,5,6,7,8,9,10]
 ):
     """
     Add a major node to the model.
@@ -125,6 +127,8 @@ def add_major_node(
         has_catchment (bool): True if the node has a catchment with inflows and withdrawal/consumption.
                               False for artificial nodes that coincide with another (e.g., delTrenton, which shares a catchment with delDRCanal).
         inflow_ensemble_indices (None or list): List of ensemble indices for inflows (optional).
+        run_starfit_sensitivity_analysis (bool): If True, run STARFIT sensitivity analysis. Default is False.
+        sensitivity_analysis_scenarios (list): List of scenario ID numbers for STARFIT sensitivity analysis.
 
     Returns:
         dict: The updated model dictionary.
@@ -288,6 +292,8 @@ def add_major_node(
         model["parameters"][f"starfit_release_{name}"] = {
             "type": "STARFITReservoirRelease",
             "node": name,
+            "run_starfit_sensitivity_analysis": run_starfit_sensitivity_analysis,
+            "sensitivity_analysis_scenarios" : sensitivity_analysis_scenarios,
         }
 
     if has_catchment:
@@ -361,6 +367,8 @@ def make_model(
     inflow_ensemble_indices=None,
     predict_temperature=False,
     predict_salinity=False,
+    run_starfit_sensitivity_analysis=True,
+    sensitivity_analysis_scenarios=[1,2,3,4,5,6,7,8,9,10]
 ):
     """
     Creates the JSON file used by Pywr to define the model, including all nodes, edges, and parameters.
@@ -372,6 +380,10 @@ def make_model(
         use_hist_NycNjDeliveries (bool): Flag indicating whether to use historical NYC and NJ deliveries.
         inflow_ensemble_indices (list): List of inflow ensemble indices.
         predict_temperature (bool): If True, use LSTM model to predict temperature. Must have BMI repository set up. Default is False.
+        predict_salinity (bool): If True, use LSTM model to predict salinity. NOT YET IMPLEMENTED.
+        run_starfit_sensitivity_analysis (bool): If True, run STARFIT sensitivity analysis. Default is False.
+        sensitivity_analysis_scenarios (list): List of scenario ID numbers for STARFIT sensitivity analysis.
+    
     Returns:
         dict: Model JSON representation.
     """
@@ -382,6 +394,10 @@ def make_model(
 
     if inflow_ensemble_indices:
         N_SCENARIOS = len(inflow_ensemble_indices)
+
+    elif sensitivity_analysis_scenarios and not inflow_ensemble_indices:
+        N_SCENARIOS = len(sensitivity_analysis_scenarios)
+
     else:
         N_SCENARIOS = 1
 
@@ -451,8 +467,9 @@ def make_model(
             variable_cost,
             has_catchment,
             inflow_ensemble_indices,
+            run_starfit_sensitivity_analysis=run_starfit_sensitivity_analysis,
+            sensitivity_analysis_scenarios=sensitivity_analysis_scenarios,
         )
-
     #######################################################################
     ### Add additional nodes beyond those associated with major nodes above
     #######################################################################
