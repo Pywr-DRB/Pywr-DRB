@@ -84,21 +84,23 @@ class Output:
                 err_msg = f"Output file for model {m} does not exist. "
                 err_msg += f"Expected file: {fname}"
                 raise FileNotFoundError(err_msg)
-
+        return
+    
     def _get_scenario_ids_for_models(self):
         """
-        Get the scenario numbers for the given model.
-        """
+        Get the scenario IDs for each model.
+        """ 
         scenario_ids = {}
-
         for m in self.models:
-            if "ensemble" not in m:
-                scenario_ids[m] = [0]
+            fname = f"{self.output_dir}drb_output_{m}.hdf5"
+            # Check if scenario numbers are provided in kwargs or if you want to retrieve them.
+            if self.scenarios is not None:
+                scenario_ids[m] = self.scenarios
             else:
-                fname = f"{self.output_dir}drb_output_{m}.hdf5"
-                scenario_ids[m] = get_hdf5_realization_numbers(fname)
+                scenario_ids[m] = get_hdf5_realization_numbers(fname)  # Fetch scenario numbers from HDF5
         self.scenarios = scenario_ids
         return
+
 
     def load(self, **kwargs):
         self.__parse_kwargs__(**kwargs)
