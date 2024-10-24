@@ -67,21 +67,18 @@ lag_days_from_Trenton = {
 # Specified in the DRBC Water Code Table 4
 # Lower basin drought condition policies are not currently implemented
 conservation_releases = {
-    "normal": {
-        "blueMarsh": 50 * cfs_to_mgd,
-        "beltzvilleCombined": 35 * cfs_to_mgd,
-        "nockamixon": 11 * cfs_to_mgd,
-        "fewalter": 50 * cfs_to_mgd,
-    },
-    "lower_basin_drought": {
-        "blueMarsh": 30 * cfs_to_mgd,
-        "beltzvilleCombined": 15 * cfs_to_mgd,
-        "nockamixon": 7 * cfs_to_mgd,
-        "fewalter": 43 * cfs_to_mgd,
-    },
+    "blueMarsh": 50 * cfs_to_mgd,
+    "beltzvilleCombined": 35 * cfs_to_mgd,
+    "nockamixon": 11 * cfs_to_mgd,
+    "fewalter": 50 * cfs_to_mgd,
 }
-normal_conservation_releases = conservation_releases["normal"]
 
+lower_basin_drought_conservation_releases = {
+    "blueMarsh": 30 * cfs_to_mgd,
+    "beltzvilleCombined": 15 * cfs_to_mgd,
+    "nockamixon": 7 * cfs_to_mgd,
+    "fewalter": 43 * cfs_to_mgd,
+}
 
 class LowerBasinMaxMRFContribution(Parameter):
     """
@@ -130,7 +127,7 @@ class LowerBasinMaxMRFContribution(Parameter):
 
         # Table 4 of DRBC Water Code
         # but drought seems to reference lower basin drought... use normal for now
-        self.conservation_releases = normal_conservation_releases
+        self.conservation_releases = conservation_releases
         self.R_min = self.conservation_releases[self.reservoir]
 
         self.max_mrf_daily_contribution = max_mrf_daily_contributions[self.reservoir]
