@@ -113,19 +113,9 @@ class STARFITReservoirRelease(Parameter):
             self.S_cap = starfit_params.loc[self.starfit_name, "Adjusted_CAP_MG"]
             self.I_bar = starfit_params.loc[self.starfit_name, "Adjusted_MEANFLOW_MGD"]
 
-            if pd.isnull(self.I_bar):
-                print(f"Warning: 'I_bar' for {self.starfit_name} is NaN. Check STARFIT parameters.")
-            else:
-                print(f"'I_bar' for {self.starfit_name} successfully assigned: {self.I_bar}")
-
         else:
             self.S_cap = starfit_params.loc[self.starfit_name, "GRanD_CAP_MG"]
             self.I_bar = starfit_params.loc[self.starfit_name, "GRanD_MEANFLOW_MGD"]
-
-            if pd.isnull(self.I_bar):
-                print(f"Warning: 'I_bar' for {self.starfit_name} is NaN. Check STARFIT parameters.")
-            else:
-                print(f"'I_bar' for {self.starfit_name} successfully assigned: {self.I_bar}")
 
         # Store STARFIT parameters
         self.NORhi_mu = starfit_params.loc[self.starfit_name, "NORhi_mu"]
@@ -152,7 +142,7 @@ class STARFITReservoirRelease(Parameter):
         # Override STARFIT max releases at DRBC lower reservoirs
         if self.reservoir_name in list(max_discharges.keys()):
             self.R_max = max_discharges[self.reservoir_name]
-            print(f"{self.starfit_name} R_max set to overridden value {self.R_max}")
+
         else:
             self.R_max = (
                 999999
@@ -162,17 +152,14 @@ class STARFITReservoirRelease(Parameter):
                     * self.I_bar
                 )
             )
-            print(f"{self.starfit_name} R_max set to {self.R_max}")
 
         # Override STARFIT min releases at DRBC lower reservoirs
         if self.reservoir_name in list(conservation_releases.keys()):
             self.R_min = conservation_releases[self.reservoir_name]
-            print(f"{self.starfit_name} R_min set to overridden value {self.R_min}")
         else:
             self.R_min = (
                 starfit_params.loc[self.starfit_name, "Release_min"] + 1
             ) * self.I_bar
-            print(f"{self.starfit_name} R_min set to {self.R_min}")
                             
     def setup(self):
         """
@@ -343,7 +330,7 @@ class STARFITReservoirRelease(Parameter):
             # load values from file
             self.starfit_params = self.load_starfit_sensitivity_samples(self.sample_scenario_index)
             
-            print(f"Loading STARFIT parameters for {self.reservoir_name} (sensitivity analysis) with starfit_params: {self.starfit_params}")
+            print(f"Loading STARFIT parameters for {self.reservoir_name}")
         
             self.assign_starfit_param_values(self.starfit_params)
             # change bool to prevent re-loading
@@ -351,20 +338,17 @@ class STARFITReservoirRelease(Parameter):
 
         elif not self.parameters_loaded and not self.run_sensitivity_analysis:
             self.starfit_params = self.load_default_starfit_params(model_data_dir) 
-            print(f"Assigning STARFIT parameters for {self.reservoir_name} with starfit_params: {self.starfit_params}")
+            print(f"Assigning STARFIT parameters for {self.reservoir_name}")
             self.assign_starfit_param_values(self.starfit_params)
             self.parameters_loaded = True
 
         # Get current storage and inflow conditions
         I_t = self.inflow.get_value(scenario_index)
-        print(f"Reservoir {self.reservoir_name} inflow: {I_t}")
         S_t = self.node.volume[scenario_index.indices]
-        print(f"Reservoir {self.reservoir_name} storage: {S_t}")
 
         I_hat_t = self.standardize_inflow(I_t)
-        print(f"Reservoir {self.reservoir_name} standardized inflow: {I_hat_t}")
         S_hat_t = self.calculate_percent_storage(S_t)
-        print(f"Reservoir {self.reservoir_name} standardized storage: {S_hat_t}")
+        
 
         NORhi_t = self.get_NORhi(timestep)
         NORlo_t = self.get_NORlo(timestep)
@@ -388,8 +372,7 @@ class STARFITReservoirRelease(Parameter):
 
         # Get actual release subject to constraints
         release_t = max(min(target_release, I_t + S_t), (I_t + S_t - self.S_cap))
-        # if (S_hat_t <= 0.01) or (S_t < 50):
-        #    print(f'{self.node.name} Going to zero storage')
+    
         return max(0, release_t)
 
     @classmethod

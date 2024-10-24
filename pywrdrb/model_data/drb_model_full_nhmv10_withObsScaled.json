@@ -12,7 +12,7 @@
     "scenarios": [
         {
             "name": "inflow",
-            "size": 5
+            "size": 10
         }
     ],
     "nodes": [
@@ -2079,11 +2079,16 @@
             "node": "wallenpaupack",
             "run_starfit_sensitivity_analysis": true,
             "sensitivity_analysis_scenarios": [
-                5,
-                6,
-                7,
-                8,
-                9
+                380,
+                381,
+                382,
+                383,
+                384,
+                385,
+                386,
+                387,
+                388,
+                389
             ]
         },
         "flow_wallenpaupack": {
@@ -2131,11 +2136,16 @@
             "node": "prompton",
             "run_starfit_sensitivity_analysis": true,
             "sensitivity_analysis_scenarios": [
-                5,
-                6,
-                7,
-                8,
-                9
+                380,
+                381,
+                382,
+                383,
+                384,
+                385,
+                386,
+                387,
+                388,
+                389
             ]
         },
         "flow_prompton": {
@@ -2183,11 +2193,16 @@
             "node": "shoholaMarsh",
             "run_starfit_sensitivity_analysis": true,
             "sensitivity_analysis_scenarios": [
-                5,
-                6,
-                7,
-                8,
-                9
+                380,
+                381,
+                382,
+                383,
+                384,
+                385,
+                386,
+                387,
+                388,
+                389
             ]
         },
         "flow_shoholaMarsh": {
@@ -2235,11 +2250,16 @@
             "node": "mongaupeCombined",
             "run_starfit_sensitivity_analysis": true,
             "sensitivity_analysis_scenarios": [
-                5,
-                6,
-                7,
-                8,
-                9
+                380,
+                381,
+                382,
+                383,
+                384,
+                385,
+                386,
+                387,
+                388,
+                389
             ]
         },
         "flow_mongaupeCombined": {
@@ -2287,11 +2307,16 @@
             "node": "beltzvilleCombined",
             "run_starfit_sensitivity_analysis": true,
             "sensitivity_analysis_scenarios": [
-                5,
-                6,
-                7,
-                8,
-                9
+                380,
+                381,
+                382,
+                383,
+                384,
+                385,
+                386,
+                387,
+                388,
+                389
             ]
         },
         "flow_beltzvilleCombined": {
@@ -2339,11 +2364,16 @@
             "node": "fewalter",
             "run_starfit_sensitivity_analysis": true,
             "sensitivity_analysis_scenarios": [
-                5,
-                6,
-                7,
-                8,
-                9
+                380,
+                381,
+                382,
+                383,
+                384,
+                385,
+                386,
+                387,
+                388,
+                389
             ]
         },
         "flow_fewalter": {
@@ -2391,11 +2421,16 @@
             "node": "merrillCreek",
             "run_starfit_sensitivity_analysis": true,
             "sensitivity_analysis_scenarios": [
-                5,
-                6,
-                7,
-                8,
-                9
+                380,
+                381,
+                382,
+                383,
+                384,
+                385,
+                386,
+                387,
+                388,
+                389
             ]
         },
         "flow_merrillCreek": {
@@ -2443,11 +2478,16 @@
             "node": "hopatcong",
             "run_starfit_sensitivity_analysis": true,
             "sensitivity_analysis_scenarios": [
-                5,
-                6,
-                7,
-                8,
-                9
+                380,
+                381,
+                382,
+                383,
+                384,
+                385,
+                386,
+                387,
+                388,
+                389
             ]
         },
         "flow_hopatcong": {
@@ -2495,11 +2535,16 @@
             "node": "nockamixon",
             "run_starfit_sensitivity_analysis": true,
             "sensitivity_analysis_scenarios": [
-                5,
-                6,
-                7,
-                8,
-                9
+                380,
+                381,
+                382,
+                383,
+                384,
+                385,
+                386,
+                387,
+                388,
+                389
             ]
         },
         "flow_nockamixon": {
@@ -2547,11 +2592,16 @@
             "node": "assunpink",
             "run_starfit_sensitivity_analysis": true,
             "sensitivity_analysis_scenarios": [
-                5,
-                6,
-                7,
-                8,
-                9
+                380,
+                381,
+                382,
+                383,
+                384,
+                385,
+                386,
+                387,
+                388,
+                389
             ]
         },
         "flow_assunpink": {
@@ -2599,11 +2649,16 @@
             "node": "ontelaunee",
             "run_starfit_sensitivity_analysis": true,
             "sensitivity_analysis_scenarios": [
-                5,
-                6,
-                7,
-                8,
-                9
+                380,
+                381,
+                382,
+                383,
+                384,
+                385,
+                386,
+                387,
+                388,
+                389
             ]
         },
         "flow_ontelaunee": {
@@ -2651,11 +2706,16 @@
             "node": "stillCreek",
             "run_starfit_sensitivity_analysis": true,
             "sensitivity_analysis_scenarios": [
-                5,
-                6,
-                7,
-                8,
-                9
+                380,
+                381,
+                382,
+                383,
+                384,
+                385,
+                386,
+                387,
+                388,
+                389
             ]
         },
         "flow_stillCreek": {
@@ -2703,11 +2763,16 @@
             "node": "blueMarsh",
             "run_starfit_sensitivity_analysis": true,
             "sensitivity_analysis_scenarios": [
-                5,
-                6,
-                7,
-                8,
-                9
+                380,
+                381,
+                382,
+                383,
+                384,
+                385,
+                386,
+                387,
+                388,
+                389
             ]
         },
         "flow_blueMarsh": {
@@ -2755,11 +2820,16 @@
             "node": "greenLane",
             "run_starfit_sensitivity_analysis": true,
             "sensitivity_analysis_scenarios": [
-                5,
-                6,
-                7,
-                8,
-                9
+                380,
+                381,
+                382,
+                383,
+                384,
+                385,
+                386,
+                387,
+                388,
+                389
             ]
         },
         "flow_greenLane": {
