@@ -6,4 +6,4 @@ sys.path.insert(0, os.path.abspath("../"))
 
 
 from pywrdrb.model_builder import PywrdrbModelBuilder
-from pywrdrb.post.OutputLoader import Output
+from pywrdrb.post.output_loader import Output
