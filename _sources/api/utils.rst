@@ -2,9 +2,12 @@ pywrdrb.utils
 ================
 
 pywrdrb.utils.directories
-----------------------------
+--------------------
 
 .. automodule:: pywrdrb.utils.directories
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 This module contains string variables that provide absolut paths to the following directories:
 
@@ -22,6 +25,9 @@ This module contains string variables that provide absolut paths to the followin
 pywrdrb.utils.hdf5
 --------------------
 .. automodule:: pywrdrb.utils.hdf5
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 .. autosummary::
    :toctree: generated/
@@ -33,8 +39,11 @@ pywrdrb.utils.hdf5
 
 
 pywrdrb.utils.timeseries
--------------------------
+--------------------
 .. automodule:: pywrdrb.utils.timeseries
+    :members:
+    :undoc-members:
+    :show-inheritance:
     
 .. autosummary::
    :toctree: generated/

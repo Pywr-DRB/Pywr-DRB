@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Introduction to Pywr-DRB &#8212; Pywr-DRB Integrated Water Resource Management Model</title>
+    <title>Overview: &#8212; Pywr-DRB Integrated Water Resource Management Model</title>
   
   
   
@@ -16,17 +16,19 @@
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
   </script>
+  <!-- 
+    this give us a css class that will be invisible only if js is disabled 
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-
-  
-  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+  <link href="../_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=a3416100" />
@@ -34,12 +36,13 @@
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=87e54e7c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
   
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
-  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
 
     <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
@@ -60,10 +63,11 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'examples/Tutorial 01 Introduction to PywrDRB';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Preparing Input Data" href="Tutorial%2002%20Prepare%20Input%20Data.html" />
+    <link rel="next" title="Pywr-DRB Tutorial 3: Model Parameters" href="Tutorial%2003%20Model%20Parameters.html" />
     <link rel="prev" title="Examples" href="examples.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
   </head>
   
   
@@ -79,19 +83,8 @@
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
 
   
-  <input type="checkbox"
-          class="sidebar-toggle"
-          id="pst-primary-sidebar-checkbox"/>
-  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
-  
-  <input type="checkbox"
-          class="sidebar-toggle"
-          id="pst-secondary-sidebar-checkbox"/>
-  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
-  
-  <div class="search-button__wrapper">
-    <div class="search-button__overlay"></div>
-    <div class="search-button__search-container">
+  <dialog id="pst-search-dialog">
+    
 <form class="bd-search d-flex align-items-center"
       action="../search.html"
       method="get">
@@ -99,7 +92,6 @@
   <input type="search"
          class="form-control"
          name="q"
-         id="search-input"
          placeholder="Search this book..."
          aria-label="Search this book..."
          autocomplete="off"
@@ -107,8 +99,8 @@
          autocapitalize="off"
          spellcheck="false"/>
   <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
-</form></div>
-  </div>
+</form>
+  </dialog>
 
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
@@ -124,7 +116,8 @@
       
       
       
-      <div class="bd-sidebar-primary bd-sidebar">
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
         
 
   
@@ -154,21 +147,17 @@
     
     
     <img src="../_static/logo.png" class="logo__image only-light" alt="Pywr-DRB Integrated Water Resource Management Model - Home"/>
-    <script>document.write(`<img src="../_static/logo.png" class="logo__image only-dark" alt="Pywr-DRB Integrated Water Resource Management Model - Home"/>`);</script>
+    <img src="../_static/logo.png" class="logo__image only-dark pst-js-only" alt="Pywr-DRB Integrated Water Resource Management Model - Home"/>
   
   
 </a></div>
         <div class="sidebar-primary-item">
 
- <script>
- document.write(`
-   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="fa-solid fa-magnifying-glass"></i>
-    <span class="search-button__default-text">Search</span>
-    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
-   </button>
- `);
- </script></div>
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
         <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
         
@@ -229,13 +218,16 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="examples.html">Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">Introduction to Pywr-DRB</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Overview:</a></li>
 
-<li class="toctree-l2"><a class="reference internal" href="Tutorial%2002%20Prepare%20Input%20Data.html">Prep Model Inputs</a></li>
+
+
+
+
+
 <li class="toctree-l2"><a class="reference internal" href="Tutorial%2003%20Model%20Parameters.html">Model Parameters</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1"><a class="reference internal" href="../results_set_options.html">Results Set Table</a></li>
 </ul>
 
     </div>
@@ -390,24 +382,16 @@
 
 
 
-<script>
-document.write(`
-  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
-    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
-    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
-  </button>
-`);
-</script>
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
 
 
-<script>
-document.write(`
-  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass fa-lg"></i>
-  </button>
-`);
-</script>
+</button>
 <button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <span class="fa-solid fa-list"></span>
 </button>
@@ -421,7 +405,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Introduction to Pywr-DRB</h1>
+    <h1>Overview:</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -431,40 +415,37 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Introduction to Pywr-DRB</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview:</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#links">Links:</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tutorial-content">Tutorial content:</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Overview:</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#links">Links:</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tutorial-content">Tutorial content:</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-started">1.0 Getting Started</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#explanation-of-the-pywr-drb-code-base">2.0 Explanation of the Pywr-DRB code base</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#input-data">2.1 Input Data</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#necessary-files-for-simulation">1.2.1 Necessary files for simulation:</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-started">1.0 Getting Started</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#explanation-of-the-pywr-drb-code-base">2.0 Explanation of the Pywr-DRB code base</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#input-data">2.1 Input Data</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#necessary-files-for-simulation">1.2.1 Necessary files for simulation:</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb">2.2 <code class="docutils literal notranslate"><span class="pre">pywrdrb</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb-model-data">2.2.1 <code class="docutils literal notranslate"><span class="pre">pywrdrb.model_data</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb-parameters">2.2.2 <code class="docutils literal notranslate"><span class="pre">pywrdrb.parameters</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb-pre">2.2.3 <code class="docutils literal notranslate"><span class="pre">pywrdrb.pre</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb-post">2.2.4 <code class="docutils literal notranslate"><span class="pre">pywrdrb.post</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb-plotting">2.2.5 <code class="docutils literal notranslate"><span class="pre">pywrdrb.plotting</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb">2.2 <code class="docutils literal notranslate"><span class="pre">pywrdrb</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb-model-data">2.2.1 <code class="docutils literal notranslate"><span class="pre">pywrdrb.model_data</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb-parameters">2.2.2 <code class="docutils literal notranslate"><span class="pre">pywrdrb.parameters</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb-pre">2.2.3 <code class="docutils literal notranslate"><span class="pre">pywrdrb.pre</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb-post">2.2.4 <code class="docutils literal notranslate"><span class="pre">pywrdrb.post</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb-plotting">2.2.5 <code class="docutils literal notranslate"><span class="pre">pywrdrb.plotting</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#activity-code-flowchart">Activity: Code flowchart</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#activity-code-flowchart">Activity: Code flowchart</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#interacting-with-a-pywr-drb-model-instance">3.0 Interacting with a Pywr-DRB model instance</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-a-pywr-model">3.1 Loading a Pywr model</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#nodes">3.2 Nodes</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#parameters">3.3 Parameters</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#interacting-with-a-pywr-drb-model-instance">3.0 Interacting with a Pywr-DRB model instance</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-a-pywr-model">3.1 Loading a Pywr model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#nodes">3.2 Nodes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#parameters">3.3 Parameters</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#running-a-pywr-drb-simulation">4.0 Running a Pywr-DRB simulation</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#accessing-pywr-drb-output-data">5.0 Accessing Pywr-DRB output data</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-structure-of-results-set-dictionary">5.1 The structure of <code class="docutils literal notranslate"><span class="pre">results_set</span></code> dictionary</a></li>
-</ul>
-</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#running-a-pywr-drb-simulation">4.0 Running a Pywr-DRB simulation</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#accessing-pywr-drb-output-data">5.0 Accessing Pywr-DRB output data</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-structure-of-results-set-dictionary">5.1 The structure of <code class="docutils literal notranslate"><span class="pre">results_set</span></code> dictionary</a></li>
 </ul>
 </li>
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#summary-of-training-and-activities">Summary of Training and Activities</a></li>
@@ -480,43 +461,41 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="introduction-to-pywr-drb">
-<h1>Introduction to Pywr-DRB<a class="headerlink" href="#introduction-to-pywr-drb" title="Link to this heading">#</a></h1>
-<section id="overview">
-<h2>Overview:<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
+  <section id="overview">
+<h1>Overview:<a class="headerlink" href="#overview" title="Link to this heading">#</a></h1>
 <p>If you want to learn how to use the <a class="reference external" href="https://github.com/Pywr-DRB/Pywr-DRB">Pywr-DRB</a> water resource model, you are in the right place.</p>
 <p>This page is designed to introduce you to the Pywr-DRB code base, help you set up your environment, and show you how to access and begin interacting with a Pywr-DRB model instance.</p>
 <section id="links">
-<h3>Links:<a class="headerlink" href="#links" title="Link to this heading">#</a></h3>
+<h2>Links:<a class="headerlink" href="#links" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p><a class="reference external" href="https://github.com/Pywr-DRB/Pywr-DRB">The Pywr-DRB GitHub repository</a></p></li>
 <li><p><a class="reference external" href="https://pywr-drb.github.io/Pywr-DRB/intro.html">The Pywr-DRB documentation site</a></p></li>
 </ul>
 </section>
 <section id="tutorial-content">
-<h3>Tutorial content:<a class="headerlink" href="#tutorial-content" title="Link to this heading">#</a></h3>
+<h2>Tutorial content:<a class="headerlink" href="#tutorial-content" title="Link to this heading">#</a></h2>
 <ol class="arabic simple">
-<li><p>Getting Started</p></li>
-<li><p>Explanation of the Pywr-DRB code base</p>
+<li><p><a class="reference internal" href="#10-getting-started"><span class="xref myst">Getting Started</span></a></p></li>
+<li><p><a class="reference internal" href="#20-explanation-of-the-pywr-drb-code-base"><span class="xref myst">Explanation of the Pywr-DRB code base</span></a></p>
 <ul class="simple">
-<li><p>input_data</p></li>
-<li><p>pywrdrb</p></li>
+<li><p><a class="reference internal" href="#21-input-data"><span class="xref myst">input_data</span></a></p></li>
+<li><p><a class="reference internal" href="#22-pywrdrb"><span class="xref myst">pywrdrb</span></a></p></li>
 </ul>
 </li>
-<li><p>Interacting with a Pywr-DRB model instance</p>
+<li><p><a class="reference internal" href="#30-interacting-with-a-pywr-drb-model-instance"><span class="xref myst">Interacting with a Pywr-DRB model instance</span></a></p>
 <ul class="simple">
-<li><p>Constructing and loading a pywrdrb model</p></li>
-<li><p>Nodes</p></li>
-<li><p>Parameters</p></li>
+<li><p><a class="reference internal" href="#"><span class="xref myst">Constructing and loading a pywrdrb model</span></a></p></li>
+<li><p><a class="reference internal" href="#32-nodes"><span class="xref myst">Nodes</span></a></p></li>
+<li><p><a class="reference internal" href="#33-parameters"><span class="xref myst">Parameters</span></a></p></li>
 </ul>
 </li>
-<li><p>Running a Pywr-DRB simulation</p></li>
+<li><p><a class="reference internal" href="#40-running-a-pywr-drb-simulation"><span class="xref myst">Running a Pywr-DRB simulation</span></a></p></li>
 </ol>
-</section>
-</section>
 <hr class="docutils" />
+</section>
+</section>
 <section id="getting-started">
-<h2>1.0 Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading">#</a></h2>
+<h1>1.0 Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading">#</a></h1>
 <p>The <a class="reference external" href="https://github.com/Pywr-DRB">Pywr-DRB GitHub organization page</a> contains three repositories at the time of writing:</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
@@ -559,10 +538,10 @@ py<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>i
 </div>
 <p>Now we are ready!</p>
 <hr class="docutils" />
-</section>
 <hr class="docutils" />
+</section>
 <section id="explanation-of-the-pywr-drb-code-base">
-<h2>2.0 Explanation of the Pywr-DRB code base<a class="headerlink" href="#explanation-of-the-pywr-drb-code-base" title="Link to this heading">#</a></h2>
+<h1>2.0 Explanation of the Pywr-DRB code base<a class="headerlink" href="#explanation-of-the-pywr-drb-code-base" title="Link to this heading">#</a></h1>
 <p>Now that you have the code base available, it will be helpful to take a moment to familiarize yourself with what is inside. The sections below highlight some key folders, their contents, and how they fit into the broader Pywr-DRB model workflow.</p>
 <p>For now, these sections focus on the two most important folders in the Pywr-DRB repo:</p>
 <ul class="simple">
@@ -570,7 +549,7 @@ py<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>i
 <li><p>Pywr-DRB/pywrdrb</p></li>
 </ul>
 <section id="input-data">
-<h3>2.1 Input Data<a class="headerlink" href="#input-data" title="Link to this heading">#</a></h3>
+<h2>2.1 Input Data<a class="headerlink" href="#input-data" title="Link to this heading">#</a></h2>
 <p>Pywr-DRB is able to run simulations using different sets of streamflow input data. It is currently set up to run simulations using multiple different datasets, including:</p>
 <ul class="simple">
 <li><p>The National Hydrologic Model version 1.0 (NHM; <code class="docutils literal notranslate"><span class="pre">&quot;nhmv10&quot;</span></code>)</p></li>
@@ -591,7 +570,7 @@ py<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>i
 <li><p><code class="docutils literal notranslate"><span class="pre">&quot;nwmv21_withObsScaled&quot;</span></code></p></li>
 </ul>
 <section id="necessary-files-for-simulation">
-<h4>1.2.1 Necessary files for simulation:<a class="headerlink" href="#necessary-files-for-simulation" title="Link to this heading">#</a></h4>
+<h3>1.2.1 Necessary files for simulation:<a class="headerlink" href="#necessary-files-for-simulation" title="Link to this heading">#</a></h3>
 <p>For each of the four datasets mentioned above, the necessary input files are included in the Pywr-DRB repository.  It’s worth pointing out what the important input files.  Given you want to run a simulation based on a specific streamflow scenario/dataset called <code class="docutils literal notranslate"><span class="pre">&lt;inflow_type&gt;</span></code>, then you need to make sure you have the following files:</p>
 <p><strong>Streamflow data:</strong></p>
 <ul class="simple">
@@ -633,11 +612,11 @@ py<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>i
 </section>
 <hr class="docutils" />
 <section id="pywrdrb">
-<h3>2.2 <code class="docutils literal notranslate"><span class="pre">pywrdrb</span></code><a class="headerlink" href="#pywrdrb" title="Link to this heading">#</a></h3>
+<h2>2.2 <code class="docutils literal notranslate"><span class="pre">pywrdrb</span></code><a class="headerlink" href="#pywrdrb" title="Link to this heading">#</a></h2>
 <p>This folder (<code class="docutils literal notranslate"><span class="pre">pywr-DRB/pywrdrb</span></code>) is where all the code for the model lives.</p>
 <p>There are several submodules (folders within <code class="docutils literal notranslate"><span class="pre">pywrdrb</span></code>) which are also important to be familiar with, and are described below.</p>
 <section id="pywrdrb-model-data">
-<h4>2.2.1 <code class="docutils literal notranslate"><span class="pre">pywrdrb.model_data</span></code><a class="headerlink" href="#pywrdrb-model-data" title="Link to this heading">#</a></h4>
+<h3>2.2.1 <code class="docutils literal notranslate"><span class="pre">pywrdrb.model_data</span></code><a class="headerlink" href="#pywrdrb-model-data" title="Link to this heading">#</a></h3>
 <p>Go to the folder <code class="docutils literal notranslate"><span class="pre">Pywr-DRB/pywrdrb/model_data/</span></code>.</p>
 <p>The file <code class="docutils literal notranslate"><span class="pre">drb_model_full_&lt;input</span> <span class="pre">type&gt;.json</span></code> contains all of the structural information defining the model. Essentially, this is a dictionary containing lists of nodes, edges, and parameters. Together, this information is used by Pywr to construct the linear program which is used to simulate operations.</p>
 <p>The model data structure as described in the <a class="reference external" href="https://pywr.github.io/pywr/json.html"><code class="docutils literal notranslate"><span class="pre">pywr</span></code> documentation</a> is:</p>
@@ -667,7 +646,7 @@ py<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>i
 </ul>
 </section>
 <section id="pywrdrb-parameters">
-<h4>2.2.2 <code class="docutils literal notranslate"><span class="pre">pywrdrb.parameters</span></code><a class="headerlink" href="#pywrdrb-parameters" title="Link to this heading">#</a></h4>
+<h3>2.2.2 <code class="docutils literal notranslate"><span class="pre">pywrdrb.parameters</span></code><a class="headerlink" href="#pywrdrb-parameters" title="Link to this heading">#</a></h3>
 <p>Parameters are simply Python classes which are used in a Pywr simulation. They are used to track different variables during the simulation and perform specific operations. <a class="reference external" href="https://pywr.github.io/pywr/api/pywr.parameters.html">Pywr be default has a set of built-in Parameters</a> which can be used to do basic operations.</p>
 <p>However, in many cases we need a custom parameter which will implement a custom function during simulation. These custom parameters are located in <code class="docutils literal notranslate"><span class="pre">pywrdrb.parameters</span></code>.</p>
 <p>Some characteristics of Parameters are:</p>
@@ -710,7 +689,7 @@ py<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>i
 <p>Later in this tutorial we will load a <code class="docutils literal notranslate"><span class="pre">pywrdrb</span></code> model and identify some parameters.</p>
 </section>
 <section id="pywrdrb-pre">
-<h4>2.2.3 <code class="docutils literal notranslate"><span class="pre">pywrdrb.pre</span></code><a class="headerlink" href="#pywrdrb-pre" title="Link to this heading">#</a></h4>
+<h3>2.2.3 <code class="docutils literal notranslate"><span class="pre">pywrdrb.pre</span></code><a class="headerlink" href="#pywrdrb-pre" title="Link to this heading">#</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">pywrdrb.pre</span></code> module contains different functions used to prepare model input data. When you clone the Pywr-DRB repository, it will contain several pre-processed datasets.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">pywrdrb.pre</span></code> module contains:</p>
 <ul class="simple">
@@ -738,7 +717,7 @@ py<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>i
 <p>Later, as you consider preparing new input scenarios, it will be necessary to understand these processing steps.  These preprocessing steps are explained in detail in the supplemental information for [[Hamilton, Amestoy, &amp; Reed (2024)]].</p>
 </section>
 <section id="pywrdrb-post">
-<h4>2.2.4 <code class="docutils literal notranslate"><span class="pre">pywrdrb.post</span></code><a class="headerlink" href="#pywrdrb-post" title="Link to this heading">#</a></h4>
+<h3>2.2.4 <code class="docutils literal notranslate"><span class="pre">pywrdrb.post</span></code><a class="headerlink" href="#pywrdrb-post" title="Link to this heading">#</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">pywrdrb.post</span></code> submodule contains different scripts used for post-processing simulation results.</p>
 <p>The main function used here is <code class="docutils literal notranslate"><span class="pre">pywrdrb.post.get_pywr_results()</span></code> which is designed to extract different variables of interest from the output file.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">get_pywr_results</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> 
@@ -750,24 +729,24 @@ py<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>i
 <p>In <code class="docutils literal notranslate"><span class="pre">get_pywr_results</span></code>, the <code class="docutils literal notranslate"><span class="pre">results_set</span></code> argument specifies what type of data you want to retrieve. For example <code class="docutils literal notranslate"><span class="pre">results_set</span> <span class="pre">=</span> <span class="pre">'major_flow'</span></code> will return the total flow at major nodes while <code class="docutils literal notranslate"><span class="pre">results_set</span> <span class="pre">=</span> <span class="pre">'res_release'</span></code> will return reservoir release data.</p>
 </section>
 <section id="pywrdrb-plotting">
-<h4>2.2.5 <code class="docutils literal notranslate"><span class="pre">pywrdrb.plotting</span></code><a class="headerlink" href="#pywrdrb-plotting" title="Link to this heading">#</a></h4>
+<h3>2.2.5 <code class="docutils literal notranslate"><span class="pre">pywrdrb.plotting</span></code><a class="headerlink" href="#pywrdrb-plotting" title="Link to this heading">#</a></h3>
 <p>This module contains different plotting functions. We won’t use any of these plots yet, but keep in mind that there is a common place to store these.</p>
 </section>
 </section>
 <hr class="docutils" />
 <section id="activity-code-flowchart">
-<h3>Activity: Code flowchart<a class="headerlink" href="#activity-code-flowchart" title="Link to this heading">#</a></h3>
+<h2>Activity: Code flowchart<a class="headerlink" href="#activity-code-flowchart" title="Link to this heading">#</a></h2>
 <blockquote>
 <div><p><strong>ACTIVITY:</strong> Let’s pause here and take a minute to explore the Pywr-DRB code base.  Specifically, go go through the repository and make a flowchart diagram which shows the relationships and key content for the various sub-folders in the repository.</p>
 <p>You might consider using a flowchart software such as <a class="reference external" href="https://app.diagrams.net/">draw.io</a> or doing this by hand.</p>
 <p>Don’t get caught up in nitty-gritty details, as your understanding of the repo will change with time.</p>
 <p>Send Trevor a version of this flowchart once you are done.</p>
 </div></blockquote>
-</section>
-</section>
 <hr class="docutils" />
+</section>
+</section>
 <section id="interacting-with-a-pywr-drb-model-instance">
-<h2>3.0 Interacting with a Pywr-DRB model instance<a class="headerlink" href="#interacting-with-a-pywr-drb-model-instance" title="Link to this heading">#</a></h2>
+<h1>3.0 Interacting with a Pywr-DRB model instance<a class="headerlink" href="#interacting-with-a-pywr-drb-model-instance" title="Link to this heading">#</a></h1>
 <p>Before running any of this code, you may need to modify the <code class="docutils literal notranslate"><span class="pre">sys.path</span></code> to make sure it can access the <code class="docutils literal notranslate"><span class="pre">pywrdrb</span></code> folder.  Assuming that this tutorial is stored in the <code class="docutils literal notranslate"><span class="pre">Pywr-DRB/notebooks/</span></code> folder, you will need to run:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -780,7 +759,7 @@ py<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>i
 </div>
 </div>
 <section id="loading-a-pywr-model">
-<h3>3.1 Loading a Pywr model<a class="headerlink" href="#loading-a-pywr-model" title="Link to this heading">#</a></h3>
+<h2>3.1 Loading a Pywr model<a class="headerlink" href="#loading-a-pywr-model" title="Link to this heading">#</a></h2>
 <p>When loading a model with Pywr, we need to provide a <code class="docutils literal notranslate"><span class="pre">json</span></code> file which defines the nodes, edges, and parameters of the model (see the section 2.2.1 <code class="docutils literal notranslate"><span class="pre">pywrdrb.model_data</span></code> of this tutorial).</p>
 <p>To load the model, we use the <code class="docutils literal notranslate"><span class="pre">pywr.model.Model</span></code> class which takes the <code class="docutils literal notranslate"><span class="pre">json</span></code> filename as an input.</p>
 <p>The following code is used to specify a streamflow dataset, set the model file which we want to load, and load it using <code class="docutils literal notranslate"><span class="pre">pywr.model</span></code>:</p>
@@ -855,7 +834,7 @@ LSTM model is now at date 1983-10-01.
 </div>
 </section>
 <section id="nodes">
-<h3>3.2 Nodes<a class="headerlink" href="#nodes" title="Link to this heading">#</a></h3>
+<h2>3.2 Nodes<a class="headerlink" href="#nodes" title="Link to this heading">#</a></h2>
 <p>Nodes are the primary features in the Pywr-DRB model, and are used to represent reservoirs, USGS gauges, catchment inflow points, and other things.</p>
 <p>Take a minute to check out the <a class="reference external" href="https://pywr.github.io/pywr/api/pywr.nodes.html"><code class="docutils literal notranslate"><span class="pre">pywr</span></code> documentation on node classes.</a></p>
 <p>While <a class="reference external" href="https://pywr.github.io/pywr/extending_pywr/index.html"><code class="docutils literal notranslate"><span class="pre">pywr</span></code> does allow for custom nodes</a>, we are not currently using any of these in <code class="docutils literal notranslate"><span class="pre">pywrdrb</span></code>.</p>
@@ -877,7 +856,7 @@ LSTM model is now at date 1983-10-01.
 </div>
 </section>
 <section id="parameters">
-<h3>3.3 Parameters<a class="headerlink" href="#parameters" title="Link to this heading">#</a></h3>
+<h2>3.3 Parameters<a class="headerlink" href="#parameters" title="Link to this heading">#</a></h2>
 <p>We can do the same thing for the model parameters:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -895,11 +874,11 @@ LSTM model is now at date 1983-10-01.
 </div>
 </div>
 </div>
-</section>
-</section>
 <hr class="docutils" />
+</section>
+</section>
 <section id="running-a-pywr-drb-simulation">
-<h2>4.0 Running a Pywr-DRB simulation<a class="headerlink" href="#running-a-pywr-drb-simulation" title="Link to this heading">#</a></h2>
+<h1>4.0 Running a Pywr-DRB simulation<a class="headerlink" href="#running-a-pywr-drb-simulation" title="Link to this heading">#</a></h1>
 <p>Once we have loaded the <code class="docutils literal notranslate"><span class="pre">model</span></code>, we are almost ready to run a simulation.</p>
 <p>First, we need to initializes a <code class="docutils literal notranslate"><span class="pre">pywr.recorders.TablesRecorder</span></code> which will keep store simulation data during the model run. The <code class="docutils literal notranslate"><span class="pre">TablesRecorder</span></code> will automatically create a <code class="docutils literal notranslate"><span class="pre">hdf5</span></code> file where it will store simulation data.</p>
 <p>The recorder accepts as input:</p>
@@ -936,10 +915,10 @@ LSTM model is now at date 1983-10-01.
 </div>
 </div>
 <p>Congrats, you’ve just completed your first simulation using <code class="docutils literal notranslate"><span class="pre">pywrdrb</span></code>!</p>
-</section>
 <hr class="docutils" />
+</section>
 <section id="accessing-pywr-drb-output-data">
-<h2>5.0 Accessing Pywr-DRB output data<a class="headerlink" href="#accessing-pywr-drb-output-data" title="Link to this heading">#</a></h2>
+<h1>5.0 Accessing Pywr-DRB output data<a class="headerlink" href="#accessing-pywr-drb-output-data" title="Link to this heading">#</a></h1>
 <p>The data will be output to a HDF5 file in the Pywr-DRB/output_data/ folder.</p>
 <p>These HDF5 files can be a little tricky if you don’t have experience with them.  We have made a function which makes it easy to load specific types of variables from these output files.</p>
 <p>The function is called <code class="docutils literal notranslate"><span class="pre">pywrdrb.post.get_pywrdrb_results()</span></code> and requires a <code class="docutils literal notranslate"><span class="pre">results_set</span></code> input which specifies the type of variables that you would like to get back.</p>
@@ -954,7 +933,7 @@ LSTM model is now at date 1983-10-01.
 <p>Go look inside the <code class="docutils literal notranslate"><span class="pre">pywrdrb.post.get_pywrdrb_results()</span></code> function to see the other <code class="docutils literal notranslate"><span class="pre">results_set</span></code> options.</p>
 <p>One thing to note is that the <code class="docutils literal notranslate"><span class="pre">get_pywrdrb_results()</span></code> function returns a tuple containing <code class="docutils literal notranslate"><span class="pre">(results_set,</span> <span class="pre">datetime)</span></code> where <code class="docutils literal notranslate"><span class="pre">datetime</span></code> is a pandas index containing daily indexes that match the results.  The reason it returns the datetime index is that the <code class="docutils literal notranslate"><span class="pre">get_pywrdrb_results()</span></code> function is very slow when reading and constructing the date data from the output file. Rather than read/construct the datetime each time, we can do this only once and then re-use the datetime index for each of the subsequant function calls. We can re-use the <code class="docutils literal notranslate"><span class="pre">datetime</span></code> since <code class="docutils literal notranslate"><span class="pre">get_pywr_results()</span></code> accepts <code class="docutils literal notranslate"><span class="pre">datetime_index</span></code> as an input. By default, <code class="docutils literal notranslate"><span class="pre">datetime_index=None</span></code> and the function will read/construct the datetime from the output. To be more efficient, we pass the returned <code class="docutils literal notranslate"><span class="pre">datetime</span></code> to the next function after it is created. See how this is done in the example below.</p>
 <section id="the-structure-of-results-set-dictionary">
-<h3>5.1 The structure of <code class="docutils literal notranslate"><span class="pre">results_set</span></code> dictionary<a class="headerlink" href="#the-structure-of-results-set-dictionary" title="Link to this heading">#</a></h3>
+<h2>5.1 The structure of <code class="docutils literal notranslate"><span class="pre">results_set</span></code> dictionary<a class="headerlink" href="#the-structure-of-results-set-dictionary" title="Link to this heading">#</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">get_pywrdrb_results()</span></code> function gathers simulation results from Pywr model run and returns a dictionary of pd.DataFrames where each key in the dict corresponds to a scenario.</p>
 <p>This will look like:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">results_set</span>  <span class="o">=</span> <span class="p">{</span>
@@ -995,7 +974,6 @@ LSTM model is now at date 1983-10-01.
 </div>
 <p>You should see a DataFrame with multiple columns corresponding to each of the reservoirs in the model.</p>
 <p>Now you can get into the fun of looking at results and some data visualization!</p>
-</section>
 </section>
 </section>
 <hr class="docutils" />
@@ -1068,11 +1046,11 @@ LSTM model is now at date 1983-10-01.
       </div>
     </a>
     <a class="right-next"
-       href="Tutorial%2002%20Prepare%20Input%20Data.html"
+       href="Tutorial%2003%20Model%20Parameters.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Preparing Input Data</p>
+        <p class="prev-next-title">Pywr-DRB Tutorial 3: Model Parameters</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -1083,7 +1061,8 @@ LSTM model is now at date 1983-10-01.
             
             
               
-                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
 
   <div class="sidebar-secondary-item">
@@ -1092,40 +1071,37 @@ LSTM model is now at date 1983-10-01.
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Introduction to Pywr-DRB</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview:</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#links">Links:</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tutorial-content">Tutorial content:</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Overview:</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#links">Links:</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tutorial-content">Tutorial content:</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-started">1.0 Getting Started</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#explanation-of-the-pywr-drb-code-base">2.0 Explanation of the Pywr-DRB code base</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#input-data">2.1 Input Data</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#necessary-files-for-simulation">1.2.1 Necessary files for simulation:</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-started">1.0 Getting Started</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#explanation-of-the-pywr-drb-code-base">2.0 Explanation of the Pywr-DRB code base</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#input-data">2.1 Input Data</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#necessary-files-for-simulation">1.2.1 Necessary files for simulation:</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb">2.2 <code class="docutils literal notranslate"><span class="pre">pywrdrb</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb-model-data">2.2.1 <code class="docutils literal notranslate"><span class="pre">pywrdrb.model_data</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb-parameters">2.2.2 <code class="docutils literal notranslate"><span class="pre">pywrdrb.parameters</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb-pre">2.2.3 <code class="docutils literal notranslate"><span class="pre">pywrdrb.pre</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb-post">2.2.4 <code class="docutils literal notranslate"><span class="pre">pywrdrb.post</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb-plotting">2.2.5 <code class="docutils literal notranslate"><span class="pre">pywrdrb.plotting</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb">2.2 <code class="docutils literal notranslate"><span class="pre">pywrdrb</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb-model-data">2.2.1 <code class="docutils literal notranslate"><span class="pre">pywrdrb.model_data</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb-parameters">2.2.2 <code class="docutils literal notranslate"><span class="pre">pywrdrb.parameters</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb-pre">2.2.3 <code class="docutils literal notranslate"><span class="pre">pywrdrb.pre</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb-post">2.2.4 <code class="docutils literal notranslate"><span class="pre">pywrdrb.post</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb-plotting">2.2.5 <code class="docutils literal notranslate"><span class="pre">pywrdrb.plotting</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#activity-code-flowchart">Activity: Code flowchart</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#activity-code-flowchart">Activity: Code flowchart</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#interacting-with-a-pywr-drb-model-instance">3.0 Interacting with a Pywr-DRB model instance</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-a-pywr-model">3.1 Loading a Pywr model</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#nodes">3.2 Nodes</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#parameters">3.3 Parameters</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#interacting-with-a-pywr-drb-model-instance">3.0 Interacting with a Pywr-DRB model instance</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-a-pywr-model">3.1 Loading a Pywr model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#nodes">3.2 Nodes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#parameters">3.3 Parameters</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#running-a-pywr-drb-simulation">4.0 Running a Pywr-DRB simulation</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#accessing-pywr-drb-output-data">5.0 Accessing Pywr-DRB output data</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-structure-of-results-set-dictionary">5.1 The structure of <code class="docutils literal notranslate"><span class="pre">results_set</span></code> dictionary</a></li>
-</ul>
-</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#running-a-pywr-drb-simulation">4.0 Running a Pywr-DRB simulation</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#accessing-pywr-drb-output-data">5.0 Accessing Pywr-DRB output data</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-structure-of-results-set-dictionary">5.1 The structure of <code class="docutils literal notranslate"><span class="pre">results_set</span></code> dictionary</a></li>
 </ul>
 </li>
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#summary-of-training-and-activities">Summary of Training and Activities</a></li>
@@ -1178,8 +1154,8 @@ By The Reed Group at Cornell CEE
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
-<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+  <script defer src="../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
 
   <footer class="bd-footer">
   </footer>
