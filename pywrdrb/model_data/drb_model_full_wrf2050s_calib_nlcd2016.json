@@ -5,8 +5,8 @@
         "minimum_version": "0.4"
     },
     "timestepper": {
-        "start": "1983-10-01",
-        "end": "2016-12-31",
+        "start": "1959-10-01",
+        "end": "1969-12-31",
         "timestep": 1
     },
     "scenarios": [
@@ -1947,7 +1947,7 @@
         },
         "flow_cannonsville": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_wrf2050s_calib_nlcd2016.csv",
             "column": "cannonsville",
             "index_col": "datetime",
             "parse_dates": true
@@ -1995,7 +1995,7 @@
         },
         "flow_pepacton": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_wrf2050s_calib_nlcd2016.csv",
             "column": "pepacton",
             "index_col": "datetime",
             "parse_dates": true
@@ -2043,7 +2043,7 @@
         },
         "flow_neversink": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_wrf2050s_calib_nlcd2016.csv",
             "column": "neversink",
             "index_col": "datetime",
             "parse_dates": true
@@ -2087,7 +2087,7 @@
         },
         "flow_wallenpaupack": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_wrf2050s_calib_nlcd2016.csv",
             "column": "wallenpaupack",
             "index_col": "datetime",
             "parse_dates": true
@@ -2131,7 +2131,7 @@
         },
         "flow_prompton": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_wrf2050s_calib_nlcd2016.csv",
             "column": "prompton",
             "index_col": "datetime",
             "parse_dates": true
@@ -2175,7 +2175,7 @@
         },
         "flow_shoholaMarsh": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_wrf2050s_calib_nlcd2016.csv",
             "column": "shoholaMarsh",
             "index_col": "datetime",
             "parse_dates": true
@@ -2219,7 +2219,7 @@
         },
         "flow_mongaupeCombined": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_wrf2050s_calib_nlcd2016.csv",
             "column": "mongaupeCombined",
             "index_col": "datetime",
             "parse_dates": true
@@ -2263,7 +2263,7 @@
         },
         "flow_beltzvilleCombined": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_wrf2050s_calib_nlcd2016.csv",
             "column": "beltzvilleCombined",
             "index_col": "datetime",
             "parse_dates": true
@@ -2307,7 +2307,7 @@
         },
         "flow_fewalter": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_wrf2050s_calib_nlcd2016.csv",
             "column": "fewalter",
             "index_col": "datetime",
             "parse_dates": true
@@ -2351,7 +2351,7 @@
         },
         "flow_merrillCreek": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_wrf2050s_calib_nlcd2016.csv",
             "column": "merrillCreek",
             "index_col": "datetime",
             "parse_dates": true
@@ -2395,7 +2395,7 @@
         },
         "flow_hopatcong": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_wrf2050s_calib_nlcd2016.csv",
             "column": "hopatcong",
             "index_col": "datetime",
             "parse_dates": true
@@ -2439,7 +2439,7 @@
         },
         "flow_nockamixon": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_wrf2050s_calib_nlcd2016.csv",
             "column": "nockamixon",
             "index_col": "datetime",
             "parse_dates": true
@@ -2483,7 +2483,7 @@
         },
         "flow_assunpink": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_wrf2050s_calib_nlcd2016.csv",
             "column": "assunpink",
             "index_col": "datetime",
             "parse_dates": true
@@ -2527,7 +2527,7 @@
         },
         "flow_ontelaunee": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_wrf2050s_calib_nlcd2016.csv",
             "column": "ontelaunee",
             "index_col": "datetime",
             "parse_dates": true
@@ -2571,7 +2571,7 @@
         },
         "flow_stillCreek": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_wrf2050s_calib_nlcd2016.csv",
             "column": "stillCreek",
             "index_col": "datetime",
             "parse_dates": true
@@ -2615,7 +2615,7 @@
         },
         "flow_blueMarsh": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_wrf2050s_calib_nlcd2016.csv",
             "column": "blueMarsh",
             "index_col": "datetime",
             "parse_dates": true
@@ -2659,7 +2659,7 @@
         },
         "flow_greenLane": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_wrf2050s_calib_nlcd2016.csv",
             "column": "greenLane",
             "index_col": "datetime",
             "parse_dates": true
@@ -2692,7 +2692,7 @@
         },
         "flow_01425000": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_wrf2050s_calib_nlcd2016.csv",
             "column": "01425000",
             "index_col": "datetime",
             "parse_dates": true
@@ -2725,7 +2725,7 @@
         },
         "flow_01417000": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_wrf2050s_calib_nlcd2016.csv",
             "column": "01417000",
             "index_col": "datetime",
             "parse_dates": true
@@ -2758,7 +2758,7 @@
         },
         "flow_delLordville": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_wrf2050s_calib_nlcd2016.csv",
             "column": "delLordville",
             "index_col": "datetime",
             "parse_dates": true
@@ -2791,7 +2791,7 @@
         },
         "flow_01436000": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_wrf2050s_calib_nlcd2016.csv",
             "column": "01436000",
             "index_col": "datetime",
             "parse_dates": true
@@ -2824,7 +2824,7 @@
         },
         "flow_01433500": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_wrf2050s_calib_nlcd2016.csv",
             "column": "01433500",
             "index_col": "datetime",
             "parse_dates": true
@@ -2857,7 +2857,7 @@
         },
         "flow_delMontague": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_wrf2050s_calib_nlcd2016.csv",
             "column": "delMontague",
             "index_col": "datetime",
             "parse_dates": true
@@ -2890,7 +2890,7 @@
         },
         "flow_01449800": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_wrf2050s_calib_nlcd2016.csv",
             "column": "01449800",
             "index_col": "datetime",
             "parse_dates": true
@@ -2923,7 +2923,7 @@
         },
         "flow_01447800": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_wrf2050s_calib_nlcd2016.csv",
             "column": "01447800",
             "index_col": "datetime",
             "parse_dates": true
@@ -2956,7 +2956,7 @@
         },
         "flow_delDRCanal": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_wrf2050s_calib_nlcd2016.csv",
             "column": "delDRCanal",
             "index_col": "datetime",
             "parse_dates": true
@@ -2989,7 +2989,7 @@
         },
         "flow_01463620": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_wrf2050s_calib_nlcd2016.csv",
             "column": "01463620",
             "index_col": "datetime",
             "parse_dates": true
@@ -3022,7 +3022,7 @@
         },
         "flow_outletAssunpink": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_wrf2050s_calib_nlcd2016.csv",
             "column": "outletAssunpink",
             "index_col": "datetime",
             "parse_dates": true
@@ -3055,7 +3055,7 @@
         },
         "flow_01470960": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_wrf2050s_calib_nlcd2016.csv",
             "column": "01470960",
             "index_col": "datetime",
             "parse_dates": true
@@ -3088,7 +3088,7 @@
         },
         "flow_outletSchuylkill": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/catchment_inflow_wrf2050s_calib_nlcd2016.csv",
             "column": "outletSchuylkill",
             "index_col": "datetime",
             "parse_dates": true
@@ -3954,70 +3954,70 @@
         },
         "predicted_nonnyc_gage_flow_delMontague_lag1": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/predicted_inflows_diversions_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/predicted_inflows_diversions_wrf2050s_calib_nlcd2016.csv",
             "column": "delMontague_lag1_regression_disagg",
             "index_col": "datetime",
             "parse_dates": true
         },
         "predicted_nonnyc_gage_flow_delMontague_lag2": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/predicted_inflows_diversions_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/predicted_inflows_diversions_wrf2050s_calib_nlcd2016.csv",
             "column": "delMontague_lag2_regression_disagg",
             "index_col": "datetime",
             "parse_dates": true
         },
         "predicted_nonnyc_gage_flow_delTrenton_lag1": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/predicted_inflows_diversions_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/predicted_inflows_diversions_wrf2050s_calib_nlcd2016.csv",
             "column": "delTrenton_lag1_regression_disagg",
             "index_col": "datetime",
             "parse_dates": true
         },
         "predicted_nonnyc_gage_flow_delTrenton_lag2": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/predicted_inflows_diversions_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/predicted_inflows_diversions_wrf2050s_calib_nlcd2016.csv",
             "column": "delTrenton_lag2_regression_disagg",
             "index_col": "datetime",
             "parse_dates": true
         },
         "predicted_nonnyc_gage_flow_delTrenton_lag3": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/predicted_inflows_diversions_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/predicted_inflows_diversions_wrf2050s_calib_nlcd2016.csv",
             "column": "delTrenton_lag3_regression_disagg",
             "index_col": "datetime",
             "parse_dates": true
         },
         "predicted_nonnyc_gage_flow_delTrenton_lag4": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/predicted_inflows_diversions_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/predicted_inflows_diversions_wrf2050s_calib_nlcd2016.csv",
             "column": "delTrenton_lag4_regression_disagg",
             "index_col": "datetime",
             "parse_dates": true
         },
         "predicted_demand_nj_lag1": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/predicted_inflows_diversions_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/predicted_inflows_diversions_wrf2050s_calib_nlcd2016.csv",
             "column": "demand_nj_lag1_regression_disagg",
             "index_col": "datetime",
             "parse_dates": true
         },
         "predicted_demand_nj_lag2": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/predicted_inflows_diversions_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/predicted_inflows_diversions_wrf2050s_calib_nlcd2016.csv",
             "column": "demand_nj_lag2_regression_disagg",
             "index_col": "datetime",
             "parse_dates": true
         },
         "predicted_demand_nj_lag3": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/predicted_inflows_diversions_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/predicted_inflows_diversions_wrf2050s_calib_nlcd2016.csv",
             "column": "demand_nj_lag3_regression_disagg",
             "index_col": "datetime",
             "parse_dates": true
         },
         "predicted_demand_nj_lag4": {
             "type": "dataframe",
-            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/predicted_inflows_diversions_nwmv21_withObsScaled.csv",
+            "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/predicted_inflows_diversions_wrf2050s_calib_nlcd2016.csv",
             "column": "demand_nj_lag4_regression_disagg",
             "index_col": "datetime",
             "parse_dates": true

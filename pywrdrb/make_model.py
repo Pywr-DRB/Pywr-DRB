@@ -101,7 +101,7 @@ def add_major_node(
     has_catchment=True,
     inflow_ensemble_indices=None,
     run_starfit_sensitivity_analysis=True,
-    sensitivity_analysis_scenarios=[1,2,3,4,5,6,7,8,9,10]
+    sensitivity_analysis_scenarios= list(range(0, 2001))
 ):
     """
     Add a major node to the model.
@@ -368,7 +368,7 @@ def make_model(
     predict_temperature=False,
     predict_salinity=False,
     run_starfit_sensitivity_analysis=True,
-    sensitivity_analysis_scenarios=[1,2,3,4,5,6,7,8,9,10]
+    sensitivity_analysis_scenarios=list(range(0, 2001))
 ):
     """
     Creates the JSON file used by Pywr to define the model, including all nodes, edges, and parameters.
