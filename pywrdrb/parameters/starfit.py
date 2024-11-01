@@ -390,12 +390,8 @@ class STARFITReservoirRelease(Parameter):
         reservoir_name = data.pop("node")
         storage_node = model.nodes[f"reservoir_{reservoir_name}"]
         flow_parameter = load_parameter(model, f"flow_{reservoir_name}")
-        run_starfit_sensitivity_analysis = (
-            False  # data.pop("run_starfit_sensitivity_analysis")
-        )
-        sensitivity_analysis_scenarios = (
-            []
-        )  # data.pop("sensitivity_analysis_scenarios")
+        run_starfit_sensitivity_analysis = data.pop("run_starfit_sensitivity_analysis")
+        sensitivity_analysis_scenarios = data.pop("sensitivity_analysis_scenarios")
         return cls(
             model,
             reservoir_name,

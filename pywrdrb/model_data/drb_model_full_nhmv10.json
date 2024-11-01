@@ -2083,7 +2083,9 @@
         },
         "starfit_release_wallenpaupack": {
             "type": "STARFITReservoirRelease",
-            "node": "wallenpaupack"
+            "node": "wallenpaupack",
+            "run_starfit_sensitivity_analysis": false,
+            "sensitivity_analysis_scenarios": []
         },
         "flow_wallenpaupack": {
             "type": "dataframe",
@@ -2127,7 +2129,9 @@
         },
         "starfit_release_prompton": {
             "type": "STARFITReservoirRelease",
-            "node": "prompton"
+            "node": "prompton",
+            "run_starfit_sensitivity_analysis": false,
+            "sensitivity_analysis_scenarios": []
         },
         "flow_prompton": {
             "type": "dataframe",
@@ -2171,7 +2175,9 @@
         },
         "starfit_release_shoholaMarsh": {
             "type": "STARFITReservoirRelease",
-            "node": "shoholaMarsh"
+            "node": "shoholaMarsh",
+            "run_starfit_sensitivity_analysis": false,
+            "sensitivity_analysis_scenarios": []
         },
         "flow_shoholaMarsh": {
             "type": "dataframe",
@@ -2215,7 +2221,9 @@
         },
         "starfit_release_mongaupeCombined": {
             "type": "STARFITReservoirRelease",
-            "node": "mongaupeCombined"
+            "node": "mongaupeCombined",
+            "run_starfit_sensitivity_analysis": false,
+            "sensitivity_analysis_scenarios": []
         },
         "flow_mongaupeCombined": {
             "type": "dataframe",
@@ -2259,7 +2267,9 @@
         },
         "starfit_release_beltzvilleCombined": {
             "type": "STARFITReservoirRelease",
-            "node": "beltzvilleCombined"
+            "node": "beltzvilleCombined",
+            "run_starfit_sensitivity_analysis": false,
+            "sensitivity_analysis_scenarios": []
         },
         "flow_beltzvilleCombined": {
             "type": "dataframe",
@@ -2303,7 +2313,9 @@
         },
         "starfit_release_fewalter": {
             "type": "STARFITReservoirRelease",
-            "node": "fewalter"
+            "node": "fewalter",
+            "run_starfit_sensitivity_analysis": false,
+            "sensitivity_analysis_scenarios": []
         },
         "flow_fewalter": {
             "type": "dataframe",
@@ -2347,7 +2359,9 @@
         },
         "starfit_release_merrillCreek": {
             "type": "STARFITReservoirRelease",
-            "node": "merrillCreek"
+            "node": "merrillCreek",
+            "run_starfit_sensitivity_analysis": false,
+            "sensitivity_analysis_scenarios": []
         },
         "flow_merrillCreek": {
             "type": "dataframe",
@@ -2391,7 +2405,9 @@
         },
         "starfit_release_hopatcong": {
             "type": "STARFITReservoirRelease",
-            "node": "hopatcong"
+            "node": "hopatcong",
+            "run_starfit_sensitivity_analysis": false,
+            "sensitivity_analysis_scenarios": []
         },
         "flow_hopatcong": {
             "type": "dataframe",
@@ -2435,7 +2451,9 @@
         },
         "starfit_release_nockamixon": {
             "type": "STARFITReservoirRelease",
-            "node": "nockamixon"
+            "node": "nockamixon",
+            "run_starfit_sensitivity_analysis": false,
+            "sensitivity_analysis_scenarios": []
         },
         "flow_nockamixon": {
             "type": "dataframe",
@@ -2479,7 +2497,9 @@
         },
         "starfit_release_assunpink": {
             "type": "STARFITReservoirRelease",
-            "node": "assunpink"
+            "node": "assunpink",
+            "run_starfit_sensitivity_analysis": false,
+            "sensitivity_analysis_scenarios": []
         },
         "flow_assunpink": {
             "type": "dataframe",
@@ -2523,7 +2543,9 @@
         },
         "starfit_release_ontelaunee": {
             "type": "STARFITReservoirRelease",
-            "node": "ontelaunee"
+            "node": "ontelaunee",
+            "run_starfit_sensitivity_analysis": false,
+            "sensitivity_analysis_scenarios": []
         },
         "flow_ontelaunee": {
             "type": "dataframe",
@@ -2567,7 +2589,9 @@
         },
         "starfit_release_stillCreek": {
             "type": "STARFITReservoirRelease",
-            "node": "stillCreek"
+            "node": "stillCreek",
+            "run_starfit_sensitivity_analysis": false,
+            "sensitivity_analysis_scenarios": []
         },
         "flow_stillCreek": {
             "type": "dataframe",
@@ -2611,7 +2635,9 @@
         },
         "starfit_release_blueMarsh": {
             "type": "STARFITReservoirRelease",
-            "node": "blueMarsh"
+            "node": "blueMarsh",
+            "run_starfit_sensitivity_analysis": false,
+            "sensitivity_analysis_scenarios": []
         },
         "flow_blueMarsh": {
             "type": "dataframe",
@@ -2655,7 +2681,9 @@
         },
         "starfit_release_greenLane": {
             "type": "STARFITReservoirRelease",
-            "node": "greenLane"
+            "node": "greenLane",
+            "run_starfit_sensitivity_analysis": false,
+            "sensitivity_analysis_scenarios": []
         },
         "flow_greenLane": {
             "type": "dataframe",
