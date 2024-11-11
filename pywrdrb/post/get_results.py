@@ -318,12 +318,11 @@ def get_base_results(
                 gage_flow = gage_flow.drop(c, axis=1)
         data = gage_flow.copy()
 
-    elif results_set == "res_storage":
+    elif results_set == "res_storage" and model == "obs":
         observed_storage_path = (
-            f"{input_dir}/historic_reservoir_ops/combined_volume_data.csv"
+            f"{input_dir}/historic_reservoir_ops/observed_storage_data.csv"
         )
         try:
-            print(f"Loading observed storage data from {observed_storage_path}")
             observed_storage = pd.read_csv(observed_storage_path)
             observed_storage.index = pd.DatetimeIndex(observed_storage["datetime"])
             observed_storage = observed_storage.drop("datetime", axis=1)
@@ -336,6 +335,11 @@ def get_base_results(
                 'The observed storage data does not contain the expected "datetime" column.'
             )
             return None, datetime_index
+    elif results_set == "res_storage" and model != "obs":
+        raise ValueError(
+            f"Reservoir storage data is not available for model={model}. Only available for model='obs'."
+        )
+
     else:
         raise ValueError("Invalid results_set specified for get_base_results().")
 

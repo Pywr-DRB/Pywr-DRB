@@ -61,24 +61,24 @@ class Output:
         self.base_results = base_results
         self.pywrdrb_results_set_opts = pywrdrb_results_set_opts
         self.base_results_set_opts = base_results_set_opts
+
         self.__parse_kwargs__(**kwargs)
 
     def _validate_results_sets(self):
         """
         Validate that results_sets list contains valid options.
         """
-
         if self.base_results:
-            valid_results_set_opts = self.base_results_set_opts
+            self.valid_results_set_opts = self.base_results_set_opts
         else:
-            valid_results_set_opts = self.pywrdrb_results_set_opts
+            self.valid_results_set_opts = self.pywrdrb_results_set_opts
 
         for s in self.results_sets:
-            if s not in valid_results_set_opts:
+            if s not in self.valid_results_set_opts:
                 err_msg = (
                     f"Specified results set {s} in results_sets is not a valid option. "
                 )
-                err_msg += f"Valid options are: {valid_results_set_opts}"
+                err_msg += f"Valid options are: {self.valid_results_set_opts}"
                 raise ValueError(err_msg)
         return
 
@@ -112,7 +112,10 @@ class Output:
         self.__parse_kwargs__(**kwargs)
 
         self._validate_results_sets()
-        self._validate_output_files_exists()
+
+        if not self.base_results:
+            self._validate_output_files_exists()
+
         self._get_scenario_ids_for_models()
 
         # Load the results
@@ -126,7 +129,7 @@ class Output:
                     print(f"Loading {s} data for {m}")
 
                 if not self.base_results:
-                    all_results_data[s][m], datetime = get_pywrdrb_results(
+                    all_results_data[s][f"pywr_{m}"], datetime = get_pywrdrb_results(
                         model=m,
                         results_set=s,
                         scenarios=self.scenarios[m],
@@ -140,16 +143,27 @@ class Output:
                         model=m,
                         datetime_index=datetime,
                         results_set=s,
-                        ensemble_scenario=self.scenarios[m],
+                        ensemble_scenario=self.scenarios[m]
+                        if "ensemble" in m
+                        else None,
                         units=self.units,
                     )
 
         # Now save results as attributes using results_set names
-        for s in self.pywrdrb_results_set_opts:
-            if s in all_results_data.keys():
-                setattr(self, s, all_results_data[s])
-            else:
-                setattr(self, s, None)
+        # if the results_set is already an attribute, combine into a single dict and save
+        for s in self.valid_results_set_opts:
+            # if the results_set is already a realvalued attribute,
+            # combine into a single dict and save
+            if hasattr(self, s) and (s in all_results_data.keys()):
+                if getattr(self, s) is not None:
+                    getattr(self, s).update(all_results_data[s])
+
+            # if not an attribute, save as an attribute
+            elif not hasattr(self, s):
+                if s in all_results_data.keys():
+                    setattr(self, s, all_results_data[s])
+                else:
+                    setattr(self, s, None)
 
         # delete the all_results_data dictionary
         del all_results_data

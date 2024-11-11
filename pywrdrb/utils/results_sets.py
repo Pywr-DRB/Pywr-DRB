@@ -28,7 +28,7 @@ pywrdrb_results_set_opts = list(pywrdrb_results_set_descriptions.keys())
 
 
 base_results_set_descriptions = {
-    "reservoir_downstream_gages": "Streamflow at downstream gage below reservoirs (MGD).",
+    "reservoir_downstream_gage": "Streamflow at downstream gage below reservoirs (MGD).",
     "major_flow": "Streamflow at major flow points of interest (MGD).",
     "res_storage": "Reservoir storage volume (MG).",
 }
