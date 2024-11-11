@@ -414,7 +414,7 @@ class ModelBuilder:
         # max volume of reservoir, from GRanD database except where adjusted from other sources (eg NYC)
         model_dict["parameters"][f"max_volume_{reservoir_name}"] = {
             "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
+            "url": f"{model_data_dir}drb_model_istarf_conus.csv",
             "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": f"modified_{reservoir_name}"
@@ -715,7 +715,7 @@ class ModelBuilder:
             # NYC
             model_dict["parameters"][f"demand_nyc"] = {
                 "type": "constant",
-                "url": "drb_model_constants.csv",
+                "url": f"{model_data_dir}drb_model_constants.csv",
                 "column": "value",
                 "index_col": "parameter",
                 "index": "max_flow_baseline_delivery_nyc",
@@ -723,7 +723,7 @@ class ModelBuilder:
             # NJ
             model_dict["parameters"][f"demand_nj"] = {
                 "type": "constant",
-                "url": "drb_model_constants.csv",
+                "url": f"{model_data_dir}drb_model_constants.csv",
                 "column": "value",
                 "index_col": "parameter",
                 "index": "max_flow_baseline_monthlyAvg_delivery_nj",
@@ -737,7 +737,7 @@ class ModelBuilder:
         for level in levels[1:]:
             model_dict["parameters"][f"level{level}"] = {
                 "type": "dailyprofile",
-                "url": "drb_model_dailyProfiles.csv",
+                "url": f"{model_data_dir}drb_model_dailyProfiles.csv",
                 "index_col": "profile",
                 "index": f"level{level}",
             }
@@ -755,7 +755,7 @@ class ModelBuilder:
             for level in levels:
                 model_dict["parameters"][f"level{level}_factor_delivery_{demand}"] = {
                     "type": "constant",
-                    "url": "drb_model_constants.csv",
+                    "url": f"{model_data_dir}drb_model_constants.csv",
                     "column": "value",
                     "index_col": "parameter",
                     "index": f"level{level}_factor_delivery_{demand}",
@@ -788,7 +788,7 @@ class ModelBuilder:
         # Max allowable delivery to NYC (on moving avg)
         model_dict["parameters"]["max_flow_baseline_delivery_nyc"] = {
             "type": "constant",
-            "url": "drb_model_constants.csv",
+            "url": f"{model_data_dir}drb_model_constants.csv",
             "column": "value",
             "index_col": "parameter",
             "index": "max_flow_baseline_delivery_nyc",
@@ -797,14 +797,14 @@ class ModelBuilder:
         # NJ has both a daily limit and monthly average limit
         model_dict["parameters"]["max_flow_baseline_daily_delivery_nj"] = {
             "type": "constant",
-            "url": "drb_model_constants.csv",
+            "url": f"{model_data_dir}drb_model_constants.csv",
             "column": "value",
             "index_col": "parameter",
             "index": "max_flow_baseline_daily_delivery_nj",
         }
         model_dict["parameters"]["max_flow_baseline_monthlyAvg_delivery_nj"] = {
             "type": "constant",
-            "url": "drb_model_constants.csv",
+            "url": f"{model_data_dir}drb_model_constants.csv",
             "column": "value",
             "index_col": "parameter",
             "index": "max_flow_baseline_monthlyAvg_delivery_nj",
@@ -874,7 +874,7 @@ class ModelBuilder:
         for reservoir in reservoir_list_nyc:
             model_dict["parameters"][f"mrf_baseline_{reservoir}"] = {
                 "type": "constant",
-                "url": "drb_model_constants.csv",
+                "url": f"{model_data_dir}drb_model_constants.csv",
                 "column": "value",
                 "index_col": "parameter",
                 "index": f"mrf_baseline_{reservoir}",
@@ -893,7 +893,7 @@ class ModelBuilder:
             for level in levels:
                 model_dict["parameters"][f"level{level}_factor_mrf_{reservoir}"] = {
                     "type": "dailyprofile",
-                    "url": "drb_model_dailyProfiles.csv",
+                    "url": f"{model_data_dir}drb_model_dailyProfiles.csv",
                     "index_col": "profile",
                     "index": f"level{level}_factor_mrf_{reservoir}",
                 }
@@ -1027,7 +1027,7 @@ class ModelBuilder:
         for mrf in mrfs:
             model_dict["parameters"][f"mrf_baseline_{mrf}"] = {
                 "type": "constant",
-                "url": "drb_model_constants.csv",
+                "url": f"{model_data_dir}drb_model_constants.csv",
                 "column": "value",
                 "index_col": "parameter",
                 "index": f"mrf_baseline_{mrf}",
@@ -1038,7 +1038,7 @@ class ModelBuilder:
             for level in levels:
                 model_dict["parameters"][f"level{level}_factor_mrf_{mrf}"] = {
                     "type": "monthlyprofile",
-                    "url": "drb_model_monthlyProfiles.csv",
+                    "url": f"{model_data_dir}drb_model_monthlyProfiles.csv",
                     "index_col": "profile",
                     "index": f"level{level}_factor_mrf_{mrf}",
                 }

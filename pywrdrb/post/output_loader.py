@@ -23,7 +23,47 @@ default_kwargs = {
 
 
 class Output:
-    default_kwargs = default_kwargs
+    """
+    The pywrdrb.Output class is used to load and store data from:
+    - Observations
+    - Pywr-DRB simulations with different input datasets
+    - NHM output data
+    - NWM output data
+    - WRF-Hydro output data
+
+    Attributes:
+        models (list): A list of models/datasets to load results for.
+        base_results (bool): If True, load 'base' results which are not pywrdrb simulations (eg, observations, pure NHM/NWM).
+        output_dir (str): The directory where the output files are stored.
+        input_dir (str): The directory where the input files are stored.
+        results_sets (list): A list of results sets to load.
+        datetime_index (bool): If True, use a datetime index for the results.
+        start_date (str): The start date to load results for.
+        end_date (str): The end date to load results for.
+        scenarios (list): A list of scenarios to load results for.
+        units (str): The units to use for the results. Options are 'MG' or 'MCM'.
+        print_status (bool): If True, print status messages.
+
+    Methods:
+        load()
+            Load the results for the specified `models` and `results_sets`.
+
+    Examples:
+    ```python
+    from pywrdrb import Output
+
+    models = ["nhmv10", "nwmv21"]
+    results_sets = ["reservoir_downstream_gage", "major_flow"]
+
+    output = Output(models=models,
+                    results_sets=results_sets,
+                    base_results=False)
+    output.load()
+
+    # Access the data using format:
+    # output.results_set[model][0]
+    ```
+    """
 
     def __parse_kwargs__(self, **kwargs):
         """
@@ -62,6 +102,7 @@ class Output:
         self.pywrdrb_results_set_opts = pywrdrb_results_set_opts
         self.base_results_set_opts = base_results_set_opts
 
+        self.default_kwargs = default_kwargs
         self.__parse_kwargs__(**kwargs)
 
     def _validate_results_sets(self):
@@ -109,6 +150,15 @@ class Output:
         return
 
     def load(self, **kwargs):
+        """
+        Loads data of interest, corresponding to the specified models and results_sets and
+        consideration of the base_results flag.
+
+        Data are then stored as attributes of the Output object.
+
+        Returns:
+            None
+        """
         self.__parse_kwargs__(**kwargs)
 
         self._validate_results_sets()
