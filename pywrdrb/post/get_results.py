@@ -294,6 +294,9 @@ def get_base_results(
                 datetime = [str(d, "utf-8") for d in f[nodes[0]]["date"]]
                 datetime_index = pd.to_datetime(datetime)
                 gage_flow.index = datetime_index
+
+        data = gage_flow.copy()
+
     if results_set == "reservoir_downstream_gage":
         available_release_data = gage_flow.columns.intersection(
             reservoir_link_pairs.values()
@@ -306,21 +309,24 @@ def get_base_results(
         ]
         gage_flow = gage_flow.loc[:, available_release_data]
         gage_flow.columns = reservoirs_with_data
+
+        data = gage_flow.copy()
+
     elif results_set == "major_flow":
         for c in gage_flow.columns:
             if c not in majorflow_list:
                 gage_flow = gage_flow.drop(c, axis=1)
+        data = gage_flow.copy()
 
-    elif results_set == "res_storage":
+    elif results_set == "res_storage" and model == "obs":
         observed_storage_path = (
-            f"{input_dir}/historic_reservoir_ops/combined_volume_data.csv"
+            f"{input_dir}/historic_reservoir_ops/observed_storage_data.csv"
         )
         try:
-            print(f"Loading observed storage data from {observed_storage_path}")
             observed_storage = pd.read_csv(observed_storage_path)
             observed_storage.index = pd.DatetimeIndex(observed_storage["datetime"])
             observed_storage = observed_storage.drop("datetime", axis=1)
-            return observed_storage, datetime_index
+            data = observed_storage.copy()
         except FileNotFoundError:
             print(f"Observed storage CSV file not found at {observed_storage_path}.")
             return None, datetime_index
@@ -329,6 +335,11 @@ def get_base_results(
                 'The observed storage data does not contain the expected "datetime" column.'
             )
             return None, datetime_index
+    elif results_set == "res_storage" and model != "obs":
+        raise ValueError(
+            f"Reservoir storage data is not available for model={model}. Only available for model='obs'."
+        )
+
     else:
         raise ValueError("Invalid results_set specified for get_base_results().")
 
@@ -336,8 +347,11 @@ def get_base_results(
         if units == "MG":
             pass
         elif units == "MCM":
-            gage_flow *= mg_to_mcm
-    return gage_flow, datetime_index
+            data *= mg_to_mcm
+
+    ## Re-organize as dict for consistency with pywrdrb results
+    results_dict = {0: data}
+    return results_dict, datetime_index
 
 
 def get_all_historic_reconstruction_pywr_results(

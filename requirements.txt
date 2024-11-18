@@ -19,4 +19,6 @@ shapely
 folium
 pynhd
 mpi4py
+pytest
+
 SAlib

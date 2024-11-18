@@ -76,22 +76,37 @@ def get_reservoir_max_diversion_NYC(reservoir):
     return max_hist_diversion * cfs_to_mgd
 
 
-class PywrdrbModelBuilder():
-    def __init__(self, inflow_type, start_date, end_date, options={
-        "inflow_ensemble_indices":None,
-        "use_hist_NycNjDeliveries":True, # If True, we use historical NYC/NJ deliveries as demand, else we use predicted demand. Otherwise, assume demand is equal to max allotment under FFMP
-        "predict_temperature":False, # If True, we use LSTM model to predict temperature at Lordville
-        "predict_salinity":False, # If True, we use LSTM model to predict salinity at Trenton
-        }):
-        # Create model dict to hold all model nodes, edges, params, etc, following Pywr protocol. 
+class ModelBuilder:
+    def __init__(
+        self,
+        inflow_type,
+        start_date,
+        end_date,
+        options={
+            "inflow_ensemble_indices": None,
+            "use_hist_NycNjDeliveries": True,  # If True, we use historical NYC/NJ deliveries as demand, else we use predicted demand. Otherwise, assume demand is equal to max allotment under FFMP
+            "predict_temperature": False,  # If True, we use LSTM model to predict temperature at Lordville
+            "predict_salinity": False,  # If True, we use LSTM model to predict salinity at Trenton
+            "run_starfit_sensitivity_analysis": False,
+            "sensitivity_analysis_scenarios": [],
+        },
+    ):
+        # Create model dict to hold all model nodes, edges, params, etc, following Pywr protocol.
         # This will be saved to JSON at end.
-        self.NSCENARIOS = 1
-        self.initial_volume_frac = 0.8 # get initial reservoir storages as 80% of capacity
+        self.initial_volume_frac = (
+            0.8  # get initial reservoir storages as 80% of capacity
+        )
         self.inflow_type = inflow_type
         self.start_date = start_date
         self.end_date = end_date
         self.timestep = 1
         self.options = options
+
+        self.NSCENARIOS = 1
+
+        # Parse options and store as attributes
+        for k, v in options.items():
+            setattr(self, k, v)
 
         # Tracking purposes
         self.reservoirs = []
@@ -101,44 +116,77 @@ class PywrdrbModelBuilder():
         self.parameters = []
 
         # Variables
-        self.levels = ["1a", "1b", "1c", "2", "3", "4", "5"] # Reservoir operational regimes
+        self.levels = [
+            "1a",
+            "1b",
+            "1c",
+            "2",
+            "3",
+            "4",
+            "5",
+        ]  # Reservoir operational regimes
         self.EPS = 1e-8
 
         self.model_dict = {
-            "metadata": {"title": "DRB", "description": "Pywr DRB representation", "minimum_version": "0.4"},
-            "timestepper": {"start": start_date, "end": end_date, "timestep": self.timestep},
-            "scenarios": [{"name": "inflow", "size": self.NSCENARIOS}], # default to 1 scenario
+            "metadata": {
+                "title": "DRB",
+                "description": "Pywr DRB representation",
+                "minimum_version": "0.4",
+            },
+            "timestepper": {
+                "start": start_date,
+                "end": end_date,
+                "timestep": self.timestep,
+            },
+            "scenarios": [
+                {"name": "inflow", "size": self.NSCENARIOS}
+            ],  # default to 1 scenario
             "nodes": [],
             "edges": [],
-            "parameters": {}
-        }                
+            "parameters": {},
+        }
 
     def reset_model(self):
         self.NSCENARIOS = 1
         self.model_dict = {
-            "metadata": {"title": "DRB", "description": "Pywr DRB representation", "minimum_version": "0.4"},
-            "timestepper": {"start": self.start_date, "end": self.end_date, "timestep": self.timestep},
-            "scenarios": [{"name": "inflow", "size": self.NSCENARIOS}], # default to 1 scenario
+            "metadata": {
+                "title": "DRB",
+                "description": "Pywr DRB representation",
+                "minimum_version": "0.4",
+            },
+            "timestepper": {
+                "start": self.start_date,
+                "end": self.end_date,
+                "timestep": self.timestep,
+            },
+            "scenarios": [
+                {"name": "inflow", "size": self.NSCENARIOS}
+            ],  # default to 1 scenario
             "nodes": [],
             "edges": [],
-            "parameters": {}
+            "parameters": {},
         }
-    #!! revisit this to incorporate other scenario strategies
-                   
-    def make_model(self):
 
+    #!! revisit this to incorporate other scenario strategies
+
+    def make_model(self):
         ####################################################################
         ### Add pywr scenarios
         ####################################################################
 
         ### Add inflow scenarios
-        # We might want to extend this to parameter as well.
-        inflow_ensemble_indices = self.options.get("inflow_ensemble_indices")
-        if inflow_ensemble_indices is not None:
-            self.add_ensemble_inflow_scenarios(inflow_ensemble_indices)
+        # We might want to extend this to parameter as well
+        if self.inflow_ensemble_indices is not None:
+            self.add_ensemble_inflow_scenarios(self.inflow_ensemble_indices)
+
+        elif self.sensitivity_analysis_scenarios and not self.inflow_ensemble_indices:
+            self.NSCENARIOS = len(self.sensitivity_analysis_scenarios)
+            self.model_dict["scenarios"] = [
+                {"name": "starfit_samples", "size": self.NSCENARIOS}
+            ]
 
         # Define "scenarios" based on flow multiplier -> only run one with 1.0 for now
-        else: # N_SCENARIOS = 1:     
+        else:  # N_SCENARIOS = 1:
             self.model_dict["parameters"]["flow_factor"] = {
                 "type": "constantscenario",
                 "scenario": "inflow",
@@ -146,7 +194,7 @@ class PywrdrbModelBuilder():
             }
 
         #######################################################################
-        ### Add major nodes (e.g., reservoirs) to model, along with corresponding minor 
+        ### Add major nodes (e.g., reservoirs) to model, along with corresponding minor
         ### nodes (e.g., withdrawals), edges, & parameters
         #######################################################################
 
@@ -154,14 +202,16 @@ class PywrdrbModelBuilder():
         for node, downstream_node in immediate_downstream_nodes_dict.items():
             # Get flow lag (days) between current node and its downstream connection
             downstream_lag = downstream_node_lags[node]
-            
+
             # Reservoir node
             if node in reservoir_list:
                 self.add_node_major_reservoir(node, downstream_lag, downstream_node)
             # River node
             else:
                 has_catchment = False if node == "delTrenton" else True
-                self.add_node_major_river(node, downstream_lag, downstream_node, has_catchment)
+                self.add_node_major_river(
+                    node, downstream_lag, downstream_node, has_catchment
+                )
 
         #######################################################################
         ### Add additional nodes & edges beyond those associated with major nodes above
@@ -206,9 +256,9 @@ class PywrdrbModelBuilder():
 
     def add_node_major_reservoir(self, reservoir_name, downstream_lag, downstream_node):
         """
-        Add a major reservoir node to the model. This step will also add a cluster of 
-        nodes that are connected to the reservoir, including catchment, withdrawal, 
-        consumption, release, overflow, and delay. 
+        Add a major reservoir node to the model. This step will also add a cluster of
+        nodes that are connected to the reservoir, including catchment, withdrawal,
+        consumption, release, overflow, and delay.
         """
         node_name = f"reservoir_{reservoir_name}"
 
@@ -217,10 +267,10 @@ class PywrdrbModelBuilder():
         # Initial settings
         initial_volume_frac = self.initial_volume_frac
         regulatory_release = (
-                True
-                if reservoir_name in (reservoir_list_nyc + drbc_lower_basin_reservoirs)
-                else False
-            )
+            True
+            if reservoir_name in (reservoir_list_nyc + drbc_lower_basin_reservoirs)
+            else False
+        )
         starfit_release = True if reservoir_name not in reservoir_list_nyc else False
         variable_cost = True if (regulatory_release and not starfit_release) else False
 
@@ -228,7 +278,7 @@ class PywrdrbModelBuilder():
             get_reservoir_capacity(f"modified_{reservoir_name}")
             if reservoir_name in modified_starfit_reservoir_list
             else get_reservoir_capacity(reservoir_name)
-            )
+        )
 
         #############################################
         ################# Add nodes #################
@@ -247,7 +297,6 @@ class PywrdrbModelBuilder():
         model_dict["nodes"].append(reservoir)
         self.reservoirs.append(reservoir_name)
 
-        
         ##### Add catchment node that sends inflows to reservoir
         catchment = {
             "name": f"catchment_{reservoir_name}",
@@ -275,7 +324,7 @@ class PywrdrbModelBuilder():
         model_dict["nodes"].append(consumption)
 
         ##### Add outflow node that reservoir release flow to downstream node
-        # Get the reservoir release rules        
+        # Get the reservoir release rules
         # Lower basin reservoirs with no FFMP connection
         if starfit_release and not regulatory_release:
             outflow = {
@@ -303,19 +352,16 @@ class PywrdrbModelBuilder():
         model_dict["nodes"].append(outflow)
 
         ##### Add secondary high-cost flow path for spill above max_flow
-        outflow = {
-            "name": f"spill_{reservoir_name}", 
-            "type": "link", 
-            "cost": 5000.0}
+        outflow = {"name": f"spill_{reservoir_name}", "type": "link", "cost": 5000.0}
         model_dict["nodes"].append(outflow)
 
         ##### Add delay node to account for flow travel time between nodes. Lag unit is days.
         if downstream_lag > 0:
             delay = {
-                "name": f"delay_{reservoir_name}", 
-                "type": "DelayNode", 
-                "days": downstream_lag
-                }
+                "name": f"delay_{reservoir_name}",
+                "type": "DelayNode",
+                "days": downstream_lag,
+            }
             model_dict["nodes"].append(delay)
 
         #############################################
@@ -328,16 +374,19 @@ class PywrdrbModelBuilder():
             # catchment to withdrawal
             [f"catchment_{reservoir_name}", f"catchmentWithdrawal_{reservoir_name}"],
             # withdrawal to consumption
-            [f"catchmentWithdrawal_{reservoir_name}", f"catchmentConsumption_{reservoir_name}"],
+            [
+                f"catchmentWithdrawal_{reservoir_name}",
+                f"catchmentConsumption_{reservoir_name}",
+            ],
             # withdrawal to reservoir
             [f"catchmentWithdrawal_{reservoir_name}", node_name],
             # reservoir to outflow
             [node_name, f"outflow_{reservoir_name}"],
             # reservoir to high-cost spill (secondary path)
-            [node_name, f"spill_{reservoir_name}"]
+            [node_name, f"spill_{reservoir_name}"],
         ]
 
-         # reservoir downstream node (via outflow node if one exists)
+        # reservoir downstream node (via outflow node if one exists)
         if downstream_node in majorflow_list:
             downstream_name = f"link_{downstream_node}"
         elif downstream_node == "output_del":
@@ -355,9 +404,9 @@ class PywrdrbModelBuilder():
         else:
             model_dict["edges"] += [
                 [f"outflow_{reservoir_name}", downstream_name],
-                [f"spill_{reservoir_name}", downstream_name]
+                [f"spill_{reservoir_name}", downstream_name],
             ]
-        
+
         #############################################
         ########## Add standard parameters ##########
         #############################################
@@ -365,7 +414,7 @@ class PywrdrbModelBuilder():
         # max volume of reservoir, from GRanD database except where adjusted from other sources (eg NYC)
         model_dict["parameters"][f"max_volume_{reservoir_name}"] = {
             "type": "constant",
-            "url": "drb_model_istarf_conus.csv",
+            "url": f"{model_data_dir}drb_model_istarf_conus.csv",
             "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": f"modified_{reservoir_name}"
@@ -389,6 +438,8 @@ class PywrdrbModelBuilder():
             model_dict["parameters"][f"starfit_release_{reservoir_name}"] = {
                 "type": "STARFITReservoirRelease",
                 "node": reservoir_name,
+                "run_starfit_sensitivity_analysis": self.run_starfit_sensitivity_analysis,
+                "sensitivity_analysis_scenarios": self.sensitivity_analysis_scenarios,
             }
 
         ### assign inflows to nodes
@@ -424,7 +475,7 @@ class PywrdrbModelBuilder():
         }
 
         # get max flow for catchment consumption nodes based on DRBC data
-        # assume the consumption_t = R * withdrawal_{t-1}, where R is the ratio of avg 
+        # assume the consumption_t = R * withdrawal_{t-1}, where R is the ratio of avg
         # consumption to withdrawal from DRBC data
         model_dict["parameters"][f"catchmentConsumptionRatio_{reservoir_name}"] = {
             "type": "constant",
@@ -446,8 +497,9 @@ class PywrdrbModelBuilder():
             ],
         }
 
-    def add_node_major_river(self, name, downstream_lag, downstream_node, has_catchment=True):
-
+    def add_node_major_river(
+        self, name, downstream_lag, downstream_node, has_catchment=True
+    ):
         model_dict = self.model_dict
         node_name = f"link_{name}"
 
@@ -457,7 +509,7 @@ class PywrdrbModelBuilder():
         river = {"name": node_name, "type": "link"}
         model_dict["nodes"].append(river)
 
-        if has_catchment: 
+        if has_catchment:
             # Most of the time river nodes will have catchment nodes ecxept for delTrenton
             # Add catchment node that sends inflows to reservoir
             catchment = {
@@ -476,7 +528,7 @@ class PywrdrbModelBuilder():
             }
             model_dict["nodes"].append(withdrawal)
 
-            # Add consumption node that removes flow from model - the rest of 
+            # Add consumption node that removes flow from model - the rest of
             # withdrawals return back to reservoir
             consumption = {
                 "name": f"catchmentConsumption_{name}",
@@ -488,10 +540,10 @@ class PywrdrbModelBuilder():
 
         if downstream_lag > 0:
             delay = {
-                "name": f"delay_{name}", 
-                "type": "DelayNode", 
-                "days": downstream_lag
-                }
+                "name": f"delay_{name}",
+                "type": "DelayNode",
+                "days": downstream_lag,
+            }
             model_dict["nodes"].append(delay)
 
         #############################################
@@ -506,7 +558,7 @@ class PywrdrbModelBuilder():
                 # withdrawal to consumption
                 [f"catchmentWithdrawal_{name}", f"catchmentConsumption_{name}"],
                 # withdrawal to river
-                [f"catchmentWithdrawal_{name}", node_name]
+                [f"catchmentWithdrawal_{name}", node_name],
             ]
 
         # reservoir downstream node (via outflow node if one exists)
@@ -526,7 +578,7 @@ class PywrdrbModelBuilder():
             ]
         else:
             model_dict["edges"].append([node_name, downstream_name])
-        
+
         #############################################
         ########## Add standard parameters ##########
         #############################################
@@ -585,46 +637,49 @@ class PywrdrbModelBuilder():
                     f"prev_flow_catchmentWithdrawal_{name}",
                 ],
             }
-        pass          
-    
+        pass
+
     def add_node_final_basin_outlet(self):
         model_dict = self.model_dict
         ### Add final basin outlet node
-        model_dict["nodes"].append({
-                "name": "output_del",
-                "type": "output"
-            })
-        
+        model_dict["nodes"].append({"name": "output_del", "type": "output"})
+
     def add_node_nyc_aggregated_storage_and_link(self):
         model_dict = self.model_dict
         ### Node for NYC aggregated storage across 3 reservoirs
-        model_dict["nodes"].append({
+        model_dict["nodes"].append(
+            {
                 "name": "reservoir_agg_nyc",
                 "type": "aggregatedstorage",
                 "storage_nodes": [f"reservoir_{r}" for r in reservoir_list_nyc],
-            })
+            }
+        )
 
         ### Nodes linking each NYC reservoir to NYC deliveries
         # reservoir_list_nyc = ["cannonsville", "pepacton", "neversink"]
         for r in reservoir_list_nyc:
-            model_dict["nodes"].append({
+            model_dict["nodes"].append(
+                {
                     "name": f"link_{r}_nyc",
                     "type": "link",
                     "cost": -500.0,
                     "max_flow": f"max_flow_delivery_nyc_{r}",
-                })
-    
+                }
+            )
+
     def add_node_nyc_and_nj_deliveries(self):
         model_dict = self.model_dict
         ### Nodes for NYC & NJ deliveries
         for d in ["nyc", "nj"]:
-            model_dict["nodes"].append({
+            model_dict["nodes"].append(
+                {
                     "name": f"delivery_{d}",
                     "type": "output",
                     "cost": -500.0,
                     "max_flow": f"max_flow_delivery_{d}",
-                })
-        
+                }
+            )
+
         ### Edges linking each NYC reservoir to NYC deliveries
         for r in reservoir_list_nyc:
             model_dict["edges"].append([f"reservoir_{r}", f"link_{r}_nyc"])
@@ -660,7 +715,7 @@ class PywrdrbModelBuilder():
             # NYC
             model_dict["parameters"][f"demand_nyc"] = {
                 "type": "constant",
-                "url": "drb_model_constants.csv",
+                "url": f"{model_data_dir}drb_model_constants.csv",
                 "column": "value",
                 "index_col": "parameter",
                 "index": "max_flow_baseline_delivery_nyc",
@@ -668,7 +723,7 @@ class PywrdrbModelBuilder():
             # NJ
             model_dict["parameters"][f"demand_nj"] = {
                 "type": "constant",
-                "url": "drb_model_constants.csv",
+                "url": f"{model_data_dir}drb_model_constants.csv",
                 "column": "value",
                 "index_col": "parameter",
                 "index": "max_flow_baseline_monthlyAvg_delivery_nj",
@@ -682,7 +737,7 @@ class PywrdrbModelBuilder():
         for level in levels[1:]:
             model_dict["parameters"][f"level{level}"] = {
                 "type": "dailyprofile",
-                "url": "drb_model_dailyProfiles.csv",
+                "url": f"{model_data_dir}drb_model_dailyProfiles.csv",
                 "index_col": "profile",
                 "index": f"level{level}",
             }
@@ -700,7 +755,7 @@ class PywrdrbModelBuilder():
             for level in levels:
                 model_dict["parameters"][f"level{level}_factor_delivery_{demand}"] = {
                     "type": "constant",
-                    "url": "drb_model_constants.csv",
+                    "url": f"{model_data_dir}drb_model_constants.csv",
                     "column": "value",
                     "index_col": "parameter",
                     "index": f"level{level}_factor_delivery_{demand}",
@@ -711,7 +766,9 @@ class PywrdrbModelBuilder():
             model_dict["parameters"][f"drought_factor_delivery_{demand}"] = {
                 "type": "indexedarray",
                 "index_parameter": "drought_level_agg_nyc",
-                "params": [f"level{level}_factor_delivery_{demand}" for level in levels],
+                "params": [
+                    f"level{level}_factor_delivery_{demand}" for level in levels
+                ],
             }
 
         ### Control curve index that tells us which level each individual NYC reservoir's storage is currently in
@@ -731,7 +788,7 @@ class PywrdrbModelBuilder():
         # Max allowable delivery to NYC (on moving avg)
         model_dict["parameters"]["max_flow_baseline_delivery_nyc"] = {
             "type": "constant",
-            "url": "drb_model_constants.csv",
+            "url": f"{model_data_dir}drb_model_constants.csv",
             "column": "value",
             "index_col": "parameter",
             "index": "max_flow_baseline_delivery_nyc",
@@ -740,14 +797,14 @@ class PywrdrbModelBuilder():
         # NJ has both a daily limit and monthly average limit
         model_dict["parameters"]["max_flow_baseline_daily_delivery_nj"] = {
             "type": "constant",
-            "url": "drb_model_constants.csv",
+            "url": f"{model_data_dir}drb_model_constants.csv",
             "column": "value",
             "index_col": "parameter",
             "index": "max_flow_baseline_daily_delivery_nj",
         }
         model_dict["parameters"]["max_flow_baseline_monthlyAvg_delivery_nj"] = {
             "type": "constant",
-            "url": "drb_model_constants.csv",
+            "url": f"{model_data_dir}drb_model_constants.csv",
             "column": "value",
             "index_col": "parameter",
             "index": "max_flow_baseline_monthlyAvg_delivery_nj",
@@ -756,13 +813,16 @@ class PywrdrbModelBuilder():
         #######################################################################
         ### FFMP-based NYC & NJ delivery constraints under drought conditions
         #######################################################################
-        # Max allowable daily delivery to NYC & NJ- this will be very large for levels 
-        # 1&2 (so that moving average limit in the next parameter is active), but apply 
+        # Max allowable daily delivery to NYC & NJ- this will be very large for levels
+        # 1&2 (so that moving average limit in the next parameter is active), but apply
         # daily flow limits for more drought stages.
         model_dict["parameters"]["max_flow_drought_delivery_nyc"] = {
             "type": "aggregated",
             "agg_func": "product",
-            "parameters": ["max_flow_baseline_delivery_nyc", "drought_factor_delivery_nyc"],
+            "parameters": [
+                "max_flow_baseline_delivery_nyc",
+                "drought_factor_delivery_nyc",
+            ],
         }
         # drought_factor_delivery_nyc is defined in add_parameter_nyc_reservoirs_operational_regimes()
 
@@ -774,19 +834,19 @@ class PywrdrbModelBuilder():
             "max_avg_delivery": "max_flow_baseline_delivery_nyc",
         }
 
-        # Now actual max flow to NYC delivery node is the min of demand, daily FFMP 
+        # Now actual max flow to NYC delivery node is the min of demand, daily FFMP
         # limit, and daily limit to meet FFMP moving avg limit
         model_dict["parameters"]["max_flow_delivery_nyc"] = {
             "type": "aggregated",
             "agg_func": "min",
             "parameters": [
-                "demand_nyc", # defined in add_parameter_nyc_and_nj_demands()
+                "demand_nyc",  # defined in add_parameter_nyc_and_nj_demands()
                 "max_flow_drought_delivery_nyc",
                 "max_flow_ffmp_delivery_nyc",
             ],
         }
 
-        # Max allowable delivery to NJ in current time step to maintain moving avg limit. 
+        # Max allowable delivery to NJ in current time step to maintain moving avg limit.
         # Based on custom Pywr parameter.
         model_dict["parameters"]["max_flow_ffmp_delivery_nj"] = {
             "type": "FfmpNjRunningAvg",
@@ -814,12 +874,12 @@ class PywrdrbModelBuilder():
         for reservoir in reservoir_list_nyc:
             model_dict["parameters"][f"mrf_baseline_{reservoir}"] = {
                 "type": "constant",
-                "url": "drb_model_constants.csv",
+                "url": f"{model_data_dir}drb_model_constants.csv",
                 "column": "value",
                 "index_col": "parameter",
                 "index": f"mrf_baseline_{reservoir}",
             }
-        
+
         ### Factor governing changing release reqs from NYC reservoirs, based on aggregated storage across 3 reservoirs
         for reservoir in reservoir_list_nyc:
             model_dict["parameters"][f"mrf_drought_factor_agg_{reservoir}"] = {
@@ -827,13 +887,13 @@ class PywrdrbModelBuilder():
                 "index_parameter": "drought_level_agg_nyc",
                 "params": [f"level{level}_factor_mrf_{reservoir}" for level in levels],
             }
-        
+
         ### Levels defining operational regimes for individual NYC reservoirs, as opposed to aggregated level across 3 reservoirs
         for reservoir in reservoir_list_nyc:
             for level in levels:
                 model_dict["parameters"][f"level{level}_factor_mrf_{reservoir}"] = {
                     "type": "dailyprofile",
-                    "url": "drb_model_dailyProfiles.csv",
+                    "url": f"{model_data_dir}drb_model_dailyProfiles.csv",
                     "index_col": "profile",
                     "index": f"level{level}_factor_mrf_{reservoir}",
                 }
@@ -849,7 +909,9 @@ class PywrdrbModelBuilder():
         ### Factor governing changing release reqs from NYC reservoirs, depending on whether aggregated or individual storage level is activated
         ### Based on custom Pywr parameter.
         for reservoir in reservoir_list_nyc:
-            model_dict["parameters"][f"mrf_drought_factor_combined_final_{reservoir}"] = {
+            model_dict["parameters"][
+                f"mrf_drought_factor_combined_final_{reservoir}"
+            ] = {
                 "type": "NYCCombinedReleaseFactor",
                 "node": f"reservoir_{reservoir}",
             }
@@ -917,7 +979,7 @@ class PywrdrbModelBuilder():
                 "node": f"reservoir_{reservoir}",
                 "volumes": [-EPS, volumes[reservoir] + EPS],
             }
-    
+
     def add_parameter_nyc_reservoirs_current_volume(self):
         model_dict = self.model_dict
         EPS = self.EPS
@@ -933,7 +995,7 @@ class PywrdrbModelBuilder():
     def add_parameter_nyc_reservoirs_aggregated_info(self):
         model_dict = self.model_dict
         EPS = self.EPS
-        ### current volume stored in the aggregated storage node 
+        ### current volume stored in the aggregated storage node
         model_dict["parameters"]["volume_agg_nyc"] = {
             "type": "interpolatedvolume",
             "values": [-EPS, 1000000],
@@ -952,7 +1014,9 @@ class PywrdrbModelBuilder():
         model_dict["parameters"]["max_volume_agg_nyc"] = {
             "type": "aggregated",
             "agg_func": "sum",
-            "parameters": [f"max_volume_{reservoir}" for reservoir in reservoir_list_nyc],
+            "parameters": [
+                f"max_volume_{reservoir}" for reservoir in reservoir_list_nyc
+            ],
         }
 
     def add_parameter_montague_trenton_flow_targets(self):
@@ -963,7 +1027,7 @@ class PywrdrbModelBuilder():
         for mrf in mrfs:
             model_dict["parameters"][f"mrf_baseline_{mrf}"] = {
                 "type": "constant",
-                "url": "drb_model_constants.csv",
+                "url": f"{model_data_dir}drb_model_constants.csv",
                 "column": "value",
                 "index_col": "parameter",
                 "index": f"mrf_baseline_{mrf}",
@@ -974,7 +1038,7 @@ class PywrdrbModelBuilder():
             for level in levels:
                 model_dict["parameters"][f"level{level}_factor_mrf_{mrf}"] = {
                     "type": "monthlyprofile",
-                    "url": "drb_model_monthlyProfiles.csv",
+                    "url": f"{model_data_dir}drb_model_monthlyProfiles.csv",
                     "index_col": "profile",
                     "index": f"level{level}_factor_mrf_{mrf}",
                 }
@@ -994,9 +1058,11 @@ class PywrdrbModelBuilder():
                 "agg_func": "product",
                 "parameters": [f"mrf_baseline_{mrf}", f"mrf_drought_factor_{mrf}"],
             }
-    
-    #?? Not yet understand how this works
-    def add_parameter_predicted_lagged_non_nyc_inflows_to_Montague_and_Trenton_and_lagged_nj_demands(self):
+
+    # ?? Not yet understand how this works
+    def add_parameter_predicted_lagged_non_nyc_inflows_to_Montague_and_Trenton_and_lagged_nj_demands(
+        self,
+    ):
         model_dict = self.model_dict
         inflow_ensemble_indices = self.options.get("inflow_ensemble_indices")
         inflow_type = self.inflow_type
@@ -1014,7 +1080,9 @@ class PywrdrbModelBuilder():
                 (1, 2, 1, 2, 3, 4),
             ):
                 label = f"{mrf}_lag{lag}_{flow_prediction_mode}"
-                model_dict["parameters"][f"predicted_nonnyc_gage_flow_{mrf}_lag{lag}"] = {
+                model_dict["parameters"][
+                    f"predicted_nonnyc_gage_flow_{mrf}_lag{lag}"
+                ] = {
                     "type": "dataframe",
                     "url": f"{input_dir}predicted_inflows_diversions_{inflow_type}.csv",
                     "column": label,
@@ -1046,7 +1114,9 @@ class PywrdrbModelBuilder():
             ):
                 label = f"{mrf}_lag{lag}_{flow_prediction_mode}"
 
-                model_dict["parameters"][f"predicted_nonnyc_gage_flow_{mrf}_lag{lag}"] = {
+                model_dict["parameters"][
+                    f"predicted_nonnyc_gage_flow_{mrf}_lag{lag}"
+                ] = {
                     "type": "PredictionEnsemble",
                     "column": label,
                     "inflow_type": inflow_type,
@@ -1072,7 +1142,7 @@ class PywrdrbModelBuilder():
                     "parse_dates": True,
                 }
 
-    #?? Not yet understand how this works
+    # ?? Not yet understand how this works
     def add_parameter_nyc_reservoirs_balancing_methods(self):
         model_dict = self.model_dict
         ### Get total release needed from NYC reservoirs to satisfy Montague & Trenton flow targets,
@@ -1368,7 +1438,10 @@ class PywrdrbModelBuilder():
             model_dict["parameters"][f"downstream_release_target_{reservoir}"] = {
                 "type": "aggregated",
                 "agg_func": "sum",
-                "parameters": [f"mrf_trenton_{reservoir}", f"starfit_release_{reservoir}"],
+                "parameters": [
+                    f"mrf_trenton_{reservoir}",
+                    f"starfit_release_{reservoir}",
+                ],
             }
 
         ### now distribute NYC deliveries across 3 reservoirs with volume balancing after accounting for downstream releases
@@ -1405,9 +1478,8 @@ class PywrdrbModelBuilder():
         try:
             from pywrdrb.parameters.salinity import SalinityPrediction
 
-            model_dict["parameters"]["predicted_salinity"] = {"type": "SalinityPrediction"}
+            model_dict["parameters"]["predicted_salinity"] = {
+                "type": "SalinityPrediction"
+            }
         except Exception as e:
             print(f"Salinity prediction model not available. Error: {e}")
-         
-
-        

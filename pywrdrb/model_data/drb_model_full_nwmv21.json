@@ -1046,12 +1046,12 @@
             "outflow_cannonsville"
         ],
         [
-            "outflow_cannonsville",
-            "link_01425000"
-        ],
-        [
             "reservoir_cannonsville",
             "spill_cannonsville"
+        ],
+        [
+            "outflow_cannonsville",
+            "link_01425000"
         ],
         [
             "spill_cannonsville",
@@ -1078,12 +1078,12 @@
             "outflow_pepacton"
         ],
         [
-            "outflow_pepacton",
-            "link_01417000"
-        ],
-        [
             "reservoir_pepacton",
             "spill_pepacton"
+        ],
+        [
+            "outflow_pepacton",
+            "link_01417000"
         ],
         [
             "spill_pepacton",
@@ -1110,12 +1110,12 @@
             "outflow_neversink"
         ],
         [
-            "outflow_neversink",
-            "link_01436000"
-        ],
-        [
             "reservoir_neversink",
             "spill_neversink"
+        ],
+        [
+            "outflow_neversink",
+            "link_01436000"
         ],
         [
             "spill_neversink",
@@ -1142,20 +1142,20 @@
             "outflow_wallenpaupack"
         ],
         [
+            "reservoir_wallenpaupack",
+            "spill_wallenpaupack"
+        ],
+        [
             "outflow_wallenpaupack",
+            "delay_wallenpaupack"
+        ],
+        [
+            "spill_wallenpaupack",
             "delay_wallenpaupack"
         ],
         [
             "delay_wallenpaupack",
             "link_delMontague"
-        ],
-        [
-            "reservoir_wallenpaupack",
-            "spill_wallenpaupack"
-        ],
-        [
-            "spill_wallenpaupack",
-            "delay_wallenpaupack"
         ],
         [
             "catchment_prompton",
@@ -1178,20 +1178,20 @@
             "outflow_prompton"
         ],
         [
+            "reservoir_prompton",
+            "spill_prompton"
+        ],
+        [
             "outflow_prompton",
+            "delay_prompton"
+        ],
+        [
+            "spill_prompton",
             "delay_prompton"
         ],
         [
             "delay_prompton",
             "link_delMontague"
-        ],
-        [
-            "reservoir_prompton",
-            "spill_prompton"
-        ],
-        [
-            "spill_prompton",
-            "delay_prompton"
         ],
         [
             "catchment_shoholaMarsh",
@@ -1214,20 +1214,20 @@
             "outflow_shoholaMarsh"
         ],
         [
+            "reservoir_shoholaMarsh",
+            "spill_shoholaMarsh"
+        ],
+        [
             "outflow_shoholaMarsh",
+            "delay_shoholaMarsh"
+        ],
+        [
+            "spill_shoholaMarsh",
             "delay_shoholaMarsh"
         ],
         [
             "delay_shoholaMarsh",
             "link_delMontague"
-        ],
-        [
-            "reservoir_shoholaMarsh",
-            "spill_shoholaMarsh"
-        ],
-        [
-            "spill_shoholaMarsh",
-            "delay_shoholaMarsh"
         ],
         [
             "catchment_mongaupeCombined",
@@ -1250,12 +1250,12 @@
             "outflow_mongaupeCombined"
         ],
         [
-            "outflow_mongaupeCombined",
-            "link_01433500"
-        ],
-        [
             "reservoir_mongaupeCombined",
             "spill_mongaupeCombined"
+        ],
+        [
+            "outflow_mongaupeCombined",
+            "link_01433500"
         ],
         [
             "spill_mongaupeCombined",
@@ -1282,12 +1282,12 @@
             "outflow_beltzvilleCombined"
         ],
         [
-            "outflow_beltzvilleCombined",
-            "link_01449800"
-        ],
-        [
             "reservoir_beltzvilleCombined",
             "spill_beltzvilleCombined"
+        ],
+        [
+            "outflow_beltzvilleCombined",
+            "link_01449800"
         ],
         [
             "spill_beltzvilleCombined",
@@ -1314,12 +1314,12 @@
             "outflow_fewalter"
         ],
         [
-            "outflow_fewalter",
-            "link_01447800"
-        ],
-        [
             "reservoir_fewalter",
             "spill_fewalter"
+        ],
+        [
+            "outflow_fewalter",
+            "link_01447800"
         ],
         [
             "spill_fewalter",
@@ -1346,20 +1346,20 @@
             "outflow_merrillCreek"
         ],
         [
+            "reservoir_merrillCreek",
+            "spill_merrillCreek"
+        ],
+        [
             "outflow_merrillCreek",
+            "delay_merrillCreek"
+        ],
+        [
+            "spill_merrillCreek",
             "delay_merrillCreek"
         ],
         [
             "delay_merrillCreek",
             "link_delDRCanal"
-        ],
-        [
-            "reservoir_merrillCreek",
-            "spill_merrillCreek"
-        ],
-        [
-            "spill_merrillCreek",
-            "delay_merrillCreek"
         ],
         [
             "catchment_hopatcong",
@@ -1382,20 +1382,20 @@
             "outflow_hopatcong"
         ],
         [
+            "reservoir_hopatcong",
+            "spill_hopatcong"
+        ],
+        [
             "outflow_hopatcong",
+            "delay_hopatcong"
+        ],
+        [
+            "spill_hopatcong",
             "delay_hopatcong"
         ],
         [
             "delay_hopatcong",
             "link_delDRCanal"
-        ],
-        [
-            "reservoir_hopatcong",
-            "spill_hopatcong"
-        ],
-        [
-            "spill_hopatcong",
-            "delay_hopatcong"
         ],
         [
             "catchment_nockamixon",
@@ -1418,20 +1418,20 @@
             "outflow_nockamixon"
         ],
         [
+            "reservoir_nockamixon",
+            "spill_nockamixon"
+        ],
+        [
             "outflow_nockamixon",
+            "delay_nockamixon"
+        ],
+        [
+            "spill_nockamixon",
             "delay_nockamixon"
         ],
         [
             "delay_nockamixon",
             "link_delDRCanal"
-        ],
-        [
-            "reservoir_nockamixon",
-            "spill_nockamixon"
-        ],
-        [
-            "spill_nockamixon",
-            "delay_nockamixon"
         ],
         [
             "catchment_assunpink",
@@ -1454,12 +1454,12 @@
             "outflow_assunpink"
         ],
         [
-            "outflow_assunpink",
-            "link_01463620"
-        ],
-        [
             "reservoir_assunpink",
             "spill_assunpink"
+        ],
+        [
+            "outflow_assunpink",
+            "link_01463620"
         ],
         [
             "spill_assunpink",
@@ -1486,20 +1486,20 @@
             "outflow_ontelaunee"
         ],
         [
+            "reservoir_ontelaunee",
+            "spill_ontelaunee"
+        ],
+        [
             "outflow_ontelaunee",
+            "delay_ontelaunee"
+        ],
+        [
+            "spill_ontelaunee",
             "delay_ontelaunee"
         ],
         [
             "delay_ontelaunee",
             "link_outletSchuylkill"
-        ],
-        [
-            "reservoir_ontelaunee",
-            "spill_ontelaunee"
-        ],
-        [
-            "spill_ontelaunee",
-            "delay_ontelaunee"
         ],
         [
             "catchment_stillCreek",
@@ -1522,20 +1522,20 @@
             "outflow_stillCreek"
         ],
         [
+            "reservoir_stillCreek",
+            "spill_stillCreek"
+        ],
+        [
             "outflow_stillCreek",
+            "delay_stillCreek"
+        ],
+        [
+            "spill_stillCreek",
             "delay_stillCreek"
         ],
         [
             "delay_stillCreek",
             "link_outletSchuylkill"
-        ],
-        [
-            "reservoir_stillCreek",
-            "spill_stillCreek"
-        ],
-        [
-            "spill_stillCreek",
-            "delay_stillCreek"
         ],
         [
             "catchment_blueMarsh",
@@ -1558,12 +1558,12 @@
             "outflow_blueMarsh"
         ],
         [
-            "outflow_blueMarsh",
-            "link_01470960"
-        ],
-        [
             "reservoir_blueMarsh",
             "spill_blueMarsh"
+        ],
+        [
+            "outflow_blueMarsh",
+            "link_01470960"
         ],
         [
             "spill_blueMarsh",
@@ -1590,20 +1590,20 @@
             "outflow_greenLane"
         ],
         [
+            "reservoir_greenLane",
+            "spill_greenLane"
+        ],
+        [
             "outflow_greenLane",
+            "delay_greenLane"
+        ],
+        [
+            "spill_greenLane",
             "delay_greenLane"
         ],
         [
             "delay_greenLane",
             "link_outletSchuylkill"
-        ],
-        [
-            "reservoir_greenLane",
-            "spill_greenLane"
-        ],
-        [
-            "spill_greenLane",
-            "delay_greenLane"
         ],
         [
             "catchment_01425000",
@@ -1923,6 +1923,13 @@
         ]
     ],
     "parameters": {
+        "flow_factor": {
+            "type": "constantscenario",
+            "scenario": "inflow",
+            "values": [
+                1.0
+            ]
+        },
         "max_volume_cannonsville": {
             "type": "constant",
             "url": "drb_model_istarf_conus.csv",
@@ -3112,13 +3119,6 @@
                 "prev_flow_catchmentWithdrawal_outletSchuylkill"
             ]
         },
-        "flow_factor": {
-            "type": "constantscenario",
-            "scenario": "inflow",
-            "values": [
-                1.0
-            ]
-        },
         "demand_nyc": {
             "type": "dataframe",
             "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/deliveryNYC_ODRM_extrapolated.csv",
@@ -3131,27 +3131,6 @@
             "url": "/home/fs02/pmr82_0001/tja73/Research/DRB/Pywr-DRB/Pywr-DRB/input_data/deliveryNJ_DRCanal_extrapolated.csv",
             "index_col": "datetime",
             "parse_dates": true
-        },
-        "max_flow_baseline_delivery_nyc": {
-            "type": "constant",
-            "url": "drb_model_constants.csv",
-            "column": "value",
-            "index_col": "parameter",
-            "index": "max_flow_baseline_delivery_nyc"
-        },
-        "max_flow_baseline_daily_delivery_nj": {
-            "type": "constant",
-            "url": "drb_model_constants.csv",
-            "column": "value",
-            "index_col": "parameter",
-            "index": "max_flow_baseline_daily_delivery_nj"
-        },
-        "max_flow_baseline_monthlyAvg_delivery_nj": {
-            "type": "constant",
-            "url": "drb_model_constants.csv",
-            "column": "value",
-            "index_col": "parameter",
-            "index": "max_flow_baseline_monthlyAvg_delivery_nj"
         },
         "level1b": {
             "type": "dailyprofile",
@@ -3325,64 +3304,6 @@
                 "level5_factor_delivery_nj"
             ]
         },
-        "max_flow_drought_delivery_nyc": {
-            "type": "aggregated",
-            "agg_func": "product",
-            "parameters": [
-                "max_flow_baseline_delivery_nyc",
-                "drought_factor_delivery_nyc"
-            ]
-        },
-        "max_flow_ffmp_delivery_nyc": {
-            "type": "FfmpNycRunningAvg",
-            "node": "delivery_nyc",
-            "max_avg_delivery": "max_flow_baseline_delivery_nyc"
-        },
-        "max_flow_ffmp_delivery_nj": {
-            "type": "FfmpNjRunningAvg",
-            "node": "delivery_nj",
-            "max_avg_delivery": "max_flow_baseline_monthlyAvg_delivery_nj",
-            "max_daily_delivery": "max_flow_baseline_daily_delivery_nj",
-            "drought_factor": "drought_factor_delivery_nj"
-        },
-        "max_flow_delivery_nyc": {
-            "type": "aggregated",
-            "agg_func": "min",
-            "parameters": [
-                "demand_nyc",
-                "max_flow_drought_delivery_nyc",
-                "max_flow_ffmp_delivery_nyc"
-            ]
-        },
-        "max_flow_delivery_nj": {
-            "type": "aggregated",
-            "agg_func": "min",
-            "parameters": [
-                "demand_nj",
-                "max_flow_ffmp_delivery_nj"
-            ]
-        },
-        "mrf_baseline_cannonsville": {
-            "type": "constant",
-            "url": "drb_model_constants.csv",
-            "column": "value",
-            "index_col": "parameter",
-            "index": "mrf_baseline_cannonsville"
-        },
-        "mrf_baseline_pepacton": {
-            "type": "constant",
-            "url": "drb_model_constants.csv",
-            "column": "value",
-            "index_col": "parameter",
-            "index": "mrf_baseline_pepacton"
-        },
-        "mrf_baseline_neversink": {
-            "type": "constant",
-            "url": "drb_model_constants.csv",
-            "column": "value",
-            "index_col": "parameter",
-            "index": "mrf_baseline_neversink"
-        },
         "drought_level_cannonsville": {
             "type": "controlcurveindex",
             "storage_node": "reservoir_cannonsville",
@@ -3418,6 +3339,85 @@
                 "level4",
                 "level5"
             ]
+        },
+        "max_flow_baseline_delivery_nyc": {
+            "type": "constant",
+            "url": "drb_model_constants.csv",
+            "column": "value",
+            "index_col": "parameter",
+            "index": "max_flow_baseline_delivery_nyc"
+        },
+        "max_flow_baseline_daily_delivery_nj": {
+            "type": "constant",
+            "url": "drb_model_constants.csv",
+            "column": "value",
+            "index_col": "parameter",
+            "index": "max_flow_baseline_daily_delivery_nj"
+        },
+        "max_flow_baseline_monthlyAvg_delivery_nj": {
+            "type": "constant",
+            "url": "drb_model_constants.csv",
+            "column": "value",
+            "index_col": "parameter",
+            "index": "max_flow_baseline_monthlyAvg_delivery_nj"
+        },
+        "max_flow_drought_delivery_nyc": {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [
+                "max_flow_baseline_delivery_nyc",
+                "drought_factor_delivery_nyc"
+            ]
+        },
+        "max_flow_ffmp_delivery_nyc": {
+            "type": "FfmpNycRunningAvg",
+            "node": "delivery_nyc",
+            "max_avg_delivery": "max_flow_baseline_delivery_nyc"
+        },
+        "max_flow_delivery_nyc": {
+            "type": "aggregated",
+            "agg_func": "min",
+            "parameters": [
+                "demand_nyc",
+                "max_flow_drought_delivery_nyc",
+                "max_flow_ffmp_delivery_nyc"
+            ]
+        },
+        "max_flow_ffmp_delivery_nj": {
+            "type": "FfmpNjRunningAvg",
+            "node": "delivery_nj",
+            "max_avg_delivery": "max_flow_baseline_monthlyAvg_delivery_nj",
+            "max_daily_delivery": "max_flow_baseline_daily_delivery_nj",
+            "drought_factor": "drought_factor_delivery_nj"
+        },
+        "max_flow_delivery_nj": {
+            "type": "aggregated",
+            "agg_func": "min",
+            "parameters": [
+                "demand_nj",
+                "max_flow_ffmp_delivery_nj"
+            ]
+        },
+        "mrf_baseline_cannonsville": {
+            "type": "constant",
+            "url": "drb_model_constants.csv",
+            "column": "value",
+            "index_col": "parameter",
+            "index": "mrf_baseline_cannonsville"
+        },
+        "mrf_baseline_pepacton": {
+            "type": "constant",
+            "url": "drb_model_constants.csv",
+            "column": "value",
+            "index_col": "parameter",
+            "index": "mrf_baseline_pepacton"
+        },
+        "mrf_baseline_neversink": {
+            "type": "constant",
+            "url": "drb_model_constants.csv",
+            "column": "value",
+            "index_col": "parameter",
+            "index": "mrf_baseline_neversink"
         },
         "mrf_drought_factor_agg_cannonsville": {
             "type": "indexedarray",
