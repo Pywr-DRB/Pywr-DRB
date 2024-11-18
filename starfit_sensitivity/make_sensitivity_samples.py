@@ -8,8 +8,8 @@ import pandas as pd
 import SALib.sample.latin as latin
 
 # set path to pywrdrb
-path_to_pywrdrb = '../'
 import sys
+path_to_pywrdrb = '../'
 sys.path.append(path_to_pywrdrb)
 
 # Import custom modules and functions from pywrdrb

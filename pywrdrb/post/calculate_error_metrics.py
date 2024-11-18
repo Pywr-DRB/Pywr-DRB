@@ -6,7 +6,30 @@ from scipy import stats
 import pandas as pd
 from pywrdrb.utils.lists import reservoir_list
 import numpy as np
+from dataretrieval import nwis
 
+def fetch_nwis_data(site_number, start_date, end_date):
+    """
+    Fetches daily streamflow data from NWIS.
+    
+    Parameters:
+    site_number (str): The USGS site number to fetch data from.
+    start_date (str): The start date for the data.
+    end_date (str): The end date for the data.
+    
+    Returns:
+    pd.Series: The average daily discharge data.
+    """
+    parameter_code = '00060'  # Discharge
+    daily_streamflow = nwis.get_dv(sites=site_number, parameterCd=parameter_code, start=start_date, end=end_date)
+    if daily_streamflow:
+        data = daily_streamflow[0]
+        data.index = data.index.date
+        return data['00060_Mean']
+    else:
+        print(f"No data retrieved for site {site_number}")
+        return None
+    
 def subset_timeseries(data, start_date, end_date, end_inclusive=False):
     if isinstance(data, pd.Series):  # Check if the data is a pandas Series
         if start_date:
@@ -22,15 +45,15 @@ def subset_timeseries(data, start_date, end_date, end_inclusive=False):
         pass
     return data
 
-def calculate_error_metrics(reservoir_downstream_gages, 
-                            major_flows, 
+def calculate_error_metrics(reservoir_downstream_gages,
                             models, 
                             output, 
                             nodes, 
                             scenarios, 
                             start_date=None, 
                             end_date=None, 
-                            end_inclusive=False):
+                            end_inclusive=False,
+                            fetch_nwis=False):
     # Initialize an empty DataFrame for results
     results_metrics = pd.DataFrame()
 
@@ -38,49 +61,69 @@ def calculate_error_metrics(reservoir_downstream_gages,
         print(f"\nProcessing node: {node}")
 
         # Determine which dataset to use based on node type
-        if node in reservoir_list + ["NYCAgg"]:
-            obs_results = reservoir_downstream_gages["obs"][node]
-        else:
-            obs_results = major_flows["obs"][node]
+        # Define the NWIS site numbers
+        nwis_sites = {
+            'prompton': '01430000',
+        }
+
+        try:
+            obs_results = reservoir_downstream_gages['obs'][node]
+        except KeyError:
+            print(f"Data for '{node}' not found in 'obs'. Available keys: {reservoir_downstream_gages['obs'].keys()}")
+            obs_results = None
+    
+        # Check if obs_data is None and fetch NWIS data if needed
+        if obs_results is None and fetch_nwis:
+            site_number = nwis_sites.get(node)  # Retrieve the site number from nwis_sites
+            if site_number:
+                obs_results = fetch_nwis_data(site_number, start_date, end_date)
+                obs_results.index = pd.to_datetime(obs_results.index)
             
         # Iterate over models and scenarios
         for model in models:
-            print(f"Processing model: {model}")
+            #print(f"Processing model: {model}")
             for scenario in scenarios:
-                print(f"\tProcessing scenario: {scenario}")
+                #print(f"\tProcessing scenario: {scenario}")
 
                 # For reservoirs, access the simulated model data
-                if node in reservoir_list + ["NYCAgg"]:
-                    modeled_results = output.reservoir_downstream_gage[model][scenario][node]
-                else:
-                    modeled_results = output.major_flow[model][scenario][node]
+                modeled_results = output.reservoir_downstream_gage[model][scenario][node]
                 
                 # Initialize dictionary to store error metrics
                 resultsdict = {}
                 # For each timescale, daily and monthly
-                for timescale in ["D", "M", "Y","Full"]:
-                    print(f"\t\tTimescale: {timescale}")
+                for timescale in ["D", "W", "M","A"]:
+                    #print(f"\t\tTimescale: {timescale}")
 
 
                     # Subset observed and modeled data based on start and end dates
                     obs = subset_timeseries(obs_results, start_date, end_date, end_inclusive)
                     modeled = subset_timeseries(modeled_results, start_date, end_date, end_inclusive)
+
+                    # **Filter out zero values from both observed and modeled data**
+                    obs = obs.loc[obs > 0]  # Keep only positive values
+                    modeled = modeled.loc[modeled > 0]  # Keep only positive values
+
+                    # Ensure indices overlap for both datasets
+                    common_index = obs.index.intersection(modeled.index)
+                    obs = obs.loc[common_index]
+                    modeled = modeled.loc[common_index]
                     
                     # Resample to monthly if timescale is "M"
-                    if timescale == "M":
-                        obs = obs.resample("M").mean()
-                        modeled = modeled.resample("M").mean()
-                    elif timescale == "Y":
-                        obs = obs.resample("Y").mean()
-                        modeled = modeled.resample("Y").mean()
-                    elif timescale == "Full":
-                        # No resampling needed, use the existing obs and modeled variables
+                    if timescale == "W":
+                        obs = obs.resample("W").mean()
+                        modeled = modeled.resample("W").mean()
+                    elif timescale == "M":
+                        obs = obs.resample("ME").mean()
+                        modeled = modeled.resample("ME").mean()
+                    elif timescale == "A":
+                        obs = obs.resample("YE").mean()
+                        modeled = modeled.resample("YE").mean()
+                    elif timescale == "D":
                         pass
-
-
+                            
                     # Print the data to debug
-                    print(f"\t\t\tObserved data (first 5): {obs.head()}")
-                    print(f"\t\t\tModeled data (first 5): {modeled.head()}")
+                    #print(f"\t\t\tObserved data (first 5): {obs.head()}")
+                    #print(f"\t\t\tModeled data (first 5): {modeled.head()}")
 
                     # Calculate error metrics
                     kge, r, alpha, beta = he.evaluator(he.kge, modeled, obs)

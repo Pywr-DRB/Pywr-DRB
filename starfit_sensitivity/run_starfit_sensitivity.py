@@ -15,8 +15,9 @@ import os
 
 import sys
 
-#path_to_pywrdrb = '../' #in notebook folder 
-#sys.path.append(path_to_pywrdrb)
+path_to_pywrdrb = '../'
+sys.path.append(path_to_pywrdrb)
+
 from pywr.model import Model 
 from pywrdrb.parameters import *
 from pywrdrb.make_model import make_model
@@ -26,12 +27,6 @@ from pywr.recorders import TablesRecorder
 import warnings
 warnings.filterwarnings("ignore")
 
-path_to_pywrdrb = '../' #in notebook folder 
-sys.path.append(path_to_pywrdrb)
-from pywr.model import Model 
-from pywrdrb.parameters import *
-from pywrdrb.make_model import make_model
-from pywr.recorders import TablesRecorder
 import h5py
 
 # Path to the samples
@@ -44,15 +39,15 @@ BATCH_SIZE = 10
 #### RUN SIMULATIONS
 
 ### SPECIFICATIONS
-inflow_type = "nhmv10_withObsScaled"
+#inflow_type = "nhmv10_withObsScaled"
 # Date ranges for #inflow_type = "nhmv10_withObsScaled"
-start_date = '1983-10-01'
-end_date = '2016-09-30'
+#start_date = '1983-10-01'
+#end_date = '2016-09-30'
 
-#inflow_type = "obs_pub_nhmv10_ObsScaled"
+inflow_type = "obs_pub_nhmv10_ObsScaled"
 # Date ranges for #inflow_type = "obs_pub_nhmv10_ObsScaled"
-#start_date = '1945-01-01'
-#end_date = '2022-12-31'
+start_date = '1945-01-01'
+end_date = '2022-12-31'
 # Simulation start and end dates
 #from pywrdrb.utils.dates import model_date_ranges
 #start_date, end_date = model_date_ranges[inflow_type]

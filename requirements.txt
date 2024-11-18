@@ -19,3 +19,4 @@ shapely
 folium
 pynhd
 mpi4py
+SAlib
