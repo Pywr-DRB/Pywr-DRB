@@ -1327,7 +1327,5 @@ class VolBalanceNYCDemand(Parameter):
             flood_release_reservoirs,
             **data,
         )
-
-
 ### have to register the custom parameter so Pywr recognizes it
 VolBalanceNYCDemand.register()
