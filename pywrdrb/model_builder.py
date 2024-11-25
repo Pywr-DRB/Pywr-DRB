@@ -85,8 +85,10 @@ class ModelBuilder:
         options={
             "inflow_ensemble_indices": None,
             "use_hist_NycNjDeliveries": True,  # If True, we use historical NYC/NJ deliveries as demand, else we use predicted demand. Otherwise, assume demand is equal to max allotment under FFMP
-            "predict_temperature": False,  # If True, we use LSTM model to predict temperature at Lordville
-            "predict_salinity": False,  # If True, we use LSTM model to predict salinity at Trenton
+            "predict_temperature":False, # If True, we use LSTM model to predict temperature at Lordville
+            "temperature_torch_seed": 4,
+            "predict_salinity":False, # If True, we use LSTM model to predict salinity at Trenton
+            "salinity_torch_seed": 4,
             "run_starfit_sensitivity_analysis": False,
             "sensitivity_analysis_scenarios": [],
         },
@@ -298,19 +300,23 @@ class ModelBuilder:
         self.reservoirs.append(reservoir_name)
 
         ##### Add catchment node that sends inflows to reservoir
+        # f"flow_{reservoir_name}" is the parameter defined below. It will read in inflow csv.
         catchment = {
             "name": f"catchment_{reservoir_name}",
             "type": "catchment",
             "flow": f"flow_{reservoir_name}",
+            # Note: flow is from f"{input_dir}catchment_inflow_{inflow_type}.csv"
         }
         model_dict["nodes"].append(catchment)
 
         ##### Add withdrawal node that withdraws flow from catchment for human use
+        # f"max_flow_catchmentWithdrawal_{reservoir_name}" is the parameter defined below. It will read in inflow csv.
         withdrawal = {
             "name": f"catchmentWithdrawal_{reservoir_name}",
             "type": "link",
             "cost": -15.0,
             "max_flow": f"max_flow_catchmentWithdrawal_{reservoir_name}",
+            # Note: "max_flow" is from f"{input_dir}sw_avg_wateruse_Pywr-DRB_Catchments.csv"
         }
         model_dict["nodes"].append(withdrawal)
 
@@ -320,6 +326,9 @@ class ModelBuilder:
             "type": "output",
             "cost": -2000.0,
             "max_flow": f"max_flow_catchmentConsumption_{reservoir_name}",
+            # Note: "max_flow" is the product of "max_flow_catchmentWithdrawal_{reservoir_name}" and "prev_flow_catchmentWithdrawal_{reservoir_name}"
+            # "max_flow_catchmentWithdrawal_{reservoir_name}" is from f"{input_dir}sw_avg_wateruse_Pywr-DRB_Catchments.csv"
+            # "prev_flow_catchmentWithdrawal_{reservoir_name}" is from the current value (t-1) in f"catchmentWithdrawal_{reservoir_name}"
         }
         model_dict["nodes"].append(consumption)
 
@@ -332,6 +341,7 @@ class ModelBuilder:
                 "type": "link",
                 "cost": -500.0,
                 "max_flow": f"starfit_release_{reservoir_name}",
+                # the fitted values are in f"{model_data_dir}drb_model_istarf_conus.csv"
             }
         # Lower basin reservoirs which contribute to Montague/Trenton
         elif starfit_release and regulatory_release:
@@ -340,14 +350,23 @@ class ModelBuilder:
                 "type": "link",
                 "cost": -500.0,
                 "max_flow": f"downstream_release_target_{reservoir_name}",
+                # Note: f"downstream_release_target_{reservoir_name}" is the sum of its
+                # individually-mandated release from FFMP, flood control release, and 
+                # its contribution to the Montague/Trenton targets.
+                # Details are in add_parameter_nyc_reservoirs_balancing_methods()
             }
         # NYC Reservoirs
         elif regulatory_release and not starfit_release:
+            # outflow of cannonsville & pepacton will be overwrote later if predict_temperature is True.
             outflow = {
                 "name": f"outflow_{reservoir_name}",
                 "type": "link",
                 "cost": -1000.0,
                 "max_flow": f"downstream_release_target_{reservoir_name}",
+                # Note: f"downstream_release_target_{reservoir_name}" is the sum of its
+                # individually-mandated release from FFMP, flood control release, and 
+                # its contribution to the Montague/Trenton targets.
+                # Details are in add_parameter_nyc_reservoirs_balancing_methods()
             }
         model_dict["nodes"].append(outflow)
 
@@ -433,7 +452,8 @@ class ModelBuilder:
                 "value": get_reservoir_max_release(reservoir_name, "flood"),
             }
 
-        # for STARFIT reservoirs, use custom parameter
+        # For STARFIT reservoirs (where we do not know the opertational rules), use custom parameter
+        # all the fitted values are in f"{model_data_dir}drb_model_istarf_conus.csv"
         if starfit_release:
             model_dict["parameters"][f"starfit_release_{reservoir_name}"] = {
                 "type": "STARFITReservoirRelease",
@@ -1142,7 +1162,6 @@ class ModelBuilder:
                     "parse_dates": True,
                 }
 
-    # ?? Not yet understand how this works
     def add_parameter_nyc_reservoirs_balancing_methods(self):
         model_dict = self.model_dict
         ### Get total release needed from NYC reservoirs to satisfy Montague & Trenton flow targets,
@@ -1193,7 +1212,7 @@ class ModelBuilder:
         ### now calculate actual Cannonsville & Pepacton releases to meet Montague&Trenton, with assumed releases for Neversink & lower basin
         for reservoir in ["cannonsville", "pepacton"]:
             model_dict["parameters"][f"mrf_montagueTrenton_{reservoir}"] = {
-                "type": f"VolBalanceNYCDownstreamMRF_step{step}",
+                "type": f"VolBalanceNYCDownstreamMRF_step{step}", # step 1
                 "node": f"reservoir_{reservoir}",
             }
 
@@ -1421,7 +1440,7 @@ class ModelBuilder:
             }
 
         ### get final downstream release from each NYC reservoir, which is the sum of its
-        ###    individually-mandated release from FFMP, flood control release, and its contribution to the
+        ### individually-mandated release from FFMP, flood control release, and its contribution to the
         ### Montague/Trenton targets
         for reservoir in reservoir_list_nyc:
             model_dict["parameters"][f"downstream_release_target_{reservoir}"] = {
@@ -1460,26 +1479,136 @@ class ModelBuilder:
                 "node": f"reservoir_{reservoir}",
             }
 
-    #!! Not yet complete
     def add_parameter_couple_temp_lstm(self):
-        model_dict = self.model_dict
         try:
-            from pywrdrb.parameters.temperature import TemperaturePrediction
-
-            model_dict["parameters"]["predicted_mu_max_of_temperature"] = {
-                "type": "TemperaturePrediction"
-            }
+            from pywrdrb.parameters.temperature import (
+                TemperatureLSTM,
+                TemperatureModel,
+                TotalThermalReleaseRequirement, 
+                GetTemperatureLSTMValueWithoutThermalRelease,
+                AllocateThermalReleaseRequirement, 
+                PredictedMaxTemperatureAtLordville, 
+                GetTemperatureLSTMValue
+            )
         except Exception as e:
             print(f"Temperature prediction model not available. Error: {e}")
+
+        model_dict = self.model_dict
+        # Add the temperature model so that all instances can use or retrieve attributes from it.
+        # The value method return None.
+        model_dict["parameters"]["temperature_model"] = {
+                "type": "TemperatureModel",
+                "torch_seed": self.options.get("temperature_torch_seed")
+            }
+
+        # Add the additional thermal release (plug-in need to be activated otherwise
+        # The additional thermal release is 0). The additional thermal releases only 
+        # apply to ["cannonsville", "pepacton"].
+
+        model_dict["parameters"]["total_thermal_release_requirement"] = {
+                "type": "TotalThermalReleaseRequirement",
+            }
+        model_dict["parameters"]["predicted_max_temperature_at_lordville_without_thermal_release_mu"] = {
+                "type": "GetTemperatureLSTMValueWithoutThermalRelease",
+                "variable": "mu",
+            }
+        model_dict["parameters"]["predicted_max_temperature_at_lordville_without_thermal_release_sd"] = {
+                "type": "GetTemperatureLSTMValueWithoutThermalRelease",
+                "variable": "sd",
+            }
+        for reservoir in ["cannonsville", "pepacton"]:
+            # Overwrite the max flow of the outflow node with the additional thermal release.
+            # We searched over all nodes to find the node with the name "outflow_{reservoir}".
+            # Not the most efficient way, but it make the code more searchable.
+            for i, node in enumerate(model_dict["nodes"]):
+                if node["name"] == f"outflow_{reservoir}":
+                    model_dict["nodes"][i]["max_flow"] = f"downstream_add_thermal_release_to_target_{reservoir}"
+
+            # Add the additional thermal release to the downstream release target
+            model_dict["parameters"][f"downstream_add_thermal_release_to_target_{reservoir}"] = {
+                "type": "aggregated",
+                "agg_func": "sum",
+                "parameters": [
+                    f"downstream_release_target_{reservoir}",
+                    f"thermal_release_{reservoir}"
+                ],
+            }
+
+            model_dict["parameters"][f"thermal_release_{reservoir}"] = {
+                "type": "AllocateThermalReleaseRequirement",
+                "reservoir": reservoir,
+            }
+
+        model_dict["parameters"]["predicted_max_temperature_at_lordville_run_lstm"] = {
+                "type": "PredictedMaxTemperatureAtLordville",
+            }
+        
+        model_dict["parameters"]["predicted_max_temperature_at_lordville_mu"] = {
+                "type": "GetTemperatureLSTMValue",
+                "variable": "mu",
+            }
+        model_dict["parameters"]["predicted_max_temperature_at_lordville_sd"] = {
+                "type": "GetTemperatureLSTMValue",
+                "variable": "sd",
+            }
+        # Do we need to add an auxiliary node to store temperature?
+        # Do we need seperate parameters for mu and sig?
+        #model_dict["parameters"]["predicted_mu_max_of_temperature"] = {
+        #        "type": "TemperaturePrediction"
+        #    }
+
+
+        # Archive
+        #model_dict["parameters"]["predicted_mu_max_of_temperature"] = {
+        #        "type": "TemperaturePrediction"
+        #    }
+        
 
     #!! Not yet complete
     def add_parameter_couple_salinity_lstm(self):
         model_dict = self.model_dict
         try:
-            from pywrdrb.parameters.salinity import SalinityPrediction
+            from pywrdrb.parameters.salinity import (
+                SalinityModel, 
+                SaltFrontRiverMile, 
+                SaltFrontAdjustFactor
+                )
 
-            model_dict["parameters"]["predicted_salinity"] = {
-                "type": "SalinityPrediction"
-            }
         except Exception as e:
             print(f"Salinity prediction model not available. Error: {e}")
+
+        # For salinity control
+        rivermiles = ["92_5", "87", "82_9", "below_82_9"]
+        mrfs = ["delMontague", "delTrenton"]
+        for mrf in mrfs:
+            for rm in rivermiles:
+                    # Load the monthly profile for the salinity control factor
+                    model_dict["parameters"][f"salt_front_adjust_factor_{rm}_mrf_{mrf}"] = {
+                        "type": "monthlyprofile",
+                        "url": "drb_model_monthlyProfiles.csv",
+                        "index_col": "profile",
+                        "index": f"rm_factor_mrf_{mrf}_{rm}",
+                    }
+            # Create instance of the SaltFrontAdjustFactor parameter
+            model_dict["parameters"][f"salt_front_adjust_factor_{mrf}"] = {
+                            "type": "SaltFrontAdjustFactor",
+                            "mrf": mrf
+                        }
+        # Overwrite total Montague & Trenton flow targets based on drought level of NYC aggregated storage
+        # in add_parameter_montague_trenton_flow_targets()
+        for mrf in mrfs:
+            model_dict["parameters"][f"mrf_target_{mrf}"] = {
+                "type": "aggregated",
+                "agg_func": "product",
+                "parameters": [f"mrf_baseline_{mrf}", f"mrf_drought_factor_{mrf}", f"salt_front_adjust_factor_{mrf}"],
+            }
+
+        # Set seed for salinity model
+        model_dict["parameters"]["salinity_model"] = {
+                "type": "SalinityModel",
+                "torch_seed": self.options.get("salinity_torch_seed")
+            }
+        # Add parameter for salt front river mile        
+        model_dict["parameters"]["salt_front_river_mile"] = {
+                "type": "SaltFrontRiverMile"
+            }
