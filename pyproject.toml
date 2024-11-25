@@ -1,11 +1,15 @@
 [project]
-name = "pywr-drb"
-version = "0.0.0"
+name = "pywrdrb"
+version = "0.0.1"
 authors = [
-    {name = "", email = ""}
+    {name = "Trevor Amestoy", email = "tja73@cornell.edu"},
+    {name = "Chung-Yi Lin", email = "philip928lin@gmail.com"},
+    {name = "Andrew Hamilton", email = "andrew.hamilton.water@gmail.com"},
+    {name = "Marilyn Smith", email = "ms3654@cornell.edu"}
 ]
-license = "file: LICENSE"
-description = "file: README.md"
+license = { file = "LICENSE" }
+description = "An open-source Python model for water availability and drought risk assessment in the Delaware River Basin"
+readme = { file = "README.md", content-type = "text/markdown" }  # Specify README with content type
 dependencies = [
     "pywr",
     "h5py",
@@ -38,7 +42,17 @@ lint = [
     "pre-commit>=2.20.0",
 ]
 
-# tools
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [tool.black]
 line-length = 88
 target-version = ["py310", "py311", "py312"]
+
+[tool.hatch.envs.default]
+dependencies = [
+    "pytest",
+]
+
+# Note: hatch need to be installed in the environment to use the hatchling build backend.
