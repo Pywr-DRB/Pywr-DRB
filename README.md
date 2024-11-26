@@ -4,32 +4,18 @@ Pywr-DRB is an open-source Python model for exploring the role of reservoir oper
 
 For more details, see the following paper:
 
-Hamilton, A.L., Amestoy, T.J., & P.M. Reed. (2024). Pywr-DRB: An open-source Python model for water availability and drought risk assessment in the Delaware River Basin. *(In Review)*.
+Hamilton, A. L., Amestoy, T. J., & Reed, Patrick. M. (2024). Pywr-DRB: An open-source Python model for water availability and drought risk assessment in the Delaware River Basin. Environmental Modelling & Software, 106185. https://doi.org/10.1016/j.envsoft.2024.106185
 
-## Setup
-
-First clone `diagnostic_paper` branch of the Pywr-DRB repository from GitHub:
+## Installation
 
 ```bash
-git clone -b diagnostic_paper https://github.com/Pywr-DRB/Pywr-DRB.git
+pip install git+https://github.com/Pywr-DRB/Pywr-DRB.git
 ```
 
-Next, create and activate a Python virtual environment using your favorite package manager (pip or conda) and install the dependencies listed in ``requirements.txt``.
+## Getting start
 
-## Running Pywr-DRB model diagnostic experiment
-To run the model diagnostic experiment from Hamilton et al. (2024) paper listed above, simply run the following script from the command line:
 
-```bash
-sh pywrdrb_run_diagnostics_paper.sh
-```
 
-This script has three main parts:
-
-1. Run ``pywrdrb/prep_input_data.py``: this script runs various data preparation operations to prepare inputs needed by Pywr-DRB.
-    a. Note: Some of the data used by prep_input_data.py is harvested and organized in a [separate Pywr-DRB repository](https://github.com/Pywr-DRB/Input-Data-Retrieval), as described in [this training notebook](https://github.com/Pywr-DRB/Pywr-DRB/blob/master/notebooks/Tutorial%2002%20Prepare%20Input%20Data.ipynb).
-2. Run ``pywrdrb/run_historic_simulation.py`` for each of four inflow datasets: (NHM v1.0, NWM v2.1, hybrid NHM v1.0, hybrid NWM v2.1). This is the main simulation run.
-    b. Note: More details on the simulation model can be found in Hamilton et al. (2024) as well as [this training notebook](https://github.com/Pywr-DRB/Pywr-DRB/blob/master/notebooks/Tutorial%2001%20Introduction%20to%20PywrDRB.ipynb)
-3. Run ``pywrdrb/make_figs_diagnostics_paper.py``: this script runs postprocessing and creates all figures for Hamilton et al. (2024).
 
 ## Acknowledgements
 

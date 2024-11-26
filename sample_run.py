@@ -4,7 +4,7 @@ import pywrdrb
 mb = pywrdrb.ModelBuilder(
     inflow_type='nhmv10_withObsScaled', 
     start_date="1983-10-01",
-    end_date="2016-12-31",
+    end_date="1985-12-31",
     options={
         "inflow_ensemble_indices": None,
         "use_hist_NycNjDeliveries": True,  
@@ -34,7 +34,7 @@ pywrdrb.TablesRecorder(
     model, output_filename, parameters=[p for p in model.parameters if p.name]
 )
 
-
+#%%
 ### Run the model
 stats = model.run()
 

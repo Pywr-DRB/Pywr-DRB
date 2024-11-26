@@ -3,8 +3,9 @@ Contains functions used to construct a pywrdrb model in JSON format.
 """
 
 import json
+from dataclasses import dataclass, field
+from typing import List, Optional
 import pandas as pd
-
 from pywrdrb.utils.directories import input_dir, model_data_dir
 from pywrdrb.utils.lists import (
     majorflow_list,
@@ -20,113 +21,72 @@ from pywrdrb.pywr_drb_node_data import (
 )
 
 
-### model options/parameters
+### model options/parameters (should not be placed into options)
+# flow_prediction_mode was something Andrew set up when he was developing the FFMP.
+# I'm not sure if the other regression approaches would actually still work...
 flow_prediction_mode = "regression_disagg"  ### 'regression_agg', 'regression_disagg', 'perfect_foresight', 'same_day', 'moving_average'
+# Always True
 use_lower_basin_mrf_contributions = True
 
-
-def get_reservoir_capacity(reservoir):
-    istarf = pd.read_csv(f"{model_data_dir}drb_model_istarf_conus.csv")
-    return float(
-        istarf["Adjusted_CAP_MG"].loc[istarf["reservoir"] == reservoir].iloc[0]
-    )
-
-
-### get max reservoir releases for NYC from historical data
-def get_reservoir_max_release(reservoir, release_type):
-    assert reservoir in reservoir_list_nyc, f"No max release data for {reservoir}"
-    assert release_type in ["controlled", "flood"]
-
-    ### constrain most releases based on historical controlled release max
-    if release_type == "controlled":
-        hist_releases = pd.read_excel(
-            input_dir + "/historic_NYC/Pep_Can_Nev_releases_daily_2000-2021.xlsx"
-        )
-        if reservoir == "pepacton":
-            max_hist_release = hist_releases["Pepacton Controlled Release"].max()
-        elif reservoir == "cannonsville":
-            max_hist_release = hist_releases["Cannonsville Controlled Release"].max()
-        elif reservoir == "neversink":
-            max_hist_release = hist_releases["Neversink Controlled Release"].max()
-        return max_hist_release * cfs_to_mgd
-
-    ### constrain flood releases based on FFMP Table 5 instead. Note there is still a separate high cost spill path that can exceed this value.
-    elif release_type == "flood":
-        if reservoir == "pepacton":
-            max_hist_release = 2400
-        elif reservoir == "cannonsville":
-            max_hist_release = 4200
-        elif reservoir == "neversink":
-            max_hist_release = 3400
-        return max_hist_release * cfs_to_mgd
-
-
-### get max reservoir releases for NYC from historical data
-def get_reservoir_max_diversion_NYC(reservoir):
-    assert reservoir in reservoir_list_nyc, f"No max diversion data for {reservoir}"
-    hist_diversions = pd.read_excel(
-        input_dir + "/historic_NYC/Pep_Can_Nev_diversions_daily_2000-2021.xlsx"
-    )
-    if reservoir == "pepacton":
-        max_hist_diversion = hist_diversions["East Delaware Tunnel"].max()
-    elif reservoir == "cannonsville":
-        max_hist_diversion = hist_diversions["West Delaware Tunnel"].max()
-    elif reservoir == "neversink":
-        max_hist_diversion = hist_diversions["Neversink Tunnel"].max()
-    return max_hist_diversion * cfs_to_mgd
-
+@dataclass
+class Options:
+    NSCENARIOS: int = 1
+    inflow_ensemble_indices: Optional[List[int]] = None
+    use_hist_NycNjDeliveries: bool = True
+    predict_temperature: bool = False
+    temperature_torch_seed: int = 4
+    predict_salinity: bool = False
+    salinity_torch_seed: int = 4
+    run_starfit_sensitivity_analysis: bool = False
+    sensitivity_analysis_scenarios: List[str] = field(default_factory=list)
+    # Initial reservoir storages as 80% of capacity
+    initial_volume_frac: float = 0.8
 
 class ModelBuilder:
-    def __init__(
-        self,
-        inflow_type,
-        start_date,
-        end_date,
-        options={
-            "inflow_ensemble_indices": None,
-            "use_hist_NycNjDeliveries": True,  # If True, we use historical NYC/NJ deliveries as demand, else we use predicted demand. Otherwise, assume demand is equal to max allotment under FFMP
-            "predict_temperature":False, # If True, we use LSTM model to predict temperature at Lordville
-            "temperature_torch_seed": 4,
-            "predict_salinity":False, # If True, we use LSTM model to predict salinity at Trenton
-            "salinity_torch_seed": 4,
-            "run_starfit_sensitivity_analysis": False,
-            "sensitivity_analysis_scenarios": [],
-        },
-    ):
-        # Create model dict to hold all model nodes, edges, params, etc, following Pywr protocol.
-        # This will be saved to JSON at end.
-        self.initial_volume_frac = (
-            0.8  # get initial reservoir storages as 80% of capacity
-        )
+    def __init__(self, inflow_type, start_date, end_date, options={}):
+        """
+        ModelBuilder class to construct a pywr model for the Delaware River Basin. 
+        Essentially, this class creates model dictionary to hold all model nodes, 
+        edges, params, etc, following Pywr protocol. The model dictionary will be
+        saved to a JSON file.
+
+        Parameters
+        ----------
+        inflow_type : str
+            Type of inflow data to use. 
+            Options are 'nhmv10_withObsScaled', 'nwmv21_withObsScaled', 'nhmv10', 
+            and 'nwmv21'.
+        start_date : str
+            Start date of the model simulation.
+        end_date : str
+            End date of the model simulation.
+        options : dict, optional
+            Dictionary of options to pass to the model builder. Options include: 
+            inflow_ensemble_indices (list of int): List of indices to use for inflow ensemble scenarios.
+            use_hist_NycNjDeliveries (bool): If True, we use historical NYC/NJ deliveries as demand, else we use predicted demand. Otherwise, assume demand is equal to max allotment under FFMP.
+            predict_temperature (bool): If True, we use LSTM model to predict temperature at Lordville.
+            temperature_torch_seed (int): Seed for torch random number generator for temperature LSTM model.
+            predict_salinity (bool): If True, we use LSTM model to predict salinity at Trenton.
+            salinity_torch_seed (int): Seed for torch random number generator for salinity LSTM model.
+            run_starfit_sensitivity_analysis (bool): If True, we run STARFIT sensitivity analysis.
+            sensitivity_analysis_scenarios (list of str): List of scenarios to use for STARFIT sensitivity analysis.
+        """
         self.inflow_type = inflow_type
         self.start_date = start_date
         self.end_date = end_date
         self.timestep = 1
-        self.options = options
 
-        self.NSCENARIOS = 1
-
-        # Parse options and store as attributes
-        for k, v in options.items():
-            setattr(self, k, v)
+        self.options = Options(**options)
 
         # Tracking purposes
         self.reservoirs = []
         self.summary_report = {}
-
         self.edges = []
         self.parameters = []
 
         # Variables
-        self.levels = [
-            "1a",
-            "1b",
-            "1c",
-            "2",
-            "3",
-            "4",
-            "5",
-        ]  # Reservoir operational regimes
+        # Reservoir operational regimes
+        self.levels = ["1a", "1b", "1c", "2", "3", "4", "5"]  
         self.EPS = 1e-8
 
         self.model_dict = {
@@ -141,15 +101,20 @@ class ModelBuilder:
                 "timestep": self.timestep,
             },
             "scenarios": [
-                {"name": "inflow", "size": self.NSCENARIOS}
+                {"name": "inflow", "size": self.options.NSCENARIOS}
             ],  # default to 1 scenario
             "nodes": [],
             "edges": [],
             "parameters": {},
         }
 
-    def reset_model(self):
-        self.NSCENARIOS = 1
+        # Data
+        self.istarf = None
+        self.hist_releases = None
+        self.hist_diversions = None
+
+    def reset_model_dict(self):
+        self.options.NSCENARIOS = 1
         self.model_dict = {
             "metadata": {
                 "title": "DRB",
@@ -162,7 +127,7 @@ class ModelBuilder:
                 "timestep": self.timestep,
             },
             "scenarios": [
-                {"name": "inflow", "size": self.NSCENARIOS}
+                {"name": "inflow", "size": self.options.NSCENARIOS}
             ],  # default to 1 scenario
             "nodes": [],
             "edges": [],
@@ -178,13 +143,13 @@ class ModelBuilder:
 
         ### Add inflow scenarios
         # We might want to extend this to parameter as well
-        if self.inflow_ensemble_indices is not None:
-            self.add_ensemble_inflow_scenarios(self.inflow_ensemble_indices)
+        if self.options.inflow_ensemble_indices is not None:
+            self.add_ensemble_inflow_scenarios(self.options.inflow_ensemble_indices)
 
-        elif self.sensitivity_analysis_scenarios and not self.inflow_ensemble_indices:
-            self.NSCENARIOS = len(self.sensitivity_analysis_scenarios)
+        elif self.options.sensitivity_analysis_scenarios and not self.options.inflow_ensemble_indices:
+            self.options.NSCENARIOS = len(self.options.sensitivity_analysis_scenarios)
             self.model_dict["scenarios"] = [
-                {"name": "starfit_samples", "size": self.NSCENARIOS}
+                {"name": "starfit_samples", "size": self.options.NSCENARIOS}
             ]
 
         # Define "scenarios" based on flow multiplier -> only run one with 1.0 for now
@@ -241,9 +206,9 @@ class ModelBuilder:
         #######################################################################
         ### Couple temperature & salinaty LSTM model
         #######################################################################
-        if self.options.get("predict_temperature"):
+        if self.options.predict_temperature:
             self.add_parameter_couple_temp_lstm()
-        if self.options.get("predict_salinity"):
+        if self.options.predict_salinity:
             self.add_parameter_couple_salinity_lstm()
 
     def write_model(self, model_filename):
@@ -251,10 +216,68 @@ class ModelBuilder:
         with open(f"{model_filename}", "w") as o:
             json.dump(self.model_dict, o, indent=4)
 
+    def detach_data(self):
+        """Detach data from the model builder to release memory."""
+        # Data
+        self.istarf = None
+        self.hist_releases = None
+        self.hist_diversions = None
+        
+    def _get_reservoir_capacity(self, reservoir):
+        if self.istarf is None:
+            self.istarf = pd.read_csv(f"{model_data_dir}drb_model_istarf_conus.csv")
+        return float(
+            self.istarf["Adjusted_CAP_MG"].loc[self.istarf["reservoir"] == reservoir].iloc[0]
+        )
+    
+    def _get_reservoir_max_release(self, reservoir, release_type):
+        """get max reservoir releases for NYC from historical data"""
+        assert reservoir in reservoir_list_nyc, f"No max release data for {reservoir}"
+        assert release_type in ["controlled", "flood"]
+
+        ### constrain most releases based on historical controlled release max
+        if release_type == "controlled":
+            if self.hist_releases is None:
+                self.hist_releases = pd.read_excel(
+                    input_dir + "/historic_NYC/Pep_Can_Nev_releases_daily_2000-2021.xlsx"
+                )
+            if reservoir == "pepacton":
+                max_hist_release = self.hist_releases["Pepacton Controlled Release"].max()
+            elif reservoir == "cannonsville":
+                max_hist_release = self.hist_releases["Cannonsville Controlled Release"].max()
+            elif reservoir == "neversink":
+                max_hist_release = self.hist_releases["Neversink Controlled Release"].max()
+            return max_hist_release * cfs_to_mgd
+
+        ### constrain flood releases based on FFMP Table 5 instead. Note there is still a separate high cost spill path that can exceed this value.
+        elif release_type == "flood":
+            if reservoir == "pepacton":
+                max_hist_release = 2400
+            elif reservoir == "cannonsville":
+                max_hist_release = 4200
+            elif reservoir == "neversink":
+                max_hist_release = 3400
+            return max_hist_release * cfs_to_mgd
+
+    def _get_reservoir_max_diversion_NYC(self, reservoir):
+        """get max reservoir releases for NYC from historical data"""
+        assert reservoir in reservoir_list_nyc, f"No max diversion data for {reservoir}"
+        if self.hist_diversions is None:
+            self.hist_diversions = pd.read_excel(
+                input_dir + "/historic_NYC/Pep_Can_Nev_diversions_daily_2000-2021.xlsx"
+            )
+        if reservoir == "pepacton":
+            max_hist_diversion = self.hist_diversions["East Delaware Tunnel"].max()
+        elif reservoir == "cannonsville":
+            max_hist_diversion = self.hist_diversions["West Delaware Tunnel"].max()
+        elif reservoir == "neversink":
+            max_hist_diversion = self.hist_diversions["Neversink Tunnel"].max()
+        return max_hist_diversion * cfs_to_mgd
+    
     def add_ensemble_inflow_scenarios(self, inflow_ensemble_indices):
         # Parallel strategy used in pywr
-        self.NSCENARIOS = len(inflow_ensemble_indices)
-        self.model_dict["scenarios"] = [{"name": "inflow", "size": self.NSCENARIOS}]
+        self.options.NSCENARIOS = len(inflow_ensemble_indices)
+        self.model_dict["scenarios"] = [{"name": "inflow", "size": self.options.NSCENARIOS}]
 
     def add_node_major_reservoir(self, reservoir_name, downstream_lag, downstream_node):
         """
@@ -267,7 +290,7 @@ class ModelBuilder:
         model_dict = self.model_dict
 
         # Initial settings
-        initial_volume_frac = self.initial_volume_frac
+        initial_volume_frac = self.options.initial_volume_frac
         regulatory_release = (
             True
             if reservoir_name in (reservoir_list_nyc + drbc_lower_basin_reservoirs)
@@ -277,9 +300,9 @@ class ModelBuilder:
         variable_cost = True if (regulatory_release and not starfit_release) else False
 
         capacity = (
-            get_reservoir_capacity(f"modified_{reservoir_name}")
+            self._get_reservoir_capacity(f"modified_{reservoir_name}")
             if reservoir_name in modified_starfit_reservoir_list
-            else get_reservoir_capacity(reservoir_name)
+            else self._get_reservoir_capacity(reservoir_name)
         )
 
         #############################################
@@ -445,11 +468,11 @@ class ModelBuilder:
         if regulatory_release and not starfit_release:
             model_dict["parameters"][f"controlled_max_release_{reservoir_name}"] = {
                 "type": "constant",
-                "value": get_reservoir_max_release(reservoir_name, "controlled"),
+                "value": self._get_reservoir_max_release(reservoir_name, "controlled"),
             }
             model_dict["parameters"][f"flood_max_release_{reservoir_name}"] = {
                 "type": "constant",
-                "value": get_reservoir_max_release(reservoir_name, "flood"),
+                "value": self._get_reservoir_max_release(reservoir_name, "flood"),
             }
 
         # For STARFIT reservoirs (where we do not know the opertational rules), use custom parameter
@@ -458,12 +481,12 @@ class ModelBuilder:
             model_dict["parameters"][f"starfit_release_{reservoir_name}"] = {
                 "type": "STARFITReservoirRelease",
                 "node": reservoir_name,
-                "run_starfit_sensitivity_analysis": self.run_starfit_sensitivity_analysis,
-                "sensitivity_analysis_scenarios": self.sensitivity_analysis_scenarios,
+                "run_starfit_sensitivity_analysis": self.options.run_starfit_sensitivity_analysis,
+                "sensitivity_analysis_scenarios": self.options.sensitivity_analysis_scenarios,
             }
 
         ### assign inflows to nodes
-        inflow_ensemble_indices = self.options.get("inflow_ensemble_indices", None)
+        inflow_ensemble_indices = self.options.inflow_ensemble_indices
         inflow_type = self.inflow_type
         if inflow_ensemble_indices:
             ### Use custom FlowEnsemble parameter to handle scenario indexing
@@ -603,7 +626,7 @@ class ModelBuilder:
         ########## Add standard parameters ##########
         #############################################
         if has_catchment:
-            inflow_ensemble_indices = self.options.get("inflow_ensemble_indices", None)
+            inflow_ensemble_indices = self.options.inflow_ensemble_indices
             inflow_type = self.inflow_type
             ### Assign inflows to nodes
             if inflow_ensemble_indices:
@@ -710,7 +733,7 @@ class ModelBuilder:
     def add_parameter_nyc_and_nj_demands(self):
         """Add nyc and nj demands to model parameters."""
         model_dict = self.model_dict
-        use_hist_NycNjDeliveries = self.options.get("use_hist_NycNjDeliveries", True)
+        use_hist_NycNjDeliveries = self.options.use_hist_NycNjDeliveries
 
         ### Demands for NYC & NJ deliveries
         # If this flag is True, we assume demand is equal to historical deliveries timeseries
@@ -988,9 +1011,9 @@ class ModelBuilder:
         model_dict = self.model_dict
         EPS = self.EPS
         volumes = {
-            "cannonsville": get_reservoir_capacity("cannonsville"),
-            "pepacton": get_reservoir_capacity("pepacton"),
-            "neversink": get_reservoir_capacity("neversink"),
+            "cannonsville": self._get_reservoir_capacity("cannonsville"),
+            "pepacton": self._get_reservoir_capacity("pepacton"),
+            "neversink": self._get_reservoir_capacity("neversink"),
         }
         for reservoir in reservoir_list_nyc:
             model_dict["parameters"][f"storage_cost_{reservoir}"] = {
@@ -1084,7 +1107,7 @@ class ModelBuilder:
         self,
     ):
         model_dict = self.model_dict
-        inflow_ensemble_indices = self.options.get("inflow_ensemble_indices")
+        inflow_ensemble_indices = self.options.inflow_ensemble_indices
         inflow_type = self.inflow_type
         ### total predicted lagged non-NYC inflows to Montague & Trenton, and predicted lagged NJ demands
         if inflow_ensemble_indices is None:
@@ -1468,7 +1491,7 @@ class ModelBuilder:
             ### max diversion to NYC from each reservoir based on historical data
             model_dict["parameters"][f"hist_max_flow_delivery_nyc_{reservoir}"] = {
                 "type": "constant",
-                "value": get_reservoir_max_diversion_NYC(reservoir),
+                "value": self._get_reservoir_max_diversion_NYC(reservoir),
             }
             ### Target diversion from each NYC reservoir to satisfy NYC demand,
             ### accounting for historical max diversion constraints
@@ -1498,7 +1521,7 @@ class ModelBuilder:
         # The value method return None.
         model_dict["parameters"]["temperature_model"] = {
                 "type": "TemperatureModel",
-                "torch_seed": self.options.get("temperature_torch_seed")
+                "torch_seed": self.options.temperature_torch_seed
             }
 
         # Add the additional thermal release (plug-in need to be activated otherwise
@@ -1562,7 +1585,6 @@ class ModelBuilder:
         #model_dict["parameters"]["predicted_mu_max_of_temperature"] = {
         #        "type": "TemperaturePrediction"
         #    }
-        
 
     #!! Not yet complete
     def add_parameter_couple_salinity_lstm(self):
@@ -1606,7 +1628,7 @@ class ModelBuilder:
         # Set seed for salinity model
         model_dict["parameters"]["salinity_model"] = {
                 "type": "SalinityModel",
-                "torch_seed": self.options.get("salinity_torch_seed")
+                "torch_seed": self.options.salinity_torch_seed
             }
         # Add parameter for salt front river mile        
         model_dict["parameters"]["salt_front_river_mile"] = {
