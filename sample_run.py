@@ -1,55 +1,35 @@
-import h5py
 import pywrdrb
 
+###### Create a model ######
+# Initialize a model builder
 mb = pywrdrb.ModelBuilder(
     inflow_type='nhmv10_withObsScaled', 
     start_date="1983-10-01",
-    end_date="1985-12-31",
-    options={
-        "inflow_ensemble_indices": None,
-        "use_hist_NycNjDeliveries": True,  
-        "predict_temperature":False, 
-        "temperature_torch_seed": 4,
-        "predict_salinity":False, 
-        "salinity_torch_seed": 4,
-        "run_starfit_sensitivity_analysis": False,
-        "sensitivity_analysis_scenarios": [],
-        })
+    end_date="1985-12-31"
+    )
 
+# Make a model
 mb.make_model()
 
-
-model_filename = r"C:\Users\CL\Desktop\wd\test.json"
+# Output model.json file
+model_filename = r"your working location\model.json"
 mb.write_model(model_filename)
 
 
-#timer.start()
-### Load the model
+###### Run a simulation ######
+# Load the model using Model inherited from pywr
 model = pywrdrb.Model.load(model_filename)
 
-
-### Add a storage recorder
-output_filename = r"C:\Users\CL\Desktop\wd\test.hdf5"
+# Add a recorder inherited from pywr
+output_filename = r"your working location\model_output.hdf5"
 pywrdrb.TablesRecorder(
     model, output_filename, parameters=[p for p in model.parameters if p.name]
 )
 
-#%%
-### Run the model
+# Run a simulation
 stats = model.run()
 
-def hdf5_to_dict(file_path):
-    def recursive_dict(group):
-        d = {}
-        for key, item in group.items():
-            if isinstance(item, h5py._hl.dataset.Dataset):
-                d[key] = item[()]
-            elif isinstance(item, h5py._hl.group.Group):
-                d[key] = recursive_dict(item)
-        return d
 
-    with h5py.File(file_path, 'r') as f:
-        data_dict = recursive_dict(f)
-
-    return data_dict
-out = hdf5_to_dict(output_filename)
+###### Post process ######
+# Load model_output.hdf5 and turn it into dictionary
+output_dict = pywrdrb.hdf5_to_dict(output_filename)

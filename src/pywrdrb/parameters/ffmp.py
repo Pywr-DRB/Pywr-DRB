@@ -9,10 +9,8 @@ import numpy as np
 import pandas as pd
 from pywr.parameters import Parameter, load_parameter
 
-from pywrdrb.utils.lists import reservoir_list_nyc, drbc_lower_basin_reservoirs
+from pywrdrb.utils.lists import reservoir_list_nyc
 from pywrdrb.utils.constants import epsilon
-from pywrdrb.utils.directories import model_data_dir
-
 
 class FfmpNycRunningAvgParameter(Parameter):
     """

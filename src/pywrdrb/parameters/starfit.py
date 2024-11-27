@@ -1,14 +1,14 @@
+import os
 import numpy as np
 import pandas as pd
 import math
 
 from pywr.parameters import Parameter, load_parameter
 
-from pywrdrb.utils.directories import model_data_dir
-from pywrdrb.utils.constants import cfs_to_mgd
 from pywrdrb.utils.lists import modified_starfit_reservoir_list
 from pywrdrb.parameters.lower_basin_ffmp import conservation_releases, max_discharges
-
+from pywrdrb import get_directory
+model_data_dir = get_directory().model_data_dir
 
 class STARFITReservoirRelease(Parameter):
     """
@@ -69,7 +69,7 @@ class STARFITReservoirRelease(Parameter):
         """
 
         return pd.read_csv(
-            f"{model_data_dir}drb_model_istarf_conus.csv", sep=",", index_col=0
+            os.path.join(model_data_dir, "drb_model_istarf_conus.csv"), sep=",", index_col=0
         )
 
     def load_starfit_sensitivity_samples(self, sample_scenario_id):
@@ -85,7 +85,7 @@ class STARFITReservoirRelease(Parameter):
         samples = f"/starfit/scenario_{sample_scenario_id}"
 
         # Load the data from the HDF5 file using pandas
-        df = pd.read_hdf(f"{model_data_dir}scenarios_data.h5", key=samples)
+        df = pd.read_hdf(os.path.join(model_data_dir, "scenarios_data.h5", key=samples))
         df.set_index("reservoir", inplace=True)
 
         return df

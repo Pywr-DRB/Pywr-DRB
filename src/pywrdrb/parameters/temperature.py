@@ -19,7 +19,8 @@ from pywr.parameters import Parameter, load_parameter
 
 from pywrdrb.utils.constants import cms_to_mgd
 from pywrdrb.utils.dates import temp_pred_date_range
-from pywrdrb.utils.directories import ROOT_DIR
+from pywrdrb import get_directory
+ROOT_DIR = get_directory().root_dir
 
 # Adding BMI LSTM model dir to the path
 import sys

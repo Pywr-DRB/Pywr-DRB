@@ -1,12 +1,5 @@
 # Necessary evil for lstm to find files
-import os
-import numpy as np
-import pandas as pd
 from pywr.parameters import Parameter, load_parameter
-
-from pywrdrb.utils.constants import cms_to_mgd
-from pywrdrb.utils.dates import temp_pred_date_range
-from pywrdrb.utils.directories import ROOT_DIR
 
 class SalinityLSTM():
     def __init__(self, start_date, torch_seed):

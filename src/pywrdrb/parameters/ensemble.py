@@ -7,7 +7,7 @@ FlowEnsemble:
 PredictionEnsemble:
     Provides access to an ensemble of flow prediction timeseries used to inform FFMP releases.
 """
-
+import os
 import numpy as np
 import pandas as pd
 import h5py
@@ -18,8 +18,9 @@ from pywrdrb.utils.hdf5 import (
     get_hdf5_realization_numbers,
     extract_realization_from_hdf5,
 )
-from pywrdrb.utils.directories import input_dir
+from pywrdrb import get_directory
 
+input_dir = get_directory().input_dir
 
 class FlowEnsemble(Parameter):
     """This parameter provides access to inflow ensemble timeseries during the simulation period.
@@ -38,14 +39,15 @@ class FlowEnsemble(Parameter):
     def __init__(self, model, name, inflow_type, inflow_ensemble_indices, **kwargs):
         super().__init__(model, **kwargs)
 
-        from pywrdrb.utils.directories import input_dir
+        from pywrdrb import get_directory
+        input_dir = get_directory().input_dir
 
         if "syn" in inflow_type:
-            input_dir = f"{input_dir}/synthetic_ensembles/"
+            input_dir_ = os.path.join(input_dir, "synthetic_ensembles")
         elif ("pub" in inflow_type) and ("ensemble" in inflow_type):
-            input_dir = f"{input_dir}/historic_ensembles/"
+            input_dir_ = os.path.join(input_dir, "historic_ensembles")
 
-        filename = f"{input_dir}catchment_inflow_{inflow_type}.hdf5"
+        filename = os.path.join(input_dir_, f"catchment_inflow_{inflow_type}.hdf5")
 
         # Load from hfd5 specific realizations
         with h5py.File(filename, "r") as file:
@@ -127,7 +129,7 @@ class PredictionEnsemble(Parameter):
     def __init__(self, model, column, inflow_type, ensemble_indices, **kwargs):
         super().__init__(model, **kwargs)
 
-        filename = f"{input_dir}/predicted_inflows_diversions_{inflow_type}.hdf5"
+        filename = os.path.join(input_dir, f"predicted_inflows_diversions_{inflow_type}.hdf5")
         prediction_ensemble = {}
 
         # Load from hfd5 specific realizations

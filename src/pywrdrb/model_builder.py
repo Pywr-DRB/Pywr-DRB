@@ -1,12 +1,13 @@
 """
 Contains functions used to construct a pywrdrb model in JSON format.
 """
-
+import os
 import json
 from dataclasses import dataclass, field
 from typing import List, Optional
 import pandas as pd
-from pywrdrb.utils.directories import input_dir, model_data_dir
+#from pywrdrb.utils.directories import Directories #input_dir, model_data_dir
+from pywrdrb import get_directory, set_directory
 from pywrdrb.utils.lists import (
     majorflow_list,
     reservoir_list,
@@ -42,8 +43,13 @@ class Options:
     # Initial reservoir storages as 80% of capacity
     initial_volume_frac: float = 0.8
 
+    def list(self):
+        """Prints the options."""
+        for attribute, value in self.__dict__.items():
+            print(f"{attribute}: {value}")
+
 class ModelBuilder:
-    def __init__(self, inflow_type, start_date, end_date, options={}):
+    def __init__(self, inflow_type, start_date, end_date, options={}, input_dir=None, model_data_dir=None):
         """
         ModelBuilder class to construct a pywr model for the Delaware River Basin. 
         Essentially, this class creates model dictionary to hold all model nodes, 
@@ -70,6 +76,11 @@ class ModelBuilder:
             salinity_torch_seed (int): Seed for torch random number generator for salinity LSTM model.
             run_starfit_sensitivity_analysis (bool): If True, we run STARFIT sensitivity analysis.
             sensitivity_analysis_scenarios (list of str): List of scenarios to use for STARFIT sensitivity analysis.
+            initial_volume_frac (float): Initial reservoir storage as a fraction of capacity. Default is 0.8.
+        input_dir : str, optional
+            Directory where input data is stored. Default is None.
+        model_data_dir : str, optional
+            Directory where model data is stored. Default is None.
         """
         self.inflow_type = inflow_type
         self.start_date = start_date
@@ -77,6 +88,14 @@ class ModelBuilder:
         self.timestep = 1
 
         self.options = Options(**options)
+
+        # Directories
+        self.set_directory = set_directory # Allows for setting global directories from mb
+        self.dirs = get_directory()
+        if input_dir is not None:
+            self.dirs.input_dir = input_dir
+        if model_data_dir is not None:
+            self.dirs.model_data_dir = model_data_dir
 
         # Tracking purposes
         self.reservoirs = []
@@ -222,10 +241,10 @@ class ModelBuilder:
         self.istarf = None
         self.hist_releases = None
         self.hist_diversions = None
-        
+
     def _get_reservoir_capacity(self, reservoir):
         if self.istarf is None:
-            self.istarf = pd.read_csv(f"{model_data_dir}drb_model_istarf_conus.csv")
+            self.istarf = pd.read_csv(os.path.join(self.dirs.model_data_dir, "drb_model_istarf_conus.csv"))
         return float(
             self.istarf["Adjusted_CAP_MG"].loc[self.istarf["reservoir"] == reservoir].iloc[0]
         )
@@ -239,7 +258,7 @@ class ModelBuilder:
         if release_type == "controlled":
             if self.hist_releases is None:
                 self.hist_releases = pd.read_excel(
-                    input_dir + "/historic_NYC/Pep_Can_Nev_releases_daily_2000-2021.xlsx"
+                    os.path.join(self.dirs.input_dir, "historic_NYC/Pep_Can_Nev_releases_daily_2000-2021.xlsx")
                 )
             if reservoir == "pepacton":
                 max_hist_release = self.hist_releases["Pepacton Controlled Release"].max()
@@ -264,7 +283,7 @@ class ModelBuilder:
         assert reservoir in reservoir_list_nyc, f"No max diversion data for {reservoir}"
         if self.hist_diversions is None:
             self.hist_diversions = pd.read_excel(
-                input_dir + "/historic_NYC/Pep_Can_Nev_diversions_daily_2000-2021.xlsx"
+                os.path.join(self.dirs.input_dir, "historic_NYC/Pep_Can_Nev_diversions_daily_2000-2021.xlsx")
             )
         if reservoir == "pepacton":
             max_hist_diversion = self.hist_diversions["East Delaware Tunnel"].max()
@@ -456,7 +475,7 @@ class ModelBuilder:
         # max volume of reservoir, from GRanD database except where adjusted from other sources (eg NYC)
         model_dict["parameters"][f"max_volume_{reservoir_name}"] = {
             "type": "constant",
-            "url": f"{model_data_dir}drb_model_istarf_conus.csv",
+            "url": os.path.join(self.dirs.model_data_dir, "drb_model_istarf_conus.csv"),
             "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": f"modified_{reservoir_name}"
@@ -498,7 +517,7 @@ class ModelBuilder:
             }
 
         else:
-            inflow_source = f"{input_dir}catchment_inflow_{inflow_type}.csv"
+            inflow_source = os.path.join(self.dirs.input_dir, f"catchment_inflow_{inflow_type}.csv")
             ### Use single-scenario historic data
             model_dict["parameters"][f"flow_{reservoir_name}"] = {
                 "type": "dataframe",
@@ -511,7 +530,7 @@ class ModelBuilder:
         # get max flow for catchment withdrawal nodes based on DRBC data
         model_dict["parameters"][f"max_flow_catchmentWithdrawal_{reservoir_name}"] = {
             "type": "constant",
-            "url": f"{input_dir}sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": os.path.join(self.dirs.input_dir, "sw_avg_wateruse_Pywr-DRB_Catchments.csv"),
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": node_name,
@@ -522,7 +541,7 @@ class ModelBuilder:
         # consumption to withdrawal from DRBC data
         model_dict["parameters"][f"catchmentConsumptionRatio_{reservoir_name}"] = {
             "type": "constant",
-            "url": f"{input_dir}sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+            "url": os.path.join(self.dirs.input_dir, "sw_avg_wateruse_Pywr-DRB_Catchments.csv"),
             "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": node_name,
@@ -639,7 +658,7 @@ class ModelBuilder:
                 }
 
             else:
-                inflow_source = f"{input_dir}catchment_inflow_{inflow_type}.csv"
+                inflow_source = os.path.join(self.dirs.input_dir, f"catchment_inflow_{inflow_type}.csv")
 
                 ### Use single-scenario historic data
                 model_dict["parameters"][f"flow_{name}"] = {
@@ -653,7 +672,7 @@ class ModelBuilder:
             ### get max flow for catchment withdrawal nodes based on DRBC data
             model_dict["parameters"][f"max_flow_catchmentWithdrawal_{name}"] = {
                 "type": "constant",
-                "url": f"{input_dir}sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+                "url": os.path.join(self.dirs.input_dir, "sw_avg_wateruse_Pywr-DRB_Catchments.csv"),
                 "column": "Total_WD_MGD",
                 "index_col": "node",
                 "index": node_name,
@@ -663,7 +682,7 @@ class ModelBuilder:
             ### assume the consumption_t = R * withdrawal_{t-1}, where R is the ratio of avg consumption to withdrawal from DRBC data
             model_dict["parameters"][f"catchmentConsumptionRatio_{name}"] = {
                 "type": "constant",
-                "url": f"{input_dir}sw_avg_wateruse_Pywr-DRB_Catchments.csv",
+                "url": os.path.join(self.dirs.input_dir, "sw_avg_wateruse_Pywr-DRB_Catchments.csv"),
                 "column": "Total_CU_WD_Ratio",
                 "index_col": "node",
                 "index": node_name,
@@ -741,7 +760,7 @@ class ModelBuilder:
             # NYC
             model_dict["parameters"][f"demand_nyc"] = {
                 "type": "dataframe",
-                "url": f"{input_dir}deliveryNYC_ODRM_extrapolated.csv",
+                "url": os.path.join(self.dirs.input_dir, "deliveryNYC_ODRM_extrapolated.csv"),
                 "column": "aggregate",
                 "index_col": "datetime",
                 "parse_dates": True,
@@ -749,7 +768,7 @@ class ModelBuilder:
             # NJ
             model_dict["parameters"][f"demand_nj"] = {
                 "type": "dataframe",
-                "url": f"{input_dir}deliveryNJ_DRCanal_extrapolated.csv",
+                "url": os.path.join(self.dirs.input_dir, "deliveryNJ_DRCanal_extrapolated.csv"),
                 "index_col": "datetime",
                 "parse_dates": True,
             }
@@ -758,7 +777,7 @@ class ModelBuilder:
             # NYC
             model_dict["parameters"][f"demand_nyc"] = {
                 "type": "constant",
-                "url": f"{model_data_dir}drb_model_constants.csv",
+                "url": os.path.join(self.dirs.model_data_dir, "drb_model_constants.csv"),
                 "column": "value",
                 "index_col": "parameter",
                 "index": "max_flow_baseline_delivery_nyc",
@@ -766,7 +785,7 @@ class ModelBuilder:
             # NJ
             model_dict["parameters"][f"demand_nj"] = {
                 "type": "constant",
-                "url": f"{model_data_dir}drb_model_constants.csv",
+                "url": os.path.join(self.dirs.model_data_dir, "drb_model_constants.csv"),
                 "column": "value",
                 "index_col": "parameter",
                 "index": "max_flow_baseline_monthlyAvg_delivery_nj",
@@ -780,7 +799,7 @@ class ModelBuilder:
         for level in levels[1:]:
             model_dict["parameters"][f"level{level}"] = {
                 "type": "dailyprofile",
-                "url": f"{model_data_dir}drb_model_dailyProfiles.csv",
+                "url": os.path.join(self.dirs.model_data_dir, "drb_model_dailyProfiles.csv"),
                 "index_col": "profile",
                 "index": f"level{level}",
             }
@@ -798,7 +817,7 @@ class ModelBuilder:
             for level in levels:
                 model_dict["parameters"][f"level{level}_factor_delivery_{demand}"] = {
                     "type": "constant",
-                    "url": f"{model_data_dir}drb_model_constants.csv",
+                    "url": os.path.join(self.dirs.model_data_dir, "drb_model_constants.csv"),
                     "column": "value",
                     "index_col": "parameter",
                     "index": f"level{level}_factor_delivery_{demand}",
@@ -831,7 +850,7 @@ class ModelBuilder:
         # Max allowable delivery to NYC (on moving avg)
         model_dict["parameters"]["max_flow_baseline_delivery_nyc"] = {
             "type": "constant",
-            "url": f"{model_data_dir}drb_model_constants.csv",
+            "url": os.path.join(self.dirs.model_data_dir, "drb_model_constants.csv"),
             "column": "value",
             "index_col": "parameter",
             "index": "max_flow_baseline_delivery_nyc",
@@ -840,14 +859,14 @@ class ModelBuilder:
         # NJ has both a daily limit and monthly average limit
         model_dict["parameters"]["max_flow_baseline_daily_delivery_nj"] = {
             "type": "constant",
-            "url": f"{model_data_dir}drb_model_constants.csv",
+            "url": os.path.join(self.dirs.model_data_dir, "drb_model_constants.csv"),
             "column": "value",
             "index_col": "parameter",
             "index": "max_flow_baseline_daily_delivery_nj",
         }
         model_dict["parameters"]["max_flow_baseline_monthlyAvg_delivery_nj"] = {
             "type": "constant",
-            "url": f"{model_data_dir}drb_model_constants.csv",
+            "url": os.path.join(self.dirs.model_data_dir, "drb_model_constants.csv"),
             "column": "value",
             "index_col": "parameter",
             "index": "max_flow_baseline_monthlyAvg_delivery_nj",
@@ -917,7 +936,7 @@ class ModelBuilder:
         for reservoir in reservoir_list_nyc:
             model_dict["parameters"][f"mrf_baseline_{reservoir}"] = {
                 "type": "constant",
-                "url": f"{model_data_dir}drb_model_constants.csv",
+                "url": os.path.join(self.dirs.model_data_dir, "drb_model_constants.csv"),
                 "column": "value",
                 "index_col": "parameter",
                 "index": f"mrf_baseline_{reservoir}",
@@ -936,7 +955,7 @@ class ModelBuilder:
             for level in levels:
                 model_dict["parameters"][f"level{level}_factor_mrf_{reservoir}"] = {
                     "type": "dailyprofile",
-                    "url": f"{model_data_dir}drb_model_dailyProfiles.csv",
+                    "url": os.path.join(self.dirs.model_data_dir, "drb_model_dailyProfiles.csv"),
                     "index_col": "profile",
                     "index": f"level{level}_factor_mrf_{reservoir}",
                 }
@@ -1070,7 +1089,7 @@ class ModelBuilder:
         for mrf in mrfs:
             model_dict["parameters"][f"mrf_baseline_{mrf}"] = {
                 "type": "constant",
-                "url": f"{model_data_dir}drb_model_constants.csv",
+                "url": os.path.join(self.dirs.model_data_dir, "drb_model_constants.csv"),
                 "column": "value",
                 "index_col": "parameter",
                 "index": f"mrf_baseline_{mrf}",
@@ -1081,7 +1100,7 @@ class ModelBuilder:
             for level in levels:
                 model_dict["parameters"][f"level{level}_factor_mrf_{mrf}"] = {
                     "type": "monthlyprofile",
-                    "url": f"{model_data_dir}drb_model_monthlyProfiles.csv",
+                    "url": os.path.join(self.dirs.model_data_dir, "drb_model_monthlyProfiles.csv"),
                     "index_col": "profile",
                     "index": f"level{level}_factor_mrf_{mrf}",
                 }
@@ -1127,7 +1146,7 @@ class ModelBuilder:
                     f"predicted_nonnyc_gage_flow_{mrf}_lag{lag}"
                 ] = {
                     "type": "dataframe",
-                    "url": f"{input_dir}predicted_inflows_diversions_{inflow_type}.csv",
+                    "url": os.path.join(self.dirs.input_dir, f"predicted_inflows_diversions_{inflow_type}.csv"),
                     "column": label,
                     "index_col": "datetime",
                     "parse_dates": True,
@@ -1137,7 +1156,7 @@ class ModelBuilder:
                 label = f"demand_nj_lag{lag}_{flow_prediction_mode}"
                 model_dict["parameters"][f"predicted_demand_nj_lag{lag}"] = {
                     "type": "dataframe",
-                    "url": f"{input_dir}predicted_inflows_diversions_{inflow_type}.csv",
+                    "url": os.path.join(self.dirs.input_dir, f"predicted_inflows_diversions_{inflow_type}.csv"),
                     "column": label,
                     "index_col": "datetime",
                     "parse_dates": True,
@@ -1179,7 +1198,7 @@ class ModelBuilder:
                 label = f"demand_nj_lag{lag}_{flow_prediction_mode}"
                 model_dict["parameters"][f"predicted_demand_nj_lag{lag}"] = {
                     "type": "dataframe",
-                    "url": f"{input_dir}predicted_inflows_diversions_{predicted_inflow_type}.csv",
+                    "url": os.path.join(self.dirs.input_dir, f"predicted_inflows_diversions_{predicted_inflow_type}.csv"),
                     "column": label,
                     "index_col": "datetime",
                     "parse_dates": True,
