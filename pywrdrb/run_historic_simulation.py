@@ -15,12 +15,15 @@ from pywr.recorders import TablesRecorder
 sys.path.insert(0, os.path.abspath("./"))
 sys.path.insert(0, os.path.abspath("../"))
 
+from pywrdrb import ModelBuilder
+
 import pywrdrb.parameters.general
 import pywrdrb.parameters.ffmp
 import pywrdrb.parameters.starfit
 import pywrdrb.parameters.lower_basin_ffmp
+from pywrdrb.utils.dates import model_date_ranges
 
-from pywrdrb.make_model import make_model
+# from pywrdrb.make_model import make_model
 from pywrdrb.utils.directories import output_dir, model_data_dir, input_dir
 from pywrdrb.utils.hdf5 import (
     get_hdf5_realization_numbers,
@@ -62,19 +65,11 @@ if len(sys.argv) > 2:
 else:
     use_mpi = False
 
-### assume we want to run the full range for each dataset
-if (
-    inflow_type in ("nwmv21", "nhmv10", "WEAP_29June2023_gridmet")
-    or "withObsScaled" in inflow_type
-):
-    start_date = "1983-10-01"
-    end_date = "2016-12-31"
-elif "syn_obs_pub" in inflow_type:
-    start_date = "1945-01-01"
-    end_date = "2021-12-31"
-elif "obs_pub" in inflow_type:
-    start_date = "1945-01-01"
-    end_date = "2022-12-31"
+
+# Simulation start and end dates
+# assume we want to run the full range for each dataset
+start_date, end_date = model_date_ranges[inflow_type]
+
 
 # Set the filename based on inflow type
 model_filename = f"{model_data_dir}drb_model_full_{inflow_type}.json"
@@ -86,9 +81,15 @@ if "ensemble" not in inflow_type:
     model_filename = f"{model_data_dir}drb_model_full_{inflow_type}.json"
 
     ### make model json files
-    make_model(inflow_type, model_filename, start_date, end_date)
+    print("Making model...")
+    mb = ModelBuilder(
+        inflow_type, start_date, end_date
+    )  # Optional "options" argument is available
+    mb.make_model()
+    mb.write_model(model_filename)
 
     ### Load the model
+    print("Loading model...")
     model = Model.load(model_filename)
 
     ### Add a storage recorder
@@ -97,8 +98,9 @@ if "ensemble" not in inflow_type:
     )
 
     ### Run the model
+    print("Starting simulation...")
     stats = model.run()
-    stats_df = stats.to_dataframe()
+
 
 ## Run ensemble reconstruction in batches
 elif "ensemble" in inflow_type:
@@ -153,13 +155,15 @@ elif "ensemble" in inflow_type:
         batched_filenames.append(output_filename)
 
         ### make model json files
-        make_model(
-            inflow_type,
-            model_filename,
-            start_date,
-            end_date,
-            inflow_ensemble_indices=indices,
-        )
+        print("Making model...")
+
+        options = {"inflow_ensemble_indices": indices}
+
+        mb = ModelBuilder(
+            inflow_type, start_date, end_date, options=options
+        )  # Optional "options" argument is available
+        mb.make_model()
+        mb.write_model(model_filename)
 
         ### Load the model
         model = Model.load(model_filename)
@@ -171,4 +175,3 @@ elif "ensemble" in inflow_type:
 
         ### Run the model
         stats = model.run()
-        stats_df = stats.to_dataframe()

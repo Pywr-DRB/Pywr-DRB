@@ -124,8 +124,10 @@ model_colors_diagnostics_paper3 = {
 
 model_label_dict = {
     "obs": "Observed",
-    "nhmv10": "NHMv1.0",
-    "nwmv21": "NWMv2.1",
+    "nhmv10": "NHM",
+    "nwmv21": "NWM",
+    "nhmv10_withObsScaled": "hNHM",
+    "nwmv21_withObsScaled": "hNWM",
     "obs_pub_nhmv10": "PUB-NHM",
     "obs_pub_nhmv10_ensemble": "PUB-NHM Ensemble",
     "obs_pub_nwmv21": "PUB-NWM",

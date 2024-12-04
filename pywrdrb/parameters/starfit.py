@@ -13,15 +13,16 @@ from pywrdrb.parameters.lower_basin_ffmp import conservation_releases, max_disch
 class STARFITReservoirRelease(Parameter):
     """
     Custom Pywr Parameter used to implement the STARFIT-inferred reservoir operations policy at non-NYC reservoirs following Turner et al. (2021).
-    
+
     Attributes:
         model (Model): The PywrDRB model.
         storage_node (str): The storage node associated with the reservoir.
         flow_parameter: The PywrDRB catchment inflow parameter corresponding to the reservoir.
-    
+
     Methods:
         value(timestep, scenario_index): returns the STARFIT-inferred reservoir release for the current timestep and scenario index
     """
+
     def __init__(
         self,
         model,
@@ -36,11 +37,8 @@ class STARFITReservoirRelease(Parameter):
 
         self.node = storage_node
         self.reservoir_name = reservoir_name
-        print(
-            f"Initialized STARFITReservoirRelease for reservoir: {self.reservoir_name}"
-        )
         self.inflow = flow_parameter
-        
+
         # Add children
         self.children.add(flow_parameter)
 
@@ -104,7 +102,7 @@ class STARFITReservoirRelease(Parameter):
 
         # Use modified storage parameters for DRBC relevant reservoirs
         if self.name in modified_starfit_reservoir_list:
-            self.starfit_name = 'modified_' + self.name
+            self.starfit_name = "modified_" + self.name
         else:
             self.starfit_name = self.reservoir_name
 
@@ -122,29 +120,27 @@ class STARFITReservoirRelease(Parameter):
             self.S_cap = starfit_params.loc[self.starfit_name, "GRanD_CAP_MG"]
             self.I_bar = starfit_params.loc[self.starfit_name, "GRanD_MEANFLOW_MGD"]
 
-
         # Store STARFIT parameters
-        self.NORhi_mu = starfit_params.loc[self.starfit_name, 'NORhi_mu']
-        self.NORhi_min = starfit_params.loc[self.starfit_name, 'NORhi_min']
-        self.NORhi_max = starfit_params.loc[self.starfit_name, 'NORhi_max']
-        self.NORhi_alpha = starfit_params.loc[self.starfit_name, 'NORhi_alpha']
-        self.NORhi_beta = starfit_params.loc[self.starfit_name, 'NORhi_beta']
-        
-        self.NORlo_mu = starfit_params.loc[self.starfit_name, 'NORlo_mu']
-        self.NORlo_min = starfit_params.loc[self.starfit_name, 'NORlo_min']
-        self.NORlo_max = starfit_params.loc[self.starfit_name, 'NORlo_max']
-        self.NORlo_alpha = starfit_params.loc[self.starfit_name, 'NORlo_alpha']
-        self.NORlo_beta = starfit_params.loc[self.starfit_name, 'NORlo_beta']
-        
-        self.Release_alpha1 = starfit_params.loc[self.starfit_name, 'Release_alpha1']
-        self.Release_alpha2 = starfit_params.loc[self.starfit_name, 'Release_alpha2']
-        self.Release_beta1 = starfit_params.loc[self.starfit_name, 'Release_beta1']
-        self.Release_beta2 = starfit_params.loc[self.starfit_name, 'Release_beta2']
-        
-        self.Release_c = starfit_params.loc[self.starfit_name, 'Release_c']
-        self.Release_p1 = starfit_params.loc[self.starfit_name, 'Release_p1']
-        self.Release_p2 = starfit_params.loc[self.starfit_name, 'Release_p2']
-        
+        self.NORhi_mu = starfit_params.loc[self.starfit_name, "NORhi_mu"]
+        self.NORhi_min = starfit_params.loc[self.starfit_name, "NORhi_min"]
+        self.NORhi_max = starfit_params.loc[self.starfit_name, "NORhi_max"]
+        self.NORhi_alpha = starfit_params.loc[self.starfit_name, "NORhi_alpha"]
+        self.NORhi_beta = starfit_params.loc[self.starfit_name, "NORhi_beta"]
+
+        self.NORlo_mu = starfit_params.loc[self.starfit_name, "NORlo_mu"]
+        self.NORlo_min = starfit_params.loc[self.starfit_name, "NORlo_min"]
+        self.NORlo_max = starfit_params.loc[self.starfit_name, "NORlo_max"]
+        self.NORlo_alpha = starfit_params.loc[self.starfit_name, "NORlo_alpha"]
+        self.NORlo_beta = starfit_params.loc[self.starfit_name, "NORlo_beta"]
+
+        self.Release_alpha1 = starfit_params.loc[self.starfit_name, "Release_alpha1"]
+        self.Release_alpha2 = starfit_params.loc[self.starfit_name, "Release_alpha2"]
+        self.Release_beta1 = starfit_params.loc[self.starfit_name, "Release_beta1"]
+        self.Release_beta2 = starfit_params.loc[self.starfit_name, "Release_beta2"]
+
+        self.Release_c = starfit_params.loc[self.starfit_name, "Release_c"]
+        self.Release_p1 = starfit_params.loc[self.starfit_name, "Release_p1"]
+        self.Release_p2 = starfit_params.loc[self.starfit_name, "Release_p2"]
 
         # Override STARFIT max releases at DRBC lower reservoirs
         if self.reservoir_name in list(max_discharges.keys()):
@@ -168,7 +164,6 @@ class STARFITReservoirRelease(Parameter):
                 starfit_params.loc[self.starfit_name, "Release_min"] + 1
             ) * self.I_bar
 
-
     def setup(self):
         """
         Set up the parameter.
@@ -176,7 +171,7 @@ class STARFITReservoirRelease(Parameter):
         super().setup()
         self.N_SCENARIOS = len(self.model.scenarios.combinations)
         self.releases = np.empty([self.N_SCENARIOS], np.float64)
-        
+
     def standardize_inflow(self, inflow):
         """
         Standardize the current reservoir inflow based on historic average.
@@ -187,8 +182,8 @@ class STARFITReservoirRelease(Parameter):
         Returns:
             float: The standardized inflow value.
         """
-        return (inflow - self.I_bar) / self.I_bar        
-    
+        return (inflow - self.I_bar) / self.I_bar
+
     def calculate_percent_storage(self, storage):
         """
         Calculate the reservoir's current percentage of storage capacity.
@@ -199,8 +194,8 @@ class STARFITReservoirRelease(Parameter):
         Returns:
             float: The percentage of storage capacity.
         """
-        return (storage / self.S_cap)
-    
+        return storage / self.S_cap
+
     def get_NORhi(self, timestep):
         """
         Get the upper-bound normalized reservoir storage of the Normal Operating Range (NORlo) for a given timestep.
@@ -211,16 +206,19 @@ class STARFITReservoirRelease(Parameter):
         Returns:
             float: The NORhi value.
         """
-        c = math.pi*(timestep.dayofyear + self.WATER_YEAR_OFFSET)/365  
-        NORhi = (self.NORhi_mu + self.NORhi_alpha * math.sin(2*c) +
-                 self.NORhi_beta * math.cos(2*c))
+        c = math.pi * (timestep.dayofyear + self.WATER_YEAR_OFFSET) / 365
+        NORhi = (
+            self.NORhi_mu
+            + self.NORhi_alpha * math.sin(2 * c)
+            + self.NORhi_beta * math.cos(2 * c)
+        )
         if (NORhi <= self.NORhi_max) and (NORhi >= self.NORhi_min):
-            return NORhi/100
-        elif (NORhi > self.NORhi_max):
-            return self.NORhi_max/100
+            return NORhi / 100
+        elif NORhi > self.NORhi_max:
+            return self.NORhi_max / 100
         else:
-            return self.NORhi_min/100
-        
+            return self.NORhi_min / 100
+
     def get_NORlo(self, timestep):
         """
         Get the lower-bound normalized reservoir storage of the Normal Operating Range (NORlo) for a given timestep.
@@ -231,16 +229,19 @@ class STARFITReservoirRelease(Parameter):
         Returns:
             float: The NORlo value.
         """
-        c = math.pi*(timestep.dayofyear + self.WATER_YEAR_OFFSET)/365
-        NORlo = (self.NORlo_mu + self.NORlo_alpha * math.sin(2*c) +
-                 self.NORlo_beta * math.cos(2*c))
+        c = math.pi * (timestep.dayofyear + self.WATER_YEAR_OFFSET) / 365
+        NORlo = (
+            self.NORlo_mu
+            + self.NORlo_alpha * math.sin(2 * c)
+            + self.NORlo_beta * math.cos(2 * c)
+        )
         if (NORlo <= self.NORlo_max) and (NORlo >= self.NORlo_min):
-            return NORlo/100
-        elif (NORlo > self.NORlo_max):
-            return self.NORlo_max/100
+            return NORlo / 100
+        elif NORlo > self.NORlo_max:
+            return self.NORlo_max / 100
         else:
-            return self.NORlo_min/100 
-        
+            return self.NORlo_min / 100
+
     def get_harmonic_release(self, timestep):
         """
         Get the harmonic release for a given timestep.
@@ -251,13 +252,16 @@ class STARFITReservoirRelease(Parameter):
         Returns:
             float: The seasonal harmonic reservoir release (MGD).
         """
-        c = math.pi*(timestep.dayofyear + self.WATER_YEAR_OFFSET)/365
-        R_avg_t = self.Release_alpha1*math.sin(2*c) + self.Release_alpha2*math.sin(4*c) + self.Release_beta1*math.cos(2*c) + self.Release_beta2*math.cos(4*c)
+        c = math.pi * (timestep.dayofyear + self.WATER_YEAR_OFFSET) / 365
+        R_avg_t = (
+            self.Release_alpha1 * math.sin(2 * c)
+            + self.Release_alpha2 * math.sin(4 * c)
+            + self.Release_beta1 * math.cos(2 * c)
+            + self.Release_beta2 * math.cos(4 * c)
+        )
         return R_avg_t
 
-
-    def calculate_release_adjustment(self, S_hat, I_hat,
-                                     NORhi_t, NORlo_t):
+    def calculate_release_adjustment(self, S_hat, I_hat, NORhi_t, NORlo_t):
         """
         Calculate the release adjustment.
 
@@ -274,10 +278,10 @@ class STARFITReservoirRelease(Parameter):
         A_t = (S_hat - NORlo_t) / (NORhi_t)
         epsilon_t = self.Release_c + self.Release_p1 * A_t + self.Release_p2 * I_hat
         return epsilon_t
-    
-    
-    def calculate_target_release(self, harmonic_release, epsilon,
-                                 NORhi, NORlo, S_hat, I):
+
+    def calculate_target_release(
+        self, harmonic_release, epsilon, NORhi, NORlo, S_hat, I
+    ):
         """
         Calculate the target release under current inflow and storage.
 
@@ -293,12 +297,16 @@ class STARFITReservoirRelease(Parameter):
             float: The target release value.
         """
         if (S_hat <= NORhi) and (S_hat >= NORlo):
-            target = min((self.I_bar * (harmonic_release + epsilon) + self.I_bar), self.R_max)
-        elif (S_hat > NORhi):
-            target = min((self.S_cap * (S_hat - NORhi) + I*7)/7, self.R_max)
+            target = min(
+                (self.I_bar * (harmonic_release + epsilon) + self.I_bar), self.R_max
+            )
+        elif S_hat > NORhi:
+            target = min((self.S_cap * (S_hat - NORhi) + I * 7) / 7, self.R_max)
         else:
             if self.linear_below_NOR:
-                target = (self.I_bar * (harmonic_release + epsilon) + self.I_bar) * (S_hat / NORlo) #(1 - (NORlo - S_hat)/NORlo)
+                target = (self.I_bar * (harmonic_release + epsilon) + self.I_bar) * (
+                    S_hat / NORlo
+                )  # (1 - (NORlo - S_hat)/NORlo)
                 target = max(target, self.R_min)
             else:
                 target = self.R_min
@@ -336,7 +344,7 @@ class STARFITReservoirRelease(Parameter):
 
         elif not self.parameters_loaded and not self.run_sensitivity_analysis:
             self.starfit_params = self.load_default_starfit_params(model_data_dir)
-            print(f"Assigning STARFIT parameters for {self.reservoir_name}")
+            # print(f"Assigning STARFIT parameters for {self.reservoir_name}")
             self.assign_starfit_param_values(self.starfit_params)
             self.parameters_loaded = True
 
@@ -349,22 +357,24 @@ class STARFITReservoirRelease(Parameter):
 
         NORhi_t = self.get_NORhi(timestep)
         NORlo_t = self.get_NORlo(timestep)
-        
+
         seasonal_release_t = self.get_harmonic_release(timestep)
-            
+
         # Get adjustment from seasonal release
-        epsilon_t = self.calculate_release_adjustment(S_hat_t, 
-                                                      I_hat_t, 
-                                                      NORhi_t, NORlo_t)
-        
+        epsilon_t = self.calculate_release_adjustment(
+            S_hat_t, I_hat_t, NORhi_t, NORlo_t
+        )
+
         # Get target release
-        target_release = self.calculate_target_release(S_hat = S_hat_t,
-                                                    I = I_t,
-                                                    NORhi=NORhi_t,
-                                                    NORlo=NORlo_t,
-                                                    epsilon=epsilon_t,
-                                                    harmonic_release=seasonal_release_t)
-    
+        target_release = self.calculate_target_release(
+            S_hat=S_hat_t,
+            I=I_t,
+            NORhi=NORhi_t,
+            NORlo=NORlo_t,
+            epsilon=epsilon_t,
+            harmonic_release=seasonal_release_t,
+        )
+
         # Get actual release subject to constraints
         release_t = max(min(target_release, I_t + S_t), (I_t + S_t - self.S_cap))
 

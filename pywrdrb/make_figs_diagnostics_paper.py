@@ -162,9 +162,11 @@ if __name__ == "__main__":
             datetime_index=datetime_index,
             units=units,
         )
+        reservoir_downstream_gages[model] = reservoir_downstream_gages[model][0]
         reservoir_downstream_gages[model]["NYCAgg"] = reservoir_downstream_gages[model][
             reservoir_list_nyc
         ].sum(axis=1)
+
         major_flows[model], datetime_index = get_base_results(
             input_dir,
             model,
@@ -172,6 +174,7 @@ if __name__ == "__main__":
             datetime_index=datetime_index,
             units=units,
         )
+        major_flows[model] = major_flows[model][0]
 
     ### different time periods for different type of figures.
     start_date_obs = pd.to_datetime(

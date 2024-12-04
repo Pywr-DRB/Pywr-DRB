@@ -100,8 +100,8 @@ def add_major_node(
     variable_cost=None,
     has_catchment=True,
     inflow_ensemble_indices=None,
-    run_starfit_sensitivity_analysis=True,
-    sensitivity_analysis_scenarios= list(range(0, 2001))
+    run_starfit_sensitivity_analysis=False,
+    sensitivity_analysis_scenarios=list(range(0, 2001)),
 ):
     """
     Add a major node to the model.
@@ -293,7 +293,7 @@ def add_major_node(
             "type": "STARFITReservoirRelease",
             "node": name,
             "run_starfit_sensitivity_analysis": run_starfit_sensitivity_analysis,
-            "sensitivity_analysis_scenarios" : sensitivity_analysis_scenarios,
+            "sensitivity_analysis_scenarios": sensitivity_analysis_scenarios,
         }
 
     if has_catchment:
@@ -367,8 +367,8 @@ def make_model(
     inflow_ensemble_indices=None,
     predict_temperature=False,
     predict_salinity=False,
-    run_starfit_sensitivity_analysis=True,
-    sensitivity_analysis_scenarios=list(range(0, 2001))
+    run_starfit_sensitivity_analysis=False,
+    sensitivity_analysis_scenarios=list(range(0, 2001)),
 ):
     """
     Creates the JSON file used by Pywr to define the model, including all nodes, edges, and parameters.
@@ -383,7 +383,7 @@ def make_model(
         predict_salinity (bool): If True, use LSTM model to predict salinity. NOT YET IMPLEMENTED.
         run_starfit_sensitivity_analysis (bool): If True, run STARFIT sensitivity analysis. Default is False.
         sensitivity_analysis_scenarios (list): List of scenario ID numbers for STARFIT sensitivity analysis.
-    
+
     Returns:
         dict: Model JSON representation.
     """
@@ -917,7 +917,9 @@ def make_model(
                 "index_col": "datetime",
                 "parse_dates": True,
             }
-        print('WARNING: Ensemble mode not tested/verified for Montague & Trenton flow forecasts')
+        print(
+            "WARNING: Ensemble mode not tested/verified for Montague & Trenton flow forecasts"
+        )
 
     ### Get total release needed from NYC reservoirs to satisfy Montague & Trenton flow targets,
     ### above and beyond their individually mandated releases, & after accting for non-NYC inflows and NJ diversions.
