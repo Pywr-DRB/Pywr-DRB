@@ -7,16 +7,16 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 import pandas as pd
 #from pywrdrb.utils.directories import Directories #input_dir, model_data_dir
-from pywrdrb import get_directory, set_directory
-from pywrdrb.utils.lists import (
+from . import get_directory, set_directory
+from .utils.lists import (
     majorflow_list,
     reservoir_list,
     reservoir_list_nyc,
     modified_starfit_reservoir_list,
+    drbc_lower_basin_reservoirs
 )
-from pywrdrb.utils.lists import drbc_lower_basin_reservoirs
-from pywrdrb.utils.constants import cfs_to_mgd
-from pywrdrb.pywr_drb_node_data import (
+from .utils.constants import cfs_to_mgd
+from .pywr_drb_node_data import (
     immediate_downstream_nodes_dict,
     downstream_node_lags,
 )

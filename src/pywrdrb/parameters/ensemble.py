@@ -14,11 +14,7 @@ import h5py
 
 from pywr.parameters import Parameter
 
-from pywrdrb.utils.hdf5 import (
-    get_hdf5_realization_numbers,
-    extract_realization_from_hdf5,
-)
-from pywrdrb import get_directory
+from .. import get_directory
 
 input_dir = get_directory().input_dir
 
