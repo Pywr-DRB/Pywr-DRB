@@ -1,9 +1,12 @@
 [project]
 name = "pywrdrb"
 version = "0.0.1"
+packages = [
+  { include = "pywrdrb", from = "src" }
+]
 authors = [
-    {name = "Trevor Amestoy", email = "tja73@cornell.edu"},
     {name = "Chung-Yi Lin", email = "philip928lin@gmail.com"},
+    {name = "Trevor Amestoy", email = "tja73@cornell.edu"},
     {name = "Andrew Hamilton", email = "andrew.hamilton.water@gmail.com"},
     {name = "Marilyn Smith", email = "ms3654@cornell.edu"}
 ]
@@ -31,7 +34,8 @@ dependencies = [
     "shapely",
     "folium",
     "pynhd",
-    "mpi4py"
+    "mpi4py",
+    "hatch"
     ]
 
 [project.optional-dependencies]
@@ -50,6 +54,14 @@ build-backend = "hatchling.build"
 include = [
     "src/**/*",
 ]
+
+[tool.hatch.build.package]
+# Force hatch to treat 'src' as the root. 
+# It ensures your top-level 'pywrdrb' inside 'src' is discovered.
+source = "src"
+
+[tool.hatch.build.targets.wheel]
+sources = ["src"]
 
 [tool.black]
 line-length = 88
