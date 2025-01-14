@@ -11,7 +11,7 @@ class Directories:
     model_data_dir: str = field(init=False)
 
     def __post_init__(self):
-        self.input_dir = os.path.realpath(os.path.join(self.root_dir, "../input_data/"))
+        self.input_dir = os.path.realpath(os.path.join(self.root_dir, "input_data/"))
         self.model_data_dir = os.path.realpath(os.path.join(self.root_dir, "model_data/"))
     
     def list(self):
