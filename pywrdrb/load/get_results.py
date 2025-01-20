@@ -3,6 +3,7 @@ Contains functions for retrieving and organizing
 simulation results from pywrdrb model runs.
 """
 
+import os
 import numpy as np
 import pandas as pd
 import h5py
@@ -21,17 +22,163 @@ from pywrdrb.utils.directories import input_dir
 from pywrdrb.utils.results_sets import pywrdrb_results_set_opts
 
 
+def get_keys_and_column_names_for_results_set(keys, results_set):
+    """
+    Return
+
+    Args:
+        keys (list[str]): The full list of HDF5 keys stored in the pywrdrb output file.
+        results_set (str): The type of results that should be retrieved.
+    """
+    if results_set == "all":
+        keys = keys
+        col_names = [k for k in keys]
+    elif results_set == "reservoir_downstream_gage":
+        ## Need to pull flow data for link_ downstream of reservoirs instead of simulated outflows
+        keys_with_link = [
+            k
+            for k in keys
+            if k.split("_")[0] == "link"
+            and k.split("_")[1] in reservoir_link_pairs.values()
+        ]
+        col_names = []
+        for k in keys_with_link:
+            col_names.append(
+                [
+                    res
+                    for res, link in reservoir_link_pairs.items()
+                    if link == k.split("_")[1]
+                ][0]
+            )
+
+        # Now pull simulated relases from un-observed reservoirs
+        keys_without_link = [
+            k
+            for k in keys
+            if k.split("_")[0] == "outflow"
+            and k.split("_")[1] in reservoir_list
+            and k.split("_")[1] not in reservoir_link_pairs.keys()
+        ]
+        for k in keys_without_link:
+            col_names.append(k.split("_")[1])
+        keys = keys_with_link + keys_without_link
+
+    elif results_set == "res_storage":
+        keys = [
+            k
+            for k in keys
+            if k.split("_")[0] == "reservoir" and k.split("_")[1] in reservoir_list
+        ]
+        col_names = [k.split("_")[1] for k in keys]
+    elif results_set == "major_flow":
+        keys = [
+            k
+            for k in keys
+            if k.split("_")[0] == "link" and k.split("_")[1] in majorflow_list
+        ]
+        col_names = [k.split("_")[1] for k in keys]
+    elif results_set == "res_release":
+        ### reservoir releases are "outflow" plus "spill".
+        # These are summed later in this function.
+        # Not all reservoirs have spill.
+        keys_outflow = [f"outflow_{r}" for r in reservoir_list]
+        keys_spill = [f"spill_{r}" for r in reservoir_list]
+        keys = keys_outflow + keys_spill
+        col_names = keys
+
+    elif results_set == "downstream_release_target":
+        keys = [f"{results_set}_{reservoir}" for reservoir in reservoir_list_nyc]
+        col_names = reservoir_list_nyc
+
+    elif results_set == "inflow":
+        keys = [k for k in keys if k.split("_")[0] == "catchment"]
+        col_names = [k.split("_")[1] for k in keys]
+    elif results_set == "catchment_withdrawal":
+        keys = [k for k in keys if k.split("_")[0] == "catchmentWithdrawal"]
+        col_names = [k.split("_")[1] for k in keys]
+    elif results_set == "catchment_consumption":
+        keys = [k for k in keys if k.split("_")[0] == "catchmentConsumption"]
+        col_names = [k.split("_")[1] for k in keys]
+
+    elif results_set in (
+        "prev_flow_catchmentWithdrawal",
+        "max_flow_catchmentWithdrawal",
+        "max_flow_catchmentConsumption",
+    ):
+        keys = [k for k in keys if results_set in k]
+        col_names = [k.split("_")[-1] for k in keys]
+
+    elif results_set in ("res_level"):
+        keys = [k for k in keys if "drought_level" in k]
+        col_names = [k.split("_")[-1] for k in keys]
+
+    elif results_set == "ffmp_level_boundaries":
+        keys = [f"level{l}" for l in ["1b", "1c", "2", "3", "4", "5"]]
+        col_names = [k for k in keys]
+    elif results_set == "mrf_target":
+        keys = [k for k in keys if results_set in k]
+        col_names = [k.split("mrf_target_")[1] for k in keys]
+
+    elif results_set == "nyc_release_components":
+        keys = (
+            [
+                f"mrf_target_individual_{reservoir}"
+                for reservoir in reservoir_list_nyc
+            ]
+            + [f"flood_release_{reservoir}" for reservoir in reservoir_list_nyc]
+            + [
+                f"mrf_montagueTrenton_{reservoir}"
+                for reservoir in reservoir_list_nyc
+            ]
+            + [f"spill_{reservoir}" for reservoir in reservoir_list_nyc]
+        )
+        col_names = [k for k in keys]
+    elif results_set == "lower_basin_mrf_contributions":
+        keys = [
+            f"mrf_trenton_{reservoir}" for reservoir in drbc_lower_basin_reservoirs
+        ]
+        col_names = [k for k in keys]
+    elif results_set == "ibt_demands":
+        keys = ["demand_nyc", "demand_nj"]
+        col_names = [k for k in keys]
+    elif results_set == "ibt_diversions":
+        keys = ["delivery_nyc", "delivery_nj"]
+        col_names = [k for k in keys]
+    elif results_set == "mrf_targets":
+        keys = ["mrf_target_delMontague", "mrf_target_delTrenton"]
+        col_names = [k for k in keys]
+    elif results_set == "all_mrf":
+        keys = [k for k in keys if "mrf" in k]
+        col_names = [k for k in keys]
+    elif results_set == "temperature":
+        keys = [k for k in keys if "temperature" in k]
+        col_names = [k for k in keys]
+
+    # resulst_set may be a specific key in the model
+    elif results_set in keys:
+        keys = [results_set]
+        col_names = [results_set]
+    else:
+        #TODO: raise value error
+        pass
+    return keys, col_names
+
+
 def get_pywrdrb_results(
-    output_dir, model, results_set="all", scenarios=[0], datetime_index=None, units=None
+    output_filename, 
+    results_set="all", 
+    scenarios=[0], 
+    datetime_index=None, 
+    units=None
 ):
     """
-    Gathers simulation results from Pywr model run and returns a dict of pd.DataFrames.
+    Gathers simulation results from pywrdrb model run 
+    and returns a dict of pd.DataFrames.
     This can handle retrieve multiple scenarios.
     Each key in the dict corresponds to a scenario.
 
     Args:
-        output_dir (str): The output directory.
-        model (str): The model datatype name (e.g., "nhmv10").
+        output_filename (str): The output filename from pywrdrb simulation (e.g., "<path>/drb_output_nhmv10.hdf5").
         results_set (str, optional): The results set to return. Can be one of the following:
             - "all": Return all results.
             - "reservoir_downstream_gage": Return downstream gage flow below reservoir.
@@ -46,6 +193,8 @@ def get_pywrdrb_results(
     Returns:
         dict(pd.DataFrame): Dictionary containing simulation results for each scenario.
     """
+    # Validate output file
+    output_filename = output_filename if ".hdf5" in output_filename else f"{output_filename}.hdf5"
 
     # Validate results_set
     if results_set not in pywrdrb_results_set_opts:
@@ -54,139 +203,10 @@ def get_pywrdrb_results(
         raise ValueError(err_msg)
 
     # Get result data from HDF5 output file
-    with h5py.File(f"{output_dir}drb_output_{model}.hdf5", "r") as f:
-        keys = list(f.keys())
-        if results_set == "all":
-            keys = keys
-            col_names = [k for k in keys]
-        elif results_set == "reservoir_downstream_gage":
-            ## Need to pull flow data for link_ downstream of reservoirs instead of simulated outflows
-            keys_with_link = [
-                k
-                for k in keys
-                if k.split("_")[0] == "link"
-                and k.split("_")[1] in reservoir_link_pairs.values()
-            ]
-            col_names = []
-            for k in keys_with_link:
-                col_names.append(
-                    [
-                        res
-                        for res, link in reservoir_link_pairs.items()
-                        if link == k.split("_")[1]
-                    ][0]
-                )
-
-            # Now pull simulated relases from un-observed reservoirs
-            keys_without_link = [
-                k
-                for k in keys
-                if k.split("_")[0] == "outflow"
-                and k.split("_")[1] in reservoir_list
-                and k.split("_")[1] not in reservoir_link_pairs.keys()
-            ]
-            for k in keys_without_link:
-                col_names.append(k.split("_")[1])
-            keys = keys_with_link + keys_without_link
-
-        elif results_set == "res_storage":
-            keys = [
-                k
-                for k in keys
-                if k.split("_")[0] == "reservoir" and k.split("_")[1] in reservoir_list
-            ]
-            col_names = [k.split("_")[1] for k in keys]
-        elif results_set == "major_flow":
-            keys = [
-                k
-                for k in keys
-                if k.split("_")[0] == "link" and k.split("_")[1] in majorflow_list
-            ]
-            col_names = [k.split("_")[1] for k in keys]
-        elif results_set == "res_release":
-            ### reservoir releases are "outflow" plus "spill".
-            # These are summed later in this function.
-            # Not all reservoirs have spill.
-            keys_outflow = [f"outflow_{r}" for r in reservoir_list]
-            keys_spill = [f"spill_{r}" for r in reservoir_list]
-            keys = keys_outflow + keys_spill
-            col_names = keys
-
-        elif results_set == "downstream_release_target":
-            keys = [f"{results_set}_{reservoir}" for reservoir in reservoir_list_nyc]
-            col_names = reservoir_list_nyc
-
-        elif results_set == "inflow":
-            keys = [k for k in keys if k.split("_")[0] == "catchment"]
-            col_names = [k.split("_")[1] for k in keys]
-        elif results_set == "catchment_withdrawal":
-            keys = [k for k in keys if k.split("_")[0] == "catchmentWithdrawal"]
-            col_names = [k.split("_")[1] for k in keys]
-        elif results_set == "catchment_consumption":
-            keys = [k for k in keys if k.split("_")[0] == "catchmentConsumption"]
-            col_names = [k.split("_")[1] for k in keys]
-
-        elif results_set in (
-            "prev_flow_catchmentWithdrawal",
-            "max_flow_catchmentWithdrawal",
-            "max_flow_catchmentConsumption",
-        ):
-            keys = [k for k in keys if results_set in k]
-            col_names = [k.split("_")[-1] for k in keys]
-
-        elif results_set in ("res_level"):
-            keys = [k for k in keys if "drought_level" in k]
-            col_names = [k.split("_")[-1] for k in keys]
-
-        elif results_set == "ffmp_level_boundaries":
-            keys = [f"level{l}" for l in ["1b", "1c", "2", "3", "4", "5"]]
-            col_names = [k for k in keys]
-        elif results_set == "mrf_target":
-            keys = [k for k in keys if results_set in k]
-            col_names = [k.split("mrf_target_")[1] for k in keys]
-
-        elif results_set == "nyc_release_components":
-            keys = (
-                [
-                    f"mrf_target_individual_{reservoir}"
-                    for reservoir in reservoir_list_nyc
-                ]
-                + [f"flood_release_{reservoir}" for reservoir in reservoir_list_nyc]
-                + [
-                    f"mrf_montagueTrenton_{reservoir}"
-                    for reservoir in reservoir_list_nyc
-                ]
-                + [f"spill_{reservoir}" for reservoir in reservoir_list_nyc]
-            )
-            col_names = [k for k in keys]
-        elif results_set == "lower_basin_mrf_contributions":
-            keys = [
-                f"mrf_trenton_{reservoir}" for reservoir in drbc_lower_basin_reservoirs
-            ]
-            col_names = [k for k in keys]
-        elif results_set == "ibt_demands":
-            keys = ["demand_nyc", "demand_nj"]
-            col_names = [k for k in keys]
-        elif results_set == "ibt_diversions":
-            keys = ["delivery_nyc", "delivery_nj"]
-            col_names = [k for k in keys]
-        elif results_set == "mrf_targets":
-            keys = ["mrf_target_delMontague", "mrf_target_delTrenton"]
-            col_names = [k for k in keys]
-        elif results_set == "all_mrf":
-            keys = [k for k in keys if "mrf" in k]
-            col_names = [k for k in keys]
-        elif results_set == "temperature":
-            keys = [k for k in keys if "temperature" in k]
-            col_names = [k for k in keys]
-
-        # resulst_set may be a specific key in the model
-        elif results_set in keys:
-            keys = [results_set]
-            col_names = [results_set]
-        else:
-            print("Invalid results_set specified.")
-            return
+    with h5py.File(output_filename, "r") as f:
+        all_keys = list(f.keys())
+        keys, col_names = get_keys_and_column_names_for_results_set(keys=all_keys, 
+                                                                    results_set=results_set)
 
         data = []
         # Now pull the data using keys
