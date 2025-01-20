@@ -23,9 +23,8 @@ wsl_venv*
 /DRB_spatial/cache/*
 DRB_spatial/drb_model_map_dark.html
 
-#figs/*.png
-#figs\*
-#figs/*
+figs/*
+output_data/*
 
 local/*
 cache/
