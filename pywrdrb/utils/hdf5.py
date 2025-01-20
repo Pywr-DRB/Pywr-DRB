@@ -6,61 +6,37 @@ from pywrdrb.pywr_drb_node_data import obs_site_matches
 
 pywrdrb_all_nodes = list(obs_site_matches.keys())
 
-# def combine_batched_hdf5_outputs(batch_files, combined_output_file):
-#     """
-#     Aggregate multiple HDF5 files into a single HDF5 file.
+def get_n_scenarios_from_pywrdrb_output_file(file_path):
+    """
+    Determine the number of scenarios (n_scenarios) from datasets in an HDF5 file.
 
-#     Args:
-#         batch_files (list): List of HDF5 files to combine.
-#         combined_output_file (str): Full output file path & name to write combined HDF5.
+    This function assumes that datasets have the shape (len(datetime), len(n_scenarios)).
+    It skips a specific dataset named 'time' and ignores non-dataset objects.
 
-#     Returns:
-#         None
-#     """
-#     with h5py.File(combined_output_file, 'w') as hf_out:
-#         # Since keys are same in all files, we just take keys from the first file
-#         with h5py.File(batch_files[0], 'r') as hf_in:
-#             keys = list(hf_in.keys())
+    Parameters:
+    ----------
+    file_path : str
+        Path to the HDF5 file.
 
-#             time_key = None
-#             datetime_key_opts = ['time', 'date', 'datetime']
-#             for dt_key in datetime_key_opts:
-#                 if dt_key in keys:
-#                     time_key = dt_key
-#                     break
-#             if time_key is None:
-#                 err_msg = f'No time key found in HDF5 file {batch_files[0]}.'
-#                 err_msg += f' Expected keys: {datetime_key_opts}'
-#                 raise ValueError(err_msg)
-#             time_array=hf_in[time_key][:]
+    Returns:
+    -------
+    int
+        The number of scenarios (n_scenarios), determined from the second dimension
+        of the first relevant dataset.
 
-#         for key in keys:
-#             add_key_to_output = True
+    Raises:
+    ------
+    ValueError
+        If no valid dataset is found in the file.
+    """
+    with h5py.File(file_path, 'r') as hdf_file:
+        for name, obj in hdf_file.items():
+            if name == 'time':  # Skip the 'time' dataset since it is always 1d
+                continue
+            if isinstance(obj, h5py.Dataset):  # Only consider datasets
+                return obj.shape[1]  # Return n_scenarios from the second dimension
+    raise ValueError("No valid datasets found in the HDF5 file.")
 
-#             # Skip datetime keys and scenarios
-#             if key in datetime_key_opts + ['scenarios']:
-#                 continue
-
-#             # Accumulate data from all files for a specific key
-#             data_for_key = []
-#             for file in batch_files:
-#                 with h5py.File(file, 'r') as hf_in:
-#                     if key not in hf_in:
-#                         add_key_to_output = False
-
-#                     if add_key_to_output:
-#                         data_for_key.append(hf_in[key][:,:])
-
-#             if add_key_to_output:
-#                 # Concatenate along the scenarios axis
-#                 combined_data = np.concatenate(data_for_key, axis=1)
-
-#                 # Write combined data to the output file
-#                 hf_out.create_dataset(key, data=combined_data)
-
-#         # Time needs to be handled differently since 1D
-#         hf_out.create_dataset(time_key, data=time_array)
-#     return
 
 
 def combine_batched_hdf5_outputs(batch_files, combined_output_file):
