@@ -13,6 +13,7 @@ mpi4py
 
 torch
 bmipy
+uncertainty_toolbox
 
 pygeohydro
 hydroeval
@@ -26,10 +27,5 @@ geopandas
 pyarrow
 contextily
 
-
-
-
-
-uncertainty_toolbox
 git+https://github.com/philip928lin/PathNavigator.git
 git+https://github.com/Pywr-DRB/Pywr-DRB.git@cl_packaging
