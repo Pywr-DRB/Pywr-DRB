@@ -15,6 +15,7 @@ from pywrdrb.utils.dates import model_date_ranges
         ("nwmv21_withObsScaled"),
     ],
 )
+
 def test_make_model_with_default_options(inflow_type, tmp_path):
     """
     Test if the ModelBuilder class can create a model with the default options.

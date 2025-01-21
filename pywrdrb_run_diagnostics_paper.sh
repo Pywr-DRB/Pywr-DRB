@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=DRB_diagnostic
-#SBATCH --output=pywrdrb_diagnostic.out
-#SBATCH --error=pywrdrb_diagnostic.err
+#SBATCH --output=logs/pywrdrb_diagnostic.out
+#SBATCH --error=logs/pywrdrb_diagnostic.err
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --exclusive

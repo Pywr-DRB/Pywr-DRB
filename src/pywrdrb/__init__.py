@@ -44,8 +44,9 @@ def set_directory(**kwargs):
 from pywr.model import Model
 from pywr.recorders import *
 
+
 from .model_builder import ModelBuilder
-from .post.output_loader import Output
+from .load.data_loader import Data
 
 # Not sure why this is needed, but it is.
 from .parameters.ffmp import *
