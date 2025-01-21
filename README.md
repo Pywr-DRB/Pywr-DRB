@@ -4,32 +4,112 @@ Pywr-DRB is an open-source Python model for exploring the role of reservoir oper
 
 For more details, see the following paper:
 
-Hamilton, A.L., Amestoy, T.J., & P.M. Reed. (2024). Pywr-DRB: An open-source Python model for water availability and drought risk assessment in the Delaware River Basin. *(In Review)*.
+Hamilton, A. L., Amestoy, T. J., & Reed, Patrick. M. (2024). Pywr-DRB: An open-source Python model for water availability and drought risk assessment in the Delaware River Basin. Environmental Modelling & Software, 106185. https://doi.org/10.1016/j.envsoft.2024.106185
 
-## Setup
-
-First clone `diagnostic_paper` branch of the Pywr-DRB repository from GitHub:
+## Installation
 
 ```bash
-git clone -b diagnostic_paper https://github.com/Pywr-DRB/Pywr-DRB.git
+pip install git+https://github.com/Pywr-DRB/Pywr-DRB.git@cl_packaging
 ```
 
-Next, create and activate a Python virtual environment using your favorite package manager (pip or conda) and install the dependencies listed in ``requirements.txt``.
+## Getting start
 
-## Running Pywr-DRB model diagnostic experiment
-To run the model diagnostic experiment from Hamilton et al. (2024) paper listed above, simply run the following script from the command line:
+### Create a minimum example
+```python
+import pywrdrb
 
-```bash
-sh pywrdrb_run_diagnostics_paper.sh
+###### Create a model ######
+# Initialize a model builder
+mb = pywrdrb.ModelBuilder(
+    inflow_type='nhmv10_withObsScaled', 
+    start_date="1983-10-01",
+    end_date="1985-12-31"
+)
+
+# Make a model
+mb.make_model()
+
+# Output model.json file
+model_filename = r"your working location\model.json"
+mb.write_model(model_filename)
+
+
+###### Run a simulation ######
+# Load the model using Model inherited from pywr
+model = pywrdrb.Model.load(model_filename)
+
+# Add a recorder inherited from pywr
+output_filename = r"your working location\model_output.hdf5"
+pywrdrb.TablesRecorder(
+    model, output_filename, parameters=[p for p in model.parameters if p.name]
+)
+
+# Run a simulation
+stats = model.run()
+
+
+###### Post process ######
+# Load model_output.hdf5 and turn it into dictionary
+output_dict = pywrdrb.hdf5_to_dict(output_filename)
 ```
 
-This script has three main parts:
+## Advanced usage
 
-1. Run ``pywrdrb/prep_input_data.py``: this script runs various data preparation operations to prepare inputs needed by Pywr-DRB.
-    a. Note: Some of the data used by prep_input_data.py is harvested and organized in a [separate Pywr-DRB repository](https://github.com/Pywr-DRB/Input-Data-Retrieval), as described in [this training notebook](https://github.com/Pywr-DRB/Pywr-DRB/blob/master/notebooks/Tutorial%2002%20Prepare%20Input%20Data.ipynb).
-2. Run ``pywrdrb/run_historic_simulation.py`` for each of four inflow datasets: (NHM v1.0, NWM v2.1, hybrid NHM v1.0, hybrid NWM v2.1). This is the main simulation run.
-    b. Note: More details on the simulation model can be found in Hamilton et al. (2024) as well as [this training notebook](https://github.com/Pywr-DRB/Pywr-DRB/blob/master/notebooks/Tutorial%2001%20Introduction%20to%20PywrDRB.ipynb)
-3. Run ``pywrdrb/make_figs_diagnostics_paper.py``: this script runs postprocessing and creates all figures for Hamilton et al. (2024).
+### Customizing options
+Default optional settings.
+
+```python
+# Print out the default optional settings
+mb.options.list()
+#NSCENARIOS: 1
+#inflow_ensemble_indices: None
+#use_hist_NycNjDeliveries: True
+#predict_temperature: False
+#temperature_torch_seed: 4
+#predict_salinity: False
+#salinity_torch_seed: 4
+#run_starfit_sensitivity_analysis: False
+#sensitivity_analysis_scenarios: []
+#initial_volume_frac: 0.8
+```
+
+Customize optional settings
+```python
+mb = pywrdrb.ModelBuilder(
+    inflow_type='nhmv10_withObsScaled', 
+    start_date="1983-10-01",
+    end_date="1985-12-31",
+    options={
+        "predict_temperature": True
+    }
+)
+```
+
+### Customizing directory
+In pywrdrb, we use a global directory instance to store the directories. The default 
+directories can be viewed by:
+
+```python
+mb.dirs.list()
+# or
+pywrdrb.get_directory().list()
+```
+
+For advanced usage, those directories can be assiged by the following:
+```python
+mb = pywrdrb.ModelBuilder(
+    inflow_type='nhmv10_withObsScaled', 
+    start_date="1983-10-01",
+    end_date="1985-12-31",
+    input_dir="new_input_dir"
+)
+
+# or 
+mb.set_directory(input_dir="new_input_dir")
+
+# or you may run the following code before using ModelBuilder
+pywrdrb.set_directory(input_dir="new_input_dir")
+```
 
 ## Acknowledgements
 

@@ -1,3 +1,0 @@
-# Interpret Results
-```{tableofcontents}
-```
