@@ -1,7 +1,32 @@
 # ##############################################################################
-# #Marilyn Smith
-# #Script to retrieve reservoir data from NWIS and convert elevation to volume
-# #Data is saved to CSV files
+# # Marilyn Smith
+# # Script to retrieve reservoir data from NWIS and convert elevation to volume
+# # Data is saved to CSV files
+# 
+# # Overview:
+# This script retrieves elevation data for multiple reservoirs from the National Water Information System (NWIS) 
+# and converts the data into volume measurements (in Million Gallons, MG) based on predefined storage curves. 
+# It processes the data by converting elevation measurements to volume for each reservoir, 
+# depending on the reservoir's specific conversion requirements. 
+# The script outputs the resulting volume time series to a CSV file for further analysis.
+# 
+# # Key Updates:
+# - NYC Reservoirs: For the reservoirs Pepacton, Cannonsville, and Neversink, a different parameter code is used ('62615'), which returns only the mean value (not all three statistics). This change ensures accurate data retrieval for these specific reservoirs.
+# - Acre-Feet to MG Conversion: For most reservoirs, the script converts the elevation data from Acre-Feet to Million Gallons (MG) using the ACRE_FEET_TO_MG conversion factor. However, for the NYC reservoirs (Pepacton, Cannonsville, Neversink), the script uses the 'Volume, gal' column from their storage curves, converting directly to MG using the GAL_TO_MG factor, as their data is already in gallons.
+# 
+# # Reservoirs and Conversion Details:
+# - Acre-Feet to MG Conversion:
+#     - Prompton
+#     - Beltzville Combined
+#     - Fewalter
+#     - Blue Marsh
+# - Direct Volume Conversion (Gallons to MG):
+#     - Pepacton
+#     - Cannonsville
+#     - Neversink
+# 
+# The script processes the data for each reservoir, saves elevation data to CSV, and then applies the appropriate conversion based on the reservoir's specific needs. The final data is combined and saved into a single CSV file for all reservoirs.
+# ##############################################################################
 
 
 import pandas as pd
