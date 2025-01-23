@@ -36,14 +36,35 @@ storages = [
         "blueMarsh",
         f"{input_dir}/historic_reservoir_ops/blueMarsh_elevation_storage_curve.csv",
     ),
+    (
+        "01435900",
+        "neversink",
+        f"{input_dir}/historic_reservoir_ops/neversink_elevation_storage_curve.csv",
+    ),
+    (
+        "01423910",
+        "cannonsville",
+        f"{input_dir}/historic_reservoir_ops/cannonsville_elevation_storage_curve.csv",
+    ),
+    (
+        "01414750",
+        "pepacton",
+        f"{input_dir}/historic_reservoir_ops/pepacton_elevation_storage_curve.csv",
+    ),
+
 ]
 
 print("Retrieving data from NWIS...")
 
 parameterCode = "00062"  # Elevation of reservoir water surface above datum
+nyc_parameterCode = '62615'
+
 statisticCodes = ["00003", "00002", "00001"]  # Mean, Minimum, Maximum
 
 ACRE_FEET_TO_MG = 0.325851  # Conversion factor from Acre-Feet to Million Gallons
+
+GAL_TO_MG = 1 / 1000000  # Conversion factor from gallons to million gallons
+
 
 
 def retrieve_reservoir_data(
@@ -51,7 +72,7 @@ def retrieve_reservoir_data(
     parameter_code,
     statistic_codes,
     start_date="1986-03-14",
-    end_date="2021-09-30",
+    end_date="2024-12-31",
 ):
     try:
         data = nwis.get_dv(
@@ -73,7 +94,7 @@ def retrieve_reservoir_data(
 def elevation_to_volume(elevation_data, storage_curve, reservoir_name):
     if (
         "Elevation (ft)" not in storage_curve.columns
-        or "Acre-Ft" not in storage_curve.columns
+        #or "Acre-Ft" not in storage_curve.columns
     ):
         print(
             f"Invalid storage curve for {reservoir_name}. Expected columns not found."
@@ -86,7 +107,17 @@ def elevation_to_volume(elevation_data, storage_curve, reservoir_name):
 
     storage_curve.set_index("Elevation (ft)", inplace=True)
 
-    elevation_data["volume_MG"] = elevation_data["00062_Mean"].apply(
+    if reservoir_name in ["cannonsville", "neversink", "pepacton"]:
+        #use the 'Volume, gal' column instead of Acre-Ft and convert to MG
+        elevation_data["volume_MG"] = elevation_data["62615_Mean"].apply(
+        lambda elevation: np.interp(
+            elevation, storage_curve.index, storage_curve["Volume, gal"]
+        )
+        * GAL_TO_MG
+    )
+    else:
+
+        elevation_data["volume_MG"] = elevation_data["00062_Mean"].apply(
         lambda elevation: np.interp(
             elevation, storage_curve.index, storage_curve["Acre-Ft"]
         )
@@ -103,6 +134,9 @@ def elevation_to_volume(elevation_data, storage_curve, reservoir_name):
 all_volume_time_series = []
 
 for gage_id, reservoir_name, curve_filename in storages:
+    #if its cannansville, neversink, or pepacton, use the NYC parameter code
+    if reservoir_name in ["cannonsville", "neversink", "pepacton"]:
+        parameterCode = nyc_parameterCode
     daily_elevation = retrieve_reservoir_data(gage_id, parameterCode, statisticCodes)
 
     if daily_elevation is not None and not daily_elevation.empty:
