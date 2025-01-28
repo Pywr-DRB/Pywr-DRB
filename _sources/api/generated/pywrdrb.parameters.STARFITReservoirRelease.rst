@@ -15,6 +15,7 @@
    
       ~STARFITReservoirRelease.__init__
       ~STARFITReservoirRelease.after
+      ~STARFITReservoirRelease.assign_starfit_param_values
       ~STARFITReservoirRelease.before
       ~STARFITReservoirRelease.calculate_percent_storage
       ~STARFITReservoirRelease.calculate_release_adjustment
@@ -33,6 +34,8 @@
       ~STARFITReservoirRelease.get_integer_variables
       ~STARFITReservoirRelease.get_value
       ~STARFITReservoirRelease.load
+      ~STARFITReservoirRelease.load_default_starfit_params
+      ~STARFITReservoirRelease.load_starfit_sensitivity_samples
       ~STARFITReservoirRelease.register
       ~STARFITReservoirRelease.reset
       ~STARFITReservoirRelease.set_double_variables

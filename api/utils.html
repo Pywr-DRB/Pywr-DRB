@@ -16,8 +16,8 @@
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
   </script>
-  <!-- 
-    this give us a css class that will be invisible only if js is disabled 
+  <!--
+    this give us a css class that will be invisible only if js is disabled
   -->
   <noscript>
     <style>
@@ -27,10 +27,10 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=a3416100" />
     <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=13237357" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -39,10 +39,10 @@
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script src="../_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
     <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
@@ -170,25 +170,14 @@
         </ul>
         <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="api.html">API References</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 has-children"><a class="reference internal" href="pre.html">Pre-Processing</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.pre.disaggregate_DRBC_demands.html">pywrdrb.pre.disaggregate_DRBC_demands</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.pre.extrapolate_NYC_NJ_diversions.html">pywrdrb.pre.extrapolate_NYC_NJ_diversions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.pre.predict_inflows_diversions.html">pywrdrb.pre.predict_inflows_diversions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.pre.predict_ensemble_inflows_diversions.html">pywrdrb.pre.predict_ensemble_inflows_diversions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.pre.read_modeled_estimates.html">pywrdrb.pre.read_modeled_estimates</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.pre.read_csv_data.html">pywrdrb.pre.read_csv_data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.pre.match_gages.html">pywrdrb.pre.match_gages</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.pre.create_hybrid_modeled_observed_datasets.html">pywrdrb.pre.create_hybrid_modeled_observed_datasets</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.pre.subtract_upstream_catchment_inflows.html">pywrdrb.pre.subtract_upstream_catchment_inflows</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.pre.add_upstream_catchment_inflows.html">pywrdrb.pre.add_upstream_catchment_inflows</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="pywrdrb.html">pywrdrb</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.ModelBuilder.html">pywrdrb.ModelBuilder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.Data.html">pywrdrb.Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.set_directory.html">pywrdrb.set_directory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.get_directory.html">pywrdrb.get_directory</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="post.html">Post-Processing</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.post.get_base_results.html">pywrdrb.post.get_base_results</a></li>
-<li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.post.get_pywrdrb_results.html">pywrdrb.post.get_pywrdrb_results</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="parameters.html">Parameters</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="parameters.html">pywrdrb.parameters</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.parameters.FfmpNycRunningAvgParameter.html">pywrdrb.parameters.FfmpNycRunningAvgParameter</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.parameters.FfmpNjRunningAvgParameter.html">pywrdrb.parameters.FfmpNjRunningAvgParameter</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.parameters.NYCCombinedReleaseFactor.html">pywrdrb.parameters.NYCCombinedReleaseFactor</a></li>
@@ -206,7 +195,7 @@
 <li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.parameters.LaggedReservoirRelease.html">pywrdrb.parameters.LaggedReservoirRelease</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">Utilities</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">pywrdrb.utils</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.utils.hdf5.get_hdf5_realization_numbers.html">pywrdrb.utils.hdf5.get_hdf5_realization_numbers</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.utils.hdf5.extract_realization_from_hdf5.html">pywrdrb.utils.hdf5.extract_realization_from_hdf5</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/pywrdrb.utils.hdf5.combine_batched_hdf5_outputs.html">pywrdrb.utils.hdf5.combine_batched_hdf5_outputs</a></li>
@@ -218,16 +207,13 @@
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../examples/examples.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../examples/Tutorial%2001%20Introduction%20to%20PywrDRB.html">Overview:</a></li>
-
-
-
-
-
-
+<li class="toctree-l2"><a class="reference internal" href="../examples/Tutorial%2001%20Introduction%20to%20PywrDRB.html">Intro to PywrDRB</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/Tutorial%2002%20Prepare%20Input%20Data.html">Prep Model Inputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/Tutorial%2003%20Model%20Parameters.html">Model Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/Tutorial%2004%20Accessing%20Data.html">Loading Data</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1"><a class="reference internal" href="../results_set_options.html">Results Set Table</a></li>
 </ul>
 
     </div>
@@ -236,9 +222,14 @@
   
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
   </div>
-  
-  <div id="rtd-footer-container"></div>
 
 
       </div>
@@ -415,23 +406,8 @@
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb-utils-directories">pywrdrb.utils.directories</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.utils.directories.input_dir"><code class="docutils literal notranslate"><span class="pre">input_dir</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.utils.directories.output_dir"><code class="docutils literal notranslate"><span class="pre">output_dir</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-pywrdrb.utils.hdf5">pywrdrb.utils.hdf5</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.utils.hdf5.combine_batched_hdf5_outputs"><code class="docutils literal notranslate"><span class="pre">combine_batched_hdf5_outputs()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.utils.hdf5.export_ensemble_to_hdf5"><code class="docutils literal notranslate"><span class="pre">export_ensemble_to_hdf5()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.utils.hdf5.extract_realization_from_hdf5"><code class="docutils literal notranslate"><span class="pre">extract_realization_from_hdf5()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.utils.hdf5.get_hdf5_realization_numbers"><code class="docutils literal notranslate"><span class="pre">get_hdf5_realization_numbers()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb-utils-timeseries">pywrdrb.utils.timeseries</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.utils.timeseries.get_rollmean_timeseries"><code class="docutils literal notranslate"><span class="pre">get_rollmean_timeseries()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.utils.timeseries.subset_timeseries"><code class="docutils literal notranslate"><span class="pre">subset_timeseries()</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-pywrdrb.utils.hdf5">pywrdrb.utils.hdf5</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-pywrdrb.utils.timeseries">pywrdrb.utils.timeseries</a></li>
 </ul>
             </nav>
         </div>
@@ -445,167 +421,31 @@
                   
   <section id="pywrdrb-utils">
 <h1>pywrdrb.utils<a class="headerlink" href="#pywrdrb-utils" title="Link to this heading">#</a></h1>
-<section id="pywrdrb-utils-directories">
-<h2>pywrdrb.utils.directories<a class="headerlink" href="#pywrdrb-utils-directories" title="Link to this heading">#</a></h2>
-<p id="module-pywrdrb.utils.directories">This script is used to identify the absolute path to the pywrdrb project directory.</p>
-<p>This is used to ensure stability in relative paths throughout the project, regardless of the
-current working directory in which a given script is run.</p>
-<p>This module contains string variables that provide absolut paths to the following directories:</p>
-<dl class="py data">
-<dt class="sig sig-object py" id="pywrdrb.utils.directories.input_dir">
-<span class="sig-prename descclassname"><span class="pre">pywrdrb.utils.directories.</span></span><span class="sig-name descname"><span class="pre">input_dir</span></span><a class="headerlink" href="#pywrdrb.utils.directories.input_dir" title="Link to this definition">#</a></dt>
-<dd><p>The folder where all input data is stored.</p>
-</dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="pywrdrb.utils.directories.output_dir">
-<span class="sig-prename descclassname"><span class="pre">pywrdrb.utils.directories.</span></span><span class="sig-name descname"><span class="pre">output_dir</span></span><a class="headerlink" href="#pywrdrb.utils.directories.output_dir" title="Link to this definition">#</a></dt>
-<dd><p>The folder where output data will be stored during and after simulation.</p>
-</dd></dl>
-
-</section>
 <section id="module-pywrdrb.utils.hdf5">
 <span id="pywrdrb-utils-hdf5"></span><h2>pywrdrb.utils.hdf5<a class="headerlink" href="#module-pywrdrb.utils.hdf5" title="Link to this heading">#</a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="pywrdrb.utils.hdf5.combine_batched_hdf5_outputs">
-<span class="sig-prename descclassname"><span class="pre">pywrdrb.utils.hdf5.</span></span><span class="sig-name descname"><span class="pre">combine_batched_hdf5_outputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">combined_output_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.utils.hdf5.combine_batched_hdf5_outputs" title="Link to this definition">#</a></dt>
-<dd><p>Aggregate multiple HDF5 files into a single HDF5 file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>batch_files</strong> (<em>list</em>) – List of HDF5 files to combine.</p></li>
-<li><p><strong>combined_output_file</strong> (<em>str</em>) – Full output file path &amp; name to write combined HDF5.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pywrdrb.utils.hdf5.export_ensemble_to_hdf5">
-<span class="sig-prename descclassname"><span class="pre">pywrdrb.utils.hdf5.</span></span><span class="sig-name descname"><span class="pre">export_ensemble_to_hdf5</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.utils.hdf5.export_ensemble_to_hdf5" title="Link to this definition">#</a></dt>
-<dd><p>Export a dictionary of ensemble data to an HDF5 file.
-Data is stored in the dictionary as {realization number (int): pd.DataFrame}.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>dict</strong> (<em>dict</em>) – A dictionary of ensemble data.</p></li>
-<li><p><strong>output_file</strong> (<em>str</em>) – Full output file path &amp; name to write HDF5.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pywrdrb.utils.hdf5.extract_realization_from_hdf5">
-<span class="sig-prename descclassname"><span class="pre">pywrdrb.utils.hdf5.</span></span><span class="sig-name descname"><span class="pre">extract_realization_from_hdf5</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hdf5_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">realization</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stored_by_node</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.utils.hdf5.extract_realization_from_hdf5" title="Link to this definition">#</a></dt>
-<dd><p>Pull a single inflow realization from an HDF5 file of inflows.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>hdf5_file</strong> (<em>str</em>) – The filename for the hdf5 file</p></li>
-<li><p><strong>realization</strong> (<em>int</em>) – Integer realization index</p></li>
-<li><p><strong>stored_by_node</strong> (<em>bool</em>) – Whether the data is stored with node name as key.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A DataFrame containing the realization</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>pandas.DataFrame</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pywrdrb.utils.hdf5.get_hdf5_realization_numbers">
-<span class="sig-prename descclassname"><span class="pre">pywrdrb.utils.hdf5.</span></span><span class="sig-name descname"><span class="pre">get_hdf5_realization_numbers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.utils.hdf5.get_hdf5_realization_numbers" title="Link to this definition">#</a></dt>
-<dd><p>Checks the contents of an hdf5 file, and returns a list
-of the realization ID numbers contained.
-Realizations have key ‘realization_i’ in the HDF5.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – The HDF5 file of interest</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Containing realizations ID numbers; realizations have key ‘realization_i’ in the HDF5.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list</p>
-</dd>
-</dl>
-</dd></dl>
-
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pywrdrb.utils.hdf5.get_hdf5_realization_numbers" title="pywrdrb.utils.hdf5.get_hdf5_realization_numbers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pywrdrb.utils.hdf5.get_hdf5_realization_numbers</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pywrdrb.utils.hdf5.get_hdf5_realization_numbers.html#pywrdrb.utils.hdf5.get_hdf5_realization_numbers" title="pywrdrb.utils.hdf5.get_hdf5_realization_numbers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pywrdrb.utils.hdf5.get_hdf5_realization_numbers</span></code></a></p></td>
 <td><p>Checks the contents of an hdf5 file, and returns a list of the realization ID numbers contained.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pywrdrb.utils.hdf5.extract_realization_from_hdf5" title="pywrdrb.utils.hdf5.extract_realization_from_hdf5"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pywrdrb.utils.hdf5.extract_realization_from_hdf5</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pywrdrb.utils.hdf5.extract_realization_from_hdf5.html#pywrdrb.utils.hdf5.extract_realization_from_hdf5" title="pywrdrb.utils.hdf5.extract_realization_from_hdf5"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pywrdrb.utils.hdf5.extract_realization_from_hdf5</span></code></a></p></td>
 <td><p>Pull a single inflow realization from an HDF5 file of inflows.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pywrdrb.utils.hdf5.combine_batched_hdf5_outputs" title="pywrdrb.utils.hdf5.combine_batched_hdf5_outputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pywrdrb.utils.hdf5.combine_batched_hdf5_outputs</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pywrdrb.utils.hdf5.combine_batched_hdf5_outputs.html#pywrdrb.utils.hdf5.combine_batched_hdf5_outputs" title="pywrdrb.utils.hdf5.combine_batched_hdf5_outputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pywrdrb.utils.hdf5.combine_batched_hdf5_outputs</span></code></a></p></td>
 <td><p>Aggregate multiple HDF5 files into a single HDF5 file.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 </section>
-<section id="pywrdrb-utils-timeseries">
-<h2>pywrdrb.utils.timeseries<a class="headerlink" href="#pywrdrb-utils-timeseries" title="Link to this heading">#</a></h2>
-<dl class="py function" id="module-pywrdrb.utils.timeseries">
-<dt class="sig sig-object py" id="pywrdrb.utils.timeseries.get_rollmean_timeseries">
-<span class="sig-prename descclassname"><span class="pre">pywrdrb.utils.timeseries.</span></span><span class="sig-name descname"><span class="pre">get_rollmean_timeseries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeseries</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.utils.timeseries.get_rollmean_timeseries" title="Link to this definition">#</a></dt>
-<dd><p>Calculates the rolling mean of a timeseries for a given window size.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>timeseries</strong> (<em>pd.DataFrame</em>) – The timeseries data.</p></li>
-<li><p><strong>window</strong> (<em>int</em>) – The window size for the rolling mean.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The rolling mean timeseries.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>rollmean_timeseries (pd.DataFrame)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pywrdrb.utils.timeseries.subset_timeseries">
-<span class="sig-prename descclassname"><span class="pre">pywrdrb.utils.timeseries.</span></span><span class="sig-name descname"><span class="pre">subset_timeseries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeseries</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_inclusive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.utils.timeseries.subset_timeseries" title="Link to this definition">#</a></dt>
-<dd><p>Take a subset of pd.DataFrame timeseries data between start_date and end_date.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>timeseries</strong> (<em>pd.DataFrame</em>) – The timeseries data.</p></li>
-<li><p><strong>start_date</strong> (<em>str</em><em> or </em><em>pd.Timestamp</em>) – The start date for the subset.</p></li>
-<li><p><strong>end_date</strong> (<em>str</em><em> or </em><em>pd.Timestamp</em>) – The end date for the subset.</p></li>
-<li><p><strong>end_inclusive</strong> (<em>bool</em>) – Whether the end date is inclusive.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The subset of the timeseries data.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>data (pd.DataFrame)</p>
-</dd>
-</dl>
-</dd></dl>
-
+<section id="module-pywrdrb.utils.timeseries">
+<span id="pywrdrb-utils-timeseries"></span><h2>pywrdrb.utils.timeseries<a class="headerlink" href="#module-pywrdrb.utils.timeseries" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pywrdrb.utils.timeseries.subset_timeseries" title="pywrdrb.utils.timeseries.subset_timeseries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pywrdrb.utils.timeseries.subset_timeseries</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pywrdrb.utils.timeseries.subset_timeseries.html#pywrdrb.utils.timeseries.subset_timeseries" title="pywrdrb.utils.timeseries.subset_timeseries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pywrdrb.utils.timeseries.subset_timeseries</span></code></a></p></td>
 <td><p>Take a subset of pd.DataFrame timeseries data between start_date and end_date.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pywrdrb.utils.timeseries.get_rollmean_timeseries" title="pywrdrb.utils.timeseries.get_rollmean_timeseries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pywrdrb.utils.timeseries.get_rollmean_timeseries</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pywrdrb.utils.timeseries.get_rollmean_timeseries.html#pywrdrb.utils.timeseries.get_rollmean_timeseries" title="pywrdrb.utils.timeseries.get_rollmean_timeseries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pywrdrb.utils.timeseries.get_rollmean_timeseries</span></code></a></p></td>
 <td><p>Calculates the rolling mean of a timeseries for a given window size.</p></td>
 </tr>
 </tbody>
@@ -679,23 +519,8 @@ Realizations have key ‘realization_i’ in the HDF5.</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb-utils-directories">pywrdrb.utils.directories</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.utils.directories.input_dir"><code class="docutils literal notranslate"><span class="pre">input_dir</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.utils.directories.output_dir"><code class="docutils literal notranslate"><span class="pre">output_dir</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-pywrdrb.utils.hdf5">pywrdrb.utils.hdf5</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.utils.hdf5.combine_batched_hdf5_outputs"><code class="docutils literal notranslate"><span class="pre">combine_batched_hdf5_outputs()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.utils.hdf5.export_ensemble_to_hdf5"><code class="docutils literal notranslate"><span class="pre">export_ensemble_to_hdf5()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.utils.hdf5.extract_realization_from_hdf5"><code class="docutils literal notranslate"><span class="pre">extract_realization_from_hdf5()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.utils.hdf5.get_hdf5_realization_numbers"><code class="docutils literal notranslate"><span class="pre">get_hdf5_realization_numbers()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb-utils-timeseries">pywrdrb.utils.timeseries</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.utils.timeseries.get_rollmean_timeseries"><code class="docutils literal notranslate"><span class="pre">get_rollmean_timeseries()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.utils.timeseries.subset_timeseries"><code class="docutils literal notranslate"><span class="pre">subset_timeseries()</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-pywrdrb.utils.hdf5">pywrdrb.utils.hdf5</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-pywrdrb.utils.timeseries">pywrdrb.utils.timeseries</a></li>
 </ul>
   </nav></div>
 
@@ -744,8 +569,8 @@ By The Reed Group at Cornell CEE
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
 
   <footer class="bd-footer">
   </footer>

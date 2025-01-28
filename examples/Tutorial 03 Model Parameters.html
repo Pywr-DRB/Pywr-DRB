@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Pywr-DRB Tutorial 3: Model Parameters &#8212; Pywr-DRB Integrated Water Resource Management Model</title>
+    <title>Model Parameters &#8212; Pywr-DRB Integrated Water Resource Management Model</title>
   
   
   
@@ -16,8 +16,8 @@
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
   </script>
-  <!-- 
-    this give us a css class that will be invisible only if js is disabled 
+  <!--
+    this give us a css class that will be invisible only if js is disabled
   -->
   <noscript>
     <style>
@@ -27,10 +27,10 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=a3416100" />
     <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=13237357" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -39,10 +39,10 @@
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script src="../_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
     <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
@@ -65,7 +65,8 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'examples/Tutorial 03 Model Parameters';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="Overview:" href="Tutorial%2001%20Introduction%20to%20PywrDRB.html" />
+    <link rel="next" title="Accessing Data" href="Tutorial%2004%20Accessing%20Data.html" />
+    <link rel="prev" title="Preparing Input Data" href="Tutorial%2002%20Prepare%20Input%20Data.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -171,25 +172,14 @@
         </ul>
         <ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/api.html">API References</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../api/pre.html">Pre-Processing</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.pre.disaggregate_DRBC_demands.html">pywrdrb.pre.disaggregate_DRBC_demands</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.pre.extrapolate_NYC_NJ_diversions.html">pywrdrb.pre.extrapolate_NYC_NJ_diversions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.pre.predict_inflows_diversions.html">pywrdrb.pre.predict_inflows_diversions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.pre.predict_ensemble_inflows_diversions.html">pywrdrb.pre.predict_ensemble_inflows_diversions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.pre.read_modeled_estimates.html">pywrdrb.pre.read_modeled_estimates</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.pre.read_csv_data.html">pywrdrb.pre.read_csv_data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.pre.match_gages.html">pywrdrb.pre.match_gages</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.pre.create_hybrid_modeled_observed_datasets.html">pywrdrb.pre.create_hybrid_modeled_observed_datasets</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.pre.subtract_upstream_catchment_inflows.html">pywrdrb.pre.subtract_upstream_catchment_inflows</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.pre.add_upstream_catchment_inflows.html">pywrdrb.pre.add_upstream_catchment_inflows</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api/pywrdrb.html">pywrdrb</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.ModelBuilder.html">pywrdrb.ModelBuilder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.Data.html">pywrdrb.Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.set_directory.html">pywrdrb.set_directory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.get_directory.html">pywrdrb.get_directory</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../api/post.html">Post-Processing</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.post.get_base_results.html">pywrdrb.post.get_base_results</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.post.get_pywrdrb_results.html">pywrdrb.post.get_pywrdrb_results</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../api/parameters.html">Parameters</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api/parameters.html">pywrdrb.parameters</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.FfmpNycRunningAvgParameter.html">pywrdrb.parameters.FfmpNycRunningAvgParameter</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.FfmpNjRunningAvgParameter.html">pywrdrb.parameters.FfmpNjRunningAvgParameter</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.NYCCombinedReleaseFactor.html">pywrdrb.parameters.NYCCombinedReleaseFactor</a></li>
@@ -207,7 +197,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.LaggedReservoirRelease.html">pywrdrb.parameters.LaggedReservoirRelease</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../api/utils.html">Utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api/utils.html">pywrdrb.utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.utils.hdf5.get_hdf5_realization_numbers.html">pywrdrb.utils.hdf5.get_hdf5_realization_numbers</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.utils.hdf5.extract_realization_from_hdf5.html">pywrdrb.utils.hdf5.extract_realization_from_hdf5</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.utils.hdf5.combine_batched_hdf5_outputs.html">pywrdrb.utils.hdf5.combine_batched_hdf5_outputs</a></li>
@@ -219,16 +209,13 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="examples.html">Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="Tutorial%2001%20Introduction%20to%20PywrDRB.html">Overview:</a></li>
-
-
-
-
-
-
+<li class="toctree-l2"><a class="reference internal" href="Tutorial%2001%20Introduction%20to%20PywrDRB.html">Intro to PywrDRB</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial%2002%20Prepare%20Input%20Data.html">Prep Model Inputs</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Model Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial%2004%20Accessing%20Data.html">Loading Data</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1"><a class="reference internal" href="../results_set_options.html">Results Set Table</a></li>
 </ul>
 
     </div>
@@ -237,9 +224,14 @@
   
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
   </div>
-  
-  <div id="rtd-footer-container"></div>
 
 
       </div>
@@ -406,7 +398,7 @@
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Pywr-DRB Tutorial 3: Model Parameters</h1>
+    <h1>Model Parameters</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -416,8 +408,11 @@
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#links">Links:</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#content">Content:</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#links">Links:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#content">Content:</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pywr-parameters">1.0 Pywr parameters</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-role-of-parameters">1.1. The role of parameters</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-parameters">1.2 Basic parameters</a><ul class="nav section-nav flex-column">
@@ -451,17 +446,22 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="pywr-drb-tutorial-3-model-parameters">
-<h1>Pywr-DRB Tutorial 3: Model Parameters<a class="headerlink" href="#pywr-drb-tutorial-3-model-parameters" title="Link to this heading">#</a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="model-parameters">
+<h1>Model Parameters<a class="headerlink" href="#model-parameters" title="Link to this heading">#</a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
+<p>The Pywr-DRB model is requires the definition of “parameters” which are able to define values, calculate values, and establish relationships between nodes and other paramters. These are critical to the implementation of the Flexible Flow Management operations policies and every other part of the model simulation.</p>
+<p>This notebook provides an introduction to these parameter, and how they are defined and used in the model. This notebook focuses on the <code class="docutils literal notranslate"><span class="pre">pywrdrb.STARFITReservoirRelease</span></code> parameter as an example.</p>
 <section id="links">
-<h2>Links:<a class="headerlink" href="#links" title="Link to this heading">#</a></h2>
+<h3>Links:<a class="headerlink" href="#links" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>This notebook draws heavily from the <a class="reference external" href="https://pywr.github.io/pywr/extending_pywr/extending_pywr_parameters.html"><code class="docutils literal notranslate"><span class="pre">pywr</span></code> documentation for creating custom parameters.</a> I’d recommend reading that for more detail.</p></li>
 <li><p><a class="reference external" href="https://pywr.github.io/pywr/api/pywr.parameters.html">Pywr parameters API docs</a></p></li>
+<li><p><a class="reference external" href="https://pywr-drb.github.io/Pywr-DRB/api/parameters.html">Pywr-DRB parameters API docs</a></p></li>
 </ul>
 </section>
 <section id="content">
-<h2>Content:<a class="headerlink" href="#content" title="Link to this heading">#</a></h2>
+<h3>Content:<a class="headerlink" href="#content" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Pywr parameters</p>
 <ul>
@@ -480,6 +480,7 @@
 <li><p>Activity: Create a custom parameter</p></li>
 </ul>
 </section>
+</section>
 <hr class="docutils" />
 <section id="pywr-parameters">
 <h2>1.0 Pywr parameters<a class="headerlink" href="#pywr-parameters" title="Link to this heading">#</a></h2>
@@ -492,10 +493,10 @@
 <section id="the-role-of-parameters">
 <h3>1.1. The role of parameters<a class="headerlink" href="#the-role-of-parameters" title="Link to this heading">#</a></h3>
 <p>Parameters are a critical part of a pywr model.  Parameters are used to enforce the “rules” in the model.</p>
-<p>In a linear programming problem, the goal is to find a vector <span class="math notranslate nohighlight">\(x\)</span> which maximizes the objective function such that the constraints are not violated:
-$<span class="math notranslate nohighlight">\(\text{Maximize  }  c^Tx\)</span><span class="math notranslate nohighlight">\(
-\)</span><span class="math notranslate nohighlight">\(\text{s.t.  } Ax \leq b \,\, \text{and} \,\, x \geq 0\)</span><span class="math notranslate nohighlight">\(
-For a water resource model, like Pywr-DRB, the decision variable \)</span>x<span class="math notranslate nohighlight">\( corresponds to the reservoir release for a specific day.  In this context, the parameters are used to calculate, set, and update the *constraints* which consist of \)</span>A<span class="math notranslate nohighlight">\( and \)</span>b$ in this formulation. These constraints correspond to minimum and maximum release requirements.</p>
+<p>In a linear programming problem, the goal is to find a vector <span class="math notranslate nohighlight">\(x\)</span> which maximizes the objective function such that the constraints are not violated:</p>
+<p><span class="math notranslate nohighlight">\(\text{Maximize  }  c^Tx\)</span></p>
+<p><span class="math notranslate nohighlight">\(\text{s.t.  } Ax \leq b \,\, \text{and} \,\, x \geq 0\)</span></p>
+<p>For a water resource model, like Pywr-DRB, the decision variable <span class="math notranslate nohighlight">\(x\)</span> corresponds to the reservoir release for a specific day.  In this context, the parameters are used to calculate, set, and update the <em>constraints</em> which consist of <span class="math notranslate nohighlight">\(A\)</span> and <span class="math notranslate nohighlight">\(b\)</span> in this formulation. These constraints correspond to minimum and maximum release requirements.</p>
 <p>As you will see, we connect specific parameters to different nodes or to other parameters. This is necessary when you have dependencies in the model.</p>
 </section>
 <section id="basic-parameters">
@@ -564,20 +565,20 @@ It’s value is the value of it’s child parameters aggregated using a aggregat
 </li>
 </ul>
 <p>Here is an example provided in the Pwyr documentation, which just returns a constant value each timestep, and contains each of the methods described above.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pywr.parameters</span> <span class="kn">import</span> <span class="n">Parameter</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pywr.parameters</span><span class="w"> </span><span class="kn">import</span> <span class="n">Parameter</span>
 
-<span class="k">class</span> <span class="nc">MyParameter</span><span class="p">(</span><span class="n">Parameter</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MyParameter</span><span class="p">(</span><span class="n">Parameter</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="c1"># called once when the parameter is created</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">value</span>
 
-    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timestep</span><span class="p">,</span> <span class="n">scenario_index</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timestep</span><span class="p">,</span> <span class="n">scenario_index</span><span class="p">):</span>
         <span class="c1"># called once per timestep for each scenario</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="c1"># called when the parameter is loaded from a JSON document</span>
         <span class="n">value</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="o">**</span><span class="n">data</span><span class="p">)</span>
@@ -680,48 +681,48 @@ It’s value is the value of it’s child parameters aggregated using a aggregat
 </ul>
 <p>With this in mind, now look at the outline for the <code class="docutils literal notranslate"><span class="pre">STARFITReservoirRelease</span></code> below, and notice how this class has several internal functions design to help calculate the target release.</p>
 <p>Again, the most important part of this is the output of the <code class="docutils literal notranslate"><span class="pre">STARFITReservoirRelease.value()</span></code> function. Pywr is not interested in the value of the <code class="docutils literal notranslate"><span class="pre">get_NORhi()</span></code> or any other supplemental functions. These are just necessary to help calculate the <code class="docutils literal notranslate"><span class="pre">value()</span></code>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">STARFITReservoirRelease</span><span class="p">(</span><span class="n">Parameter</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">STARFITReservoirRelease</span><span class="p">(</span><span class="n">Parameter</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Args:</span>
 <span class="sd">        model (dict): The PywrDRB model.</span>
 <span class="sd">        storage_node (str): The storage node associated with the reservoir.</span>
 <span class="sd">        flow_parameter: The PywrDRB catchment inflow parameter corresponding to the reservoir.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">storage_node</span><span class="p">,</span> <span class="n">flow_parameter</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">storage_node</span><span class="p">,</span> <span class="n">flow_parameter</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="c1"># This is where we get all reservoir-specific parameters</span>
         <span class="c1"># from the drb_istarf_conus.csv data</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">standardize_inflow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inflow</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">standardize_inflow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inflow</span><span class="p">):</span>
 	    <span class="k">return</span> <span class="p">(</span><span class="n">inflow</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">I_bar</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">I_bar</span>
 	
-    <span class="k">def</span> <span class="nf">calculate_percent_storage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">storage</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_percent_storage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">storage</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">storage</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">S_cap</span><span class="p">)</span>
 
-	<span class="k">def</span> <span class="nf">get_NORhi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timestep</span><span class="p">):</span>
+	<span class="k">def</span><span class="w"> </span><span class="nf">get_NORhi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timestep</span><span class="p">):</span>
 		<span class="o">...</span>
 		<span class="k">return</span> 
 
-	<span class="k">def</span> <span class="nf">get_NORlo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timestep</span><span class="p">):</span>
+	<span class="k">def</span><span class="w"> </span><span class="nf">get_NORlo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timestep</span><span class="p">):</span>
 		<span class="o">...</span>
 		<span class="k">return</span>
 
-    <span class="k">def</span> <span class="nf">get_harmonic_release</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timestep</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_harmonic_release</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timestep</span><span class="p">):</span>
 	    <span class="o">...</span>
 	    <span class="k">return</span>
 
-    <span class="k">def</span> <span class="nf">calculate_release_adjustment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">S_hat</span><span class="p">,</span> <span class="n">I_hat</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_release_adjustment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">S_hat</span><span class="p">,</span> <span class="n">I_hat</span><span class="p">,</span>
                                      <span class="n">NORhi_t</span><span class="p">,</span> <span class="n">NORlo_t</span><span class="p">):</span>
         <span class="o">...</span>
         <span class="k">return</span>
 
-    <span class="k">def</span> <span class="nf">calculate_target_release</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">harmonic_release</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_target_release</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">harmonic_release</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">,</span>
                                  <span class="n">NORhi</span><span class="p">,</span> <span class="n">NORlo</span><span class="p">,</span> <span class="n">S_hat</span><span class="p">,</span> <span class="n">I</span><span class="p">):</span>
 		<span class="o">...</span>
 		<span class="k">return</span> <span class="n">target</span>
 
-    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timestep</span><span class="p">,</span> <span class="n">scenario_index</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timestep</span><span class="p">,</span> <span class="n">scenario_index</span><span class="p">):</span>
 		<span class="c1"># Get current storage and inflow conditions</span>
         <span class="n">I_t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inflow</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="n">scenario_index</span><span class="p">)</span>
         <span class="n">S_t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">volume</span><span class="p">[</span><span class="n">scenario_index</span><span class="o">.</span><span class="n">indices</span><span class="p">]</span>
@@ -752,7 +753,7 @@ It’s value is the value of it’s child parameters aggregated using a aggregat
 	    <span class="k">return</span>  <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">release_t</span><span class="p">)</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;node&quot;</span><span class="p">)</span>
         <span class="n">storage_node</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;reservoir_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span>
         <span class="n">flow_parameter</span> <span class="o">=</span> <span class="n">load_parameter</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;flow_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -798,12 +799,12 @@ It’s value is the value of it’s child parameters aggregated using a aggregat
 <li><p>How frequently is each parameter type used?</p></li>
 </ol>
 <p>As a bonus, you can consider exploring the dependencies between this parameters using NetworkX, using something like this:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">networkx</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nx</span>
 
 <span class="n">param_graph</span> <span class="o">=</span> <span class="n">model_parameters</span><span class="p">[</span><span class="mi">100</span><span class="p">]</span><span class="o">.</span><span class="n">parents</span><span class="o">.</span><span class="n">graph</span>
 
 <span class="c1"># plot</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
 <span class="n">nx</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">param_graph</span><span class="p">,</span> <span class="n">with_labels</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
@@ -845,13 +846,22 @@ It’s value is the value of it’s child parameters aggregated using a aggregat
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="Tutorial%2001%20Introduction%20to%20PywrDRB.html"
+       href="Tutorial%2002%20Prepare%20Input%20Data.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Overview:</p>
+        <p class="prev-next-title">Preparing Input Data</p>
       </div>
+    </a>
+    <a class="right-next"
+       href="Tutorial%2004%20Accessing%20Data.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Accessing Data</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
     </a>
 </div>
                 </footer>
@@ -870,8 +880,11 @@ It’s value is the value of it’s child parameters aggregated using a aggregat
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#links">Links:</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#content">Content:</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#links">Links:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#content">Content:</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pywr-parameters">1.0 Pywr parameters</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-role-of-parameters">1.1. The role of parameters</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-parameters">1.2 Basic parameters</a><ul class="nav section-nav flex-column">
@@ -942,8 +955,8 @@ By The Reed Group at Cornell CEE
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
 
   <footer class="bd-footer">
   </footer>

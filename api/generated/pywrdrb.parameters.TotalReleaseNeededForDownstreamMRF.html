@@ -16,8 +16,8 @@
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
   </script>
-  <!-- 
-    this give us a css class that will be invisible only if js is disabled 
+  <!--
+    this give us a css class that will be invisible only if js is disabled
   -->
   <noscript>
     <style>
@@ -27,10 +27,10 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=a3416100" />
     <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -39,10 +39,10 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script src="../../_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
     <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
     <script src="../../_static/doctools.js?v=9a2dae69"></script>
@@ -170,25 +170,14 @@
         </ul>
         <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html">API References</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 has-children"><a class="reference internal" href="../pre.html">Pre-Processing</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="pywrdrb.pre.disaggregate_DRBC_demands.html">pywrdrb.pre.disaggregate_DRBC_demands</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pywrdrb.pre.extrapolate_NYC_NJ_diversions.html">pywrdrb.pre.extrapolate_NYC_NJ_diversions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pywrdrb.pre.predict_inflows_diversions.html">pywrdrb.pre.predict_inflows_diversions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pywrdrb.pre.predict_ensemble_inflows_diversions.html">pywrdrb.pre.predict_ensemble_inflows_diversions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pywrdrb.pre.read_modeled_estimates.html">pywrdrb.pre.read_modeled_estimates</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pywrdrb.pre.read_csv_data.html">pywrdrb.pre.read_csv_data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pywrdrb.pre.match_gages.html">pywrdrb.pre.match_gages</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pywrdrb.pre.create_hybrid_modeled_observed_datasets.html">pywrdrb.pre.create_hybrid_modeled_observed_datasets</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pywrdrb.pre.subtract_upstream_catchment_inflows.html">pywrdrb.pre.subtract_upstream_catchment_inflows</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pywrdrb.pre.add_upstream_catchment_inflows.html">pywrdrb.pre.add_upstream_catchment_inflows</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../pywrdrb.html">pywrdrb</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="pywrdrb.ModelBuilder.html">pywrdrb.ModelBuilder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pywrdrb.Data.html">pywrdrb.Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pywrdrb.set_directory.html">pywrdrb.set_directory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pywrdrb.get_directory.html">pywrdrb.get_directory</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../post.html">Post-Processing</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="pywrdrb.post.get_base_results.html">pywrdrb.post.get_base_results</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pywrdrb.post.get_pywrdrb_results.html">pywrdrb.post.get_pywrdrb_results</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="../parameters.html">Parameters</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../parameters.html">pywrdrb.parameters</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="pywrdrb.parameters.FfmpNycRunningAvgParameter.html">pywrdrb.parameters.FfmpNycRunningAvgParameter</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pywrdrb.parameters.FfmpNjRunningAvgParameter.html">pywrdrb.parameters.FfmpNjRunningAvgParameter</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pywrdrb.parameters.NYCCombinedReleaseFactor.html">pywrdrb.parameters.NYCCombinedReleaseFactor</a></li>
@@ -206,7 +195,7 @@
 <li class="toctree-l3"><a class="reference internal" href="pywrdrb.parameters.LaggedReservoirRelease.html">pywrdrb.parameters.LaggedReservoirRelease</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../utils.html">Utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../utils.html">pywrdrb.utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="pywrdrb.utils.hdf5.get_hdf5_realization_numbers.html">pywrdrb.utils.hdf5.get_hdf5_realization_numbers</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pywrdrb.utils.hdf5.extract_realization_from_hdf5.html">pywrdrb.utils.hdf5.extract_realization_from_hdf5</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pywrdrb.utils.hdf5.combine_batched_hdf5_outputs.html">pywrdrb.utils.hdf5.combine_batched_hdf5_outputs</a></li>
@@ -218,16 +207,13 @@
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../examples/examples.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/Tutorial%2001%20Introduction%20to%20PywrDRB.html">Overview:</a></li>
-
-
-
-
-
-
+<li class="toctree-l2"><a class="reference internal" href="../../examples/Tutorial%2001%20Introduction%20to%20PywrDRB.html">Intro to PywrDRB</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/Tutorial%2002%20Prepare%20Input%20Data.html">Prep Model Inputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../examples/Tutorial%2003%20Model%20Parameters.html">Model Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/Tutorial%2004%20Accessing%20Data.html">Loading Data</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../results_set_options.html">Results Set Table</a></li>
 </ul>
 
     </div>
@@ -236,9 +222,14 @@
   
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
   </div>
-  
-  <div id="rtd-footer-container"></div>
 
 
       </div>
@@ -809,8 +800,8 @@ By The Reed Group at Cornell CEE
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
 
   <footer class="bd-footer">
   </footer>

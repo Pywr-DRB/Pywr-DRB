@@ -1,0 +1,887 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Accessing Data &#8212; Pywr-DRB Integrated Water Resource Management Model</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/Tutorial 04 Accessing Data';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Results Set Table" href="../results_set_options.html" />
+    <link rel="prev" title="Model Parameters" href="Tutorial%2003%20Model%20Parameters.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../intro.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/logo.png" class="logo__image only-light" alt="Pywr-DRB Integrated Water Resource Management Model - Home"/>
+    <img src="../_static/logo.png" class="logo__image only-dark pst-js-only" alt="Pywr-DRB Integrated Water Resource Management Model - Home"/>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../intro.html">
+                    Pywr-DRB
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/api.html">API References</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api/pywrdrb.html">pywrdrb</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.ModelBuilder.html">pywrdrb.ModelBuilder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.Data.html">pywrdrb.Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.set_directory.html">pywrdrb.set_directory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.get_directory.html">pywrdrb.get_directory</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api/parameters.html">pywrdrb.parameters</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.FfmpNycRunningAvgParameter.html">pywrdrb.parameters.FfmpNycRunningAvgParameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.FfmpNjRunningAvgParameter.html">pywrdrb.parameters.FfmpNjRunningAvgParameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.NYCCombinedReleaseFactor.html">pywrdrb.parameters.NYCCombinedReleaseFactor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.NYCFloodRelease.html">pywrdrb.parameters.NYCFloodRelease</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.html">pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.html">pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2.html">pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.VolBalanceNYCDemand.html">pywrdrb.parameters.VolBalanceNYCDemand</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.LowerBasinMaxMRFContribution.html">pywrdrb.parameters.LowerBasinMaxMRFContribution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate.html">pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.VolBalanceLowerBasinMRFIndividual.html">pywrdrb.parameters.VolBalanceLowerBasinMRFIndividual</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.STARFITReservoirRelease.html">pywrdrb.parameters.STARFITReservoirRelease</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.FlowEnsemble.html">pywrdrb.parameters.FlowEnsemble</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.PredictionEnsemble.html">pywrdrb.parameters.PredictionEnsemble</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.LaggedReservoirRelease.html">pywrdrb.parameters.LaggedReservoirRelease</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api/utils.html">pywrdrb.utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.utils.hdf5.get_hdf5_realization_numbers.html">pywrdrb.utils.hdf5.get_hdf5_realization_numbers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.utils.hdf5.extract_realization_from_hdf5.html">pywrdrb.utils.hdf5.extract_realization_from_hdf5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.utils.hdf5.combine_batched_hdf5_outputs.html">pywrdrb.utils.hdf5.combine_batched_hdf5_outputs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.utils.timeseries.subset_timeseries.html">pywrdrb.utils.timeseries.subset_timeseries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.utils.timeseries.get_rollmean_timeseries.html">pywrdrb.utils.timeseries.get_rollmean_timeseries</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/plotting.html">Plotting</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="examples.html">Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="Tutorial%2001%20Introduction%20to%20PywrDRB.html">Intro to PywrDRB</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial%2002%20Prepare%20Input%20Data.html">Prep Model Inputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial%2003%20Model%20Parameters.html">Model Parameters</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Loading Data</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../results_set_options.html">Results Set Table</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/Pywr-DRB/Pywr-DRB" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/Pywr-DRB/Pywr-DRB/issues/new?title=Issue%20on%20page%20%2Fexamples/Tutorial 04 Accessing Data.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/examples/Tutorial 04 Accessing Data.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Accessing Data</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb-data-functionality"><code class="docutils literal notranslate"><span class="pre">pywrdrb.Data()</span></code> Functionality</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#arguments">Arguments</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#a-note-on-results-sets">A note on <code class="docutils literal notranslate"><span class="pre">results_sets</span></code>…</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Accessing Data</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#a-note-on-the-dataset-labeling">A note on the <code class="docutils literal notranslate"><span class="pre">dataset</span></code> labeling…</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#exporting-custom-datasets">Exporting custom datasets</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#technical-detail-to-be-completed">Technical detail (To be completed…)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#output-class"><code class="docutils literal notranslate"><span class="pre">Output</span></code> Class</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb-post-get-pywrdrb-results">pywrdrb.post.get_pywrdrb_results()</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#observation-class"><code class="docutils literal notranslate"><span class="pre">Observation</span></code> Class</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#hydrologicmodelflow-class"><code class="docutils literal notranslate"><span class="pre">HydrologicModelFlow</span></code> Class</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="accessing-data">
+<h1>Accessing Data<a class="headerlink" href="#accessing-data" title="Link to this heading">#</a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
+<p>There are multiple datasets that will be of interest when interacting with the <code class="docutils literal notranslate"><span class="pre">pywrdrb</span></code>, including:</p>
+<ul class="simple">
+<li><p>Pywr-DRB output data (<code class="docutils literal notranslate"><span class="pre">&quot;output&quot;</span></code>) : Results from <code class="docutils literal notranslate"><span class="pre">pywrdrb</span></code> simulations (e.g., streamflow at model nodes, reservoir storage, flow targets, etc.)</p></li>
+<li><p>Observation data (<code class="docutils literal notranslate"><span class="pre">&quot;obs&quot;</span></code>) : Measured USGS gauge streamflow and reservoir storage timeseries</p></li>
+<li><p>Hydrologic Model Data (<code class="docutils literal notranslate"><span class="pre">&quot;nhmv10&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;nwmv21&quot;</span></code>): Outputs from external hydrologic models like NWMv2.1 or NHMv1.0.</p></li>
+</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">pywrdrb.Data</span></code> class is designed to provide easy methods for loading and accessing all of the datatypes.</p>
+</section>
+<section id="pywrdrb-data-functionality">
+<h2><code class="docutils literal notranslate"><span class="pre">pywrdrb.Data()</span></code> Functionality<a class="headerlink" href="#pywrdrb-data-functionality" title="Link to this heading">#</a></h2>
+<section id="arguments">
+<h3>Arguments<a class="headerlink" href="#arguments" title="Link to this heading">#</a></h3>
+<p>The keyword arguments are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">output_dir</span></code> (str): Directory for output files.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">input_dir</span></code> (str): Directory for input files.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">datatypes</span></code> (list): List of data types to load. Options: ‘output’, ‘obs’, ‘nhmv10’, ‘nwmv21’ (default []).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">results_sets</span></code> (list): List of results sets to load (default [])</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">output_filenames</span></code> (list): List of pywrdrb output filenames with path to load. Only necessary when <code class="docutils literal notranslate"><span class="pre">output</span></code> is in datatypes (default None).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">units</span></code> (str): Units for the results. (default ‘MG’).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">print_status</span></code> (bool): Whether to print status updates during load (default False).</p></li>
+</ul>
+<p>Keyword arguments can be provided during either the initialization or the load methods. I.e.,</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">pywrdrb</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<span class="n">data</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>or:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">pywrdrb</span><span class="o">.</span><span class="n">Data</span><span class="p">()</span>
+<span class="n">data</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+<section id="a-note-on-results-sets">
+<h4>A note on <code class="docutils literal notranslate"><span class="pre">results_sets</span></code>…<a class="headerlink" href="#a-note-on-results-sets" title="Link to this heading">#</a></h4>
+<p>The <code class="docutils literal notranslate"><span class="pre">results_set</span></code> options are used to specify <em>what type of variables you are interested in</em>. For example, if you want to access the streamflow at major Pywr-DRB model nodes, then you want <code class="docutils literal notranslate"><span class="pre">results_sets</span> <span class="pre">=</span> <span class="pre">['major_flow']</span></code>. Another example is <code class="docutils literal notranslate"><span class="pre">results_sets</span> <span class="pre">=</span> <span class="pre">[&quot;res_storage&quot;]</span></code> which returns reservoir storage timeseries.</p>
+<p>You can find descriptions of each <code class="docutils literal notranslate"><span class="pre">results_set</span></code> type in <a class="reference internal" href="#../pywrdrb/utils/results_sets.py"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">pywrdrb.utils.results_sets</span></code></span></a>.</p>
+<p>Different <code class="docutils literal notranslate"><span class="pre">datatypes</span></code> have different valid <code class="docutils literal notranslate"><span class="pre">results_set</span></code> options.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;output&quot;</span></code> data can access all results_set options</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;obs&quot;</span></code> data can only access results_set in <code class="docutils literal notranslate"><span class="pre">['major_flow',</span> <span class="pre">'reservoir_downstream_gage',</span> <span class="pre">'res_storage']</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;nhmv10&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;nwmv21&quot;</span></code> can only access results_set in <code class="docutils literal notranslate"><span class="pre">['major_flow',</span> <span class="pre">'reservoir_downstream_gage']</span></code></p></li>
+</ul>
+<p>Fortunately, the <code class="docutils literal notranslate"><span class="pre">pywrdrb.Data</span></code> class will identify valid results_set options for each datatype, and only process those valid options.</p>
+</section>
+</section>
+<section id="id1">
+<h3>Accessing Data<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<p>Given that there are multiple datasets of interest, the <code class="docutils literal notranslate"><span class="pre">pywrdrb.Data</span></code> class uses a hierarchical structure for storing this data within the <code class="docutils literal notranslate"><span class="pre">pywrdrb.Data</span></code> object.</p>
+<p>After using <code class="docutils literal notranslate"><span class="pre">pywrdrb.Data().load()</span></code>, results are stored in the class as a nested dictionary structure following:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">pywrdrb</span><span class="o">.</span><span class="n">Data</span><span class="p">()</span>
+<span class="n">data</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<span class="n">data</span><span class="o">.</span><span class="n">results_set</span><span class="p">[</span><span class="n">datatype_label</span><span class="p">][</span><span class="n">scenario_number</span><span class="p">]</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+</pre></div>
+</div>
+<section id="a-note-on-the-dataset-labeling">
+<h4>A note on the <code class="docutils literal notranslate"><span class="pre">dataset</span></code> labeling…<a class="headerlink" href="#a-note-on-the-dataset-labeling" title="Link to this heading">#</a></h4>
+<p>In the <code class="docutils literal notranslate"><span class="pre">pywrdrb.Data</span></code> class, the <code class="docutils literal notranslate"><span class="pre">dataset_label</span></code> for <code class="docutils literal notranslate"><span class="pre">&quot;output&quot;</span></code> datatypes is derived from the output filenames. This label serves as a key in the final stored data, allowing users to identify and access results associated with custom <code class="docutils literal notranslate"><span class="pre">pywrdrb</span></code> simulations or scenarios.</p>
+<p>For example, if you run a <code class="docutils literal notranslate"><span class="pre">pywrdrb</span></code> simulation and store the results in <code class="docutils literal notranslate"><span class="pre">output_file</span> <span class="pre">=</span> <span class="pre">&quot;&lt;path&gt;/my_simulation.hdf5&quot;</span></code>, then these simulation results can be accessed using:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">pywrdrb</span><span class="o">.</span><span class="n">Data</span><span class="p">()</span>
+<span class="n">data</span><span class="o">.</span><span class="n">load</span><span class="p">(</span>
+    <span class="n">datatypes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">],</span>
+    <span class="n">output_filenames</span> <span class="o">=</span> <span class="p">[</span><span class="n">output_file</span><span class="p">],</span>
+    <span class="n">results_sets</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;major_flow&#39;</span><span class="p">]</span>
+    <span class="p">)</span>
+
+<span class="c1"># Access custom output data</span>
+<span class="n">data</span><span class="o">.</span><span class="n">major_flow</span><span class="p">[</span><span class="s2">&quot;my_simulation&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set path to access pywrdrb</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="n">path_to_pywrdrb</span> <span class="o">=</span> <span class="s1">&#39;../&#39;</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path_to_pywrdrb</span><span class="p">)</span>
+
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pywrdrb</span><span class="w"> </span><span class="kn">import</span> <span class="n">Data</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pywrdrb.utils.directories</span><span class="w"> </span><span class="kn">import</span> <span class="n">output_dir</span>
+
+<span class="c1"># List of datatypes to load</span>
+<span class="c1"># Options: &#39;obs&#39;, &#39;output&#39;, &#39;nhmv10&#39;, &#39;nwmv21&#39;</span>
+<span class="n">datatypes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">,</span> <span class="s1">&#39;obs&#39;</span><span class="p">,</span> <span class="s1">&#39;nhmv10&#39;</span><span class="p">]</span>
+
+<span class="c1"># List of pywrdrb output files, with path</span>
+<span class="c1"># NOTE: This is only necessary if &#39;output&#39; is in datatypes</span>
+<span class="n">output_files</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="sa">rf</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">output_dir</span><span class="si">}</span><span class="s2">drb_output_nhmv10.hdf5&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1"># List of results sets to load </span>
+<span class="c1"># See pywrdrb.utils.results_sets for available results sets</span>
+<span class="n">results_sets</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;major_flow&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;res_storage&#39;</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Initialize Data object and load data</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">Data</span><span class="p">(</span><span class="n">print_status</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">data</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">datatypes</span><span class="o">=</span><span class="n">datatypes</span><span class="p">,</span> 
+          <span class="n">output_filenames</span><span class="o">=</span><span class="n">output_files</span><span class="p">,</span> 
+          <span class="n">results_sets</span><span class="o">=</span><span class="n">results_sets</span>
+          <span class="p">)</span>
+
+<span class="c1"># show an example of the major_flow results set for `drb_output_nhmv10` output file</span>
+<span class="n">data</span><span class="o">.</span><span class="n">major_flow</span><span class="p">[</span><span class="s1">&#39;drb_output_nhmv10&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Loading output data...
+Loading major_flow data from drb_output_nhmv10
+Loading res_storage data from drb_output_nhmv10
+Loading obs data...
+Loading major_flow data from observations
+Loading res_storage data from observations
+Loading nhmv10 data...
+Loading major_flow data from nhmv10
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>01417000</th>
+      <th>01425000</th>
+      <th>01433500</th>
+      <th>01436000</th>
+      <th>01447800</th>
+      <th>01449800</th>
+      <th>01463620</th>
+      <th>01470960</th>
+      <th>delDRCanal</th>
+      <th>delLordville</th>
+      <th>delMontague</th>
+      <th>delTrenton</th>
+      <th>outletAssunpink</th>
+      <th>outletSchuylkill</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1983-10-01</th>
+      <td>245.248604</td>
+      <td>192.037241</td>
+      <td>702.126510</td>
+      <td>216.100859</td>
+      <td>1296.612713</td>
+      <td>30.641998</td>
+      <td>77.324137</td>
+      <td>981.138761</td>
+      <td>872.861166</td>
+      <td>626.737443</td>
+      <td>1050.155248</td>
+      <td>804.943656</td>
+      <td>110.874962</td>
+      <td>329.747828</td>
+    </tr>
+    <tr>
+      <th>1983-10-02</th>
+      <td>157.896171</td>
+      <td>150.911779</td>
+      <td>716.300505</td>
+      <td>60.483957</td>
+      <td>1298.492457</td>
+      <td>32.867673</td>
+      <td>77.732775</td>
+      <td>982.026219</td>
+      <td>1837.957440</td>
+      <td>514.753462</td>
+      <td>2386.712148</td>
+      <td>1772.532316</td>
+      <td>132.337899</td>
+      <td>688.332292</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># check the datatype keys stored in the data object</span>
+<span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">major_flow</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[&#39;drb_output_nhmv10&#39;, &#39;obs&#39;, &#39;nhmv10&#39;]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">major_flow</span><span class="p">[</span><span class="s1">&#39;drb_output_nhmv10&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s1">&#39;delTrenton&#39;</span><span class="p">],</span> 
+            <span class="n">data</span><span class="o">.</span><span class="n">major_flow</span><span class="p">[</span><span class="s1">&#39;nhmv10&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s1">&#39;delTrenton&#39;</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;NHMv1.0 flow at Trenton&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Pywr-DRB simulated flow using NHMv1.0 as input&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/ba209ae576c61da04ede2f264657595c2499b943ab6ebb56ac716f2d47613265.png" src="../_images/ba209ae576c61da04ede2f264657595c2499b943ab6ebb56ac716f2d47613265.png" />
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="exporting-custom-datasets">
+<h2>Exporting custom datasets<a class="headerlink" href="#exporting-custom-datasets" title="Link to this heading">#</a></h2>
+<p>Once a <code class="docutils literal notranslate"><span class="pre">pywrdrb.Data</span></code> object has been loaded and populated with data, then you can export the full contents of the <code class="docutils literal notranslate"><span class="pre">pywrdrb.Data</span></code> object to a custom HDF5 file.  This custom dataset can then be re-loaded later, without having to replicate the original <code class="docutils literal notranslate"><span class="pre">pywrdbr.Data.load()</span></code> workflow shown above.</p>
+<p>The code block below shows how the previously generated <code class="docutils literal notranslate"><span class="pre">data</span></code> object can be exported and re-loaded.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Custom dataset filename</span>
+<span class="n">custom_datafile</span> <span class="o">=</span> <span class="sa">rf</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">output_dir</span><span class="si">}</span><span class="s2">custom_datset.hdf5&quot;</span>
+
+<span class="c1"># Export the data object to a custom dataset</span>
+<span class="n">data</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">custom_datafile</span><span class="p">)</span>
+
+<span class="c1"># Make a new data object and load the custom dataset</span>
+<span class="n">data2</span> <span class="o">=</span> <span class="n">Data</span><span class="p">(</span><span class="n">print_status</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">data2</span><span class="o">.</span><span class="n">load_from_export</span><span class="p">(</span><span class="n">custom_datafile</span><span class="p">)</span>
+
+
+<span class="c1"># Show that the data object contents are the same</span>
+<span class="n">data2</span><span class="o">.</span><span class="n">major_flow</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">==</span> <span class="n">data</span><span class="o">.</span><span class="n">major_flow</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+<span class="n">data2</span><span class="o">.</span><span class="n">major_flow</span><span class="p">[</span><span class="s1">&#39;drb_output_nhmv10&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">major_flow</span><span class="p">[</span><span class="s1">&#39;drb_output_nhmv10&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>c:\Users\tjame\Desktop\Research\DRB\Pywr-DRB\Pywr-DRB\win_venv\lib\site-packages\tables\path.py:137: NaturalNameWarning: object name is not a valid Python identifier: &#39;0&#39;; it does not match the pattern ``^[a-zA-Z_][a-zA-Z0-9_]*$``; you will not be able to use natural naming to access this object; using ``getattr()`` will still work, though
+  check_attribute_name(name)
+</pre></div>
+</div>
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>True
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="technical-detail-to-be-completed">
+<h2>Technical detail (To be completed…)<a class="headerlink" href="#technical-detail-to-be-completed" title="Link to this heading">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">pywrdrb.Data</span></code> class relies on multiple different .</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">AbstractDataLoader</span></code>: The base class defining shared methods for parsing arguments, validating datasets, and handling attributes.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">Output(AbstractDataLoader)</span></code>: Loads Pywr-DRB simulation results.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Observation(AbstractDataLoader)</span></code>: Loads observational data.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HydrologicModelFlow(AbstractDataLoader)</span></code>: Loads hydrologic model outputs.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_pywrdrb_results()</span></code>: Handles loading results from simulation output files; used in <code class="docutils literal notranslate"><span class="pre">Output(AbstractDataLoader)</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_base_results()</span></code>: Loads observation or hydrologic model data; used in <code class="docutils literal notranslate"><span class="pre">Observation</span></code> and<code class="docutils literal notranslate"> <span class="pre">HydrologicModelFlow</span></code> classes.</p></li>
+</ul>
+</section>
+<section id="output-class">
+<h2><code class="docutils literal notranslate"><span class="pre">Output</span></code> Class<a class="headerlink" href="#output-class" title="Link to this heading">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">Output</span></code> class consolidates this entire process into a single <code class="docutils literal notranslate"><span class="pre">load()</span></code> method, automatically validating inputs, handling scenarios, and storing results inside the Ouput <code class="docutils literal notranslate"><span class="pre">object</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Output.load()</span></code> uses <code class="docutils literal notranslate"><span class="pre">get_pywrdrb_results()</span></code> to fetch data for all specified <code class="docutils literal notranslate"><span class="pre">models</span></code> and <code class="docutils literal notranslate"><span class="pre">results_sets</span></code>. It manages datetime indexing and scenarios, and then stores the results as attributes within the class.</p>
+<section id="pywrdrb-post-get-pywrdrb-results">
+<h3>pywrdrb.post.get_pywrdrb_results()<a class="headerlink" href="#pywrdrb-post-get-pywrdrb-results" title="Link to this heading">#</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">get_pywrdrb_results()</span></code> reads data from Pywr-DRB output files (<code class="docutils literal notranslate"><span class="pre">hdf5</span></code>) stored in the output directory and returns a dictionary of results along with a datetime index.</p>
+<p>This function is designed to handle different result types (<code class="docutils literal notranslate"><span class="pre">results_sets</span></code>), such as <code class="docutils literal notranslate"><span class="pre">&quot;res_storage&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;major_flow&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;res_release&quot;</span></code>, and more. This function makes it easy to extract specific variables, but it requires specifying each results_set separately and can be slow when constructing date indexes.</p>
+</section>
+</section>
+<section id="observation-class">
+<h2><code class="docutils literal notranslate"><span class="pre">Observation</span></code> Class<a class="headerlink" href="#observation-class" title="Link to this heading">#</a></h2>
+<p>TBC.</p>
+</section>
+<section id="hydrologicmodelflow-class">
+<h2><code class="docutils literal notranslate"><span class="pre">HydrologicModelFlow</span></code> Class<a class="headerlink" href="#hydrologicmodelflow-class" title="Link to this heading">#</a></h2>
+<p>TBC.</p>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./examples"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="Tutorial%2003%20Model%20Parameters.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Model Parameters</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../results_set_options.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Results Set Table</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb-data-functionality"><code class="docutils literal notranslate"><span class="pre">pywrdrb.Data()</span></code> Functionality</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#arguments">Arguments</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#a-note-on-results-sets">A note on <code class="docutils literal notranslate"><span class="pre">results_sets</span></code>…</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Accessing Data</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#a-note-on-the-dataset-labeling">A note on the <code class="docutils literal notranslate"><span class="pre">dataset</span></code> labeling…</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#exporting-custom-datasets">Exporting custom datasets</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#technical-detail-to-be-completed">Technical detail (To be completed…)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#output-class"><code class="docutils literal notranslate"><span class="pre">Output</span></code> Class</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb-post-get-pywrdrb-results">pywrdrb.post.get_pywrdrb_results()</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#observation-class"><code class="docutils literal notranslate"><span class="pre">Observation</span></code> Class</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#hydrologicmodelflow-class"><code class="docutils literal notranslate"><span class="pre">HydrologicModelFlow</span></code> Class</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The Reed Group at Cornell CEE
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
