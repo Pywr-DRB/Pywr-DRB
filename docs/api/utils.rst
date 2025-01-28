@@ -1,24 +1,6 @@
 pywrdrb.utils
 ================
 
-pywrdrb.utils.directories
-----------------------------
-
-.. automodule:: pywrdrb.utils.directories
-
-This module contains string variables that provide absolut paths to the following directories:
-
-.. py:data:: input_dir
-   :module: pywrdrb.utils.directories
-
-   The folder where all input data is stored.
-
-.. py:data:: output_dir
-   :module: pywrdrb.utils.directories
-
-   The folder where output data will be stored during and after simulation.
-
-
 pywrdrb.utils.hdf5
 --------------------
 .. automodule:: pywrdrb.utils.hdf5

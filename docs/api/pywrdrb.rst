@@ -6,5 +6,10 @@ pywrdrb
    :toctree: generated/
    :nosignatures:
 
-    pywrdrb.make_model.add_major_node
-    pywrdrb.make_model.make_model
+   pywrdrb.ModelBuilder
+   pywrdrb.Data
+
+   pywrdrb.set_directory
+   pywrdrb.get_directory
+
+    
