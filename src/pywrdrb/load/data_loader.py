@@ -6,9 +6,9 @@ from pywrdrb.load import Output, Observation
 from pywrdrb.load import HydrologicModelFlow
 
 from pywrdrb.utils.results_sets import pywrdrb_results_set_opts, hydrologic_model_results_set_opts, obs_results_set_opts
+from pywrdrb.utils.directories import output_dir
 
 directories = pywrdrb.get_directory()
-output_dir = directories.output
 input_dir = directories.input_data
 
 
