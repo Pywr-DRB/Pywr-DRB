@@ -1,11 +1,14 @@
 import pandas as pd
 
+import pywrdrb
 from pywrdrb.load.abstract_loader import AbstractDataLoader
 from pywrdrb.load import Output, Observation
 from pywrdrb.load import HydrologicModelFlow
 
 from pywrdrb.utils.results_sets import pywrdrb_results_set_opts, hydrologic_model_results_set_opts, obs_results_set_opts
-from pywrdrb.utils.directories import output_dir, input_dir
+
+output_dir = pywrdrb.get_directory().output
+input_dir = pywrdrb.get_directory().input_data
 
 
 default_kwargs = {
