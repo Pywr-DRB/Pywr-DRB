@@ -7,8 +7,9 @@ from pywrdrb.load import HydrologicModelFlow
 
 from pywrdrb.utils.results_sets import pywrdrb_results_set_opts, hydrologic_model_results_set_opts, obs_results_set_opts
 
-output_dir = pywrdrb.get_directory().output
-input_dir = pywrdrb.get_directory().input_data
+directories = pywrdrb.get_directory()
+output_dir = directories.output
+input_dir = directories.input_data
 
 
 default_kwargs = {
