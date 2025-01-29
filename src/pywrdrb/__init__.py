@@ -14,6 +14,11 @@ class Directories:
         self.input_dir = os.path.realpath(os.path.join(self.root_dir, "input_data/"))
         self.model_data_dir = os.path.realpath(os.path.join(self.root_dir, "model_data/"))
     
+        if not self.input_dir.endswith(os.sep):
+            self.input_dir += os.sep
+        elif not self.model_data_dir.endswith(os.sep):
+            self.model_data_dir += os
+    
     def list(self):
         """Prints the directories."""
         for attribute, value in self.__dict__.items():

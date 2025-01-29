@@ -17,7 +17,8 @@ def test_data_loader_stores_results_sets_as_attributes():
     
     directories = pywrdrb.get_directory()
     input_dir = directories.input_dir
-    
+    input_dir = input_dir + "/"
+
     data = pywrdrb.Data(print_status=False,
                         input_dir=input_dir,
                         )
