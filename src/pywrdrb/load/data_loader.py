@@ -10,7 +10,7 @@ from pywrdrb.utils.directories import output_dir
 
 directories = pywrdrb.get_directory()
 input_dir = directories.input_data
-
+input_dir += "/"
 
 default_kwargs = {
     "output_dir": output_dir,
