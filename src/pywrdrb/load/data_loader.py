@@ -9,7 +9,7 @@ from pywrdrb.utils.results_sets import pywrdrb_results_set_opts, hydrologic_mode
 from pywrdrb.utils.directories import output_dir
 
 directories = pywrdrb.get_directory()
-input_dir = directories.input_data
+input_dir = directories.input_dir
 input_dir += "/"
 
 default_kwargs = {
