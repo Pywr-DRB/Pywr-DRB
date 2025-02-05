@@ -9,7 +9,7 @@ Hamilton, A. L., Amestoy, T. J., & Reed, Patrick. M. (2024). Pywr-DRB: An open-s
 ## Installation
 
 ```bash
-pip install git+https://github.com/Pywr-DRB/Pywr-DRB.git@cl_packaging
+pip install git+https://github.com/Pywr-DRB/Pywr-DRB.git
 ```
 
 ## Getting start
