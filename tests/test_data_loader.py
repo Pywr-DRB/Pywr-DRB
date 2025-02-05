@@ -1,5 +1,4 @@
 import pytest
-
 import pywrdrb
 
 test_obs_results_sets = [

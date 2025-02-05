@@ -6,12 +6,16 @@ from dataclasses import dataclass, field
 # https://chatgpt.com/share/674673b5-607c-8007-ab64-d845d032cb10
 @dataclass
 class Directories:
-    root_dir: str = field(default_factory=lambda: os.path.realpath(os.path.dirname(__file__)))
+    root_dir: str = field(init=False)
     input_dir: str = field(init=False)
     model_data_dir: str = field(init=False)
 
     def __post_init__(self):
         """Ensures the correct root directory and initializes paths."""
+        
+        # Get the root directory
+        self.root_dir = os.path.realpath(os.path.dirname(__file__))
+        
         # Ensure root_dir points to the package directory
         if not os.path.basename(self.root_dir) == "pywrdrb":
             self.root_dir = os.path.join(self.root_dir, "pywrdrb")
