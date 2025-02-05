@@ -1,5 +1,4 @@
 import os
-import Path
 from dataclasses import dataclass, field
 
 # Set a global directory instance
@@ -7,56 +6,45 @@ from dataclasses import dataclass, field
 # https://chatgpt.com/share/674673b5-607c-8007-ab64-d845d032cb10
 @dataclass
 class Directories:
-    root_dir: str = field(default_factory=lambda: Directories.find_pywrdrb_root())
+    root_dir: str = field(default_factory=lambda: os.path.realpath(os.path.dirname(__file__)))
     input_dir: str = field(init=False)
     model_data_dir: str = field(init=False)
 
     def __post_init__(self):
         """Ensures the correct root directory and initializes paths."""
-        self.root_dir = self.find_pywrdrb_root(self.root_dir)
 
+        input_path = os.path.join(self.root_dir, "input_data")
+
+        # Fallback if input_data does not exist
+        if not os.path.exists(input_path):
+            alternative_path = os.path.join(self.root_dir, "pywrdrb", "input_data")
+            if os.path.exists(alternative_path):
+                input_path = alternative_path
+            else:
+                raise FileNotFoundError(f"input_data folder not found at {input_path} or {alternative_path}")
+
+        self.input_dir = input_path + os.sep
+        
         self.input_dir = os.path.join(self.root_dir, "input_data") + os.sep
-        self.model_data_dir = os.path.join(self.root_dir, "model_data") + os.sep
+        
+        
+        model_data_dir = os.path.join(self.root_dir, "model_data")
 
+        # Fallback if input_data does not exist
+        if not os.path.exists(model_data_dir):
+            alternative_path = os.path.join(self.root_dir, "pywrdrb", "input_data")
+            if os.path.exists(alternative_path):
+                model_data_dir = alternative_path
+            else:
+                raise FileNotFoundError(f"model_data folder not found at {model_data_dir} or {alternative_path}")
+
+        self.model_data_dir = model_data_dir + os.sep
+        
     def list(self):
         """Prints the directories."""
         for attribute, value in self.__dict__.items():
             print(f"{attribute}: {value}")
 
-    @staticmethod
-    def find_pywrdrb_root(start_path=None, target_folder='pywrdrb'):
-        """
-        Finds the root directory containing 'pywrdrb' by searching upwards in the directory hierarchy.
-
-        Parameters:
-        -----------
-        start_path : str, optional
-            The directory to start searching from. Defaults to the script's directory.
-
-        target_folder : str, optional
-            The name of the target folder to search for. Defaults to 'pywrdrb'.
-
-        Returns:
-        --------
-        str
-            The absolute path to the target folder.
-
-        Raises:
-        -------
-        FileNotFoundError
-            If the 'pywrdrb' folder is not found.
-        """
-        if start_path is None:
-            start_path = Path(__file__).resolve().parent  # Start from the script's directory
-        else:
-            start_path = Path(start_path).resolve()
-
-        # Traverse upwards to locate the target folder
-        for parent in start_path.parents:
-            if parent.name == target_folder:
-                return str(parent.resolve())  # Found the folder, return its path
-
-        raise FileNotFoundError(f"'{target_folder}' folder not found in the directory hierarchy starting from {start_path}")
 r"""
 @dataclass
 class Directories:
