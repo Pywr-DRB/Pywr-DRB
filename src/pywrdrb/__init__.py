@@ -12,74 +12,26 @@ class Directories:
 
     def __post_init__(self):
         """Ensures the correct root directory and initializes paths."""
+        # Ensure root_dir points to the package directory
+        if not os.path.basename(self.root_dir) == "pywrdrb":
+            self.root_dir = os.path.join(self.root_dir, "pywrdrb")
 
-        input_path = os.path.join(self.root_dir, "input_data")
-
-        # Fallback if input_data does not exist
-        if not os.path.exists(input_path):
-            alternative_path = os.path.join(self.root_dir, "pywrdrb", "input_data")
-            if os.path.exists(alternative_path):
-                input_path = alternative_path
-            else:
-                raise FileNotFoundError(f"input_data folder not found at {input_path} or {alternative_path}")
-
-        self.input_dir = input_path + os.sep
-        
+        # Set input_dir correctly
         self.input_dir = os.path.join(self.root_dir, "input_data") + os.sep
-        
-        
-        model_data_dir = os.path.join(self.root_dir, "model_data")
+        if not os.path.exists(self.input_dir):
+            raise FileNotFoundError(f"input_data folder not found at {self.input_dir}")
 
-        # Fallback if input_data does not exist
-        if not os.path.exists(model_data_dir):
-            alternative_path = os.path.join(self.root_dir, "pywrdrb", "input_data")
-            if os.path.exists(alternative_path):
-                model_data_dir = alternative_path
-            else:
-                raise FileNotFoundError(f"model_data folder not found at {model_data_dir} or {alternative_path}")
+        # Set model_data_dir correctly
+        self.model_data_dir = os.path.join(self.root_dir, "model_data") + os.sep
+        if not os.path.exists(self.model_data_dir):
+            raise FileNotFoundError(f"model_data folder not found at {self.model_data_dir}")
 
-        self.model_data_dir = model_data_dir + os.sep
-        
+
     def list(self):
         """Prints the directories."""
         for attribute, value in self.__dict__.items():
             print(f"{attribute}: {value}")
 
-r"""
-@dataclass
-class Directories:
-    root_dir: str = field(default_factory=lambda: os.path.realpath(os.path.dirname(__file__)))
-    input_dir: str = field(init=False)
-    model_data_dir: str = field(init=False)
-
-    def __post_init__(self):
-        # check if the root_dir is the correct one that link to pywrdrb folder
-        self.root_dir = self._update_root_dir(self.root_dir, target_folder='pywrdrb')
-        
-        self.input_dir = os.path.realpath(os.path.join(self.root_dir, "input_data/"))
-        self.model_data_dir = os.path.realpath(os.path.join(self.root_dir, "model_data/"))
-    
-        if not self.input_dir.endswith(os.sep):
-            self.input_dir += os.sep
-        elif not self.model_data_dir.endswith(os.sep):
-            self.model_data_dir += os
-    
-    def list(self):
-        for attribute, value in self.__dict__.items():
-            print(f"{attribute}: {value}")
-            
-    def _update_root_dir(self, root_dir, target_folder='pywrdrb'):
-        if os.path.basename(root_dir) == target_folder:
-            return root_dir  # Already correct
-    
-        # Search for the target folder within the given directory
-        for subdir in os.listdir(root_dir):
-            full_path = os.path.join(root_dir, subdir)
-            if os.path.isdir(full_path) and subdir == target_folder:
-                return full_path  # Found and return updated root_dir
-        
-        raise FileNotFoundError(f"Folder '{target_folder}' not found under {root_dir}")
-"""
 
 # Create a global instance of Directory
 _directory_instance = Directories()
@@ -156,3 +108,40 @@ def dict_to_hdf5(recorder_dict, filename):
                 group.create_dataset(dataset_name, data=values)
     
     print(f"Outputs saved to {filename}")
+    
+    
+r"""
+@dataclass
+class Directories:
+    root_dir: str = field(default_factory=lambda: os.path.realpath(os.path.dirname(__file__)))
+    input_dir: str = field(init=False)
+    model_data_dir: str = field(init=False)
+
+    def __post_init__(self):
+        # check if the root_dir is the correct one that link to pywrdrb folder
+        self.root_dir = self._update_root_dir(self.root_dir, target_folder='pywrdrb')
+        
+        self.input_dir = os.path.realpath(os.path.join(self.root_dir, "input_data/"))
+        self.model_data_dir = os.path.realpath(os.path.join(self.root_dir, "model_data/"))
+    
+        if not self.input_dir.endswith(os.sep):
+            self.input_dir += os.sep
+        elif not self.model_data_dir.endswith(os.sep):
+            self.model_data_dir += os
+    
+    def list(self):
+        for attribute, value in self.__dict__.items():
+            print(f"{attribute}: {value}")
+            
+    def _update_root_dir(self, root_dir, target_folder='pywrdrb'):
+        if os.path.basename(root_dir) == target_folder:
+            return root_dir  # Already correct
+    
+        # Search for the target folder within the given directory
+        for subdir in os.listdir(root_dir):
+            full_path = os.path.join(root_dir, subdir)
+            if os.path.isdir(full_path) and subdir == target_folder:
+                return full_path  # Found and return updated root_dir
+        
+        raise FileNotFoundError(f"Folder '{target_folder}' not found under {root_dir}")
+"""
