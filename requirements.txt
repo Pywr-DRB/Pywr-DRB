@@ -28,4 +28,4 @@ pyarrow
 contextily
 
 git+https://github.com/philip928lin/PathNavigator.git
-git+https://github.com/Pywr-DRB/Pywr-DRB.git@cl_packaging
+git+https://github.com/Pywr-DRB/Pywr-DRB.git
