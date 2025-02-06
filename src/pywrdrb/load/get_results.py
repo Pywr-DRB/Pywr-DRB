@@ -9,6 +9,7 @@ import pandas as pd
 import h5py
 import warnings
 
+import pywrdrb
 from pywrdrb.utils.lists import (
     reservoir_list,
     reservoir_list_nyc,
@@ -18,9 +19,10 @@ from pywrdrb.utils.lists import (
 from pywrdrb.utils.lists import drbc_lower_basin_reservoirs
 from pywrdrb.utils.constants import cfs_to_mgd, mg_to_mcm
 from pywrdrb.utils.hdf5 import get_hdf5_realization_numbers
-from pywrdrb.utils.directories import input_dir
 from pywrdrb.utils.results_sets import pywrdrb_results_set_opts
 
+directories = pywrdrb.get_directory()
+input_dir = directories.input_dir
 
 def get_keys_and_column_names_for_results_set(keys, results_set):
     """

@@ -14,9 +14,9 @@ import h5py
 
 from pywr.parameters import Parameter
 
-from .. import get_directory
-
-input_dir = get_directory().input_dir
+import pywrdrb
+directories = pywrdrb.get_directory()
+input_dir = directories.input_dir
 
 class FlowEnsemble(Parameter):
     """This parameter provides access to inflow ensemble timeseries during the simulation period.

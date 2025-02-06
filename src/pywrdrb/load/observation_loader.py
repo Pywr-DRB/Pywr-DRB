@@ -1,7 +1,10 @@
+import pywrdrb
 from pywrdrb.load.abstract_loader import AbstractDataLoader
-from pywrdrb.utils.directories import input_dir
 from pywrdrb.load.get_results import get_base_results
 from pywrdrb.utils.results_sets import base_results_set_opts
+
+directories = pywrdrb.get_directory()
+input_dir = directories.input_dir
 
 default_kwargs = {
     "input_dir": input_dir,

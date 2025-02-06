@@ -7,8 +7,11 @@ from pywr.parameters import Parameter, load_parameter
 
 from ..utils.lists import modified_starfit_reservoir_list
 from .lower_basin_ffmp import conservation_releases, max_discharges
-from .. import get_directory
-model_data_dir = get_directory().model_data_dir
+
+
+import pywrdrb
+directories = pywrdrb.get_directory()
+model_data_dir = directories.model_data_dir
 
 class STARFITReservoirRelease(Parameter):
     """
