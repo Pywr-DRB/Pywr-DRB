@@ -507,7 +507,7 @@ class ModelBuilder:
         ### assign inflows to nodes
         inflow_ensemble_indices = self.options.inflow_ensemble_indices
         inflow_type = self.inflow_type
-        if inflow_ensemble_indices:
+        if inflow_ensemble_indices is not None:
             ### Use custom FlowEnsemble parameter to handle scenario indexing
             model_dict["parameters"][f"flow_{reservoir_name}"] = {
                 "type": "FlowEnsemble",
@@ -648,7 +648,7 @@ class ModelBuilder:
             inflow_ensemble_indices = self.options.inflow_ensemble_indices
             inflow_type = self.inflow_type
             ### Assign inflows to nodes
-            if inflow_ensemble_indices:
+            if inflow_ensemble_indices is not None:
                 ### Use custom FlowEnsemble parameter to handle scenario indexing
                 model_dict["parameters"][f"flow_{name}"] = {
                     "type": "FlowEnsemble",

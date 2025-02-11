@@ -12,6 +12,21 @@ from pywr.parameters import Parameter, load_parameter
 from ..utils.constants import cfs_to_mgd, epsilon
 from ..utils.lists import drbc_lower_basin_reservoirs
 
+
+# During Normal conditions, lower basin reservoirs
+# are used to meet the Trenton target, but only BlueMarsh and Beltzville
+reservoirs_used_during_normal_conditions = [
+    "beltzvilleCombined", "blueMarsh"
+]
+
+# During NYC drought conditions, 
+# additional lower basin reservoirs can be used
+# TODO: Add FE Walter, Prompton, Wallenpaupack
+reservoirs_used_during_drought_conditions = [
+    "beltzvilleCombined", "blueMarsh", "nockamixon"
+]
+
+
 # Drought emergency lower basin staging levels
 # Taken from section 2.5.5 of the DRB Water Code
 # Items are: priority_level, reservoir, storage_percentage_lower_bound
@@ -29,7 +44,8 @@ priority_use_during_drought = [
 ## Max storage for lower basin reservoirs
 # STARFIT relevant max storage often corresponds to flood storage
 # Some reservoirs (notably blueMarsh) are operated at much lower % of max flood storage
-# These are chosen to match prescribed priority staging levels in the Water Code relative to "usable storage"
+# These are chosen to match prescribed priority staging levels 
+# in the Water Code relative to "usable storage"
 # Taken from https://drbc.maps.arcgis.com/apps/dashboards/690464a9958b49e5b49550964641ffd7
 drbc_max_usable_storages = {
     "beltzvilleCombined": 13500,
@@ -37,7 +53,7 @@ drbc_max_usable_storages = {
     "nockamixon": 13000,
 }
 
-## Max discharges at lower reservoirs
+# Max discharges at lower reservoirs
 max_discharges = {
     "blueMarsh": 1500 * cfs_to_mgd,
     "beltzvilleCombined": 1500 * cfs_to_mgd,
@@ -65,7 +81,7 @@ lag_days_from_Trenton = {
 
 ## Conservation releases at lower reservoirs
 # Specified in the DRBC Water Code Table 4
-# Lower basin drought condition policies are not currently implemented
+# Note: "Lower basin drought" condition policies are not currently implemented
 conservation_releases = {
     "blueMarsh": 50 * cfs_to_mgd,
     "beltzvilleCombined": 35 * cfs_to_mgd,
@@ -73,6 +89,9 @@ conservation_releases = {
     "fewalter": 50 * cfs_to_mgd,
 }
 
+# To be used when NYC is in Normal conditions,
+# but when lower basin drought condition is in effect 
+# (not currently implemented)
 lower_basin_drought_conservation_releases = {
     "blueMarsh": 30 * cfs_to_mgd,
     "beltzvilleCombined": 15 * cfs_to_mgd,
@@ -111,7 +130,7 @@ class LowerBasinMaxMRFContribution(Parameter):
 
         # Reservoirs considered during this step
         self.consider_reservoirs = (
-            drbc_lower_basin_reservoirs if (self.step != 1) else ["nockamixon"]
+            drbc_lower_basin_reservoirs if (self.step > 1) else ["nockamixon"]
         )
 
         # Current NYC drought level
@@ -154,6 +173,31 @@ class LowerBasinMaxMRFContribution(Parameter):
                 f"{self.reservoir} not allowed for MRF, priority: {current_reservoir_priority}, S_hat: {percent_storage}"
             )
 
+    def get_current_usable_reservoirs(self, scenario_index):
+        """
+        Get a list of lower basin reservoirs that are allowed to be 
+        used for Trenton flow target. 
+        
+        During NYC Normal conditions, only BlueMarsh and Beltzville. 
+        During NYC drought, more are allowed. 
+        
+        Args:
+            scenario_index (ScenarioIndex): The index of the scenario.
+            
+        Returns:
+            list: list of reservoir names that can contribute to Trenton during current timestep.
+        """
+        # based on NYC level        
+        current_nyc_drought_level = self.drought_level_agg_nyc.get_value(scenario_index)
+        is_nyc_drought_emergency = True if current_nyc_drought_level in [6] else False
+
+        if is_nyc_drought_emergency:
+            usable_reservoirs = reservoirs_used_during_drought_conditions
+        else:
+            usable_reservoirs = reservoirs_used_during_normal_conditions
+        return usable_reservoirs
+
+
     def value(self, timestep, scenario_index):
         """
         Returns the max allowable aggregate MRF contribution from lower basin reservoirs.
@@ -169,125 +213,126 @@ class LowerBasinMaxMRFContribution(Parameter):
 
         # if reservoir is further lag from Trenton than our current step is working on
         # (eg Beltzville & BLue Marsh in Step 4), return 0
-        if lag_days_from_Trenton[self.reservoir] > 5 - self.step:
+        if lag_days_from_Trenton[self.reservoir] > (5 - self.step):
+            return 0.0
+        
+        # If no added flow is needed for Trenton,
+        # then return 0.0
+        trenton_requirement = self.release_needed_mrf_trenton.get_value(scenario_index)
+        if trenton_requirement < epsilon:
             return 0.0
 
-        # Get NYC current FFMP level
-        current_nyc_drought_level = self.drought_level_agg_nyc.get_value(scenario_index)
-        is_nyc_drought_emergency = True if current_nyc_drought_level in [6] else False
+        # Determine which reservoirs are usable
+        # If this reservoir is not in the usable reservoirs, then return 0
+        usable_reservoirs = self.get_current_usable_reservoirs(scenario_index)
+        if self.reservoir not in usable_reservoirs:
+            return 0.0
 
-        trenton_requirement = self.release_needed_mrf_trenton.get_value(scenario_index)
+        ### Determine the max allowable contribution from this reservoir
+    
+        # We want to return the max allowable contribution from this reservoir
+        # But need to consider storages and priority staging of each lower basin reservoir
+        percent_storages = {}
+        max_allowable_releases = {}
+        max_allowable = 0.0
+        already_used_reservoirs = []
 
-        # Unlock lower basin reservoirs for MRF if both conditions:
-        # a) NYC is in drought conditions,
-        # b) Trenton MRF contributiuons are needed
-        if is_nyc_drought_emergency and (trenton_requirement > 0.0):
-            # We want to return the max allowable contribution from this reservoir
-            # But need to consider storages and priority staging of each lower basin reservoir
-            percent_storages = {}
-            max_allowable_releases = {}
-            max_allowable = 0.0
-            already_used_reservoirs = []
+        # Find what priority level each lower basin reservoir is in
+        # And corresponding usable storage
+        for res in usable_reservoirs:
+            # Get current storage percentage
+            S_max = self.max_volumes[res]
+            S_t = self.nodes[res].volume[scenario_index.indices]
 
-            # Find what priority level each lower basin reservoir is in
-            # And corresponding usable storage
-            for res in drbc_lower_basin_reservoirs:
-                # Get current storage percentage
-                S_max = self.max_volumes[res]
-                S_t = self.nodes[res].volume[scenario_index.indices]
+            # Add inflow and remove required conservation releases from storage
+            inflow = self.parameters[f"flow_{res}"].get_value(scenario_index)
+            S_t += inflow
+            S_t -= self.R_min
 
-                # Add inflow and remove required conservation releases from storage
-                inflow = self.parameters[f"flow_{res}"].get_value(scenario_index)
-                S_t += inflow
-                S_t -= self.R_min
+            # Storage as fraction of max storage
+            S_hat_t = min(S_t / S_max, 1.0)
+            percent_storages[res] = S_hat_t
 
-                # Storage as fraction of max storage
-                S_hat_t = S_t / S_max
-                percent_storages[res] = S_hat_t
+            # tolerance is the volume proportional to 1 day of 300MGD mrf contribution
+            # ~2% for beltzville and nockamixon; ~4% for blue marsh
+            tolerance = 300 / S_max
 
-                # tolerance is the volume proportional to 1 day of 300MGD mrf contribution
-                # ~2% for beltzville and nockamixon; ~4% for blue marsh
-                tolerance = 300 / S_max
+            # Loop and find current priority level
+            for priority_stage in priority_use_during_drought:
+                priority_level, priority_res, stage_lower = priority_stage
 
-                # Loop and find current priority level
-                for priority_stage in priority_use_during_drought:
-                    priority_level, priority_res, stage_lower = priority_stage
+                # Skip if already used (usable storage already assigned)
+                # Skip if not the current res from the outter loop
+                if (res in already_used_reservoirs) or (res != priority_res):
+                    continue
 
-                    # Skip if already used (usable storage already assigned)
-                    # Skip if not the current res from the outter loop
-                    if (res in already_used_reservoirs) or (res != priority_res):
-                        continue
+                # if within 2% of current stage lower bound,
+                # and priority level is less than 4, (not the last priority stage)
+                # then continue and use next priority stage
+                diff = S_hat_t - stage_lower
+                if (diff < tolerance) and (priority_level <= 4):
+                    # print(f'{res} storage {S_hat_t} <={tolerance}% above stage {priority_level} lower bound {stage_lower}. Using next priority stage.')
+                    continue
 
-                    # if within 2% of current stage lower bound,
-                    # and priority level is less than 4, (not the last priority stage)
-                    # then continue and use next priority stage
-                    diff = S_hat_t - stage_lower
-                    if (diff < tolerance) and (priority_level <= 4):
-                        # print(f'{res} storage {S_hat_t} <={tolerance}% above stage {priority_level} lower bound {stage_lower}. Using next priority stage.')
-                        continue
+                # else consider storage above the stage lower bound
+                usable_storage = (S_hat_t - stage_lower) * S_max
 
-                    # else consider storage above the stage lower bound
-                    usable_storage = (S_hat_t - stage_lower) * S_max
+                ### assume we dont want to release more than we can sustainably release each day between today and the day the lower basin reservoir will actually release.
+                ### e.g., for Step 1 Cannonsville/Pepacton release calculation, days_ahead_prediction=4. This means today's releases will be combined with Blue Marsh in 2 days,
+                ### so we dont want to expect more water available than an amount that could be released today, tomorrow, & the third day (2 days from now)
+                available_mrf_daily_release = usable_storage / max(
+                    self.days_ahead_prediction - lag_days_from_Trenton[res] + 1, 1
+                )
 
-                    ### assume we dont want to release more than we can sustainably release each day between today and the day the lower basin reservoir will actually release.
-                    ### e.g., for Step 1 Cannonsville/Pepacton release calculation, days_ahead_prediction=4. This means today's releases will be combined with Blue Marsh in 2 days,
-                    ### so we dont want to expect more water available than an amount that could be released today, tomorrow, & the third day (2 days from now)
-                    available_mrf_daily_release = usable_storage / max(
-                        self.days_ahead_prediction - lag_days_from_Trenton[res] + 1, 1
-                    )
+                if available_mrf_daily_release > 0.0:
+                    max_allowable_releases[res] = [
+                        priority_level,
+                        available_mrf_daily_release,
+                    ]
+                    already_used_reservoirs.append(res)
+                else:
+                    max_allowable_releases[res] = [999, 0.0]
 
-                    if available_mrf_daily_release > 0.0:
-                        max_allowable_releases[res] = [
-                            priority_level,
-                            available_mrf_daily_release,
-                        ]
-                        already_used_reservoirs.append(res)
-                    else:
-                        max_allowable_releases[res] = [999, 0.0]
+        for res in usable_reservoirs:
+            assert (
+                res in max_allowable_releases.keys()
+            ), f"LowerBasinMaxMRFContribution: {res} not in max_allowable_releases.keys()"
 
-            for res in drbc_lower_basin_reservoirs:
-                assert (
-                    res in max_allowable_releases.keys()
-                ), f"LowerBasinMaxMRFContribution: {res} not in max_allowable_releases.keys()"
+        # Find highest priority level to use
+        all_priority_levels = [
+            max_allowable_releases[res][0] for res in max_allowable_releases.keys()
+        ]
+        active_priority = min(all_priority_levels)
 
-            # Find highest priority level to use
-            all_priority_levels = [
-                max_allowable_releases[res][0] for res in max_allowable_releases.keys()
-            ]
-            active_priority = min(all_priority_levels)
+        # if step 4, then only nockamixon is able to be used
+        if self.step == 4 and 'nockamixon' in usable_reservoirs:
+            active_priority = max_allowable_releases["nockamixon"][0]
 
-            # if step 4, then only nockamixon is able to be used
-            if self.step == 4:
-                active_priority = max_allowable_releases["nockamixon"][0]
+        # Now set max allowable for this specific reservoir depending if it is highest priority
+        current_reservoir_priority = max_allowable_releases[self.reservoir][0]
+        if current_reservoir_priority == active_priority:
+            max_allowable = max_allowable_releases[self.reservoir][1]
 
-            # Now set max allowable for this specific reservoir depending if it is highest priority
-            current_reservoir_priority = max_allowable_releases[self.reservoir][0]
-            if current_reservoir_priority == active_priority:
-                max_allowable = max_allowable_releases[self.reservoir][1]
+            # Constraints :
+            # Dont release more than historically used for MRF (estimated from obs)
+            if max_allowable >= self.max_mrf_daily_contribution:
+                max_allowable = self.max_mrf_daily_contribution
 
-                # Constraints :
-                # Dont release more than historically used for MRF (estimated from obs)
-                if max_allowable >= self.max_mrf_daily_contribution:
-                    max_allowable = self.max_mrf_daily_contribution
+            if self.debugging:
+                self.print_allowable_storage_info(
+                    max_allowable,
+                    current_reservoir_priority,
+                    percent_storages[self.reservoir],
+                )
 
-                if self.debugging:
-                    self.print_allowable_storage_info(
-                        max_allowable,
-                        current_reservoir_priority,
-                        percent_storages[self.reservoir],
-                    )
-
-                # Return max allowable
-                assert (
-                    max_allowable is not None
-                ), f"LowerBasinMaxMRFContribution: max_allowable is None"
-                return float(max_allowable)
-            else:
-                return 0.0
-
-        # If NYC is not drought condition, then no MRF contribution
+            # Return max allowable
+            assert (
+                max_allowable is not None
+            ), f"LowerBasinMaxMRFContribution: max_allowable is None"
+            return float(max_allowable)
         else:
             return 0.0
+
 
     @classmethod
     def load(cls, model, data):
