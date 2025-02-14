@@ -60,7 +60,7 @@ def set_directory(**kwargs):
 
 # Import pywr modules
 from pywr.model import Model
-from pywr.recorders import *
+from pywr.recorders import NumpyArrayParameterRecorder, TablesRecorder
 
 
 from .model_builder import ModelBuilder
@@ -112,40 +112,3 @@ def dict_to_hdf5(recorder_dict, filename):
                 group.create_dataset(dataset_name, data=values)
     
     print(f"Outputs saved to {filename}")
-    
-    
-r"""
-@dataclass
-class Directories:
-    root_dir: str = field(default_factory=lambda: os.path.realpath(os.path.dirname(__file__)))
-    input_dir: str = field(init=False)
-    model_data_dir: str = field(init=False)
-
-    def __post_init__(self):
-        # check if the root_dir is the correct one that link to pywrdrb folder
-        self.root_dir = self._update_root_dir(self.root_dir, target_folder='pywrdrb')
-        
-        self.input_dir = os.path.realpath(os.path.join(self.root_dir, "input_data/"))
-        self.model_data_dir = os.path.realpath(os.path.join(self.root_dir, "model_data/"))
-    
-        if not self.input_dir.endswith(os.sep):
-            self.input_dir += os.sep
-        elif not self.model_data_dir.endswith(os.sep):
-            self.model_data_dir += os
-    
-    def list(self):
-        for attribute, value in self.__dict__.items():
-            print(f"{attribute}: {value}")
-            
-    def _update_root_dir(self, root_dir, target_folder='pywrdrb'):
-        if os.path.basename(root_dir) == target_folder:
-            return root_dir  # Already correct
-    
-        # Search for the target folder within the given directory
-        for subdir in os.listdir(root_dir):
-            full_path = os.path.join(root_dir, subdir)
-            if os.path.isdir(full_path) and subdir == target_folder:
-                return full_path  # Found and return updated root_dir
-        
-        raise FileNotFoundError(f"Folder '{target_folder}' not found under {root_dir}")
-"""

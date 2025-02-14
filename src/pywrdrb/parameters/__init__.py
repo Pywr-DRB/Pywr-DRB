@@ -7,6 +7,7 @@ from .starfit import STARFITReservoirRelease
 from .ensemble import FlowEnsemble, PredictionEnsemble
 from .general import LaggedReservoirRelease
 from .lower_basin_ffmp import *
+from .banks import IERQRelease_step1
 
 '''
 import os

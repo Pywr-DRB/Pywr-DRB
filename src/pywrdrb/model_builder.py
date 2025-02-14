@@ -205,23 +205,29 @@ class ModelBuilder:
         self.add_node_nyc_aggregated_storage_and_link()
         self.add_node_nyc_and_nj_deliveries()
         self.add_node_final_basin_outlet()
+        
+        self.add_parameter_negative_one_multiplier()
 
         #######################################################################
         ### Add additional parameters beyond those associated with major nodes above
         #######################################################################
+        
         self.add_parameter_nyc_and_nj_demands()
         self.add_parameter_nyc_reservoirs_operational_regimes()
         self.add_parameter_nyc_and_nj_delivery_constraints()
         self.add_parameter_nyc_reservoirs_min_require_flow()
+        
         self.add_parameter_nyc_reservoirs_flood_control()
         # Can be removed after volume balancing rules are implemented
         self.add_parameter_nyc_reservoirs_variable_cost_based_on_fractional_storage()
         self.add_parameter_nyc_reservoirs_current_volume()
         self.add_parameter_nyc_reservoirs_aggregated_info()
+        # self.add_parameter_nyc_bank_storage()
         self.add_parameter_montague_trenton_flow_targets()
         self.add_parameter_predicted_lagged_non_nyc_inflows_to_Montague_and_Trenton_and_lagged_nj_demands()
         self.add_parameter_nyc_reservoirs_balancing_methods()
-
+        
+        
         #######################################################################
         ### Couple temperature & salinaty LSTM model
         #######################################################################
@@ -297,6 +303,15 @@ class ModelBuilder:
         # Parallel strategy used in pywr
         self.options.NSCENARIOS = len(inflow_ensemble_indices)
         self.model_dict["scenarios"] = [{"name": "inflow", "size": self.options.NSCENARIOS}]
+        
+
+    def add_parameter_negative_one_multiplier(self):
+        self.model_dict["parameters"]["negative_one_multiplier"] = {
+            "type": "constant",
+            "value": -1.0,
+        }
+        
+
 
     def add_node_major_reservoir(self, reservoir_name, downstream_lag, downstream_node):
         """
@@ -1121,6 +1136,23 @@ class ModelBuilder:
                 "parameters": [f"mrf_baseline_{mrf}", f"mrf_drought_factor_{mrf}"],
             }
 
+    def add_parameter_nyc_bank_storage(self):
+        
+        model_dict = self.model_dict
+        
+        # NYC IERQ bank storages
+        # Currently only Trenton equivalent flow bank is implemented
+        for bank in ["trenton"]:
+            for step in [1,2]:
+                # IERQ remaining volume
+                model_dict["parameters"][f"nyc_{bank}_ierq_remaining_step{step}"] = {
+                    "type": "IERQRemaining",
+                    "bank": bank,
+                    "step": step,
+                } 
+
+
+
     # ?? Not yet understand how this works
     def add_parameter_predicted_lagged_non_nyc_inflows_to_Montague_and_Trenton_and_lagged_nj_demands(
         self,
@@ -1221,23 +1253,16 @@ class ModelBuilder:
             "mrf": "delMontague",
             "step": step,
         }
+        
         ### now get addl release (above Montague release) needed to meet Trenton target in 4 days
         model_dict["parameters"][f"release_needed_mrf_trenton_step{step}"] = {
             "type": "TotalReleaseNeededForDownstreamMRF",
             "mrf": "delTrenton",
             "step": step,
         }
-        ### total mrf release needed is sum of Montague & Trenton. This Step 1 is for Cannonsville/Pepacton releases.
-        model_dict["parameters"][f"total_agg_mrf_montagueTrenton_step{step}"] = {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                f"release_needed_mrf_montague_step{step}",
-                f"release_needed_mrf_trenton_step{step}",
-            ],
-        }
 
-        ## Max available Trenton contribution from each available lower basin reservoir. Step 1 is for Cannonsville/Pepacton release, so 4 days ahead for Trenton.
+        # Max available Trenton contribution from each available lower basin reservoir. 
+        # Step 1 is for Cannonsville/Pepacton release, so 4 days ahead for Trenton.
         for reservoir in drbc_lower_basin_reservoirs:
             model_dict["parameters"][f"max_mrf_trenton_step{step}_{reservoir}"] = {
                 "type": "LowerBasinMaxMRFContribution",
@@ -1251,7 +1276,44 @@ class ModelBuilder:
             "step": step,
         }
 
-        ### now calculate actual Cannonsville & Pepacton releases to meet Montague&Trenton, with assumed releases for Neversink & lower basin
+        # Lower basin contribution as a negative value
+        # so that it can be added to the total release needed
+        model_dict["parameters"][f"neg_lower_basin_agg_mrf_trenton_step{step}"] = {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [f"lower_basin_agg_mrf_trenton_step{step}", "negative_one_multiplier"],
+        }
+
+        # Trenton contribution needed after accounting for lower basin contributions
+        model_dict["parameters"][f"release_needed_mrf_trenton_after_lower_basin_contributions_step1"] = {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                f"release_needed_mrf_trenton_step{step}",
+                f"neg_lower_basin_agg_mrf_trenton_step{step}",
+            ],
+        }
+
+        # Max allowable NYC Trenton contribution
+        # constrained by IERQ bank storage
+        model_dict["parameters"][f"nyc_mrf_trenton_step{step}"] = {
+            "type": "IERQRelease_step1",
+            "bank": "trenton",
+        }
+
+        ### total mrf release needed is sum of Montague & Trenton. 
+        # This Step 1 is for Cannonsville/Pepacton releases.
+        model_dict["parameters"][f"total_agg_mrf_montagueTrenton_step{step}"] = {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                f"release_needed_mrf_montague_step{step}",
+                f"nyc_mrf_trenton_step{step}",
+            ],
+        }
+
+        ### now calculate actual Cannonsville & Pepacton releases to meet Montague&Trenton, 
+        # with assumed releases for Neversink & lower basin
         for reservoir in ["cannonsville", "pepacton"]:
             model_dict["parameters"][f"mrf_montagueTrenton_{reservoir}"] = {
                 "type": f"VolBalanceNYCDownstreamMRF_step{step}", # step 1
@@ -1293,15 +1355,7 @@ class ModelBuilder:
             "mrf": "delTrenton",
             "step": step,
         }
-        ### total mrf release needed is sum of Montague & Trenton. This Step 2 is for Neversink releases.
-        model_dict["parameters"][f"total_agg_mrf_montagueTrenton_step{step}"] = {
-            "type": "aggregated",
-            "agg_func": "sum",
-            "parameters": [
-                f"release_needed_mrf_montague_step{step}",
-                f"release_needed_mrf_trenton_step{step}",
-            ],
-        }
+        
 
         ## Max available Trenton contribution from each available lower basin reservoir. Step 2 is for Neversink release, so 3 days ahead for Trenton.
         for reservoir in drbc_lower_basin_reservoirs:
@@ -1316,8 +1370,46 @@ class ModelBuilder:
             "type": "VolBalanceLowerBasinMRFAggregate",
             "step": step,
         }
+        
+        ## Negative value of lower basin contribution
+        model_dict["parameters"][f"neg_lower_basin_agg_mrf_trenton_step{step}"] = {
+            "type": "aggregated",
+            "agg_func": "product",
+            "parameters": [f"lower_basin_agg_mrf_trenton_step{step}", 
+                           "negative_one_multiplier"],
+        }
+        
+        ## Now get remaining trenton release needed after accounting for lower basin contributions
+        model_dict["parameters"][f"release_needed_mrf_trenton_after_lower_basin_contributions_step{step}"] = {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                f"release_needed_mrf_trenton_step{step}",
+                f"neg_lower_basin_agg_mrf_trenton_step{step}",
+            ],
+        }
+        
+        # Max allowable NYC Trenton contribution
+        # constrained by IERQ bank storage
+        model_dict["parameters"][f"nyc_mrf_trenton_step{step}"] = {
+            "type": "constant",
+            "value": 0.0,
+        }
+        
+        ### total mrf release needed is sum of Montague & Trenton. This Step 2 is for Neversink releases.
+        model_dict["parameters"][f"total_agg_mrf_montagueTrenton_step{step}"] = {
+            "type": "aggregated",
+            "agg_func": "sum",
+            "parameters": [
+                f"release_needed_mrf_montague_step{step}",
+                f"nyc_mrf_trenton_step{step}",
+            ],
+        }
 
-        ### Now assign Neversink releases to meet Montague/Trenton mrf, after accting for previous Can/Pep releases & expected lower basin contribution
+
+
+        ### Now assign Neversink releases to meet Montague/Trenton mrf, 
+        # after accting for previous Can/Pep releases & expected lower basin contribution
         model_dict["parameters"][f"mrf_montagueTrenton_neversink"] = {
             "type": f"VolBalanceNYCDownstreamMRF_step{step}",
         }
@@ -1370,7 +1462,8 @@ class ModelBuilder:
             "step": step,
         }
 
-        ## Max available Trenton contribution from each available lower basin reservoir. Step 3 is for Beltzville/BlueMarsh release, so 2 days ahead for Trenton.
+        ## Max available Trenton contribution from each available lower basin reservoir. 
+        # Step 3 is for Beltzville/BlueMarsh release, so 2 days ahead for Trenton.
         for reservoir in drbc_lower_basin_reservoirs:
             model_dict["parameters"][f"max_mrf_trenton_step{step}_{reservoir}"] = {
                 "type": "LowerBasinMaxMRFContribution",
@@ -1384,7 +1477,8 @@ class ModelBuilder:
             "step": step,
         }
 
-        ## Now dispatch actual individual releases from lower basin reservoirs for meeting Trenton - step 3 is Blue marsh/beltzville
+        ## Now dispatch actual individual releases from lower basin reservoirs for meeting Trenton
+        # step 3 is Blue marsh/beltzville
         for reservoir in ["beltzvilleCombined", "blueMarsh"]:
             model_dict["parameters"][f"mrf_trenton_{reservoir}"] = {
                 "type": "VolBalanceLowerBasinMRFIndividual",
@@ -1452,7 +1546,8 @@ class ModelBuilder:
                 "lag": lag,
             }
 
-        ### now get addl release (above NYC releases from steps 1-2 & lower basin releases from step 3) needed to meet Trenton target in 1 days
+        ### now get addl release (above NYC releases from steps 1-2 & lower basin releases from step 3) 
+        # needed to meet Trenton target in 1 days
         model_dict["parameters"][f"release_needed_mrf_trenton_step{step}"] = {
             "type": "TotalReleaseNeededForDownstreamMRF",
             "mrf": "delTrenton",
@@ -1473,7 +1568,8 @@ class ModelBuilder:
             "step": step,
         }
 
-        ## Now dispatch actual individual releases from lower basin reservoirs for meeting Trenton - step 4 is just Nockamixon
+        ## Now dispatch actual individual releases from lower basin reservoirs for meeting Trenton
+        # step 4 is just Nockamixon
         for reservoir in ["nockamixon"]:
             model_dict["parameters"][f"mrf_trenton_{reservoir}"] = {
                 "type": "VolBalanceLowerBasinMRFIndividual",

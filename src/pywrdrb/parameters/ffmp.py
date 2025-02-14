@@ -226,6 +226,7 @@ class FfmpNjRunningAvgParameter(Parameter):
 FfmpNjRunningAvgParameter.register()
 
 
+
 class NYCCombinedReleaseFactor(Parameter):
     """
     Decides whether an NYC reservoir's release is dictated by its own
@@ -521,6 +522,7 @@ class TotalReleaseNeededForDownstreamMRF(Parameter):
             self.previous_release_reservoirs = previous_release_reservoirs
             for p in previous_release_reservoirs:
                 self.children.add(p)
+                
         ### we only have to acct for NYC FFMP individual & flood releases in steps 1-2
         if step < 3:
             self.mrf_target_individual_nyc = mrf_target_individual_nyc
@@ -638,7 +640,8 @@ class TotalReleaseNeededForDownstreamMRF(Parameter):
                 for r in ["cannonsville", "pepacton"]
             ]
         elif step == 3:
-            ### for step 3, we only need to acct for can/pep/nev previous releases, not any NYC indiv/flood releases this time step
+            ### for step 3, we only need to acct for can/pep/nev previous releases, 
+            # not any NYC indiv/flood releases this time step
             mrf_target_individual_nyc = None
             flood_release_nyc = None
             previous_release_reservoirs = [
@@ -649,7 +652,8 @@ class TotalReleaseNeededForDownstreamMRF(Parameter):
                 load_parameter(model, f"release_{r}_lag1") for r in ["neversink"]
             ]
         elif step == 4:
-            ### for step 3, we only need to acct for can/pep/nev previous releases, not any NYC indiv/flood releases this time step
+            # for step 3, we only need to acct for can/pep/nev previous releases, 
+            # not any NYC indiv/flood releases this time step
             mrf_target_individual_nyc = None
             flood_release_nyc = None
             previous_release_reservoirs = [
@@ -904,7 +908,10 @@ class VolBalanceNYCDownstreamMRF_step1(Parameter):
         ### These are above and beyond what is needed for individual FFMP mandated releases
         nyc_requirement_total = self.total_agg_mrf_montagueTrenton_step1.get_value(
             scenario_index
-        ) - self.lower_basin_agg_mrf_trenton_step1.get_value(scenario_index)
+        ) 
+        
+        # lower basin release is already accounted for in total_agg_mrf_montagueTrenton
+        # - self.lower_basin_agg_mrf_trenton_step1.get_value(scenario_index)
 
         # If no downstream flow required, return 0.0
         if nyc_requirement_total < epsilon:
@@ -1021,8 +1028,7 @@ class VolBalanceNYCDownstreamMRF_step2(Parameter):
         release_neversink = max(
             min(
                 max_release_neversink,
-                self.total_agg_mrf_montagueTrenton.get_value(scenario_index)
-                - self.lower_basin_agg_mrf_trenton.get_value(scenario_index),
+                self.total_agg_mrf_montagueTrenton.get_value(scenario_index) # - self.lower_basin_agg_mrf_trenton.get_value(scenario_index),
             ),
             0,
         )
