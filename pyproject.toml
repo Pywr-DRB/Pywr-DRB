@@ -14,28 +14,36 @@ license = { file = "LICENSE" }
 description = "An open-source Python model for water availability and drought risk assessment in the Delaware River Basin"
 readme = { file = "README.md", content-type = "text/markdown" }  # Specify README with content type
 dependencies = [
-    "pywr",
-    "h5py",
     "numpy",
     "pandas",
-    "geopandas",
-    "pyarrow",
-    "contextily",
+    "scipy",
+    "scikit-learn",
+    "statsmodels",
     "matplotlib",
     "seaborn",
-    "statsmodels",
-    "scipy",
+    "PathNavigator",
+
+    "pywr",
+    "h5py",
+    "pytest",
+    "mpi4py",
+    "hatch"
+
+    "torch",
+    "bmipy",
+    "uncertainty_toolbox",
+    
     "pygeohydro",
     "hydroeval",
-    "scikit-learn",
     "altair",
     "jupyter-book",
     "ghp-import",
     "shapely",
     "folium",
     "pynhd",
-    "mpi4py",
-    "hatch"
+    "geopandas",
+    "pyarrow",
+    "contextily",
     ]
 
 [project.optional-dependencies]
