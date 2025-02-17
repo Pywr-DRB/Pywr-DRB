@@ -6,8 +6,6 @@ import json
 from dataclasses import dataclass, field
 from typing import List, Optional
 import pandas as pd
-#from pywrdrb.utils.directories import Directories #input_dir, model_data_dir
-from . import get_directory, set_directory
 from .utils.lists import (
     majorflow_list,
     reservoir_list,
@@ -82,6 +80,9 @@ class ModelBuilder:
         model_data_dir : str, optional
             Directory where model data is stored. Default is None.
         """
+        # Import here to avoid circular import
+        from . import get_directory, set_directory
+        
         self.inflow_type = inflow_type
         self.start_date = start_date
         self.end_date = end_date

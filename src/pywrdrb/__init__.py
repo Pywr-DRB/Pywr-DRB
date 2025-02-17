@@ -1,5 +1,112 @@
 import os
 from dataclasses import dataclass, field
+import pathnavigator
+
+##### Set directory config using pathnavigator V0.4.2
+# Get the root directory
+root_dir = os.path.realpath(os.path.dirname(__file__))
+
+# Ensure root_dir points to the package directory
+if not os.path.basename(root_dir) == "pywrdrb":
+    root_dir = os.path.join(root_dir, "pywrdrb")
+
+# Create a new pathnavigator instance
+_dirs = pathnavigator.create(root_dir)
+
+# Add folder directories as shortcuts (can be accessed as _dirs.sc.get("folder name"))
+_dirs.data.set_sc("data")
+
+data_dirs = [i for i in _dirs.data.listdirs() if not i.startswith("_")]
+for data_dir in data_dirs:
+    _dirs.sc.add(data_dir, _dirs.data.get(data_dir))
+
+# Add flow files to shortcuts with the parent folder name as prefix
+flow_types = [i for i in _dirs.data.flows.listdirs() if not i.startswith("_")]
+for flow_type in flow_types:
+    _dirs.sc.add(flow_type, _dirs.data.flows.get(flow_type))
+    _dirs.sc.add_all_files(_dirs.data.flows.get(flow_type), prefix=f"{flow_type}/")
+
+# Add diversion files to shortcuts with the parent folder name as prefix
+diversion_types = [i for i in _dirs.data.diversions.listdirs() if not i.startswith("_")]
+for diversion_type in diversion_types:
+    _dirs.sc.add(diversion_type, _dirs.data.diversions.get(diversion_type))
+    _dirs.sc.add_all_files(_dirs.data.diversions.get(diversion_type), prefix=f"{diversion_type}/")
+
+# Add observations files to shortcuts
+_dirs.data.observations.set_all_files_to_sc()
+# Add operational_constants files to shortcuts
+_dirs.data.operational_constants.set_all_files_to_sc()
+
+
+def get_dirs_object():
+    """
+    Returns the directories object.
+    
+    Returns
+    -------
+    pathnavigator.PathNavigator
+        The directories object.
+    """
+    return _dirs
+
+def get_dirs_config(filename=None):
+    """
+    Returns the directories configuration.
+    
+    Parameters
+    ----------
+    filename : str, optional
+        If a filename is provided, saves the configuration to the file. The allowed file
+        extensions are ".json" and ".yml".
+    
+    Returns
+    -------
+    dict or None
+        If no filename is provided, returns the directories configuration as a dictionary.
+        If a filename is provided, saves the configuration to the file and returns None.
+    """
+    if ".json" in filename:
+        _dirs.sc.to_json(filename)
+        print(f"Directories configuration saved to {filename}")
+        return None
+    elif ".yml" in filename:
+        _dirs.sc.to_yaml(filename)
+        print(f"Directories configuration saved to {filename}")
+        return None
+    else:
+        return _dirs.sc.to_dict()
+
+def load_dirs_config(config):
+    """
+    Loads the directories configuration from a file. Overwrites the existing directories
+    with the given configuration. The allowed file extensions are ".json" and ".yml". 
+    User may also provide a dictionary as input. Partial configurations can be provided.
+    
+    If users want to create a model with customized inflow files, they need to add the new
+    folder to the directories configuration before creating the model with the customize
+    flow_type. Otherwise, the model will not be able to find the inflow files.
+    
+    Alternatively, users can change the directories under the current directories 
+    configuration. That way, the model will be created under the default flow_type while  
+    using customized files in the given directories.
+    
+    Parameters
+    ----------
+    config : str or dict
+        The file to load the directories configuration from.
+    """
+    if ".json" in config:
+        _dirs.sc.load_json(config, overwrite=True)
+    elif ".yml" in config:
+        _dirs.sc.load_yaml(config, overwrite=True)
+    else:
+        _dirs.sc.load_dict(config, overwrite=True)
+
+
+
+
+
+
 
 # Set a global directory instance
 # Has to be done before importing other modules
@@ -37,6 +144,11 @@ class Directories:
             print(f"{attribute}: {value}")
 
 
+
+
+
+
+
 # Create a global instance of Directory
 _directory_instance = Directories()
 
@@ -57,6 +169,8 @@ def set_directory(**kwargs):
             setattr(_directory_instance, key, value)
         else:
             raise AttributeError(f"Invalid directory attribute: {key}")
+
+
 
 # Import pywr modules
 from pywr.model import Model
