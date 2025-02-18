@@ -150,7 +150,7 @@ class NWMFlowDataPreprocessor(DataPreprocessor):
         df = self.raw_data["streamflow_daily_nwmv21_mgd.csv"]
         # 1. Match inflows for each Pywr-DRB node
         # 1.1 Reservoir inflows
-        site_matches_id = nhm_site_matches
+        site_matches_id = nwm_site_matches
         for node, site in site_matches_id.items():
             if node == "cannonsville":
                 inflows = pd.DataFrame(df.loc[:, site].sum(axis=1))

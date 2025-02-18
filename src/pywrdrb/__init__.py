@@ -1,4 +1,5 @@
 import os
+import copy
 from dataclasses import dataclass, field
 import pathnavigator
 
@@ -11,34 +12,39 @@ if not os.path.basename(root_dir) == "pywrdrb":
     root_dir = os.path.join(root_dir, "pywrdrb")
 
 # Create a new pathnavigator instance
+global _dirs
 _dirs = pathnavigator.create(root_dir)
 
-# Add folder directories as shortcuts (can be accessed as _dirs.sc.get("folder name"))
-_dirs.data.set_sc("data")
+def reset_dirs():
+    """
+    Resets the directories object to the default configuration.
+    """
+    global _dirs  # Ensure _dirs is modified globally
+    # Add folder directories as shortcuts (can be accessed as _dirs.sc.get("folder name"))
+    _dirs.data.set_sc("data")
 
-data_dirs = [i for i in _dirs.data.listdirs() if not i.startswith("_")]
-for data_dir in data_dirs:
-    _dirs.sc.add(data_dir, _dirs.data.get(data_dir))
+    data_dirs = [i for i in _dirs.data.listdirs() if not i.startswith("_")]
+    for data_dir in data_dirs:
+        _dirs.sc.add(data_dir, _dirs.data.get(data_dir))
 
-# Add flow files to shortcuts with the parent folder name as prefix
-flow_types = [i for i in _dirs.data.flows.listdirs() if not i.startswith("_")]
-for flow_type in flow_types:
-    _dirs.sc.add(flow_type, _dirs.data.flows.get(flow_type))
-    _dirs.sc.add_all_files(_dirs.data.flows.get(flow_type), prefix=f"{flow_type}/")
+    # Add flow files to shortcuts with the parent folder name as prefix
+    flow_types = [i for i in _dirs.data.flows.listdirs() if not i.startswith("_")]
+    for flow_type in flow_types:
+        _dirs.sc.add(flow_type, _dirs.data.flows.get(flow_type))
+        _dirs.sc.add_all_files(_dirs.data.flows.get(flow_type), prefix=f"{flow_type}/")
 
-# Add diversion files to shortcuts with the parent folder name as prefix
-diversion_types = [i for i in _dirs.data.diversions.listdirs() if not i.startswith("_")]
-for diversion_type in diversion_types:
-    _dirs.sc.add(diversion_type, _dirs.data.diversions.get(diversion_type))
-    _dirs.sc.add_all_files(_dirs.data.diversions.get(diversion_type), prefix=f"{diversion_type}/")
+    # Add diversion files to shortcuts with the parent folder name as prefix
+    diversion_types = [i for i in _dirs.data.diversions.listdirs() if not i.startswith("_")]
+    for diversion_type in diversion_types:
+        _dirs.sc.add(diversion_type, _dirs.data.diversions.get(diversion_type))
+        _dirs.sc.add_all_files(_dirs.data.diversions.get(diversion_type), prefix=f"{diversion_type}/")
 
-# Add observations files to shortcuts
-_dirs.data.observations.set_all_files_to_sc()
-# Add operational_constants files to shortcuts
-_dirs.data.operational_constants.set_all_files_to_sc()
+    # Add observations files to shortcuts
+    _dirs.data.observations.set_all_files_to_sc()
+    # Add operational_constants files to shortcuts
+    _dirs.data.operational_constants.set_all_files_to_sc()
 
-
-def get_dirs_object():
+def get_dirs_object(copy=False):
     """
     Returns the directories object.
     
@@ -47,7 +53,11 @@ def get_dirs_object():
     pathnavigator.PathNavigator
         The directories object.
     """
-    return _dirs
+    global _dirs  # Ensure _dirs is modified globally
+    if copy:
+        return copy.deepcopy(_dirs)
+    else:
+        return _dirs
 
 def get_dirs_config(filename=None):
     """
@@ -65,6 +75,7 @@ def get_dirs_config(filename=None):
         If no filename is provided, returns the directories configuration as a dictionary.
         If a filename is provided, saves the configuration to the file and returns None.
     """
+    global _dirs  # Ensure _dirs is modified globally
     if ".json" in filename:
         _dirs.sc.to_json(filename)
         print(f"Directories configuration saved to {filename}")
@@ -95,6 +106,7 @@ def load_dirs_config(config):
     config : str or dict
         The file to load the directories configuration from.
     """
+    global _dirs  # Ensure _dirs is modified globally
     if ".json" in config:
         _dirs.sc.load_json(config, overwrite=True)
     elif ".yml" in config:
@@ -102,7 +114,7 @@ def load_dirs_config(config):
     else:
         _dirs.sc.load_dict(config, overwrite=True)
 
-
+reset_dirs()
 
 
 
