@@ -21,7 +21,7 @@ dependencies = [
     "statsmodels",
     "matplotlib",
     "seaborn",
-    "PathNavigator",
+    "git+https://github.com/philip928lin/PathNavigator.git",
 
     "pywr",
     "h5py",
