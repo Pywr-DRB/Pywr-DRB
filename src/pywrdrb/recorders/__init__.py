@@ -1,0 +1,1 @@
+from pywrdrb.recorders.output_recorder import OutputRecorder
