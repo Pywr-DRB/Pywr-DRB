@@ -46,12 +46,13 @@ def test_data_loader_with_pywrdrb_output(test_inflow_type, shared_tmp_path):
     
     try:
         data.load(
-            datatypes=[test_inflow_type], 
+            datatypes=['output'], 
             output_filenames=[shared_tmp_path / f"{test_inflow_type}_model_output.hdf5"],
             results_sets=test_output_results_sets,
             )
     except Exception as e:
         pytest.fail(f"pywrdrb.Data.load() raised an exception:\n{e}")
+        return
     
     for results_set in test_output_results_sets:
         assert hasattr(data, results_set), f"Expected pywrdrb.Data object to have attribute {results_set} but it was not found."
