@@ -1,11 +1,3 @@
-# Core pywrdrb functionality
-from .recorders.output_recorder import OutputRecorder
-from .model_builder import ModelBuilder
-from .load.data_loader import Data
-
-from .parameters.ffmp import *
-VolBalanceNYCDemand.register()
-
 # Import pywr modules to be accessed through pywrdrb
 from pywr.model import Model
 from pywr.recorders import TablesRecorder
@@ -70,6 +62,15 @@ def set_directory(**kwargs):
             setattr(_directory_instance, key, value)
         else:
             raise AttributeError(f"Invalid directory attribute: {key}")
+
+
+# Core pywrdrb functionality
+from .recorders.output_recorder import OutputRecorder
+from .model_builder import ModelBuilder
+from .load.data_loader import Data
+
+from .parameters.ffmp import *
+VolBalanceNYCDemand.register()
 
 
 # CL's temporary output parser

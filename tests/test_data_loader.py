@@ -6,6 +6,7 @@ test_obs_results_sets = [
     'res_storage'
 ]
 
+
 test_datatypes = [
     'nhmv10',
     'nwmv21',
@@ -26,6 +27,33 @@ def test_data_loader_stores_results_sets_as_attributes():
             )
  
     for results_set in test_obs_results_sets:
+        assert hasattr(data, results_set), f"Expected pywrdrb.Data object to have attribute {results_set} but it was not found."
+    
+    return
+
+
+test_output_results_sets = [
+    'major_flow',
+    'res_storage'
+]
+
+
+def test_data_loader_with_pywrdrb_output(test_inflow_type, shared_tmp_path):
+    
+
+
+    data = pywrdrb.Data(print_status=True)
+    
+    try:
+        data.load(
+            datatypes=[test_inflow_type], 
+            output_filenames=[shared_tmp_path / f"{test_inflow_type}_model_output.hdf5"],
+            results_sets=test_output_results_sets,
+            )
+    except Exception as e:
+        pytest.fail(f"pywrdrb.Data.load() raised an exception:\n{e}")
+    
+    for results_set in test_output_results_sets:
         assert hasattr(data, results_set), f"Expected pywrdrb.Data object to have attribute {results_set} but it was not found."
     
     return
