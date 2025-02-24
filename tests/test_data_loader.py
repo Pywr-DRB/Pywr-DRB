@@ -43,11 +43,12 @@ def test_data_loader_with_pywrdrb_output(test_inflow_type, shared_tmp_path):
 
 
     data = pywrdrb.Data(print_status=True)
+    output_filename = f"{shared_tmp_path}/{test_inflow_type}_output.hdf5"
     
     try:
         data.load(
             datatypes=['output'], 
-            output_filenames=[shared_tmp_path / f"{test_inflow_type}_model_output.hdf5"],
+            output_filenames=[output_filename],
             results_sets=test_output_results_sets,
             )
     except Exception as e:
