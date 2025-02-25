@@ -37,7 +37,8 @@ test_output_results_sets = [
     'res_storage'
 ]
 
-
+@pytest.mark.dependency(depends=["test_simulation::test_pywrdrb_simulation"], 
+                        scope="session")
 def test_data_loader_with_pywrdrb_output(test_inflow_type, shared_tmp_path):
     
 

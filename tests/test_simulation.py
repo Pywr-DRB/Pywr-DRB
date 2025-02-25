@@ -1,7 +1,8 @@
 import pywrdrb
 import pytest
-import os
 
+@pytest.mark.dependency(depends=["test_simulation::test_pywrdrb_simulation"], 
+                        scope="session")
 def test_pywrdrb_simulation(test_inflow_type, shared_tmp_path):
 
     # test Model.load()
