@@ -3,7 +3,7 @@ import pytest
 from pywrdrb import ModelBuilder
 from pywrdrb.utils.dates import model_date_ranges
 
-@pytest.mark.dependency()
+
 def test_make_model_with_default_options(test_inflow_type, shared_tmp_path):
     """
     Test if the ModelBuilder class can create a model with the default options.

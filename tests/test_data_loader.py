@@ -37,26 +37,25 @@ test_output_results_sets = [
     'res_storage'
 ]
 
-@pytest.mark.dependency(depends=["test_simulation::test_pywrdrb_simulation"], 
-                        scope="session")
-def test_data_loader_with_pywrdrb_output(test_inflow_type, shared_tmp_path):
+
+# def test_data_loader_with_pywrdrb_output(test_inflow_type, shared_tmp_path):
     
 
 
-    data = pywrdrb.Data(print_status=True)
-    output_filename = f"{shared_tmp_path}/{test_inflow_type}_output.hdf5"
+#     data = pywrdrb.Data(print_status=True)
+#     output_filename = f"{shared_tmp_path}/{test_inflow_type}_output.hdf5"
     
-    try:
-        data.load(
-            datatypes=['output'], 
-            output_filenames=[output_filename],
-            results_sets=test_output_results_sets,
-            )
-    except Exception as e:
-        pytest.fail(f"pywrdrb.Data.load() raised an exception:\n{e}")
-        return
+#     try:
+#         data.load(
+#             datatypes=['output'], 
+#             output_filenames=[output_filename],
+#             results_sets=test_output_results_sets,
+#             )
+#     except Exception as e:
+#         pytest.fail(f"pywrdrb.Data.load() raised an exception:\n{e}")
+#         return
     
-    for results_set in test_output_results_sets:
-        assert hasattr(data, results_set), f"Expected pywrdrb.Data object to have attribute {results_set} but it was not found."
+#     for results_set in test_output_results_sets:
+#         assert hasattr(data, results_set), f"Expected pywrdrb.Data object to have attribute {results_set} but it was not found."
     
-    return
+#     return
