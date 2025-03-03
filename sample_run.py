@@ -1,18 +1,7 @@
 from pprint import pprint
 import pywrdrb
 
-#%%
-pn = pywrdrb.get_pn_object()
-pn_config = pywrdrb.get_pn_config()
 
-pn_config = pywrdrb.get_pn_config()
-pn_config["flows/my_data"] = pn_config["flows/nhmv10"]
-
-pywrdrb.load_pn_config(pn_config)
-
-
-
-#%%
 # Now we can use the custom inflow type
 mb = pywrdrb.ModelBuilder(
     inflow_type='my_data', 
