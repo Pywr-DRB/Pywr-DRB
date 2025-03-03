@@ -47,7 +47,7 @@ def get_pn_object(copy=False):
     else:
         return pn
 
-def get_pn_config(filename=None):
+def get_pn_config(filename=""):
     """
     Returns the pathnavigator configuration.
     
@@ -73,9 +73,9 @@ def get_pn_config(filename=None):
         print(f"Directories configuration saved to {filename}")
         return None
     else:
-        return pn.sc.to_dict()
+        return pn.sc.to_dict(to_str=True)
 
-def load_dirs_config(config):
+def load_pn_config(pn_config):
     """
     Loads the directories configuration from a file. Overwrites the existing directories
     with the given configuration. The allowed file extensions are ".json" and ".yml". 
@@ -91,16 +91,16 @@ def load_dirs_config(config):
     
     Parameters
     ----------
-    config : str or dict
+    pn_config : str or dict
         The file to load the directories configuration from.
     """
     global pn  # Ensure pn is modified globally
-    if ".json" in config:
-        pn.sc.load_json(config, overwrite=True)
-    elif ".yml" in config:
-        pn.sc.load_yaml(config, overwrite=True)
+    if ".json" in pn_config:
+        pn.sc.load_json(pn_config, overwrite=True)
+    elif ".yml" in pn_config:
+        pn.sc.load_yaml(pn_config, overwrite=True)
     else:
-        pn.sc.load_dict(config, overwrite=True)
+        pn.sc.load_dict(pn_config, overwrite=True)
 
 reset_pn()
 

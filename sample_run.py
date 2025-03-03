@@ -1,6 +1,30 @@
 from pprint import pprint
 import pywrdrb
 
+#%%
+pn = pywrdrb.get_pn_object()
+pn_config = pywrdrb.get_pn_config()
+
+pn_config = pywrdrb.get_pn_config()
+pn_config["flows/my_data"] = pn_config["flows/nhmv10"]
+
+pywrdrb.load_pn_config(pn_config)
+
+
+
+#%%
+# Now we can use the custom inflow type
+mb = pywrdrb.ModelBuilder(
+    inflow_type='my_data', 
+    diversion_type='nhmv10',
+    start_date="1983-10-01",
+    end_date="1985-12-31"
+    )
+
+# Make a model (you are expected to see error here)
+mb.make_model()
+
+#%%
 wd = r"C:\Users\CL\Desktop\wd"
 
 # pprint(pywrdrb.get_directory())
@@ -16,6 +40,8 @@ mb = pywrdrb.ModelBuilder(
 # Make a model
 mb.make_model()
 
+model_dict = mb.model_dict
+#%%
 # Output model.json file
 model_filename = rf"{wd}\model.json"
 mb.write_model(model_filename)
@@ -38,4 +64,4 @@ stats = model.run()
 
 ###### Post process ######
 # Load model_output.hdf5 and turn it into dictionary
-#output_dict = pywrdrb.hdf5_to_dict(output_filename)
+output_dict = pywrdrb.hdf5_to_dict(output_filename)
