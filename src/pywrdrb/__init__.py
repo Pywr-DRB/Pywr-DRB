@@ -11,57 +11,45 @@ root_dir = os.path.realpath(os.path.dirname(__file__))
 if not os.path.basename(root_dir) == "pywrdrb":
     root_dir = os.path.join(root_dir, "pywrdrb")
 
-# Create a new pathnavigator instance
-global _dirs
-_dirs = pathnavigator.create(root_dir)
+# Create a new global pathnavigator instance
+global pn
+pn = pathnavigator.create(root_dir)
 
-def reset_dirs():
+def reset_pn():
     """
-    Resets the directories object to the default configuration.
+    Resets the pathnavigator object to the default configuration.
+    Note: we only want to add shortcuts that matter to the user.
+    Others, we should retrieve from pn directly.
+    If we use shortcuts for certain files or folders, we will need to use that shortcut 
+    throughout the program to make it consistent.
     """
-    global _dirs  # Ensure _dirs is modified globally
-    # Add folder directories as shortcuts (can be accessed as _dirs.sc.get("folder name"))
-    _dirs.data.set_sc("data")
+    global pn  # Ensure pn is modified globally
+    # Add folder directories as shortcuts (can be accessed as pn.sc.get("folder name"))
+    re_pattern = r"^_"  # Ignore folders/files starting with "_"
+    
+    # Now we only allow users to add customized flows and diversions subfolders 
+    # (i.e., flows/customized_flow_type and diversions/customized_diversion_type)
+    pn.data.flows.set_all_to_sc(prefix="flows/", mode="folders", overwrite=True, exclude=re_pattern)
+    pn.data.diversions.set_all_to_sc(prefix="diversions/", mode="folders", overwrite=True, exclude=re_pattern)
 
-    data_dirs = [i for i in _dirs.data.listdirs() if not i.startswith("_")]
-    for data_dir in data_dirs:
-        _dirs.sc.add(data_dir, _dirs.data.get(data_dir))
-
-    # Add flow files to shortcuts with the parent folder name as prefix
-    flow_types = [i for i in _dirs.data.flows.listdirs() if not i.startswith("_")]
-    for flow_type in flow_types:
-        _dirs.sc.add(flow_type, _dirs.data.flows.get(flow_type))
-        _dirs.sc.add_all_files(_dirs.data.flows.get(flow_type), prefix=f"{flow_type}/")
-
-    # Add diversion files to shortcuts with the parent folder name as prefix
-    diversion_types = [i for i in _dirs.data.diversions.listdirs() if not i.startswith("_")]
-    for diversion_type in diversion_types:
-        _dirs.sc.add(diversion_type, _dirs.data.diversions.get(diversion_type))
-        _dirs.sc.add_all_files(_dirs.data.diversions.get(diversion_type), prefix=f"{diversion_type}/")
-
-    # Add observations files to shortcuts
-    _dirs.data.observations.set_all_files_to_sc()
-    # Add operational_constants files to shortcuts
-    _dirs.data.operational_constants.set_all_files_to_sc()
-
-def get_dirs_object(copy=False):
+def get_pn_object(copy=False):
     """
-    Returns the directories object.
+    Returns the pathnavigator object.
     
     Returns
     -------
     pathnavigator.PathNavigator
         The directories object.
     """
-    global _dirs  # Ensure _dirs is modified globally
+    global pn  # Ensure pn is modified globally
     if copy:
-        return copy.deepcopy(_dirs)
+        return copy.deepcopy(pn)
     else:
-        return _dirs
+        return pn
 
-def get_dirs_config(filename=None):
+def get_pn_config(filename=None):
     """
-    Returns the directories configuration.
+    Returns the pathnavigator configuration.
     
     Parameters
     ----------
@@ -75,17 +63,17 @@ def get_dirs_config(filename=None):
         If no filename is provided, returns the directories configuration as a dictionary.
         If a filename is provided, saves the configuration to the file and returns None.
     """
-    global _dirs  # Ensure _dirs is modified globally
+    global pn  # Ensure pn is modified globally
     if ".json" in filename:
-        _dirs.sc.to_json(filename)
+        pn.sc.to_json(filename)
         print(f"Directories configuration saved to {filename}")
         return None
     elif ".yml" in filename:
-        _dirs.sc.to_yaml(filename)
+        pn.sc.to_yaml(filename)
         print(f"Directories configuration saved to {filename}")
         return None
     else:
-        return _dirs.sc.to_dict()
+        return pn.sc.to_dict()
 
 def load_dirs_config(config):
     """
@@ -106,18 +94,18 @@ def load_dirs_config(config):
     config : str or dict
         The file to load the directories configuration from.
     """
-    global _dirs  # Ensure _dirs is modified globally
+    global pn  # Ensure pn is modified globally
     if ".json" in config:
-        _dirs.sc.load_json(config, overwrite=True)
+        pn.sc.load_json(config, overwrite=True)
     elif ".yml" in config:
-        _dirs.sc.load_yaml(config, overwrite=True)
+        pn.sc.load_yaml(config, overwrite=True)
     else:
-        _dirs.sc.load_dict(config, overwrite=True)
+        pn.sc.load_dict(config, overwrite=True)
 
-reset_dirs()
+reset_pn()
 
 
-
+#### The following are pending to be removed.
 
 
 # Set a global directory instance
@@ -154,12 +142,6 @@ class Directories:
         """Prints the directories."""
         for attribute, value in self.__dict__.items():
             print(f"{attribute}: {value}")
-
-
-
-
-
-
 
 # Create a global instance of Directory
 _directory_instance = Directories()
