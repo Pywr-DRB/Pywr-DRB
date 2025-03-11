@@ -51,7 +51,7 @@ jobs:
 
     # install python dependencies
     - name: Install python dependencies
-      run: pip install -r requirements.txt
+      run: pip install -e .
       if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
     # run tests

@@ -71,12 +71,14 @@ stats = model.run()
 ###### Post process ######
 # Load simulation results
 
-# data = pywrdrb.Data(print_status=True)
+# Setup data loader object
+data = pywrdrb.Data(print_status=True)
 
-# datatypes = ['outputs']
-# results_sets = ['major_flow', 'res_storage']
+# specify the datatypes and results_sets to load
+datatypes = ['outputs']
+results_sets = ['major_flow', 'res_storage']
 
-
-# data.load(datatypes=datatypes,
-#           output_filenames= [output_filename], 
-#           results_sets=results_sets)
+# Load the data
+data.load(datatypes=datatypes,
+          output_filenames= [output_filename], 
+          results_sets=results_sets)
