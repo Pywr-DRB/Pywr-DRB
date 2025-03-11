@@ -22,17 +22,14 @@ dependencies = [
     "matplotlib",
     "seaborn",
     "git+https://github.com/philip928lin/PathNavigator.git",
-
     "pywr",
     "h5py",
     "pytest",
     "mpi4py",
-    "hatch"
-
+    "hatch",
     "torch",
     "bmipy",
     "uncertainty_toolbox",
-    
     "pygeohydro",
     "hydroeval",
     "altair",
