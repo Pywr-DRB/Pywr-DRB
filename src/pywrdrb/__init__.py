@@ -1,3 +1,8 @@
+# Import pywr modules to be accessed through pywrdrb
+from pywr.model import Model
+from pywr.recorders import TablesRecorder
+
+
 import os
 import copy
 from dataclasses import dataclass, field
@@ -165,18 +170,19 @@ def set_directory(**kwargs):
             raise AttributeError(f"Invalid directory attribute: {key}")
 
 
-
 # Import pywr modules
 from pywr.model import Model
 from pywr.recorders import NumpyArrayParameterRecorder, TablesRecorder
 
 
+# Core pywrdrb functionality
+from .recorders.output_recorder import OutputRecorder
 from .model_builder import ModelBuilder
 from .load.data_loader import Data
 
-# Not sure why this is needed, but it is.
 from .parameters.ffmp import *
 VolBalanceNYCDemand.register()
+
 
 # CL's temporary output parser
 import h5py

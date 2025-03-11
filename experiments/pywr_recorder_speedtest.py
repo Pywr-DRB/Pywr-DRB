@@ -1,17 +1,16 @@
 from pprint import pprint
-import pywrdrb
 import time
 import tempfile
 import shutil
 import os
-from tqdm import tqdm
+
+import pywrdrb
+from pywrdrb.recorders import OutputRecorder
 
 # Create a temporary directory
 temp_dir = tempfile.mkdtemp(dir=os.path.dirname(__file__))
 wd = temp_dir
-#wd = r"C:\Users\CL\Desktop\wd"
 
-# pprint(pywrdrb.get_directory())
 timer = {}
 inflow_types = ["nhmv10", "nwmv21", "nhmv10_withObsScaled", "nwmv21_withObsScaled"]
 
@@ -19,9 +18,8 @@ try:
     # =============================================================================
     # Create model files
     # =============================================================================
-    for inflow_type in tqdm(inflow_types, desc="Creating model files"):
+    for inflow_type in inflow_types:
         timer[inflow_type] = {}
-        #inflow_type = "nhmv10_withObsScaled"
         
         ###### Create a model ######
         #Initialize a model builder
@@ -42,28 +40,26 @@ try:
     # Run a simulation
     # =============================================================================
 
-    # Run a simulation with NumpyArrayParameterRecorder
-    for inflow_type in tqdm(inflow_types, desc="NumpyArrayParameterRecorder"):
+    # Run a simulation with Custom OutputRecorder
+    for inflow_type in inflow_types:
         start_time = time.time()
         model_filename = rf"{wd}\{inflow_type}.json"
         model = pywrdrb.Model.load(model_filename)
         
-        recorder_dict = {}
-        for p in model.parameters:
-            if p.name:
-                recorder_dict[p.name] = pywrdrb.NumpyArrayParameterRecorder(model, p)
-        
+        output_filename = rf"{wd}\{inflow_type}.hdf5"
+        recorder = OutputRecorder(
+            model, output_filename, 
+            parameters=[p for p in model.parameters if p.name]
+        )
         # Run a simulation
         stats = model.run()
         
-        pywrdrb.dict_to_hdf5(recorder_dict, rf"{wd}\NumpyArrayParameterRecorder_{inflow_type}.h5")
-        #output_dict = pywrdrb.hdf5_to_dict(rf"{wd}\NumpyArrayParameterRecorder_{inflow_type}.h5")
 
         end_time = time.time()
-        timer[inflow_type]['NumpyArrayParameterRecorder'] = end_time - start_time
+        timer[inflow_type]['Custom OutputRecorder'] = end_time - start_time
     
     # Run a simulation with TablesRecorder
-    for inflow_type in tqdm(inflow_types, desc="TablesRecorder"):
+    for inflow_type in inflow_types:
         start_time = time.time()
         model_filename = rf"{wd}\{inflow_type}.json"
         model = pywrdrb.Model.load(model_filename)
@@ -84,14 +80,15 @@ finally:
     shutil.rmtree(temp_dir)
 
 r"""
-{'nhmv10': {'NumpyArrayParameterRecorder': 59.57,
-            'TablesRecorder': 565.73 = 9.43 mins},
- 'nhmv10_withObsScaled': {'NumpyArrayParameterRecorder': 84.91,
-                          'TablesRecorder': 671.22 = 11.19 mins},
- 'nwmv21': {'NumpyArrayParameterRecorder': 58.31,
-            'TablesRecorder': 450.57 = 7.51 mins},
- 'nwmv21_withObsScaled': {'NumpyArrayParameterRecorder': 80.88,
-                          'TablesRecorder': 668.77 = 11.15 mins}}
+On Trevor's laptop, the output is:
+{'nhmv10': {'Custom OutputRecorder': 35.02632451057434,
+            'TablesRecorder': 156.96190094947815},
+ 'nhmv10_withObsScaled': {'Custom OutputRecorder': 34.599191427230835,
+                          'TablesRecorder': 135.11984395980835},
+ 'nwmv21': {'Custom OutputRecorder': 34.69260334968567,
+            'TablesRecorder': 147.52072262763977},
+ 'nwmv21_withObsScaled': {'Custom OutputRecorder': 34.78731966018677,
+                          'TablesRecorder': 125.03494048118591}}
 """
 
 
