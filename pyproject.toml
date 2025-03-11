@@ -14,6 +14,7 @@ license = { file = "LICENSE" }
 description = "An open-source Python model for water availability and drought risk assessment in the Delaware River Basin"
 readme = { file = "README.md", content-type = "text/markdown" }  # Specify README with content type
 dependencies = [
+    "pywr",
     "numpy",
     "pandas",
     "scipy",
@@ -21,8 +22,7 @@ dependencies = [
     "statsmodels",
     "matplotlib",
     "seaborn",
-    "git+https://github.com/philip928lin/PathNavigator.git",
-    "pywr",
+    "PathNavigator",
     "h5py",
     "pytest",
     "mpi4py",
