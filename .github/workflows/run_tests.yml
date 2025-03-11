@@ -37,14 +37,11 @@ jobs:
     - name: Install MPI
       run: sudo apt-get update && sudo apt-get install -y libopenmpi-dev openmpi-bin
 
-
-    # install virtual environment with caching, so only updates when requirements.txt changes,
     # based on https://github.com/marketplace/actions/restore-or-create-a-python-virtualenv#custom_virtualenv_dir
     # Note: virtual environment by default will be created under ~/venv
     - uses: syphar/restore-virtualenv@v1
       id: cache-virtualenv
-      with:
-        requirement_files: requirements.txt
+
     - uses: syphar/restore-pip-download-cache@v1
       if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
