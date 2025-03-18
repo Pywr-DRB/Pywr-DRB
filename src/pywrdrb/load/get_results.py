@@ -21,8 +21,6 @@ from pywrdrb.utils.constants import cfs_to_mgd, mg_to_mcm
 from pywrdrb.utils.hdf5 import get_hdf5_realization_numbers
 from pywrdrb.utils.results_sets import pywrdrb_results_set_opts
 
-directories = pywrdrb.get_directory()
-input_dir = directories.input_dir
 
 def get_keys_and_column_names_for_results_set(keys, results_set):
     """
@@ -234,11 +232,10 @@ def get_pywrdrb_results(
 
         if not reuse_datetime_index:
             # Format datetime index
-            day = [f["time"][i][0] for i in range(len(f["time"]))]
-            month = [f["time"][i][2] for i in range(len(f["time"]))]
-            year = [f["time"][i][3] for i in range(len(f["time"]))]
-            date = [f"{y}-{m}-{d}" for y, m, d in zip(year, month, day)]
-            datetime_index = pd.to_datetime(date)
+            dt = f["time"][:]
+            if type(dt[0]) == bytes:
+                dt = [str(d, "utf-8") for d in dt]
+            datetime_index = pd.to_datetime(dt)
 
         # Now store each scenario as individual pd.DataFrames in the dict
         results_dict = {}

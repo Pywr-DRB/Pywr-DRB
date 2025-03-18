@@ -8,8 +8,6 @@ pywrdrb
 
    pywrdrb.ModelBuilder
    pywrdrb.Data
-
-   pywrdrb.set_directory
-   pywrdrb.get_directory
+   pywrdrb.OutputRecorder
 
     
