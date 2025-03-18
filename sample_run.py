@@ -2,17 +2,6 @@ from pprint import pprint
 import pywrdrb
 
 
-# Now we can use the custom inflow type
-mb = pywrdrb.ModelBuilder(
-    inflow_type='my_data', 
-    diversion_type='nhmv10',
-    start_date="1983-10-01",
-    end_date="1985-12-31"
-    )
-
-# Make a model (you are expected to see error here)
-mb.make_model()
-
 #%%
 wd = r"C:\Users\CL\Desktop\wd"
 
