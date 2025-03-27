@@ -14,7 +14,7 @@
 
 
 from abc import ABC, abstractmethod
-from .. import get_dirs_object
+from .. import get_pn_object
 
 class DataPreprocessor(ABC):
     def __init__(self):
@@ -56,7 +56,7 @@ class DataPreprocessor(ABC):
         self.processed_data = {}
         
         # Get the global directories object
-        self._dirs = get_dirs_object()
+        self.pn = get_pn_object()
     
     @abstractmethod
     def load(self, **kwargs):
