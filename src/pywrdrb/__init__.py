@@ -184,6 +184,10 @@ from .parameters.ffmp import *
 VolBalanceNYCDemand.register()
 
 
+from .pre.predict_inflows import PredictedInflowPreprocessor
+from .pre.predict_diversions import PredictedDiversionPreprocessor
+from .pre.extrapolate_nyc_nj_diversions import ExtrapolatedDiversionPreprocessor
+
 # CL's temporary output parser
 import h5py
 def hdf5_to_dict(file_path):

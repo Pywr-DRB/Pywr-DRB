@@ -778,15 +778,16 @@ class ModelBuilder:
             # NYC
             model_dict["parameters"][f"demand_nyc"] = {
                 "type": "dataframe",
-                "url": str(pn.sc.get(f"diversions/{self.diversion_type}") / "diversion_nyc_extrapolated_mgd.csv"),
+                "url": pn.data.diversions.get_str("diversion_nyc_extrapolated_mgd.csv"),
                 "column": "aggregate",
                 "index_col": "datetime",
                 "parse_dates": True,
             }
+            
             # NJ
             model_dict["parameters"][f"demand_nj"] = {
                 "type": "dataframe",
-                "url": str(pn.sc.get(f"diversions/{self.diversion_type}") / "diversion_nj_extrapolated_mgd.csv"),
+                "url": pn.data.diversions.get_str("diversion_nj_extrapolated_mgd.csv"),
                 "index_col": "datetime",
                 "parse_dates": True,
             }
@@ -1191,7 +1192,7 @@ class ModelBuilder:
                 label = f"demand_nj_lag{lag}_{flow_prediction_mode}"
                 model_dict["parameters"][f"predicted_demand_nj_lag{lag}"] = {
                     "type": "dataframe",
-                    "url": str(pn.sc.get(f"diversions/{self.diversion_type}") / "predicted_diversions_mgd.csv"),
+                    "url": pn.data.diversions.get_str("predicted_diversions_mgd.csv"),
                     "column": label,
                     "index_col": "datetime",
                     "parse_dates": True,
@@ -1233,7 +1234,7 @@ class ModelBuilder:
                 label = f"demand_nj_lag{lag}_{flow_prediction_mode}"
                 model_dict["parameters"][f"predicted_demand_nj_lag{lag}"] = {
                     "type": "dataframe",
-                    "url": str(pn.sc.get(f"diversions/{self.diversion_type}") / "predicted_diversions_mgd.csv"),
+                    "url": pn.data.diversions.get_str("predicted_diversions_mgd.csv"),
                     "column": label,
                     "index_col": "datetime",
                     "parse_dates": True,
