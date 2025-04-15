@@ -353,3 +353,75 @@ class NWMWithObsScaledFlowDataPreprocessor(DataPreprocessor):
             if file_format == 'csv':
                 df.to_csv(self.output_dirs[filename])
                 print(f"Data saved to {self.output_dirs[filename]}")
+                
+                
+class WRFAORCWithObsScaledFlowDataPreprocessor(DataPreprocessor):
+    def __init__(self):
+        """
+        Create flow inputs for both catchment inflows and gauge flows by matching USGS 
+        gage sites to nodes in Pywr-DRB.
+
+        For reservoirs, the matched gages are actually downstream, but assume this flows 
+        into the reservoir from the upstream catchment.
+        For river nodes, upstream reservoir inflows are subtracted from the flow at the 
+        river node USGS gage.
+        For nodes related to USGS gages downstream of reservoirs, the currently 
+        redundant flow with assumed inflow is subtracted, resulting in an additional 
+        catchment flow of 0 until this is updated.
+        Saves csv file, & returns dataframe whose columns are names of Pywr-DRB nodes.
+        """
+        super().__init__()
+        self.flow_type = "wrfaorc_withObsScaled"
+        self.pn.data.flows.mkdir(self.flow_type) # Create the directory if it does not exist
+        self.input_dirs = {
+            "streamflow_nhmv10_mgd.csv": self.pn.data.flows._hydro_model_flow_output.get() / "streamflow_nhmv10_mgd.csv",
+            "scaled_inflows_nhmv10.csv": self.pn.data.flows._scaled_inflows.get() / "scaled_inflows_nhmv10.csv",
+        }
+        # github.com/Pywr-DRB/Input-Data-Retrieval/blob/main/inflow_scaling_regression.py
+        self.output_dirs = {
+            "gage_flow_mgd.csv": self.pn.data.flows.get(self.flow_type) / "gage_flow_mgd.csv",
+            "catchment_inflow_mgd.csv": self.pn.data.flows.get(self.flow_type) / "catchment_inflow_mgd.csv",
+        }
+        # Need to make sure that pn is reloaded such that file directories are added 
+        # to shortcuts. (see __init__.py)
+        
+    def load(self):
+        filename = self.input_dirs["streamflow_nhmv10_mgd.csv"]
+        df = pd.read_csv(filename, sep=",", index_col=0)
+        df.index = pd.to_datetime(df.index)
+        self.raw_data["streamflow_nhmv10_mgd.csv"] = df
+        
+        filename = self.input_dirs["scaled_inflows_nhmv10.csv"]
+        df = pd.read_csv(filename, sep=",", index_col=0)
+        df.index = pd.to_datetime(df.index)
+        self.raw_data["scaled_inflows_nhmv10.csv"] = df
+        
+    def process(self):
+        # First process the nhmv10 data
+        df = self.raw_data["streamflow_nhmv10_mgd.csv"]
+        # 1. Match inflows for each Pywr-DRB node
+        # 1.1 Reservoir inflows
+        site_matches_id = nhm_site_matches
+        inflows = _match_gagues(df, site_matches_id)
+        inflows = _subtract_upstream_catchment_inflows(inflows)
+        
+        # Second process the scaled inflows
+        scaled_obs = self.raw_data["scaled_inflows_nhmv10.csv"]
+        overlap_index = inflows.index.intersection(scaled_obs.index)
+        
+        inflows = inflows.loc[overlap_index]
+        scaled_obs = scaled_obs.loc[overlap_index]
+        
+        for reservoir in reservoir_list_nyc + ["fewalter", "beltzvilleCombined"]:
+            inflows[reservoir] = scaled_obs[reservoir]
+        self.processed_data["catchment_inflow_mgd.csv"] = inflows.copy()
+        
+        inflows = _add_upstream_catchment_inflows(inflows)
+        self.processed_data["gage_flow_mgd.csv"] = inflows.copy()
+        
+    
+    def save(self, file_format='csv'):
+        for filename, df in self.processed_data.items():
+            if file_format == 'csv':
+                df.to_csv(self.output_dirs[filename])
+                print(f"Data saved to {self.output_dirs[filename]}")
