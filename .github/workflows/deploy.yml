@@ -16,7 +16,7 @@ jobs:
       matrix:
         python-version: [3.11]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
 
     # Install python
@@ -43,16 +43,14 @@ jobs:
     # Note: virtual environment by default will be created under ~/venv
     - uses: syphar/restore-virtualenv@v1
       id: cache-virtualenv
-      with:
-        requirement_files: docs/requirements.txt
     - uses: syphar/restore-pip-download-cache@v1
       if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
-
-
     # install python dependencies
     - name: Install python dependencies
-      run: pip install -r docs/requirements.txt
+      run: |
+        python -m pip install --upgrade pip
+        pip install .
       if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
     - name: Verify pywrdrb imports
