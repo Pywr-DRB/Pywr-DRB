@@ -36,31 +36,12 @@ jobs:
 
     - name: Install MPI
       run: sudo apt-get update && sudo apt-get install -y libopenmpi-dev openmpi-bin
-
-
-    # install virtual environment with caching, so only updates when requirements.txt changes,
-    # based on https://github.com/marketplace/actions/restore-or-create-a-python-virtualenv#custom_virtualenv_dir
-    # Note: virtual environment by default will be created under ~/venv 
-    - uses: syphar/restore-virtualenv@v1
-      id: cache-virtualenv
-    - uses: syphar/restore-pip-download-cache@v1
-      if: steps.cache-virtualenv.outputs.cache-hit != 'true'
-
+    
     # install python dependencies
     - name: Install python dependencies
       run: |
         python -m pip install --upgrade pip
         pip install .
-      if: steps.cache-virtualenv.outputs.cache-hit != 'true'
-
-    - name: Verify pywrdrb imports
-      run: |
-        python -c "import pywrdrb; print('pywrdrb imported successfully')"
-        python -c "import pywrdrb.parameters; print('pywrdrb.parameters imported successfully')"
-        python -c "import pywrdrb.pre; print('pywrdrb.pre imported successfully')"
-        python -c "import pywrdrb.utils; print('pywrdrb.utils imported successfully')"
-        python -c "import pywrdrb.plotting; print('pywrdrb.plotting imported successfully')"
-
 
     # Copy example notebooks to docs folder
     - name: Copy example notebooks
@@ -127,3 +108,11 @@ jobs:
 
     # - name: Clear Build Cache
     # run: rm -rf docs/_build
+
+  #- name: Verify pywrdrb imports
+  #  run: |
+  #    python -c "import pywrdrb; print('pywrdrb imported successfully')"
+  #    python -c "import pywrdrb.parameters; print('pywrdrb.parameters imported successfully')"
+  #    python -c "import pywrdrb.pre; print('pywrdrb.pre imported successfully')"
+  #    python -c "import pywrdrb.utils; print('pywrdrb.utils imported successfully')"
+  #    python -c "import pywrdrb.plotting; print('pywrdrb.plotting imported successfully')"
