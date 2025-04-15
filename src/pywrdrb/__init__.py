@@ -110,64 +110,6 @@ def load_pn_config(pn_config):
 reset_pn()
 
 
-#### The following are pending to be removed.
-
-
-# Set a global directory instance
-# Has to be done before importing other modules
-# https://chatgpt.com/share/674673b5-607c-8007-ab64-d845d032cb10
-@dataclass
-class Directories:
-    root_dir: str = field(init=False)
-    input_dir: str = field(init=False)
-    model_data_dir: str = field(init=False)
-
-    def __post_init__(self):
-        """Ensures the correct root directory and initializes paths."""
-        
-        # Get the root directory
-        self.root_dir = os.path.realpath(os.path.dirname(__file__))
-        
-        # Ensure root_dir points to the package directory
-        if not os.path.basename(self.root_dir) == "pywrdrb":
-            self.root_dir = os.path.join(self.root_dir, "pywrdrb")
-
-        # Set input_dir correctly
-        self.input_dir = os.path.join(self.root_dir, "input_data") + os.sep
-        if not os.path.exists(self.input_dir):
-            raise FileNotFoundError(f"input_data folder not found at {self.input_dir}")
-
-        # Set model_data_dir correctly
-        self.model_data_dir = os.path.join(self.root_dir, "model_data") + os.sep
-        if not os.path.exists(self.model_data_dir):
-            raise FileNotFoundError(f"model_data folder not found at {self.model_data_dir}")
-
-
-    def list(self):
-        """Prints the directories."""
-        for attribute, value in self.__dict__.items():
-            print(f"{attribute}: {value}")
-
-# Create a global instance of Directory
-_directory_instance = Directories()
-
-def get_directory() -> Directories:
-    """
-    Returns the global instance of the Directory.
-    """
-    return _directory_instance
-
-def set_directory(**kwargs):
-    """
-    Updates the global Directory instance with the provided keyword arguments.
-    """
-    for key, value in kwargs.items():
-        if hasattr(_directory_instance, key):
-            if not os.path.isdir(value):  # Ensure it's a valid directory
-                raise ValueError(f"Invalid directory path: {value}")
-            setattr(_directory_instance, key, value)
-        else:
-            raise AttributeError(f"Invalid directory attribute: {key}")
 
 
 # Import pywr modules
@@ -186,7 +128,6 @@ VolBalanceNYCDemand.register()
 
 from .pre.predict_inflows import PredictedInflowPreprocessor
 from .pre.predict_diversions import PredictedDiversionPreprocessor
-from .pre.extrapolate_nyc_nj_diversions import ExtrapolatedDiversionPreprocessor
 
 # CL's temporary output parser
 import h5py
