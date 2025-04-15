@@ -21,7 +21,7 @@ sphinx:
     # Additional configuration for sys.path
     sys_path: [
       "../",
-      "../pywrdrb/"
+      "../src"
     ]
 
 # Define the name of the latex output file for PDF builds
