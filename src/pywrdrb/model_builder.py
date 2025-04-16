@@ -1,7 +1,6 @@
 """
 Contains functions used to construct a pywrdrb model in JSON format.
 """
-import os
 import json
 from dataclasses import dataclass, field
 from typing import List, Optional
@@ -20,7 +19,7 @@ from .pywr_drb_node_data import (
 )
 
 # Import here to avoid circular import
-from . import get_pn_object
+from .path_manager import get_pn_object
 
 __all__ = ["ModelBuilder"]
 

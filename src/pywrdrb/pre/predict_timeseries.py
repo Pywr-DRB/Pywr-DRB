@@ -3,7 +3,7 @@ import numpy as np
 import statsmodels.api as sm
 
 from pywrdrb.utils.timeseries import subset_timeseries
-from . import DataPreprocessor
+from .datapreprocessor_ABC import DataPreprocessor
 
 class PredictedTimeseriesPreprocessor(DataPreprocessor):
     def __init__(self, 

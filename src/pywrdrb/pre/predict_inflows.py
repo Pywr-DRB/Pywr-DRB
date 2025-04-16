@@ -1,10 +1,7 @@
 import pandas as pd
-from pywrdrb.utils.timeseries import subset_timeseries, get_rollmean_timeseries
-from pywrdrb.pre.prep_input_data_functions import add_upstream_catchment_inflows
-from pywrdrb.utils.directories import input_dir
 from .predict_timeseries import PredictedTimeseriesPreprocessor
 
-__all__ = ["PredictedDiversionPreprocessor"]
+__all__ = ["PredictedInflowPreprocessor"]
 
 class PredictedInflowPreprocessor(PredictedTimeseriesPreprocessor):
     """

@@ -7,6 +7,7 @@ reset_pn() # Create a new global pathnavigator instance
 
 from .recorder import *
 from .model_builder import *
+from . import pre
 #from .load.data_loader import Data  # Need further work
 
 

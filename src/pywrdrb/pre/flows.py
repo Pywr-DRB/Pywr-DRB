@@ -1,6 +1,6 @@
 
 import pandas as pd
-from . import DataPreprocessor
+from .datapreprocessor_ABC import DataPreprocessor
 from ..pywr_drb_node_data import (
     nhm_site_matches, nwm_site_matches, upstream_nodes_dict, downstream_node_lags
 )
