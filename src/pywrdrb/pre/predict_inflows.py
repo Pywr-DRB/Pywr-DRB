@@ -4,6 +4,8 @@ from pywrdrb.pre.prep_input_data_functions import add_upstream_catchment_inflows
 from pywrdrb.utils.directories import input_dir
 from .predict_timeseries import PredictedTimeseriesPreprocessor
 
+__all__ = ["PredictedDiversionPreprocessor"]
+
 class PredictedInflowPreprocessor(PredictedTimeseriesPreprocessor):
     """
     Predicts catchment inflows at Montague and Trenton using specified modes
@@ -69,13 +71,13 @@ class PredictedInflowPreprocessor(PredictedTimeseriesPreprocessor):
     
         # Input files used for prediction
         self.input_dirs = {
-            "sw_avg_wateruse_pywrdrb_catchments_mgd.csv": self.pn.data.catchment_withdrawals.get("sw_avg_wateruse_pywrdrb_catchments_mgd.csv"),
-            "catchment_inflow_mgd.csv": self.pn.data.flows.get(self.flow_type) / "catchment_inflow_mgd.csv",
+            "sw_avg_wateruse_pywrdrb_catchments_mgd.csv": self.pn.catchment_withdrawals.get("sw_avg_wateruse_pywrdrb_catchments_mgd.csv"),
+            "catchment_inflow_mgd.csv": self.pn.flows.get(self.flow_type) / "catchment_inflow_mgd.csv",
         }
         
         # Output locations for predicted timeseries
         self.output_dirs = {
-            "predicted_inflows_mgd.csv": self.pn.data.flows.get(self.flow_type) / "predicted_inflows_mgd.csv",
+            "predicted_inflows_mgd.csv": self.pn.flows.get(self.flow_type) / "predicted_inflows_mgd.csv",
         }
         
         # Dictionary with (node, travel_time) pairs

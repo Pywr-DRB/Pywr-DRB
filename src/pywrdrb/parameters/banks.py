@@ -21,6 +21,113 @@ max_bank_volumes = {
 
 bank_options = list(max_bank_volumes.keys())
 
+class IERQRelease_step1(Parameter):
+    """
+    Returns the max allowable release.
+
+    Args:
+        Parameter (_type_): _description_
+    """
+    def __init__(
+        self,
+        model,
+        bank,
+        release_needed,
+        **kwargs,
+    ):
+        super().__init__(model, **kwargs)
+        self.bank = bank
+        self.step = 1
+                
+        # Parameter with current release needed
+        self.release_needed = release_needed   
+        self.parents.add(self.release_needed)     
+    
+    def setup(self):
+        """Allocate an array to hold the parameter state."""
+        super().setup()
+        self.num_scenarios = len(self.model.scenarios.combinations)
+        self.bank_remaining = np.ones(shape=(self.num_scenarios)) * max_bank_volumes[self.bank]
+        self.bank_release = np.empty([self.num_scenarios], np.float64)
+        self.datetime = None
+
+    def value(self, timestep, scenario_index):
+        """
+        Returns the current volume remaining for the scenario.
+
+        Args:
+            timestep (Timestep): The current timestep.
+            scenario_index (ScenarioIndex): The scenario index.
+
+        Returns:
+            float: The current volume remaining for the scenario.
+        """
+        if self.datetime is None:
+            self.datetime = self.model.timestepper.current.datetime
+            self.datetime = pd.Timestamp(self.datetime)
+        
+        
+        trenton_release_needed = self.release_needed.get_value(scenario_index)
+        
+        
+        allowable_release = min(self.bank_remaining[scenario_index.global_id], 
+                                trenton_release_needed)
+        
+        allowable_release = max(allowable_release, 0.0)
+        
+        self.bank_release[scenario_index.global_id] = allowable_release        
+        return self.bank_release[scenario_index.global_id]
+
+
+    def after(self):
+        """
+        """
+        # Remove today's release from the bank
+        timestep = self.model.timestepper.current
+        
+        self.bank_remaining -= self.bank_release
+        
+        self.bank_remaining[self.bank_remaining < 0.0] = 0.0
+        
+        # Reset if May 31
+        if self.datetime.month == 5 and self.datetime.day == 31:
+            self.bank_remaining = np.ones(shape=(self.num_scenarios)) * max_bank_volumes[self.bank]
+        
+        # Advance datetime
+        self.datetime += pd.Timedelta(1, "d")
+
+
+    @classmethod
+    def load(cls, model, data):
+        bank = data.pop("bank")
+        
+        if bank == "trenton":
+            pass
+        else:
+            return ValueError(f"IERQ bank {bank} not yet implemented for parameter IERQRelease")
+
+        param = f"release_needed_mrf_trenton_after_lower_basin_contributions_step1"
+        release_needed_step1 = load_parameter(model, param)
+
+        return cls(
+            model, bank, release_needed_step1, **data
+        )
+
+# Register the parameters
+IERQRelease_step1.register()
+
+
+
+
+# class NJDiversionOffset:
+#     """
+#     TODO: Implement NJ Diversion Offset bank (FFMP Section 4.d)    
+#     """
+#     def __init__(
+#         self,
+#         model,
+#         **kwargs):
+#         pass
 
 # class IERQRemaining(Parameter):
 #     """
@@ -155,112 +262,3 @@ bank_options = list(max_bank_volumes.keys())
 #         return cls(
 #             model, step, bank, bank_releases, drought_level_agg_nyc, **data
 #         )
-
-
-class IERQRelease_step1(Parameter):
-    """
-    Returns the max allowable release.
-
-    Args:
-        Parameter (_type_): _description_
-    """
-    def __init__(
-        self,
-        model,
-        bank,
-        release_needed,
-        **kwargs,
-    ):
-        super().__init__(model, **kwargs)
-        self.bank = bank
-        self.step = 1
-                
-        # Parameter with current release needed
-        self.release_needed = release_needed   
-        self.parents.add(self.release_needed)     
-    
-    def setup(self):
-        """Allocate an array to hold the parameter state."""
-        super().setup()
-        self.num_scenarios = len(self.model.scenarios.combinations)
-        self.bank_remaining = np.ones(shape=(self.num_scenarios)) * max_bank_volumes[self.bank]
-        self.bank_release = np.empty([self.num_scenarios], np.float64)
-        self.datetime = None
-
-    def value(self, timestep, scenario_index):
-        """
-        Returns the current volume remaining for the scenario.
-
-        Args:
-            timestep (Timestep): The current timestep.
-            scenario_index (ScenarioIndex): The scenario index.
-
-        Returns:
-            float: The current volume remaining for the scenario.
-        """
-        if self.datetime is None:
-            self.datetime = self.model.timestepper.current.datetime
-            self.datetime = pd.Timestamp(self.datetime)
-        
-        
-        trenton_release_needed = self.release_needed.get_value(scenario_index)
-        
-        
-        allowable_release = min(self.bank_remaining[scenario_index.global_id], 
-                                trenton_release_needed)
-        
-        allowable_release = max(allowable_release, 0.0)
-        
-        self.bank_release[scenario_index.global_id] = allowable_release        
-        return self.bank_release[scenario_index.global_id]
-
-
-    def after(self):
-        """
-        """
-        # Remove today's release from the bank
-        timestep = self.model.timestepper.current
-        
-        self.bank_remaining -= self.bank_release
-        
-        self.bank_remaining[self.bank_remaining < 0.0] = 0.0
-        
-        # Reset if May 31
-        if self.datetime.month == 5 and self.datetime.day == 31:
-            self.bank_remaining = np.ones(shape=(self.num_scenarios)) * max_bank_volumes[self.bank]
-        
-        # Advance datetime
-        self.datetime += pd.Timedelta(1, "d")
-
-
-    @classmethod
-    def load(cls, model, data):
-        bank = data.pop("bank")
-        
-        if bank == "trenton":
-            pass
-        else:
-            return ValueError(f"IERQ bank {bank} not yet implemented for parameter IERQRelease")
-
-        param = f"release_needed_mrf_trenton_after_lower_basin_contributions_step1"
-        release_needed_step1 = load_parameter(model, param)
-
-        return cls(
-            model, bank, release_needed_step1, **data
-        )
-
-# Register the parameters
-IERQRelease_step1.register()
-
-
-
-
-# class NJDiversionOffset:
-#     """
-#     TODO: Implement NJ Diversion Offset bank (FFMP Section 4.d)    
-#     """
-#     def __init__(
-#         self,
-#         model,
-#         **kwargs):
-#         pass

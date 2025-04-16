@@ -1,4 +1,3 @@
-import os
 import numpy as np
 import pandas as pd
 import math
@@ -7,11 +6,10 @@ from pywr.parameters import Parameter, load_parameter
 
 from ..utils.lists import modified_starfit_reservoir_list
 from .lower_basin_ffmp import conservation_releases, max_discharges
+from .. import get_pn_object
 
-
-import pywrdrb
-directories = pywrdrb.get_directory()
-model_data_dir = directories.model_data_dir
+global pn
+pn = get_pn_object()
 
 class STARFITReservoirRelease(Parameter):
     """
@@ -58,19 +56,16 @@ class STARFITReservoirRelease(Parameter):
         use_adjusted_storage = True
         self.WATER_YEAR_OFFSET = 0
 
-    def load_default_starfit_params(self, model_data_dir):
+    def load_default_starfit_params(self):
         """
         Load default STARFIT parameters from istarf_conus.csv
-
-        Args:
-        model_data_dir (str): The path to the model data directory.
 
         Returns:
         pd.DataFrame: The default STARFIT parameters.
         """
 
         return pd.read_csv(
-            os.path.join(model_data_dir, "drb_model_istarf_conus.csv"), sep=",", index_col=0
+            pn.operational_constants.get_str("istarf_conus.csv"), sep=",", index_col=0
         )
 
     def load_starfit_sensitivity_samples(self, sample_scenario_id):
@@ -86,7 +81,10 @@ class STARFITReservoirRelease(Parameter):
         samples = f"/starfit/scenario_{sample_scenario_id}"
 
         # Load the data from the HDF5 file using pandas
-        df = pd.read_hdf(os.path.join(model_data_dir, "scenarios_data.h5", key=samples))
+        df = pd.read_hdf(
+            pn.operational_constants.get_str("scenarios_data.h5"),
+            key=samples
+            )
         df.set_index("reservoir", inplace=True)
 
         return df
@@ -346,7 +344,7 @@ class STARFITReservoirRelease(Parameter):
             self.parameters_loaded = True
 
         elif not self.parameters_loaded and not self.run_sensitivity_analysis:
-            self.starfit_params = self.load_default_starfit_params(model_data_dir)
+            self.starfit_params = self.load_default_starfit_params()
             # print(f"Assigning STARFIT parameters for {self.reservoir_name}")
             self.assign_starfit_param_values(self.starfit_params)
             self.parameters_loaded = True
