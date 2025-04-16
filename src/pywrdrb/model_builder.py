@@ -54,7 +54,7 @@ class Options:
             print(f"{attribute}: {value}")
 
 class ModelBuilder:
-    def __init__(self, start_date, end_date, inflow_type, diversion_type=None, options={}, input_dir=None, model_data_dir=None):
+    def __init__(self, start_date, end_date, inflow_type, diversion_type=None, options={}):
         """
         ModelBuilder class to construct a pywr model for the Delaware River Basin. 
         Essentially, this class creates model dictionary to hold all model nodes, 
