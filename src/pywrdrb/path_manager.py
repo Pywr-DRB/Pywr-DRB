@@ -1,5 +1,5 @@
 import os
-import copy
+from copy import deepcopy
 import pathnavigator
 
 __all__ = [
@@ -49,7 +49,7 @@ def get_pn_object(copy=False):
     """
     global pn  # Ensure pn is modified globally
     if copy:
-        return copy.deepcopy(pn)
+        return deepcopy(pn)
     else:
         return pn
 

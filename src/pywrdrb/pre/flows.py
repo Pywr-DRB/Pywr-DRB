@@ -2,7 +2,7 @@
 import pandas as pd
 from .datapreprocessor_ABC import DataPreprocessor
 from ..pywr_drb_node_data import (
-    nhm_site_matches, nwm_site_matches, upstream_nodes_dict, downstream_node_lags
+    nhm_site_matches, nwm_site_matches, wrf_hydro_site_matches, upstream_nodes_dict, downstream_node_lags
 )
 from ..utils.lists import reservoir_list_nyc
 
@@ -11,6 +11,7 @@ __all__ = [
     "NWMFlowDataPreprocessor",
     "NHMWithObsScaledFlowDataPreprocessor",
     "NWMWithObsScaledFlowDataPreprocessor",
+    "WRFAORCWithObsScaledFlowDataPreprocessor",
 ]
     
 def _subtract_upstream_catchment_inflows(inflows):
@@ -329,7 +330,7 @@ class NWMWithObsScaledFlowDataPreprocessor(DataPreprocessor):
         df = self.raw_data["streamflow_nwmv21_mgd.csv"]
         # 1. Match inflows for each Pywr-DRB node
         # 1.1 Reservoir inflows
-        site_matches_id = nhm_site_matches
+        site_matches_id = nwm_site_matches
         inflows = _match_gagues(df, site_matches_id)
         inflows = _subtract_upstream_catchment_inflows(inflows)
         
@@ -374,8 +375,8 @@ class WRFAORCWithObsScaledFlowDataPreprocessor(DataPreprocessor):
         self.flow_type = "wrfaorc_withObsScaled"
         self.pn.flows.mkdir(self.flow_type) # Create the directory if it does not exist
         self.input_dirs = {
-            "streamflow_nhmv10_mgd.csv": self.pn.flows._hydro_model_flow_output.get() / "streamflow_nhmv10_mgd.csv",
-            "scaled_inflows_nhmv10.csv": self.pn.flows._scaled_inflows.get() / "scaled_inflows_nhmv10.csv",
+            "streamflow_wrfaorc_calib_nlcd2016.csv": self.pn.flows._hydro_model_flow_output.get() / "streamflow_wrfaorc_calib_nlcd2016.csv",
+            "scaled_inflows_wrfaorc.csv": self.pn.flows._scaled_inflows.get() / "scaled_inflows_wrfaorc.csv",
         }
         # github.com/Pywr-DRB/Input-Data-Retrieval/blob/main/inflow_scaling_regression.py
         self.output_dirs = {
@@ -386,27 +387,27 @@ class WRFAORCWithObsScaledFlowDataPreprocessor(DataPreprocessor):
         # to shortcuts. (see __init__.py)
         
     def load(self):
-        filename = self.input_dirs["streamflow_nhmv10_mgd.csv"]
+        filename = self.input_dirs["streamflow_wrfaorc_calib_nlcd2016.csv"]
         df = pd.read_csv(filename, sep=",", index_col=0)
         df.index = pd.to_datetime(df.index)
-        self.raw_data["streamflow_nhmv10_mgd.csv"] = df
+        self.raw_data["streamflow_wrfaorc_mgd.csv"] = df
         
-        filename = self.input_dirs["scaled_inflows_nhmv10.csv"]
+        filename = self.input_dirs["scaled_inflows_wrfaorc.csv"]
         df = pd.read_csv(filename, sep=",", index_col=0)
         df.index = pd.to_datetime(df.index)
-        self.raw_data["scaled_inflows_nhmv10.csv"] = df
+        self.raw_data["scaled_inflows_wrfaorc.csv"] = df
         
     def process(self):
-        # First process the nhmv10 data
-        df = self.raw_data["streamflow_nhmv10_mgd.csv"]
+        # First process the wrfaorc data
+        df = self.raw_data["streamflow_wrfaorc_mgd.csv"]
         # 1. Match inflows for each Pywr-DRB node
         # 1.1 Reservoir inflows
-        site_matches_id = nhm_site_matches
+        site_matches_id = wrf_hydro_site_matches
         inflows = _match_gagues(df, site_matches_id)
         inflows = _subtract_upstream_catchment_inflows(inflows)
         
         # Second process the scaled inflows
-        scaled_obs = self.raw_data["scaled_inflows_nhmv10.csv"]
+        scaled_obs = self.raw_data["scaled_inflows_wrfaorc.csv"]
         overlap_index = inflows.index.intersection(scaled_obs.index)
         
         inflows = inflows.loc[overlap_index]
@@ -419,7 +420,6 @@ class WRFAORCWithObsScaledFlowDataPreprocessor(DataPreprocessor):
         inflows = _add_upstream_catchment_inflows(inflows)
         self.processed_data["gage_flow_mgd.csv"] = inflows.copy()
         
-    
     def save(self, file_format='csv'):
         for filename, df in self.processed_data.items():
             if file_format == 'csv':
