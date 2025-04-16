@@ -4,6 +4,7 @@ from pywrdrb.pre.prep_input_data_functions import add_upstream_catchment_inflows
 from pywrdrb.utils.directories import input_dir
 from .predict_timeseries import PredictedTimeseriesPreprocessor
 
+__all__ = ["PredictedDiversionPreprocessor"]
 
 class PredictedDiversionPreprocessor(PredictedTimeseriesPreprocessor):
     """
@@ -70,13 +71,13 @@ class PredictedDiversionPreprocessor(PredictedTimeseriesPreprocessor):
     
         # Input files used for prediction
         self.input_dirs = {
-            "sw_avg_wateruse_pywrdrb_catchments_mgd.csv": self.pn.data.catchment_withdrawals.get("sw_avg_wateruse_pywrdrb_catchments_mgd.csv"),
-            "diversion_nj_extrapolated_mgd.csv" : self.pn.data.diversions.get("diversion_nj_extrapolated_mgd.csv"),
+            "sw_avg_wateruse_pywrdrb_catchments_mgd.csv": self.pn.catchment_withdrawals.get("sw_avg_wateruse_pywrdrb_catchments_mgd.csv"),
+            "diversion_nj_extrapolated_mgd.csv" : self.pn.diversions.get("diversion_nj_extrapolated_mgd.csv"),
         }
         
         # Output locations for predicted timeseries
         self.output_dirs = {
-            "predicted_diversions_mgd.csv": self.pn.data.get("diversions") / "predicted_diversions_mgd.csv",
+            "predicted_diversions_mgd.csv": self.pn.get("diversions") / "predicted_diversions_mgd.csv",
         }
         
 

@@ -1,7 +1,10 @@
 from pywr.core import Node, Parameter
 from pywr.recorders import Recorder
 from pywr.recorders import NumpyArrayNodeRecorder, NumpyArrayParameterRecorder
+from pywr.recorders import TablesRecorder # Just to put here in case user wants to use it
 import h5py 
+
+__all__ = ["OutputRecorder"]
 
 class OutputRecorder(Recorder):
     """

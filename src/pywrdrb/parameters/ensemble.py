@@ -14,9 +14,13 @@ import h5py
 
 from pywr.parameters import Parameter
 
-import pywrdrb
-directories = pywrdrb.get_directory()
-input_dir = directories.input_dir
+from .. import get_pn_object
+
+global pn
+pn = get_pn_object()
+input_dir = ""
+# Need to get the input directory from the path navigator
+# Assign to Trev
 
 class FlowEnsemble(Parameter):
     """This parameter provides access to inflow ensemble timeseries during the simulation period.
@@ -34,9 +38,6 @@ class FlowEnsemble(Parameter):
 
     def __init__(self, model, name, inflow_type, inflow_ensemble_indices, **kwargs):
         super().__init__(model, **kwargs)
-
-        from pywrdrb import get_directory
-        input_dir = get_directory().input_dir
 
         if "syn" in inflow_type:
             input_dir_ = os.path.join(input_dir, "synthetic_ensembles")

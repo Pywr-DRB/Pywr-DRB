@@ -1,7 +1,5 @@
 #%%
-from pprint import pprint
 import pywrdrb
-from pywrdrb import OutputRecorder
 
 pn = pywrdrb.get_pn_object()
 pn_config = pywrdrb.get_pn_config()
@@ -11,7 +9,7 @@ pn_config["flows/my_data"] = pn_config["flows/nhmv10"]
 
 pywrdrb.load_pn_config(pn_config)
 
-
+wd = r"./"
 
 #%%
 # Now we can use the custom inflow type
@@ -24,12 +22,6 @@ mb = pywrdrb.ModelBuilder(
 
 # Make a model (you are expected to see error here)
 mb.make_model()
-
-
-wd = r"./"
-
-
-# pprint(pywrdrb.get_directory())
 
 ###### Create a model ######
 #Initialize a model builder
@@ -48,7 +40,6 @@ model_dict = mb.model_dict
 model_filename = rf"{wd}\model.json"
 mb.write_model(model_filename)
 #%%
-
 # ###### Run a simulation ######
 # # Load the model using Model inherited from pywr
 model = pywrdrb.Model.load(model_filename)
@@ -57,9 +48,7 @@ model = pywrdrb.Model.load(model_filename)
 output_filename = rf"{wd}\model_output.hdf5"
 
 #%%
-
-
-recorder = OutputRecorder(
+recorder = pywrdrb.OutputRecorder(
     model, output_filename, 
     parameters=[p for p in model.parameters if p.name]
 )
@@ -67,8 +56,12 @@ recorder = OutputRecorder(
 # Run a simulation
 stats = model.run()
 
+#%%
+# Load raw hdf5 file
+res = pywrdrb.hdf5_to_dict(output_filename)
 
-###### Post process ######
+#%%
+###### Post process ######  Pending to be updated
 # Load simulation results
 
 # Setup data loader object

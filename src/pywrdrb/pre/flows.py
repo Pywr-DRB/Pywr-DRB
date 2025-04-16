@@ -117,13 +117,13 @@ class NHMFlowDataPreprocessor(DataPreprocessor):
         """
         super().__init__()
         self.flow_type = "nhmv10"
-        self.pn.data.flows.mkdir(self.flow_type) # Create the directory if it does not exist
+        self.pn.flows.mkdir(self.flow_type) # Create the directory if it does not exist
         self.input_dirs = {
-            "streamflow_nhmv10_mgd.csv": self.pn.data.flows._hydro_model_flow_output.get() / "streamflow_nhmv10_mgd.csv",
+            "streamflow_nhmv10_mgd.csv": self.pn.flows._hydro_model_flow_output.get() / "streamflow_nhmv10_mgd.csv",
         }
         self.output_dirs = {
-            "gage_flow_mgd.csv": self.pn.data.flows.get(self.flow_type) / "gage_flow_mgd.csv",
-            "catchment_inflow_mgd.csv": self.pn.data.flows.get(self.flow_type) / "catchment_inflow_mgd.csv",
+            "gage_flow_mgd.csv": self.pn.flows.get(self.flow_type) / "gage_flow_mgd.csv",
+            "catchment_inflow_mgd.csv": self.pn.flows.get(self.flow_type) / "catchment_inflow_mgd.csv",
         }
         # Need to make sure that pn is reloaded such that file directories are added 
         # to shortcuts. (see __init__.py)
@@ -173,13 +173,13 @@ class NWMFlowDataPreprocessor(DataPreprocessor):
         """
         super().__init__()
         self.flow_type = "nwmv21"
-        self.pn.data.flows.mkdir(self.flow_type) # Create the directory if it does not exist
+        self.pn.flows.mkdir(self.flow_type) # Create the directory if it does not exist
         self.input_dirs = {
-            "streamflow_nwmv21_mgd.csv": self.pn.data.flows._hydro_model_flow_output.get() / "streamflow_nwmv21_mgd.csv",
+            "streamflow_nwmv21_mgd.csv": self.pn.flows._hydro_model_flow_output.get() / "streamflow_nwmv21_mgd.csv",
         }
         self.output_dirs = {
-            "gage_flow_mgd.csv": self.pn.data.flows.get(self.flow_type) / "gage_flow_mgd.csv",
-            "catchment_inflow_mgd.csv": self.pn.data.flows.get(self.flow_type) / "catchment_inflow_mgd.csv",
+            "gage_flow_mgd.csv": self.pn.flows.get(self.flow_type) / "gage_flow_mgd.csv",
+            "catchment_inflow_mgd.csv": self.pn.flows.get(self.flow_type) / "catchment_inflow_mgd.csv",
         }
         # Need to make sure that pn is reloaded such that file directories are added 
         # to shortcuts. (see __init__.py)
@@ -229,15 +229,15 @@ class NHMWithObsScaledFlowDataPreprocessor(DataPreprocessor):
         """
         super().__init__()
         self.flow_type = "nhmv10_withObsScaled"
-        self.pn.data.flows.mkdir(self.flow_type) # Create the directory if it does not exist
+        self.pn.flows.mkdir(self.flow_type) # Create the directory if it does not exist
         self.input_dirs = {
-            "streamflow_nhmv10_mgd.csv": self.pn.data.flows._hydro_model_flow_output.get() / "streamflow_nhmv10_mgd.csv",
-            "scaled_inflows_nhmv10.csv": self.pn.data.flows._scaled_inflows.get() / "scaled_inflows_nhmv10.csv",
+            "streamflow_nhmv10_mgd.csv": self.pn.flows._hydro_model_flow_output.get() / "streamflow_nhmv10_mgd.csv",
+            "scaled_inflows_nhmv10.csv": self.pn.flows._scaled_inflows.get() / "scaled_inflows_nhmv10.csv",
         }
         # github.com/Pywr-DRB/Input-Data-Retrieval/blob/main/inflow_scaling_regression.py
         self.output_dirs = {
-            "gage_flow_mgd.csv": self.pn.data.flows.get(self.flow_type) / "gage_flow_mgd.csv",
-            "catchment_inflow_mgd.csv": self.pn.data.flows.get(self.flow_type) / "catchment_inflow_mgd.csv",
+            "gage_flow_mgd.csv": self.pn.flows.get(self.flow_type) / "gage_flow_mgd.csv",
+            "catchment_inflow_mgd.csv": self.pn.flows.get(self.flow_type) / "catchment_inflow_mgd.csv",
         }
         # Need to make sure that pn is reloaded such that file directories are added 
         # to shortcuts. (see __init__.py)
@@ -300,15 +300,15 @@ class NWMWithObsScaledFlowDataPreprocessor(DataPreprocessor):
         """
         super().__init__()
         self.flow_type = "nwmv21_withObsScaled"
-        self.pn.data.flows.mkdir(self.flow_type) # Create the directory if it does not exist
+        self.pn.flows.mkdir(self.flow_type) # Create the directory if it does not exist
         self.input_dirs = {
-            "streamflow_nwmv21_mgd.csv": self.pn.data.flows._hydro_model_flow_output.get() / "streamflow_nwmv21_mgd.csv",
-            "scaled_inflows_nwmv21.csv": self.pn.data.flows._scaled_inflows.get() / "scaled_inflows_nwmv21.csv",
+            "streamflow_nwmv21_mgd.csv": self.pn.flows._hydro_model_flow_output.get() / "streamflow_nwmv21_mgd.csv",
+            "scaled_inflows_nwmv21.csv": self.pn.flows._scaled_inflows.get() / "scaled_inflows_nwmv21.csv",
         }
         # github.com/Pywr-DRB/Input-Data-Retrieval/blob/main/inflow_scaling_regression.py
         self.output_dirs = {
-            "gage_flow_mgd.csv": self.pn.data.flows.get(self.flow_type) / "gage_flow_mgd.csv",
-            "catchment_inflow_mgd.csv": self.pn.data.flows.get(self.flow_type) / "catchment_inflow_mgd.csv",
+            "gage_flow_mgd.csv": self.pn.flows.get(self.flow_type) / "gage_flow_mgd.csv",
+            "catchment_inflow_mgd.csv": self.pn.flows.get(self.flow_type) / "catchment_inflow_mgd.csv",
         }
         # Need to make sure that pn is reloaded such that file directories are added 
         # to shortcuts. (see __init__.py)
@@ -372,15 +372,15 @@ class WRFAORCWithObsScaledFlowDataPreprocessor(DataPreprocessor):
         """
         super().__init__()
         self.flow_type = "wrfaorc_withObsScaled"
-        self.pn.data.flows.mkdir(self.flow_type) # Create the directory if it does not exist
+        self.pn.flows.mkdir(self.flow_type) # Create the directory if it does not exist
         self.input_dirs = {
-            "streamflow_nhmv10_mgd.csv": self.pn.data.flows._hydro_model_flow_output.get() / "streamflow_nhmv10_mgd.csv",
-            "scaled_inflows_nhmv10.csv": self.pn.data.flows._scaled_inflows.get() / "scaled_inflows_nhmv10.csv",
+            "streamflow_nhmv10_mgd.csv": self.pn.flows._hydro_model_flow_output.get() / "streamflow_nhmv10_mgd.csv",
+            "scaled_inflows_nhmv10.csv": self.pn.flows._scaled_inflows.get() / "scaled_inflows_nhmv10.csv",
         }
         # github.com/Pywr-DRB/Input-Data-Retrieval/blob/main/inflow_scaling_regression.py
         self.output_dirs = {
-            "gage_flow_mgd.csv": self.pn.data.flows.get(self.flow_type) / "gage_flow_mgd.csv",
-            "catchment_inflow_mgd.csv": self.pn.data.flows.get(self.flow_type) / "catchment_inflow_mgd.csv",
+            "gage_flow_mgd.csv": self.pn.flows.get(self.flow_type) / "gage_flow_mgd.csv",
+            "catchment_inflow_mgd.csv": self.pn.flows.get(self.flow_type) / "catchment_inflow_mgd.csv",
         }
         # Need to make sure that pn is reloaded such that file directories are added 
         # to shortcuts. (see __init__.py)
