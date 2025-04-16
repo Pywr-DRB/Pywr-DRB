@@ -132,7 +132,7 @@ class OutputRecorder(Recorder):
                 try:
                     hdf.create_dataset(name, data=data)            
                 except Exception as e:
-                    print(f"OutputRecorder.to_hdf5() error during create_dataset() with {var} and {idx}")
+                    print(f"OutputRecorder.to_hdf5() error during create_dataset() with {name} and data type {type(data)}")
                     print(e)
                     
 OutputRecorder.register()
