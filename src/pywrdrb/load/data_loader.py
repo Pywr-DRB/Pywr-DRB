@@ -1,20 +1,16 @@
 import pandas as pd
-
+import os
 import pywrdrb
 from pywrdrb.load.abstract_loader import AbstractDataLoader
 from pywrdrb.load import Output, Observation
-from pywrdrb.load import HydrologicModelFlow
+# from pywrdrb.load import HydrologicModelFlow
 
 from pywrdrb.utils.results_sets import pywrdrb_results_set_opts, hydrologic_model_results_set_opts, obs_results_set_opts
-from pywrdrb.utils.directories import output_dir
 
-directories = pywrdrb.get_directory()
-input_dir = directories.input_dir
-input_dir += "/"
+from pywrdrb import get_pn_object
+pn = get_pn_object()
 
 default_kwargs = {
-    "output_dir": output_dir,
-    "input_dir": input_dir,
     "datatypes": [],
     "results_sets": [],
     "output_filenames": None,
@@ -35,19 +31,31 @@ all_results_sets = pywrdrb_results_set_opts + obs_results_set_opts + hydrologic_
 
 class Data(AbstractDataLoader):
     
-    def __init__(self, **kwargs):
+    def __init__(self, pn=pn, **kwargs):
         """
         Initialize the Data loader with default and provided keyword arguments.
 
         Keyword Args:
-            output_dir (str): Directory for output files.
-            input_dir (str): Directory for input files.
-            datatypes (list): List of data types to load. Options: 'output', 'obs', 'nhmv10', 'nwmv21'.
             results_sets (list): List of results sets to load.
-            output_filenames (list): List of pywrdrb output filenames, with path, to load. Only necessary when `output` is in datatypes.
+            output_filenames (list): List of pywrdrb output filenames, with path, to load. Only necessary for Data.load_output().
             units (str): Units for the results. (default 'MG').
             print_status (bool): Whether to print status updates (default False).
+            
+        Example usage:
+        from pywrdrb import Data
+
+        # For loading observations data
+        data = Data(results_sets=['major_flow'], print_status=True)
+        data.load_observations()
+
+        # For output data, must provide output filenames
+        f = "./output_data/drb_output_nhmv10.hdf5"
+        data.load_output(output_filenames=[f])
         """
+        
+        # pathnavigator object
+        self.pn = pn
+        
         self.all_results_sets = all_results_sets
         self.default_kwargs = default_kwargs
         self.__parse_kwargs__(default_kwargs=self.default_kwargs,
@@ -71,8 +79,9 @@ class Data(AbstractDataLoader):
     
     def __get_results_sets_subset__(self, datatype):
         """
-        Get a subset of results_sets that are (1) valid for the specified datatype 
-        and (2) not already stored in the object.
+        Get a subset of results_sets that are:
+        (1) valid for the specified datatype and  
+        (2) not already stored in the object.
         
         Args:
             datatype (str): The datatype of interest. Options: 'output', 'obs', 'nhmv10', 'nwmv21'.
@@ -95,74 +104,21 @@ class Data(AbstractDataLoader):
                 results_sets_subset.remove(s)
         
         return results_sets_subset
-                
-    
-    def load(self, 
-             **kwargs):
-        """
-        Load data for specified datatypes and results sets.
 
-        Keyword Args:
-            datatypes (list): Data types to load ('output', 'obs', etc.).
-            results_sets (list): Results sets to load.
-            print_status (bool): Whether to print status updates.
+    def __print_status__(self, message):
+        """
+        Print status message if print_status is True.
+
+        Args:
+            message (str): Message to be printed.
 
         Returns:
             None
         """
-        self.__parse_kwargs__(default_kwargs=self.default_kwargs,
-                                **kwargs)
-        
-        for datatype in self.datatypes:
+        if self.print_status:
+            print(message)
             
-            if self.print_status:
-                print(rf"Loading {datatype} data...")
-        
-            results_sets_subset = self.__get_results_sets_subset__(datatype)
-
-            if datatype == 'output':
-                
-                assert(self.output_filenames is not None), "output_filenames list must be provided when loading 'output' datatypes."
-                
-                loader = Output(
-                    output_filenames=self.output_filenames, 
-                    results_sets=results_sets_subset, 
-                    units=self.units,
-                    print_status=self.print_status
-                    )
-                
-                loader.load()
-            
-            elif datatype in ['obs']:
-                
-                loader = Observation(
-                    input_dir = self.input_dir,
-                    results_sets = results_sets_subset,
-                    units = self.units,
-                    print_status = self.print_status
-                )
-
-                loader.load()
-                
-            elif datatype in ['nhmv10', 'nwmv21']:
-
-                loader = HydrologicModelFlow(
-                    input_dir = self.input_dir,
-                    model = datatype,
-                    results_sets = results_sets_subset,
-                    units = self.units,
-                    print_status = self.print_status
-                )
-                
-                loader.load()
-            
-            else:
-                print(rf"Invalid datatype specified: {datatype}")
-        
-            self.__set_loader_data__(loader)
-        
-        
-
+    
     def __set_loader_data__(self, loader):
         """
         Set data stored in an loader object as attributes of this class.
@@ -175,7 +131,82 @@ class Data(AbstractDataLoader):
         """
         for results_set in loader.results_sets:
             self.set_data(getattr(loader, results_set), results_set)
+    
+    
+    def load_observations(self, **kwargs):
+        """
+        Load observational data.
+        """
+        self.__parse_kwargs__(default_kwargs=self.default_kwargs,
+                                **kwargs)
+        self.__print_status__(f"Loading observations data...")
+        
+        results_sets_subset = self.__get_results_sets_subset__('obs')
+        
+        # Directory with obs data from pn
+        input_dir = self.pn.observations.get_str() + os.sep + "_raw" + os.sep 
+        
+        
+        # Observation data loader
+        loader = Observation(
+            input_dir = input_dir,
+            results_sets = results_sets_subset,
+            units = self.units,
+            print_status = self.print_status
+        )
 
+        loader.load()
+        self.__set_loader_data__(loader)
+        return 
+    
+    
+    def load_output(self, **kwargs):
+        """
+        Load data from a pywrdrb output file. 
+        """
+        
+        self.__parse_kwargs__(default_kwargs=self.default_kwargs,
+                                **kwargs)
+        self.__print_status__(f"Loading pywrdrb output data...")
+        
+        results_sets_subset = self.__get_results_sets_subset__('output')
+        
+        assert(self.output_filenames is not None), "output_filenames list must be provided for Data.load_output()"
+        
+        loader = Output(
+            output_filenames=self.output_filenames, 
+            results_sets=results_sets_subset, 
+            units=self.units,
+            print_status=self.print_status
+            )
+        
+        loader.load()
+        self.__set_loader_data__(loader)
+        return 
+    
+        
+    #TODO: Implement this for different models
+    # def load_hydrologic_model(self, 
+    #                           **kwargs):
+        
+    #     self.__parse_kwargs__(default_kwargs=self.default_kwargs,
+    #                             **kwargs)
+    #     self.__print_status__(f"Loading observations data...")
+        
+    #     results_sets_subset = self.__get_results_sets_subset__('obs')
+        
+        
+    #     loader = HydrologicModelFlow(
+    #         input_dir = self.input_dir,
+    #         model = datatype,
+    #         results_sets = results_sets_subset,
+    #         units = self.units,
+    #         print_status = self.print_status
+    #     )
+        
+    #     loader.load()
+    #     self.__set_loader_data__(loader)
+    #     pass
 
         
     def export(self, file):

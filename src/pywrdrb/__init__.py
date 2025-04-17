@@ -8,8 +8,7 @@ reset_pn() # Create a new global pathnavigator instance
 from .recorder import *
 from .model_builder import *
 from . import pre
-#from .load.data_loader import Data  # Need further work
-
+from .load.data_loader import Data  
 
 # All "parameters" need to be registered such that they can be accessed in pywr when loading a model file.
 # We register the parameter classes right after they are defined. But some time it they are not correctly registered.

@@ -1,17 +1,10 @@
 import numpy as np
 
-from pywrdrb.load.abstract_loader import AbstractDataLoader
+from pywrdrb.load.abstract_loader import AbstractDataLoader, default_kwargs
 from pywrdrb.load.get_results import get_pywrdrb_results
 from pywrdrb.utils.results_sets import pywrdrb_results_set_opts
 from pywrdrb.utils.directories import output_dir
 from pywrdrb.utils.hdf5 import get_n_scenarios_from_pywrdrb_output_file
-
-default_kwargs = {
-    "output_dir": output_dir,
-    "results_sets": [],
-    "units": "MG",
-    "print_status": False,
-}
 
 
 class Output(AbstractDataLoader):
@@ -29,7 +22,7 @@ class Output(AbstractDataLoader):
             units (str): Units for the results (default 'MG').
             print_status (bool): Whether to print status updates (default False).
         """
-
+        
         # Save output filenames with and without filetype
         self.output_filenames_with_filetype = []
         self.output_labels_and_files = {}

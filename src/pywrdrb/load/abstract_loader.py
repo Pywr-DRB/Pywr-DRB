@@ -2,6 +2,15 @@ from abc import ABC, abstractmethod
 
 from pywrdrb.utils.verify_file import verify_file_exists
 
+from pywrdrb import get_pn_object
+pn = get_pn_object()
+
+default_kwargs = {
+    "pn": pn,
+    "results_sets": [],
+    "units": "MG",
+    "print_status": False,
+}
 
 class AbstractDataLoader(ABC):
     
@@ -92,14 +101,14 @@ class AbstractDataLoader(ABC):
         return
 
 
-    @abstractmethod
-    def load(self):
-        """
-        Abstract method to load data and store data as object attributes. 
-        Must be implemented in subclasses.
+    # @abstractmethod
+    # def load(self):
+    #     """
+    #     Abstract method to load data and store data as object attributes. 
+    #     Must be implemented in subclasses.
 
-        Returns:
-            None
-        """
-        pass
+    #     Returns:
+    #         None
+    #     """
+    #     pass
 

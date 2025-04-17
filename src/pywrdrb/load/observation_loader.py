@@ -1,31 +1,25 @@
 import pywrdrb
-from pywrdrb.load.abstract_loader import AbstractDataLoader
+from pywrdrb.load.abstract_loader import AbstractDataLoader, default_kwargs
 from pywrdrb.load.get_results import get_base_results
 from pywrdrb.utils.results_sets import base_results_set_opts
 
-directories = pywrdrb.get_directory()
-input_dir = directories.input_dir
 
-default_kwargs = {
-    "input_dir": input_dir,
-    "results_sets": [],
-    "units": "MG",
-    "print_status": False,
-}
+
 
 class Observation(AbstractDataLoader):
     
-    def __init__(self, **kwargs):
+    def __init__(self, 
+                 **kwargs):
         """
         Initalize the Observation data loader with default and provided kwargs.
         
         Keyword Arguments:
-            input_dir (str): Directory where the observation data is stored.
             results_sets (list): List of results sets to load.
             units (str): Units of the observation data. Options: 'MG' or 'MCM'.
             print_status (bool): Print status of the data loading process.
         """
         self.default_kwargs = default_kwargs
+        self.default_kwargs['input_dir'] = None
         self.valid_results_sets = base_results_set_opts
         self.datetime_index = None
         
@@ -63,7 +57,7 @@ class Observation(AbstractDataLoader):
                 print(f"Loading {s} data from observations")
             
             all_results_data[s]['obs'], datetime = get_base_results(
-                input_dir = input_dir,
+                input_dir = self.input_dir,
                 model = 'obs',
                 results_set = s,
                 datetime_index=datetime,

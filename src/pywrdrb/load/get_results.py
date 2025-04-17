@@ -169,8 +169,8 @@ def get_pywrdrb_results(
     results_set="all", 
     scenarios=[0], 
     datetime_index=None, 
-    units=None
-):
+    units=None,
+    ):
     """
     Gathers simulation results from pywrdrb model run 
     and returns a dict of pd.DataFrames.
@@ -232,10 +232,12 @@ def get_pywrdrb_results(
 
         if not reuse_datetime_index:
             # Format datetime index
-            dt = f["time"][:]
-            if type(dt[0]) == bytes:
-                dt = [str(d, "utf-8") for d in dt]
-            datetime_index = pd.to_datetime(dt)
+            day = [f["time"][i][0] for i in range(len(f["time"]))]
+            month = [f["time"][i][2] for i in range(len(f["time"]))]
+            year = [f["time"][i][3] for i in range(len(f["time"]))]
+            date = [f"{y}-{m}-{d}" for y, m, d in zip(year, month, day)]
+            datetime_index = pd.to_datetime(date)
+
 
         # Now store each scenario as individual pd.DataFrames in the dict
         results_dict = {}
@@ -290,11 +292,11 @@ def get_base_results(
         pd.DataFrame: The retrieved and organized results with datetime index.
     """
     if ensemble_scenario is None:
-        gage_flow = pd.read_csv(f"{input_dir}gage_flow_{model}.csv")
+        gage_flow = pd.read_csv(f"{input_dir}gage_flow_mgd.csv")
         gage_flow.index = pd.DatetimeIndex(gage_flow["datetime"])
         gage_flow = gage_flow.drop("datetime", axis=1)
     else:
-        with h5py.File(f"{input_dir}gage_flow_{model}.hdf5", "r") as f:
+        with h5py.File(f"{input_dir}gage_flow_mgd.hdf5", "r") as f:
             nodes = list(f.keys())
             gage_flow = pd.DataFrame()
             for node in nodes:
@@ -374,8 +376,13 @@ def get_base_results(
 
 
 def get_all_historic_reconstruction_pywr_results(
-    output_dir, model_list, results_set, start_date, end_date, units="MG"
-):
+    output_dir, 
+    model_list, 
+    results_set, 
+    start_date, 
+    end_date, 
+    units="MG"
+    ):
     """
     Function for retrieving and organizing results from multiple pywr models.
 
@@ -408,192 +415,192 @@ def get_all_historic_reconstruction_pywr_results(
 ### Use get_pywrdrb_results instead.
 
 
-def get_pywr_results(
-    output_dir, model, results_set="all", scenario=0, datetime_index=None, units=None
-):
-    """
-    Gathers simulation results from Pywr model run and returns a pd.DataFrame.
+# def get_pywr_results(
+#     output_dir, model, results_set="all", scenario=0, datetime_index=None, units=None
+# ):
+#     """
+#     Gathers simulation results from Pywr model run and returns a pd.DataFrame.
 
-    WARNING: Depreciated due to poor handling of many-scenario simulations. Use get_pywrdrb_results instead.
+#     WARNING: Depreciated due to poor handling of many-scenario simulations. Use get_pywrdrb_results instead.
 
-    Args:
-        output_dir (str): The output directory.
-        model (str): The model datatype name (e.g., "nhmv10").
-        results_set (str, optional): The results set to return. Can be one of the following:
-            - "all": Return all results.
-            - "reservoir_downstream_gage": Return downstream gage flow below reservoir.
-            - "res_storage": Return reservoir storages.
-            - "major_flow": Return flow at major flow points of interest.
-            - "inflow": Return the inflow at each catchment.
-            (Default: 'all')
-        scenario (int, optional): The scenario index number. (Default: 0)
-        datetime_index (Pandas datetime_index): Creating the dates are slow: if this isn't our first data retrieval, we can provide the dates from a previous results dataframe.
+#     Args:
+#         output_dir (str): The output directory.
+#         model (str): The model datatype name (e.g., "nhmv10").
+#         results_set (str, optional): The results set to return. Can be one of the following:
+#             - "all": Return all results.
+#             - "reservoir_downstream_gage": Return downstream gage flow below reservoir.
+#             - "res_storage": Return reservoir storages.
+#             - "major_flow": Return flow at major flow points of interest.
+#             - "inflow": Return the inflow at each catchment.
+#             (Default: 'all')
+#         scenario (int, optional): The scenario index number. (Default: 0)
+#         datetime_index (Pandas datetime_index): Creating the dates are slow: if this isn't our first data retrieval, we can provide the dates from a previous results dataframe.
 
-    Returns:
-        pd.DataFrame: The simulation results with datetime index.
-    """
+#     Returns:
+#         pd.DataFrame: The simulation results with datetime index.
+#     """
 
-    # Raise depreciation warning
-    warnings.warn(
-        "The get_pywr_results() function is depreciated. Use get_pywrdrb_results instead.",
-        DeprecationWarning,
-    )
+#     # Raise depreciation warning
+#     warnings.warn(
+#         "The get_pywr_results() function is depreciated. Use get_pywrdrb_results instead.",
+#         DeprecationWarning,
+#     )
 
-    with h5py.File(f"{output_dir}drb_output_{model}.hdf5", "r") as f:
-        keys = list(f.keys())
-        results = pd.DataFrame()
-        if results_set == "all":
-            for k in keys:
-                results[k] = f[k][:, scenario]
-        elif results_set == "reservoir_downstream_gage":
-            ## Need to pull flow data for link_ downstream of reservoirs instead of simulated outflows
-            keys_with_link = [
-                k
-                for k in keys
-                if k.split("_")[0] == "link"
-                and k.split("_")[1] in reservoir_link_pairs.values()
-            ]
-            # print(keys_with_link)
-            for k in keys_with_link:
-                res_name = [
-                    res
-                    for res, link in reservoir_link_pairs.items()
-                    if link == k.split("_")[1]
-                ][0]
-                results[res_name] = f[k][:, scenario]
-            # Now pull simulated relases from un-observed reservoirs
-            keys_without_link = [
-                k
-                for k in keys
-                if k.split("_")[0] == "outflow"
-                and k.split("_")[1] in reservoir_list
-                and k.split("_")[1] not in reservoir_link_pairs.keys()
-            ]
-            for k in keys_without_link:
-                results[k.split("_")[1]] = f[k][:, scenario]
-        elif results_set == "res_storage":
-            keys = [
-                k
-                for k in keys
-                if k.split("_")[0] == "reservoir" and k.split("_")[1] in reservoir_list
-            ]
-            for k in keys:
-                results[k.split("_")[1]] = f[k][:, scenario]
-        elif results_set == "major_flow":
-            keys = [
-                k
-                for k in keys
-                if k.split("_")[0] == "link" and k.split("_")[1] in majorflow_list
-            ]
-            for k in keys:
-                results[k.split("_")[1]] = f[k][:, scenario]
-        elif results_set == "res_release":
-            ### reservoir releases are "outflow" plus "spill". Not all reservoirs have spill.
-            keys_outflow = [f"outflow_{r}" for r in reservoir_list]
-            for k in keys_outflow:
-                results[k.split("_")[1]] = f[k][:, scenario]
-            keys_spill = [f"spill_{r}" for r in reservoir_list]
-            for k in keys_spill:
-                results[k.split("_")[1]] += f[k][:, scenario]
-        elif results_set == "downstream_release_target":
-            for reservoir in reservoir_list_nyc:
-                results[reservoir] = f[f"{results_set}_{reservoir}"][:, scenario]
-        elif results_set == "inflow":
-            keys = [k for k in keys if k.split("_")[0] == "catchment"]
-            for k in keys:
-                results[k.split("_")[1]] = f[k][:, scenario]
-        elif results_set == "catchment_withdrawal":
-            keys = [k for k in keys if k.split("_")[0] == "catchmentWithdrawal"]
-            for k in keys:
-                results[k.split("_")[1]] = f[k][:, scenario]
-        elif results_set == "catchment_consumption":
-            keys = [k for k in keys if k.split("_")[0] == "catchmentConsumption"]
-            for k in keys:
-                results[k.split("_")[1]] = f[k][:, scenario]
-        elif results_set in (
-            "prev_flow_catchmentWithdrawal",
-            "max_flow_catchmentWithdrawal",
-            "max_flow_catchmentConsumption",
-        ):
-            keys = [k for k in keys if results_set in k]
-            for k in keys:
-                results[k.split("_")[-1]] = f[k][:, scenario]
-        elif results_set in ("res_level"):
-            keys = [k for k in keys if "drought_level" in k]
-            for k in keys:
-                results[k.split("_")[-1]] = f[k][:, scenario]
-        elif results_set == "ffmp_level_boundaries":
-            keys = [f"level{l}" for l in ["1b", "1c", "2", "3", "4", "5"]]
-            for k in keys:
-                results[k] = f[k][:, scenario]
-        elif results_set == "mrf_target":
-            keys = [k for k in keys if results_set in k]
-            for k in keys:
-                results[k.split("mrf_target_")[1]] = f[k][:, scenario]
-        elif results_set == "nyc_release_components":
-            keys = (
-                [
-                    f"mrf_target_individual_{reservoir}"
-                    for reservoir in reservoir_list_nyc
-                ]
-                + [f"flood_release_{reservoir}" for reservoir in reservoir_list_nyc]
-                + [
-                    f"mrf_montagueTrenton_{reservoir}"
-                    for reservoir in reservoir_list_nyc
-                ]
-                + [f"spill_{reservoir}" for reservoir in reservoir_list_nyc]
-            )
-            for k in keys:
-                results[k] = f[k][:, scenario]
-        elif results_set == "lower_basin_mrf_contributions":
-            keys = [
-                f"mrf_trenton_{reservoir}" for reservoir in drbc_lower_basin_reservoirs
-            ]
-            for k in keys:
-                results[k] = f[k][:, scenario]
-        elif results_set == "ibt_demands":
-            keys = ["demand_nyc", "demand_nj"]
-            for k in keys:
-                results[k] = f[k][:, scenario]
-        elif results_set == "ibt_diversions":
-            keys = ["delivery_nyc", "delivery_nj"]
-            for k in keys:
-                results[k] = f[k][:, scenario]
-        elif results_set == "mrf_targets":
-            keys = ["mrf_target_delMontague", "mrf_target_delTrenton"]
-            for k in keys:
-                results[k] = f[k][:, scenario]
-        elif results_set == "all_mrf":
-            keys = [k for k in keys if "mrf" in k]
-            for k in keys:
-                results[k] = f[k][:, scenario]
+#     with h5py.File(f"{output_dir}drb_output_{model}.hdf5", "r") as f:
+#         keys = list(f.keys())
+#         results = pd.DataFrame()
+#         if results_set == "all":
+#             for k in keys:
+#                 results[k] = f[k][:, scenario]
+#         elif results_set == "reservoir_downstream_gage":
+#             ## Need to pull flow data for link_ downstream of reservoirs instead of simulated outflows
+#             keys_with_link = [
+#                 k
+#                 for k in keys
+#                 if k.split("_")[0] == "link"
+#                 and k.split("_")[1] in reservoir_link_pairs.values()
+#             ]
+#             # print(keys_with_link)
+#             for k in keys_with_link:
+#                 res_name = [
+#                     res
+#                     for res, link in reservoir_link_pairs.items()
+#                     if link == k.split("_")[1]
+#                 ][0]
+#                 results[res_name] = f[k][:, scenario]
+#             # Now pull simulated relases from un-observed reservoirs
+#             keys_without_link = [
+#                 k
+#                 for k in keys
+#                 if k.split("_")[0] == "outflow"
+#                 and k.split("_")[1] in reservoir_list
+#                 and k.split("_")[1] not in reservoir_link_pairs.keys()
+#             ]
+#             for k in keys_without_link:
+#                 results[k.split("_")[1]] = f[k][:, scenario]
+#         elif results_set == "res_storage":
+#             keys = [
+#                 k
+#                 for k in keys
+#                 if k.split("_")[0] == "reservoir" and k.split("_")[1] in reservoir_list
+#             ]
+#             for k in keys:
+#                 results[k.split("_")[1]] = f[k][:, scenario]
+#         elif results_set == "major_flow":
+#             keys = [
+#                 k
+#                 for k in keys
+#                 if k.split("_")[0] == "link" and k.split("_")[1] in majorflow_list
+#             ]
+#             for k in keys:
+#                 results[k.split("_")[1]] = f[k][:, scenario]
+#         elif results_set == "res_release":
+#             ### reservoir releases are "outflow" plus "spill". Not all reservoirs have spill.
+#             keys_outflow = [f"outflow_{r}" for r in reservoir_list]
+#             for k in keys_outflow:
+#                 results[k.split("_")[1]] = f[k][:, scenario]
+#             keys_spill = [f"spill_{r}" for r in reservoir_list]
+#             for k in keys_spill:
+#                 results[k.split("_")[1]] += f[k][:, scenario]
+#         elif results_set == "downstream_release_target":
+#             for reservoir in reservoir_list_nyc:
+#                 results[reservoir] = f[f"{results_set}_{reservoir}"][:, scenario]
+#         elif results_set == "inflow":
+#             keys = [k for k in keys if k.split("_")[0] == "catchment"]
+#             for k in keys:
+#                 results[k.split("_")[1]] = f[k][:, scenario]
+#         elif results_set == "catchment_withdrawal":
+#             keys = [k for k in keys if k.split("_")[0] == "catchmentWithdrawal"]
+#             for k in keys:
+#                 results[k.split("_")[1]] = f[k][:, scenario]
+#         elif results_set == "catchment_consumption":
+#             keys = [k for k in keys if k.split("_")[0] == "catchmentConsumption"]
+#             for k in keys:
+#                 results[k.split("_")[1]] = f[k][:, scenario]
+#         elif results_set in (
+#             "prev_flow_catchmentWithdrawal",
+#             "max_flow_catchmentWithdrawal",
+#             "max_flow_catchmentConsumption",
+#         ):
+#             keys = [k for k in keys if results_set in k]
+#             for k in keys:
+#                 results[k.split("_")[-1]] = f[k][:, scenario]
+#         elif results_set in ("res_level"):
+#             keys = [k for k in keys if "drought_level" in k]
+#             for k in keys:
+#                 results[k.split("_")[-1]] = f[k][:, scenario]
+#         elif results_set == "ffmp_level_boundaries":
+#             keys = [f"level{l}" for l in ["1b", "1c", "2", "3", "4", "5"]]
+#             for k in keys:
+#                 results[k] = f[k][:, scenario]
+#         elif results_set == "mrf_target":
+#             keys = [k for k in keys if results_set in k]
+#             for k in keys:
+#                 results[k.split("mrf_target_")[1]] = f[k][:, scenario]
+#         elif results_set == "nyc_release_components":
+#             keys = (
+#                 [
+#                     f"mrf_target_individual_{reservoir}"
+#                     for reservoir in reservoir_list_nyc
+#                 ]
+#                 + [f"flood_release_{reservoir}" for reservoir in reservoir_list_nyc]
+#                 + [
+#                     f"mrf_montagueTrenton_{reservoir}"
+#                     for reservoir in reservoir_list_nyc
+#                 ]
+#                 + [f"spill_{reservoir}" for reservoir in reservoir_list_nyc]
+#             )
+#             for k in keys:
+#                 results[k] = f[k][:, scenario]
+#         elif results_set == "lower_basin_mrf_contributions":
+#             keys = [
+#                 f"mrf_trenton_{reservoir}" for reservoir in drbc_lower_basin_reservoirs
+#             ]
+#             for k in keys:
+#                 results[k] = f[k][:, scenario]
+#         elif results_set == "ibt_demands":
+#             keys = ["demand_nyc", "demand_nj"]
+#             for k in keys:
+#                 results[k] = f[k][:, scenario]
+#         elif results_set == "ibt_diversions":
+#             keys = ["delivery_nyc", "delivery_nj"]
+#             for k in keys:
+#                 results[k] = f[k][:, scenario]
+#         elif results_set == "mrf_targets":
+#             keys = ["mrf_target_delMontague", "mrf_target_delTrenton"]
+#             for k in keys:
+#                 results[k] = f[k][:, scenario]
+#         elif results_set == "all_mrf":
+#             keys = [k for k in keys if "mrf" in k]
+#             for k in keys:
+#                 results[k] = f[k][:, scenario]
 
-        else:
-            print("Invalid results_set specified.")
-            return
+#         else:
+#             print("Invalid results_set specified.")
+#             return
 
-        if datetime_index is not None:
-            if len(datetime_index) == len(f["time"]):
-                results.index = datetime_index
-                reuse_datetime_index = True
-            else:
-                reuse_datetime_index = False
-        else:
-            reuse_datetime_index = False
+#         if datetime_index is not None:
+#             if len(datetime_index) == len(f["time"]):
+#                 results.index = datetime_index
+#                 reuse_datetime_index = True
+#             else:
+#                 reuse_datetime_index = False
+#         else:
+#             reuse_datetime_index = False
 
-        if not reuse_datetime_index:
-            # Format datetime index
-            day = [f["time"][i][0] for i in range(len(f["time"]))]
-            month = [f["time"][i][2] for i in range(len(f["time"]))]
-            year = [f["time"][i][3] for i in range(len(f["time"]))]
-            date = [f"{y}-{m}-{d}" for y, m, d in zip(year, month, day)]
-            datetime_index = pd.to_datetime(date)
-            results.index = datetime_index
+#         if not reuse_datetime_index:
+#             # Format datetime index
+#             day = [f["time"][i][0] for i in range(len(f["time"]))]
+#             month = [f["time"][i][2] for i in range(len(f["time"]))]
+#             year = [f["time"][i][3] for i in range(len(f["time"]))]
+#             date = [f"{y}-{m}-{d}" for y, m, d in zip(year, month, day)]
+#             datetime_index = pd.to_datetime(date)
+#             results.index = datetime_index
 
-        if units is not None:
-            if units == "MG":
-                pass
-            elif units == "MCM":
-                results *= mg_to_mcm
+#         if units is not None:
+#             if units == "MG":
+#                 pass
+#             elif units == "MCM":
+#                 results *= mg_to_mcm
 
-        return results, datetime_index
+#         return results, datetime_index
