@@ -415,6 +415,7 @@ class WRFAORCWithObsScaledFlowDataPreprocessor(DataPreprocessor):
         
         for reservoir in reservoir_list_nyc + ["fewalter", "beltzvilleCombined"]:
             inflows[reservoir] = scaled_obs[reservoir]
+        inflows.index.name = "datetime"
         self.processed_data["catchment_inflow_mgd.csv"] = inflows.copy()
         
         inflows = _add_upstream_catchment_inflows(inflows)
