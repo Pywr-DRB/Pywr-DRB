@@ -12,7 +12,6 @@ Steps:
    - `catchment_inflow_mgd.csv` (aggregated inflow)
    - `reservoir_storage_mg.csv` (converted and aggregated storage)
 """
-#from .datapreprocessor_ABC import DataPreprocessor
 import pandas as pd
 import numpy as np
 import os
@@ -25,17 +24,32 @@ GAL_TO_MG = 1 / 1_000_000   # Gallons to million gallons
 
 
 class DataRetriever:
-    def __init__(self, start_date="1945-01-01", end_date=None,
-                 out_dir="src/pywrdrb/data/observations/", default_stat_code="00003"):
+    def __init__(self, 
+                 start_date="1945-01-01", 
+                 end_date=None,
+                 out_dir="src/pywrdrb/data/observations/", 
+                 default_stat_code="00003"): #mean
         self.start_date = start_date
         self.end_date = end_date or datetime.today().strftime("%Y-%m-%d")
         self.out_dir = out_dir
         self.default_stat_code = default_stat_code
         os.makedirs(self.out_dir, exist_ok=True)
 
-    def get(self, gauges, param_cd="00060", stat_cd=None, label_map=None):
+    def get(self, gauges, param_cd=None, stat_cd=None, label_map=None, type="flow"):
         """Download USGS daily values for a list of gauges."""
-        stat_cd = stat_cd or self.default_stat_code
+
+        if type == "flow":
+            param_cd = "00060"
+            stat_cd = stat_cd or self.default_stat_code  # usually '00003'
+        elif type == "elevation_std":
+            param_cd = "00062"
+            stat_cd = stat_cd 
+        elif type == "elevation_nyc":
+            param_cd = "62615"
+            stat_cd = stat_cd 
+        else:
+            raise ValueError(f"Unknown type '{type}'. Must be one of ['flow', 'elevation_std', 'elevation_nyc']")
+
         all_dfs = []
         for g in gauges:
             try:
@@ -44,15 +58,29 @@ class DataRetriever:
                     start=self.start_date, end=self.end_date)[0]
                 data.reset_index(inplace=True)
                 data["datetime"] = pd.to_datetime(data["datetime"])
-                mean_col = f"{param_cd}_Mean"
 
-                if mean_col not in data.columns:
-                    raise ValueError(f"Expected column '{mean_col}' not found for site {g}")
+                if type == "flow":
+                    expected_cols = [f"{param_cd}_Mean"]
+                elif type.startswith("elevation"):
+                    expected_cols = [f"{param_cd}_Mean", f"{param_cd}_Minimum", f"{param_cd}_Maximum", param_cd]
+                else:
+                    expected_cols = [param_cd]  # fallback
+
+                #   Try to find a matching column
+                found_col = next((col for col in expected_cols if col in data.columns), None)
+
+                if not found_col:
+                    print(f"⚠️  No expected columns found for site {g}")
+                    print(f"    Expected: {expected_cols}")
+                    print(f"    Available: {list(data.columns)}")
+                    print(f"    Sample data:\n{data.head(2)}\n")
+                    continue  # skip this gauge
 
                 col_name = label_map.get(g, g) if label_map else g
                 data.set_index("datetime", inplace=True)
-                renamed = data[[mean_col]].rename(columns={mean_col: col_name})
+                renamed = data[[found_col]].rename(columns={found_col: col_name})
                 all_dfs.append(renamed)
+
             except Exception as e:
                 print(f"Failed to retrieve {g}: {e}")
 
@@ -68,7 +96,7 @@ class DataRetriever:
         storage_dfs = []
 
         for col in elevation_df.columns:
-            res_name = col
+            res_name = col # this is the gauge ID
             curve_file = storage_curve_dict.get(res_name)
 
             if not curve_file or not os.path.exists(curve_file):
@@ -76,32 +104,49 @@ class DataRetriever:
                 storage_dfs.append(pd.Series(name=res_name))
                 continue
 
-            curve = pd.read_csv(curve_file).set_index("Elevation (ft)")
-
-            # NYC logic
-            if res_name in nyc_reservoirs:
-                param = "62615"
-                if param not in elevation_df.columns:
-                    print(f"NYC param column {param} missing for {res_name}")
+            try:
+                curve = pd.read_csv(curve_file)
+                if "Elevation (ft)" not in curve.columns:
+                    print(f"[Invalid Curve] Missing 'Elevation (ft)' in curve for {res_name}")
                     storage_dfs.append(pd.Series(name=res_name))
                     continue
-                series = elevation_df[param].apply(
-                    lambda elev: np.interp(elev, curve.index, curve["Volume, gal"]) * GAL_TO_MG
-                    if pd.notnull(elev) else np.nan
-                )
+                curve.set_index("Elevation (ft)", inplace=True)
+            except Exception as e:
+                print(f"[Curve Error] Failed to read curve for {res_name}: {e}")
+                storage_dfs.append(pd.Series(name=res_name))
+                continue
+
+            # Interpolate using the column labeled by the gauge ID
+            if "Acre-Ft" in curve.columns:
+                expected_col = "Acre-Ft"
+                conversion_factor = ACRE_FEET_TO_MG
+            elif "Volume, gal" in curve.columns:
+                expected_col = "Volume, gal"
+                conversion_factor = GAL_TO_MG
             else:
-                param = "00062_Mean"
-                if param not in elevation_df.columns:
-                    print(f"Param {param} missing for {res_name}")
-                    storage_dfs.append(pd.Series(name=res_name))
-                    continue
-                series = elevation_df[param].apply(
-                    lambda elev: np.interp(elev, curve.index, curve["Acre-Ft"]) * ACRE_FEET_TO_MG
-                    if pd.notnull(elev) else np.nan
-                )
+                print(f"[Missing Curve Column] No known volume column in curve for {res_name}")
+                storage_dfs.append(pd.Series(name=res_name))
+                continue
 
+            if expected_col not in curve.columns:
+                print(f"[Missing Curve Column] '{expected_col}' missing in curve for {res_name}")
+                storage_dfs.append(pd.Series(name=res_name))
+                continue
+
+            if res_name not in elevation_df.columns:
+                print(f"[Missing Data Column] Elevation column for {res_name} not found in elevation_df")
+                storage_dfs.append(pd.Series(name=res_name))
+                continue
+
+            series = elevation_df[res_name].apply(
+                lambda x: np.interp(x, curve.index.values, curve[expected_col].values) * conversion_factor
+                if pd.notnull(x) else np.nan
+            )
             series.name = res_name
             storage_dfs.append(series)
+            
+        if not storage_dfs:
+            raise ValueError("No valid storage series found — nothing to concatenate.")
 
         return pd.concat(storage_dfs, axis=1)
 
