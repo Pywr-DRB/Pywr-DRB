@@ -1,8 +1,9 @@
 from pywr.core import Node, Parameter
 from pywr.recorders import Recorder
-from pywr.recorders import NumpyArrayNodeRecorder, NumpyArrayParameterRecorder
+from pywr.recorders import NumpyArrayNodeRecorder, NumpyArrayParameterRecorder, NumpyArrayStorageRecorder
 from pywr.recorders import TablesRecorder # Just to put here in case user wants to use it
 import h5py 
+from pywrdrb.utils.lists import reservoir_list
 
 __all__ = ["OutputRecorder"]
 
@@ -51,7 +52,15 @@ class OutputRecorder(Recorder):
         for p in self.parameters:
             self.recorder_dict[p.name] = NumpyArrayParameterRecorder(model, p)
         for n in self.nodes:
-            self.recorder_dict[n.name] = NumpyArrayNodeRecorder(model, n)
+            
+            # for reservoir nodes, use NumpyArrayStorageRecorder
+            if n.name.split("_")[0] == "reservoir" and n.name.split("_")[1] in reservoir_list:
+                self.recorder_dict[n.name] = NumpyArrayStorageRecorder(model, 
+                                                                       n, 
+                                                                       proportional=False)
+            # for other nodes, use NumpyArrayNodeRecorder
+            else:
+                self.recorder_dict[n.name] = NumpyArrayNodeRecorder(model, n)
 
     def _get_model_node_names(self):
         """
@@ -119,6 +128,22 @@ class OutputRecorder(Recorder):
         for name, recorder in self.recorder_dict.items():
             #print(f"Data for {name}:")
             data = recorder.data
+            
+            # ### Transform storage data
+            # # we need to add the intiial volume
+            # if name.split("_")[0] == "reservoir" and name.split("_")[1] in reservoir_list:
+            #     # Get the initial volume of the reservoir
+            #     print(f"DURING RECORDER: Reservoir name: {name}")
+            #     print(f"Data type: {type(data)}")
+            #     print(f"Data shape: {data.shape}")
+            #     print(f"Data: {data}")
+                
+            #     node = [n for n in self.model.nodes if n.name == name][0]
+            #     initial_volume = node.initial_volume
+                
+            #     # Multiply the data by the initial volume
+            #     data = data + initial_volume
+            
             output_dict[name] = data
 
 
