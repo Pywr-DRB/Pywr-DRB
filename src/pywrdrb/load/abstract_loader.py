@@ -99,16 +99,3 @@ class AbstractDataLoader(ABC):
             else:
                 setattr(self, name, data)
         return
-
-
-    # @abstractmethod
-    # def load(self):
-    #     """
-    #     Abstract method to load data and store data as object attributes. 
-    #     Must be implemented in subclasses.
-
-    #     Returns:
-    #         None
-    #     """
-    #     pass
-

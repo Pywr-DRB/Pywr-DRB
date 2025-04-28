@@ -232,11 +232,13 @@ def get_pywrdrb_results(
 
         if not reuse_datetime_index:
             # Format datetime index
-            day = [f["time"][i][0] for i in range(len(f["time"]))]
-            month = [f["time"][i][2] for i in range(len(f["time"]))]
-            year = [f["time"][i][3] for i in range(len(f["time"]))]
-            date = [f"{y}-{m}-{d}" for y, m, d in zip(year, month, day)]
-            datetime_index = pd.to_datetime(date)
+            datetime_index = pd.to_datetime([t.decode('utf-8') for t in f['time'][:]])
+            # print(f["time"][:])
+            # day = [f["time"][i][0] for i in range(len(f["time"]))]
+            # month = [f["time"][i][2] for i in range(len(f["time"]))]
+            # year = [f["time"][i][3] for i in range(len(f["time"]))]
+            # date = [f"{y}-{m}-{d}" for y, m, d in zip(year, month, day)]
+            # datetime_index = pd.to_datetime(date)
 
 
         # Now store each scenario as individual pd.DataFrames in the dict
@@ -341,7 +343,7 @@ def get_base_results(
 
     elif results_set == "res_storage" and model == "obs":
         observed_storage_path = (
-            f"{input_dir}/historic_reservoir_ops/observed_storage_data.csv"
+            f"{input_dir}/observed_storage_data.csv"
         )
         try:
             observed_storage = pd.read_csv(observed_storage_path)
