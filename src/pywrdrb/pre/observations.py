@@ -22,6 +22,13 @@ import matplotlib.pyplot as plt
 ACRE_FEET_TO_MG = 0.325851  # Acre-feet to million gallons
 GAL_TO_MG = 1 / 1_000_000   # Gallons to million gallons
 
+import pywrdrb
+from pywrdrb import get_pn_object
+pn = get_pn_object()
+
+RAW_DATA_DIR = pn.observations.get_str() + os.sep + "_raw"
+PROCESSED_DATA_DIR = pn.observations.get_str()
+FIG_DIR = pn.figures.get_str()
 
 class DataRetriever:
     def __init__(self, 
@@ -31,9 +38,15 @@ class DataRetriever:
                  default_stat_code="00003"): #mean
         self.start_date = start_date
         self.end_date = end_date or datetime.today().strftime("%Y-%m-%d")
-        self.out_dir = out_dir
-        self.default_stat_code = default_stat_code
+
+        if out_dir is None:
+            self.out_dir = PROCESSED_DATA_DIR
+        else:
+            self.out_dir = out_dir
+
         os.makedirs(self.out_dir, exist_ok=True)
+        self.default_stat_code = default_stat_code
+
 
     def get(self, gauges, param_cd=None, stat_cd=None, label_map=None, type="flow"):
         """Download USGS daily values for a list of gauges."""
@@ -70,7 +83,7 @@ class DataRetriever:
                 found_col = next((col for col in expected_cols if col in data.columns), None)
 
                 if not found_col:
-                    print(f"⚠️  No expected columns found for site {g}")
+                    print(f"  No expected columns found for site {g}")
                     print(f"    Expected: {expected_cols}")
                     print(f"    Available: {list(data.columns)}")
                     print(f"    Sample data:\n{data.head(2)}\n")
@@ -172,7 +185,7 @@ class DataRetriever:
         combined = pd.concat([inflow_df, release_df], axis=1)
         combined.index = pd.to_datetime(combined.index).date
         combined.index.name = "datetime"
-        raw_path = os.path.join(self.out_dir, "_raw", "gage_flow_raw.csv")
+        raw_path = os.path.join(self.raw_dir, "gage_flow_raw.csv")
         os.makedirs(os.path.dirname(raw_path), exist_ok=True)
         combined.to_csv(raw_path)
         print(f"Saved raw gage flow data: {raw_path}")

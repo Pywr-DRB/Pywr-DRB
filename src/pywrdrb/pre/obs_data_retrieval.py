@@ -1,14 +1,23 @@
 import os
 import time
 import pandas as pd
-from pywrdrb.pre.observations import DataRetriever
-from pywrdrb.utils.gauge_ids import (
+from ..pre.observations import DataRetriever
+from ..utils.pywr_drb_node_data import (
     inflow_gauge_map,
     release_gauge_map,
     storage_gauge_map,
     storage_curves,
     nyc_reservoirs
 )
+
+import pywrdrb
+from pywrdrb import get_pn_object
+pn = get_pn_object()
+
+RAW_DATA_DIR = pn.observations.get_str() + os.sep + "_raw"
+PROCESSED_DATA_DIR = pn.observations.get_str()
+FIG_DIR = pn.figures.get_str()
+
 
 # === Settings ===
 start_date = "1980-01-01"
