@@ -309,15 +309,12 @@ class ModelBuilder:
         self.options.NSCENARIOS = len(inflow_ensemble_indices)
         self.model_dict["scenarios"] = [{"name": "inflow", "size": self.options.NSCENARIOS}]
         
-
     def add_parameter_negative_one_multiplier(self):
         self.model_dict["parameters"]["negative_one_multiplier"] = {
             "type": "constant",
             "value": -1.0,
         }
         
-
-
     def add_node_major_reservoir(self, reservoir_name, downstream_lag, downstream_node):
         """
         Add a major reservoir node to the model. This step will also add a cluster of
