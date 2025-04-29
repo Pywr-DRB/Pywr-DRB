@@ -139,9 +139,10 @@ class Data(AbstractDataLoader):
         """
         self.__parse_kwargs__(default_kwargs=self.default_kwargs,
                                 **kwargs)
-        self.__print_status__(f"Loading observations data...")
         
         results_sets_subset = self.__get_results_sets_subset__('obs')
+        
+        self.__print_status__(f"Loading observations data sets {results_sets_subset}...")
         
         # Directory with obs data from pn
         input_dir = self.pn.observations.get_str() + os.sep + "_raw" + os.sep 

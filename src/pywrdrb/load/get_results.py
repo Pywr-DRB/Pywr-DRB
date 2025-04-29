@@ -70,6 +70,10 @@ def get_keys_and_column_names_for_results_set(keys, results_set):
             if k.split("_")[0] == "reservoir" and k.split("_")[1] in reservoir_list
         ]
         col_names = [k.split("_")[1] for k in keys]
+        
+        print(f"Reservoir storage keys: {keys}")
+        print(f"Reservoir storage column names: {col_names}")
+        
     elif results_set == "major_flow":
         keys = [
             k
@@ -232,11 +236,19 @@ def get_pywrdrb_results(
 
         if not reuse_datetime_index:
             # Format datetime index
-            day = [f["time"][i][0] for i in range(len(f["time"]))]
-            month = [f["time"][i][2] for i in range(len(f["time"]))]
-            year = [f["time"][i][3] for i in range(len(f["time"]))]
-            date = [f"{y}-{m}-{d}" for y, m, d in zip(year, month, day)]
-            datetime_index = pd.to_datetime(date)
+            time = f["time"][:]
+            
+            ### custom OutputRecorder requires this:
+            if type(time[0]) == bytes:
+                datetime_index = pd.to_datetime([t.decode('utf-8') for t in f['time'][:]])
+
+            ### TablesRecorder requires this:
+            else:                
+                day = [f["time"][i][0] for i in range(len(f["time"]))]
+                month = [f["time"][i][2] for i in range(len(f["time"]))]
+                year = [f["time"][i][3] for i in range(len(f["time"]))]
+                date = [f"{y}-{m}-{d}" for y, m, d in zip(year, month, day)]
+                datetime_index = pd.to_datetime(date)
 
 
         # Now store each scenario as individual pd.DataFrames in the dict
@@ -341,7 +353,7 @@ def get_base_results(
 
     elif results_set == "res_storage" and model == "obs":
         observed_storage_path = (
-            f"{input_dir}/historic_reservoir_ops/observed_storage_data.csv"
+            f"{input_dir}/observed_storage_data.csv"
         )
         try:
             observed_storage = pd.read_csv(observed_storage_path)

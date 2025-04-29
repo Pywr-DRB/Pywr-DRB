@@ -70,7 +70,7 @@ sources = ["src"]
 
 [tool.hatch.build.data]
 include = [
-  "pywrdrb/input_data/**/*",
+  "pywrdrb/data/**/*",
 ]
 
 [tool.black]

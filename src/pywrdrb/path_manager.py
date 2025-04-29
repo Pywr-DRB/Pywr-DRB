@@ -31,12 +31,11 @@ def reset_pn():
     """
     global pn  # Ensure pn is modified globally
     # Add folder directories as shortcuts (can be accessed as pn.sc.get("folder name"))
-    re_pattern = r"^_"  # Ignore folders/files starting with "_"
-    
     # Now we only allow users to add customized flows and diversions subfolders 
     # (i.e., flows/customized_flow_type and diversions/customized_diversion_type)
-    pn.flows.set_all_to_sc(prefix="flows/", mode="folders", overwrite=True, exclude=re_pattern)
-    pn.diversions.set_all_to_sc(prefix="diversions/", mode="folders", overwrite=True, exclude=re_pattern)
+    # # Ignore folders/files starting with "_"
+    pn.flows.set_all_to_sc(prefix="flows/", only_folders=True, overwrite=True, only_exclude = ["_*"])
+    pn.diversions.set_all_to_sc(prefix="diversions/", only_folders=True, overwrite=True, only_exclude = ["_*"])
 
 def get_pn_object(copy=False):
     """
