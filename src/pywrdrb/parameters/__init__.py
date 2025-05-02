@@ -1,14 +1,22 @@
-# import sys
-# import os
-# sys.path.insert(0, os.path.abspath('./'))
+"""
+The init file for the pywrdrb.parameters module.
 
-from .ffmp import *
-from .starfit import STARFITReservoirRelease
-from .ensemble import FlowEnsemble, PredictionEnsemble
-from .general import LaggedReservoirRelease
-from .lower_basin_ffmp import *
-from .banks import IERQRelease_step1
+Overview: 
+Import all parameter classes from the parameters submodules to flatten the structure. 
+The pywrdrb.parameters module contains customized classes for pywr package. Users can 
+view the paratemers as customized rules in the DRB system.
+ 
+Change Log:
+Chung-Yi Lin, 2025-05-02, None
+"""
+from pywrdrb.parameters.ffmp import *
+from pywrdrb.parameters.starfit import STARFITReservoirRelease
+from pywrdrb.parameters.ensemble import FlowEnsemble, PredictionEnsemble
+from pywrdrb.parameters.general import LaggedReservoirRelease
+from pywrdrb.parameters.lower_basin_ffmp import *
+from pywrdrb.parameters.banks import IERQRelease_step1
 
+# Old code to automatically register all parameters in the package.
 '''
 import os
 import importlib
