@@ -141,27 +141,32 @@ This should be at the top of each file.
 
 ```python
 """
-Short one-line summary of the module content. 
+[Single-line description]
 
-Extended description of the module functionality and purpose.
+Overview: 
+[Extended description of the module functionality, purpose and other user-relevant notes.
 Focus on how this module interacts with other pywrdrb modules and code. 
-Should explain what the module does and its overall organization.
+Should explain what the module does and why it's important] 
 
+Key Steps: (If script)
+1. [Step 1] 
+2. [Step 2] 
+3. [Step 3] 
+[...] 
 
-Classes
--------
-Class1
-    Brief description of Class1.
-Class2
-    Brief description of Class2.
+Technical Notes: 
+- [Interactions with other pywrdrb classes or modules, etc.]
+- [Dependencies (e.g., uses PathNavigator, NWIS API)] 
+- [Critical assumptions or settings (e.g., start_date, gauge mapping)] 
+- [Paths configured automatically via pn (PathNavigator)]
+- [#TODO list] 
+- [Etc.]
 
-Functions
----------
-Class1.function1(param1, param2)
-    Brief description of function1.
-function2()
-    Brief description of function2.
+Links: 
+- [Optional relevant repo, documentation, issue threads] 
 
+Change Log:
+[Your Name], [YYYY-MM-DD], [Comment describing change]
 """
 ```
 
