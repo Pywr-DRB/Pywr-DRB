@@ -16,10 +16,7 @@ The docstring _may_ include:
 - Examples
     - Prioritize example only for key functions that the user will interact with.  Eg., ModelBuilder, Data, etc.  No need for examples that are 'under the hood' or not used by a user. 
 - Notes
-    - Focus on important notes to other developers or uses.  Could include #TODO flag here.
-- Raises
-    - If there are any Errors that get raised for different conditions.
-
+    - Focus on important notes to other developers or uses.  Could include #TODO flag here. Less formal, and any info that doens't fit in one of the standard spots but is important. 
 
 ## Function Docstrings
 
@@ -48,10 +45,6 @@ def example_function(param1, param2=None, *args, **kwargs):
     type
         Description of the return value.
         
-    Raises
-    ------
-    ExceptionType
-        When and why this exception is raised.
         
     See Also
     --------
@@ -137,11 +130,6 @@ class ExampleClass:
         -------
         type
             Description of the return value.
-            
-        Raises
-        ------
-        ExceptionType
-            When and why this exception is raised.
         """
         # Method implementation here
         pass
@@ -182,27 +170,18 @@ function2()
 ### Common Sections
 - `Parameters`: Function/method inputs
 - `Returns`: Function/method outputs
-- `Raises`: Exceptions that might be raised
-- `See Also`: Related functions/classes
-- `Notes`: Additional information
+- `Notes`: Notes for other developers and uses that doesn't fit in other categories
 - `Examples`: Usage examples
-- `Attributes`: Class attributes (for classes)
-- `Methods`: Class methods (for classes)
+- `Attributes`: Class attributes (only for classes)
+- `Methods`: Class methods (only for classes)
 
-### Special Cases
-- `Other Parameters`: Less commonly used parameters
-- `Warns`: Warnings that might be issued
-- `Yields`: For generators (instead of `Returns`)
-- `Receives`: For callbacks
-- `References`: Citations or references
 
 ## Format Rules
 
-1. **Section Headers**: Use the section name followed by a line of dashes (e.g., `Parameters\n----------`)
-2. **Parameter Format**: `name : type[, optional]`
-3. **Indentation**: 4 spaces for descriptions
-4. **Types**: Use Python types (`list`, `dict`, etc.) or specific types (`numpy.ndarray`, `pandas.DataFrame`)
-5. **Default Values**: For optional parameters, mention "Default is value."
+- **Section Headers**: Use the section name followed by a line of dashes (e.g., `Parameters\n----------`)
+- **Parameter Format**: `name : type[, optional]`
+- **Types**: Use Python types (`list`, `dict`, etc.) or specific types (`numpy.ndarray`, `pandas.DataFrame`)
+- **Default Values**: For optional parameters, mention "Default is value."
 
 ## Tips
 
@@ -368,11 +347,6 @@ class Data(AbstractDataLoader):
         -------
         list
             A subset of results_sets that are valid for the specified datatype.
-            
-        Raises
-        ------
-        ValueError
-            If an invalid datatype is provided.
         """
         if datatype not in all_valid_results_set_opts:
             raise ValueError(f"Invalid datatype specified: {datatype}")
@@ -509,11 +483,7 @@ class Data(AbstractDataLoader):
         -------
         None
             The loaded data is stored as attributes of this object.
-            
-        Raises
-        ------
-        AssertionError
-            If output_filenames list is not provided.
+        
             
         Notes
         -----
@@ -586,11 +556,7 @@ class Data(AbstractDataLoader):
         -------
         None
             The loaded data is stored as attributes of this object.
-            
-        Raises
-        ------
-        FileNotFoundError
-            If the specified file does not exist.
+
             
         Notes
         -----
