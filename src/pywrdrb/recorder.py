@@ -41,7 +41,37 @@ class OutputRecorder(Recorder):
     Manually adds a "time" dataset to the HDF5 file to store the datetime index,
     which is expected to be available in the pywrdrb loading methods.
     
-
+    Methods
+    -------
+    _get_model_node_names()
+        Get a list of all pywr.core.Node objects from the model instance.
+    _get_model_parameter_names()
+        Get a list of all pywr.core.Parameter objects from the model instance.
+    setup()
+        Sets up the recorders.
+    reset()
+        Reset the recorders.
+    after()
+        Performed after each timestep.
+    finish()
+        Saves data to an HDF5 file.
+    to_hdf5()
+        Saves all data from the recorders to an HDF5 file. Used by finish().
+    
+    Attributes
+    ----------
+    model : pywrdrb.Model
+        The pywrdrb model instance to record data from.
+    output_filename : str
+        The name of the output HDF5 file to save the data to, at the end of simulation.
+    nodes : list[pywr.core.Node], optional
+        A list of pywr.core.Node objects to record data from. If None, all nodes with names will be recorded.
+    parameters : list[pywr.core.Parameter], optional
+        A list of pywr.core.Parameter objects to record data from. If None, all parameters with names will be recorded.
+    recorder_dict : dict
+        A dictionary of recorders for each parameter and node.
+    reservoir_list : list
+        A list of reservoir names to determine when Storage recorder should be used.
     """
     def __init__(self, 
                  model, 
