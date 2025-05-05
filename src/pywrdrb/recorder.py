@@ -1,3 +1,28 @@
+"""
+Used to efficiently store and save pywrdrb simulation data. 
+
+Overview: 
+During simulation, 'Recorder' classes are used to store and finally save data.
+This custom recorder is designed to be efficient (quick) while tracking all
+the model parameters and nodes of interest. The data is saved to an HDF5 file. 
+
+Technical Notes: 
+- This custom recorder is based on the pywr.Recorder class, which is a base class for all recorders in Pywr.
+- It uses the following predefined pywr recorders:
+    - NumpyArrayNodeRecorder
+    - NumpyArrayParameterRecorder
+    - NumpyArrayStorageRecorder
+- By default, if nodes=None and parameters=None, all nodes and parameters with names will be recorded.
+- The recorder_dict dictionary is used to store the recorders for each parameter and node.
+- Future modifications should consider additional efficiency gains.
+
+Links: 
+- NA
+ 
+Change Log:
+TJA, 2025-05-05, Add docstrings.
+"""
+
 from pywr.core import Node, Parameter
 from pywr.recorders import Recorder
 from pywr.recorders import NumpyArrayNodeRecorder, NumpyArrayParameterRecorder, NumpyArrayStorageRecorder
@@ -9,26 +34,14 @@ __all__ = ["OutputRecorder"]
 
 class OutputRecorder(Recorder):
     """
-    A custom implementation of the pywr.Recorder class 
-    that records model parameter and node values during simulation
-    and exports the data to an HDF5 file at the end.
+    Used to record and save data from the pywr model simulation.
     
-    Uses the NumpyArrayNodeRecorder and NumpyArrayParameterRecorder classes
-    to record data for each parameter and node, which is efficient.
-    
+    This uses the pywr.Recorder class as a base class and is designed to be efficient (quick) while tracking all
+    variables from the model. The data is saved to an HDF5 file.    
     Manually adds a "time" dataset to the HDF5 file to store the datetime index,
     which is expected to be available in the pywrdrb loading methods.
     
-    
-    Args:
-    - model: The Pywr model instance.
-    - output_filename: The output filename to write to.
-    - parameters: A list of parameters to record. If None, all parameters with names will be recorded.
-    - nodes: A list of nodes to record. If None, all nodes with names will be recorded.
-    - kwargs: Additional keyword arguments to be passed to the pywr.Recorder class.
-    
-    Returns:
-    - None
+
     """
     def __init__(self, 
                  model, 
@@ -36,6 +49,29 @@ class OutputRecorder(Recorder):
                  nodes=None,
                  parameters=None, 
                  **kwargs):
+        """
+        Initialize the OutputRecorder.
+        
+        Different NumpyArray recorders are initialized for different variables in the model.
+        
+        Parameters
+        ----------
+        model : pywrdrb.Model
+            The pywrdrb model instance to record data from.
+        output_filename : str
+            The name of the output HDF5 file to save the data to, at the end of simulation.
+        nodes : list[pywr.core.Node], optional
+            A list of pywr.core.Node objects to record data from. If None, all nodes with names will be recorded.
+        parameters : list[pywr.core.Parameter], optional
+            A list of pywr.core.Parameter objects to record data from. If None, all parameters with names will be recorded.
+        **kwargs : optional
+            Additional keyword arguments to pass to the base pywr.Recorders class (unused).
+            
+        Returns
+        -------
+        None        
+        """
+        
         super().__init__(model, **kwargs)
         
         self.output_filename = output_filename
@@ -63,23 +99,34 @@ class OutputRecorder(Recorder):
                 self.recorder_dict[n.name] = NumpyArrayNodeRecorder(model, n)
 
     def _get_model_node_names(self):
-        """
-        Get a list of all pywr.core.Node objects which have names in the model instance.
+        """Get a list of all pywr.core.Node objects in the model instance.
+        
         Each node object has value attributes that are recorded during simulation.
 
-        Returns:
-            list[pywr.core.Node]: A list of pywr.core.Node objects which have names in the model instance.
+        Parameters
+        ----------
+        None
+
+
+        Returns
+        -------
+        list[pywr.core.Node]: A list of pywr.core.Node objects which have names in the model instance.
         """
         node_names = [n for n in self.model.nodes.values() if n.name]
         return node_names
     
     def _get_model_parameter_names(self):
-        """
-        Get a list of all pywr.core.Parameter objects which have names in the model instance.
+        """Get a list of all pywr.core.Parameter objects in the model instance.
+        
         Each parameter value will be recorded during simulation.
 
-        Returns:
-            list[pywr.core.Parameters]: A list of pywr.core.Parameter objects which have names in the model instance.
+        Parameters
+        ----------
+        None 
+        
+        Returns
+        -------
+        list[pywr.core.Parameters]: A list of pywr.core.Parameter objects which have names in the model instance.
         """
         parameter_names = [p for p in self.model.parameters if p.name]
         return parameter_names
@@ -100,9 +147,17 @@ class OutputRecorder(Recorder):
             recorder.after()
     
     def finish(self):
-        """
-        Saves data to an hdf5. 
-        Performed at the end of the simulation.
+        """Saves data to an hdf5. 
+        
+        This is automatically done by pywr at the end of the simulation.
+        
+        Parameters
+        ----------
+        None
+        
+        Returns
+        -------
+        None
         """
         self.to_hdf5()
         for recorder in self.recorder_dict.values():
@@ -110,12 +165,17 @@ class OutputRecorder(Recorder):
 
     # Create a new HDF5 file
     def to_hdf5(self):
-        """
-        Saves all data from the recorders to an HDF5 file.
+        """Saves all data from the recorders to an HDF5 file.
+        
         Manually adds a "time" dataset to the HDF5 file to store the datetime index.
         
-        Returns:
-            None
+        Parameters
+        ----------
+        None
+        
+        Returns
+        -------
+        None
         """
         output_dict = {}
         
@@ -128,22 +188,6 @@ class OutputRecorder(Recorder):
         for name, recorder in self.recorder_dict.items():
             #print(f"Data for {name}:")
             data = recorder.data
-            
-            # ### Transform storage data
-            # # we need to add the intiial volume
-            # if name.split("_")[0] == "reservoir" and name.split("_")[1] in reservoir_list:
-            #     # Get the initial volume of the reservoir
-            #     print(f"DURING RECORDER: Reservoir name: {name}")
-            #     print(f"Data type: {type(data)}")
-            #     print(f"Data shape: {data.shape}")
-            #     print(f"Data: {data}")
-                
-            #     node = [n for n in self.model.nodes if n.name == name][0]
-            #     initial_volume = node.initial_volume
-                
-            #     # Multiply the data by the initial volume
-            #     data = data + initial_volume
-            
             output_dict[name] = data
 
 
@@ -159,5 +203,6 @@ class OutputRecorder(Recorder):
                 except Exception as e:
                     print(f"OutputRecorder.to_hdf5() error during create_dataset() with {name} and data type {type(data)}")
                     print(e)
-                    
+
+
 OutputRecorder.register()
