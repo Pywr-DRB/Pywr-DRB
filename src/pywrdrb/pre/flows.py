@@ -1,10 +1,25 @@
+"""
+Datapreprocessor for flow data preparation in the Delaware River Basin (DRB) using Pywr-DRB.
+
+Overview: 
+Each class in this module is responsible for loading, processing, and saving for one type of flow data.
+
+Key Steps: 
+Each class have a common implementation of the following steps:
+1. load() - Load raw data from the input directories or retrieve from API.
+2. process() - Process the loaded raw data to prepare it for use in Pywr-DRB.
+3. save() - Save the processed data to the output directories.
+
+Change Log:
+Chung-Yi Lin, 2025-05-02, None
+"""
 
 import pandas as pd
-from .datapreprocessor_ABC import DataPreprocessor
-from ..pywr_drb_node_data import (
+from pywrdrb.pre.datapreprocessor_ABC import DataPreprocessor
+from pywrdrb.utils.pywr_drb_node_data import (
     nhm_site_matches, nwm_site_matches, wrf_hydro_site_matches, upstream_nodes_dict, downstream_node_lags
 )
-from ..utils.lists import reservoir_list_nyc
+from pywrdrb.utils.lists import reservoir_list_nyc
 
 __all__ = [
     "NHMFlowDataPreprocessor",
@@ -56,6 +71,21 @@ def _subtract_upstream_catchment_inflows(inflows):
     return inflows
 
 def _match_gagues(df, site_matches_id):
+    """
+    Matches USGS gage sites to Pywr-DRB nodes and returns a DataFrame of inflows.
+    
+    parameters
+    ----------
+    df : pandas.DataFrame
+        The input DataFrame containing flow data indexed by datetime.
+    site_matches_id : dict
+        A dictionary mapping Pywr-DRB node names to USGS gage site IDs.
+    
+    returns
+    -------
+    pandas.DataFrame
+        A DataFrame with Pywr-DRB node names as columns and datetime as index, containing the inflows.
+    """
     for node, site in site_matches_id.items():
         if node == "cannonsville":
             inflows = pd.DataFrame(df.loc[:, site].sum(axis=1))
@@ -69,16 +99,22 @@ def _match_gagues(df, site_matches_id):
         
 def _add_upstream_catchment_inflows(inflows, exclude_NYC=False):
     """
-    Adds upstream catchment inflows to get cumulative flow at downstream nodes. THis is inverse of subtract_upstream_catchment_inflows()
+    Adds upstream catchment inflows to get cumulative flow at downstream nodes. This is inverse of _subtract_upstream_catchment_inflows()
 
     Inflow timeseries are cumulative. For each downstream node, this function adds the flow into all upstream nodes so
     that it represents cumulative inflows into the downstream node. It also accounts for time lags between distant nodes.
 
-    Args:
-        inflows (pandas.DataFrame): The inflows timeseries dataframe.
-
-    Returns:
-        pandas.DataFrame: The modified inflows timeseries dataframe with upstream catchment inflows added.
+    parameters
+    ---------- 
+    inflows : pandas.DataFrame
+        The inflows timeseries dataframe.
+    exclude_NYC : bool, optional
+        If True, excludes NYC reservoirs from the upstream inflows (default is False).
+    
+    returns
+    -------
+    pandas.DataFrame
+        The modified inflows timeseries dataframe with upstream catchment inflows added.
     """
     ### loop over upstream_nodes_dict in reverse direction to avoid double counting
     inflows = inflows.copy()
@@ -104,7 +140,7 @@ def _add_upstream_catchment_inflows(inflows, exclude_NYC=False):
 class NHMFlowDataPreprocessor(DataPreprocessor):
     def __init__(self):
         """
-        Create flow inputs for both catchment inflows and gauge flows by matching USGS 
+        Create NHM flow inputs for both catchment inflows and gauge flows by matching USGS 
         gage sites to nodes in Pywr-DRB.
 
         For reservoirs, the matched gages are actually downstream, but assume this flows 
@@ -130,12 +166,24 @@ class NHMFlowDataPreprocessor(DataPreprocessor):
         # to shortcuts. (see __init__.py)
         
     def load(self):
+        """
+        Load the raw data from the input directories defined in `self.input_dirs`.
+        Reads the streamflow data from a CSV file and stores it in `self.raw_data`.
+        """
         filename = self.input_dirs["streamflow_nhmv10_mgd.csv"]
         df = pd.read_csv(filename, sep=",", index_col=0)
         df.index = pd.to_datetime(df.index)
         self.raw_data["streamflow_nhmv10_mgd.csv"] = df
         
     def process(self):
+        """
+        Process the loaded raw data to prepare it for use in Pywr-DRB.
+        This includes matching USGS gage sites to Pywr-DRB nodes and adjusting inflows
+        for upstream catchment inflows.
+        
+        The processed data is stored in `self.processed_data` with keys for gage flows
+        and catchment inflows.
+        """
         df = self.raw_data["streamflow_nhmv10_mgd.csv"]
         # 1. Match inflows for each Pywr-DRB node
         # 1.1 Reservoir inflows
@@ -152,6 +200,9 @@ class NHMFlowDataPreprocessor(DataPreprocessor):
         self.processed_data["catchment_inflow_mgd.csv"] = inflows.copy()
     
     def save(self, file_format='csv'):
+        """
+        Save the processed data to the output directories defined in `self.output_dirs`.
+        """
         for filename, df in self.processed_data.items():
             if file_format == 'csv':
                 df.to_csv(self.output_dirs[filename])
@@ -160,7 +211,7 @@ class NHMFlowDataPreprocessor(DataPreprocessor):
 class NWMFlowDataPreprocessor(DataPreprocessor):
     def __init__(self):
         """
-        Create flow inputs for both catchment inflows and gauge flows by matching USGS 
+        Create NWM flow inputs for both catchment inflows and gauge flows by matching USGS 
         gage sites to nodes in Pywr-DRB.
 
         For reservoirs, the matched gages are actually downstream, but assume this flows 
@@ -186,12 +237,24 @@ class NWMFlowDataPreprocessor(DataPreprocessor):
         # to shortcuts. (see __init__.py)
         
     def load(self):
+        """
+        Load the raw data from the input directories defined in `self.input_dirs`.
+        Reads the streamflow data from a CSV file and stores it in `self.raw_data`.
+        """
         filename = self.input_dirs["streamflow_nwmv21_mgd.csv"]
         df = pd.read_csv(filename, sep=",", index_col=0)
         df.index = pd.to_datetime(df.index)
         self.raw_data["streamflow_nwmv21_mgd.csv"] = df
         
     def process(self):
+        """
+        Process the loaded raw data to prepare it for use in Pywr-DRB.
+        This includes matching USGS gage sites to Pywr-DRB nodes and adjusting inflows
+        for upstream catchment inflows.
+        
+        The processed data is stored in `self.processed_data` with keys for gage flows
+        and catchment inflows.
+        """
         df = self.raw_data["streamflow_nwmv21_mgd.csv"]
         # 1. Match inflows for each Pywr-DRB node
         # 1.1 Reservoir inflows
@@ -208,6 +271,9 @@ class NWMFlowDataPreprocessor(DataPreprocessor):
         self.processed_data["catchment_inflow_mgd.csv"] = inflows.copy()
     
     def save(self, file_format='csv'):
+        """
+        Save the processed data to the output directories defined in `self.output_dirs`.
+        """
         for filename, df in self.processed_data.items():
             if file_format == 'csv':
                 df.to_csv(self.output_dirs[filename])
@@ -216,7 +282,7 @@ class NWMFlowDataPreprocessor(DataPreprocessor):
 class NHMWithObsScaledFlowDataPreprocessor(DataPreprocessor):
     def __init__(self):
         """
-        Create flow inputs for both catchment inflows and gauge flows by matching USGS 
+        Create NHM hybrid flow inputs for both catchment inflows and gauge flows by matching USGS 
         gage sites to nodes in Pywr-DRB.
 
         For reservoirs, the matched gages are actually downstream, but assume this flows 
@@ -244,6 +310,10 @@ class NHMWithObsScaledFlowDataPreprocessor(DataPreprocessor):
         # to shortcuts. (see __init__.py)
         
     def load(self):
+        """
+        Load the raw data from the input directories defined in `self.input_dirs`.
+        Reads the streamflow data from a CSV file and stores it in `self.raw_data`.
+        """
         filename = self.input_dirs["streamflow_nhmv10_mgd.csv"]
         df = pd.read_csv(filename, sep=",", index_col=0)
         df.index = pd.to_datetime(df.index)
@@ -255,6 +325,14 @@ class NHMWithObsScaledFlowDataPreprocessor(DataPreprocessor):
         self.raw_data["scaled_inflows_nhmv10.csv"] = df
         
     def process(self):
+        """
+        Process the loaded raw data to prepare it for use in Pywr-DRB.
+        This includes matching USGS gage sites to Pywr-DRB nodes and adjusting inflows
+        for upstream catchment inflows, then hybrid with the scaled obseved inflows.
+        
+        The processed data is stored in `self.processed_data` with keys for gage flows
+        and catchment inflows.
+        """
         # First process the nhmv10 data
         df = self.raw_data["streamflow_nhmv10_mgd.csv"]
         # 1. Match inflows for each Pywr-DRB node
@@ -277,8 +355,10 @@ class NHMWithObsScaledFlowDataPreprocessor(DataPreprocessor):
         inflows = _add_upstream_catchment_inflows(inflows)
         self.processed_data["gage_flow_mgd.csv"] = inflows.copy()
         
-    
     def save(self, file_format='csv'):
+        """
+        Save the processed data to the output directories defined in `self.output_dirs`.
+        """
         for filename, df in self.processed_data.items():
             if file_format == 'csv':
                 df.to_csv(self.output_dirs[filename])
@@ -287,7 +367,7 @@ class NHMWithObsScaledFlowDataPreprocessor(DataPreprocessor):
 class NWMWithObsScaledFlowDataPreprocessor(DataPreprocessor):
     def __init__(self):
         """
-        Create flow inputs for both catchment inflows and gauge flows by matching USGS 
+        Create NWM hybrid flow inputs for both catchment inflows and gauge flows by matching USGS 
         gage sites to nodes in Pywr-DRB.
 
         For reservoirs, the matched gages are actually downstream, but assume this flows 
@@ -315,6 +395,10 @@ class NWMWithObsScaledFlowDataPreprocessor(DataPreprocessor):
         # to shortcuts. (see __init__.py)
         
     def load(self):
+        """
+        Load the raw data from the input directories defined in `self.input_dirs`.
+        Reads the streamflow data from a CSV file and stores it in `self.raw_data`.
+        """
         filename = self.input_dirs["streamflow_nwmv21_mgd.csv"]
         df = pd.read_csv(filename, sep=",", index_col=0)
         df.index = pd.to_datetime(df.index)
@@ -326,6 +410,14 @@ class NWMWithObsScaledFlowDataPreprocessor(DataPreprocessor):
         self.raw_data["scaled_inflows_nwmv21.csv"] = df
         
     def process(self):
+        """
+        Process the loaded raw data to prepare it for use in Pywr-DRB.
+        This includes matching USGS gage sites to Pywr-DRB nodes and adjusting inflows
+        for upstream catchment inflows, then hybrid with the scaled obseved inflows.
+        
+        The processed data is stored in `self.processed_data` with keys for gage flows
+        and catchment inflows.
+        """
         # First process the nwmv21 data
         df = self.raw_data["streamflow_nwmv21_mgd.csv"]
         # 1. Match inflows for each Pywr-DRB node
@@ -346,21 +438,22 @@ class NWMWithObsScaledFlowDataPreprocessor(DataPreprocessor):
         self.processed_data["catchment_inflow_mgd.csv"] = inflows.copy()
         
         inflows = _add_upstream_catchment_inflows(inflows)
-        self.processed_data["gage_flow_mgd.csv"] = inflows.copy()
-        
+        self.processed_data["gage_flow_mgd.csv"] = inflows.copy() 
     
     def save(self, file_format='csv'):
+        """
+        Save the processed data to the output directories defined in `self.output_dirs`.
+        """
         for filename, df in self.processed_data.items():
             if file_format == 'csv':
                 df.to_csv(self.output_dirs[filename])
                 print(f"Data saved to {self.output_dirs[filename]}")
-                
-                
+                             
 class WRFAORCWithObsScaledFlowDataPreprocessor(DataPreprocessor):
     def __init__(self):
         """
-        Create flow inputs for both catchment inflows and gauge flows by matching USGS 
-        gage sites to nodes in Pywr-DRB.
+        Create wrf hydro (calib) hybrid flow inputs for both catchment inflows and gauge 
+        flows by matching USGS gage sites to nodes in Pywr-DRB.
 
         For reservoirs, the matched gages are actually downstream, but assume this flows 
         into the reservoir from the upstream catchment.
@@ -387,6 +480,10 @@ class WRFAORCWithObsScaledFlowDataPreprocessor(DataPreprocessor):
         # to shortcuts. (see __init__.py)
         
     def load(self):
+        """
+        Load the raw data from the input directories defined in `self.input_dirs`.
+        Reads the streamflow data from a CSV file and stores it in `self.raw_data`.
+        """
         filename = self.input_dirs["streamflow_wrfaorc_calib_nlcd2016.csv"]
         df = pd.read_csv(filename, sep=",", index_col=0)
         df.index = pd.to_datetime(df.index)
@@ -398,6 +495,14 @@ class WRFAORCWithObsScaledFlowDataPreprocessor(DataPreprocessor):
         self.raw_data["scaled_inflows_wrfaorc.csv"] = df
         
     def process(self):
+        """
+        Process the loaded raw data to prepare it for use in Pywr-DRB.
+        This includes matching USGS gage sites to Pywr-DRB nodes and adjusting inflows
+        for upstream catchment inflows, then hybrid with the scaled obseved inflows.
+        
+        The processed data is stored in `self.processed_data` with keys for gage flows
+        and catchment inflows.
+        """
         # First process the wrfaorc data
         df = self.raw_data["streamflow_wrfaorc_mgd.csv"]
         # 1. Match inflows for each Pywr-DRB node
@@ -422,6 +527,9 @@ class WRFAORCWithObsScaledFlowDataPreprocessor(DataPreprocessor):
         self.processed_data["gage_flow_mgd.csv"] = inflows.copy()
         
     def save(self, file_format='csv'):
+        """
+        Save the processed data to the output directories defined in `self.output_dirs`.
+        """
         for filename, df in self.processed_data.items():
             if file_format == 'csv':
                 df.to_csv(self.output_dirs[filename])

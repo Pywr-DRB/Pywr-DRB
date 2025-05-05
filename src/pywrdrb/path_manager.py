@@ -1,3 +1,20 @@
+"""
+Module aims to manage directories within the pywrdrb package.
+
+Overview: 
+The module adds a pathnavigator object to the pywrdrb package, which allows users to
+easily manage and navigate directories related to the package's data files, as well as 
+links to external customized input data. It provides functions to get the pathnavigator 
+object, get the pathnavigator configuration, load a configuration from a file, and reset
+the pathnavigator to its default state.
+
+Links: 
+- Pathnavigator GitHub repository: https://github.com/philip928lin/PathNavigator
+ 
+Change Log:
+Chung-Yi Lin, 2025-05-02, None
+"""
+
 import os
 from copy import deepcopy
 import pathnavigator
@@ -8,7 +25,8 @@ __all__ = [
     "load_pn_config", 
     "reset_pn"
     ]
-##### Set directory config using pathnavigator V0.4.2
+
+##### Set directory config using pathnavigator
 # Get the root directory
 root_dir = os.path.realpath(os.path.dirname(__file__))
 
@@ -16,18 +34,23 @@ root_dir = os.path.realpath(os.path.dirname(__file__))
 if not os.path.basename(root_dir) == "pywrdrb":
     root_dir = os.path.join(root_dir, "pywrdrb")
 
+# To ensure the user can only access the data directory inside the package, not others.
 root_dir = os.path.join(root_dir, "data")
 
+# Create a global pathnavigator object with the root directory
 global pn
 pn = pathnavigator.create(root_dir)
 
 def reset_pn():
     """
     Resets the pathnavigator object to the default configuration.
-    Note: we only want to add shortcuts that matter to the user.
-    Others, we should retrieve from pn directly.
-    If we use shortcuts for certain files or folders, we will need to use that shortcut 
-    throughout the program to make it consistent.
+    
+    Notes
+    -----
+        We only want to add shortcuts that matter to the user.
+        For others, advanced users may retrieve from pn directly.
+        If we use shortcuts for certain files or folders, we will need to use that shortcut 
+        throughout the program to make it consistent.
     """
     global pn  # Ensure pn is modified globally
     # Add folder directories as shortcuts (can be accessed as pn.sc.get("folder name"))
@@ -40,6 +63,11 @@ def reset_pn():
 def get_pn_object(copy=False):
     """
     Returns the pathnavigator object.
+    
+    parameters
+    ----------
+    copy : bool, optional
+        If True, returns a copy of the pathnavigator object. Default is False.
     
     Returns
     -------
@@ -97,7 +125,7 @@ def load_pn_config(pn_config):
     Parameters
     ----------
     pn_config : str or dict
-        The file to load the directories configuration from.
+        The file path to the directories configuration.
     """
     global pn  # Ensure pn is modified globally
     if ".json" in pn_config:
