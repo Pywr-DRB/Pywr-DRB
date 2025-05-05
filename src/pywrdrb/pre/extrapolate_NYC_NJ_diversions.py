@@ -46,7 +46,7 @@ class ExtrapolatedDiversionPreprocessor():
         self.flow = None
         
         ### get historical diversion data
-        if loc == "nyc":
+        if self.loc == "nyc":
             fname = pn.data.observations.get_str("_raw", "Pep_Can_Nev_diversions_daily_2000-2021.xlsx")
             diversion = pd.read_excel(fname, index_col=0,)
             diversion = diversion.iloc[:, :3]
@@ -55,7 +55,7 @@ class ExtrapolatedDiversionPreprocessor():
             diversion = diversion.loc[np.logical_not(np.isnan(diversion["aggregate"]))]
             ### convert CFS to MGD
             diversion *= cfs_to_mgd
-        elif loc == "nj":
+        elif self.loc == "nj":
             ### now get NJ demands/deliveries
             ### The gage for D_R_Canal starts 1989-10-23, but lots of NA's early on. Pretty good after 1991-01-01, but a few remaining to clean up.
             start_date = (1991, 1, 1)
@@ -137,10 +137,6 @@ class ExtrapolatedDiversionPreprocessor():
         Function for retrieving NYC and NJ historical diversions and extrapolating them into time periods
         where we don't have data based on seasonal flow regressions.
 
-        Args:
-            loc (str): The location to extrapolate. Options: "nyc" or "nj".
-            make_figs (bool): Whether to make figures of the extrapolation process.
-
         Returns:
             pd.DataFrame: The dataframe containing the extrapolated diversions.
         """
@@ -158,8 +154,8 @@ class ExtrapolatedDiversionPreprocessor():
         
 
         # dataframe of daily states
-        diversion_column = "aggregate" if loc == "nyc" else "D_R_Canal"
-        flow_column = "NYC_inflow" if loc == "nyc" else "delTrenton"
+        diversion_column = "aggregate" if self.loc == "nyc" else "D_R_Canal"
+        flow_column = "NYC_inflow" if self.loc == "nyc" else "delTrenton"
         
         df = pd.DataFrame(
             {
@@ -176,7 +172,7 @@ class ExtrapolatedDiversionPreprocessor():
         df_m["quarter"] = [self.get_quarter(m) for m in df_m["m"]]
 
         ### NJ diversion data are left skewed, so negate and then apply log transform
-        if loc == "nj":
+        if self.loc == "nj":
             nj_trans_max = df_m["diversion"].max() + 5
             df_m["diversion"] = np.log(nj_trans_max - df_m["diversion"])
 
@@ -189,7 +185,7 @@ class ExtrapolatedDiversionPreprocessor():
         # now use longer dataset of flows for extrapolation
         flow = flow_full_series.copy()
 
-        flow_column = "NYC_inflow" if loc == "nyc" else "delTrenton"
+        flow_column = "NYC_inflow" if self.loc == "nyc" else "delTrenton"
 
         df_long = pd.DataFrame(
             {
@@ -221,7 +217,7 @@ class ExtrapolatedDiversionPreprocessor():
 
 
         ### for NJ, transform data back to original scale
-        if loc == "nj":
+        if self.loc == "nj":
             df_m["diversion"] = np.maximum(nj_trans_max - np.exp(df_m["diversion"]), 0)
             df_long_m["diversion_pred"] = np.maximum(
                 nj_trans_max - np.exp(df_long_m["diversion_pred"]), 0
@@ -294,7 +290,7 @@ class ExtrapolatedDiversionPreprocessor():
 
         ### Now reload historical diversion dataset, 
         # & add extrapolated data for the dates we don't have
-        if loc == "nyc":
+        if self.loc == "nyc":
             diversion = diversion_full_series.copy()
 
             ### format & save to csv for use in Pywr-DRB
@@ -319,7 +315,7 @@ class ExtrapolatedDiversionPreprocessor():
             diversion = diversion.iloc[:, [-1, 1, 0, 2, 3]]
 
 
-        elif loc == "nj":
+        elif self.loc == "nj":
             diversion = diversion_full_series.copy()
 
             ### format & save to csv for use in Pywr-DRB
@@ -489,11 +485,11 @@ class ExtrapolatedDiversionPreprocessor():
             ax.set_title(q)
             if row == 1:
                 ax.set_xlabel("Log inflow (log MGD)")
-            if loc == "nyc":
+            if self.loc == "nyc":
                 ax.set_ylim([0, ax.get_ylim()[1]])
-            if loc == "nyc" and col == 0:
+            if self.loc == "nyc" and col == 0:
                 ax.set_ylabel("Monthly NYC diversion (MGD)")
-            elif loc == "nj" and col == 0:
+            elif self.loc == "nj" and col == 0:
                 ax.set_ylabel("Transformed monthly NJ diversion")
 
         plt.savefig(
