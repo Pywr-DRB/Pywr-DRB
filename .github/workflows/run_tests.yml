@@ -39,17 +39,17 @@ jobs:
 
     # based on https://github.com/marketplace/actions/restore-or-create-a-python-virtualenv#custom_virtualenv_dir
     # Note: virtual environment by default will be created under ~/venv
-    - uses: syphar/restore-virtualenv@v1
-      id: cache-virtualenv
+    # - uses: syphar/restore-virtualenv@v1
+    #   id: cache-virtualenv
 
-    - uses: syphar/restore-pip-download-cache@v1
-      if: steps.cache-virtualenv.outputs.cache-hit != 'true'
+    # - uses: syphar/restore-pip-download-cache@v1
+    #  if\: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
 
     # install python dependencies
     - name: Install python dependencies
       run: pip install -e .
-      if: steps.cache-virtualenv.outputs.cache-hit != 'true'
+      # if\: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
     # run tests
     - name: Run tests
