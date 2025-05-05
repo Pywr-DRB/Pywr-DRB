@@ -51,7 +51,7 @@ from pywrdrb.utils.lists import (
     drbc_lower_basin_reservoirs
 )
 from pywrdrb.utils.constants import cfs_to_mgd
-from pywrdrb.utils.pywr_drb_node_data import (
+from pywrdrb.pywr_drb_node_data import (
     immediate_downstream_nodes_dict,
     downstream_node_lags,
 )
