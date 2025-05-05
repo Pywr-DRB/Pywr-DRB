@@ -1,6 +1,24 @@
 """
-Contains functions for retrieving and organizing
-simulation results from pywrdrb model runs.
+Functions for retrieving and organizing simulation results from various models.
+
+Overview:
+This module contains functions to load and process data from:
+- pywrdrb output files
+- observational data files
+- nhm, nwm, and other internally available datasets
+
+Technical Notes:
+- Data is consistently organized based on results_set
+- All functions should support conversion to units: MGD, MCM
+- #TODO:
+    - Rethink the use of `get_base_results()` function. See Notes in docstring. 
+    - Come up with consistent naming for 'model' as used in get_base_results().
+
+Links:
+- See results_set options in the docs: https://pywr-drb.github.io/Pywr-DRB/results_set_options.html
+
+Change Log:
+TJA, 2025-05-02, Added consistent docstrings. Deleted old functions.
 """
 
 import os
@@ -9,7 +27,6 @@ import pandas as pd
 import h5py
 import warnings
 
-import pywrdrb
 from pywrdrb.utils.lists import (
     reservoir_list,
     reservoir_list_nyc,
@@ -24,15 +41,36 @@ from pywrdrb.utils.results_sets import pywrdrb_results_set_opts
 
 def get_keys_and_column_names_for_results_set(keys, results_set):
     """
-    Return
-
-    Args:
-        keys (list[str]): The full list of HDF5 keys stored in the pywrdrb output file.
-        results_set (str): The type of results that should be retrieved.
+    For given results_set, identify hdf5 key subset and new variable names.
+    
+    The pywrdrb output file contains a large number of variables which each
+    have a different key in the HDF5 file. When loading results, we want to 
+    extract a subset of these variables corresponding to a unique results_set.
+    E.g., for results_set = "res_storage" we want to keep only keys for the 
+    stroage variables. 
+    
+    Also, we want to rename the keys to be user-friendly, often we rename the 
+    variable as simply the node name. These col_names are used to rename columns
+    for the loaded pd.DataFrame.
+    
+    Parameters
+    ----------
+    keys : list[str]
+        The full list of HDF5 keys stored in the pywrdrb output file.
+    results_set : str
+        The type of results to retrieve.
+        
+    Returns
+    -------
+    tuple
+        (keys, col_names) where keys is a subset of all output hdf5 keys to extract 
+        for the given results_set and col_names are the corresponding column names 
+        for the final output DataFrame, used to rename the keys.
     """
     if results_set == "all":
         keys = keys
         col_names = [k for k in keys]
+        
     elif results_set == "reservoir_downstream_gage":
         ## Need to pull flow data for link_ downstream of reservoirs instead of simulated outflows
         keys_with_link = [
@@ -176,26 +214,34 @@ def get_pywrdrb_results(
     units=None,
     ):
     """
-    Gathers simulation results from pywrdrb model run 
-    and returns a dict of pd.DataFrames.
-    This can handle retrieve multiple scenarios.
-    Each key in the dict corresponds to a scenario.
+    Extract simulation results from pywrdrb model output file.
+    
+    Retrieves specified results for specific scenarios from an HDF5 output file
+    and organizes them into a dictionary of pandas DataFrames.
+    
+    Parameters
+    ----------
+    output_filename : str
+        The full output filename from pywrdrb simulation (e.g., "<path>/drb_output_nhmv10.hdf5").
+    results_set : str, optional
+        The results set to return. Options include:
+        - "all": All results.
+        - "reservoir_downstream_gage": Downstream gage flow below reservoir.
+        - "res_storage": Reservoir storages.
+        - "major_flow": Flow at major flow points of interest.
+        - "inflow": Inflow at each catchment.
+    scenarios : list[int], optional
+        The scenario index numbers. Only needed for ensemble simulation results. Default: [0]
+    datetime_index : pd.DatetimeIndex, optional
+        Existing datetime index to reuse. Creating dates is slow, so reusing is efficient.
+    units : str, optional
+        Units to convert flow data to. Options: "MG", "MCM"
 
-    Args:
-        output_filename (str): The output filename from pywrdrb simulation (e.g., "<path>/drb_output_nhmv10.hdf5").
-        results_set (str, optional): The results set to return. Can be one of the following:
-            - "all": Return all results.
-            - "reservoir_downstream_gage": Return downstream gage flow below reservoir.
-            - "res_storage": Return reservoir storages.
-            - "major_flow": Return flow at major flow points of interest.
-            - "inflow": Return the inflow at each catchment.
-            (Default: 'all')
-        scenarios (list(int), optional): The scenario index numbers. Default: [0]
-        datetime_index (Pandas datetime_index): Creating the dates are slow: if this isn't our first data retrieval, we can provide the dates from a previous results dataframe.
-        units (str, optional): The units to convert the flow data to. Options: "MG", "MCM"
-
-    Returns:
-        dict(pd.DataFrame): Dictionary containing simulation results for each scenario.
+    Returns
+    -------
+    tuple
+        (dict, pd.DatetimeIndex) where dict maps scenario indices to DataFrames
+        of results, and pd.DatetimeIndex is the datetime index used.
     """
     # Validate output file
     output_filename = output_filename if ".hdf5" in output_filename else f"{output_filename}.hdf5"
@@ -276,7 +322,6 @@ def get_pywrdrb_results(
         return results_dict, datetime_index
 
 
-### load flow estimates from raw input datasets
 def get_base_results(
     input_dir,
     model,
@@ -284,31 +329,57 @@ def get_base_results(
     results_set="all",
     ensemble_scenario=None,
     units=None,
-):
+    ):
     """
-    Function for retrieving and organizing results from non-pywr streamflows (NHM, NWM, WEAP).
+    Retrieve results from gage_flow_mgd.csv or gage_flow_mgd.hdf5 fils.
+    
+    These 'base' results include flows from different sources,
+    which are _not_ the pywrdrb model. This function is designed to be used for the 
+    internally available datasets, including "obs", "nwmv21", 
+    "nhmv10", "nwmv21_withObsScaled", etc.
+    
+    Parameters
+    ----------
+    input_dir : str
+        Directory containing input data files.
+    model : str
+        Model name. Options:
+        - "obs": Observed data.
+        - "nwmv21": NWM v2.1 data.
+        - "nhmv10": NHM v1.0 data.
+        - "nwmv21_withObsScaled": NWM v2.1 data with scaled inflow observations.
+        - "nhmv10_withObsScaled": NHM v1.0 data with scaled inflow observations.
+    datetime_index : pd.DatetimeIndex, optional
+        Existing datetime index to reuse. Creating dates is slow, so reusing is efficient.
+    results_set : str, optional
+        Results set to return. Options:
+        - "all": All results.
+        - "reservoir_downstream_gage": Downstream gage flow below reservoir.
+        - "major_flow": Flow at major flow points of interest.
+    ensemble_scenario : int, optional
+        Ensemble scenario index. If provided, load data from HDF5 file 
+        instead of CSV.
+    units : str, optional
+        Units to convert flow data to. Options: "MG", "MCM"
 
-    Args:
-        input_dir (str): The input data directory.
-        model (str): The model datatype name (e.g., "nhmv10").
-        datetime_index: The datetime index.
-        results_set (str, optional): The results set to return. Can be one of the following:
-            - "all": Return all results.
-            - "reservoir_downstream_gage": Return downstream gage flow below reservoir.
-            - "major_flow": Return flow at major flow points of interest.
-            (Default: 'all')
-        ensemble_scenario (int, optional): The ensemble scenario index number. If not None, load data from HDF5. Else look for CSV. (Default: None)
-        units (str, optional): The units to convert the flow data to. Options: "MG", "MCM"
-
-    Returns:
-        pd.DataFrame: The retrieved and organized results with datetime index.
+    Returns
+    -------
+    tuple
+        (dict, pd.DatetimeIndex) where dict maps scenario indices to DataFrames
+        of results, and pd.DatetimeIndex is the datetime index used.
+        
+    Notes
+    -----
+    (TJA) It would be nice to rethink this function. The term "base result" is not clear, 
+    and not appropriate. Base originally referred to natural flows, but observed flows are also
+    included which are non-natural. For now, this is important for loading the internal datasets. 
     """
     if ensemble_scenario is None:
-        gage_flow = pd.read_csv(f"{input_dir}gage_flow_mgd.csv")
+        gage_flow = pd.read_csv(f"{input_dir}/gage_flow_mgd.csv")
         gage_flow.index = pd.DatetimeIndex(gage_flow["datetime"])
         gage_flow = gage_flow.drop("datetime", axis=1)
     else:
-        with h5py.File(f"{input_dir}gage_flow_mgd.hdf5", "r") as f:
+        with h5py.File(f"{input_dir}/gage_flow_mgd.hdf5", "r") as f:
             nodes = list(f.keys())
             gage_flow = pd.DataFrame()
             for node in nodes:
@@ -385,234 +456,3 @@ def get_base_results(
     ## Re-organize as dict for consistency with pywrdrb results
     results_dict = {0: data}
     return results_dict, datetime_index
-
-
-def get_all_historic_reconstruction_pywr_results(
-    output_dir, 
-    model_list, 
-    results_set, 
-    start_date, 
-    end_date, 
-    units="MG"
-    ):
-    """
-    Function for retrieving and organizing results from multiple pywr models.
-
-    """
-    datetime_index = pd.date_range(start=start_date, end=end_date, freq="D")
-    results_dict = {}
-    for model in model_list:
-        # For ensembles, get realization/scenario numbers
-        if "ensemble" in model:
-            realizations = get_hdf5_realization_numbers(
-                f"{input_dir}/historic_ensembles/catchment_inflow_{model}.hdf5"
-            )
-            scenarios = list(range(len(realizations)))
-        else:
-            scenarios = [0]
-
-        results_dict[f"pywr_{model}"], datetime_index = get_pywrdrb_results(
-            output_dir,
-            model,
-            results_set=results_set,
-            scenarios=scenarios,
-            datetime_index=datetime_index,
-            units=units,
-        )
-
-    return results_dict
-
-
-### WARNING: Depreciated due to poor handling of many-scenario simulations.
-### Use get_pywrdrb_results instead.
-
-
-# def get_pywr_results(
-#     output_dir, model, results_set="all", scenario=0, datetime_index=None, units=None
-# ):
-#     """
-#     Gathers simulation results from Pywr model run and returns a pd.DataFrame.
-
-#     WARNING: Depreciated due to poor handling of many-scenario simulations. Use get_pywrdrb_results instead.
-
-#     Args:
-#         output_dir (str): The output directory.
-#         model (str): The model datatype name (e.g., "nhmv10").
-#         results_set (str, optional): The results set to return. Can be one of the following:
-#             - "all": Return all results.
-#             - "reservoir_downstream_gage": Return downstream gage flow below reservoir.
-#             - "res_storage": Return reservoir storages.
-#             - "major_flow": Return flow at major flow points of interest.
-#             - "inflow": Return the inflow at each catchment.
-#             (Default: 'all')
-#         scenario (int, optional): The scenario index number. (Default: 0)
-#         datetime_index (Pandas datetime_index): Creating the dates are slow: if this isn't our first data retrieval, we can provide the dates from a previous results dataframe.
-
-#     Returns:
-#         pd.DataFrame: The simulation results with datetime index.
-#     """
-
-#     # Raise depreciation warning
-#     warnings.warn(
-#         "The get_pywr_results() function is depreciated. Use get_pywrdrb_results instead.",
-#         DeprecationWarning,
-#     )
-
-#     with h5py.File(f"{output_dir}drb_output_{model}.hdf5", "r") as f:
-#         keys = list(f.keys())
-#         results = pd.DataFrame()
-#         if results_set == "all":
-#             for k in keys:
-#                 results[k] = f[k][:, scenario]
-#         elif results_set == "reservoir_downstream_gage":
-#             ## Need to pull flow data for link_ downstream of reservoirs instead of simulated outflows
-#             keys_with_link = [
-#                 k
-#                 for k in keys
-#                 if k.split("_")[0] == "link"
-#                 and k.split("_")[1] in reservoir_link_pairs.values()
-#             ]
-#             # print(keys_with_link)
-#             for k in keys_with_link:
-#                 res_name = [
-#                     res
-#                     for res, link in reservoir_link_pairs.items()
-#                     if link == k.split("_")[1]
-#                 ][0]
-#                 results[res_name] = f[k][:, scenario]
-#             # Now pull simulated relases from un-observed reservoirs
-#             keys_without_link = [
-#                 k
-#                 for k in keys
-#                 if k.split("_")[0] == "outflow"
-#                 and k.split("_")[1] in reservoir_list
-#                 and k.split("_")[1] not in reservoir_link_pairs.keys()
-#             ]
-#             for k in keys_without_link:
-#                 results[k.split("_")[1]] = f[k][:, scenario]
-#         elif results_set == "res_storage":
-#             keys = [
-#                 k
-#                 for k in keys
-#                 if k.split("_")[0] == "reservoir" and k.split("_")[1] in reservoir_list
-#             ]
-#             for k in keys:
-#                 results[k.split("_")[1]] = f[k][:, scenario]
-#         elif results_set == "major_flow":
-#             keys = [
-#                 k
-#                 for k in keys
-#                 if k.split("_")[0] == "link" and k.split("_")[1] in majorflow_list
-#             ]
-#             for k in keys:
-#                 results[k.split("_")[1]] = f[k][:, scenario]
-#         elif results_set == "res_release":
-#             ### reservoir releases are "outflow" plus "spill". Not all reservoirs have spill.
-#             keys_outflow = [f"outflow_{r}" for r in reservoir_list]
-#             for k in keys_outflow:
-#                 results[k.split("_")[1]] = f[k][:, scenario]
-#             keys_spill = [f"spill_{r}" for r in reservoir_list]
-#             for k in keys_spill:
-#                 results[k.split("_")[1]] += f[k][:, scenario]
-#         elif results_set == "downstream_release_target":
-#             for reservoir in reservoir_list_nyc:
-#                 results[reservoir] = f[f"{results_set}_{reservoir}"][:, scenario]
-#         elif results_set == "inflow":
-#             keys = [k for k in keys if k.split("_")[0] == "catchment"]
-#             for k in keys:
-#                 results[k.split("_")[1]] = f[k][:, scenario]
-#         elif results_set == "catchment_withdrawal":
-#             keys = [k for k in keys if k.split("_")[0] == "catchmentWithdrawal"]
-#             for k in keys:
-#                 results[k.split("_")[1]] = f[k][:, scenario]
-#         elif results_set == "catchment_consumption":
-#             keys = [k for k in keys if k.split("_")[0] == "catchmentConsumption"]
-#             for k in keys:
-#                 results[k.split("_")[1]] = f[k][:, scenario]
-#         elif results_set in (
-#             "prev_flow_catchmentWithdrawal",
-#             "max_flow_catchmentWithdrawal",
-#             "max_flow_catchmentConsumption",
-#         ):
-#             keys = [k for k in keys if results_set in k]
-#             for k in keys:
-#                 results[k.split("_")[-1]] = f[k][:, scenario]
-#         elif results_set in ("res_level"):
-#             keys = [k for k in keys if "drought_level" in k]
-#             for k in keys:
-#                 results[k.split("_")[-1]] = f[k][:, scenario]
-#         elif results_set == "ffmp_level_boundaries":
-#             keys = [f"level{l}" for l in ["1b", "1c", "2", "3", "4", "5"]]
-#             for k in keys:
-#                 results[k] = f[k][:, scenario]
-#         elif results_set == "mrf_target":
-#             keys = [k for k in keys if results_set in k]
-#             for k in keys:
-#                 results[k.split("mrf_target_")[1]] = f[k][:, scenario]
-#         elif results_set == "nyc_release_components":
-#             keys = (
-#                 [
-#                     f"mrf_target_individual_{reservoir}"
-#                     for reservoir in reservoir_list_nyc
-#                 ]
-#                 + [f"flood_release_{reservoir}" for reservoir in reservoir_list_nyc]
-#                 + [
-#                     f"mrf_montagueTrenton_{reservoir}"
-#                     for reservoir in reservoir_list_nyc
-#                 ]
-#                 + [f"spill_{reservoir}" for reservoir in reservoir_list_nyc]
-#             )
-#             for k in keys:
-#                 results[k] = f[k][:, scenario]
-#         elif results_set == "lower_basin_mrf_contributions":
-#             keys = [
-#                 f"mrf_trenton_{reservoir}" for reservoir in drbc_lower_basin_reservoirs
-#             ]
-#             for k in keys:
-#                 results[k] = f[k][:, scenario]
-#         elif results_set == "ibt_demands":
-#             keys = ["demand_nyc", "demand_nj"]
-#             for k in keys:
-#                 results[k] = f[k][:, scenario]
-#         elif results_set == "ibt_diversions":
-#             keys = ["delivery_nyc", "delivery_nj"]
-#             for k in keys:
-#                 results[k] = f[k][:, scenario]
-#         elif results_set == "mrf_targets":
-#             keys = ["mrf_target_delMontague", "mrf_target_delTrenton"]
-#             for k in keys:
-#                 results[k] = f[k][:, scenario]
-#         elif results_set == "all_mrf":
-#             keys = [k for k in keys if "mrf" in k]
-#             for k in keys:
-#                 results[k] = f[k][:, scenario]
-
-#         else:
-#             print("Invalid results_set specified.")
-#             return
-
-#         if datetime_index is not None:
-#             if len(datetime_index) == len(f["time"]):
-#                 results.index = datetime_index
-#                 reuse_datetime_index = True
-#             else:
-#                 reuse_datetime_index = False
-#         else:
-#             reuse_datetime_index = False
-
-#         if not reuse_datetime_index:
-#             # Format datetime index
-#             day = [f["time"][i][0] for i in range(len(f["time"]))]
-#             month = [f["time"][i][2] for i in range(len(f["time"]))]
-#             year = [f["time"][i][3] for i in range(len(f["time"]))]
-#             date = [f"{y}-{m}-{d}" for y, m, d in zip(year, month, day)]
-#             datetime_index = pd.to_datetime(date)
-#             results.index = datetime_index
-
-#         if units is not None:
-#             if units == "MG":
-#                 pass
-#             elif units == "MCM":
-#                 results *= mg_to_mcm
-
-#         return results, datetime_index

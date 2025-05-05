@@ -207,40 +207,33 @@ The following example code is taken from `pywrdrb/load/data_loader.py`.
 
 ```python
 """
-The pywrdrb.Data() class is used to load and store different datasets. 
+[Single-line description]
 
-The class supports loading the following data:
-- Observations (e.g., streamflows, reservoir storage)
-- pywrdrb simulation output (any variable from the output file)
-- #TODO Hydrologic model output (e.g., NHMv10, NWMv21) (not implemented correctly at the moment)
+Overview: 
+[Extended description of the module functionality, purpose and other user-relevant notes.
+Focus on how this module interacts with other pywrdrb modules and code. 
+Should explain what the module does and why it's important] 
 
-All data is stored as attributes of the Data class. The data is stored in a hierarchical format, following:
-Data.results_set[datatype][scenario_id] -> pd.DataFrame.
+Key Steps: (If script)
+1. [Step 1] 
+2. [Step 2] 
+3. [Step 3] 
+[...] 
 
+Technical Notes: 
+- [Interactions with other pywrdrb classes or modules, etc.]
+- [Dependencies (e.g., uses PathNavigator, NWIS API)] 
+- [Critical assumptions or settings (e.g., start_date, gauge mapping)] 
+- [Paths configured automatically via pn (PathNavigator)]
+- [#TODO list] 
+- [Etc.]
 
-Importantly, the Data class uses results_set specifications. These result_set keys are used to identify
-specific variable subsets from the different data. To learn more about these, see:
-https://pywr-drb.github.io/Pywr-DRB/results_set_options.html
+Links: 
+- [Optional relevant repo, documentation, issue threads] 
 
-
-Classes
--------
-Data
-    The data loader class. Interacts with other 'loader' classes all built on top of the AbstractDataLoader class.
-    
-Functions
----------
-Data.load_observations()
-    Load observational data from the specified results_sets.
-Data.load_output(output_filenames)
-    Load data from pywrdrb output files based on the specified results_sets.
-Data.export(file)
-    Export all loaded data to an HDF5 file.
-Data.load_from_export(file)
-    Load data from an HDF5 file into the object.
+Change Log:
+[Your Name], [YYYY-MM-DD], [Comment describing change]
 """
-
-
 
 import pandas as pd
 import os
