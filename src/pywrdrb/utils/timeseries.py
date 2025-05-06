@@ -1,19 +1,43 @@
+"""
+Functions for working directly with pd.Series timeseries.
+
+Overview: 
+These functions are broadly applicable across the pywrdrb codebase. 
+
+
+Technical Notes: 
+- NA
+
+Links: 
+- NA
+ 
+Change Log:
+TJA, 2025-05-05, Add docs.
+"""
+
 import pandas as pd
 import datetime as dt
 
 
 def subset_timeseries(timeseries, start_date, end_date, end_inclusive=True):
     """
-    Take a subset of pd.DataFrame timeseries data between start_date and end_date.
+    Take a subset of pd.Series timeseries data between start_date and end_date.
 
-    Args:
-        timeseries (pd.DataFrame): The timeseries data.
-        start_date (str or pd.Timestamp): The start date for the subset.
-        end_date (str or pd.Timestamp): The end date for the subset.
-        end_inclusive (bool): Whether the end date is inclusive.
-
-    Returns:
-        data (pd.DataFrame): The subset of the timeseries data.
+    Parameters
+    ----------
+    timeseries : pd.Series
+        The timeseries data to subset.
+    start_date : str or pd.Timestamp
+        The start date for the subset. If str, should be in 'YYYY-MM-DD' format.
+    end_date : str or pd.Timestamp
+        The end date for the subset. If str, should be in 'YYYY-MM-DD' format.
+    end_inclusive : bool, optional
+        Whether to include the end date in the subset. Default is True.
+    
+    Returns
+    -------
+    pd.Series
+        The subset of the timeseries data between start_date and end_date.
     """
 
     data = timeseries.copy()
@@ -34,12 +58,17 @@ def get_rollmean_timeseries(timeseries, window):
     """
     Calculates the rolling mean of a timeseries for a given window size.
 
-    Args:
-        timeseries (pd.DataFrame): The timeseries data.
-        window (int): The window size for the rolling mean.
-
-    Returns:
-        rollmean_timeseries (pd.DataFrame): The rolling mean timeseries.
+    Parameters
+    ----------
+    timeseries : pd.Series
+            The timeseries data to calculate the rolling mean for.
+    window : int
+            The window size for the rolling mean.
+    
+    Returns
+    -------
+    pd.Series
+        The rolling mean transformed timeseries data.
     """
 
     try:

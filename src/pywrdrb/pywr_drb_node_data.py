@@ -1,16 +1,31 @@
 """
-This script stores dictionaries which specify the connections between
-Pywr-DRB nodes and data sources for different inflow datasets.
+Contains metadata for pywrdrb nodes, their inflow source IDs and other relationships. 
 
-There are unique node source matches depending on whether the dataset is:
-- Observed data only
-- Reconstructed historic data with PUB
-- NHMv10
-- NWMv2.1
-- WEAP
+Overview:
+This script stores many dictionaries that are used for different purposes, including:
+- map pywrdrb node names to their inflow source IDs for different datasets (e.g., NWM, NHM, WEAP, etc.)
+- define the upstream nodes for each pywrdrb node
+- define the immediate downstream node for each pywrdrb node
+
+Technical Notes:
+- These relationships are important for pywrdrb funcitonality
+- The "*_site_matches" dictionaries are used to map pywrdrb node names to their inflow source IDs for different datasets, including:
+    - observatuional data (uses None when no data is available)
+    - NHMv1.0
+    - NWMv2.0
+    - WRF-Hydro
+- These IDs are unique to each source dataset. 
+- These mappings are used during the preprocessing for different datasets
+
+Links:
+- NA
+
+Change Log:
+TJA, 2025-05-06, Add docstrings & delete old WEAP mapping since no longer supported.
 """
 
 ## Set of all upstream nodes for every downstream node
+# {node: [all, upstream, nodes]}
 upstream_nodes_dict = {
     "01425000": ["cannonsville"],
     "01417000": ["pepacton"],
@@ -90,6 +105,8 @@ upstream_nodes_dict = {
     ],
 }
 
+
+# {node: [immediate_downstream_node]}
 immediate_downstream_nodes_dict = {
     "cannonsville": "01425000",
     "pepacton": "01417000",
@@ -124,7 +141,8 @@ immediate_downstream_nodes_dict = {
     "outletSchuylkill": "output_del",
 }
 
-### the time delay/lag (days) between each node and its downstream connection node
+### the time delay/lag (days) between each 
+# node and its immediate downstream connection node
 downstream_node_lags = {
     "cannonsville": 0,
     "pepacton": 0,
@@ -159,6 +177,11 @@ downstream_node_lags = {
     "outletSchuylkill": 0,
 }
 
+# Observed, FULL NATURAL FLOW, data source IDs 
+# When None, no FULL NATURAL FLOW data is available 
+# for that node. E.g., at Trenton, the data is managed, 
+# so we say None for this location.
+# This mapping is used to determine "PUB" locations for the reconstruction
 obs_pub_site_matches = {
     "cannonsville": ["01423000", "0142400103"],  # 0142400103 doesnt start until '96
     "pepacton": [
@@ -198,6 +221,9 @@ obs_pub_site_matches = {
     "outletSchuylkill": None,  # ['01474500']
 }
 
+# Observed data USGS IDs
+# in this dict, all flows are included (not necessarily full natural flow)
+# used to generate data/observations/gage_flow_mgd.csv
 obs_site_matches = {
     "cannonsville": ["01423000", "0142400103"],
     "pepacton": [
@@ -239,8 +265,8 @@ obs_site_matches = {
     "outletSchuylkill": ["01474500"],
 }
 
-
-## NHM segment IDs
+# NHM data IDs
+# {node : [NHM segment IDs]}
 nhm_site_matches = {
     "cannonsville": ["1562"],
     "pepacton": ["1449"],
@@ -285,6 +311,11 @@ nhm_site_matches = {
 }
 
 ## NWM data IDs are either COMIDs or USGS-IDs (USGS-IDs start with 0)
+# {node : [NWM segment IDs]}
+## NOTE: for NWM site matches -- 
+# We use gauge IDs at actual gauge sites
+# and COMIDs for non-gauge locations.
+# This is an artifact of labels on the NWM data provided by Aubrey Dugger (NCAR)
 nwm_site_matches = {
     "cannonsville": ["2613174"],  # Lake inflow
     "pepacton": ["1748473"],  # Lake inflow
@@ -321,46 +352,8 @@ nwm_site_matches = {
     "outletSchuylkill": ["4784841"],
 }
 
-
-### match for WEAP results file (24Apr2023, gridmet, NatFlows) corresponding to each node in Pywr-DRB.
-### results files should be f'{match}_GridMet_NatFlows.csv'. these results are in MM3/day.
-WEAP_24Apr2023_gridmet_NatFlows_matches = {
-    "cannonsville": ["RES_DelAbvCannon"],
-    "pepacton": ["RES_DelAbvPepacton"],
-    "neversink": ["RES_AbvNeversink"],
-    "wallenpaupack": ["RES_Wallenpaupack"],
-    "prompton": ["RES_Prompton"],
-    "shoholaMarsh": ["RES_ShoholaMarsh"],
-    "mongaupeCombined": ["RES_RioMongaupe"],
-    "beltzvilleCombined": ["RES_Beltzville"],
-    "fewalter": ["RES_FEWalter"],
-    "merrillCreek": None,
-    "hopatcong": ["RES_Hopatcong"],
-    "nockamixon": ["RES_Nockamixon"],
-    "assunpink": ["RES_Assunpink"],
-    "ontelaunee": ["RES_Ontelaunee"],
-    "stillCreek": None,
-    "blueMarsh": ["RES_BlueMarsh_01470779"],
-    "greenLane": ["RES_GreenLane"],
-    "01425000": ["West Brnch Del BlwCannnon_01425000"],
-    "01417000": ["DelawareBlwPepactonRes_01417000"],
-    "delLordville": ["DelAtLordville_01427207"],
-    "01436000": ["NeversinkBlwRes_01436000"],
-    "01433500": ["Mongaup_014433500"],
-    "delMontague": ["Delaware River at Montague_01438500"],
-    "01449800": ["PohopocoBlwBeltzville_0149800"],
-    "01447800": ["Leigh_01447800"],
-    "delDRCanal": ["Delaware at Trenton_01463500"],
-    "delTrenton": ["Delaware at Trenton_01463500"],
-    "01463620": ["Assunpink_01463620"],
-    "outletAssunpink": ["Assunpink_01464000"],
-    "01470960": ["Tulpenhocken_01470960"],
-    "outletSchuylkill": ["Schuykill_01474500"],
-}
-
-WEAP_29June2023_gridmet_NatFlows_matches = WEAP_24Apr2023_gridmet_NatFlows_matches
-
 ### WRF-Hydro site matches
+# {node : [WRF-Hydro reach code]}
 wrf_hydro_site_matches = {
     "cannonsville": ["2613174"],  # Lake inflow
     "pepacton": ["1748473"],  # Lake inflow
