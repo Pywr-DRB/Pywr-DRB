@@ -21,7 +21,7 @@ TJA, 2025-05-02, Added consistent docstrings.
 
 from pywrdrb.load.abstract_loader import AbstractDataLoader, default_kwargs
 from pywrdrb.load.get_results import get_base_results
-from pywrdrb.utils.results_sets import base_results_set_opts
+from pywrdrb.utils.results_sets import obs_results_set_opts
 
 
 class Observation(AbstractDataLoader):
@@ -57,7 +57,7 @@ class Observation(AbstractDataLoader):
         """
         self.default_kwargs = default_kwargs
         self.default_kwargs['input_dir'] = None
-        self.valid_results_sets = base_results_set_opts
+        self.valid_results_sets = obs_results_set_opts
         self.datetime_index = None
         
         super().__parse_kwargs__(self.default_kwargs, 
