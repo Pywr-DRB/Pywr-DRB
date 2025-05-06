@@ -18,10 +18,8 @@ dependencies = [
     "numpy",
     "pandas",
     "scipy",
-    "scikit-learn",
     "statsmodels",
     "matplotlib",
-    "seaborn",
     "PathNavigator",
     "h5py",
     "pytest",
@@ -29,18 +27,10 @@ dependencies = [
     "hatch",
     "torch",
     "bmipy",
-    "uncertainty_toolbox",
-    "pygeohydro",
     "hydroeval",
-    "altair",
     "jupyter-book",
     "ghp-import",
-    "shapely",
     "folium",
-    "pynhd",
-    "geopandas",
-    "pyarrow",
-    "contextily",
     "dataretrieval"
     ]
 
@@ -50,6 +40,10 @@ dev = [
 ]
 lint = [
     "pre-commit>=2.20.0",
+]
+plotting = [
+    "matplotlib",
+    "seaborn"
 ]
 
 [build-system]
