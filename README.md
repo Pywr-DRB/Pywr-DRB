@@ -90,7 +90,7 @@ ax.set_title("Major Streamflow: Montague & Trenton")
 plt.tight_layout()
 plt.show()
 ```
-![](https://github.com/Pywr-DRB/Pywr-DRB/blob/master/docs/images/readme_streamflow.png)
+![](https://github.com/Pywr-DRB/Pywr-DRB/blob/cl_simple_run/docs/images/readme_streamflow.png)
 
 ## 8. Plot Reservoir Storage
 ```python
