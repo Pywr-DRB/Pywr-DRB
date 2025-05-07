@@ -1,77 +1,110 @@
-#%%
-import pywrdrb
+# =============================================================================
+# Pywr-DRB Getting Started Guide: Build, Run, and Visualize a DRB Water System Model
+# =============================================================================
 
-pn = pywrdrb.get_pn_object()
-pn_config = pywrdrb.get_pn_config()
+# This guide walks new users through creating a Delaware River Basin water system model 
+# using the `pywrdrb` package. We'll build the model, run a simulation, and 
+# visualize key outputs like major streamflows and reservoir storage.
 
-pn_config = pywrdrb.get_pn_config()
-pn_config["flows/my_data"] = pn_config["flows/nhmv10"]
+# -----------------------------------------------------------------------------
+# 1. Import Required Packages
+# -----------------------------------------------------------------------------
 
-pywrdrb.load_pn_config(pn_config)
+import pywrdrb                        # Pywr-DRB package 
+import matplotlib.pyplot as plt       # Plotting package for visualizations
+import os                             # Standard package to handle file paths
 
-wd = r"./"
+# -----------------------------------------------------------------------------
+# 2. Define Working Directory
+# -----------------------------------------------------------------------------
 
-#%%
-# Now we can use the custom inflow type
+# Replace this path with your preferred working directory.
+wd = r""  # Output files (model JSON, output HDF5) will be saved here.
+
+# -----------------------------------------------------------------------------
+# 3. Build the Pywr-DRB Model
+# -----------------------------------------------------------------------------
+
+# Create a ModelBuilder instance with inflow data type and time period
 mb = pywrdrb.ModelBuilder(
-    inflow_type='my_data', 
-    diversion_type='nhmv10',
+    inflow_type='nwmv21_withObsScaled',  # Use hybrid version of NWM v2.1 inflow inputs
     start_date="1983-10-01",
     end_date="1985-12-31"
-    )
+)
 
-# Make a model (you are expected to see error here)
+# Generate the model structure
 mb.make_model()
 
-###### Create a model ######
-#Initialize a model builder
-mb = pywrdrb.ModelBuilder(
-    inflow_type='nhmv10_withObsScaled', 
-    start_date="1983-10-01",
-    end_date="2016-12-31"
-    )
-
-# Make a model
-mb.make_model()
-
-model_dict = mb.model_dict
-#%%
-# Output model.json file
-model_filename = rf"{wd}\model.json"
+# Save the model configuration to JSON
+model_filename = os.path.join(wd, "my_model.json")
 mb.write_model(model_filename)
-#%%
-# ###### Run a simulation ######
-# # Load the model using Model inherited from pywr
+
+# -----------------------------------------------------------------------------
+# 4. Load the Model and Attach an Output Recorder
+# -----------------------------------------------------------------------------
+
+# Load the model from the saved JSON file
 model = pywrdrb.Model.load(model_filename)
 
-# Add a recorder inherited from pywr
-output_filename = rf"{wd}\model_output.hdf5"
+# Define the HDF5 output file to store simulation results
+output_filename = os.path.join(wd, "my_model.hdf5")
 
-#%%
+# Create an OutputRecorder to log all named parameters
 recorder = pywrdrb.OutputRecorder(
-    model, output_filename, 
+    model=model,
+    output_filename=output_filename,
     parameters=[p for p in model.parameters if p.name]
 )
 
-# Run a simulation
+# -----------------------------------------------------------------------------
+# 5. Run the Model
+# -----------------------------------------------------------------------------
+
+# Execute the simulation
 stats = model.run()
 
-#%%
-# Load raw hdf5 file
-res = pywrdrb.hdf5_to_dict(output_filename)
+# -----------------------------------------------------------------------------
+# 6. Load Simulation Outputs
+# -----------------------------------------------------------------------------
 
-#%%
-###### Post process ######  Pending to be updated
-# Load simulation results
+# Instantiate a Data object to access results
+data = pywrdrb.Data()
 
-# Setup data loader object
-data = pywrdrb.Data(print_status=True)
-
-# specify the datatypes and results_sets to load
-datatypes = ['outputs']
+# Load major flows and reservoir storage results from the HDF5 file
 results_sets = ['major_flow', 'res_storage']
+data.load_output(output_filenames=[output_filename], results_sets=results_sets)
 
-# Load the data
-data.load(datatypes=datatypes,
-          output_filenames= [output_filename], 
-          results_sets=results_sets)
+# Extract the dataframes for plotting
+df_major_flow = data.major_flow["my_model"][0]
+df_res_storage = data.res_storage["my_model"][0]
+
+# -----------------------------------------------------------------------------
+# 7. Plot Major Streamflows
+# -----------------------------------------------------------------------------
+
+fig, ax = plt.subplots(figsize=(5, 4))
+df_major_flow[['delMontague', 'delTrenton']].plot(ax=ax)
+ax.set_ylabel("Streamflow (mgd)")
+ax.set_xlabel("Date")
+ax.set_title("Major Streamflow: Montague & Trenton")
+plt.tight_layout()
+plt.show()
+
+# -----------------------------------------------------------------------------
+# 8. Plot Reservoir Storage
+# -----------------------------------------------------------------------------
+
+# Define reservoirs to plot
+reservoirs = ['cannonsville', 'pepacton', 'neversink']
+
+# Create subplots for each reservoir
+fig, axes = plt.subplots(nrows=3, ncols=1, figsize=(5, 5), sharex=True)
+for ax, res in zip(axes, reservoirs):
+    df_res_storage[res].plot(ax=ax)
+    ax.set_ylabel(f"{res}\nstorage\n(mg)")
+    ax.set_title(res.capitalize())
+
+plt.xlabel("Date")
+plt.suptitle("Reservoir Storage Over Time", y=0.96)
+plt.tight_layout()
+plt.show()
