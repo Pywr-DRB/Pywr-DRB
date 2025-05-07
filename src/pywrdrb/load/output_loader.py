@@ -26,7 +26,6 @@ import numpy as np
 from pywrdrb.load.abstract_loader import AbstractDataLoader, default_kwargs
 from pywrdrb.load.get_results import get_pywrdrb_results
 from pywrdrb.utils.results_sets import pywrdrb_results_set_opts
-from pywrdrb.utils.directories import output_dir
 from pywrdrb.utils.hdf5 import get_n_scenarios_from_pywrdrb_output_file
 
 
