@@ -1,16 +1,36 @@
 """
 Contains parameters that track reservoir bank storages.
 
-Includes:
-- IERQTrentonRemaining: Keeps track of the Trenton-portion of the Interim Excess Release Quantity (IERQ)
+Overview:
+This module contains parameters that track reservoir bank storages for the New York City (NYC) reservoirs.
+These banks represent annually allocated water volumes that can be used for different purposes, and are
+described in the 2017 Flexible Flow Management Plan (FFMP) Section 3.c.
+At the moment, only the Trenton Equivalent Flow banks is implemented, which is 6.09 BG annually
+
+Technical Notes:
+- The Trenton equivalent flow bank is used to support the Trenton flow objective.
+- The bank is reset on June 1 of each year.
+- When NYC is in drought, the bank should be set to 0.0 (no excess quantity)
+- This interacts with other parameters in the pywrdrb.parameters.ffmp module
+- #TODO: Consider implementations for other banks
+    - Thermal mitigation (1.62 BG)
+    - Rapid flow change mitigation (0.65 BG)
+    - NJ diversion amelioration (1.65 BG)
+    
+Links:
+- NA
+
+Change Log:
+TJA, 2025-05-02, Add docs.
 """
 
 import numpy as np
 import pandas as pd
+
 from pywr.parameters import Parameter, load_parameter
 
-from ..utils.lists import reservoir_list_nyc
-from ..utils.constants import epsilon
+from pywrdrb.utils.lists import reservoir_list_nyc
+from pywrdrb.utils.constants import epsilon
 
 max_bank_volumes = {
     "trenton": 6090,  # 6090 MGD (6.09 BG)
@@ -23,18 +43,56 @@ bank_options = list(max_bank_volumes.keys())
 
 class IERQRelease_step1(Parameter):
     """
-    Returns the max allowable release.
-
-    Args:
-        Parameter (_type_): _description_
+    Tracks the Interim Excess Release Quantity (IERQ) release for the Trenton bank.
+    
+    Methods
+    -------
+    setup()
+        Allocates an array to hold the parameter state.
+    value(timestep, scenario_index)
+        Returns the current volume remaining for the scenario.
+    after()
+        Automatically called after the value() method to update the bank remaining volume.
+    load(model, data)
+        Standard method to load the parameter from a data dictionary.
+    
+    Attributes
+    ----------
+    model : Model
+        The Pywr model dict.
+    bank : str
+        The IERQ bank to track; options: "trenton", "thermal", "rapid_flow", "nj_diversion".
+    release_needed : pywr.Parameter
+        The parameter that indicates the release needed for the bank.
+    step : int
+        The step of the model (1 or 2).
+    bank_remaining : np.ndarray
+        Array to hold the remaining volume for each scenario.
+    bank_release : np.ndarray
+        Array to hold the release for each scenario.
+    datetime : pd.Timestamp
+        Datetime index object.
     """
-    def __init__(
-        self,
-        model,
-        bank,
-        release_needed,
-        **kwargs,
-    ):
+    def __init__(self,
+                 model,
+                 bank,
+                 release_needed,
+                 **kwargs,
+                 ):
+        """Initalize the IERQRelease_step1 parameter.
+        
+        Parameters
+        ----------
+        model : Model
+            The Pywr model dict.
+        bank : str
+            The IERQ bank to track; options: "trenton", "thermal", "rapid_flow", "nj_diversion". Only "trenton" is implemented currently.
+        release_needed : pywr.Parameter
+            The parameter that indicates the release needed for the bank.
+        kwargs : dict
+            Other keyword arguments passed to the pwyr.Parameter class. None currently used.
+        """
+        
         super().__init__(model, **kwargs)
         self.bank = bank
         self.step = 1
@@ -44,7 +102,7 @@ class IERQRelease_step1(Parameter):
         self.parents.add(self.release_needed)     
     
     def setup(self):
-        """Allocate an array to hold the parameter state."""
+        """Allocate arrays to hold the parameter state."""
         super().setup()
         self.num_scenarios = len(self.model.scenarios.combinations)
         self.bank_remaining = np.ones(shape=(self.num_scenarios)) * max_bank_volumes[self.bank]
@@ -53,14 +111,19 @@ class IERQRelease_step1(Parameter):
 
     def value(self, timestep, scenario_index):
         """
-        Returns the current volume remaining for the scenario.
+        Returns the current IERQ volume remaining for this year and scenario.
 
-        Args:
-            timestep (Timestep): The current timestep.
-            scenario_index (ScenarioIndex): The scenario index.
+        Parameters
+        ----------
+        timestep : Timestep
+            The current timestep. Provided by pywr during simulation.
+        scenario_index : ScenarioIndex
+            The scenario index. Provided by pywr during simulation.
 
-        Returns:
-            float: The current volume remaining for the scenario.
+        Returns
+        -------
+        float 
+            The current volume remaining for the scenario.
         """
         if self.datetime is None:
             self.datetime = self.model.timestepper.current.datetime
@@ -80,7 +143,9 @@ class IERQRelease_step1(Parameter):
 
 
     def after(self):
-        """
+        """Run automatically after the value() method to update the bank remaining volume.
+        
+        This is used to remove the current Trenton release from the bank remaining volume.
         """
         # Remove today's release from the bank
         timestep = self.model.timestepper.current
@@ -99,6 +164,12 @@ class IERQRelease_step1(Parameter):
 
     @classmethod
     def load(cls, model, data):
+        """
+        Load the IERQRelease_step1 parameter from the model dictionary.
+        
+        This is the standard pywr.Parameter class method. All data used by the parameter 
+        should be contained in the dict, which is generated by pywrdrb.ModelBuilder.        
+        """
         bank = data.pop("bank")
         
         if bank == "trenton":
@@ -113,7 +184,7 @@ class IERQRelease_step1(Parameter):
             model, bank, release_needed_step1, **data
         )
 
-# Register the parameters
+# Register
 IERQRelease_step1.register()
 
 
