@@ -1,5 +1,6 @@
+import pytest
 
-def = test_import_pywrdrb():
+def test_import_pywrdrb():
     """
     Test the import of the pywrdrb module.
     
