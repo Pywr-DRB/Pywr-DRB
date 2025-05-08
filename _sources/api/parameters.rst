@@ -1,6 +1,8 @@
 pywrdrb.parameters
 ====================
 
+Parameters are used to define operations within the pywrdrb model.
+
 Flexible Flow Management (FFMP)
 -------------------------------
 

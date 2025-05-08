@@ -205,7 +205,11 @@
 <li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.LaggedReservoirRelease.html">pywrdrb.parameters.LaggedReservoirRelease</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2"><a class="reference internal" href="api/pre.html">pywrdrb.pre</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="api/pre.html">pywrdrb.pre</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.pre.PredictedInflowPreprocessor.html">pywrdrb.pre.PredictedInflowPreprocessor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.pre.PredictedDiversionPreprocessor.html">pywrdrb.pre.PredictedDiversionPreprocessor</a></li>
+</ul>
+</details></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="examples/examples.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -430,6 +434,10 @@ document.write(`
 </li>
         <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2.__init__">(pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2 method)</a>
 </li>
+        <li><a href="api/generated/pywrdrb.pre.PredictedDiversionPreprocessor.html#pywrdrb.pre.PredictedDiversionPreprocessor.__init__">(pywrdrb.pre.PredictedDiversionPreprocessor method)</a>
+</li>
+        <li><a href="api/generated/pywrdrb.pre.PredictedInflowPreprocessor.html#pywrdrb.pre.PredictedInflowPreprocessor.__init__">(pywrdrb.pre.PredictedInflowPreprocessor method)</a>
+</li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -518,6 +526,8 @@ document.write(`
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.calculate_target_release">calculate_target_release() (pywrdrb.parameters.STARFITReservoirRelease method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.pre.PredictedDiversionPreprocessor.html#pywrdrb.pre.PredictedDiversionPreprocessor.catchment_wc">catchment_wc (pywrdrb.pre.PredictedDiversionPreprocessor attribute)</a>
 </li>
       <li><a href="api/generated/pywrdrb.parameters.FfmpNjRunningAvgParameter.html#pywrdrb.parameters.FfmpNjRunningAvgParameter.current_drought_factor">current_drought_factor (pywrdrb.parameters.FfmpNjRunningAvgParameter attribute)</a>
 </li>
@@ -629,6 +639,8 @@ document.write(`
 </li>
       <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.get_NORlo">get_NORlo() (pywrdrb.parameters.STARFITReservoirRelease method)</a>
 </li>
+      <li><a href="api/generated/pywrdrb.pre.PredictedDiversionPreprocessor.html#pywrdrb.pre.PredictedDiversionPreprocessor.get_prediction_node_lag_combinations">get_prediction_node_lag_combinations() (pywrdrb.pre.PredictedDiversionPreprocessor method)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -655,13 +667,15 @@ document.write(`
 </li>
       <li><a href="api/generated/pywrdrb.parameters.FlowEnsemble.html#pywrdrb.parameters.FlowEnsemble.inflow_column_indices">inflow_column_indices (pywrdrb.parameters.FlowEnsemble attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/pywrdrb.parameters.FlowEnsemble.html#pywrdrb.parameters.FlowEnsemble.inflow_ensemble">inflow_ensemble (pywrdrb.parameters.FlowEnsemble attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/pywrdrb.parameters.FlowEnsemble.html#pywrdrb.parameters.FlowEnsemble.inflow_ensemble_indices">inflow_ensemble_indices (pywrdrb.parameters.FlowEnsemble attribute)</a>
 </li>
       <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.inflow_type">inflow_type (pywrdrb.ModelBuilder attribute)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.pre.PredictedDiversionPreprocessor.html#pywrdrb.pre.PredictedDiversionPreprocessor.input_dirs">input_dirs (pywrdrb.pre.PredictedDiversionPreprocessor attribute)</a>
 </li>
       <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.istarf">istarf (pywrdrb.ModelBuilder attribute)</a>
 </li>
@@ -709,6 +723,8 @@ document.write(`
         <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.load">(pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1 method)</a>
 </li>
         <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2.load">(pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2 method)</a>
+</li>
+        <li><a href="api/generated/pywrdrb.pre.PredictedDiversionPreprocessor.html#pywrdrb.pre.PredictedDiversionPreprocessor.load">(pywrdrb.pre.PredictedDiversionPreprocessor method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -863,10 +879,12 @@ document.write(`
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.options">options (pywrdrb.ModelBuilder attribute)</a>
 </li>
-      <li><a href="api/generated/pywrdrb.OutputRecorder.html#pywrdrb.OutputRecorder.output_filename">output_filename (pywrdrb.OutputRecorder attribute)</a>
+      <li><a href="api/generated/pywrdrb.pre.PredictedDiversionPreprocessor.html#pywrdrb.pre.PredictedDiversionPreprocessor.output_dirs">output_dirs (pywrdrb.pre.PredictedDiversionPreprocessor attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.OutputRecorder.html#pywrdrb.OutputRecorder.output_filename">output_filename (pywrdrb.OutputRecorder attribute)</a>
+</li>
       <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.output_filenames">output_filenames (pywrdrb.Data attribute)</a>
 </li>
       <li><a href="api/generated/pywrdrb.OutputRecorder.html#pywrdrb.OutputRecorder">OutputRecorder (class in pywrdrb)</a>
@@ -893,13 +911,19 @@ document.write(`
 </li>
       <li><a href="api/generated/pywrdrb.parameters.PredictionEnsemble.html#pywrdrb.parameters.PredictionEnsemble.pred_column_indices">pred_column_indices (pywrdrb.parameters.PredictionEnsemble attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/pywrdrb.parameters.PredictionEnsemble.html#pywrdrb.parameters.PredictionEnsemble.pred_ensemble">pred_ensemble (pywrdrb.parameters.PredictionEnsemble attribute)</a>
 </li>
       <li><a href="api/generated/pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.html#pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.predicted_demand_nj">predicted_demand_nj (pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.html#pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.predicted_nonnyc_gage_flow_mrf">predicted_nonnyc_gage_flow_mrf (pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF attribute)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.pre.PredictedDiversionPreprocessor.html#pywrdrb.pre.PredictedDiversionPreprocessor.predicted_timeseries">predicted_timeseries (pywrdrb.pre.PredictedDiversionPreprocessor attribute)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.pre.PredictedDiversionPreprocessor.html#pywrdrb.pre.PredictedDiversionPreprocessor">PredictedDiversionPreprocessor (class in pywrdrb.pre)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.pre.PredictedInflowPreprocessor.html#pywrdrb.pre.PredictedInflowPreprocessor">PredictedInflowPreprocessor (class in pywrdrb.pre)</a>
 </li>
       <li><a href="api/generated/pywrdrb.parameters.PredictionEnsemble.html#pywrdrb.parameters.PredictionEnsemble">PredictionEnsemble (class in pywrdrb.parameters)</a>
 </li>
@@ -908,6 +932,8 @@ document.write(`
       <li><a href="api/generated/pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.html#pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.previous_release_reservoirs">previous_release_reservoirs (pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF attribute)</a>
 </li>
       <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.print_status">print_status (pywrdrb.Data attribute)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.pre.PredictedDiversionPreprocessor.html#pywrdrb.pre.PredictedDiversionPreprocessor.process">process() (pywrdrb.pre.PredictedDiversionPreprocessor method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -973,6 +999,8 @@ document.write(`
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.S_cap">S_cap (pywrdrb.parameters.STARFITReservoirRelease attribute)</a>
 </li>
+      <li><a href="api/generated/pywrdrb.pre.PredictedDiversionPreprocessor.html#pywrdrb.pre.PredictedDiversionPreprocessor.save">save() (pywrdrb.pre.PredictedDiversionPreprocessor method)</a>
+</li>
       <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.sensitivity_analysis_scenarios">sensitivity_analysis_scenarios (pywrdrb.parameters.STARFITReservoirRelease attribute)</a>
 </li>
       <li><a href="api/generated/pywrdrb.OutputRecorder.html#pywrdrb.OutputRecorder.setup">setup() (pywrdrb.OutputRecorder method)</a>
@@ -1015,6 +1043,8 @@ document.write(`
 <h2 id="T">T</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.pre.PredictedDiversionPreprocessor.html#pywrdrb.pre.PredictedDiversionPreprocessor.timeseries_data">timeseries_data (pywrdrb.pre.PredictedDiversionPreprocessor attribute)</a>
+</li>
       <li><a href="api/generated/pywrdrb.parameters.FfmpNjRunningAvgParameter.html#pywrdrb.parameters.FfmpNjRunningAvgParameter.timestep">timestep (pywrdrb.parameters.FfmpNjRunningAvgParameter attribute)</a>
 
       <ul>

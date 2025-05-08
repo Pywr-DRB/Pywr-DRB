@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>pywrdrb.parameters.NYCCombinedReleaseFactor &#8212; Pywr-DRB Integrated Water Resource Management Model</title>
+    <title>pywrdrb.pre.PredictedDiversionPreprocessor &#8212; Pywr-DRB Integrated Water Resource Management Model</title>
   
   
   
@@ -57,11 +57,11 @@
     <script async="async" src="../../_static/sphinx-thebe.js?v=c100c467"></script>
     <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
     <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/pywrdrb.parameters.NYCCombinedReleaseFactor';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/pywrdrb.pre.PredictedDiversionPreprocessor';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="pywrdrb.parameters.NYCFloodRelease" href="pywrdrb.parameters.NYCFloodRelease.html" />
-    <link rel="prev" title="pywrdrb.parameters.FfmpNjRunningAvgParameter" href="pywrdrb.parameters.FfmpNjRunningAvgParameter.html" />
+    <link rel="next" title="Examples" href="../../examples/examples.html" />
+    <link rel="prev" title="pywrdrb.pre.PredictedInflowPreprocessor" href="pywrdrb.pre.PredictedInflowPreprocessor.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -188,10 +188,10 @@
 <li class="toctree-l3"><a class="reference internal" href="pywrdrb.Data.html">pywrdrb.Data</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="../parameters.html">pywrdrb.parameters</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../parameters.html">pywrdrb.parameters</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="pywrdrb.parameters.FfmpNycRunningAvgParameter.html">pywrdrb.parameters.FfmpNycRunningAvgParameter</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pywrdrb.parameters.FfmpNjRunningAvgParameter.html">pywrdrb.parameters.FfmpNjRunningAvgParameter</a></li>
-<li class="toctree-l3 current active"><a class="current reference internal" href="#">pywrdrb.parameters.NYCCombinedReleaseFactor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pywrdrb.parameters.NYCCombinedReleaseFactor.html">pywrdrb.parameters.NYCCombinedReleaseFactor</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pywrdrb.parameters.NYCFloodRelease.html">pywrdrb.parameters.NYCFloodRelease</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.html">pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.html">pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1</a></li>
@@ -206,9 +206,9 @@
 <li class="toctree-l3"><a class="reference internal" href="pywrdrb.parameters.LaggedReservoirRelease.html">pywrdrb.parameters.LaggedReservoirRelease</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../pre.html">pywrdrb.pre</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../pre.html">pywrdrb.pre</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="pywrdrb.pre.PredictedInflowPreprocessor.html">pywrdrb.pre.PredictedInflowPreprocessor</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pywrdrb.pre.PredictedDiversionPreprocessor.html">pywrdrb.pre.PredictedDiversionPreprocessor</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">pywrdrb.pre.PredictedDiversionPreprocessor</a></li>
 </ul>
 </details></li>
 </ul>
@@ -289,7 +289,7 @@
       
       
       
-      <li><a href="https://github.com/Pywr-DRB/Pywr-DRB/issues/new?title=Issue%20on%20page%20%2Fapi/generated/pywrdrb.parameters.NYCCombinedReleaseFactor.html&body=Your%20issue%20content%20here." target="_blank"
+      <li><a href="https://github.com/Pywr-DRB/Pywr-DRB/issues/new?title=Issue%20on%20page%20%2Fapi/generated/pywrdrb.pre.PredictedDiversionPreprocessor.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -319,7 +319,7 @@
       
       
       
-      <li><a href="../../_sources/api/generated/pywrdrb.parameters.NYCCombinedReleaseFactor.rst" target="_blank"
+      <li><a href="../../_sources/api/generated/pywrdrb.pre.PredictedDiversionPreprocessor.rst" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -403,7 +403,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>pywrdrb.parameters.NYCCombinedReleaseFactor</h1>
+    <h1>pywrdrb.pre.PredictedDiversionPreprocessor</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -413,14 +413,17 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.parameters.NYCCombinedReleaseFactor"><code class="docutils literal notranslate"><span class="pre">NYCCombinedReleaseFactor</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.parameters.NYCCombinedReleaseFactor.node"><code class="docutils literal notranslate"><span class="pre">NYCCombinedReleaseFactor.node</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.parameters.NYCCombinedReleaseFactor.drought_level_agg_nyc"><code class="docutils literal notranslate"><span class="pre">NYCCombinedReleaseFactor.drought_level_agg_nyc</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.parameters.NYCCombinedReleaseFactor.mrf_drought_factor_agg_reservoir"><code class="docutils literal notranslate"><span class="pre">NYCCombinedReleaseFactor.mrf_drought_factor_agg_reservoir</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.parameters.NYCCombinedReleaseFactor.mrf_drought_factor_individual_reservoir"><code class="docutils literal notranslate"><span class="pre">NYCCombinedReleaseFactor.mrf_drought_factor_individual_reservoir</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.parameters.NYCCombinedReleaseFactor.value"><code class="docutils literal notranslate"><span class="pre">NYCCombinedReleaseFactor.value()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.parameters.NYCCombinedReleaseFactor.load"><code class="docutils literal notranslate"><span class="pre">NYCCombinedReleaseFactor.load()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.parameters.NYCCombinedReleaseFactor.__init__"><code class="docutils literal notranslate"><span class="pre">NYCCombinedReleaseFactor.__init__()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.load"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.load()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.process"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.process()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.save"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.save()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.get_prediction_node_lag_combinations"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.get_prediction_node_lag_combinations()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.input_dirs"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.input_dirs</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.output_dirs"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.output_dirs</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.timeseries_data"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.timeseries_data</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.predicted_timeseries"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.predicted_timeseries</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.catchment_wc"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.catchment_wc</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.__init__"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.__init__()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -434,90 +437,123 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="pywrdrb-parameters-nyccombinedreleasefactor">
-<h1>pywrdrb.parameters.NYCCombinedReleaseFactor<a class="headerlink" href="#pywrdrb-parameters-nyccombinedreleasefactor" title="Link to this heading">#</a></h1>
+  <section id="pywrdrb-pre-predicteddiversionpreprocessor">
+<h1>pywrdrb.pre.PredictedDiversionPreprocessor<a class="headerlink" href="#pywrdrb-pre-predicteddiversionpreprocessor" title="Link to this heading">#</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="pywrdrb.parameters.NYCCombinedReleaseFactor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pywrdrb.parameters.</span></span><span class="sig-name descname"><span class="pre">NYCCombinedReleaseFactor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drought_level_agg_nyc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mrf_drought_factor_agg_reservoir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mrf_drought_factor_individual_reservoir</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.parameters.NYCCombinedReleaseFactor" title="Link to this definition">#</a></dt>
-<dd><p>Calculates the release factor for an NYC reservoir based on drought level and storage rule logic.</p>
-<p>This parameter determines whether an NYC reservoir’s release should be based on its
-individual storage (flood operations) or on the aggregate storage across all three
-NYC reservoirs (normal or drought operations). It returns a weighted multiplier to
-adjust baseline reservoir releases depending on the prevailing drought level.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pywrdrb.parameters.NYCCombinedReleaseFactor.node">
-<span class="sig-name descname"><span class="pre">node</span></span><a class="headerlink" href="#pywrdrb.parameters.NYCCombinedReleaseFactor.node" title="Link to this definition">#</a></dt>
-<dd><p>The Pywr node associated with this parameter.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>pywr.Node</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pywrdrb.parameters.NYCCombinedReleaseFactor.drought_level_agg_nyc">
-<span class="sig-name descname"><span class="pre">drought_level_agg_nyc</span></span><a class="headerlink" href="#pywrdrb.parameters.NYCCombinedReleaseFactor.drought_level_agg_nyc" title="Link to this definition">#</a></dt>
-<dd><p>Parameter representing the aggregated NYC drought level index.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>pywr.Parameter</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pywrdrb.parameters.NYCCombinedReleaseFactor.mrf_drought_factor_agg_reservoir">
-<span class="sig-name descname"><span class="pre">mrf_drought_factor_agg_reservoir</span></span><a class="headerlink" href="#pywrdrb.parameters.NYCCombinedReleaseFactor.mrf_drought_factor_agg_reservoir" title="Link to this definition">#</a></dt>
-<dd><p>Drought factor parameter to use when operating based on aggregated NYC storage.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>pywr.Parameter</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pywrdrb.parameters.NYCCombinedReleaseFactor.mrf_drought_factor_individual_reservoir">
-<span class="sig-name descname"><span class="pre">mrf_drought_factor_individual_reservoir</span></span><a class="headerlink" href="#pywrdrb.parameters.NYCCombinedReleaseFactor.mrf_drought_factor_individual_reservoir" title="Link to this definition">#</a></dt>
-<dd><p>Drought factor parameter to use when operating based on individual reservoir storage.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>pywr.Parameter</p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="pywrdrb.pre.PredictedDiversionPreprocessor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pywrdrb.pre.</span></span><span class="sig-name descname"><span class="pre">PredictedDiversionPreprocessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('regression_disagg',)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_log</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_zeros</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_const</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.pre.PredictedDiversionPreprocessor" title="Link to this definition">#</a></dt>
+<dd><p>Predicts catchment inflows at Montague and Trenton using specified modes
+(e.g., regression, perfect foresight, moving average).</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.pre.PredictedDiversionPreprocessor.load">
+<span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.pre.PredictedDiversionPreprocessor.load" title="Link to this definition">#</a></dt>
+<dd><p>Load NJ diversions and catchment water consumption data.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="pywrdrb.parameters.NYCCombinedReleaseFactor.value">
-<span class="sig-name descname"><span class="pre">value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestep</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scenario_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.parameters.NYCCombinedReleaseFactor.value" title="Link to this definition">#</a></dt>
-<dd><p>Calculate and return the reservoir’s release factor based on current drought logic.</p>
+<dt class="sig sig-object py" id="pywrdrb.pre.PredictedDiversionPreprocessor.process">
+<span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.pre.PredictedDiversionPreprocessor.process" title="Link to this definition">#</a></dt>
+<dd><p>Run the full prediction workflow.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="pywrdrb.parameters.NYCCombinedReleaseFactor.load">
-<span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.parameters.NYCCombinedReleaseFactor.load" title="Link to this definition">#</a></dt>
-<dd><p>Load the parameter from a model configuration dictionary.</p>
+<dt class="sig sig-object py" id="pywrdrb.pre.PredictedDiversionPreprocessor.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.pre.PredictedDiversionPreprocessor.save" title="Link to this definition">#</a></dt>
+<dd><p>Save predicted diversion time series to pywrdrb/data/diversions.</p>
 </dd></dl>
 
-<p class="rubric">Notes</p>
-<p>The logic used to compute the release factor follows the formulation
-described in the GitHub issue dated 8/30/2022:
-<a class="github reference external" href="https://github.com/users/ahamilton144/projects/1/views/1?pane=issue&amp;itemId=7839486">users/ahamilton144</a></p>
 <dl class="py method">
-<dt class="sig sig-object py" id="pywrdrb.parameters.NYCCombinedReleaseFactor.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drought_level_agg_nyc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mrf_drought_factor_agg_reservoir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mrf_drought_factor_individual_reservoir</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.parameters.NYCCombinedReleaseFactor.__init__" title="Link to this definition">#</a></dt>
-<dd><p>Initialize NYCCombinedReleaseFactor.</p>
+<dt class="sig sig-object py" id="pywrdrb.pre.PredictedDiversionPreprocessor.get_prediction_node_lag_combinations">
+<span class="sig-name descname"><span class="pre">get_prediction_node_lag_combinations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.pre.PredictedDiversionPreprocessor.get_prediction_node_lag_combinations" title="Link to this definition">#</a></dt>
+<dd><p>Return dictionary of predicted diversion column names and their defining (node, lag, mode) tuples.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pywrdrb.pre.PredictedDiversionPreprocessor.input_dirs">
+<span class="sig-name descname"><span class="pre">input_dirs</span></span><a class="headerlink" href="#pywrdrb.pre.PredictedDiversionPreprocessor.input_dirs" title="Link to this definition">#</a></dt>
+<dd><p>Input files used for prediction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pywrdrb.pre.PredictedDiversionPreprocessor.output_dirs">
+<span class="sig-name descname"><span class="pre">output_dirs</span></span><a class="headerlink" href="#pywrdrb.pre.PredictedDiversionPreprocessor.output_dirs" title="Link to this definition">#</a></dt>
+<dd><p>Output locations for predicted timeseries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pywrdrb.pre.PredictedDiversionPreprocessor.timeseries_data">
+<span class="sig-name descname"><span class="pre">timeseries_data</span></span><a class="headerlink" href="#pywrdrb.pre.PredictedDiversionPreprocessor.timeseries_data" title="Link to this definition">#</a></dt>
+<dd><p>DataFrame containing the timeseries data. Is None until load() is called.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pywrdrb.pre.PredictedDiversionPreprocessor.predicted_timeseries">
+<span class="sig-name descname"><span class="pre">predicted_timeseries</span></span><a class="headerlink" href="#pywrdrb.pre.PredictedDiversionPreprocessor.predicted_timeseries" title="Link to this definition">#</a></dt>
+<dd><p>DataFrame containing the predicted timeseries. Is None until process() is called.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pywrdrb.pre.PredictedDiversionPreprocessor.catchment_wc">
+<span class="sig-name descname"><span class="pre">catchment_wc</span></span><a class="headerlink" href="#pywrdrb.pre.PredictedDiversionPreprocessor.catchment_wc" title="Link to this definition">#</a></dt>
+<dd><p>DataFrame containing the average water consumption data for node catchments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Example usage:
+<a href="#id1"><span class="problematic" id="id2">``</span></a><a href="#id3"><span class="problematic" id="id4">`</span></a>python
+from pywrdrb.pre import PredictedDiversionPreprocessor
+diversion_predictor = PredictedDiversionPreprocessor(</p>
+<blockquote>
+<div><p>start_date=”1983-10-01”,
+end_date=”2016-12-31”,
+modes=(“regression_disagg”,),</p>
+</div></blockquote>
+<p>)
+diversion_predictor.process()
+diversion_predictor.save()
+<a href="#id5"><span class="problematic" id="id6">``</span></a><a href="#id7"><span class="problematic" id="id8">`</span></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.pre.PredictedDiversionPreprocessor.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('regression_disagg',)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_log</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_zeros</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_const</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.pre.PredictedDiversionPreprocessor.__init__" title="Link to this definition">#</a></dt>
+<dd><p>Initialize the PredictedDiversionPreprocessor.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<em>pywr.Model</em>) – The Pywr model instance.</p></li>
-<li><p><strong>node</strong> (<em>pywr.Node</em>) – The reservoir node for which the release factor is applied.</p></li>
-<li><p><strong>drought_level_agg_nyc</strong> (<em>pywr.Parameter</em>) – Parameter indicating NYC system-wide drought index.</p></li>
-<li><p><strong>mrf_drought_factor_agg_reservoir</strong> (<em>pywr.Parameter</em>) – Drought multiplier for aggregated reservoir operations.</p></li>
-<li><p><strong>mrf_drought_factor_individual_reservoir</strong> (<em>pywr.Parameter</em>) – Drought multiplier for individual reservoir operations.</p></li>
-<li><p><strong>**kwargs</strong> – Additional keyword arguments passed to the base Parameter class.</p></li>
+<li><p><strong>start_date</strong> (<em>str</em><em>, </em><em>None</em>) – Start date for the time series. If None, match the input data.</p></li>
+<li><p><strong>end_date</strong> (<em>str</em><em>, </em><em>None</em>) – End date for the time series. If None, match the input data.</p></li>
+<li><p><strong>modes</strong> (<em>tuple</em>) – Modes to use for prediction. Default is (‘regression_disagg’,). Options include:
+“regression_disagg”, “perfect_foresight”, “moving_average”, “same_day”.</p></li>
+<li><p><strong>use_log</strong> (<em>bool</em>) – Whether to use log transformation for model vars. Default is True.</p></li>
+<li><p><strong>remove_zeros</strong> (<em>bool</em>) – Whether to remove zero values. Default is False.</p></li>
+<li><p><strong>use_const</strong> (<em>bool</em>) – Whether to use a constant/intercept in regression. Default is False.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -525,107 +561,26 @@ described in the GitHub issue dated 8/30/2022:
 <p class="rubric">Methods</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pywrdrb.parameters.NYCCombinedReleaseFactor.__init__" title="pywrdrb.parameters.NYCCombinedReleaseFactor.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(model, node, drought_level_agg_nyc, ...)</p></td>
-<td><p>Initialize NYCCombinedReleaseFactor.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pywrdrb.pre.PredictedDiversionPreprocessor.__init__" title="pywrdrb.pre.PredictedDiversionPreprocessor.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([start_date, end_date, modes, ...])</p></td>
+<td><p>Initialize the PredictedDiversionPreprocessor.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">after</span></code>(self)</p></td>
-<td><p></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pywrdrb.pre.PredictedDiversionPreprocessor.get_prediction_node_lag_combinations" title="pywrdrb.pre.PredictedDiversionPreprocessor.get_prediction_node_lag_combinations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_prediction_node_lag_combinations</span></code></a>()</p></td>
+<td><p>Return dict of predicted diversion column names formatted as (node, lag, mode) tuples.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">before</span></code>(self)</p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pywrdrb.pre.PredictedDiversionPreprocessor.load" title="pywrdrb.pre.PredictedDiversionPreprocessor.load"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load</span></code></a>()</p></td>
+<td><p>Load NJ diversions and catchment WC data (used for structural compatibility).</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">finish</span></code>(self)</p></td>
-<td><p></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_predictions</span></code>(regressions)</p></td>
+<td><p>Generate lead-time predictions using the timeseries data and trained models.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_all_values</span></code>(self)</p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pywrdrb.pre.PredictedDiversionPreprocessor.process" title="pywrdrb.pre.PredictedDiversionPreprocessor.process"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process</span></code></a>()</p></td>
+<td><p>Run full prediction workflow.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_constant_value</span></code>(self)</p></td>
-<td><p>Return a constant value.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pywrdrb.pre.PredictedDiversionPreprocessor.save" title="pywrdrb.pre.PredictedDiversionPreprocessor.save"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save</span></code></a>()</p></td>
+<td><p>Save predicted diversion time series to CSV.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_double_lower_bounds</span></code>(self)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_double_upper_bounds</span></code>(self)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_double_variables</span></code>(self)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_integer_lower_bounds</span></code>(self)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_integer_upper_bounds</span></code>(self)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_integer_variables</span></code>(self)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_value</span></code>(self, ScenarioIndex scenario_index)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pywrdrb.parameters.NYCCombinedReleaseFactor.load" title="pywrdrb.parameters.NYCCombinedReleaseFactor.load"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load</span></code></a>(model, data)</p></td>
-<td><p>Load NYCCombinedReleaseFactor from a model configuration dictionary.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">register</span></code>(cls)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset</span></code>(self)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_double_variables</span></code>(self, double[)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_integer_variables</span></code>(self, int[)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code>(self)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">unregister</span></code>(cls)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pywrdrb.parameters.NYCCombinedReleaseFactor.value" title="pywrdrb.parameters.NYCCombinedReleaseFactor.value"><code class="xref py py-obj docutils literal notranslate"><span class="pre">value</span></code></a>(timestep, scenario_index)</p></td>
-<td><p>Compute the current release factor for an NYC reservoir.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<p class="rubric">Attributes</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
-<tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">children</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">comment</span></code></p></td>
-<td><p>unicode</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">double_size</span></code></p></td>
-<td><p>'int'</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">integer_size</span></code></p></td>
-<td><p>'int'</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_constant</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_variable</span></code></p></td>
-<td><p>'bool'</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">parents</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">size</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">tags</span></code></p></td>
-<td><p>dict</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">train_regressions</span></code>()</p></td>
+<td><p>Train the AR models for different node, lag combinations.</p></td>
 </tr>
 </tbody>
 </table>
@@ -665,20 +620,20 @@ described in the GitHub issue dated 8/30/2022:
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="pywrdrb.parameters.FfmpNjRunningAvgParameter.html"
+       href="pywrdrb.pre.PredictedInflowPreprocessor.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">pywrdrb.parameters.FfmpNjRunningAvgParameter</p>
+        <p class="prev-next-title">pywrdrb.pre.PredictedInflowPreprocessor</p>
       </div>
     </a>
     <a class="right-next"
-       href="pywrdrb.parameters.NYCFloodRelease.html"
+       href="../../examples/examples.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">pywrdrb.parameters.NYCFloodRelease</p>
+        <p class="prev-next-title">Examples</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -698,14 +653,17 @@ described in the GitHub issue dated 8/30/2022:
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.parameters.NYCCombinedReleaseFactor"><code class="docutils literal notranslate"><span class="pre">NYCCombinedReleaseFactor</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.parameters.NYCCombinedReleaseFactor.node"><code class="docutils literal notranslate"><span class="pre">NYCCombinedReleaseFactor.node</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.parameters.NYCCombinedReleaseFactor.drought_level_agg_nyc"><code class="docutils literal notranslate"><span class="pre">NYCCombinedReleaseFactor.drought_level_agg_nyc</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.parameters.NYCCombinedReleaseFactor.mrf_drought_factor_agg_reservoir"><code class="docutils literal notranslate"><span class="pre">NYCCombinedReleaseFactor.mrf_drought_factor_agg_reservoir</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.parameters.NYCCombinedReleaseFactor.mrf_drought_factor_individual_reservoir"><code class="docutils literal notranslate"><span class="pre">NYCCombinedReleaseFactor.mrf_drought_factor_individual_reservoir</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.parameters.NYCCombinedReleaseFactor.value"><code class="docutils literal notranslate"><span class="pre">NYCCombinedReleaseFactor.value()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.parameters.NYCCombinedReleaseFactor.load"><code class="docutils literal notranslate"><span class="pre">NYCCombinedReleaseFactor.load()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.parameters.NYCCombinedReleaseFactor.__init__"><code class="docutils literal notranslate"><span class="pre">NYCCombinedReleaseFactor.__init__()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.load"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.load()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.process"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.process()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.save"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.save()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.get_prediction_node_lag_combinations"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.get_prediction_node_lag_combinations()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.input_dirs"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.input_dirs</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.output_dirs"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.output_dirs</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.timeseries_data"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.timeseries_data</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.predicted_timeseries"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.predicted_timeseries</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.catchment_wc"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.catchment_wc</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.__init__"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.__init__()</span></code></a></li>
 </ul>
 </li>
 </ul>
