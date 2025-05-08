@@ -1,3 +1,43 @@
+"""
+STARFIT-based custom Pywr parameters for reservoir release.
+
+Overview
+--------
+This module defines a custom Pywr parameter class `STARFITReservoirRelease` that implements 
+the STARFIT reservoir operating policy for non-NYC reservoirs, based on the empirical model 
+proposed by Turner et al. (2021). The parameter translates seasonal, inflow, and storage 
+conditions into daily release decisions, constrained by physical and policy limits.
+
+The STARFIT policy is parameterized using either default calibration values or scenario-based 
+samples for sensitivity analysis. It is used to evaluate alternative operating rules and their 
+effects on reservoir behavior in the DRB system.
+
+Key Steps
+---------
+1. Load STARFIT parameters (default or sampled) for each reservoir.
+2. Calculate seasonal and hydrologically informed target release values.
+3. Enforce physical (capacity) and regulatory (R_min, R_max) constraints on final release.
+
+Technical Notes
+---------------
+- STARFIT parameter values are loaded from CSV or HDF5 (for sampled scenarios).
+- Supports scenario-aware Pywr modeling and runtime parameter loading.
+- Designed for integration into PywrDRB models using YAML/JSON configuration.
+- Used primarily for DRBC policy exploration and robustness testing.
+- Relies on external operational constants, inflow time series, and reservoir capacity.
+
+Links
+-----
+- https://github.com/Pywr-DRB/Pywr-DRB
+- Turner, S.W.D., Steyaert, J.C., Condon, L., & Voisin, N. (2021). 
+  Water storage and release policies for all large reservoirs of conterminous United States. 
+  Environmental Modelling & Software, 145, 105201. https://doi.org/10.1016/j.envsoft.2021.105201
+
+Change Log
+----------
+Marilyn Smith, 2025-05-07, Added documentation and cleaned to DRB documentation standard.
+"""
+
 import numpy as np
 import pandas as pd
 import math
@@ -13,15 +53,64 @@ pn = get_pn_object()
 
 class STARFITReservoirRelease(Parameter):
     """
-    Custom Pywr Parameter used to implement the STARFIT-inferred reservoir operations policy at non-NYC reservoirs following Turner et al. (2021).
+    STARFIT reservoir release parameter for non-NYC reservoirs.
 
-    Attributes:
-        model (Model): The PywrDRB model.
-        storage_node (str): The storage node associated with the reservoir.
-        flow_parameter: The PywrDRB catchment inflow parameter corresponding to the reservoir.
+    Implements the STARFIT rule-based reservoir operation policy described in Turner et al. (2021).
+    STARFIT determines seasonal releases using a combination of harmonic (seasonal), storage, and 
+    inflow-based terms. Parameters can be either default values or loaded dynamically from 
+    scenario samples for sensitivity analysis.
 
-    Methods:
-        value(timestep, scenario_index): returns the STARFIT-inferred reservoir release for the current timestep and scenario index
+    Attributes
+    ----------
+    reservoir_name : str
+        Reservoir identifier used to access STARFIT parameters.
+    node : pywr.nodes.Storage
+        The Pywr storage node for the reservoir.
+    inflow : Parameter
+        Parameter representing catchment inflow to the reservoir.
+    run_sensitivity_analysis : bool
+        Flag indicating whether to use scenario-based STARFIT parameters.
+    sensitivity_analysis_scenarios : list
+        Mapping of Pywr scenario index to STARFIT sample scenario ID.
+    parameters_loaded : bool
+        Tracks whether STARFIT parameters have been initialized.
+    R_max : float
+        Maximum allowable release (MGD).
+    R_min : float
+        Minimum allowable release (MGD).
+    S_cap : float
+        Reservoir storage capacity (MG).
+    I_bar : float
+        Long-term mean inflow (MGD).
+
+    Methods
+    -------
+    value(timestep, scenario_index)
+        Compute the STARFIT release for a given timestep and scenario.
+    load_starfit_sensitivity_samples(sample_scenario_id)
+        Load STARFIT samples for a given scenario from HDF5.
+    load_default_starfit_params()
+        Load default STARFIT parameters from CSV.
+    assign_starfit_param_values(starfit_params)
+        Parse and assign STARFIT parameters to internal attributes.
+    standardize_inflow(inflow)
+        Normalize inflow by long-term average.
+    calculate_percent_storage(storage)
+        Compute percent of reservoir storage capacity.
+    get_NORhi(timestep)
+        Calculate the upper bound of normal operating range (NOR) for the given day.
+    get_NORlo(timestep)
+        Calculate the lower bound of normal operating range (NOR) for the given day.
+    get_harmonic_release(timestep)
+        Compute seasonal release component using harmonic terms.
+    calculate_release_adjustment(S_hat, I_hat, NORhi_t, NORlo_t)
+        Compute adjustment to seasonal release based on storage and inflow.
+    calculate_target_release(harmonic_release, epsilon, NORhi, NORlo, S_hat, I)
+        Compute unbounded target release based on policy logic.
+    setup()
+        Initialize runtime arrays for release values.
+    load(model, data)
+        Load the parameter in Pywr configuration via YAML.
     """
 
     def __init__(
@@ -58,10 +147,12 @@ class STARFITReservoirRelease(Parameter):
 
     def load_default_starfit_params(self):
         """
-        Load default STARFIT parameters from istarf_conus.csv
+        Load default STARFIT parameters from `istarf_conus.csv`.
 
-        Returns:
-        pd.DataFrame: The default STARFIT parameters.
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame indexed by reservoir name containing STARFIT calibration parameters.
         """
 
         return pd.read_csv(
@@ -70,13 +161,17 @@ class STARFITReservoirRelease(Parameter):
 
     def load_starfit_sensitivity_samples(self, sample_scenario_id):
         """
-        Load STARFIT sensitivity samples from an HDF5 file.
+        Load STARFIT sensitivity samples from a scenario-specific group in an HDF5 file.
 
-        Args:
-        sample_scenario_id (int): The sample scenario ID.
+        Parameters
+        ----------
+        sample_scenario_id : int
+            Index of the sensitivity analysis scenario to load.
 
-        Returns:
-        pd.DataFrame: The STARFIT sensitivity samples for the given scenario ID.
+        Returns
+        -------
+        pd.DataFrame
+            STARFIT parameters for the given scenario ID, indexed by reservoir name.
         """
         samples = f"/starfit/scenario_{sample_scenario_id}"
 
@@ -93,9 +188,16 @@ class STARFITReservoirRelease(Parameter):
         """
         Assign STARFIT parameter values to the reservoir.
 
-        Args:
-            name (str): The name of the reservoir.
-            starfit_params (pd.DataFrame): The STARFIT parameters.
+        Parameters
+        ----------
+        starfit_params : pd.DataFrame
+            DataFrame containing STARFIT policy parameters. Expected to include either
+            Adjusted_* or GRanD_* capacity/flow values, as well as seasonal and operational terms.
+
+        Notes
+        -----
+        Modifies internal class attributes for release logic and enforces overrides for R_min/R_max
+        where DRBC rules apply.
         """
         ## Load STARFIT parameters
 
@@ -167,45 +269,62 @@ class STARFITReservoirRelease(Parameter):
 
     def setup(self):
         """
-        Set up the parameter.
+        Initialize runtime arrays for simulation.
+
+        Notes
+        -----
+        Called once per Pywr run. Allocates array for storing scenario-specific results.
         """
+
         super().setup()
         self.N_SCENARIOS = len(self.model.scenarios.combinations)
         self.releases = np.empty([self.N_SCENARIOS], np.float64)
 
     def standardize_inflow(self, inflow):
         """
-        Standardize the current reservoir inflow based on historic average.
+        Normalize inflow using long-term mean flow for the reservoir.
 
-        Args:
-            inflow (float): The inflow value (MGD).
+        Parameters
+        ----------
+        inflow : float
+            Instantaneous inflow at current timestep (MGD).
 
-        Returns:
-            float: The standardized inflow value.
+        Returns
+        -------
+        float
+            Standardized inflow (unitless).
         """
         return (inflow - self.I_bar) / self.I_bar
 
     def calculate_percent_storage(self, storage):
         """
-        Calculate the reservoir's current percentage of storage capacity.
+        Compute fraction of current storage relative to reservoir capacity.
 
-        Args:
-            storage (float): The storage value (MG).
+        Parameters
+        ----------
+        storage : float
+            Reservoir storage at current timestep (MG).
 
-        Returns:
-            float: The percentage of storage capacity.
+        Returns
+        -------
+        float
+            Percent of storage capacity (0–1).
         """
         return storage / self.S_cap
 
     def get_NORhi(self, timestep):
         """
-        Get the upper-bound normalized reservoir storage of the Normal Operating Range (NORlo) for a given timestep.
+        Compute upper bound of the Normal Operating Range (NOR) using harmonic seasonal terms.
 
-        Args:
-            timestep: The timestep.
+        Parameters
+        ----------
+        timestep : datetime-like
+            Current model timestep.
 
-        Returns:
-            float: The NORhi value.
+        Returns
+        -------
+        float
+            NORhi value (normalized; 0–1).
         """
         c = math.pi * (timestep.dayofyear + self.WATER_YEAR_OFFSET) / 365
         NORhi = (
@@ -222,13 +341,17 @@ class STARFITReservoirRelease(Parameter):
 
     def get_NORlo(self, timestep):
         """
-        Get the lower-bound normalized reservoir storage of the Normal Operating Range (NORlo) for a given timestep.
+        Compute lower bound of the Normal Operating Range (NOR) using harmonic seasonal terms.
 
-        Args:
-            timestep: The timestep.
+        Parameters
+        ----------
+        timestep : datetime-like
+            Current model timestep.
 
-        Returns:
-            float: The NORlo value.
+        Returns
+        -------
+        float
+            NORlo value (normalized; 0–1).
         """
         c = math.pi * (timestep.dayofyear + self.WATER_YEAR_OFFSET) / 365
         NORlo = (
@@ -245,14 +368,19 @@ class STARFITReservoirRelease(Parameter):
 
     def get_harmonic_release(self, timestep):
         """
-        Get the harmonic release for a given timestep.
+        Compute seasonal base release using harmonic Fourier terms.
 
-        Args:
-            timestep: The timestep.
+        Parameters
+        ----------
+        timestep : datetime-like
+            Current model timestep.
 
-        Returns:
-            float: The seasonal harmonic reservoir release (MGD).
+        Returns
+        -------
+        float
+            Harmonic component of release (MGD).
         """
+
         c = math.pi * (timestep.dayofyear + self.WATER_YEAR_OFFSET) / 365
         R_avg_t = (
             self.Release_alpha1 * math.sin(2 * c)
@@ -264,16 +392,23 @@ class STARFITReservoirRelease(Parameter):
 
     def calculate_release_adjustment(self, S_hat, I_hat, NORhi_t, NORlo_t):
         """
-        Calculate the release adjustment.
+        Adjust release based on current standardized storage and inflow.
 
-        Args:
-            S_hat (float): The standardized storage value.
-            I_hat (float): The standardized inflow value.
-            NORhi_t (float): The upper bound of normal operation range for the current timestep.
-            NORlo_t (float): The lower bound of normal operation range for the current timestep.
+        Parameters
+        ----------
+        S_hat : float
+            Normalized storage (0–1).
+        I_hat : float
+            Standardized inflow (unitless).
+        NORhi_t : float
+            Current upper NOR bound (normalized).
+        NORlo_t : float
+            Current lower NOR bound (normalized).
 
-        Returns:
-            float: The release adjustment value.
+        Returns
+        -------
+        float
+            Adjustment factor for release (unitless).
         """
         # Calculate normalized value within NOR
         A_t = (S_hat - NORlo_t) / (NORhi_t)
@@ -284,19 +419,29 @@ class STARFITReservoirRelease(Parameter):
         self, harmonic_release, epsilon, NORhi, NORlo, S_hat, I
     ):
         """
-        Calculate the target release under current inflow and storage.
+        Calculate target release based on STARFIT logic.
 
-        Args:
-            harmonic_release (float): The harmonic release for the current day.
-            epsilon (float): The release adjustment value.
-            NORhi_t (float): The upper bound of normal operation range for the current timestep.
-            NORlo_t (float): The lower bound of normal operation range for the current timestep.
-            S_hat (float): The standardized storage value.
-            I (float): The inflow value.
+        Parameters
+        ----------
+        harmonic_release : float
+            Base seasonal release from harmonic terms (MGD).
+        epsilon : float
+            Release adjustment factor from current state (unitless).
+        NORhi : float
+            Upper bound of NOR (normalized).
+        NORlo : float
+            Lower bound of NOR (normalized).
+        S_hat : float
+            Normalized storage (0–1).
+        I : float
+            Current inflow (MGD).
 
-        Returns:
-            float: The target release value.
+        Returns
+        -------
+        float
+            Target release before enforcing physical constraints (MGD).
         """
+
         if (S_hat <= NORhi) and (S_hat >= NORlo):
             target = min(
                 (self.I_bar * (harmonic_release + epsilon) + self.I_bar), self.R_max
@@ -315,14 +460,19 @@ class STARFITReservoirRelease(Parameter):
 
     def value(self, timestep, scenario_index):
         """
-        Get the reservoir release for a given timestep and scenario index.
+        Evaluate STARFIT release at a given timestep and scenario.
 
-        Args:
-            timestep: The timestep.
-            scenario_index: The scenario index.
+        Parameters
+        ----------
+        timestep : pd.Timestamp
+            Model timestep.
+        scenario_index : pywr.ScenarioIndex
+            Pywr scenario index (including IDs for sensitivity scenarios if enabled).
 
-        Returns:
-            float: The STARFIT prescribed reservoir release (MGD).
+        Returns
+        -------
+        float
+            Final constrained release (MGD).
         """
 
         # Check if parameters have been loaded
@@ -376,7 +526,7 @@ class STARFITReservoirRelease(Parameter):
             harmonic_release=seasonal_release_t,
         )
 
-        # Get actual release subject to constraints
+        # Ensure release does not exceed available water and does not exceed storage capacity over time
         release_t = max(min(target_release, I_t + S_t), (I_t + S_t - self.S_cap))
 
         return max(0, release_t)

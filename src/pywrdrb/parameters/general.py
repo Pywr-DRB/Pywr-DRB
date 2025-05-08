@@ -1,30 +1,70 @@
 """
-Defines custom Pywr parameters used to implement generic helpful functions.
+General custom parameters for Pywr-DRB.
 
-LaggedReservoirRelease:
-    Provides access to a previous node flow or parameter value.
-    This is useful for calculating release for N timesteps ago based on rolling avg parameters
-    for N & (N-1) timesteps.
+Overview
+--------
+This module defines general-purpose custom `pywr.parameters.Parameter` subclasses
+used within the Pywr-DRB modeling framework. These include parameters for calculating 
+rolling averages, flow adjustments, and other generic behaviors that can be applied 
+across reservoirs, nodes, or time series.
+
+These parameters extend base Pywr functionality to support reservoir operations,
+temporal smoothing, and rule-based logic needed for DRB system simulation.
+
+Key Steps
+---------
+1. Define reusable custom Pywr parameter classes (e.g., rolling average, min flows).
+2. Register each parameter with Pywr for YAML-based model loading.
+3. Support time- and node-based parameter logic in scenarios where Pywr native logic is insufficient.
+
+Technical Notes
+---------------
+- Designed to work with Pywr model YAML loading and custom node logic.
+- Parameters are typically referenced by name in the model JSON/YAML configuration.
+- Some parameters expect associated data columns or precomputed series to be provided.
+- These general parameters are often used in STARFIT, FFMP, or other policy implementations.
+- Interacts with Pywr core via `Parameter.get_value()` at runtime.
+
+Links
+-----
+- https://github.com/Pywr-DRB/Pywr-DRB
+- See `model_builder.py` and `starfit.py` for examples of usage
+
+Change Log
+----------
+Marilyn Smith, 2025-05-07, Added module-level docstring and cleaned to DRB documentation standard.
 """
-
 from pywr.parameters import Parameter, load_parameter
 
 
 class LaggedReservoirRelease(Parameter):
     """
-    Pywr doesnt have a parameter to return a previous (>1 timesteps) node flow or parameter value. But we can
-    calculate release for N timesteps ago based on rolling avg parameters for N & (N-1) timesteps.
+    Computes historical release using rolling averages of outflow and spill from past timesteps.
 
-    Attributes:
-        lag (int): number of timesteps ago
-        roll_mean_lag_outflow (Parameter): rolling mean outflow parameter for N timesteps ago
-        roll_mean_lagMinus1_outflow (Parameter): rolling mean outflow parameter for (N-1) timesteps ago
-        roll_mean_lag_spill (Parameter): rolling mean spill parameter for N timesteps ago
-        roll_mean_lagMinus1_spill (Parameter): rolling mean spill parameter for (N-1) timesteps ago
+    This parameter is useful for policies or metrics that depend on past reservoir behavior,
+    particularly where only rolling means are available (e.g., in observational datasets or
+    model parameters). It estimates the release `N` timesteps ago using a simple linear
+    reconstruction based on two rolling mean values.
 
-    Methods:
-        value(timestep, scenario_index): returns the release value for N timesteps ago
-        load(model, data): loads the parameter from the model dictionary
+    Attributes
+    ----------
+    lag : int
+        Number of timesteps to lag (i.e., N).
+    roll_mean_lag_outflow : Parameter
+        Rolling mean of outflow `N` timesteps ago.
+    roll_mean_lagMinus1_outflow : Parameter
+        Rolling mean of outflow `N-1` timesteps ago. Only used if `lag > 1`.
+    roll_mean_lag_spill : Parameter
+        Rolling mean of spill `N` timesteps ago.
+    roll_mean_lagMinus1_spill : Parameter
+        Rolling mean of spill `N-1` timesteps ago. Only used if `lag > 1`.
+
+    Methods
+    -------
+    value(timestep, scenario_index)
+        Calculates the reconstructed release value from `lag` timesteps ago.
+    load(model, data)
+        Loads and instantiates the parameter from model config.
     """
 
     def __init__(
@@ -37,6 +77,30 @@ class LaggedReservoirRelease(Parameter):
         roll_mean_lagMinus1_spill,
         **kwargs,
     ):
+        """
+        Initialize a LaggedReservoirRelease parameter instance.
+
+        Parameters
+        ----------
+        model : pywr.core.Model
+            The Pywr model object.
+        lag : int
+            Number of timesteps to lag (must be >= 1).
+        roll_mean_lag_outflow : Parameter
+            Rolling mean outflow for `lag` timesteps ago.
+        roll_mean_lagMinus1_outflow : Parameter or None
+            Rolling mean outflow for `lag - 1` timesteps ago.
+        roll_mean_lag_spill : Parameter
+            Rolling mean spill for `lag` timesteps ago.
+        roll_mean_lagMinus1_spill : Parameter or None
+            Rolling mean spill for `lag - 1` timesteps ago.
+        **kwargs
+            Additional keyword arguments passed to `Parameter.__init__()`.
+
+        Notes
+        -----
+        If `lag == 1`, only the lag outflow and spill values are used.
+        """
         super().__init__(model, **kwargs)
         self.lag = lag
         self.roll_mean_lag_outflow = roll_mean_lag_outflow
@@ -53,14 +117,22 @@ class LaggedReservoirRelease(Parameter):
 
     def value(self, timestep, scenario_index):
         """
-        value_lag = lag * rollmean_lag - (lag - 1) * rollmean_lagMinus1
+        Estimate the release value `lag` timesteps ago.
 
-        Args:
-            timestep (int): current timestep
-            scenario_index (int): current scenario index
+        For lag > 1, this uses a linear difference of rolling averages:
+        `value ≈ lag * roll_mean_lag - (lag - 1) * roll_mean_lagMinus1`
 
-        Returns:
-            float: release value for N timesteps ago
+        Parameters
+        ----------
+        timestep : int
+            Current model timestep.
+        scenario_index : int
+            Scenario index for ensemble or stochastic runs.
+
+        Returns
+        -------
+        float
+            Reconstructed release value from `lag` timesteps ago.
         """
         if self.lag == 1:
             value = self.roll_mean_lag_outflow.get_value(
@@ -78,7 +150,23 @@ class LaggedReservoirRelease(Parameter):
 
     @classmethod
     def load(cls, model, data):
-        """Setup the parameter."""
+        """
+        Load and configure the LaggedReservoirRelease parameter from YAML.
+
+        Parameters
+        ----------
+        model : pywr.core.Model
+            Pywr model instance.
+        data : dict
+            Dictionary from the YAML config containing `lag` and `node` keys, 
+            along with any other parameter arguments.
+
+        Returns
+        -------
+        LaggedReservoirRelease
+            Configured instance of the parameter.
+        """
+
         lag = data.pop("lag")
         node = data.pop("node")
 

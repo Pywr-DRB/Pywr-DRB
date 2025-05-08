@@ -1,8 +1,33 @@
 """
-This file contains different class objects which are used to construct custom Pywr parameters.
+Flexible Flow Management Program (FFMP) Pywr Parameters
 
-The parameters created here are used to implement the flexible flow management program (FFMP)
-for the three NYC reservoirs.
+Overview:
+This module defines custom Pywr parameter classes to implement the Flexible Flow Management Program (FFMP)
+for the New York City (NYC) reservoir system, including Cannonsville, Pepacton, and Neversink.
+
+The FFMP governs how reservoirs release water for downstream targets (Montague and Trenton), individual
+mandated releases, drought management, and flood operations. Each class in this module implements a specific
+component of FFMP logic and constraints, including NYC and NJ running average releases, release factors,
+flood control, demand balancing, and multi-step routing to downstream targets.
+
+Key Functionalities:
+- Enforce FFMP rules via running average delivery limits
+- Compute release factors using drought levels and storage indicators
+- Determine flood releases to return to NOR within 7 days
+- Calculate NYC contributions to Montague/Trenton targets across time-lagged steps
+- Balance deliveries and releases across reservoirs based on current storage and release constraints
+
+Technical Notes:
+- These custom parameters must be registered using `.register()` to be used within a Pywr model
+- Many parameters use scenario-specific state arrays to track values dynamically
+- Dates are tracked with `pandas.Timedelta` for temporal logic
+- Depends on `pywrdrb.utils.lists.reservoir_list_nyc`, and `pywrdrb.utils.constants.epsilon`
+
+Links:
+- FFMP 2018 Document (Appendix A): https://webapps.usgs.gov/odrm/ffmp/Appendix_A_FFMP%2020180716%20Final.pdf
+
+Change Log:
+Marilyn Smith, 2025-05-07, Added complete metadata and NumPy-style docstrings
 """
 
 import numpy as np
@@ -14,61 +39,114 @@ from ..utils.constants import epsilon
 
 class FfmpNycRunningAvgParameter(Parameter):
     """
-    Enforces the constraint on NYC deliveries from the FFMP, based on a running average.
+    Enforces the NYC FFMP delivery constraint using a running average over time.
 
-    Args:
-        model (Model): The Pywr model instance.
-        node (Node): The node associated with the parameter.
-        max_avg_delivery (ConstantParameter): The maximum average delivery constant parameter.
+    This custom Pywr parameter limits the amount of water that can be delivered from an NYC reservoir
+    based on a long-term daily average (`max_avg_delivery`). It ensures that daily releases stay within
+    the specified delivery budget and adjusts dynamically based on past deliveries.
 
-    Attributes:
-        node (Node): The node associated with the parameter.
-        max_avg_delivery (float): The maximum average delivery value.
-        max_delivery (ndarray): An array to hold the parameter state.
+    Attributes
+    ----------
+    node : pywr.Node
+        The node from which water is being delivered (usually an NYC reservoir).
+    max_avg_delivery : float
+        Maximum allowable average delivery volume per day.
+    max_delivery : numpy.ndarray
+        Array holding the daily remaining delivery allowance per scenario.
+    timestep : int
+        The number of days per timestep (usually 1 for daily models).
+    datetime : pandas.Timestamp
+        The current model date used for enforcing reset logic.
 
-    Methods:
-        setup(): Allocates an array to hold the parameter state.
-        reset(): Resets the amount remaining in all states to the initial value.
-        value(timestep, scenario_index): Returns the current volume remaining for the scenario.
-        after(): Updates the parameter requirement based on running average and updates the date for tomorrow.
-
-    Class Methods:
-        load(model, data): Loads the parameter from model and data dictionary.
+    Methods
+    -------
+    setup()
+        Allocates an array to store per-scenario delivery limits.
+    reset()
+        Initializes delivery limits and datetime to model start.
+    value(timestep, scenario_index)
+        Returns the remaining delivery volume for the given scenario.
+    after()
+        Updates the running delivery limit based on the prior day’s release.
+    load(model, data)
+        Class method to load the parameter from JSON/YAML model data.
     """
 
     def __init__(self, model, node, max_avg_delivery, **kwargs):
+        """
+        Initialize the FfmpNycRunningAvgParameter.
+
+        Parameters
+        ----------
+        model : pywr.Model
+            The Pywr model instance.
+        node : pywr.Node
+            The node associated with this delivery parameter.
+        max_avg_delivery : pywr.parameters.ConstantParameter
+            The maximum daily average delivery limit for the FFMP constraint.
+        **kwargs
+            Additional keyword arguments passed to the base `Parameter` class.
+
+        Notes
+        -----
+        This parameter is typically used on NYC reservoir delivery nodes to ensure
+        long-term delivery limits are not exceeded in the FFMP simulation framework.
+        """
         super().__init__(model, **kwargs)
         self.node = node
         self.max_avg_delivery = max_avg_delivery.get_constant_value()
         self.children.add(max_avg_delivery)
 
     def setup(self):
-        """Allocates an array to hold the parameter state."""
+        """
+        Allocate internal arrays used to track max delivery per scenario.
+        """
         super().setup()
         num_scenarios = len(self.model.scenarios.combinations)
         self.max_delivery = np.empty([num_scenarios], np.float64)
 
     def reset(self):
-        """Resets the amount remaining in all states to the initial value."""
+        """
+        Reset the delivery budget and internal clock for all scenarios.
+
+        This sets the remaining daily delivery to the maximum allowed average,
+        scaled by the timestep length (usually 1 day).
+        """
         self.timestep = self.model.timestepper.delta
         self.datetime = pd.to_datetime(self.model.timestepper.start)
         self.max_delivery[...] = self.max_avg_delivery * self.timestep
 
     def value(self, timestep, scenario_index):
         """
-        Returns the current volume remaining for the scenario.
+        Get the remaining delivery volume for the current timestep and scenario.
 
-        Args:
-            timestep (Timestep): The current timestep.
-            scenario_index (ScenarioIndex): The scenario index.
+        Parameters
+        ----------
+        timestep : pywr.core.Timestep
+            The current timestep.
+        scenario_index : pywr.core.ScenarioIndex
+            The scenario index indicating which ensemble member is running.
 
-        Returns:
-            float: The current volume remaining for the scenario.
+        Returns
+        -------
+        float
+            The remaining delivery volume allowed for this timestep and scenario.
         """
         return self.max_delivery[scenario_index.global_id]
 
     def after(self):
-        """Updates the parameter requirement based on running average and updates the date for tomorrow."""
+        """
+        Update the delivery budget based on the previous timestep’s release.
+
+        - On May 31st, the delivery budget is reset to the maximum average delivery.
+        - On other days, the budget is adjusted by subtracting the actual delivery
+          and adding back the daily average delivery allowance.
+
+        Notes
+        -----
+        - Delivery budgets cannot become negative.
+        - Internal date is incremented by 1 day per timestep.
+        """
         ### if it is may 31, reset max delivery to original value (800)
         if self.datetime.month == 5 and self.datetime.day == 31:
             self.max_delivery[...] = self.max_avg_delivery * self.timestep
@@ -86,14 +164,22 @@ class FfmpNycRunningAvgParameter(Parameter):
     @classmethod
     def load(cls, model, data):
         """
-        Loads the parameter from model and data dictionary.
+        Load the parameter from model and configuration data.
 
-        Args:
-            model (Model): The Pywr model instance.
-            data (dict): The data dictionary containing the parameter information.
+        Parameters
+        ----------
+        model : pywr.Model
+            The Pywr model instance.
+        data : dict
+            A dictionary of parameter configuration from the model input file.
+            Must include:
+            - "node": Name of the node using this parameter.
+            - "max_avg_delivery": Parameter ID of the constant average delivery limit.
 
-        Returns:
-            FfmpNycRunningAvgParameter: The loaded parameter instance.
+        Returns
+        -------
+        FfmpNycRunningAvgParameter
+            The fully initialized parameter object.
         """
         node = model.nodes[data.pop("node")]
         max_avg_delivery = load_parameter(model, data.pop("max_avg_delivery"))
@@ -106,30 +192,46 @@ FfmpNycRunningAvgParameter.register()
 
 class FfmpNjRunningAvgParameter(Parameter):
     """
-    Enforces the constraint on NJ deliveries from the FFMP, based on a running average.
+    Enforces NJ FFMP delivery limits using a drought-adjusted running average.
 
-    Args:
-        model (Model): The Pywr model instance.
-        node (Node): The node associated with the parameter.
+    This parameter tracks delivery volumes from a NJ node (typically a reservoir or intake)
+    and dynamically adjusts allowable delivery based on drought factor conditions. It ensures
+    compliance with both long-term average and daily maximum delivery constraints, resetting
+    when drought levels change or on the first of each month under normal conditions.
 
-    Attributes:
-        node (Node): The node associated with the parameter.
-        max_avg_delivery (float): The maximum average delivery value.
-        max_daily_delivery (float): The maximum daily delivery value.
-        drought_factor (Parameter): The drought factor parameter.
-        max_delivery (ndarray): An array to hold the parameter state.
-        current_drought_factor (ndarray): An array to hold the current drought factor.
-        previous_drought_factor (ndarray): An array to hold the previous drought factor.
+    Attributes
+    ----------
+    node : pywr.Node
+        Node from which water is being delivered.
+    max_avg_delivery : float
+        Long-term average daily delivery volume (base level, before drought adjustment).
+    max_daily_delivery : float
+        Maximum allowable delivery volume for a single day.
+    drought_factor : pywr.Parameter
+        Multiplier reflecting drought status. Varies over time and by scenario.
+    max_delivery : numpy.ndarray
+        Current remaining delivery volume allowed for each scenario.
+    current_drought_factor : numpy.ndarray
+        Latest drought factor values, one per scenario.
+    previous_drought_factor : numpy.ndarray
+        Drought factor values from the previous timestep, one per scenario.
+    timestep : int
+        Length of each timestep (e.g., 1 day).
+    datetime : pandas.Timestamp
+        Internal tracking of current model date.
 
-    Methods:
-        setup(): Allocates arrays to hold the parameter state and drought factors.
-        reset(): Resets the amount remaining in all states to the initial value.
-        value(timestep, scenario_index): Returns the current volume remaining for the scenario.
-        after(): Updates the parameter requirement based on running average and updates the date for tomorrow.
-
-    Class Methods:
-        load(model, data): Loads the parameter from model and data dictionary.
-
+    Methods
+    -------
+    setup()
+        Allocate arrays to store per-scenario delivery limits and drought factors.
+    reset()
+        Initialize delivery limits and drought factors at model start.
+    value(timestep, scenario_index)
+        Return the remaining delivery volume for a given scenario.
+    after()
+        Update delivery limits after each timestep, accounting for flow and drought factor.
+    load(model, data)
+        Load and instantiate this parameter using model configuration data.
     """
 
     def __init__(
@@ -141,6 +243,29 @@ class FfmpNjRunningAvgParameter(Parameter):
         drought_factor,
         **kwargs,
     ):
+        """
+        Initialize FfmpNjRunningAvgParameter.
+
+        Parameters
+        ----------
+        model : pywr.Model
+            The Pywr model instance.
+        node : pywr.Node
+            Node from which water is being delivered.
+        max_avg_delivery : pywr.parameters.ConstantParameter
+            Long-term average daily delivery (unadjusted by drought).
+        max_daily_delivery : pywr.parameters.ConstantParameter
+            Maximum allowable daily delivery.
+        drought_factor : pywr.Parameter
+            Drought adjustment multiplier that varies over time.
+        **kwargs
+            Additional keyword arguments passed to the base Parameter class.
+
+        Notes
+        -----
+        The delivery logic accounts for drought level transitions and applies caps on
+        both minimum (0) and maximum (daily limit) allowed deliveries.
+        """
         super().__init__(model, **kwargs)
         self.node = node
         self.max_avg_delivery = max_avg_delivery.get_constant_value()
@@ -151,7 +276,9 @@ class FfmpNjRunningAvgParameter(Parameter):
         self.children.add(drought_factor)
 
     def setup(self):
-        """Allocate an array to hold the parameter state."""
+        """
+        Allocate arrays to store delivery volume and drought factors per scenario.
+        """
         super().setup()
         num_scenarios = len(self.model.scenarios.combinations)
         self.max_delivery = np.empty([num_scenarios], np.float64)
@@ -159,7 +286,12 @@ class FfmpNjRunningAvgParameter(Parameter):
         self.previous_drought_factor = np.empty([num_scenarios], np.float64)
 
     def reset(self):
-        """Resets the amount remaining in all states to the initial value."""
+        """
+        Reset delivery limits and drought factors at the start of the simulation.
+
+        This method sets up initial delivery budgets based on the average
+        delivery value and initializes drought factors to 1.0 for all scenarios.
+        """
         self.timestep = self.model.timestepper.delta
         self.datetime = pd.to_datetime(self.model.timestepper.start)
         self.max_delivery[...] = self.max_avg_delivery * self.timestep
@@ -168,20 +300,35 @@ class FfmpNjRunningAvgParameter(Parameter):
 
     def value(self, timestep, scenario_index):
         """
-        Returns the current volume remaining for the scenario.
+        Return the delivery budget remaining for the specified scenario.
 
-        Args:
-            timestep (Timestep): The current timestep.
-            scenario_index (ScenarioIndex): The scenario index.
+        Parameters
+        ----------
+        timestep : pywr.core.Timestep
+            The current timestep in the simulation.
+        scenario_index : pywr.core.ScenarioIndex
+            Index of the scenario for which to retrieve the value.
 
-        Returns:
-            float: The current volume remaining for the scenario.
-
+        Returns
+        -------
+        float
+            Remaining allowable delivery volume for the given scenario.
         """
         return self.max_delivery[scenario_index.global_id]
 
     def after(self):
-        """Updates the parameter requirement based on running average and updates the date for tomorrow."""
+        """
+        Update delivery budgets based on flow and drought factor changes.
+
+        - If the drought factor has not changed, the budget is adjusted using a running average.
+        - If the drought factor changes, the delivery budget is reset.
+        - On the first day of the month, if under normal conditions (factor = 1.0), the budget is reset.
+        - Values are capped at zero (minimum) and the max daily limit (maximum).
+
+        Notes
+        -----
+        This logic implements FFMP requirements for delivery constraints across drought phases.
+        """
         self.current_drought_factor[...] = self.drought_factor.get_all_values()
         ### loop over scenarios
         for s, factor in enumerate(self.current_drought_factor):
@@ -213,6 +360,25 @@ class FfmpNjRunningAvgParameter(Parameter):
 
     @classmethod
     def load(cls, model, data):
+        """
+        Load the FfmpNjRunningAvgParameter from a model config dictionary.
+
+        Parameters
+        ----------
+        model : pywr.Model
+            The Pywr model instance.
+        data : dict
+            Dictionary from JSON/YAML input containing keys:
+            - "node": Node name.
+            - "max_avg_delivery": ID of average delivery parameter.
+            - "max_daily_delivery": ID of daily cap parameter.
+            - "drought_factor": ID of drought factor parameter.
+
+        Returns
+        -------
+        FfmpNjRunningAvgParameter
+            Initialized parameter instance ready for use in the model.
+        """
         node = model.nodes[data.pop("node")]
         max_avg_delivery = load_parameter(model, data.pop("max_avg_delivery"))
         max_daily_delivery = load_parameter(model, data.pop("max_daily_delivery"))
@@ -229,29 +395,36 @@ FfmpNjRunningAvgParameter.register()
 
 class NYCCombinedReleaseFactor(Parameter):
     """
-    Decides whether an NYC reservoir's release is dictated by its own
-    storage (in the case of flood operations) or the aggregate storage across the three NYC reservoirs
-    (in the case of normal or drought operations). It returns the "factor" which is a multiplier to baseline release
-    value for the reservoir.
-    See 8/30/2022 comment on this GitHub issue for the equation & logic:
+    Calculates the release factor for an NYC reservoir based on drought level and storage rule logic.
+
+    This parameter determines whether an NYC reservoir’s release should be based on its
+    individual storage (flood operations) or on the aggregate storage across all three
+    NYC reservoirs (normal or drought operations). It returns a weighted multiplier to 
+    adjust baseline reservoir releases depending on the prevailing drought level.
+
+    Attributes
+    ----------
+    node : pywr.Node
+        The Pywr node associated with this parameter.
+    drought_level_agg_nyc : pywr.Parameter
+        Parameter representing the aggregated NYC drought level index.
+    mrf_drought_factor_agg_reservoir : pywr.Parameter
+        Drought factor parameter to use when operating based on aggregated NYC storage.
+    mrf_drought_factor_individual_reservoir : pywr.Parameter
+        Drought factor parameter to use when operating based on individual reservoir storage.
+
+    Methods
+    -------
+    value(timestep, scenario_index)
+        Calculate and return the reservoir’s release factor based on current drought logic.
+    load(model, data)
+        Load the parameter from a model configuration dictionary.
+
+    Notes
+    -----
+    The logic used to compute the release factor follows the formulation 
+    described in the GitHub issue dated 8/30/2022:
     https://github.com/users/ahamilton144/projects/1/views/1?pane=issue&itemId=7839486
-
-    Args:
-        model (Model): The Pywr model instance.
-        node (Node): The node associated with the parameter.
-
-    Attributes:
-        node (Node): The node associated with the parameter.
-        drought_level_agg_nyc (Parameter): The drought level aggregate NYC parameter.
-        mrf_drought_factor_agg_reservoir (Parameter): The MRF drought factor aggregate reservoir parameter.
-        mrf_drought_factor_individual_reservoir (Parameter): The MRF drought factor individual reservoir parameter.
-
-    Methods:
-        value(timestep, scenario_index): Returns the overall release factor for the NYC reservoir.
-
-    Class Methods:
-        load(model, data): Loads the parameter from model and data dictionary.
-
     """
 
     def __init__(
@@ -263,6 +436,24 @@ class NYCCombinedReleaseFactor(Parameter):
         mrf_drought_factor_individual_reservoir,
         **kwargs,
     ):
+        """
+        Initialize NYCCombinedReleaseFactor.
+
+        Parameters
+        ----------
+        model : pywr.Model
+            The Pywr model instance.
+        node : pywr.Node
+            The reservoir node for which the release factor is applied.
+        drought_level_agg_nyc : pywr.Parameter
+            Parameter indicating NYC system-wide drought index.
+        mrf_drought_factor_agg_reservoir : pywr.Parameter
+            Drought multiplier for aggregated reservoir operations.
+        mrf_drought_factor_individual_reservoir : pywr.Parameter
+            Drought multiplier for individual reservoir operations.
+        **kwargs
+            Additional keyword arguments passed to the base Parameter class.
+        """
         super().__init__(model, **kwargs)
         self.node = node
         self.drought_level_agg_nyc = drought_level_agg_nyc
@@ -276,16 +467,31 @@ class NYCCombinedReleaseFactor(Parameter):
 
     def value(self, timestep, scenario_index):
         """
-        Returns the overall release factor for the NYC reservoir, depending on whether it is flood stage
-        (in which case we use the reservoirs individual storage) or normal/drought stage
-        (in which case we use aggregate storage across the NYC reservoirs).
+        Compute the current release factor for an NYC reservoir.
 
-        Args:
-            timestep (Timestep): The current timestep.
-            scenario_index (ScenarioIndex): The scenario index.
+        Uses a weighted logic depending on whether the current drought index 
+        indicates normal/drought (use aggregate) or flood (use individual reservoir).
 
-        Returns:
-            float: The overall release factor for the NYC reservoir.
+        Parameters
+        ----------
+        timestep : pywr.Timestep
+            The current timestep.
+        scenario_index : pywr.ScenarioIndex
+            The scenario index used to retrieve parameter values.
+
+        Returns
+        -------
+        float
+            The final release multiplier for the reservoir.
+
+        Notes
+        -----
+        The formula used is:
+        ```
+        factor = min(max(D_agg - 2, 0), 1) * factor_agg
+               + min(max(3 - D_agg, 0), 1) * factor_indiv
+        ```
+        where D_agg is the drought level index for the NYC system.
         """
         ### $$ factor_{combined-cannonsville} = \min(\max(levelindex_{aggregated} - 2, 0), 1) * factor_{cannonsville}[levelindex_{aggregated}] +
         ###                                     \min(\max(3 - levelindex_{aggregated}, 0), 1) * factor_{cannonsville}[levelindex_{cannonsville}] $$
@@ -301,14 +507,22 @@ class NYCCombinedReleaseFactor(Parameter):
     @classmethod
     def load(cls, model, data):
         """
-        Loads the parameter from model and data dictionary.
+        Load NYCCombinedReleaseFactor from a model configuration dictionary.
 
-        Args:
-            model (Model): The Pywr model instance.
-            data (dict): The data dictionary containing the parameter information.
+        Parameters
+        ----------
+        model : pywr.Model
+            The Pywr model instance.
+        data : dict
+            Dictionary containing model configuration. Expected keys:
+            - "node": Name of the reservoir node.
+            - "mrf_drought_factor_agg_<reservoir>"
+            - "mrf_drought_factor_individual_<reservoir>"
 
-        Returns:
-            NYCCombinedReleaseFactor: The loaded parameter instance.
+        Returns
+        -------
+        NYCCombinedReleaseFactor
+            The loaded and initialized parameter instance.
         """
         reservoir = data.pop("node")
         node = model.nodes[reservoir]
@@ -336,24 +550,42 @@ NYCCombinedReleaseFactor.register()
 
 class NYCFloodRelease(Parameter):
     """
-    Calculates any excess flood control releases needed to reduce NYC reservoir's storage back down to
-    level 1b/1c boundary within 7 days. See Page 21 FFMP for details.
+    Computes excess flood control release for NYC reservoirs based on storage thresholds.
 
-    Attributes:
-        node (Node): The node associated with the parameter.
-        drought_level_reservoir (Parameter): The drought level reservoir parameter.
-        level1c (Parameter): The level 1c parameter.
-        volume_reservoir (Parameter): The volume reservoir parameter.
-        max_volume_reservoir (Parameter): The max volume reservoir parameter.
-        weekly_rolling_mean_flow_reservoir (Parameter): The weekly rolling mean flow reservoir parameter.
-        max_release_reservoir (Parameter): The max release reservoir parameter.
-        mrf_target_individual_reservoir (Parameter): The MRF target individual reservoir parameter.
+    If the drought level is 1a or 1b, this parameter calculates the additional volume that must be 
+    released to bring storage back to the 1b/1c boundary over a 7-day period, following the rules 
+    outlined in the FFMP (Flood and Drought Operating Plan) guidance.
 
-    Methods:
-        value(timestep, scenario_index): Returns the excess flood control releases needed to reduce NYC reservoir's storage.
+    Attributes
+    ----------
+    node : pywr.Node
+        Node representing the reservoir outlet.
+    drought_level_reservoir : pywr.Parameter
+        Parameter indicating the current drought level of the reservoir.
+    level1c : pywr.Parameter
+        Threshold parameter for the 1b/1c storage boundary.
+    volume_reservoir : pywr.Parameter
+        Current volume of water stored in the reservoir.
+    max_volume_reservoir : pywr.Parameter
+        Maximum physical storage capacity of the reservoir.
+    weekly_rolling_mean_flow_reservoir : pywr.Parameter
+        Weekly average of inflows to the reservoir.
+    max_release_reservoir : pywr.Parameter
+        Maximum allowable flood release for the reservoir.
+    mrf_target_individual_reservoir : pywr.Parameter
+        Baseline release target for the reservoir.
 
-    Class Methods:
-        load(model, data): Loads the parameter from model and data dictionary.
+    Methods
+    -------
+    value(timestep, scenario_index)
+        Returns the flood release volume for a given scenario and timestep.
+    load(model, data)
+        Class method for constructing the parameter from model config data.
+
+    Notes
+    -----
+    For drought levels below 2 (i.e., 1a or 1b), excess storage is released over
+    7 days, accounting for recent inflows and baseline release requirements.
     """
 
     def __init__(
@@ -369,6 +601,32 @@ class NYCFloodRelease(Parameter):
         mrf_target_individual_reservoir,
         **kwargs,
     ):
+        """
+        Initialize NYCFloodRelease parameter.
+
+        Parameters
+        ----------
+        model : pywr.Model
+            The Pywr model instance.
+        node : pywr.Node
+            Node associated with the parameter.
+        drought_level_reservoir : pywr.Parameter
+            Parameter indicating the drought level at the reservoir.
+        level1c : pywr.Parameter
+            Storage boundary separating level 1b and 1c.
+        volume_reservoir : pywr.Parameter
+            Current volume in the reservoir.
+        max_volume_reservoir : pywr.Parameter
+            Full capacity of the reservoir.
+        weekly_rolling_mean_flow_reservoir : pywr.Parameter
+            Recent 7-day average of reservoir inflow.
+        max_release_reservoir : pywr.Parameter
+            Maximum release capacity for flood control.
+        mrf_target_individual_reservoir : pywr.Parameter
+            Minimum release target (baseline MRF) for the reservoir.
+        **kwargs
+            Additional keyword arguments passed to the base Parameter class.
+        """
         super().__init__(model, **kwargs)
         self.node = node
         self.drought_level_reservoir = drought_level_reservoir
@@ -389,15 +647,24 @@ class NYCFloodRelease(Parameter):
 
     def value(self, timestep, scenario_index):
         """
-        Returns the excess flood control releases needed to reduce NYC reservoir's storage back down to
-        level 1b/1c boundary within 7 days.
+        Calculate the flood control release required to reduce reservoir storage.
 
-        Args:
-            timestep (Timestep): The current timestep.
-            scenario_index (ScenarioIndex): The scenario index.
+        Parameters
+        ----------
+        timestep : pywr.Timestep
+            Current timestep in the model run.
+        scenario_index : pywr.ScenarioIndex
+            Index specifying which scenario is being evaluated.
 
-        Returns:
-            float: Flood release for given reservoir, timestep, and scenario
+        Returns
+        -------
+        float
+            Required flood control release (in volume units per day).
+
+        Notes
+        -----
+        Logic only applies when drought level is < 2 (i.e., level 1a or 1b).
+        Release ensures reservoir storage returns to level 1c threshold in 7 days.
         """
         ### extra flood releases needed if we are in level 1a or 1b
         if self.drought_level_reservoir.get_value(scenario_index) < 2:
@@ -429,14 +696,25 @@ class NYCFloodRelease(Parameter):
     @classmethod
     def load(cls, model, data):
         """
-        Loads the parameter from model and data dictionary.
+        Load NYCFloodRelease from model configuration dictionary.
 
-        Args:
-            model (Model): The Pywr model instance.
-            data (dict): The data dictionary containing the parameter information.
+        Parameters
+        ----------
+        model : pywr.Model
+            The Pywr model instance.
+        data : dict
+            Dictionary specifying parameter configuration. Must include:
+                - node
+                - volume_<reservoir>
+                - max_volume_<reservoir>
+                - weekly_rolling_mean_flow_<reservoir>
+                - flood_max_release_<reservoir>
+                - mrf_target_individual_<reservoir>
 
-        Returns:
-            NYCCombinedReleaseFactor: The loaded parameter instance.
+        Returns
+        -------
+        NYCFloodRelease
+            The constructed parameter instance.
         """
         reservoir = data.pop("node")
         node = model.nodes[reservoir]
@@ -475,23 +753,46 @@ NYCFloodRelease.register()
 ###    to meet downstream flow target for any mrf (delMontague or delTrenton) and any step in multi-day staggered process
 class TotalReleaseNeededForDownstreamMRF(Parameter):
     """
-    Calculates the total releases needed from FFMP reservoirs to meet Montague or Trenton target,
-    above and beyond their individual direct mandated releases and flood control releases.
+    Calculates the total NYC FFMP releases required to meet downstream Montague or Trenton flow targets.
 
-    Attributes:
-        model (Model): The Pywr model instance.
-        mrf (str): The MRF target for which we are calculating the total release needed.
-        step (int): The step in the calculation process, to account for lag travel to downstream sites.
-        predicted_nonnyc_gage_flow_mrf (Parameter): The predicted non-NYC gage flow MRF parameter.
-        predicted_demand_nj (Parameter): The predicted demand NJ parameter.
-        mrf_target_flow (Parameter): The MRF target flow parameter.
-        release_needed_mrf_montague (Parameter): The release needed MRF Montague parameter.
-        mrf_target_individual_nyc (Parameter): The MRF target individual NYC parameter.
-        flood_release_nyc (Parameter): The flood release NYC parameter.
-        previous_release_reservoirs (list): The list of previous release reservoirs parameters.
+    This parameter computes the additional water release needed from upstream reservoirs to satisfy
+    regulatory flow requirements at downstream control points (Montague or Trenton), accounting for
+    predicted natural flows, previous releases, and any mandatory individual or flood releases.
 
-    Methods:
-        value(timestep, scenario_index): Returns the total releases needed from FFMP reservoirs to meet Montague or Trenton target.
+    Attributes
+    ----------
+    model : pywr.Model
+        The Pywr model instance.
+    mrf : str
+        Flow target location, either 'delMontague' or 'delTrenton'.
+    step : int
+        Position in the multi-day staggered release sequence (1 through 4).
+    predicted_nonnyc_gage_flow_mrf : pywr.Parameter
+        Predicted natural flow at the control point, excluding NYC releases.
+    predicted_demand_nj : pywr.Parameter or None
+        Forecasted New Jersey demand (used for Trenton only).
+    mrf_target_flow : pywr.Parameter
+        Required flow target at the control point (Montague or Trenton).
+    release_needed_mrf_montague : pywr.Parameter or None
+        Additional upstream release needed at Montague (used when mrf = 'delTrenton').
+    mrf_target_individual_nyc : pywr.Parameter or None
+        Combined mandatory FFMP releases from NYC reservoirs (step 1–2 only).
+    flood_release_nyc : pywr.Parameter or None
+        Combined flood control releases from NYC reservoirs (step 1–2 only).
+    previous_release_reservoirs : list of pywr.Parameter
+        Reservoir releases from prior timesteps, used to estimate future arrivals.
+
+    Methods
+    -------
+    value(timestep, scenario_index)
+        Compute the NYC release required to satisfy the MRF target at the specified step.
+    load(model, data)
+        Class method to construct the parameter instance from a model configuration dictionary.
+
+    Notes
+    -----
+    Steps 1–4 correspond to staggered lag travel times to meet Trenton and Montague MRFs.
+    Required release is clipped at zero (i.e., no negative releases).
     """
 
     def __init__(
@@ -508,6 +809,34 @@ class TotalReleaseNeededForDownstreamMRF(Parameter):
         previous_release_reservoirs,
         **kwargs,
     ):
+        """
+        Initialize a TotalReleaseNeededForDownstreamMRF parameter instance.
+
+        Parameters
+        ----------
+        model : pywr.Model
+            Pywr model object.
+        step : int
+            Step in the lagged release sequence (1 to 4).
+        mrf : str
+            Flow control location: 'delMontague' or 'delTrenton'.
+        predicted_nonnyc_gage_flow_mrf : pywr.Parameter
+            Predicted natural flow at MRF gage.
+        predicted_demand_nj : pywr.Parameter or None
+            NJ demand forecast (used if mrf='delTrenton').
+        mrf_target_flow : pywr.Parameter
+            Regulatory flow requirement at control point.
+        release_needed_mrf_montague : pywr.Parameter or None
+            Upstream MRF contribution (used if mrf='delTrenton').
+        mrf_target_individual_nyc : pywr.Parameter or None
+            NYC individual FFMP release target (step 1–2 only).
+        flood_release_nyc : pywr.Parameter or None
+            NYC flood release volume (step 1–2 only).
+        previous_release_reservoirs : list of pywr.Parameter
+            Prior releases used for lagged flow accounting.
+        **kwargs
+            Additional arguments passed to the base class.
+        """
         super().__init__(model, **kwargs)
         self.mrf = mrf
         self.step = step
@@ -538,15 +867,20 @@ class TotalReleaseNeededForDownstreamMRF(Parameter):
             self.children.add(release_needed_mrf_montague)
 
     def value(self, timestep, scenario_index):
-        """Returns the total releases needed from FFMP reservoirs to meet Montague or Trenton target,
-        above and beyond their individual direct mandated releases and flood control releases.
+        """
+        Compute additional NYC releases needed to meet the downstream flow target.
 
-        Args:
-            timestep (Timestep): The current timestep.
-            scenario_index (ScenarioIndex): The scenario index.
+        Parameters
+        ----------
+        timestep : pywr.Timestep
+            Current model timestep.
+        scenario_index : pywr.ScenarioIndex
+            Index identifying the scenario being evaluated.
 
-        Returns:
-            float: NYC releases needed to help meet flow target
+        Returns
+        -------
+        float
+            Required NYC FFMP release volume to meet MRF (non-negative).
         """
         ### we only have to acct for previous NYC releases after step 1
         if self.step > 1:
@@ -598,15 +932,21 @@ class TotalReleaseNeededForDownstreamMRF(Parameter):
     @classmethod
     def load(cls, model, data):
         """
-        Loads the parameter from model and data dictionary.
+        Load a TotalReleaseNeededForDownstreamMRF instance from model configuration.
 
-        Args:
-            model (Model): The Pywr model instance.
-            data (dict): The data dictionary containing the parameter information.
-                --- mrf: either 'delMontague' or 'delTrenton'
-                --- days_ahead: int between 1 & 4 representing the number of days ahead we are trying to meet flow req
-        Returns:
+        Parameters
+        ----------
+        model : pywr.Model
+            The Pywr model instance.
+        data : dict
+            Parameter configuration dictionary. Must include:
+                - "mrf": either 'delMontague' or 'delTrenton'
+                - "step": int in [1, 2, 3, 4]
 
+        Returns
+        -------
+        TotalReleaseNeededForDownstreamMRF
+            Configured parameter instance.
         """
         assert "mrf" in data.keys() and "step" in data.keys()
         assert data["mrf"] in ["delMontague", "delTrenton"]
@@ -714,27 +1054,73 @@ TotalReleaseNeededForDownstreamMRF.register()
 class VolBalanceNYCDownstreamMRF_step1(Parameter):
     """
     Assigns release targets for all 3 NYC reservoirs, above and beyond individual mandated releases,
-    to meet Montague & Trenton targets. Accounts for max release constraints at each reservoir.
+    to meet Montague & Trenton MRF targets. Accounts for max release constraints at each reservoir.
 
-    Attributes:
-        model (Model): The Pywr model instance.
-        reservoir (str): The reservoir associated with the parameter.
-        nodes (list): The list of nodes associated with the parameter.
-        parameters (dict): The dictionary of parameters associated with the parameter.
-        max_vol_reservoirs (list): The list of max volume reservoir parameters.
-        vol_reservoirs (list): The list of volume reservoir parameters.
-        flow_reservoirs (list): The list of flow reservoir parameters.
-        max_release_reservoirs (list): The list of max release reservoir parameters.
-        mrf_target_individual_reservoirs (list): The list of MRF target individual reservoir parameters.
-        flood_release_reservoirs (list): The list of flood release reservoir parameters.
-        num_reservoirs (int): The number of coordinating reservoirs.
-
-    Methods:
-        split_required_mrf_across_nyc_reservoirs(requirement_total, scenario_index):
-        value(timestep, scenario_index):
+    Attributes
+    ----------
+    reservoir : str
+        The reservoir associated with this specific parameter instance.
+    nodes : dict
+        Dictionary of Pywr nodes corresponding to the NYC reservoirs.
+    parameters : dict
+        Dictionary of associated parameters required for MRF calculations.
+    max_vol_reservoirs : list
+        List of maximum volume parameters for NYC reservoirs.
+    vol_reservoirs : list
+        List of volume parameters for NYC reservoirs.
+    flow_reservoirs : list
+        List of current flow parameters for NYC reservoirs.
+    max_release_reservoirs : list
+        List of maximum release constraints for each NYC reservoir.
+    mrf_target_individual_reservoirs : list
+        List of MRF release requirements for each individual NYC reservoir.
+    flood_release_reservoirs : list
+        List of flood release volumes for each NYC reservoir.
+    num_reservoirs : int
+        Number of coordinating NYC reservoirs.
+    
+    Methods
+    -------
+    split_required_mrf_across_nyc_reservoirs(requirement_total, scenario_index)
+        Splits total NYC release requirement among reservoirs using volume-balancing and constraints.
+    
+    value(timestep, scenario_index)
+        Returns the MRF release target for the current reservoir and timestep.
+    
+    load(model, data)
+        Loads the parameter from model and dictionary input.
     """
 
     def __init__(self, model, reservoir, nodes, parameters, **kwargs):
+        """
+        Initialize the VolBalanceNYCDownstreamMRF_step1 parameter.
+
+        This parameter distributes the required additional NYC releases (beyond
+        individual mandated releases) across the three NYC reservoirs using a 
+        volume-balancing method. It also accounts for maximum release constraints 
+        at each reservoir.
+
+        Parameters
+        ----------
+        model : Model
+            The Pywr model instance.
+        reservoir : str
+            The reservoir associated with this specific parameter instance.
+        nodes : dict
+            Dictionary of Pywr Node objects for NYC reservoirs.
+        parameters : dict
+            Dictionary of Parameter objects required for MRF calculation,
+            including storage, flow, flood release, and max release values
+            for all NYC reservoirs, as well as aggregate system parameters.
+        **kwargs
+            Additional keyword arguments passed to the Pywr Parameter base class.
+
+        Notes
+        -----
+        This parameter is evaluated individually for each reservoir but uses shared
+        data across the three NYC reservoirs (Cannonsville, Pepacton, Neversink)
+        to compute coordinated releases that satisfy downstream flow targets.
+        """
         super().__init__(model, **kwargs)
         self.reservoir = reservoir
         self.nodes = nodes
@@ -768,6 +1154,27 @@ class VolBalanceNYCDownstreamMRF_step1(Parameter):
     def split_required_mrf_across_nyc_reservoirs(
         self, requirement_total, scenario_index
     ):
+        """
+        Splits the total required downstream flow release across NYC reservoirs,
+        adjusting for max release constraints and relative reservoir contributions.
+
+        Parameters
+        ----------
+        requirement_total : float
+            Total additional release required to meet Montague/Trenton MRF flow targets.
+        scenario_index : ScenarioIndex
+            Index indicating which scenario the value applies to.
+
+        Returns
+        -------
+        targets : list of float
+            Target release amounts for each NYC reservoir.
+        
+        Notes
+        -----
+        Uses a volume-based distribution method that scales by reservoir contributions to the 
+        total system volume. Enforces individual release constraints and adjusts iteratively.
+        """
         # Get max release constraints
         max_releases_reservoirs = [
             max(
@@ -898,7 +1305,22 @@ class VolBalanceNYCDownstreamMRF_step1(Parameter):
         return targets
 
     def value(self, timestep, scenario_index):
-        """ """
+        """
+        Returns the target release value for the specific NYC reservoir instance
+        based on the total MRF release requirement and reservoir balancing logic.
+
+        Parameters
+        ----------
+        timestep : Timestep
+            The current model timestep.
+        scenario_index : ScenarioIndex
+            Index of the simulation scenario.
+
+        Returns
+        -------
+        float
+            The release target for the given reservoir to help meet the MRF flow target.
+        """
         sid = scenario_index.global_id
         ### calculate contributions for all 3 NYC reservoirs in consistent way.
         ### Note: ideally we would only do this once. But may not be possible to have parameter with array output,
@@ -934,7 +1356,21 @@ class VolBalanceNYCDownstreamMRF_step1(Parameter):
 
     @classmethod
     def load(cls, model, data):
-        """Setup the parameter."""
+        """
+        Loads the class from a model and a data dictionary.
+
+        Parameters
+        ----------
+        model : Model
+            The Pywr model instance.
+        data : dict
+            Dictionary containing configuration including the reservoir node and parameters.
+
+        Returns
+        -------
+        VolBalanceNYCDownstreamMRF_step1
+            Instance of the class with associated nodes and parameters loaded.
+        """
         reservoir = data.pop("node")
         reservoir = reservoir.split("_")[1]
 
@@ -979,7 +1415,36 @@ VolBalanceNYCDownstreamMRF_step1.register()
 
 
 class VolBalanceNYCDownstreamMRF_step2(Parameter):
-    """ """
+    """
+    Calculates the volume of additional flow that Neversink Reservoir must release during Step 2
+    of the staggered MRF coordination process, accounting for prior contributions and constraints.
+
+    This parameter computes how much Neversink can contribute toward Montague and/or Trenton
+    flow targets, beyond its mandated minimum and flood releases, constrained by its
+    controllable release capacity.
+
+    Attributes
+    ----------
+    step : int
+        The coordination step (fixed as 2 for this class).
+    total_agg_mrf_montagueTrenton : Parameter
+        Total release required from NYC reservoirs to meet MRF targets at Montague or Trenton.
+    mrf_target_individual_neversink : Parameter
+        Minimum mandated release from Neversink reservoir under FFMP.
+    flood_release_neversink : Parameter
+        Scheduled flood control release from Neversink.
+    max_release_neversink : Parameter
+        Maximum controlled release capacity from Neversink.
+    lower_basin_agg_mrf_trenton : Parameter
+        Lower basin contribution to Trenton flow target (informational only).
+
+    Methods
+    -------
+    value(timestep, scenario_index)
+        Computes the feasible additional release from Neversink to help meet flow targets.
+    load(model, data)
+        Loads all required model parameters and returns the parameter instance.
+    """
 
     def __init__(
         self,
@@ -992,6 +1457,37 @@ class VolBalanceNYCDownstreamMRF_step2(Parameter):
         lower_basin_agg_mrf_trenton,
         **kwargs,
     ):
+        """
+        Initialize the VolBalanceNYCDownstreamMRF_step2 parameter.
+
+        This class handles Step 2 of the NYC coordinated release process,
+        determining how much additional water Neversink can release given
+        its constraints and obligations.
+
+        Parameters
+        ----------
+        model : Model
+            The Pywr model instance.
+        step : int
+            Coordination step (should be 2).
+        total_agg_mrf_montagueTrenton : Parameter
+            Total volume of release required across all NYC reservoirs to meet Montague/Trenton target.
+        mrf_target_individual_neversink : Parameter
+            Required minimum FFMP release from Neversink.
+        flood_release_neversink : Parameter
+            Additional flood-mitigation release from Neversink.
+        max_release_neversink : Parameter
+            Maximum allowed controlled release from Neversink.
+        lower_basin_agg_mrf_trenton : Parameter
+            Flow from lower basin reservoirs toward Trenton (used for context, not directly in computation).
+        **kwargs
+            Additional keyword arguments passed to the base Pywr Parameter class.
+
+        Notes
+        -----
+        This step assumes Cannonsville and Pepacton have already contributed in Step 1.
+        Neversink’s share is constrained by its physical release limits and prior mandated releases.
+        """
         super().__init__(model, **kwargs)
         self.step = step
         self.total_agg_mrf_montagueTrenton = total_agg_mrf_montagueTrenton
@@ -1008,15 +1504,23 @@ class VolBalanceNYCDownstreamMRF_step2(Parameter):
         self.children.add(lower_basin_agg_mrf_trenton)
 
     def value(self, timestep, scenario_index):
-        """Returns the total flow needed from Neversink to meet Montague and Trenton targets,
-        above and beyond their individual direct mandated releases.
+        """
+        Compute the additional volume that Neversink can release to meet downstream flow targets.
 
-        Args:
-            timestep (Timestep): The current timestep.
-            scenario_index (ScenarioIndex): The scenario index.
+        This method evaluates how much Neversink Reservoir can contribute during Step 2,
+        after accounting for its FFMP-required release, flood release, and maximum release capacity.
 
-        Returns:
-            float: The total flow needed from Neversink to meet Montague and Trenton targets.
+        Parameters
+        ----------
+        timestep : Timestep
+            The current model timestep.
+        scenario_index : ScenarioIndex
+            Index specifying the scenario for which the value is evaluated.
+
+        Returns
+        -------
+        float
+            The additional feasible release from Neversink Reservoir (above minimums) to support the flow target.
         """
         max_release_neversink = max(
             self.max_release_neversink.get_value(scenario_index)
@@ -1037,14 +1541,27 @@ class VolBalanceNYCDownstreamMRF_step2(Parameter):
     @classmethod
     def load(cls, model, data):
         """
-        Loads the parameter from model and data dictionary.
+        Load model parameters and create a VolBalanceNYCDownstreamMRF_step2 instance.
 
-        Args:
-            model (Model): The Pywr model instance.
-            data (dict): The data dictionary containing the parameter information.
+        This class method retrieves all necessary model parameters from the data dictionary
+        and initializes the parameter object for Step 2 release balancing.
 
-        Returns:
-            VolBalanceNYCDemandTarget: The loaded parameter instance.
+        Parameters
+        ---------
+        model : Model
+            The Pywr model instance.
+        data : dict
+            Dictionary containing metadata and configuration inputs.
+
+        Returns
+        -------
+        VolBalanceNYCDownstreamMRF_step2
+            A configured parameter instance for Step 2 NYC release balancing.
+
+        Notes
+        -----
+        This method is automatically called when the Pywr model is built using a data dictionary
+        that references this custom parameter class.
         """
         step = 2
         total_agg_mrf_montagueTrenton = load_parameter(
@@ -1078,32 +1595,58 @@ VolBalanceNYCDownstreamMRF_step2.register()
 
 class VolBalanceNYCDemand(Parameter):
     """
-    Updates the contribution to NYC deliveries made by each of the NYC
-    reservoirs, in such a way as to balance the relative storages across the three reservoirs.
-    See comments on this GitHub issue for the equations & logic:
+    Computes NYC reservoir delivery targets to meet downstream demands while balancing relative storage across the system.
+
+    This parameter allocates NYC delivery volume across the three upstream reservoirs (Cannonsville, Pepacton, Neversink)
+    based on storage and inflow conditions, maximum diversion capacity, and existing release obligations. The goal is to
+    keep reservoir storage levels balanced while fulfilling the NYC system delivery target.
+
+    See comments on this GitHub issue for the equations and logic:
     https://github.com/users/ahamilton144/projects/1/views/1?pane=issue&itemId=7840442
 
-    Args:
-        model (Model): The Pywr model instance.
-        node (Node): The node associated with the parameter.
+    Attributes
+    ----------
+    reservoir : str
+        The name of the NYC reservoir associated with this instance.
+    nodes : list
+        List of model nodes corresponding to NYC reservoirs.
+    num_reservoirs : int
+        Number of NYC reservoirs (typically 3).
+    max_volume_agg_nyc : Parameter
+        Total maximum volume capacity of the combined NYC reservoir system.
+    volume_agg_nyc : Parameter
+        Total current volume of the combined NYC reservoir system.
+    max_flow_delivery_nyc : Parameter
+        Maximum allowed total delivery to NYC at the current time.
+    flow_agg_nyc : Parameter
+        Current total flow delivered to NYC from all reservoirs.
+    max_vol_reservoirs : list of Parameter
+        Maximum volume for each individual NYC reservoir.
+    vol_reservoirs : list of Parameter
+        Current volume for each NYC reservoir.
+    flow_reservoirs : list of Parameter
+        Current delivery flow for each NYC reservoir.
+    hist_max_flow_delivery_nycs : list of Parameter
+        Historical maximum diversion rate for each NYC reservoir.
+    mrf_target_individual_reservoirs : list of Parameter
+        Minimum required release (mandated) for each NYC reservoir under FFMP.
+    downstream_release_target_reservoirs : list of Parameter
+        Additional downstream release obligations for each NYC reservoir.
+    flood_release_reservoirs : list of Parameter
+        Flood mitigation releases scheduled for each NYC reservoir.
 
-    Attributes:
-        reservoir (str): The reservoir associated with the parameter.
-        node (Node): The node associated with the parameter.
-        max_volume_agg_nyc (Parameter): The maximum volume aggregate NYC parameter.
-        volume_agg_nyc (Parameter): The volume aggregate NYC parameter.
-        max_flow_delivery_nyc (Parameter): The maximum flow delivery NYC parameter.
-        flow_agg_nyc (Parameter): The flow aggregate NYC parameter.
-        max_vol_reservoir (Parameter): The maximum volume reservoir parameter.
-        vol_reservoir (Parameter): The volume reservoir parameter.
-        flow_reservoir (Parameter): The flow reservoir parameter.
+    Methods
+    -------
+    value(timestep, scenario_index)
+        Calculates the delivery target for the specific NYC reservoir to balance storage and meet total delivery needs.
+    load(model, data)
+        Class method to initialize the parameter from a Pywr model and input data dictionary.
 
-    Methods:
-        value(timestep, scenario_index): Returns the target NYC delivery for this reservoir to balance storages across reservoirs.
-
-    Class Methods:
-        load(model, data): Loads the parameter from model and data dictionary.
-
+    Notes
+    -----
+    This parameter helps balance the NYC system's deliveries while preserving storage equity.
+    The delivery calculation is performed separately for each reservoir instance, due to
+    Pywr’s scalar parameter constraints.
     """
 
     def __init__(
@@ -1124,6 +1667,47 @@ class VolBalanceNYCDemand(Parameter):
         flood_release_reservoirs,
         **kwargs,
     ):
+        """
+        Initialize an instance of the VolBalanceNYCDemand parameter.
+
+        Parameters
+        ----------
+        model : Model
+            Pywr model object.
+        reservoir : str
+            Name of the NYC reservoir for which this parameter instance applies.
+        nodes : list
+            List of Pywr reservoir nodes (Cannonsville, Pepacton, Neversink).
+        max_volume_agg_nyc : Parameter
+            Total maximum volume of the NYC reservoir system.
+        volume_agg_nyc : Parameter
+            Combined current volume of the NYC reservoir system.
+        max_flow_delivery_nyc : Parameter
+            Target total NYC delivery rate.
+        flow_agg_nyc : Parameter
+            Current combined delivery from all reservoirs to NYC.
+        max_vol_reservoirs : list of Parameter
+            Maximum storage capacity for each reservoir.
+        vol_reservoirs : list of Parameter
+            Current volume for each reservoir.
+        flow_reservoirs : list of Parameter
+            Current delivery flow for each reservoir.
+        hist_max_flow_delivery_nycs : list of Parameter
+            Historical maximum delivery constraints for each reservoir.
+        mrf_target_individual_reservoirs : list of Parameter
+            Minimum flow release requirements for each reservoir (e.g., FFMP).
+        downstream_release_target_reservoirs : list of Parameter
+            Required additional downstream releases per reservoir.
+        flood_release_reservoirs : list of Parameter
+            Flood control releases per reservoir.
+        **kwargs
+            Additional keyword arguments for base Parameter class.
+
+        Notes
+        -----
+        The `value` method internally repeats balancing calculations for each reservoir
+        individually because array-valued parameters are not natively supported in Pywr.
+        """
         super().__init__(model, **kwargs)
         self.reservoir = reservoir
         self.nodes = nodes
@@ -1154,6 +1738,27 @@ class VolBalanceNYCDemand(Parameter):
             self.children.add(flood_release_reservoirs[i])
 
     def value(self, timestep, scenario_index):
+        """
+        Calculate the NYC delivery target for this reservoir that balances storage and meets system-wide demand.
+
+        Parameters
+        ----------
+        timestep : Timestep
+            Current model timestep.
+        scenario_index : ScenarioIndex
+            Current scenario index in the simulation.
+
+        Returns
+        -------
+        float
+            Target diversion to NYC from this reservoir on the current timestep.
+
+        Notes
+        -----
+        This function allocates deliveries proportionally using a volume-balancing approach while
+        enforcing individual reservoir diversion constraints. If one or more reservoirs are
+        constrained, deliveries from others may be scaled up within feasible limits.
+        """
         sid = scenario_index.global_id
         ### calculate diversions from all 3 NYC reservoirs in consistent way.
         ### Note: ideally we would only do this once. But may not be possible to have parameter with array output,
@@ -1276,7 +1881,26 @@ class VolBalanceNYCDemand(Parameter):
 
     @classmethod
     def load(cls, model, data):
-        """Setup the parameter."""
+        """
+        Load and initialize the VolBalanceNYCDemand parameter from model and config data.
+
+        Parameters
+        ----------
+        model : Model
+            The Pywr model object.
+        data : dict
+            Dictionary with parameter configuration values (including the 'node' field).
+
+        Returns
+        -------
+        VolBalanceNYCDemand
+            Instantiated parameter object, ready for use in simulation.
+
+        Notes
+        -----
+        The `node` name is used to infer which NYC reservoir (Cannonsville, Pepacton, or Neversink)
+        this parameter is associated with. All required supporting parameters are also loaded here.
+        """
         reservoir = data.pop("node")
         reservoir = reservoir.split("_")[1]
         nodes = [

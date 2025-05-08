@@ -1,5 +1,36 @@
-# The script contains functions to calculate error metrics for the model outputs
-# Marilyn Smith 
+"""
+Calculate error metrics for simulated and observed streamflow data.
+
+Overview
+--------
+This module provides functions for evaluating the performance of reservoir and major flow simulations
+in the Pywr-DRB model framework. It computes a suite of error metrics comparing modeled data to
+observed data at daily, monthly, yearly, and full timescales using metrics from HydroEval,
+flow duration curve statistics, autocorrelation diagnostics, and roughness indicators.
+
+Key Steps
+---------
+1. Subset modeled and observed time series to the desired time window.
+2. Resample data to monthly or yearly resolution if needed.
+3. Calculate performance metrics including NSE, KGE, autocorrelation, and FDC-based diagnostics.
+4. Return a summary table of error metrics for all nodes, models, scenarios, and timescales.
+
+Technical Notes
+---------------
+- Metrics include daily, monthly, yearly, and full-period variants.
+- Uses HydroEval (https://github.com/hydro-informatics/hydroeval) for core metrics.
+- Metrics include log-transformed variants for low flow sensitivity.
+- Designed for evaluating Pywr-DRB reservoir and major river node outputs.
+- Timeseries input assumed to be pandas Series indexed by datetime.
+
+Links
+-----
+- https://github.com/pywrdrb/Pywr-DRB
+
+Change Log
+----------
+Marilyn Smith, 2025-05-07, Added documentation and implemented full docstring formatting.
+"""
 
 import hydroeval as he
 from scipy import stats
@@ -8,6 +39,25 @@ from pywrdrb.utils.lists import reservoir_list
 import numpy as np
 
 def subset_timeseries(data, start_date, end_date, end_inclusive=False):
+    """
+    Subset a time series to a specified date range.
+
+    Parameters
+    ----------
+    data : pandas.Series
+        Input time series indexed by datetime.
+    start_date : str or pandas.Timestamp
+        Start date for subsetting.
+    end_date : str or pandas.Timestamp
+        End date for subsetting.
+    end_inclusive : bool, optional
+        If True, includes the end date in the slice. Default is False.
+
+    Returns
+    -------
+    pandas.Series
+        Subsetted time series.
+    """
     if isinstance(data, pd.Series):  # Check if the data is a pandas Series
         if start_date:
             data = data.loc[start_date:]
@@ -31,6 +81,35 @@ def calculate_error_metrics(reservoir_downstream_gages,
                             start_date=None, 
                             end_date=None, 
                             end_inclusive=False):
+    """
+    Compute error metrics for modeled vs. observed flows across nodes, models, and scenarios.
+
+    Parameters
+    ----------
+    reservoir_downstream_gages : dict
+        Dictionary of observed reservoir downstream gage flows.
+    major_flows : dict
+        Dictionary of observed major flow locations.
+    models : list of str
+        List of model names.
+    output : object
+        Simulation output object with reservoir and flow values.
+    nodes : list of str
+        Nodes to evaluate (reservoirs or major flows).
+    scenarios : list of str
+        Scenario identifiers.
+    start_date : str or pandas.Timestamp, optional
+        Start of evaluation period.
+    end_date : str or pandas.Timestamp, optional
+        End of evaluation period.
+    end_inclusive : bool, optional
+        Whether to include end_date in the evaluation window. Default is False.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Multi-indexed dataframe with metrics by node, model, and scenario.
+    """
     # Initialize an empty DataFrame for results
     results_metrics = pd.DataFrame()
 
