@@ -35,7 +35,6 @@ from pywrdrb.utils.lists import (
 )
 from pywrdrb.utils.lists import drbc_lower_basin_reservoirs
 from pywrdrb.utils.constants import cfs_to_mgd, mg_to_mcm
-from pywrdrb.utils.hdf5 import get_hdf5_realization_numbers
 from pywrdrb.utils.results_sets import pywrdrb_results_set_opts
 
 

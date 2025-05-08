@@ -1,7 +1,22 @@
 """
-This file contains various lists relavent to the Pywr-DRB model.
-"""
+Contains simple lists that are used throughout the package for different purposes.
 
+Overview: 
+The lists serve different purposes, and are used in many contexts.  
+
+Technical Notes: 
+- This can probably be improved and/or removed in the future:
+    - i.e., it may be added to the Options class or as a sepearate data class
+    - but we should think about what we want before making changes.
+- For now, DO NOT DELETE since these are important.
+- We should also look for redundant versions of these lists elsewhere.
+    
+Links: 
+- NA
+ 
+Change Log:
+TJA, 2025-05-05, Add docs.
+"""
 
 reservoir_list = [
     "cannonsville",

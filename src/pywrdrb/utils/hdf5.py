@@ -1,3 +1,20 @@
+"""
+Contains functions for working with HDF5 files in pywrdrb context.
+
+Overview:
+Simple functions for reading and working with HDF5 files. 
+Some functions are deisgned for pywrdrb output files while others are for ensemble input files.
+
+Technical Notes: 
+- In the future, we should consider improving this to be a more standard class, but for now these are simple functions.
+
+Links: 
+- NA
+ 
+Change Log:
+TJA, 2025-05-06, Add docs.
+"""
+
 import h5py
 import pandas as pd
 import numpy as np
@@ -12,13 +29,15 @@ def get_n_scenarios_from_pywrdrb_output_file(file_path):
 
     This function assumes that datasets have the shape (len(datetime), len(n_scenarios)).
     It skips a specific dataset named 'time' and ignores non-dataset objects.
+    This is used by pywrdrb.load.Output() class to determine the number of scenarios
+    in a pywrdrb output file.
 
-    Parameters:
+    Parameters
     ----------
     file_path : str
         Path to the HDF5 file.
 
-    Returns:
+    Returns
     -------
     int
         The number of scenarios (n_scenarios), determined from the second dimension
@@ -41,14 +60,18 @@ def get_n_scenarios_from_pywrdrb_output_file(file_path):
 
 def combine_batched_hdf5_outputs(batch_files, combined_output_file):
     """
-    Aggregate multiple HDF5 files into a single HDF5 file.
+    Aggregate multiple pywrdrb output (hdf5) files into a single HDF5 file.
 
-    Args:
-        batch_files (list): List of HDF5 files to combine.
-        combined_output_file (str): Full output file path & name to write combined HDF5.
-
-    Returns:
-        None
+    Parameters
+    ----------
+    batch_files : list of str
+        List of full paths to the HDF5 files to be combined. Must be full filename.
+    combined_output_file : str
+        Path to the output HDF5 file where the combined data will be stored. Must be full filename.
+    
+    Returns
+    -------
+    None
     """
     if not batch_files:
         raise ValueError("No batch files provided.")
@@ -98,56 +121,19 @@ def combine_batched_hdf5_outputs(batch_files, combined_output_file):
     return
 
 
-def export_ensemble_to_hdf5(dict, output_file):
-    """
-    Export a dictionary of ensemble data to an HDF5 file.
-    Data is stored in the dictionary as {realization number (int): pd.DataFrame}.
-
-    Args:
-        dict (dict): A dictionary of ensemble data.
-        output_file (str): Full output file path & name to write HDF5.
-
-    Returns:
-        None
-    """
-
-    dict_keys = list(dict.keys())
-    column_labels = dict[dict_keys[0]].columns.to_list()
-
-    with h5py.File(output_file, "w") as f:
-        for key in dict_keys:
-            data = dict[key]
-            datetime = data.index.to_numpy().astype(
-                "S"
-            )  # Directly use numpy array for dates
-
-            grp = f.create_group(key)
-
-            # Store column labels as an attribute
-            grp.attrs["column_labels"] = column_labels
-
-            # Create dataset for dates
-            grp.create_dataset("date", data=datetime)
-
-            # Create datasets for each array subset from the group
-            for col in column_labels:
-                grp.create_dataset(
-                    col, data=data[col].to_numpy()
-                )  # Directly use numpy array
-    return
-
-
 def get_hdf5_realization_numbers(filename):
     """
-    Checks the contents of an hdf5 file, and returns a list
-    of the realization ID numbers contained.
-    Realizations have key 'realization_i' in the HDF5.
-
-    Args:
-        filename (str): The HDF5 file of interest
-
-    Returns:
-        list: Containing realizations ID numbers; realizations have key 'realization_i' in the HDF5.
+    Checks the contents of hdf5 and return a list of the realization IDs.
+     
+    Parameters
+    ----------
+    flename : str
+        The filename for the hdf5 file.
+    
+    Returns
+    -------
+    realization_numbers
+        list of int or str corresponding to the realization IDs in the hdf5 file.
     """
     realization_numbers = []
     with h5py.File(filename, "r") as file:
@@ -180,13 +166,19 @@ def extract_realization_from_hdf5(hdf5_file, realization, stored_by_node=False):
     """
     Pull a single inflow realization from an HDF5 file of inflows.
 
-    Args:
-        hdf5_file (str): The filename for the hdf5 file
-        realization (int): Integer realization index
-        stored_by_node (bool): Whether the data is stored with node name as key.
-
-    Returns:
-        pandas.DataFrame: A DataFrame containing the realization
+    Parameters
+    ----------
+    hdf5_file : str
+            Path to the HDF5 file.
+    realization : str or int
+            The realization number or name to extract.
+    stored_by_node : bool, optional
+                If True, assumes that the data keys are node names. If False, keys are realizations. Default is False.
+                
+    Returns
+    -------
+    pd.DataFrame
+        A DataFrame containing the extracted realization data, with datetime as the index.
     """
 
     with h5py.File(hdf5_file, "r") as f:

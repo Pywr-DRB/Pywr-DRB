@@ -1,3 +1,31 @@
+"""
+Lists of results_set options and descriptions.
+
+Overview: 
+The results_set specifications are important for the output processing.
+The main reason we use results_set is so that we can use the node names for the data, 
+e.g., we want to have access to both the following:
+    - inflows (pd.DataFrame) with node names as columns
+    - res_storage (pd.DataFrame) with node names as columns
+This helps to avoid the full parameter names when processing data, since the 
+full parameter names are long and harder to interpret. 
+
+Technical Notes: 
+- results_set are used as arguments for all data loaders, including:
+        - Observation
+        - HydrologicModelFlow
+        - Output
+- To understand more about how these relate to the actual model parameters, look at source code for pywrdrb/load/get_results.py
+
+Links: 
+- A description of these options is on the docs: https://pywr-drb.github.io/Pywr-DRB/results_set_options.html
+ 
+Change Log:
+TJA, 2025-05-05, Add docs.
+"""
+
+
+# All results_set options and descriptions
 pywrdrb_results_set_descriptions = {
     "all": "All simulation data using pywrdrb model naming convention.",
     "reservoir_downstream_gage": "Streamflow at downstream gage below reservoirs (MGD).",
@@ -24,18 +52,7 @@ pywrdrb_results_set_descriptions = {
 }
 
 
+# Different results_set options which are available for different datasets
 pywrdrb_results_set_opts = list(pywrdrb_results_set_descriptions.keys())
 obs_results_set_opts = ['major_flow', 'reservoir_downstream_gage', 'res_storage']
 hydrologic_model_results_set_opts = ['major_flow', 'reservoir_downstream_gage']
-
-
-base_results_set_descriptions = {
-    "reservoir_downstream_gage": "Streamflow at downstream gage below reservoirs (MGD).",
-    "major_flow": "Streamflow at major flow points of interest (MGD).",
-    "res_storage": "Reservoir storage volume (MG).",
-    "gage_flow": "Streamflow at gage locations (MGD).",
-    "catchment_inflow": "Catchment inflow at Pywr-DRB node (MGD).",
-}
-
-base_results_set_opts = list(base_results_set_descriptions.keys())
-
