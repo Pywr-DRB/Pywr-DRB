@@ -31,7 +31,7 @@ import pandas as pd
 from pywrdrb import get_pn_object
 from pywrdrb.pre.datapreprocessor_ABC import DataPreprocessor
 from pywrdrb.pre.observations import DataRetriever
-from pywrdrb.utils.pywr_drb_node_data import (
+from pywrdrb.pywr_drb_node_data import (
     inflow_gauge_map,
     release_gauge_map,
     storage_gauge_map,

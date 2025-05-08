@@ -1,11 +1,22 @@
 """
-Defines custom Pywr Parameters used to manage streamflow ensembles.
+Custom parameter used to handle simulation ensemble input data.
 
-FlowEnsemble:
-    Provides access to inflow ensemble timeseries during the simulation period.
+Overview:
+Pywr is designed to handle running simulations in parallel, but it is helpful to have some 
+custom parameters to help facilitate this. These parameters are used to load ensemble, then
+store the relevant realizations in a pandas DataFrame which is accessible during simulation. 
 
-PredictionEnsemble:
-    Provides access to an ensemble of flow prediction timeseries used to inform FFMP releases.
+Technical Notes:
+- The FlowEnsemble is used to access to inflow ensemble timeseries during the simulation period.
+- The PredictionEnsemble is used to access an ensemble of flow prediction timeseries, which is used to inform NYC releases.
+- #TODO: 
+    - Should add some documentation or other standardization for the inflow ensemble data formating 
+
+Links:
+NA
+
+Change Log:
+TJA, 2025-05-07, Add docs.
 """
 import os
 import numpy as np
@@ -14,37 +25,62 @@ import h5py
 
 from pywr.parameters import Parameter
 
-from .. import get_pn_object
+from pywrdrb import get_pn_object
 
-global pn
 pn = get_pn_object()
-input_dir = ""
-# Need to get the input directory from the path navigator
-# Assign to Trev
+
 
 class FlowEnsemble(Parameter):
-    """This parameter provides access to inflow ensemble timeseries during the simulation period.
+    """This parameter provides access to inflow ensemble timeseries.
 
-    Args:
-        model (Model): The Pywr model.
-        name (str): The node name.
-        inflow_type (str): The dataset label; Options: 'obs_pub', 'nhmv10', 'nwmv21'
-        inflow_ensemble_indices (list): Indices of the inflow ensemble to be used.
-        **kwargs: Additional keyword arguments.
+    For a given inflow ensemble file, we want to load and access specific realizations
+    for a given model run. These realizations are loaded from an HDF5 file, then 
+    stored in a pandas DataFrame for easy access during simulation.
 
-    Returns:
-        None
+    Methods
+    -------
+    setup()
+        Perform setup operations for the parameter. Automated pywr operation.
+    value(timestep, scenario_index)
+        Return the current flow for the specified timestep and scenario index. 
+    load(model, data)
+        Load the parameter from the model dictionary.
+        
+    Attributes
+    ----------
+    inflow_ensemble_indices : list
+        The realization indices of the inflow ensemble to be used for this simulation.
+    inflow_column_indices : list
+        The column indices of the inflow ensemble DataFrame corresponding to the realization indices.
+    inflow_ensemble : DataFrame
+        The DataFrame containing the inflow ensemble data, indexed by datetime.
     """
 
     def __init__(self, model, name, inflow_type, inflow_ensemble_indices, **kwargs):
+        """Initialize the FlowEnsemble parameter.
+        
+        Parameters
+        ----------
+        model : Model
+            The pywrdrb.Model object.
+        name : str
+            The name of the node in the model.
+        inflow_type : str
+            The dataset label. Expects to find an HDF5 file with inflow ensemble data in the pn.flows.input_dir directory.
+        inflow_ensemble_indices : list
+            The realization indices of the inflow ensemble to be used for this simulation.
+        **kwargs : dict
+            Additional keyword arguments to be passed to the pywr.Parameter class. None used. 
+        
+        Returns
+        -------
+        None
+        """
         super().__init__(model, **kwargs)
 
-        if "syn" in inflow_type:
-            input_dir_ = os.path.join(input_dir, "synthetic_ensembles")
-        elif ("pub" in inflow_type) and ("ensemble" in inflow_type):
-            input_dir_ = os.path.join(input_dir, "historic_ensembles")
-
-        filename = os.path.join(input_dir_, f"catchment_inflow_{inflow_type}.hdf5")
+        # ensemble input file
+        input_dir = pn.flows.get(inflow_type)
+        filename = os.path.join(input_dir_, f"catchment_inflow_mgd.hdf5")
 
         # Load from hfd5 specific realizations
         with h5py.File(filename, "r") as file:
@@ -65,7 +101,8 @@ class FlowEnsemble(Parameter):
 
         ## Match ensemble indices to columns
         # inflow_ensemble_indices is a list of integers;
-        # We need to 1) verify that the indices are included in the df
+        # We need to: 
+        # 1) verify that the indices are included in the df
         # 2) find the columns corresponding to these realization IDs
         inflow_ensemble_columns = []
         for real_id in inflow_ensemble_indices:
@@ -87,18 +124,41 @@ class FlowEnsemble(Parameter):
     def value(self, timestep, scenario_index):
         """Return the current flow across scenarios for the specified timestep and scenario index.
 
-        Args:
-            timestep (Timestep): The timestep being evaluated.
-            scenario_index (ScenarioIndex): The index of the scenario.
+        This is automaticalled called by pywr during each timestep of the simulation.
+        The timestep and scenario_index are passed in by pywr automatically.
+        The scenario_index is used to determine which realization to use.
 
-        Returns:
-            float: The flow value for the specified timestep and scenario.
+        Parameters
+        ----------
+        timestep : Timestep
+            The timestep being evaluated.
+        scenario_index : ScenarioIndex
+            The index of the simulation scenario.
+        
+        Returns
+        -------
+        float
+            The inflow value for the specified timestep and scenario.
         """
         s_id = self.inflow_ensemble_indices[scenario_index.global_id]
         return self.inflow_ensemble.loc[timestep.datetime, f"{s_id}"]
 
     @classmethod
     def load(cls, model, data):
+        """Load the parameter using the pywrdrb.Model dictionary.
+        
+        Parameters
+        ----------
+        model : Model
+            The pywrdrb.Model object.
+        data : dict
+            The dictionary containing the parameter data. Must include inflow_ensemble_indices and inflow_type.
+        
+        Returns
+        -------
+        FlowEnsemble
+            An instance of the FlowEnsemble class, for the given model specifications.
+        """
         name = data.pop("node")
         inflow_ensemble_indices = data.pop("inflow_ensemble_indices")
         inflow_type = data.pop("inflow_type")
@@ -109,24 +169,59 @@ FlowEnsemble.register()
 
 
 class PredictionEnsemble(Parameter):
-    """This parameter provides access to
-    an ensemble of flow prediction timeseries used to inform FFMP releases.
+    """Loads and stored ensemble of prediction timeseries used to inform NYC releases during simulation.
 
-    Args:
-        model (Model): The Pywr model.
-        column (str): The label of the prediction column.
-        inflow_type (str): The dataset label; Options: 'obs_pub_nhmv10_ObsScaled_ensemble', 'obs_pub_nwmv21_ObsScaled_ensemble'
-        ensemble_indices (list): Indices of the inflow ensemble to be used.
-        **kwargs: Additional keyword arguments.
+    When calculating NYC release, we need use forecast/predicted downstream flows to calculate the
+    releases neede to maintain the Montague and Trenton flow targets in 1-4 days ahead.
+    These predictions are generated prior to the simulation (e.g., pywrdrb.pre.PredictedInflowPreprocessor) 
+    and stored in an HDF5 file, with unique predictions for each realization member. 
 
-    Returns:
-        None
+    Methods
+    -------
+    setup()
+        Perform setup operations for the parameter. Automated pywr operation.
+    value(timestep, scenario_index)
+        Return the current flow for the specified timestep and scenario index.
+    load(model, data)
+        Load the parameter from the model dictionary.
+
+    Attributes
+    ----------
+    ensemble_indices : list
+        The realization indices of the inflow ensemble to be used for this simulation.
+    pred_column_indices : list
+        The column indices of the inflow ensemble DataFrame corresponding to the realization indices.
+    pred_ensemble : DataFrame
+        The DataFrame containing the inflow ensemble data, indexed by datetime.
     """
-
-    def __init__(self, model, column, inflow_type, ensemble_indices, **kwargs):
+    def __init__(self, model, column, 
+                 inflow_type, ensemble_indices, 
+                 **kwargs):
+        """Initialize the PredictionEnsemble parameter.
+        
+        Parameters
+        ----------
+        model : Model
+            The pywrdrb.Model object.
+        column : str
+            The name of the column in the HDF5 file to be used for the ensemble.
+        inflow_type : str
+            The dataset label. Expects to find an HDF5 file with inflow ensemble data in the pn.flows.input_dir directory.
+        ensemble_indices : list
+            The realization indices of the inflow ensemble to be used for this simulation.
+        **kwargs : dict
+            Additional keyword arguments to be passed to the pywr.Parameter class. None used.
+        
+        Returns
+        -------
+        None        
+        """
+        
         super().__init__(model, **kwargs)
 
-        filename = os.path.join(input_dir, f"predicted_inflows_diversions_{inflow_type}.hdf5")
+        # input file corresponding to the inflow_type
+        input_dir = pn.flows.get(inflow_type)
+        filename = os.path.join(input_dir, f"predicted_inflows_mgd.hdf5")
         prediction_ensemble = {}
 
         # Load from hfd5 specific realizations
@@ -154,7 +249,8 @@ class PredictionEnsemble(Parameter):
 
         ## Match ensemble indices to columns
         # inflow_ensemble_indices is a list of integers;
-        # We need to 1) verify that the indices are included in the df
+        # We need to: 
+        # 1) verify that the indices are included in the df
         # 2) find the columns corresponding to these realization IDs
         ensemble_columns = []
         for real_id in ensemble_indices:
@@ -176,18 +272,40 @@ class PredictionEnsemble(Parameter):
     def value(self, timestep, scenario_index):
         """Return the current flow across scenarios for the specified timestep and scenario index.
 
-        Args:
-            timestep (Timestep): The timestep being evaluated.
-            scenario_index (ScenarioIndex): The index of the scenario.
+        This is automaticalled called by pywr during each timestep of the simulation.
+        The timestep and scenario_index are passed in by pywr automatically.
 
-        Returns:
-            float: The flow value for the specified timestep and scenario.
+        Parameters
+        ----------
+        timestep : Timestep
+            The timestep being evaluated.
+        scenario_index : ScenarioIndex
+            The index of the simulation scenario.
+        
+        Returns
+        -------
+        float
+            The prediction value for the specified timestep and scenario.
         """
         s_id = self.pred_ensemble_indices[scenario_index.global_id]
         return self.pred_ensemble.loc[timestep.datetime, f"{s_id}"]
 
     @classmethod
     def load(cls, model, data):
+        """Load the parameter using the pywrdrb.Model dictionary.
+        
+        Parameters
+        ----------
+        model : Model
+            The pywrdrb.Model object.
+        data : dict
+                The dictionary containing the parameter data. Must include column, ensemble_indices and inflow_type.
+        
+        Returns
+        -------
+        PredictionEnsemble
+            An instance of the PredictionEnsemble class, for the given model specifications.
+        """
         column = data.pop("column")
         ensemble_indices = data.pop("ensemble_indices")
         inflow_type = data.pop("inflow_type")

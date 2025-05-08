@@ -1,25 +1,63 @@
 """
-Contains functions used to construct a pywrdrb model in JSON format.
+A module to build a Pywr model file for the Delaware River Basin (DRB).
+
+Overview: 
+A module to build a Pywr model file for the Delaware River Basin (DRB) where multiple 
+options are available to construct the model. Please refer to the `Options` class for
+default values and options. To understand the model structure, please refer to the pywr 
+package documentation. 
+
+Key Steps: (If script)
+1. Initialize the model builder with start and end dates, inflow type, and options.
+mb = pywrdrb.ModelBuilder(
+    inflow_type='nhmv10_withObsScaled', 
+    start_date="1983-10-01",
+    end_date="1985-12-31"
+)
+
+2. Make the model by calling the `make_model` method.
+mb.make_model()
+
+3. Write the model to a JSON file by calling the `write_model` method.
+# Output model.json file
+model_filename = r"your working location\model.json"
+mb.write_model(model_filename)
+
+
+Technical Notes: 
+- For details on the model structure, please refer to the Pywr documentation.
+- For details on the DRB model structure, please refer to the PywrDRB documentation and 
+Andrew's EMS paper.
+
+Links: 
+- Pywr: github.com/pywr/pywr
+- Andrew's EMS paper: 
+Hamilton, A. L., Amestoy, T. J., & Reed, Patrick. M. (2024). Pywr-DRB: An open-source 
+Python model for water availability and drought risk assessment in the Delaware River 
+Basin. Environmental Modelling & Software, 106185. https://doi.org/10.1016/j.envsoft.2024.106185
+ 
+Change Log:
+Chung-Yi Lin, 2025-05-02, None
 """
 import json
 from dataclasses import dataclass, field
 from typing import List, Optional
 import pandas as pd
-from .utils.lists import (
+from pywrdrb.utils.lists import (
     majorflow_list,
     reservoir_list,
     reservoir_list_nyc,
     modified_starfit_reservoir_list,
     drbc_lower_basin_reservoirs
 )
-from .utils.constants import cfs_to_mgd
-from .pywr_drb_node_data import (
+from pywrdrb.utils.constants import cfs_to_mgd
+from pywrdrb.pywr_drb_node_data import (
     immediate_downstream_nodes_dict,
     downstream_node_lags,
 )
 
 # Import here to avoid circular import
-from .path_manager import get_pn_object
+from pywrdrb.path_manager import get_pn_object
 
 __all__ = ["ModelBuilder"]
 
@@ -31,12 +69,41 @@ pn = get_pn_object()
 ### model options/parameters (should not be placed into options)
 # flow_prediction_mode was something Andrew set up when he was developing the FFMP.
 # I'm not sure if the other regression approaches would actually still work...
-flow_prediction_mode = "regression_disagg"  ### 'regression_agg', 'regression_disagg', 'perfect_foresight', 'same_day', 'moving_average'
+flow_prediction_mode = "regression_disagg"  
+# Decrepated options, but kept for backward compatibility
+### 'regression_agg', 'regression_disagg', 'perfect_foresight', 'same_day', 'moving_average'
 # Always True
 use_lower_basin_mrf_contributions = True
 
 @dataclass
 class Options:
+    """
+    A dataclass to hold options for the ModelBuilder and it default values.
+    
+    Attributes
+    ----------
+    NSCENARIOS : int
+        Number of scenarios to run. Default is 1.
+    inflow_ensemble_indices : Optional[List[int]]
+        List of indices to use for inflow ensemble scenarios. Default is None.
+    use_hist_NycNjDeliveries : bool
+        If True, use historical NYC/NJ deliveries as demand, else use predicted demand. 
+        Otherwise, assume demand is equal to max allotment under FFMP. Default is True.
+    predict_temperature : bool
+        If True, use LSTM model to predict temperature at Lordville. Default is False.
+    temperature_torch_seed : int
+        Seed for torch random number generator for temperature LSTM model. Default is 4.
+    predict_salinity : bool
+        If True, use LSTM model to predict salinity at Trenton. Default is False.
+    salinity_torch_seed : int
+        Seed for torch random number generator for salinity LSTM model. Default is 4.
+    run_starfit_sensitivity_analysis : bool
+        If True, run STARFIT sensitivity analysis. Default is False.
+    sensitivity_analysis_scenarios : List[str]
+        List of scenarios to use for STARFIT sensitivity analysis. Default is an empty list.
+    initial_volume_frac : float
+        Initial reservoir storage as a fraction of capacity. Default is 0.8.
+    """
     NSCENARIOS: int = 1
     inflow_ensemble_indices: Optional[List[int]] = None
     use_hist_NycNjDeliveries: bool = True
@@ -55,12 +122,113 @@ class Options:
             print(f"{attribute}: {value}")
 
 class ModelBuilder:
+    """
+    A model builder to create model file Pywr for the Delaware River Basin (DRB).
+    
+    ModelBuilder class to construct a pywr model for the Delaware River Basin. 
+    Essentially, this class creates model dictionary to hold all model nodes, 
+    edges, params, etc, following Pywr protocol. The model dictionary will be
+    saved to a JSON file.
+    
+    Attributes
+    ----------
+    start_date : str
+        Start date of the model simulation.
+    end_date : str
+        End date of the model simulation.
+    inflow_type : str
+        Type of inflow data to use. 
+        Options are 'nhmv10_withObsScaled', 'nwmv21_withObsScaled', 'nhmv10', 
+        and 'nwmv21'.
+    diversion_type : str, optional
+        Type of diversion data to use. Default is None.
+    options : Options
+        Options for the model builder, including number of scenarios, 
+        inflow ensemble indices, and other parameters.
+    reservoirs : list
+        List of reservoirs in the model.
+    edges : list
+        List of edges in the model.
+    parameters : list
+        List of parameters in the model.
+    levels : list
+        List of reservoir operational regimes.
+    EPS : float
+        A small epsilon value for numerical stability.
+    model_dict : dict
+        Dictionary to hold the model structure, including metadata, timestepper, parameters, etc.
+    istarf : pd.DataFrame, optional
+        DataFrame to hold the ISTARF data for reservoir capacities.
+    hist_releases : pd.DataFrame, optional
+        DataFrame to hold historical releases data for NYC reservoirs.
+    hist_diversions : pd.DataFrame, optional
+        DataFrame to hold historical diversions data for NYC reservoirs.
+        
+    Methods
+    -------
+    reset_model_dict()
+        Resets the model dictionary to its initial state.
+    make_model()
+        Constructs the model by adding nodes, edges, and parameters based on the DRB structure.
+    write_model(model_filename)
+        Writes the model dictionary to a JSON file.
+    detach_data()
+        Detaches data from the model builder to release memory.
+    _get_reservoir_capacity(reservoir)
+        Returns the capacity of a reservoir from the ISTARF data.
+    _get_reservoir_max_release(reservoir, release_type)
+        Returns the maximum release for a reservoir based on historical data.
+    _get_reservoir_max_diversion_NYC(reservoir)
+        Returns the maximum diversion for a NYC reservoir based on historical data.
+    _add_ensemble_inflow_scenarios(inflow_ensemble_indices)
+        Adds ensemble inflow scenarios to the model based on provided indices.
+    add_parameter_negative_one_multiplier()
+        Adds a parameter to the model that is a constant multiplier of -1.0.
+    add_node_major_reservoir(reservoir_name, downstream_lag, downstream_node)
+        Adds a major reservoir node to the model, including its associated nodes and edges.
+    add_node_major_river(node, downstream_lag, downstream_node, has_catchment)
+        Adds a major river node to the model, including its associated nodes and edges.
+    add_node_final_basin_outlet()
+        Adds the final basin outlet node to the model, which is the Trenton node.
+    add_node_nyc_aggregated_storage_and_link()
+        Adds a node for NYC aggregated storage and links it to the reservoirs.
+    add_node_nyc_and_nj_deliveries()
+        Adds nodes for NYC and NJ deliveries, which are the demands for the model.
+    add_parameter_nyc_and_nj_demands()
+        Adds parameters for NYC and NJ demands based on historical or predicted data.
+    add_parameter_nyc_reservoirs_operational_regimes()
+        Adds parameters for the operational regimes of NYC reservoirs.
+    add_parameter_nyc_and_nj_delivery_constraints()
+        Adds parameters for the delivery constraints of NYC and NJ reservoirs.
+    add_parameter_nyc_reservoirs_min_require_flow()
+        Adds parameters for the minimum required flow for NYC reservoirs.
+    add_parameter_nyc_reservoirs_flood_control()
+        Adds parameters for flood control releases from NYC reservoirs.
+    add_parameter_nyc_reservoirs_variable_cost_based_on_fractional_storage()
+        Adds parameters for variable costs based on fractional storage in NYC reservoirs.
+    add_parameter_nyc_reservoirs_current_volume()
+        Adds parameters for the current volume of NYC reservoirs.
+    add_parameter_nyc_reservoirs_aggregated_info()
+        Adds parameters for aggregated information of NYC reservoirs.
+    add_parameter_nyc_bank_storage()
+        Adds parameters for NYC bank storage, which is a storage node for NYC reservoirs.
+    add_parameter_montague_trenton_flow_targets()
+        Adds parameters for flow targets between Montague and Trenton.
+    add_parameter_predicted_lagged_non_nyc_inflows_to_Montague_and_Trenton_and_lagged_nj_demands()
+        Adds parameters for predicted lagged non-NYC inflows to Montague and Trenton,
+        and lagged NJ demands.
+    add_parameter_nyc_reservoirs_balancing_methods()
+        Adds parameters for balancing methods for NYC reservoirs,
+        including flood control and FFMP releases.
+    add_parameter_couple_temp_lstm()
+        Adds parameters to couple the temperature LSTM model with the reservoir model.
+    add_parameter_couple_salinity_lstm()
+        Adds parameters to couple the salinity LSTM model with the reservoir model.
+        
+    """
     def __init__(self, start_date, end_date, inflow_type, diversion_type=None, options={}):
         """
-        ModelBuilder class to construct a pywr model for the Delaware River Basin. 
-        Essentially, this class creates model dictionary to hold all model nodes, 
-        edges, params, etc, following Pywr protocol. The model dictionary will be
-        saved to a JSON file.
+        Initialize the ModelBuilder.
 
         Parameters
         ----------
@@ -71,9 +239,9 @@ class ModelBuilder:
         inflow_type : str
             Type of inflow data to use. 
             Options are 'nhmv10_withObsScaled', 'nwmv21_withObsScaled', 'nhmv10', 
-            and 'nwmv21'.
+            'nwmv21', and "wrfaorc_withObsScaled".
         diversion_type : str, optional
-            Type of diversion data to use. Default is None.
+            Type of diversion data to use. Default is None (historical average).
         options : dict, optional
             Dictionary of options to pass to the model builder. Options include: 
             inflow_ensemble_indices (list of int): List of indices to use for inflow ensemble scenarios.
@@ -85,10 +253,6 @@ class ModelBuilder:
             run_starfit_sensitivity_analysis (bool): If True, we run STARFIT sensitivity analysis.
             sensitivity_analysis_scenarios (list of str): List of scenarios to use for STARFIT sensitivity analysis.
             initial_volume_frac (float): Initial reservoir storage as a fraction of capacity. Default is 0.8.
-        input_dir : str, optional
-            Directory where input data is stored. Default is None.
-        model_data_dir : str, optional
-            Directory where model data is stored. Default is None.
         """
         
         self.start_date = start_date
@@ -104,7 +268,6 @@ class ModelBuilder:
 
         # Tracking purposes
         self.reservoirs = []
-        self.summary_report = {}
         self.edges = []
         self.parameters = []
 
@@ -138,6 +301,13 @@ class ModelBuilder:
         self.hist_diversions = None
 
     def reset_model_dict(self):
+        """
+        Reset the model dictionary to its initial state.
+        
+        This method clears the model dictionary and sets the number of scenarios to 1.
+        It also initializes the model dictionary with metadata, timestepper, scenarios,
+        nodes, edges, and parameters.
+        """
         self.options.NSCENARIOS = 1
         self.model_dict = {
             "metadata": {
@@ -161,6 +331,13 @@ class ModelBuilder:
     #!! revisit this to incorporate other scenario strategies
 
     def make_model(self):
+        """
+        Make the model by adding nodes, edges, and parameters based on the DRB structure.
+        
+        This method constructs the model dictionary by adding major nodes (reservoirs and rivers),
+        minor nodes (withdrawals, consumption, outflows, etc.), edges between nodes, and parameters
+        for the model. It also handles scenarios for inflows and temperature/salinity predictions.
+        """
         ####################################################################
         ### Add pywr scenarios
         ####################################################################
@@ -242,18 +419,40 @@ class ModelBuilder:
             self.add_parameter_couple_salinity_lstm()
 
     def write_model(self, model_filename):
-        """Write the model to a JSON file."""
+        """
+        Write the model to a JSON file.
+        
+        Parameters
+        ----------
+        model_filename : str
+            The filename to save the model dictionary to. The file will be saved in JSON format.
+        """
         with open(f"{model_filename}", "w") as o:
             json.dump(self.model_dict, o, indent=4)
 
     def detach_data(self):
-        """Detach data from the model builder to release memory."""
+        """
+        Detach data from the model builder to release memory.
+        """
         # Data
         self.istarf = None
         self.hist_releases = None
         self.hist_diversions = None
 
     def _get_reservoir_capacity(self, reservoir):
+        """
+        Get the capacity of a reservoir from the ISTARF data.
+        
+        Parameters
+        ----------
+        reservoir : str
+            The name of the reservoir to get the capacity for.
+        
+        returns
+        -------
+        float
+            The capacity of the reservoir in million gallons (MG).
+        """
         if self.istarf is None:
             self.istarf = pd.read_csv(pn.operational_constants.get_str("istarf_conus.csv"))
         return float(
@@ -261,7 +460,21 @@ class ModelBuilder:
         )
     
     def _get_reservoir_max_release(self, reservoir, release_type):
-        """get max reservoir releases for NYC from historical data"""
+        """
+        Get max reservoir releases for NYC from historical data.
+        
+        Parameters
+        ----------
+        reservoir : str
+            The name of the reservoir to get the max release for.
+        release_type : str
+            The type of release to get the max for. Options are 'controlled' or 'flood'.
+            
+        returns
+        -------
+        float
+            The maximum release for the reservoir in million gallons per day (MGD).
+        """
         assert reservoir in reservoir_list_nyc, f"No max release data for {reservoir}"
         assert release_type in ["controlled", "flood"]
 
@@ -290,7 +503,19 @@ class ModelBuilder:
             return max_hist_release * cfs_to_mgd
 
     def _get_reservoir_max_diversion_NYC(self, reservoir):
-        """get max reservoir releases for NYC from historical data"""
+        """
+        Get max reservoir diversion from `Pep_Can_Nev_diversions_daily_2000-2021.xlsx`.
+        
+        Parameters
+        ----------
+        reservoir : str
+            The name of the reservoir to get the max diversion for.
+        
+        returns
+        -------
+        float
+            The maximum diversion for the reservoir in million gallons per day (MGD).
+        """
         assert reservoir in reservoir_list_nyc, f"No max diversion data for {reservoir}"
         if self.hist_diversions is None:
             self.hist_diversions = pd.read_excel(
@@ -305,24 +530,45 @@ class ModelBuilder:
         return max_hist_diversion * cfs_to_mgd
     
     def add_ensemble_inflow_scenarios(self, inflow_ensemble_indices):
+        """
+        Add ensemble inflow scenarios to the model based on provided indices.
+        
+        This method updates the model dictionary to include multiple inflow scenarios
+        based on the indices provided. It sets the number of scenarios and adds
+        the inflow parameters for each scenario.
+        
+        Parameters
+        ----------
+        inflow_ensemble_indices : List[int]
+            List of indices to use for inflow ensemble scenarios.
+        """
         # Parallel strategy used in pywr
         self.options.NSCENARIOS = len(inflow_ensemble_indices)
         self.model_dict["scenarios"] = [{"name": "inflow", "size": self.options.NSCENARIOS}]
         
-
     def add_parameter_negative_one_multiplier(self):
+        """
+        Add a parameter to the model that is a constant multiplier of -1.0.
+        """
         self.model_dict["parameters"]["negative_one_multiplier"] = {
             "type": "constant",
             "value": -1.0,
         }
         
-
-
     def add_node_major_reservoir(self, reservoir_name, downstream_lag, downstream_node):
         """
         Add a major reservoir node to the model. This step will also add a cluster of
         nodes that are connected to the reservoir, including catchment, withdrawal,
         consumption, release, overflow, and delay.
+        
+        Parameters
+        ----------
+        reservoir_name : str
+            The name of the reservoir to add.
+        downstream_lag : int
+            The lag in days to the downstream node.
+        downstream_node : str
+            The name of the downstream node to link to.
         """
         node_name = f"reservoir_{reservoir_name}"
 
@@ -582,6 +828,22 @@ class ModelBuilder:
     def add_node_major_river(
         self, name, downstream_lag, downstream_node, has_catchment=True
     ):
+        """
+        Add a major river node to the model. This step will also add a cluster of
+        nodes that are connected to the river, including catchment, withdrawal,
+        consumption, delay, and outflow nodes.
+        
+        Parameters
+        ----------
+        name : str
+            The name of the river node to add.
+        downstream_lag : int
+            The lag in days to the downstream node.
+        downstream_node : str
+            The name of the downstream node to link to.
+        has_catchment : bool, optional
+            Whether the river has a catchment node associated with it. Default is True.
+        """
         model_dict = self.model_dict
         node_name = f"link_{name}"
 
@@ -721,11 +983,17 @@ class ModelBuilder:
         pass
 
     def add_node_final_basin_outlet(self):
+        """
+        Add a final basin outlet node to the model.
+        """
         model_dict = self.model_dict
         ### Add final basin outlet node
         model_dict["nodes"].append({"name": "output_del", "type": "output"})
 
     def add_node_nyc_aggregated_storage_and_link(self):
+        """
+        Add a node for aggregated NYC storage and links to each reservoir.
+        """
         model_dict = self.model_dict
         ### Node for NYC aggregated storage across 3 reservoirs
         model_dict["nodes"].append(
@@ -749,6 +1017,9 @@ class ModelBuilder:
             )
 
     def add_node_nyc_and_nj_deliveries(self):
+        """
+        Add nodes for NYC and NJ deliveries, linking them to the respective reservoirs.
+        """
         model_dict = self.model_dict
         ### Nodes for NYC & NJ deliveries
         for d in ["nyc", "nj"]:
@@ -769,7 +1040,9 @@ class ModelBuilder:
         model_dict["edges"].append(["link_delDRCanal", "delivery_nj"])
 
     def add_parameter_nyc_and_nj_demands(self):
-        """Add nyc and nj demands to model parameters."""
+        """
+        Add nyc and nj demands to model parameters.
+        """
         model_dict = self.model_dict
         use_hist_NycNjDeliveries = self.options.use_hist_NycNjDeliveries
 
@@ -812,6 +1085,10 @@ class ModelBuilder:
             }
 
     def add_parameter_nyc_reservoirs_operational_regimes(self):
+        """
+        Add parameters defining operational regimes for NYC reservoirs based on combined storage.
+        This includes defining levels, control curve indices, and delivery factors for NYC and NJ.
+        """
         model_dict = self.model_dict
         # Levels defining operational regimes for NYC reservoirs base on combined storage: 1a, 1b, 1c, 2, 3, 4, 5.
         # Note 1a assumed to fill remaining space, doesnt need to be defined here.
@@ -862,6 +1139,10 @@ class ModelBuilder:
             }
 
     def add_parameter_nyc_and_nj_delivery_constraints(self):
+        """
+        Add parameters defining delivery constraints for NYC and NJ under normal and drought conditions.
+        This includes maximum allowable flows for deliveries and FFMP-based constraints.
+        """
         model_dict = self.model_dict
 
         #######################################################################
@@ -949,6 +1230,9 @@ class ModelBuilder:
 
     # Revisit this after reading the reports
     def add_parameter_nyc_reservoirs_min_require_flow(self):
+        """
+        Add parameters defining minimum release flow requirements from NYC reservoirs based on FFMP.
+        """
         model_dict = self.model_dict
         levels = self.levels
         # Baseline release flow rate for each NYC reservoir, dictated by FFMP
@@ -1019,6 +1303,10 @@ class ModelBuilder:
         }
 
     def add_parameter_nyc_reservoirs_flood_control(self):
+        """
+        Add parameters defining flood control releases from NYC reservoirs based on FFMP.
+        This includes rolling mean flow calculations and flood release rules.
+        """
         model_dict = self.model_dict
         ### extra flood releases for NYC reservoirs specified in FFMP
         for reservoir in reservoir_list_nyc:
@@ -1045,6 +1333,10 @@ class ModelBuilder:
 
     # Can be removed after volume balancing rules are implemented
     def add_parameter_nyc_reservoirs_variable_cost_based_on_fractional_storage(self):
+        """
+        Add parameters defining variable storage cost for each NYC reservoir based on its fractional storage.
+        This is a safeguard to ensure that the model respects the storage limits of each reservoir.
+        """
         ### variable storage cost for each reservoir, based on its fractional storage
         ### Note: may not need this anymore now that we have volume balancing rules. but maybe makes sense to leave in for extra protection.
         model_dict = self.model_dict
@@ -1063,6 +1355,10 @@ class ModelBuilder:
             }
 
     def add_parameter_nyc_reservoirs_current_volume(self):
+        """
+        Add parameters defining the current volume stored in each NYC reservoir.
+        This is used for volume balancing and operational decisions.
+        """
         model_dict = self.model_dict
         EPS = self.EPS
         ### current volume stored in each reservoir
@@ -1075,6 +1371,9 @@ class ModelBuilder:
             }
 
     def add_parameter_nyc_reservoirs_aggregated_info(self):
+        """
+        Add parameters defining aggregated information for NYC reservoirs, including total volume, inflows, and maximum volume.
+        """
         model_dict = self.model_dict
         EPS = self.EPS
         ### current volume stored in the aggregated storage node
@@ -1102,6 +1401,10 @@ class ModelBuilder:
         }
 
     def add_parameter_montague_trenton_flow_targets(self):
+        """
+        Add parameters defining flow targets at Montague and Trenton based on drought levels of NYC aggregated storage.
+        This includes baseline flow targets, seasonal multiplier factors, and total flow targets.
+        """
         model_dict = self.model_dict
         levels = self.levels
         ### Baseline flow target at Montague & Trenton
@@ -1142,7 +1445,10 @@ class ModelBuilder:
             }
 
     def add_parameter_nyc_bank_storage(self):
-        
+        """
+        Add parameters defining NYC bank storages, specifically the IERQ remaining volume for each bank.
+        This is used to track the remaining volume in the bank storages for IERQ calculations.
+        """
         model_dict = self.model_dict
         
         # NYC IERQ bank storages
@@ -1156,12 +1462,14 @@ class ModelBuilder:
                     "step": step,
                 } 
 
-
-
     # ?? Not yet understand how this works
     def add_parameter_predicted_lagged_non_nyc_inflows_to_Montague_and_Trenton_and_lagged_nj_demands(
         self,
     ):
+        """
+        Add parameters for predicted lagged non-NYC inflows to Montague and Trenton, and predicted lagged NJ demands.
+        This includes handling both single-scenario and ensemble-based predictions.
+        """
         model_dict = self.model_dict
         inflow_ensemble_indices = self.options.inflow_ensemble_indices
         inflow_type = self.inflow_type
@@ -1242,6 +1550,10 @@ class ModelBuilder:
                 }
 
     def add_parameter_nyc_reservoirs_balancing_methods(self):
+        """
+        Add parameters for balancing methods for NYC reservoirs.
+        This includes calculating total release needed for downstream MRFs, and balancing releases from Cannonsville and Pepacton reservoirs.
+        """
         model_dict = self.model_dict
         ### Get total release needed from NYC reservoirs to satisfy Montague & Trenton flow targets,
         ### above and beyond their individually mandated releases, & after accounting for non-NYC inflows and NJ diversions.
@@ -1623,6 +1935,11 @@ class ModelBuilder:
             }
 
     def add_parameter_couple_temp_lstm(self):
+        """
+        Add parameters for temperature prediction using LSTM model.
+        This includes temperature model initialization, thermal release requirements, 
+        and predicted maximum water temperature at Lordville.
+        """
         try:
             from pywrdrb.parameters.temperature import (
                 TemperatureLSTM,
@@ -1708,6 +2025,10 @@ class ModelBuilder:
 
     #!! Not yet complete
     def add_parameter_couple_salinity_lstm(self):
+        """
+        Add parameters for salinity prediction using LSTM model.
+        This includes salinity model initialization and salt front river mile.
+        """
         model_dict = self.model_dict
         try:
             from pywrdrb.parameters.salinity import (

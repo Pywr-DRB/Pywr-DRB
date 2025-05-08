@@ -1,5 +1,29 @@
+"""
+Preprocessor for generating inflow predictions at nodes in the pywrdrb model.
+
+Overview: 
+This class generates lag-based inflow predictions/forecasts at Montague and Trenton,
+which are used to determine NYC and lower basin reservoir operations while accounting for travel time. 
+It uses regression models, trained on historical data, to predict flows 1-4 days ahead
+based on catchment-level data and travel times between nodes. The output data has 
+multiple different columns corresponding to different prediction nodes, lead time lags, and 
+regression modes. 
+
+Technical Notes: 
+- Extends PredictedTimeseriesPreprocessor with specific inflow prediction logic
+- Incorporates travel times to properly account for flow routing
+- Adjusts predictions for water consumption in each catchment
+- Outputs predictions for 1-4 days ahead at Montague and Trenton
+
+Links:
+- See SI for Hamilton et al. (2024) for more details on the method formulation.
+
+Change Log:
+TJA, 2025-05-07, Minor fixes + docstrings
+"""
+
 import pandas as pd
-from .predict_timeseries import PredictedTimeseriesPreprocessor
+from pywrdrb.pre.predict_timeseries import PredictedTimeseriesPreprocessor
 
 __all__ = ["PredictedInflowPreprocessor"]
 
@@ -11,14 +35,12 @@ class PredictedInflowPreprocessor(PredictedTimeseriesPreprocessor):
     
     Example usage:
     ```python
-    inflow_predictor = PredictedInflowPreprocessor(
-        flow_type="nhmv10",
-        start_date="2000-01-01",
-        end_date="2003-01-01",
-        modes=("regression_disagg",),
-    )
+    from pywrdrb.pre import PredictedInflowPreprocessor
+
+    inflow_predictor = PredictedInflowPreprocessor(flow_type="nhmv10", start_date="1983-10-01", end_date="2016-12-31", modes=("regression_disagg",),)
     
     inflow_predictor.process()
+    inflow_predictor.save()
     ```
     """
 
@@ -148,11 +170,16 @@ class PredictedInflowPreprocessor(PredictedTimeseriesPreprocessor):
 
     def process(self):
         """Run full prediction workflow."""
-        self.load()
+        # FIXED: Ensure data is loaded first
+        if self.timeseries_data is None:
+            self.load()
+            
+        # Train regression models for all node-lag combinations
         regressions = self.train_regressions()
+        
+        # Generate predictions using the trained regression models
         self.predicted_timeseries = self.make_predictions(regressions)
-        self.save()
-
+        
 
     def get_prediction_node_lag_combinations(self):
         """
@@ -164,14 +191,6 @@ class PredictedInflowPreprocessor(PredictedTimeseriesPreprocessor):
         # keys are strings of the form "target_lag_mode"
         # values are lists of tuples (node, lag)
         combos = {}
-
-        def add_node_lag_combo(target, lag, node_lag_pairs):
-            """
-            Adds a single key:value pair to the combos dict.
-            """
-            for mode in self.modes:
-                col = f"{target}_lag{lag}_{mode}"
-                combos[col] = [((node, l), mode) for (node, l) in node_lag_pairs]
 
         # Montague
         # (node, (lag - travel_time)) pairs
@@ -185,7 +204,17 @@ class PredictedInflowPreprocessor(PredictedTimeseriesPreprocessor):
                 node_lag = [
                     (node, lag - travel_time),
                 ]
-                add_node_lag_combo("delMontague", lag, node_lag)
+                
+                # Create node-lag pairs for each prediction mode
+                node_lag = [(node, lag - travel_time)]
+                
+                # Add combinations for all requested modes
+                for mode in self.modes:
+                    col = f"delMontague_lag{lag}_{mode}"
+                    if col not in combos:
+                        combos[col] = []
+                    # Add this node's contribution to the prediction
+                    combos[col].extend([((n, l), mode) for (n, l) in node_lag])
 
         # For Trenton
         # (node, (lag - travel_time)) pairs
@@ -198,6 +227,13 @@ class PredictedInflowPreprocessor(PredictedTimeseriesPreprocessor):
                 node_lag = [
                     (node, lag - travel_time),
                 ]
-                add_node_lag_combo("delTrenton", lag, node_lag)
+
+                # Add combinations for all requested modes
+                for mode in self.modes:
+                    col = f"delTrenton_lag{lag}_{mode}"
+                    if col not in combos:
+                        combos[col] = []
+                    # Add this node's contribution to the prediction
+                    combos[col].extend([((n, l), mode) for (n, l) in node_lag])
 
         return combos

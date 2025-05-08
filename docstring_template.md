@@ -1,51 +1,266 @@
+# NumPy Docstring Template 
+
+Each FUNCTION/METHOD docstring should include:
+- Description (single line and, if needed, longer description)
+- Parameters
+- Returns (unless nothing is returned)
+
+Each CLASS docstring should include:
+- Attributes
+    - Key attributes that are used by the class
+- Methods
+    - Describe the class methods (functions) contained
+
+
+The docstring _may_ include:
+- Examples
+    - Prioritize example only for key functions that the user will interact with.  Eg., ModelBuilder, Data, etc.  No need for examples that are 'under the hood' or not used by a user. 
+- Notes
+    - Focus on important notes to other developers or uses.  Could include #TODO flag here. Less formal, and any info that doens't fit in one of the standard spots but is important. 
+
+## Function Docstrings
+
+```python
+def example_function(param1, param2=None, *args, **kwargs):
+    """
+    Short one-line summary of the function.
+    
+    Extended description of the function that can span multiple lines
+    and provides more detailed explanation when needed.
+    
+    Parameters
+    ----------
+    param1 : type
+        Description of first parameter.
+    param2 : type, optional
+        Description of second parameter.
+        Default is None.
+    *args
+        Description of variable length argument list. Do NOT include type here.
+    **kwargs
+        Description of arbitrary keyword arguments. Do NOT include type here. 
+        
+    Returns
+    -------
+    type
+        Description of the return value.
+        
+        
+    See Also
+    --------
+    related_function : Description of related function.
+    another_function : Description of another related function.
+        
+    Notes
+    -----
+    Additional information about the function, implementation details, 
+    algorithm specifics, mathematical formulas, etc.
+    
+    Examples
+    --------
+    >>> example_function(10)
+    result
+    
+    >>> example_function('string', param2=True)
+    another_result
+    """
+    # Function implementation here
+    pass
+```
+
+## Class Docstring
+
+```python
+class ExampleClass:
+    """
+    Short one-line summary of the class.
+    
+    Extended description of the class functionality and purpose.
+    Should explain the general use case and behavior.
+    
+    Attributes
+    ----------
+    attr1 : type
+        Description of first attribute.
+    attr2 : type
+        Description of second attribute.
+        
+    Methods
+    -------
+    method1(param1, param2)
+        Brief description of method1.
+    method2()
+        Brief description of method2.
+    """
+    
+    def __init__(self, param1, param2=None):
+        """
+        Initialize an instance of ExampleClass.
+        
+        Parameters
+        ----------
+        param1 : type
+            Description of first parameter.
+        param2 : type, optional
+            Description of second parameter.
+            Default is None.
+            
+        Notes
+        -----
+        The __init__ method doesn't include a Returns section
+        as it always returns None.
+        """
+        self.attr1 = param1
+        self.attr2 = param2
+    
+    def method1(self, param1):
+        """
+        Short one-line summary of method1.
+        
+        Extended description of the method functionality.
+        This can extend to multiple lines as needed, but
+        avoid having very long lines. 
+        
+        Parameters
+        ----------
+        param1 : type
+            Description of parameter.
+            
+        Returns
+        -------
+        type
+            Description of the return value.
+        """
+        # Method implementation here
+        pass
+```
+
+## Module-Level Docstring
+This should be at the top of each file. 
+
+
+```python
 """
-The pywrdrb.Data() class is used to load and store different datasets. 
+[Single-line description]
 
-Overview:
-The class supports loading the following data:
-- Observations (e.g., streamflows, reservoir storage)
-- pywrdrb simulation output (any variable from the output file)
-- #TODO Hydrologic model output (e.g., NHMv10, NWMv21) (not implemented correctly at the moment)
+Overview: 
+[Extended description of the module functionality, purpose and other user-relevant notes.
+Focus on how this module interacts with other pywrdrb modules and code. 
+Should explain what the module does and why it's important] 
 
-All data is stored as attributes of the Data class. The data is stored in a hierarchical format, following:
-Data.results_set[datatype][scenario_id] -> pd.DataFrame.
+Key Steps: (If script)
+1. [Step 1] 
+2. [Step 2] 
+3. [Step 3] 
+[...] 
 
-The Data class uses results_set specifications. These result_set keys 
-are used to identify specific variable subsets from the different data. 
-To learn more about these, see the link below. 
+Technical Notes: 
+- [Interactions with other pywrdrb classes or modules, etc.]
+- [Dependencies (e.g., uses PathNavigator, NWIS API)] 
+- [Critical assumptions or settings (e.g., start_date, gauge mapping)] 
+- [Paths configured automatically via pn (PathNavigator)]
+- [#TODO list] 
+- [Etc.]
 
-Techical Notes:
-- The main methods of the Data class are:
-    - Data.load_observations() : loads observational data from the specified results_sets.
-    - Data.load_output() : loads data from pywrdrb output files based on the specified results_sets.
-    - Data.export() : exports all loaded data to an HDF5 file.
-    - Data.load_from_export() : loads data from an HDF5 file into the object.
-
-Links:
-- See results_set options in the docs: https://pywr-drb.github.io/Pywr-DRB/results_set_options.html
+Links: 
+- [Optional relevant repo, documentation, issue threads] 
 
 Change Log:
-TJA, 2025-05-05, Added consistent docstrings.
+[Your Name], [YYYY-MM-DD], [Comment describing change]
+"""
+```
+
+## Sections Reference
+
+### Common Sections
+- `Parameters`: Function/method inputs
+- `Returns`: Function/method outputs
+- `Notes`: Notes for other developers and uses that doesn't fit in other categories
+- `Examples`: Usage examples
+- `Attributes`: Class attributes (only for classes)
+- `Methods`: Class methods (only for classes)
+
+
+## Format Rules
+
+- **Section Headers**: Use the section name followed by a line of dashes (e.g., `Parameters\n----------`)
+- **Parameter Format**: `name : type[, optional]`
+- **Types**: Use Python types (`list`, `dict`, etc.) or specific types (`numpy.ndarray`, `pandas.DataFrame`)
+- **Default Values**: For optional parameters, mention "Default is value."
+
+## Tips
+
+1. Start with a one-line summary, then a blank line, then a more detailed description
+2. Use full sentences with periods
+3. Include type information in Parameters/Returns
+4. Include default values for optional parameters
+5. For `__init__` methods, document parameters but not returns
+6. Use Examples section for executable code examples
+
+
+## Example: pywrdrb.Data()
+
+The following example code is taken from `pywrdrb/load/data_loader.py`.
+
+
+
+
+```python
+"""
+[Single-line description]
+
+Overview: 
+[Extended description of the module functionality, purpose and other user-relevant notes.
+Focus on how this module interacts with other pywrdrb modules and code. 
+Should explain what the module does and why it's important] 
+
+Key Steps: (If script)
+1. [Step 1] 
+2. [Step 2] 
+3. [Step 3] 
+[...] 
+
+Technical Notes: 
+- [Interactions with other pywrdrb classes or modules, etc.]
+- [Dependencies (e.g., uses PathNavigator, NWIS API)] 
+- [Critical assumptions or settings (e.g., start_date, gauge mapping)] 
+- [Paths configured automatically via pn (PathNavigator)]
+- [#TODO list] 
+- [Etc.]
+
+Links: 
+- [Optional relevant repo, documentation, issue threads] 
+
+Change Log:
+[Your Name], [YYYY-MM-DD], [Comment describing change]
 """
 
-import os
 import pandas as pd
-
-# other data classes used in this implementation
-from pywrdrb.load.abstract_loader import AbstractDataLoader, default_kwargs
-from pywrdrb.load.output_loader import Output
-from pywrdrb.load.observation_loader import Observation
-from pywrdrb.load.hydrologic_model_loader import HydrologicModelFlow
+import os
+import pywrdrb
+from pywrdrb.load.abstract_loader import AbstractDataLoader
+from pywrdrb.load import Output, Observation
 
 from pywrdrb.utils.results_sets import pywrdrb_results_set_opts, hydrologic_model_results_set_opts, obs_results_set_opts
+
 
 from pywrdrb import get_pn_object
 pn = get_pn_object()
 
+default_kwargs = {
+    "datatypes": [],
+    "results_sets": [],
+    "output_filenames": None,
+    "units": "MG",
+    "print_status": False,
+}
+
+
 all_valid_results_set_opts = {
     "output": pywrdrb_results_set_opts,
     "obs": obs_results_set_opts,
-    "hydro_mod": hydrologic_model_results_set_opts,
+    "nhmv10": hydrologic_model_results_set_opts,
+    "nwmv21": hydrologic_model_results_set_opts,
 }
 
 all_results_sets = pywrdrb_results_set_opts + obs_results_set_opts + hydrologic_model_results_set_opts
@@ -57,19 +272,6 @@ class Data(AbstractDataLoader):
     
     This class provides methods to load observation data, pywrdrb output data,
     and functionality to export/import data to/from HDF5 files.
-    
-    Methods
-    -------
-    load_observations(**kwargs)
-        Load observational data based on specified results_sets.
-    load_output(ouput_filenames, **kwargs)
-        Load data from pywrdrb output files based on specified results_sets.
-    load_hydrologic_model_flow(flowtypes, **kwargs)
-        Load data from the available hydrologic model flow files.
-    export(file)
-        Export all data stored in this object to an HDF5 file.
-    load_from_export(file)
-        Load data from an HDF5 file into the object.
     
     Attributes
     ----------
@@ -161,7 +363,7 @@ class Data(AbstractDataLoader):
         ----------
         datatype : str
             The datatype of interest.
-            Options: 'output', 'obs', 'hydro_mod'.
+            Options: 'output', 'obs', 'nhmv10', 'nwmv21'.
 
         Returns
         -------
@@ -260,7 +462,7 @@ class Data(AbstractDataLoader):
         loader.load()
         self.__set_loader_data__(loader)
         return 
-
+    
     
     def load_output(self, **kwargs):
         """
@@ -279,6 +481,7 @@ class Data(AbstractDataLoader):
         -------
         None
             The loaded data is stored as attributes of this object.
+        
             
         Notes
         -----
@@ -306,48 +509,7 @@ class Data(AbstractDataLoader):
         self.__set_loader_data__(loader)
         return 
     
-    def load_hydrologic_model_flow(self, 
-                                   flowtypes, 
-                                   **kwargs):
-        """
-        Load data from the internally available hydrologic model flow files.
         
-        Uses the HydrologicModelFlow loader to load data from the specified flowtypes.
-        Currently, assumes that the data will be in the data/flows/{flowtype} folder.
-        
-        Parameters
-        ----------
-        flowtypes : list
-            List of flowtypes to load data for.
-        **kwargs : dict, optional
-            Keyword arguments to override instance attributes.
-            See class initialization for available parameters.
-            
-        Returns
-        -------
-        None
-            The loaded data is stored as attributes of this object.
-        """
-        self.__parse_kwargs__(default_kwargs=self.default_kwargs,
-                                **kwargs)
-        self.__print_status__(f"Loading data from hydrologic models...")
-        
-        results_sets_subset = self.__get_results_sets_subset__('hydro_mod')
-        
-        
-        loader = HydrologicModelFlow(
-            pn=self.pn,
-            flowtypes=flowtypes,
-            results_sets=results_sets_subset,
-            units=self.units,
-            print_status=self.print_status
-        )
-        
-        loader.load(flowtypes=flowtypes)
-        self.__set_loader_data__(loader)    
-        return
-    
-    
     def export(self, file):
         """
         Export all data stored in this object to an HDF5 file.
@@ -392,6 +554,7 @@ class Data(AbstractDataLoader):
         -------
         None
             The loaded data is stored as attributes of this object.
+
             
         Notes
         -----
@@ -422,3 +585,4 @@ class Data(AbstractDataLoader):
 
                 result_set[datatype][scenario_id] = store[key]
     
+```
