@@ -24,7 +24,7 @@ TJA, 2025-05-02, Setup documentation.
 import os
 from abc import ABC, abstractmethod
 
-from pywrdrb import get_pn_object
+from pywrdrb.path_manager import get_pn_object
 pn = get_pn_object()
 
 # Default kwargs

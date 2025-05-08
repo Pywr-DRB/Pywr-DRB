@@ -244,7 +244,7 @@ from pywrdrb.load import Output, Observation
 from pywrdrb.utils.results_sets import pywrdrb_results_set_opts, hydrologic_model_results_set_opts, obs_results_set_opts
 
 
-from pywrdrb import get_pn_object
+from pywrdrb.path_manager import get_pn_object
 pn = get_pn_object()
 
 default_kwargs = {

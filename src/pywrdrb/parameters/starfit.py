@@ -44,11 +44,10 @@ import math
 
 from pywr.parameters import Parameter, load_parameter
 
-from ..utils.lists import modified_starfit_reservoir_list
-from .lower_basin_ffmp import conservation_releases, max_discharges
-from .. import get_pn_object
+from pywrdrb.utils.lists import modified_starfit_reservoir_list
+from pywrdrb.parameters.lower_basin_ffmp import conservation_releases, max_discharges
+from pywrdrb.path_manager import get_pn_object
 
-global pn
 pn = get_pn_object()
 
 class STARFITReservoirRelease(Parameter):

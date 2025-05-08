@@ -24,169 +24,7 @@ Change Log
 ----------
 Marilyn Smith, 2025-05-07, Initial implementation of observational data retrieval and processing.
 """
-
-import os
-import time
-import pandas as pd
-from pywrdrb import get_pn_object
-from pywrdrb.pre.datapreprocessor_ABC import DataPreprocessor
-from pywrdrb.pre.observations import DataRetriever
-from pywrdrb.pywr_drb_node_data import (
-    inflow_gauge_map,
-    release_gauge_map,
-    storage_gauge_map,
-    storage_curves,
-    nyc_reservoirs
-)
-
-class ObservationalDataRetriever(DataPreprocessor):
-    """
-    A retriever class for observational reservoir data using the DataPreprocessor interface.
-
-    This class collects inflow, release, and elevation data from USGS NWIS,
-    processes and saves raw time series, and converts elevation to storage using
-    predefined storage curves.
-
-    Attributes
-    ----------
-    start_date : str
-        Start date for data retrieval in 'YYYY-MM-DD' format.
-    retriever : DataRetriever
-        Wrapper around NWIS data access and processing tools.
-    pn : PathNavigator
-        Object for managing standardized Pywr-DRB file paths.
-    inflow_gauges : list of str
-        Flattened list of USGS gauge IDs for inflow.
-    release_gauges : list of str
-        Flattened list of USGS gauge IDs for release.
-    storage_gauges_std : list of str
-        List of gauges associated with non-NYC reservoirs for elevation retrieval.
-    storage_gauges_nyc : list of str
-        List of gauges associated with NYC reservoirs for elevation retrieval.
-
-    Methods
-    -------
-    load()
-        Downloads raw inflow, release, and elevation data from NWIS.
-    process()
-        Combines and transforms elevation data into volume using storage curves.
-    save()
-        Saves raw and processed data to model-compatible CSV files.
-    """
-
-    def __init__(self, start_date: str):
-        """
-        Initialize an ObservationalDataRetriever instance.
-
-        Parameters
-        ----------
-        start_date : str
-            Start date for data retrieval, typically set to the model start date (e.g., '1980-01-01').
-
-        Notes
-        -----
-        This class wraps around the DataRetriever class and formats output to match
-        the Pywr-DRB expected input files (e.g., `reservoir_storage_mg.csv`).
-        """
-        super().__init__()
-        self.start_date = start_date
-        self.pn = get_pn_object()
-        self.retriever = DataRetriever(start_date=start_date)
-        self.raw_dir = self.pn.observations.get_str() + os.sep + "_raw"
-        self.processed_dir = self.pn.observations.get_str()
-        self.fig_dir = self.pn.figures.get_str()
-        self._define_gauges()
-
-    def _define_gauges(self):
-        """
-        Define lists of USGS gauge IDs for inflow, release, and storage.
-
-        Splits storage gauges into NYC and non-NYC categories for separate elevation retrieval.
-
-        Returns
-        -------
-        None
-        """
-        self.inflow_gauges = self._flatten_gauges(inflow_gauge_map)
-        self.release_gauges = self._flatten_gauges(release_gauge_map)
-        self.storage_gauges_nyc = [g for k, v in storage_gauge_map.items() if k in nyc_reservoirs for g in v]
-        self.storage_gauges_std = [g for k, v in storage_gauge_map.items() if k not in nyc_reservoirs for g in v]
-
-    def _flatten_gauges(self, gauge_dict):
-        """
-        Flatten a nested gauge mapping dictionary into a sorted list of unique gauges.
-
-        Parameters
-        ----------
-        gauge_dict : dict
-            Dictionary mapping reservoir names to lists of gauge IDs.
-
-        Returns
-        -------
-        list of str
-            Flattened and sorted list of all unique gauge IDs.
-        """
-
-        return sorted({g for gauges in gauge_dict.values() for g in gauges})
-
-    def load(self):
-        """
-        Download raw observational data from USGS NWIS.
-
-        Retrieves inflows, releases, and elevation data for both NYC and standard reservoirs.
-
-        Returns
-        -------
-        None
-            All data is stored as instance attributes (`self.inflows`, `self.releases`, etc.)
-        """
-        print("Loading data from USGS NWIS...")
-        self.inflows = self.retriever.get(self.inflow_gauges, type="flow")
-        self.releases = self.retriever.get(self.release_gauges, type="flow")
-        self.elev_std = self.retriever.get(self.storage_gauges_std, type="elevation_std")
-        self.elev_nyc = self.retriever.get(self.storage_gauges_nyc, type="elevation_nyc")
-
-    def process(self):
-        """
-        Transform and combine elevation data into usable storage time series.
-
-        Combines NYC and standard reservoir elevation data, then uses storage curves
-        to convert elevation into volume.
-
-        Returns
-        -------
-        None
-            Processed data is saved in `self.storage_converted`.
-        """
-        self.elev_all = pd.concat([self.elev_std, self.elev_nyc], axis=1)
-        self.storage_converted = self.retriever.elevation_to_storage(
-            self.elev_all, storage_curves, nyc_reservoirs
-        )
-
-    def save(self):
-        """
-        Save raw and processed observational data to disk.
-
-        Saves:
-        - Raw inflow and release data
-        - Raw elevation data
-        - Converted storage time series
-        - Aggregated model-ready inflow and storage CSVs
-
-        Returns
-        -------
-        None
-        """
-        print("Saving raw and processed data to CSV...")
-        self.retriever.save_raw_gauge_data(self.inflows, self.releases)
-        self.retriever.save_to_csv(self.inflows, "inflow_raw")
-        self.retriever.save_to_csv(self.elev_all, "elevation_raw")
-        self.retriever.save_to_csv(self.storage_converted, "storage_raw")
-        self.retriever.postprocess_and_save(self.inflows, inflow_gauge_map, "catchment_inflow_mgd.csv")
-        self.retriever.postprocess_and_save(self.storage_converted, storage_gauge_map, "reservoir_storage_mg.csv")
-
-
-        """
+"""
 Data retrieval and processing tools for observational data from USGS NWIS.
 
 Overview
@@ -216,25 +54,33 @@ Change Log
 Marilyn Smith, 2025-05-07, Initial version with elevation-to-storage conversion logic.
 """
 
-import pandas as pd
-import numpy as np
 import os
+import time
+import numpy as np
+import pandas as pd
 from datetime import datetime
 from dataretrieval import nwis
-import matplotlib.pyplot as plt
-from pywrdrb.utils.constants import ACRE_FEET_TO_MG, GAL_TO_MG
-
-
-ACRE_FEET_TO_MG = 0.325851  # Acre-feet to million gallons
-GAL_TO_MG = 1 / 1_000_000   # Gallons to million gallons
 
 import pywrdrb
-from pywrdrb import get_pn_object
+from pywrdrb.path_manager import get_pn_object
 pn = get_pn_object()
 
+from pywrdrb.utils.constants import ACRE_FEET_TO_MG, GAL_TO_MG
+from pywrdrb.pre.datapreprocessor_ABC import DataPreprocessor
+
+from pywrdrb.pywr_drb_node_data import (
+    inflow_gauge_map,
+    release_gauge_map,
+    storage_gauge_map,
+    storage_curves,
+    nyc_reservoirs
+)
+
+# Directories for raw and processed data
 RAW_DATA_DIR = pn.observations.get_str() + os.sep + "_raw"
 PROCESSED_DATA_DIR = pn.observations.get_str()
 FIG_DIR = pn.figures.get_str()
+
 
 class DataRetriever:
     """
@@ -565,5 +411,155 @@ class DataRetriever:
         """
         full_range = pd.date_range(self.start_date, self.end_date, freq="D")
         return full_range.difference(df.index)
+
+
+
+
+class ObservationalDataRetriever(DataPreprocessor):
+    """
+    A retriever class for observational reservoir data using the DataPreprocessor interface.
+
+    This class collects inflow, release, and elevation data from USGS NWIS,
+    processes and saves raw time series, and converts elevation to storage using
+    predefined storage curves.
+
+    Attributes
+    ----------
+    start_date : str
+        Start date for data retrieval in 'YYYY-MM-DD' format.
+    retriever : DataRetriever
+        Wrapper around NWIS data access and processing tools.
+    pn : PathNavigator
+        Object for managing standardized Pywr-DRB file paths.
+    inflow_gauges : list of str
+        Flattened list of USGS gauge IDs for inflow.
+    release_gauges : list of str
+        Flattened list of USGS gauge IDs for release.
+    storage_gauges_std : list of str
+        List of gauges associated with non-NYC reservoirs for elevation retrieval.
+    storage_gauges_nyc : list of str
+        List of gauges associated with NYC reservoirs for elevation retrieval.
+
+    Methods
+    -------
+    load()
+        Downloads raw inflow, release, and elevation data from NWIS.
+    process()
+        Combines and transforms elevation data into volume using storage curves.
+    save()
+        Saves raw and processed data to model-compatible CSV files.
+    """
+
+    def __init__(self, start_date: str):
+        """
+        Initialize an ObservationalDataRetriever instance.
+
+        Parameters
+        ----------
+        start_date : str
+            Start date for data retrieval, typically set to the model start date (e.g., '1980-01-01').
+
+        Notes
+        -----
+        This class wraps around the DataRetriever class and formats output to match
+        the Pywr-DRB expected input files (e.g., `reservoir_storage_mg.csv`).
+        """
+        super().__init__()
+        self.start_date = start_date
+        self.pn = get_pn_object()
+        self.retriever = DataRetriever(start_date=start_date)
+        self.raw_dir = self.pn.observations.get_str() + os.sep + "_raw"
+        self.processed_dir = self.pn.observations.get_str()
+        self.fig_dir = self.pn.figures.get_str()
+        self._define_gauges()
+
+    def _define_gauges(self):
+        """
+        Define lists of USGS gauge IDs for inflow, release, and storage.
+
+        Splits storage gauges into NYC and non-NYC categories for separate elevation retrieval.
+
+        Returns
+        -------
+        None
+        """
+        self.inflow_gauges = self._flatten_gauges(inflow_gauge_map)
+        self.release_gauges = self._flatten_gauges(release_gauge_map)
+        self.storage_gauges_nyc = [g for k, v in storage_gauge_map.items() if k in nyc_reservoirs for g in v]
+        self.storage_gauges_std = [g for k, v in storage_gauge_map.items() if k not in nyc_reservoirs for g in v]
+
+    def _flatten_gauges(self, gauge_dict):
+        """
+        Flatten a nested gauge mapping dictionary into a sorted list of unique gauges.
+
+        Parameters
+        ----------
+        gauge_dict : dict
+            Dictionary mapping reservoir names to lists of gauge IDs.
+
+        Returns
+        -------
+        list of str
+            Flattened and sorted list of all unique gauge IDs.
+        """
+
+        return sorted({g for gauges in gauge_dict.values() for g in gauges})
+
+    def load(self):
+        """
+        Download raw observational data from USGS NWIS.
+
+        Retrieves inflows, releases, and elevation data for both NYC and standard reservoirs.
+
+        Returns
+        -------
+        None
+            All data is stored as instance attributes (`self.inflows`, `self.releases`, etc.)
+        """
+        print("Loading data from USGS NWIS...")
+        self.inflows = self.retriever.get(self.inflow_gauges, type="flow")
+        self.releases = self.retriever.get(self.release_gauges, type="flow")
+        self.elev_std = self.retriever.get(self.storage_gauges_std, type="elevation_std")
+        self.elev_nyc = self.retriever.get(self.storage_gauges_nyc, type="elevation_nyc")
+
+    def process(self):
+        """
+        Transform and combine elevation data into usable storage time series.
+
+        Combines NYC and standard reservoir elevation data, then uses storage curves
+        to convert elevation into volume.
+
+        Returns
+        -------
+        None
+            Processed data is saved in `self.storage_converted`.
+        """
+        self.elev_all = pd.concat([self.elev_std, self.elev_nyc], axis=1)
+        self.storage_converted = self.retriever.elevation_to_storage(
+            self.elev_all, storage_curves, nyc_reservoirs
+        )
+
+    def save(self):
+        """
+        Save raw and processed observational data to disk.
+
+        Saves:
+        - Raw inflow and release data
+        - Raw elevation data
+        - Converted storage time series
+        - Aggregated model-ready inflow and storage CSVs
+
+        Returns
+        -------
+        None
+        """
+        print("Saving raw and processed data to CSV...")
+        self.retriever.save_raw_gauge_data(self.inflows, self.releases)
+        self.retriever.save_to_csv(self.inflows, "inflow_raw")
+        self.retriever.save_to_csv(self.elev_all, "elevation_raw")
+        self.retriever.save_to_csv(self.storage_converted, "storage_raw")
+        self.retriever.postprocess_and_save(self.inflows, inflow_gauge_map, "catchment_inflow_mgd.csv")
+        self.retriever.postprocess_and_save(self.storage_converted, storage_gauge_map, "reservoir_storage_mg.csv")
+
 
 

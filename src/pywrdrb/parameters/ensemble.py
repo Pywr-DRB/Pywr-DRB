@@ -25,7 +25,7 @@ import h5py
 
 from pywr.parameters import Parameter
 
-from pywrdrb import get_pn_object
+from pywrdrb.path_manager import get_pn_object
 
 pn = get_pn_object()
 
