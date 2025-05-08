@@ -1,6 +1,6 @@
 ### github actions to build & deploy book
 
-name: deploy
+name: build-docs
 
 on:
   push:

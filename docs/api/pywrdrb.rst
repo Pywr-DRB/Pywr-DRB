@@ -7,7 +7,6 @@ pywrdrb
    :nosignatures:
 
    pywrdrb.ModelBuilder
-   pywrdrb.Data
+   pywrdrb.Model
    pywrdrb.OutputRecorder
-
-    
+   pywrdrb.Data
