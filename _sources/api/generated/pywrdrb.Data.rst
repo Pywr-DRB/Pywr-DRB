@@ -15,8 +15,10 @@
    
       ~Data.__init__
       ~Data.export
-      ~Data.load
       ~Data.load_from_export
+      ~Data.load_hydrologic_model_flow
+      ~Data.load_observations
+      ~Data.load_output
       ~Data.set_data
    
    

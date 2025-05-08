@@ -15,33 +15,30 @@
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
   </script>
-  <!--
-    this give us a css class that will be invisible only if js is disabled
-  -->
-  <noscript>
-    <style>
-      .pst-js-only { display: none !important; }
-
-    </style>
-  </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=eba8b062" />
     <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=13237357" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
   
-  <!-- So that users can add custom icons -->
-  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
     <script src="_static/documentation_options.js?v=9eb32ce0"></script>
     <script src="_static/doctools.js?v=9a2dae69"></script>
@@ -64,7 +61,6 @@
     <link rel="search" title="Search" href="search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="" />
   </head>
   
   
@@ -80,8 +76,19 @@
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
 
   
-  <dialog id="pst-search-dialog">
-    
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
 <form class="bd-search d-flex align-items-center"
       action="search.html"
       method="get">
@@ -89,6 +96,7 @@
   <input type="search"
          class="form-control"
          name="q"
+         id="search-input"
          placeholder="Search this book..."
          aria-label="Search this book..."
          autocomplete="off"
@@ -96,8 +104,8 @@
          autocapitalize="off"
          spellcheck="false"/>
   <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
-</form>
-  </dialog>
+</form></div>
+  </div>
 
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
@@ -115,8 +123,7 @@
       
         
       
-      <dialog id="pst-primary-sidebar-modal"></dialog>
-      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+      <div class="bd-sidebar-primary bd-sidebar">
         
 
   
@@ -146,17 +153,21 @@
     
     
     <img src="_static/logo.png" class="logo__image only-light" alt="Pywr-DRB Integrated Water Resource Management Model - Home"/>
-    <img src="_static/logo.png" class="logo__image only-dark pst-js-only" alt="Pywr-DRB Integrated Water Resource Management Model - Home"/>
+    <script>document.write(`<img src="_static/logo.png" class="logo__image only-dark" alt="Pywr-DRB Integrated Water Resource Management Model - Home"/>`);</script>
   
   
 </a></div>
         <div class="sidebar-primary-item">
 
-<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
- <i class="fa-solid fa-magnifying-glass"></i>
- <span class="search-button__default-text">Search</span>
- <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
-</button></div>
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
         <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
         
@@ -171,9 +182,9 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="api/api.html">API References</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="api/pywrdrb.html">pywrdrb</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.ModelBuilder.html">pywrdrb.ModelBuilder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.Model.html">pywrdrb.Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.OutputRecorder.html">pywrdrb.OutputRecorder</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.Data.html">pywrdrb.Data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.set_directory.html">pywrdrb.set_directory</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.get_directory.html">pywrdrb.get_directory</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="api/parameters.html">pywrdrb.parameters</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -194,22 +205,11 @@
 <li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.LaggedReservoirRelease.html">pywrdrb.parameters.LaggedReservoirRelease</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="api/utils.html">pywrdrb.utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.utils.hdf5.get_hdf5_realization_numbers.html">pywrdrb.utils.hdf5.get_hdf5_realization_numbers</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.utils.hdf5.extract_realization_from_hdf5.html">pywrdrb.utils.hdf5.extract_realization_from_hdf5</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.utils.hdf5.combine_batched_hdf5_outputs.html">pywrdrb.utils.hdf5.combine_batched_hdf5_outputs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.utils.timeseries.subset_timeseries.html">pywrdrb.utils.timeseries.subset_timeseries</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.utils.timeseries.get_rollmean_timeseries.html">pywrdrb.utils.timeseries.get_rollmean_timeseries</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2"><a class="reference internal" href="api/plotting.html">Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/pre.html">pywrdrb.pre</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="examples/examples.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="examples/Tutorial%2001%20Introduction%20to%20PywrDRB.html">Intro to PywrDRB</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/Tutorial%2002%20Prepare%20Input%20Data.html">Prep Model Inputs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/Tutorial%2003%20Model%20Parameters.html">Model Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/Tutorial%2004%20Accessing%20Data.html">Loading Data</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="results_set_options.html">Results Set Table</a></li>
@@ -221,14 +221,9 @@
   
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
-      <div class="sidebar-primary-item">
-<div id="ethical-ad-placement"
-      class="flat"
-      data-ea-publisher="readthedocs"
-      data-ea-type="readthedocs-sidebar"
-      data-ea-manual="true">
-</div></div>
   </div>
+  
+  <div id="rtd-footer-container"></div>
 
 
       </div>
@@ -324,16 +319,24 @@
 
 
 
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
-</button>
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
 
 
-<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass fa-lg"></i>
-</button>
+  </button>
+`);
+</script>
 
 </div></div>
       
@@ -370,13 +373,17 @@
  | <a href="#E"><strong>E</strong></a>
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
+ | <a href="#H"><strong>H</strong></a>
+ | <a href="#I"><strong>I</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
+ | <a href="#O"><strong>O</strong></a>
  | <a href="#P"><strong>P</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
+ | <a href="#U"><strong>U</strong></a>
  | <a href="#V"><strong>V</strong></a>
  | <a href="#W"><strong>W</strong></a>
  
@@ -387,7 +394,11 @@
       <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.__init__">__init__() (pywrdrb.Data method)</a>
 
       <ul>
+        <li><a href="api/generated/pywrdrb.Model.html#pywrdrb.Model.__init__">(pywrdrb.Model method)</a>
+</li>
         <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.__init__">(pywrdrb.ModelBuilder method)</a>
+</li>
+        <li><a href="api/generated/pywrdrb.OutputRecorder.html#pywrdrb.OutputRecorder.__init__">(pywrdrb.OutputRecorder method)</a>
 </li>
         <li><a href="api/generated/pywrdrb.parameters.FfmpNjRunningAvgParameter.html#pywrdrb.parameters.FfmpNjRunningAvgParameter.__init__">(pywrdrb.parameters.FfmpNjRunningAvgParameter method)</a>
 </li>
@@ -421,27 +432,93 @@
 </li>
       </ul></li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder._add_ensemble_inflow_scenarios">_add_ensemble_inflow_scenarios() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.OutputRecorder.html#pywrdrb.OutputRecorder._get_model_node_names">_get_model_node_names() (pywrdrb.OutputRecorder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.OutputRecorder.html#pywrdrb.OutputRecorder._get_model_parameter_names">_get_model_parameter_names() (pywrdrb.OutputRecorder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder._get_reservoir_capacity">_get_reservoir_capacity() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder._get_reservoir_max_diversion_NYC">_get_reservoir_max_diversion_NYC() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder._get_reservoir_max_release">_get_reservoir_max_release() (pywrdrb.ModelBuilder method)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/pywrdrb.parameters.FfmpNjRunningAvgParameter.html#pywrdrb.parameters.FfmpNjRunningAvgParameter.after">after() (pywrdrb.parameters.FfmpNjRunningAvgParameter method)</a>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_node_final_basin_outlet">add_node_final_basin_outlet() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_node_major_reservoir">add_node_major_reservoir() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_node_major_river">add_node_major_river() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_node_nyc_aggregated_storage_and_link">add_node_nyc_aggregated_storage_and_link() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_node_nyc_and_nj_deliveries">add_node_nyc_and_nj_deliveries() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_parameter_couple_salinity_lstm">add_parameter_couple_salinity_lstm() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_parameter_couple_temp_lstm">add_parameter_couple_temp_lstm() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_parameter_montague_trenton_flow_targets">add_parameter_montague_trenton_flow_targets() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_parameter_negative_one_multiplier">add_parameter_negative_one_multiplier() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_parameter_nyc_and_nj_delivery_constraints">add_parameter_nyc_and_nj_delivery_constraints() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_parameter_nyc_and_nj_demands">add_parameter_nyc_and_nj_demands() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_parameter_nyc_bank_storage">add_parameter_nyc_bank_storage() (pywrdrb.ModelBuilder method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_aggregated_info">add_parameter_nyc_reservoirs_aggregated_info() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_balancing_methods">add_parameter_nyc_reservoirs_balancing_methods() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_current_volume">add_parameter_nyc_reservoirs_current_volume() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_flood_control">add_parameter_nyc_reservoirs_flood_control() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_min_require_flow">add_parameter_nyc_reservoirs_min_require_flow() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_operational_regimes">add_parameter_nyc_reservoirs_operational_regimes() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_variable_cost_based_on_fractional_storage">add_parameter_nyc_reservoirs_variable_cost_based_on_fractional_storage() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_parameter_predicted_lagged_non_nyc_inflows_to_Montague_and_Trenton_and_lagged_nj_demands">add_parameter_predicted_lagged_non_nyc_inflows_to_Montague_and_Trenton_and_lagged_nj_demands() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.OutputRecorder.html#pywrdrb.OutputRecorder.after">after() (pywrdrb.OutputRecorder method)</a>
 
       <ul>
+        <li><a href="api/generated/pywrdrb.parameters.FfmpNjRunningAvgParameter.html#pywrdrb.parameters.FfmpNjRunningAvgParameter.after">(pywrdrb.parameters.FfmpNjRunningAvgParameter method)</a>
+</li>
         <li><a href="api/generated/pywrdrb.parameters.FfmpNycRunningAvgParameter.html#pywrdrb.parameters.FfmpNycRunningAvgParameter.after">(pywrdrb.parameters.FfmpNycRunningAvgParameter method)</a>
 </li>
       </ul></li>
+      <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.all_results_sets">all_results_sets (pywrdrb.Data attribute)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.assign_starfit_param_values">assign_starfit_param_values() (pywrdrb.parameters.STARFITReservoirRelease method)</a>
+</li>
   </ul></td>
 </tr></table>
 
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/pywrdrb.utils.hdf5.combine_batched_hdf5_outputs.html#pywrdrb.utils.hdf5.combine_batched_hdf5_outputs">combine_batched_hdf5_outputs() (in module pywrdrb.utils.hdf5)</a>
+      <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.calculate_percent_storage">calculate_percent_storage() (pywrdrb.parameters.STARFITReservoirRelease method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.calculate_release_adjustment">calculate_release_adjustment() (pywrdrb.parameters.STARFITReservoirRelease method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.calculate_target_release">calculate_target_release() (pywrdrb.parameters.STARFITReservoirRelease method)</a>
+</li>
       <li><a href="api/generated/pywrdrb.parameters.FfmpNjRunningAvgParameter.html#pywrdrb.parameters.FfmpNjRunningAvgParameter.current_drought_factor">current_drought_factor (pywrdrb.parameters.FfmpNjRunningAvgParameter attribute)</a>
 </li>
   </ul></td>
@@ -452,16 +529,32 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data">Data (class in pywrdrb)</a>
 </li>
-      <li><a href="api/generated/pywrdrb.parameters.LowerBasinMaxMRFContribution.html#pywrdrb.parameters.LowerBasinMaxMRFContribution.debugging">debugging (pywrdrb.parameters.LowerBasinMaxMRFContribution attribute)</a>
+      <li><a href="api/generated/pywrdrb.parameters.FfmpNjRunningAvgParameter.html#pywrdrb.parameters.FfmpNjRunningAvgParameter.datetime">datetime (pywrdrb.parameters.FfmpNjRunningAvgParameter attribute)</a>
 
       <ul>
-        <li><a href="api/generated/pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate.html#pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate.debugging">(pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate attribute)</a>
+        <li><a href="api/generated/pywrdrb.parameters.FfmpNycRunningAvgParameter.html#pywrdrb.parameters.FfmpNycRunningAvgParameter.datetime">(pywrdrb.parameters.FfmpNycRunningAvgParameter attribute)</a>
 </li>
       </ul></li>
+      <li><a href="api/generated/pywrdrb.parameters.LowerBasinMaxMRFContribution.html#pywrdrb.parameters.LowerBasinMaxMRFContribution.days_ahead_prediction">days_ahead_prediction (pywrdrb.parameters.LowerBasinMaxMRFContribution attribute)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.parameters.LowerBasinMaxMRFContribution.html#pywrdrb.parameters.LowerBasinMaxMRFContribution.debugging">debugging (pywrdrb.parameters.LowerBasinMaxMRFContribution attribute)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.default_kwargs">default_kwargs (pywrdrb.Data attribute)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.detach_data">detach_data() (pywrdrb.ModelBuilder method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate.html#pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate.drbc_lower_basin_reservoirs">drbc_lower_basin_reservoirs (pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate attribute)</a>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.diversion_type">diversion_type (pywrdrb.ModelBuilder attribute)</a>
 </li>
+      <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDemand.html#pywrdrb.parameters.VolBalanceNYCDemand.downstream_release_target_reservoirs">downstream_release_target_reservoirs (pywrdrb.parameters.VolBalanceNYCDemand attribute)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate.html#pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate.drbc_lower_basin_reservoirs">drbc_lower_basin_reservoirs (pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate attribute)</a>
+
+      <ul>
+        <li><a href="api/generated/pywrdrb.parameters.VolBalanceLowerBasinMRFIndividual.html#pywrdrb.parameters.VolBalanceLowerBasinMRFIndividual.drbc_lower_basin_reservoirs">(pywrdrb.parameters.VolBalanceLowerBasinMRFIndividual attribute)</a>
+</li>
+      </ul></li>
       <li><a href="api/generated/pywrdrb.parameters.FfmpNjRunningAvgParameter.html#pywrdrb.parameters.FfmpNjRunningAvgParameter.drought_factor">drought_factor (pywrdrb.parameters.FfmpNjRunningAvgParameter attribute)</a>
 </li>
       <li><a href="api/generated/pywrdrb.parameters.NYCCombinedReleaseFactor.html#pywrdrb.parameters.NYCCombinedReleaseFactor.drought_level_agg_nyc">drought_level_agg_nyc (pywrdrb.parameters.NYCCombinedReleaseFactor attribute)</a>
@@ -474,7 +567,17 @@
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/pywrdrb.utils.hdf5.extract_realization_from_hdf5.html#pywrdrb.utils.hdf5.extract_realization_from_hdf5">extract_realization_from_hdf5() (in module pywrdrb.utils.hdf5)</a>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.edges">edges (pywrdrb.ModelBuilder attribute)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.end_date">end_date (pywrdrb.ModelBuilder attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.parameters.PredictionEnsemble.html#pywrdrb.parameters.PredictionEnsemble.ensemble_indices">ensemble_indices (pywrdrb.parameters.PredictionEnsemble attribute)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.EPS">EPS (pywrdrb.ModelBuilder attribute)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.export">export() (pywrdrb.Data method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -486,20 +589,28 @@
 </li>
       <li><a href="api/generated/pywrdrb.parameters.FfmpNycRunningAvgParameter.html#pywrdrb.parameters.FfmpNycRunningAvgParameter">FfmpNycRunningAvgParameter (class in pywrdrb.parameters)</a>
 </li>
-      <li><a href="api/generated/pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.html#pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.flood_release_nyc">flood_release_nyc (pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF attribute)</a>
+      <li><a href="api/generated/pywrdrb.OutputRecorder.html#pywrdrb.OutputRecorder.finish">finish() (pywrdrb.OutputRecorder method)</a>
 </li>
-      <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.flood_release_reservoirs">flood_release_reservoirs (pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1 attribute)</a>
+      <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2.flood_release_neversink">flood_release_neversink (pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2 attribute)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.html#pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.flood_release_nyc">flood_release_nyc (pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDemand.html#pywrdrb.parameters.VolBalanceNYCDemand.flood_release_reservoirs">flood_release_reservoirs (pywrdrb.parameters.VolBalanceNYCDemand attribute)</a>
+
+      <ul>
+        <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.flood_release_reservoirs">(pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1 attribute)</a>
+</li>
+      </ul></li>
       <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDemand.html#pywrdrb.parameters.VolBalanceNYCDemand.flow_agg_nyc">flow_agg_nyc (pywrdrb.parameters.VolBalanceNYCDemand attribute)</a>
 </li>
-      <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.flow_parameter">flow_parameter (pywrdrb.parameters.STARFITReservoirRelease attribute)</a>
+      <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDemand.html#pywrdrb.parameters.VolBalanceNYCDemand.flow_reservoirs">flow_reservoirs (pywrdrb.parameters.VolBalanceNYCDemand attribute)</a>
+
+      <ul>
+        <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.flow_reservoirs">(pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1 attribute)</a>
 </li>
-      <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDemand.html#pywrdrb.parameters.VolBalanceNYCDemand.flow_reservoir">flow_reservoir (pywrdrb.parameters.VolBalanceNYCDemand attribute)</a>
-</li>
-      <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.flow_reservoirs">flow_reservoirs (pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1 attribute)</a>
-</li>
+      </ul></li>
       <li><a href="api/generated/pywrdrb.parameters.FlowEnsemble.html#pywrdrb.parameters.FlowEnsemble">FlowEnsemble (class in pywrdrb.parameters)</a>
 </li>
   </ul></td>
@@ -508,13 +619,51 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/pywrdrb.get_directory.html#pywrdrb.get_directory">get_directory() (in module pywrdrb)</a>
+      <li><a href="api/generated/pywrdrb.parameters.LowerBasinMaxMRFContribution.html#pywrdrb.parameters.LowerBasinMaxMRFContribution.get_current_usable_reservoirs">get_current_usable_reservoirs() (pywrdrb.parameters.LowerBasinMaxMRFContribution method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.get_harmonic_release">get_harmonic_release() (pywrdrb.parameters.STARFITReservoirRelease method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/pywrdrb.utils.hdf5.get_hdf5_realization_numbers.html#pywrdrb.utils.hdf5.get_hdf5_realization_numbers">get_hdf5_realization_numbers() (in module pywrdrb.utils.hdf5)</a>
+      <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.get_NORhi">get_NORhi() (pywrdrb.parameters.STARFITReservoirRelease method)</a>
 </li>
-      <li><a href="api/generated/pywrdrb.utils.timeseries.get_rollmean_timeseries.html#pywrdrb.utils.timeseries.get_rollmean_timeseries">get_rollmean_timeseries() (in module pywrdrb.utils.timeseries)</a>
+      <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.get_NORlo">get_NORlo() (pywrdrb.parameters.STARFITReservoirRelease method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.hist_diversions">hist_diversions (pywrdrb.ModelBuilder attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDemand.html#pywrdrb.parameters.VolBalanceNYCDemand.hist_max_flow_delivery_nycs">hist_max_flow_delivery_nycs (pywrdrb.parameters.VolBalanceNYCDemand attribute)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.hist_releases">hist_releases (pywrdrb.ModelBuilder attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.I_bar">I_bar (pywrdrb.parameters.STARFITReservoirRelease attribute)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.inflow">inflow (pywrdrb.parameters.STARFITReservoirRelease attribute)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.parameters.FlowEnsemble.html#pywrdrb.parameters.FlowEnsemble.inflow_column_indices">inflow_column_indices (pywrdrb.parameters.FlowEnsemble attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.parameters.FlowEnsemble.html#pywrdrb.parameters.FlowEnsemble.inflow_ensemble">inflow_ensemble (pywrdrb.parameters.FlowEnsemble attribute)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.parameters.FlowEnsemble.html#pywrdrb.parameters.FlowEnsemble.inflow_ensemble_indices">inflow_ensemble_indices (pywrdrb.parameters.FlowEnsemble attribute)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.inflow_type">inflow_type (pywrdrb.ModelBuilder attribute)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.istarf">istarf (pywrdrb.ModelBuilder attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -528,12 +677,66 @@
 </li>
       <li><a href="api/generated/pywrdrb.parameters.NYCFloodRelease.html#pywrdrb.parameters.NYCFloodRelease.level1c">level1c (pywrdrb.parameters.NYCFloodRelease attribute)</a>
 </li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.levels">levels (pywrdrb.ModelBuilder attribute)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.parameters.FfmpNjRunningAvgParameter.html#pywrdrb.parameters.FfmpNjRunningAvgParameter.load">load() (pywrdrb.parameters.FfmpNjRunningAvgParameter method)</a>
+
+      <ul>
+        <li><a href="api/generated/pywrdrb.parameters.FfmpNycRunningAvgParameter.html#pywrdrb.parameters.FfmpNycRunningAvgParameter.load">(pywrdrb.parameters.FfmpNycRunningAvgParameter method)</a>
+</li>
+        <li><a href="api/generated/pywrdrb.parameters.FlowEnsemble.html#pywrdrb.parameters.FlowEnsemble.load">(pywrdrb.parameters.FlowEnsemble method)</a>
+</li>
+        <li><a href="api/generated/pywrdrb.parameters.LaggedReservoirRelease.html#pywrdrb.parameters.LaggedReservoirRelease.load">(pywrdrb.parameters.LaggedReservoirRelease method)</a>
+</li>
+        <li><a href="api/generated/pywrdrb.parameters.LowerBasinMaxMRFContribution.html#pywrdrb.parameters.LowerBasinMaxMRFContribution.load">(pywrdrb.parameters.LowerBasinMaxMRFContribution method)</a>
+</li>
+        <li><a href="api/generated/pywrdrb.parameters.NYCCombinedReleaseFactor.html#pywrdrb.parameters.NYCCombinedReleaseFactor.load">(pywrdrb.parameters.NYCCombinedReleaseFactor method)</a>
+</li>
+        <li><a href="api/generated/pywrdrb.parameters.NYCFloodRelease.html#pywrdrb.parameters.NYCFloodRelease.load">(pywrdrb.parameters.NYCFloodRelease method)</a>
+</li>
+        <li><a href="api/generated/pywrdrb.parameters.PredictionEnsemble.html#pywrdrb.parameters.PredictionEnsemble.load">(pywrdrb.parameters.PredictionEnsemble method)</a>
+</li>
+        <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.load">(pywrdrb.parameters.STARFITReservoirRelease method)</a>
+</li>
+        <li><a href="api/generated/pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.html#pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.load">(pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF method)</a>
+</li>
+        <li><a href="api/generated/pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate.html#pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate.load">(pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate method)</a>
+</li>
+        <li><a href="api/generated/pywrdrb.parameters.VolBalanceLowerBasinMRFIndividual.html#pywrdrb.parameters.VolBalanceLowerBasinMRFIndividual.load">(pywrdrb.parameters.VolBalanceLowerBasinMRFIndividual method)</a>
+</li>
+        <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDemand.html#pywrdrb.parameters.VolBalanceNYCDemand.load">(pywrdrb.parameters.VolBalanceNYCDemand method)</a>
+</li>
+        <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.load">(pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1 method)</a>
+</li>
+        <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2.load">(pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2 method)</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/pywrdrb.parameters.LaggedReservoirRelease.html#pywrdrb.parameters.LaggedReservoirRelease.load">load() (pywrdrb.parameters.LaggedReservoirRelease method)</a>
+      <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.load_default_starfit_params">load_default_starfit_params() (pywrdrb.parameters.STARFITReservoirRelease method)</a>
 </li>
+      <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.load_from_export">load_from_export() (pywrdrb.Data method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.load_hydrologic_model_flow">load_hydrologic_model_flow() (pywrdrb.Data method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.load_observations">load_observations() (pywrdrb.Data method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.load_output">load_output() (pywrdrb.Data method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.load_starfit_sensitivity_samples">load_starfit_sensitivity_samples() (pywrdrb.parameters.STARFITReservoirRelease method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.parameters.VolBalanceLowerBasinMRFIndividual.html#pywrdrb.parameters.VolBalanceLowerBasinMRFIndividual.lower_basin_agg_mrf_trenton">lower_basin_agg_mrf_trenton (pywrdrb.parameters.VolBalanceLowerBasinMRFIndividual attribute)</a>
+
+      <ul>
+        <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2.lower_basin_agg_mrf_trenton">(pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2 attribute)</a>
+</li>
+      </ul></li>
       <li><a href="api/generated/pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate.html#pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate.lower_basin_max_mrf_contributions">lower_basin_max_mrf_contributions (pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate attribute)</a>
+
+      <ul>
+        <li><a href="api/generated/pywrdrb.parameters.VolBalanceLowerBasinMRFIndividual.html#pywrdrb.parameters.VolBalanceLowerBasinMRFIndividual.lower_basin_max_mrf_contributions">(pywrdrb.parameters.VolBalanceLowerBasinMRFIndividual attribute)</a>
 </li>
+      </ul></li>
       <li><a href="api/generated/pywrdrb.parameters.LowerBasinMaxMRFContribution.html#pywrdrb.parameters.LowerBasinMaxMRFContribution">LowerBasinMaxMRFContribution (class in pywrdrb.parameters)</a>
 </li>
   </ul></td>
@@ -542,6 +745,8 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.make_model">make_model() (pywrdrb.ModelBuilder method)</a>
+</li>
       <li><a href="api/generated/pywrdrb.parameters.FfmpNjRunningAvgParameter.html#pywrdrb.parameters.FfmpNjRunningAvgParameter.max_avg_delivery">max_avg_delivery (pywrdrb.parameters.FfmpNjRunningAvgParameter attribute)</a>
 
       <ul>
@@ -558,43 +763,38 @@
       </ul></li>
       <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDemand.html#pywrdrb.parameters.VolBalanceNYCDemand.max_flow_delivery_nyc">max_flow_delivery_nyc (pywrdrb.parameters.VolBalanceNYCDemand attribute)</a>
 </li>
+      <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2.max_release_neversink">max_release_neversink (pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2 attribute)</a>
+</li>
       <li><a href="api/generated/pywrdrb.parameters.NYCFloodRelease.html#pywrdrb.parameters.NYCFloodRelease.max_release_reservoir">max_release_reservoir (pywrdrb.parameters.NYCFloodRelease attribute)</a>
 </li>
       <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.max_release_reservoirs">max_release_reservoirs (pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1 attribute)</a>
 </li>
-      <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDemand.html#pywrdrb.parameters.VolBalanceNYCDemand.max_vol_reservoir">max_vol_reservoir (pywrdrb.parameters.VolBalanceNYCDemand attribute)</a>
+      <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDemand.html#pywrdrb.parameters.VolBalanceNYCDemand.max_vol_reservoirs">max_vol_reservoirs (pywrdrb.parameters.VolBalanceNYCDemand attribute)</a>
+
+      <ul>
+        <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.max_vol_reservoirs">(pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1 attribute)</a>
 </li>
-      <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.max_vol_reservoirs">max_vol_reservoirs (pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1 attribute)</a>
-</li>
+      </ul></li>
       <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDemand.html#pywrdrb.parameters.VolBalanceNYCDemand.max_volume_agg_nyc">max_volume_agg_nyc (pywrdrb.parameters.VolBalanceNYCDemand attribute)</a>
 </li>
       <li><a href="api/generated/pywrdrb.parameters.NYCFloodRelease.html#pywrdrb.parameters.NYCFloodRelease.max_volume_reservoir">max_volume_reservoir (pywrdrb.parameters.NYCFloodRelease attribute)</a>
 </li>
-      <li><a href="api/generated/pywrdrb.parameters.LowerBasinMaxMRFContribution.html#pywrdrb.parameters.LowerBasinMaxMRFContribution.model">model (pywrdrb.parameters.LowerBasinMaxMRFContribution attribute)</a>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.Model.html#pywrdrb.Model">Model (class in pywrdrb)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.OutputRecorder.html#pywrdrb.OutputRecorder.model">model (pywrdrb.OutputRecorder attribute)</a>
 
       <ul>
-        <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.model">(pywrdrb.parameters.STARFITReservoirRelease attribute)</a>
+        <li><a href="api/generated/pywrdrb.parameters.LowerBasinMaxMRFContribution.html#pywrdrb.parameters.LowerBasinMaxMRFContribution.model">(pywrdrb.parameters.LowerBasinMaxMRFContribution attribute)</a>
 </li>
         <li><a href="api/generated/pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.html#pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.model">(pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF attribute)</a>
 </li>
-        <li><a href="api/generated/pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate.html#pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate.model">(pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate attribute)</a>
-</li>
-        <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.model">(pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1 attribute)</a>
-</li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.model_dict">model_dict (pywrdrb.ModelBuilder attribute)</a>
+</li>
       <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder">ModelBuilder (class in pywrdrb)</a>
 </li>
-      <li>
-    module
-
-      <ul>
-        <li><a href="api/utils.html#module-pywrdrb.utils.hdf5">pywrdrb.utils.hdf5</a>
-</li>
-        <li><a href="api/utils.html#module-pywrdrb.utils.timeseries">pywrdrb.utils.timeseries</a>
-</li>
-      </ul></li>
       <li><a href="api/generated/pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.html#pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.mrf">mrf (pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF attribute)</a>
 </li>
       <li><a href="api/generated/pywrdrb.parameters.NYCCombinedReleaseFactor.html#pywrdrb.parameters.NYCCombinedReleaseFactor.mrf_drought_factor_agg_reservoir">mrf_drought_factor_agg_reservoir (pywrdrb.parameters.NYCCombinedReleaseFactor attribute)</a>
@@ -603,12 +803,18 @@
 </li>
       <li><a href="api/generated/pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.html#pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.mrf_target_flow">mrf_target_flow (pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF attribute)</a>
 </li>
+      <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2.mrf_target_individual_neversink">mrf_target_individual_neversink (pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2 attribute)</a>
+</li>
       <li><a href="api/generated/pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.html#pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.mrf_target_individual_nyc">mrf_target_individual_nyc (pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF attribute)</a>
 </li>
       <li><a href="api/generated/pywrdrb.parameters.NYCFloodRelease.html#pywrdrb.parameters.NYCFloodRelease.mrf_target_individual_reservoir">mrf_target_individual_reservoir (pywrdrb.parameters.NYCFloodRelease attribute)</a>
 </li>
-      <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.mrf_target_individual_reservoirs">mrf_target_individual_reservoirs (pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1 attribute)</a>
+      <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDemand.html#pywrdrb.parameters.VolBalanceNYCDemand.mrf_target_individual_reservoirs">mrf_target_individual_reservoirs (pywrdrb.parameters.VolBalanceNYCDemand attribute)</a>
+
+      <ul>
+        <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.mrf_target_individual_reservoirs">(pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1 attribute)</a>
 </li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -624,15 +830,27 @@
 </li>
         <li><a href="api/generated/pywrdrb.parameters.NYCFloodRelease.html#pywrdrb.parameters.NYCFloodRelease.node">(pywrdrb.parameters.NYCFloodRelease attribute)</a>
 </li>
-        <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDemand.html#pywrdrb.parameters.VolBalanceNYCDemand.node">(pywrdrb.parameters.VolBalanceNYCDemand attribute)</a>
+        <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.node">(pywrdrb.parameters.STARFITReservoirRelease attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/pywrdrb.OutputRecorder.html#pywrdrb.OutputRecorder.nodes">nodes (pywrdrb.OutputRecorder attribute)</a>
+
+      <ul>
+        <li><a href="api/generated/pywrdrb.parameters.LowerBasinMaxMRFContribution.html#pywrdrb.parameters.LowerBasinMaxMRFContribution.nodes">(pywrdrb.parameters.LowerBasinMaxMRFContribution attribute)</a>
+</li>
+        <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDemand.html#pywrdrb.parameters.VolBalanceNYCDemand.nodes">(pywrdrb.parameters.VolBalanceNYCDemand attribute)</a>
+</li>
+        <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.nodes">(pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1 attribute)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.nodes">nodes (pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1 attribute)</a>
+      <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDemand.html#pywrdrb.parameters.VolBalanceNYCDemand.num_reservoirs">num_reservoirs (pywrdrb.parameters.VolBalanceNYCDemand attribute)</a>
+
+      <ul>
+        <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.num_reservoirs">(pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1 attribute)</a>
 </li>
-      <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.num_reservoirs">num_reservoirs (pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1 attribute)</a>
-</li>
+      </ul></li>
       <li><a href="api/generated/pywrdrb.parameters.NYCCombinedReleaseFactor.html#pywrdrb.parameters.NYCCombinedReleaseFactor">NYCCombinedReleaseFactor (class in pywrdrb.parameters)</a>
 </li>
       <li><a href="api/generated/pywrdrb.parameters.NYCFloodRelease.html#pywrdrb.parameters.NYCFloodRelease">NYCFloodRelease (class in pywrdrb.parameters)</a>
@@ -640,47 +858,69 @@
   </ul></td>
 </tr></table>
 
+<h2 id="O">O</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.options">options (pywrdrb.ModelBuilder attribute)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.OutputRecorder.html#pywrdrb.OutputRecorder.output_filename">output_filename (pywrdrb.OutputRecorder attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.output_filenames">output_filenames (pywrdrb.Data attribute)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.OutputRecorder.html#pywrdrb.OutputRecorder">OutputRecorder (class in pywrdrb)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/pywrdrb.parameters.LowerBasinMaxMRFContribution.html#pywrdrb.parameters.LowerBasinMaxMRFContribution.parameters">parameters (pywrdrb.parameters.LowerBasinMaxMRFContribution attribute)</a>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.parameters">parameters (pywrdrb.ModelBuilder attribute)</a>
 
       <ul>
+        <li><a href="api/generated/pywrdrb.OutputRecorder.html#pywrdrb.OutputRecorder.parameters">(pywrdrb.OutputRecorder attribute)</a>
+</li>
+        <li><a href="api/generated/pywrdrb.parameters.LowerBasinMaxMRFContribution.html#pywrdrb.parameters.LowerBasinMaxMRFContribution.parameters">(pywrdrb.parameters.LowerBasinMaxMRFContribution attribute)</a>
+</li>
         <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.parameters">(pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1 attribute)</a>
 </li>
       </ul></li>
+      <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.parameters_loaded">parameters_loaded (pywrdrb.parameters.STARFITReservoirRelease attribute)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.pn">pn (pywrdrb.Data attribute)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.parameters.PredictionEnsemble.html#pywrdrb.parameters.PredictionEnsemble.pred_column_indices">pred_column_indices (pywrdrb.parameters.PredictionEnsemble attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.parameters.PredictionEnsemble.html#pywrdrb.parameters.PredictionEnsemble.pred_ensemble">pred_ensemble (pywrdrb.parameters.PredictionEnsemble attribute)</a>
+</li>
       <li><a href="api/generated/pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.html#pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.predicted_demand_nj">predicted_demand_nj (pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF attribute)</a>
 </li>
       <li><a href="api/generated/pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.html#pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.predicted_nonnyc_gage_flow_mrf">predicted_nonnyc_gage_flow_mrf (pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF attribute)</a>
 </li>
       <li><a href="api/generated/pywrdrb.parameters.PredictionEnsemble.html#pywrdrb.parameters.PredictionEnsemble">PredictionEnsemble (class in pywrdrb.parameters)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/pywrdrb.parameters.FfmpNjRunningAvgParameter.html#pywrdrb.parameters.FfmpNjRunningAvgParameter.previous_drought_factor">previous_drought_factor (pywrdrb.parameters.FfmpNjRunningAvgParameter attribute)</a>
 </li>
       <li><a href="api/generated/pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.html#pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.previous_release_reservoirs">previous_release_reservoirs (pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF attribute)</a>
 </li>
-      <li>
-    pywrdrb.utils.hdf5
-
-      <ul>
-        <li><a href="api/utils.html#module-pywrdrb.utils.hdf5">module</a>
+      <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.print_status">print_status (pywrdrb.Data attribute)</a>
 </li>
-      </ul></li>
-      <li>
-    pywrdrb.utils.timeseries
-
-      <ul>
-        <li><a href="api/utils.html#module-pywrdrb.utils.timeseries">module</a>
-</li>
-      </ul></li>
   </ul></td>
 </tr></table>
 
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.R_max">R_max (pywrdrb.parameters.STARFITReservoirRelease attribute)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.R_min">R_min (pywrdrb.parameters.STARFITReservoirRelease attribute)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.OutputRecorder.html#pywrdrb.OutputRecorder.recorder_dict">recorder_dict (pywrdrb.OutputRecorder attribute)</a>
+</li>
       <li><a href="api/generated/pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.html#pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.release_needed_mrf_montague">release_needed_mrf_montague (pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF attribute)</a>
 </li>
       <li><a href="api/generated/pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate.html#pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate.release_needed_mrf_trenton">release_needed_mrf_trenton (pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate attribute)</a>
@@ -688,21 +928,33 @@
       <li><a href="api/generated/pywrdrb.parameters.LowerBasinMaxMRFContribution.html#pywrdrb.parameters.LowerBasinMaxMRFContribution.reservoir">reservoir (pywrdrb.parameters.LowerBasinMaxMRFContribution attribute)</a>
 
       <ul>
+        <li><a href="api/generated/pywrdrb.parameters.VolBalanceLowerBasinMRFIndividual.html#pywrdrb.parameters.VolBalanceLowerBasinMRFIndividual.reservoir">(pywrdrb.parameters.VolBalanceLowerBasinMRFIndividual attribute)</a>
+</li>
         <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDemand.html#pywrdrb.parameters.VolBalanceNYCDemand.reservoir">(pywrdrb.parameters.VolBalanceNYCDemand attribute)</a>
 </li>
         <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.reservoir">(pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1 attribute)</a>
 </li>
       </ul></li>
-      <li><a href="api/generated/pywrdrb.parameters.LowerBasinMaxMRFContribution.html#pywrdrb.parameters.LowerBasinMaxMRFContribution.reservoirs">reservoirs (pywrdrb.parameters.LowerBasinMaxMRFContribution attribute)</a>
+      <li><a href="api/generated/pywrdrb.OutputRecorder.html#pywrdrb.OutputRecorder.reservoir_list">reservoir_list (pywrdrb.OutputRecorder attribute)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.reservoir_name">reservoir_name (pywrdrb.parameters.STARFITReservoirRelease attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/pywrdrb.parameters.FfmpNjRunningAvgParameter.html#pywrdrb.parameters.FfmpNjRunningAvgParameter.reset">reset() (pywrdrb.parameters.FfmpNjRunningAvgParameter method)</a>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.reservoirs">reservoirs (pywrdrb.ModelBuilder attribute)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.OutputRecorder.html#pywrdrb.OutputRecorder.reset">reset() (pywrdrb.OutputRecorder method)</a>
 
       <ul>
+        <li><a href="api/generated/pywrdrb.parameters.FfmpNjRunningAvgParameter.html#pywrdrb.parameters.FfmpNjRunningAvgParameter.reset">(pywrdrb.parameters.FfmpNjRunningAvgParameter method)</a>
+</li>
         <li><a href="api/generated/pywrdrb.parameters.FfmpNycRunningAvgParameter.html#pywrdrb.parameters.FfmpNycRunningAvgParameter.reset">(pywrdrb.parameters.FfmpNycRunningAvgParameter method)</a>
 </li>
       </ul></li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.reset_model_dict">reset_model_dict() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.results_sets">results_sets (pywrdrb.Data attribute)</a>
+</li>
       <li><a href="api/generated/pywrdrb.parameters.LaggedReservoirRelease.html#pywrdrb.parameters.LaggedReservoirRelease.roll_mean_lag_outflow">roll_mean_lag_outflow (pywrdrb.parameters.LaggedReservoirRelease attribute)</a>
 </li>
       <li><a href="api/generated/pywrdrb.parameters.LaggedReservoirRelease.html#pywrdrb.parameters.LaggedReservoirRelease.roll_mean_lag_spill">roll_mean_lag_spill (pywrdrb.parameters.LaggedReservoirRelease attribute)</a>
@@ -711,43 +963,79 @@
 </li>
       <li><a href="api/generated/pywrdrb.parameters.LaggedReservoirRelease.html#pywrdrb.parameters.LaggedReservoirRelease.roll_mean_lagMinus1_spill">roll_mean_lagMinus1_spill (pywrdrb.parameters.LaggedReservoirRelease attribute)</a>
 </li>
+      <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.run_sensitivity_analysis">run_sensitivity_analysis (pywrdrb.parameters.STARFITReservoirRelease attribute)</a>
+</li>
   </ul></td>
 </tr></table>
 
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/pywrdrb.set_directory.html#pywrdrb.set_directory">set_directory() (in module pywrdrb)</a>
+      <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.S_cap">S_cap (pywrdrb.parameters.STARFITReservoirRelease attribute)</a>
 </li>
-      <li><a href="api/generated/pywrdrb.parameters.FfmpNjRunningAvgParameter.html#pywrdrb.parameters.FfmpNjRunningAvgParameter.setup">setup() (pywrdrb.parameters.FfmpNjRunningAvgParameter method)</a>
+      <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.sensitivity_analysis_scenarios">sensitivity_analysis_scenarios (pywrdrb.parameters.STARFITReservoirRelease attribute)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.OutputRecorder.html#pywrdrb.OutputRecorder.setup">setup() (pywrdrb.OutputRecorder method)</a>
 
       <ul>
+        <li><a href="api/generated/pywrdrb.parameters.FfmpNjRunningAvgParameter.html#pywrdrb.parameters.FfmpNjRunningAvgParameter.setup">(pywrdrb.parameters.FfmpNjRunningAvgParameter method)</a>
+</li>
         <li><a href="api/generated/pywrdrb.parameters.FfmpNycRunningAvgParameter.html#pywrdrb.parameters.FfmpNycRunningAvgParameter.setup">(pywrdrb.parameters.FfmpNycRunningAvgParameter method)</a>
 </li>
-      </ul></li>
-      <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.split_required_mrf_across_nyc_reservoirs">split_required_mrf_across_nyc_reservoirs() (pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1 method)</a>
+        <li><a href="api/generated/pywrdrb.parameters.FlowEnsemble.html#pywrdrb.parameters.FlowEnsemble.setup">(pywrdrb.parameters.FlowEnsemble method)</a>
 </li>
+        <li><a href="api/generated/pywrdrb.parameters.PredictionEnsemble.html#pywrdrb.parameters.PredictionEnsemble.setup">(pywrdrb.parameters.PredictionEnsemble method)</a>
+</li>
+        <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.setup">(pywrdrb.parameters.STARFITReservoirRelease method)</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.parameters.VolBalanceLowerBasinMRFIndividual.html#pywrdrb.parameters.VolBalanceLowerBasinMRFIndividual.split_lower_basin_mrf_contributions">split_lower_basin_mrf_contributions() (pywrdrb.parameters.VolBalanceLowerBasinMRFIndividual method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.split_required_mrf_across_nyc_reservoirs">split_required_mrf_across_nyc_reservoirs() (pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1 method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.standardize_inflow">standardize_inflow() (pywrdrb.parameters.STARFITReservoirRelease method)</a>
+</li>
       <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease">STARFITReservoirRelease (class in pywrdrb.parameters)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.start_date">start_date (pywrdrb.ModelBuilder attribute)</a>
 </li>
       <li><a href="api/generated/pywrdrb.parameters.LowerBasinMaxMRFContribution.html#pywrdrb.parameters.LowerBasinMaxMRFContribution.step">step (pywrdrb.parameters.LowerBasinMaxMRFContribution attribute)</a>
 
       <ul>
         <li><a href="api/generated/pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.html#pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.step">(pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF attribute)</a>
 </li>
+        <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2.step">(pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2 attribute)</a>
+</li>
       </ul></li>
-      <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.storage_node">storage_node (pywrdrb.parameters.STARFITReservoirRelease attribute)</a>
-</li>
-      <li><a href="api/generated/pywrdrb.utils.timeseries.subset_timeseries.html#pywrdrb.utils.timeseries.subset_timeseries">subset_timeseries() (in module pywrdrb.utils.timeseries)</a>
-</li>
   </ul></td>
 </tr></table>
 
 <h2 id="T">T</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.parameters.FfmpNjRunningAvgParameter.html#pywrdrb.parameters.FfmpNjRunningAvgParameter.timestep">timestep (pywrdrb.parameters.FfmpNjRunningAvgParameter attribute)</a>
+
+      <ul>
+        <li><a href="api/generated/pywrdrb.parameters.FfmpNycRunningAvgParameter.html#pywrdrb.parameters.FfmpNycRunningAvgParameter.timestep">(pywrdrb.parameters.FfmpNycRunningAvgParameter attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.OutputRecorder.html#pywrdrb.OutputRecorder.to_hdf5">to_hdf5() (pywrdrb.OutputRecorder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2.total_agg_mrf_montagueTrenton">total_agg_mrf_montagueTrenton (pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2 attribute)</a>
+</li>
       <li><a href="api/generated/pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.html#pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF">TotalReleaseNeededForDownstreamMRF (class in pywrdrb.parameters)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="U">U</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.units">units (pywrdrb.Data attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -760,6 +1048,8 @@
       <ul>
         <li><a href="api/generated/pywrdrb.parameters.FfmpNycRunningAvgParameter.html#pywrdrb.parameters.FfmpNycRunningAvgParameter.value">(pywrdrb.parameters.FfmpNycRunningAvgParameter method)</a>
 </li>
+        <li><a href="api/generated/pywrdrb.parameters.FlowEnsemble.html#pywrdrb.parameters.FlowEnsemble.value">(pywrdrb.parameters.FlowEnsemble method)</a>
+</li>
         <li><a href="api/generated/pywrdrb.parameters.LaggedReservoirRelease.html#pywrdrb.parameters.LaggedReservoirRelease.value">(pywrdrb.parameters.LaggedReservoirRelease method)</a>
 </li>
         <li><a href="api/generated/pywrdrb.parameters.LowerBasinMaxMRFContribution.html#pywrdrb.parameters.LowerBasinMaxMRFContribution.value">(pywrdrb.parameters.LowerBasinMaxMRFContribution method)</a>
@@ -768,23 +1058,31 @@
 </li>
         <li><a href="api/generated/pywrdrb.parameters.NYCFloodRelease.html#pywrdrb.parameters.NYCFloodRelease.value">(pywrdrb.parameters.NYCFloodRelease method)</a>
 </li>
+        <li><a href="api/generated/pywrdrb.parameters.PredictionEnsemble.html#pywrdrb.parameters.PredictionEnsemble.value">(pywrdrb.parameters.PredictionEnsemble method)</a>
+</li>
         <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.value">(pywrdrb.parameters.STARFITReservoirRelease method)</a>
 </li>
         <li><a href="api/generated/pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.html#pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.value">(pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF method)</a>
 </li>
         <li><a href="api/generated/pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate.html#pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate.value">(pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate method)</a>
 </li>
+        <li><a href="api/generated/pywrdrb.parameters.VolBalanceLowerBasinMRFIndividual.html#pywrdrb.parameters.VolBalanceLowerBasinMRFIndividual.value">(pywrdrb.parameters.VolBalanceLowerBasinMRFIndividual method)</a>
+</li>
         <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDemand.html#pywrdrb.parameters.VolBalanceNYCDemand.value">(pywrdrb.parameters.VolBalanceNYCDemand method)</a>
 </li>
         <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.value">(pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1 method)</a>
 </li>
+        <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2.value">(pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2 method)</a>
+</li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDemand.html#pywrdrb.parameters.VolBalanceNYCDemand.vol_reservoir">vol_reservoir (pywrdrb.parameters.VolBalanceNYCDemand attribute)</a>
+      <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDemand.html#pywrdrb.parameters.VolBalanceNYCDemand.vol_reservoirs">vol_reservoirs (pywrdrb.parameters.VolBalanceNYCDemand attribute)</a>
+
+      <ul>
+        <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.vol_reservoirs">(pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1 attribute)</a>
 </li>
-      <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.vol_reservoirs">vol_reservoirs (pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1 attribute)</a>
-</li>
+      </ul></li>
       <li><a href="api/generated/pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate.html#pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate">VolBalanceLowerBasinMRFAggregate (class in pywrdrb.parameters)</a>
 </li>
       <li><a href="api/generated/pywrdrb.parameters.VolBalanceLowerBasinMRFIndividual.html#pywrdrb.parameters.VolBalanceLowerBasinMRFIndividual">VolBalanceLowerBasinMRFIndividual (class in pywrdrb.parameters)</a>
@@ -806,6 +1104,10 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/pywrdrb.parameters.NYCFloodRelease.html#pywrdrb.parameters.NYCFloodRelease.weekly_rolling_mean_flow_reservoir">weekly_rolling_mean_flow_reservoir (pywrdrb.parameters.NYCFloodRelease attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.write_model">write_model() (pywrdrb.ModelBuilder method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -872,8 +1174,8 @@ By The Reed Group at Cornell CEE
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
 
   <footer class="bd-footer">
   </footer>

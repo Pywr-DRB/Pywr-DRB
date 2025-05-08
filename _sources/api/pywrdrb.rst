@@ -7,9 +7,6 @@ pywrdrb
    :nosignatures:
 
    pywrdrb.ModelBuilder
+   pywrdrb.Model
+   pywrdrb.OutputRecorder
    pywrdrb.Data
-
-   pywrdrb.set_directory
-   pywrdrb.get_directory
-
-    

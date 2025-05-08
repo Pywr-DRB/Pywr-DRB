@@ -23,8 +23,10 @@
       ~ModelBuilder.add_parameter_couple_salinity_lstm
       ~ModelBuilder.add_parameter_couple_temp_lstm
       ~ModelBuilder.add_parameter_montague_trenton_flow_targets
+      ~ModelBuilder.add_parameter_negative_one_multiplier
       ~ModelBuilder.add_parameter_nyc_and_nj_delivery_constraints
       ~ModelBuilder.add_parameter_nyc_and_nj_demands
+      ~ModelBuilder.add_parameter_nyc_bank_storage
       ~ModelBuilder.add_parameter_nyc_reservoirs_aggregated_info
       ~ModelBuilder.add_parameter_nyc_reservoirs_balancing_methods
       ~ModelBuilder.add_parameter_nyc_reservoirs_current_volume
