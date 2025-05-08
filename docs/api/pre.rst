@@ -6,7 +6,7 @@ pywrdrb.pre
     :nosignatures:
 
     pywrdrb.pre.disaggregate_DRBC_demands
-    pywrdrb.pre.extrapolate_NYC_NJ_diversions
+    pywrdrb.pre.extrapolate_nyc_nj_diversions
     pywrdrb.pre.predict_inflows_diversions
     pywrdrb.pre.predict_ensemble_inflows_diversions
     pywrdrb.pre.read_modeled_estimates
