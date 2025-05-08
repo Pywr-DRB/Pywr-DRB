@@ -55,13 +55,11 @@ Marilyn Smith, 2025-05-07, Initial version with elevation-to-storage conversion 
 """
 
 import os
-import time
 import numpy as np
 import pandas as pd
 from datetime import datetime
 from dataretrieval import nwis
 
-import pywrdrb
 from pywrdrb.path_manager import get_pn_object
 pn = get_pn_object()
 
@@ -79,7 +77,12 @@ from pywrdrb.pywr_drb_node_data import (
 # Directories for raw and processed data
 RAW_DATA_DIR = pn.observations.get_str() + os.sep + "_raw"
 PROCESSED_DATA_DIR = pn.observations.get_str()
-FIG_DIR = pn.figures.get_str()
+
+# from Chung-Yi
+# no figures folder in pywrdrb
+# repetive in ObservationalDataRetriever
+#FIG_DIR = pn.figures.get_str()
+
 
 
 class DataRetriever:
@@ -470,7 +473,7 @@ class ObservationalDataRetriever(DataPreprocessor):
         self.retriever = DataRetriever(start_date=start_date)
         self.raw_dir = self.pn.observations.get_str() + os.sep + "_raw"
         self.processed_dir = self.pn.observations.get_str()
-        self.fig_dir = self.pn.figures.get_str()
+        # self.fig_dir = self.pn.figures.get_str() # CL: error here. No such folder
         self._define_gauges()
 
     def _define_gauges(self):
