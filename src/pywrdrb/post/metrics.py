@@ -1,10 +1,33 @@
 """
-Contains functions for calculating metrics.
+Streamflow and IBT shortfall performance metrics.
 
-Includes:
-- calculate_reliability
-- calculate_vulnerability
+Overview
+--------
+This module includes functions to calculate flow reliability, vulnerability, and
+shortfall event metrics (duration, severity, intensity, etc.) for major streamflow and
+inter-basin transfer (IBT) nodes. These calculations are performed across multiple
+ensemble realizations and can optionally incorporate time lags and flow contributions
+(e.g., Blue Marsh to Trenton).
+
+Key Steps
+---------
+1. Define reliability and vulnerability using Hashimoto et al. (1982) metrics.
+2. Support lagged flow contributions through routing logic.
+3. Track shortfall events with duration and recovery conditions.
+4. Generate ensemble-wide statistics per model and node.
+
+Technical Notes
+---------------
+- Assumes input data are organized in nested dictionaries by model and realization.
+- Blue Marsh flow contributions to Trenton must be accounted for via lag logic.
+- Uses `subset_timeseries()` to restrict the time period of analysis.
+- Requires consistent naming conventions for nodes and flow variables.
+
+Change Log
+----------
+Marilyn Smith, 2025-05-07, Initial module documentation and docstring standardization.
 """
+
 import numpy as np
 import pandas as pd
 from pywrdrb.pywr_drb_node_data import (
@@ -17,18 +40,22 @@ from pywrdrb.utils.timeseries import subset_timeseries
 
 def calculate_reliability(flow, target):
     """
-    Function used to get reliability of streamflows
-    at a specific node given MRF target and simulated flows.
+    Calculate reliability as the fraction of time flow exceeds the target.
 
-    Reliability is the fraction of time that the simulated flow
-    is above the MRF target.
+    Reliability is defined as the proportion of time steps where the simulated flow
+    meets or exceeds the Minimum Required Flow (MRF) target.
 
-    Args:
-        flow (pd.Series or np.array): simulated flows
-        target (pd.Series or np.array): MRF target flows
+    Parameters
+    ----------
+    flow : pd.Series or np.ndarray
+        Simulated streamflow time series.
+    target : pd.Series or np.ndarray
+        Minimum flow requirement target time series.
 
-    Returns:
-        reliability (float): fraction of time flow is above target
+    Returns
+    -------
+    reliability : float
+        Fraction of time the simulated flow exceeds the target.
     """
     reliability = np.sum(flow > target) / len(flow)
     return reliability
@@ -36,17 +63,22 @@ def calculate_reliability(flow, target):
 
 def calculate_vulnerability(flow, target):
     """
-    Function used to get vulnerability of streamflows
-    at a specific node given MRF target and simulated flows.
+    Calculate vulnerability as the maximum magnitude of flow deficit below the target.
 
-    Vulnerability is the magnitude of the largest flow deviation below the MRF target.
+    Vulnerability is defined as the worst (maximum) single-day shortfall
+    where flow is less than the MRF target.
 
-    Args:
-        flow (pd.Series or np.array): simulated flows
-        target (pd.Series or np.array): MRF target flows
+    Parameters
+    ----------
+    flow : pd.Series or np.ndarray
+        Simulated streamflow time series.
+    target : pd.Series or np.ndarray
+        Minimum flow requirement target time series.
 
-    Returns:
-        vulnerability (float): magnitude of largest shortage
+    Returns
+    -------
+    vulnerability : float
+        Magnitude of the largest deficit (in flow units).
     """
     vulnerability = np.max(target - flow)
     vulnerability = np.max([0, vulnerability])
@@ -63,6 +95,34 @@ def get_lagged_lower_basin_contributions(
     downstream_node_lags=downstream_node_lags,
     immediate_downstream_nodes_dict=immediate_downstream_nodes_dict,
 ):
+    """
+    Apply cumulative lags to lower basin reservoir MRF contributions.
+
+    This accounts for travel time from Blue Marsh and other lower basin reservoirs
+    when estimating contributions to downstream nodes like Trenton.
+
+    Parameters
+    ----------
+    lower_basin_mrf_contributions : dict
+        Dictionary of lower basin MRF contributions for each model and realization.
+    model : str
+        Model key (e.g., 'pywr').
+    realization : str or int
+        Realization identifier.
+    start_date : str or pd.Timestamp, optional
+        Start date to subset time series.
+    end_date : str or pd.Timestamp, optional
+        End date to subset time series.
+    downstream_node_lags : dict
+        Dictionary mapping each node to its lag (in days).
+    immediate_downstream_nodes_dict : dict
+        Dictionary of each node's immediate downstream node.
+
+    Returns
+    -------
+    lagged_lower_basin_mrf_contributions : pd.DataFrame
+        DataFrame of lag-adjusted MRF contributions.
+    """
     if start_date and end_date:
         lower_basin_mrf = subset_timeseries(
             lower_basin_mrf_contributions[model][realization], start_date, end_date
@@ -95,17 +155,30 @@ def add_blueMarsh_mrf_contribution_to_delTrenton(
     downstream_node_lags=downstream_node_lags,
 ):
     """
-    Adds Blue Marsh extra-release contributions to the flow at delTrenton;
-    used to calculate MRF flow violations.
+    Add lagged Blue Marsh release contribution to delTrenton flow.
 
-    Args:
-        major_flows (dict): dictionary of major flows for each realization
-        lower_basin_mrf_contributions (dict): dictionary of lower_basin_mrf_constributions for each realization
-        node (str): node of interest
-        immediate_downstream_nodes_dict (dict): dictionary of immediate downstream nodes
-        downstream_node_lags (dict): dictionary of lags for downstream nodes
+    Used when evaluating system-wide performance at Trenton where Blue Marsh
+    releases are part of regulatory compliance.
 
-    Returns:
+    Parameters
+    ----------
+    major_flows : dict
+        Dictionary of modeled flows for each realization.
+    lower_basin_mrf_contributions : dict
+        Dictionary of MRF contributions for each realization.
+    model : str
+        Model key (e.g., 'pywr').
+    realization : str or int
+        Realization identifier.
+    immediate_downstream_nodes_dict : dict
+        Immediate downstream nodes for routing.
+    downstream_node_lags : dict
+        Lag (in days) for each downstream routing step.
+
+    Returns
+    -------
+    trenton_flow : pd.Series
+        Simulated flow at delTrenton with Blue Marsh contributions included.
     """
     trenton_flow = major_flows[model][realization]["delTrenton"].copy()
     lagged_lower_basin_contributions = get_lagged_lower_basin_contributions(
@@ -119,8 +192,35 @@ def get_ensemble_hashimoto_metrics(
     major_flows, mrf_targets, model, node, lower_basin_mrf_contributions=None
 ):
     """
-    Function used to calculate reliability and vulnerability for each realization
-    in the ensemble.
+    Calculate ensemble reliability and vulnerability metrics.
+
+    Uses the Hashimoto (1982) definitions of reliability and vulnerability for
+    streamflow time series compared to MRF targets. Special handling is added
+    for delTrenton.
+
+    Parameters
+    ----------
+    major_flows : dict
+        Dictionary of simulated flows for each model and realization.
+    mrf_targets : dict
+        Dictionary of MRF targets for each model and realization.
+    model : str
+        Model key to evaluate.
+    node : str
+        Node name for which metrics are calculated.
+    lower_basin_mrf_contributions : dict, optional
+        Dictionary of additional flow contributions (e.g., Blue Marsh).
+
+    Returns
+    -------
+    reliability : np.ndarray
+        Array of reliability values for each realization.
+    vulnerability : np.ndarray
+        Array of vulnerability values for each realization.
+
+    Notes
+    -----
+    Required for validation of reliability objectives at key regulatory nodes.
     """
     if node == "delTrenton":
         err_msg = "Need to consider blueMarsh excess releases for system performance at Trenton."
@@ -147,8 +247,20 @@ def get_ensemble_hashimoto_metrics(
 
 def change_results_dict_to_ensemble(results_dict):
     """
-    Takes a dict of structure results_dict[model] = pd.DataFrame and
-    changes it to have structure results_dict[model]['0'] = pd.DataFrame.
+    Convert a non-ensemble results dictionary to an ensemble format.
+
+    Adds a realization index ('0') if the dictionary is not already structured
+    by realization.
+
+    Parameters
+    ----------
+    results_dict : dict
+        Dictionary of results where each model maps to a DataFrame or nested realization dict.
+
+    Returns
+    -------
+    new_results_dict : dict
+        Dictionary with structure results_dict[model][realization] = pd.DataFrame.
     """
     models = results_dict.keys()
     new_results_dict = {}
@@ -178,7 +290,52 @@ def get_shortfall_metrics(
     start_date=None,
     end_date=None,
 ):
-    """ """
+    """
+    Compute shortfall metrics including reliability, resiliency, and event statistics.
+
+    Metrics are computed per model realization for each node in the list. These
+    include the probability of meeting flow/demand thresholds, and severity,
+    duration, and vulnerability of shortfall events.
+
+    Parameters
+    ----------
+    major_flows : dict
+        Simulated flow time series for each model and realization.
+    lower_basin_mrf_contributions : dict
+        Extra-release contributions from lower basin reservoirs.
+    mrf_targets : dict
+        MRF target flows by model and realization.
+    ibt_demands : dict
+        Inter-basin transfer demands (e.g., NY, NJ).
+    ibt_diversions : dict
+        Actual inter-basin transfers simulated.
+    models_mrf : list of str
+        Models associated with flow MRF metrics.
+    models_ibt : list of str
+        Models associated with inter-basin transfer metrics.
+    nodes : list of str
+        Nodes of interest for evaluating performance.
+    shortfall_threshold : float, optional
+        Minimum fraction of target to consider "satisfied". Default is 0.95.
+    shortfall_break_length : int, optional
+        Number of non-shortfall days needed to end a shortfall event. Default is 7.
+    units : str, optional
+        Units of flow ('MG' or 'MCM'). Default is 'MG'.
+    start_date : str or pd.Timestamp, optional
+        Start date for subset.
+    end_date : str or pd.Timestamp, optional
+        End date for subset.
+
+    Returns
+    -------
+    resultsdict : dict
+        Nested dictionary of performance metrics for each node, model, and realization.
+
+    Notes
+    -----
+    Key outputs include time-series and event-based metrics for drought
+    vulnerability assessments.
+    """
     units_daily = "BGD" if units == "MG" else "MCM/D"
     eps = 1e-9
 

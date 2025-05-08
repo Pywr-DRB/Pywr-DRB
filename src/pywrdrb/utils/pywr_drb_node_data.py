@@ -9,6 +9,13 @@ There are unique node source matches depending on whether the dataset is:
 - NWMv2.1
 - WEAP
 """
+import os
+import pywrdrb
+from pywrdrb import get_pn_object
+pn = get_pn_object()
+
+RAW_DATA_DIR = pn.observations.get_str() + os.sep + "_raw"
+
 
 ## Set of all upstream nodes for every downstream node
 upstream_nodes_dict = {
@@ -137,7 +144,7 @@ downstream_node_lags = {
     "fewalter": 0,
     "merrillCreek": 1,
     "hopatcong": 1,
-    "nockamixon": 1,
+    "nockamixon": 0,
     "assunpink": 0,
     "ontelaunee": 2,
     "stillCreek": 2,
@@ -297,9 +304,7 @@ nwm_site_matches = {
     "fewalter": ["4185065"],  # Lake inflow
     "merrillCreek": ["2588031"],  # No NWM lake; using available segment flow
     "hopatcong": ["2585287"],  # Lake inflow
-    "nockamixon": [
-        "2591099"
-    ],  # No NWM lake; using available segment flow  2591187 2591219
+    "nockamixon": ["2591099"],  # No NWM lake; using available segment flow
     "assunpink": ["2589015"],  # Lake inflow
     "ontelaunee": ["4779981"],  # Lake inflow
     "stillCreek": ["4778721"],  # Lake inflow
@@ -359,43 +364,6 @@ WEAP_24Apr2023_gridmet_NatFlows_matches = {
 }
 
 WEAP_29June2023_gridmet_NatFlows_matches = WEAP_24Apr2023_gridmet_NatFlows_matches
-
-### WRF-Hydro site matches
-wrf_hydro_site_matches = {
-    "cannonsville": ["2613174"],  # Lake inflow
-    "pepacton": ["1748473"],  # Lake inflow
-    "neversink": ["4146742"],  # Lake inflow
-    "wallenpaupack": ["2741600"],  # Lake inflow
-    "prompton": ["2739068"],  # Lake inflow
-    "shoholaMarsh": ["120052035"],  # Lake inflow
-    "mongaupeCombined": ["4148582"],  # Lake inflow
-    "beltzvilleCombined": ["4186689"],  # Lake inflow
-    "fewalter": ["4185065"],  # Lake inflow
-    "merrillCreek": ["2588031"],  # No NWM lake; using available segment flow
-    "hopatcong": ["2585287"],  # Lake inflow
-    "nockamixon": [
-        "2591099"
-    ],  # No NWM lake; using available segment flow  2591187 2591219
-    "assunpink": ["2589015"],  # Lake inflow
-    "ontelaunee": ["4779981"],  # Lake inflow
-    "stillCreek": ["4778721"],  # Lake inflow
-    "blueMarsh": ["4782813"],  # Lake inflow
-    "greenLane": ["4780087"],  # Lake inflow
-    "01425000": ["2614238"],
-    "01417000": ["1748727"],
-    "delLordville": ["2617364"],
-    "01436000": ["4147432"],
-    "01433500": ["4150156"],
-    "delMontague": ["4151628"],
-    "01449800": ["4187341"],
-    "01447800": ["4186403"],
-    "delDRCanal": ["2590277"],
-    "delTrenton": ["2590277"],
-    "01463620": ["2590117"],
-    "outletAssunpink": ["2590137"],
-    "01470960": ["4783213"],
-    "outletSchuylkill": ["4784841"],
-}
 
 # Dictionary to map data retrieval of data available for observed retrieval
 inflow_gauge_map = {
@@ -466,11 +434,7 @@ release_gauge_map = {
     "01470960": ["01474500"],
     "outletSchuylkill": ["01474500"],
 }
-import os
-from pywrdrb.utils import get_pn_object
-pn = get_pn_object()
 
-RAW_DATA_DIR = pn.observations.get_str() + os.sep + "_raw"
 storage_curves = {
     "01449790": f"{RAW_DATA_DIR}/beltzvilleCombined_storage_curve.csv", #"beltzvilleCombined"
     "01447780": f"{RAW_DATA_DIR}/fewalter_storage_curve.csv", #fewalter
