@@ -460,7 +460,7 @@ release_gauge_map = {
     "outletSchuylkill": ["01474500"],
 }
 import os
-from pywrdrb.utils import get_pn_object
+from pywrdrb.path_manager import get_pn_object
 pn = get_pn_object()
 
 RAW_DATA_DIR = pn.observations.get_str() + os.sep + "_raw"
