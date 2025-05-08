@@ -1,9 +1,11 @@
 pywrdrb.pre
 ================
 
+The following are used for preprocessing data, to prepare for `pywrdrb` simulation.
+
 .. autosummary::
     :toctree: generated/
     :nosignatures:
 
-    pywrdrb.PredictedInflowPreprocessor
-    pywrdrb.PredictedDiversionPreprocessor
+    pywrdrb.pre.PredictedInflowPreprocessor
+    pywrdrb.pre.PredictedDiversionPreprocessor
