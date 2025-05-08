@@ -1,4 +1,4 @@
-"""
+r"""
 A module to build a Pywr model file for the Delaware River Basin (DRB).
 
 Overview: 
@@ -51,6 +51,7 @@ from pywrdrb.utils.lists import (
     drbc_lower_basin_reservoirs
 )
 from pywrdrb.utils.constants import cfs_to_mgd
+from pywrdrb.utils.dates import model_date_ranges
 from pywrdrb.pywr_drb_node_data import (
     immediate_downstream_nodes_dict,
     downstream_node_lags,
@@ -258,6 +259,8 @@ class ModelBuilder:
         self.start_date = start_date
         self.end_date = end_date
         self.timestep = 1
+        
+        self.model_date_ranges = model_date_ranges
         
         self.inflow_type = inflow_type
         if diversion_type is None:

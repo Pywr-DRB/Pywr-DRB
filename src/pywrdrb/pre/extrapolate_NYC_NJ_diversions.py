@@ -36,7 +36,7 @@ from pywrdrb.pre.datapreprocessor_ABC import DataPreprocessor
 __all__ = ["ExtrapolatedDiversionPreprocessor"]
 
 class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
-    """
+    r"""
     Class for extrapolating NYC and NJ diversion data based on streamflow regressions.
     
     The class implements a workflow to extrapolate historical diversions into time

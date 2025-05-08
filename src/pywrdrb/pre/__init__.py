@@ -16,7 +16,4 @@ from pywrdrb.pre.observations import *
 from pywrdrb.pre.predict_diversions import *
 from pywrdrb.pre.predict_inflows import *
 from pywrdrb.pre.operational_constants import *
-
-from pywrdrb.pre.extrapolate_nyc_nj_diversions import ExtrapolatedDiversionPreprocessor
-from pywrdrb.pre.predict_diversions import PredictedDiversionPreprocessor
-from pywrdrb.pre.predict_inflows import PredictedInflowPreprocessor
+from pywrdrb.pre.extrapolate_NYC_NJ_diversions import *

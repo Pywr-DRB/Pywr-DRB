@@ -6,111 +6,111 @@ For more details, see the following paper:
 
 Hamilton, A. L., Amestoy, T. J., & Reed, Patrick. M. (2024). Pywr-DRB: An open-source Python model for water availability and drought risk assessment in the Delaware River Basin. Environmental Modelling & Software, 106185. https://doi.org/10.1016/j.envsoft.2024.106185
 
-## Installation
+# Installation
 
 ```bash
 pip install git+https://github.com/Pywr-DRB/Pywr-DRB.git
 ```
 
-## Getting start
+# A minimum example
 
-### Create a minimum example
+## 1. Import Required Packages
 ```python
-import pywrdrb
+import pywrdrb                        # Pywr-DRB package 
+import matplotlib.pyplot as plt       # Plotting package for visualizations
+import os                             # Standard package to handle file paths
+```
 
-###### Create a model ######
-# Initialize a model builder
+## 2. Define Working Directory
+```python
+# Replace this path with your preferred working directory.
+wd = r""  # Output files (model JSON, output HDF5) will be saved here.
+```
+
+## 3. Build the Pywr-DRB Model
+```python
+# Create a ModelBuilder instance with inflow data type and time period
 mb = pywrdrb.ModelBuilder(
-    inflow_type='nhmv10_withObsScaled', 
+    inflow_type='nwmv21_withObsScaled',  # Use hybrid version of NWM v2.1 inflow inputs
     start_date="1983-10-01",
     end_date="1985-12-31"
 )
 
-# Make a model
+# Generate the model structure
 mb.make_model()
 
-# Output model.json file
-model_filename = r"your working location\model.json"
+# Save the model configuration to JSON
+model_filename = os.path.join(wd, "my_model.json")
 mb.write_model(model_filename)
+```
 
-
-###### Run a simulation ######
-# Load the model using Model inherited from pywr
+## 4. Load the Model and Attach an Output Recorder
+```python
+# Load the model from the saved JSON file
 model = pywrdrb.Model.load(model_filename)
 
-# Add a recorder inherited from pywr
-output_filename = r"your working location\model_output.hdf5"
-pywrdrb.TablesRecorder(
-    model, output_filename, parameters=[p for p in model.parameters if p.name]
-)
+# Define the HDF5 output file to store simulation results
+output_filename = os.path.join(wd, "my_model.hdf5")
 
-# Run a simulation
+# Create an OutputRecorder to log all named parameters
+recorder = pywrdrb.OutputRecorder(
+    model=model,
+    output_filename=output_filename,
+    parameters=[p for p in model.parameters if p.name]
+)
+```
+
+## 5. Run the Model
+```python
+# Execute the simulation
 stats = model.run()
-
-
-###### Post process ######
-# Load model_output.hdf5 and turn it into dictionary
-output_dict = pywrdrb.hdf5_to_dict(output_filename)
 ```
 
-## Advanced usage
-
-### Customizing options
-Default optional settings.
-
+## 6. Load Simulation Outputs
 ```python
-# Print out the default optional settings
-mb.options.list()
-#NSCENARIOS: 1
-#inflow_ensemble_indices: None
-#use_hist_NycNjDeliveries: True
-#predict_temperature: False
-#temperature_torch_seed: 4
-#predict_salinity: False
-#salinity_torch_seed: 4
-#run_starfit_sensitivity_analysis: False
-#sensitivity_analysis_scenarios: []
-#initial_volume_frac: 0.8
+# Instantiate a Data object to access results
+data = pywrdrb.Data()
+
+# Load major flows and reservoir storage results from the HDF5 file
+results_sets = ['major_flow', 'res_storage']
+data.load_output(output_filenames=[output_filename], results_sets=results_sets)
+
+# Extract the dataframes for plotting
+df_major_flow = data.major_flow["my_model"][0]
+df_res_storage = data.res_storage["my_model"][0]
 ```
 
-Customize optional settings
+## 7. Plot Major Streamflows
 ```python
-mb = pywrdrb.ModelBuilder(
-    inflow_type='nhmv10_withObsScaled', 
-    start_date="1983-10-01",
-    end_date="1985-12-31",
-    options={
-        "predict_temperature": True
-    }
-)
+fig, ax = plt.subplots(figsize=(5, 4))
+df_major_flow[['delMontague', 'delTrenton']].plot(ax=ax)
+ax.set_ylabel("Streamflow (mgd)")
+ax.set_xlabel("Date")
+ax.set_title("Major Streamflow: Montague & Trenton")
+plt.tight_layout()
+plt.show()
 ```
+![](https://github.com/Pywr-DRB/Pywr-DRB/blob/master/docs/images/readme_streamflow.png)
 
-### Customizing directory
-In pywrdrb, we use a global directory instance to store the directories. The default 
-directories can be viewed by:
-
+## 8. Plot Reservoir Storage
 ```python
-mb.dirs.list()
-# or
-pywrdrb.get_directory().list()
+# Define reservoirs to plot
+reservoirs = ['cannonsville', 'pepacton', 'neversink']
+
+# Create subplots for each reservoir
+fig, axes = plt.subplots(nrows=3, ncols=1, figsize=(5, 5), sharex=True)
+for ax, res in zip(axes, reservoirs):
+    df_res_storage[res].plot(ax=ax)
+    ax.set_ylabel(f"{res}\nstorage\n(mg)")
+    ax.set_title(res.capitalize())
+
+plt.xlabel("Date")
+plt.suptitle("Reservoir Storage Over Time", y=0.96)
+plt.tight_layout()
+plt.show()
 ```
+![](https://github.com/Pywr-DRB/Pywr-DRB/blob/master/docs/images/readme_storage.png)
 
-For advanced usage, those directories can be assiged by the following:
-```python
-mb = pywrdrb.ModelBuilder(
-    inflow_type='nhmv10_withObsScaled', 
-    start_date="1983-10-01",
-    end_date="1985-12-31",
-    input_dir="new_input_dir"
-)
-
-# or 
-mb.set_directory(input_dir="new_input_dir")
-
-# or you may run the following code before using ModelBuilder
-pywrdrb.set_directory(input_dir="new_input_dir")
-```
-
-## Acknowledgements
+# Acknowledgements
 
 This research was funded by the U.S. Geological Survey (USGS) Water Availability and Use Science Program as part of the Water Resources Mission Area Predictive Understanding of Multiscale Processes Project (USGS Grant Number G21AC10668). The authors thank Hedeff Essaid and Noah Knowles from USGS and Aubrey Dugger and David Yates from the National Center for Atmospheric Research (NCAR) for providing data and feedback that improved this work. The views expressed in this work are those of the authors and do not reflect the views or policies of the USGS or NCAR.
