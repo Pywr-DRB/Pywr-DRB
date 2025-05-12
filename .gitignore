@@ -25,6 +25,7 @@ DRB_spatial/drb_model_map_dark.html
 
 figs/*
 output_data/*
+temp_results/*
 
 local/*
 cache/
