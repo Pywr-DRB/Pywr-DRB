@@ -15,6 +15,12 @@ Technical Notes:
 - Adjusts predictions for water consumption in each catchment
 - Outputs predictions for 1-4 days ahead at Montague and Trenton
 
+Example Usage:
+from pywrdrb.pre import PredictedInflowPreprocessor
+inflow_predictor = PredictedInflowPreprocessor(flow_type="pub_nhmv10_BC_withObsScaled", start_date="1945-01-01", end_date="2023-12-31", modes=("regression_disagg",),)
+inflow_predictor.process()
+inflow_predictor.save()
+
 Links:
 - See SI for Hamilton et al. (2024) for more details on the method formulation.
 

@@ -17,6 +17,14 @@ Technical Notes:
   predicted monthly values.
 - The processed data is saved to CSV files in pywrdrb/data/diversions/.
 
+Example Usage:
+from pywrdrb.pre import ExtrapolatedDiversionPreprocessor
+processor = ExtrapolatedDiversionPreprocessor(loc='nj', start_date='1945-01-01', end_date='2024-12-31')
+hist_diversions, hist_flows = processor.load()
+processor.process()
+processor.save()
+
+
 Links:
 - See SI for Hamilton et al. (2024) for more details on the method formulation.
 
@@ -147,14 +155,14 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
         if self.loc == "nyc":
             self.input_dirs = {
                 "diversion": self.pn.observations.get_str("_raw", "Pep_Can_Nev_diversions_daily_2000-2021.xlsx"),
-                "flow": self.pn.observations.get_str("_raw", "streamflow_daily_usgs_1950_2022_cms_for_NYC_NJ_diversions.csv")
+                "flow": self.pn.observations.get_str("_raw", "streamflow_daily_usgs_cms_for_NYC_NJ_diversions.csv")
             }
             self.output_dirs = {
                 "diversion": self.pn.diversions.get_str("diversion_nyc_extrapolated_mgd.csv")
             }
         elif self.loc == "nj":
             self.input_dirs = {
-                "flow": self.pn.observations.get_str("_raw", "streamflow_daily_usgs_1950_2022_cms_for_NYC_NJ_diversions.csv")
+                "flow": self.pn.observations.get_str("_raw", "streamflow_daily_usgs_cms_for_NYC_NJ_diversions.csv")
             }
             self.output_dirs = {
                 "diversion": self.pn.diversions.get_str("diversion_nj_extrapolated_mgd.csv")

@@ -18,6 +18,17 @@ Technical Notes:
 - Predictions follow the pattern "demand_nj_lag{1-4}_{mode}" 
 - Output is saved as a CSV file in the data/diversions directory for use by the model
 
+Example usage:
+from pywrdrb.pre import PredictedDiversionPreprocessor
+diversion_predictor = PredictedDiversionPreprocessor(
+    start_date="1945-01-01",
+    end_date="2023-12-31",
+    modes=("regression_disagg",),
+)
+diversion_predictor.process()
+diversion_predictor.save()
+
+
 Links:
 - See SI for Hamilton et al. (2024) for more details on the method formulation.
 
