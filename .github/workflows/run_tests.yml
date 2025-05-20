@@ -3,39 +3,45 @@
 
 name: tests
 
+# run when:
+# push or pull request is accepted to 
+# master branch
 on:
   push:
     branches:
       - master
+  pull_request:
+    branches:
+      - master
 
+# This runs all tests in the test/ folder
 jobs:
-  # This runs all tests in the test/ folder
   run-tests:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: [3.11]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
 
     # Install python
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
-
+        cache: 'pip'
+        cache-dependency-path: 'pyproject.toml'
+      
 
     # Install GLPK - this is needed for pywr
-    - name: Install GLPK
+    - name: Install GLPK and MPI
       run: |
-        sudo apt-get update && sudo apt-get install -y glpk-utils libglpk-dev
+        sudo apt-get update 
+        sudo apt-get install -y glpk-utils libglpk-dev libopenmpi-dev openmpi-bin
 
     - name: Add GLPK to PATH
       run: echo "/usr/local/lib" | sudo tee -a /etc/ld.so.conf.d/glpk.conf && sudo ldconfig
-
-    - name: Install MPI
-      run: sudo apt-get update && sudo apt-get install -y libopenmpi-dev openmpi-bin
 
     # based on https://github.com/marketplace/actions/restore-or-create-a-python-virtualenv#custom_virtualenv_dir
     # Note: virtual environment by default will be created under ~/venv
@@ -48,8 +54,9 @@ jobs:
 
     # install python dependencies
     - name: Install python dependencies
-      run: pip install -e .
-      # if\: steps.cache-virtualenv.outputs.cache-hit != 'true'
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .
 
     # run tests
     - name: Run tests
