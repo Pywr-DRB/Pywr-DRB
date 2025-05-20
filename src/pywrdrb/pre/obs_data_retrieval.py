@@ -94,6 +94,8 @@ class ObservationalDataRetriever(DataPreprocessor):
         ----------
         start_date : str
             Start date for data retrieval, typically set to the model start date (e.g., '1980-01-01').
+        end_date : str, optional
+            End date for data retrieval, defaults to today's date if not provided.
         """
         super().__init__()
         
@@ -406,6 +408,12 @@ class ObservationalDataRetriever(DataPreprocessor):
                 self.catchment_inflows[node] = self.flows[gauges].sum(axis=1)
         
         ## Storage
+        # For some reason, the storages dataframe has datetime which is not in order
+        # this originally is due to elevations data being misaligned
+        # sort elevations by datetime
+        self.elevations = self.elevations.sort_index()
+        self.elevations.index.name = "datetime"
+        
         # Convert elevation to volume using storage curves
         self.storages = self.elevation_to_storage(
             self.elevations, storage_curves
@@ -414,11 +422,13 @@ class ObservationalDataRetriever(DataPreprocessor):
         # Rename columns to match reservoir names
         self.storages.rename(columns={v[0]:k for k,v in storage_gauge_map.items()}, 
                              inplace=True)
+        self.storages.index.name = "datetime"
         
         ### For each dataframe, replace <=0.0 with NaN
         self.gage_flows[self.gage_flows <= 0.0] = np.nan
         self.catchment_inflows[self.catchment_inflows <= 0.0] = np.nan
         self.storages[self.storages <= 0.0] = np.nan
+        
         
 
     def save(self):

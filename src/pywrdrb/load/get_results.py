@@ -423,7 +423,7 @@ def get_base_results(
 
     elif results_set == "res_storage" and model == "obs":
         observed_storage_path = (
-            f"{input_dir}/observed_storage_data.csv"
+            f"{input_dir}/reservoir_storage_mg.csv"
         )
         try:
             observed_storage = pd.read_csv(observed_storage_path)
