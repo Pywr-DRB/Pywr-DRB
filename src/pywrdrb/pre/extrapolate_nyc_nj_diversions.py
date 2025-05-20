@@ -17,6 +17,7 @@ Technical Notes:
   predicted monthly values.
 - The processed data is saved to CSV files in pywrdrb/data/diversions/.
 
+
 Example Usage:
 from pywrdrb.pre import ExtrapolatedDiversionPreprocessor
 processor = ExtrapolatedDiversionPreprocessor(loc='nj')
@@ -74,10 +75,6 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
     ----------
     loc : str
         Location indicator, either "nyc" or "nj".
-    start_date : str
-        Start date for the extrapolation period.
-    end_date : str
-        End date for the extrapolation period.
     quarters : tuple
         Seasons used for different regression models (DJF, MAM, JJA, SON).
     lrms : dict
@@ -102,16 +99,14 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
     Example Usage  
     -------------
     >>> from pywrdrb.pre import ExtrapolatedDiversionPreprocessor
-    >>> processor = ExtrapolatedDiversionPreprocessor(loc='nyc', start_date='1945-01-01', end_date='2024-12-31')
+    >>> processor = ExtrapolatedDiversionPreprocessor(loc='nyc')
     >>> hist_diversions, hist_flows = processor.load()
     >>> processor.process()
     >>> processor.save()
     >>> [out] Saved extrapolated diversion data to <path>src\pywrdrb\data\diversions\
     """
     def __init__(self, 
-                 loc,
-                 start_date="1945-01-01",
-                 end_date=None):
+                 loc):
         """
         Initialize the ExtrapolatedDiversionPreprocessor.
         
@@ -119,10 +114,6 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
         ----------
         loc : str
             Location indicator, must be either "nyc" or "nj".
-        start_date : str, optional
-            Start date for the extrapolation, format: "YYYY-MM-DD".
-        end_date : str, optional
-            End date for the extrapolation, format: "YYYY-MM-DD".
             
         Raises
         ------
@@ -134,8 +125,6 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
         assert loc in ["nyc", "nj"], f"Invalid location specified. Expected 'nyc' or 'nj'. Got {loc}"
         
         self.loc = loc
-        self.start_date = start_date
-        self.end_date = end_date if (end_date is not None) else datetime.date.today().strftime("%Y-%m-%d")
         
         # Seasons (quarters) used for different regression models
         self.quarters = ("DJF", "MAM", "JJA", "SON")
