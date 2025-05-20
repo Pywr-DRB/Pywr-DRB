@@ -19,7 +19,7 @@ Technical Notes:
 
 Example Usage:
 from pywrdrb.pre import ExtrapolatedDiversionPreprocessor
-processor = ExtrapolatedDiversionPreprocessor(loc='nj', start_date='1945-01-01', end_date='2024-12-31')
+processor = ExtrapolatedDiversionPreprocessor(loc='nj')
 hist_diversions, hist_flows = processor.load()
 processor.process()
 processor.save()
@@ -38,8 +38,10 @@ import matplotlib.pyplot as plt
 import statsmodels.api as sm
 import datetime
 
-from pywrdrb.utils.constants import cfs_to_mgd, cms_to_mgd
+from pywrdrb.utils.constants import cfs_to_mgd
 from pywrdrb.pre.datapreprocessor_ABC import DataPreprocessor
+from pywrdrb.pywr_drb_node_data import obs_site_matches, nyc_reservoirs
+
 
 __all__ = ["ExtrapolatedDiversionPreprocessor"]
 
@@ -108,7 +110,7 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
     """
     def __init__(self, 
                  loc,
-                 start_date=None,
+                 start_date="1945-01-01",
                  end_date=None):
         """
         Initialize the ExtrapolatedDiversionPreprocessor.
@@ -133,7 +135,7 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
         
         self.loc = loc
         self.start_date = start_date
-        self.end_date = end_date
+        self.end_date = end_date if (end_date is not None) else datetime.date.today().strftime("%Y-%m-%d")
         
         # Seasons (quarters) used for different regression models
         self.quarters = ("DJF", "MAM", "JJA", "SON")
@@ -155,14 +157,14 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
         if self.loc == "nyc":
             self.input_dirs = {
                 "diversion": self.pn.observations.get_str("_raw", "Pep_Can_Nev_diversions_daily_2000-2021.xlsx"),
-                "flow": self.pn.observations.get_str("_raw", "streamflow_daily_usgs_cms_for_NYC_NJ_diversions.csv")
+                "flow": self.pn.observations.get_str("_raw", "streamflow_daily_usgs_mgd.csv")
             }
             self.output_dirs = {
                 "diversion": self.pn.diversions.get_str("diversion_nyc_extrapolated_mgd.csv")
             }
         elif self.loc == "nj":
             self.input_dirs = {
-                "flow": self.pn.observations.get_str("_raw", "streamflow_daily_usgs_cms_for_NYC_NJ_diversions.csv")
+                "flow": self.pn.observations.get_str("_raw", "streamflow_daily_usgs_mgd.csv")
             }
             self.output_dirs = {
                 "diversion": self.pn.diversions.get_str("diversion_nj_extrapolated_mgd.csv")
@@ -199,10 +201,23 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
             ### Pretty good after 1991-01-01, but a few remaining to clean up.
             start_date = (1991, 1, 1)
             fname = self.input_dirs["flow"]
-            diversion = pd.read_csv(fname)
-            diversion.index = pd.DatetimeIndex(diversion["datetime"])
-            diversion = diversion[["D_R_Canal"]]
-            diversion = diversion.loc[diversion.index >= datetime.datetime(*start_date)]
+            gage_flow = pd.read_csv(fname)
+            gage_flow.index = pd.DatetimeIndex(gage_flow["datetime"]).date
+            
+            # Convert gage ID ("01460440") to "D_R_Canal"
+            gage_flow["D_R_Canal"] = gage_flow["01460440"]
+                        
+            # the NJ diversion is estimated based on the canal flow
+            diversion = gage_flow[["D_R_Canal"]]
+            
+            # Keep just diversions after the start date
+            diversion = diversion.loc[
+                np.logical_and(
+                    diversion.index >= datetime.date(*start_date),
+                    diversion.index <= datetime.date.today(),
+                )
+            ]
+            diversion.index = pd.to_datetime(diversion.index)
 
             ### Infill NA values with previous day's flow
             for i in range(1, diversion.shape[0]):
@@ -210,8 +225,6 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
                     ind = diversion.index[i]
                     diversion.loc[ind, "D_R_Canal"] = diversion["D_R_Canal"].iloc[i - 1]
 
-            ### Convert cms to mgd
-            diversion *= cms_to_mgd
             ### Flow becomes negative sometimes, presumably due to storms and/or drought reversing flow. 
             ### Don't count as deliveries
             diversion[diversion < 0] = 0
@@ -221,7 +234,16 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
         flow = pd.read_csv(fname)
         flow.index = pd.to_datetime(flow["datetime"])
         
-        # Store the data for later processing
+        # Calculate total NYC inflow
+        nyc_inflow_gages = []
+        for res in nyc_reservoirs:
+            nyc_inflow_gages.extend(obs_site_matches[res])
+        flow["NYC_inflow"] = flow[nyc_inflow_gages].sum(axis=1)
+        
+        # Relabel the trenton gage ("01463500") to "delTrenton"
+        flow["delTrenton"] = flow["01463500"]
+                
+        # Store the data for later
         self.diversion = diversion
         self.flow = flow
         
