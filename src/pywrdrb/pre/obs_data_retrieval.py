@@ -218,7 +218,9 @@ class ObservationalDataRetriever(DataPreprocessor):
 
         return df_combined
 
-    def elevation_to_storage(self, elevation_df, storage_curve_dict):
+    def elevation_to_storage(self, 
+                             elevation_df, 
+                             storage_curve_dict):
         """
         Convert reservoir elevation time series to volume using storage curves.
 
