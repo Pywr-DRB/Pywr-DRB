@@ -246,7 +246,7 @@ class Data(AbstractDataLoader):
         self.__print_status__(f"Loading observations data sets {results_sets_subset}...")
         
         # Directory with obs data from pn
-        input_dir = self.pn.observations.get_str() + os.sep + "_raw" + os.sep 
+        input_dir = self.pn.observations.get_str()
         
         
         # Observation data loader

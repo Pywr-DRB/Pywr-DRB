@@ -108,8 +108,8 @@ def get_keys_and_column_names_for_results_set(keys, results_set):
         ]
         col_names = [k.split("_")[1] for k in keys]
         
-        print(f"Reservoir storage keys: {keys}")
-        print(f"Reservoir storage column names: {col_names}")
+        # print(f"Reservoir storage keys: {keys}")
+        # print(f"Reservoir storage column names: {col_names}")
         
     elif results_set == "major_flow":
         keys = [
