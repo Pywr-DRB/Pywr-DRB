@@ -120,7 +120,7 @@ Tutorials and APIs can be found [![Docs](https://github.com/Pywr-DRB/Pywr-DRB/ac
 
 If you are using the package, we kindly ask that you acknowledge both the model and the associated publication.
 
-1. Model: Click [![DOI](https://zenodo.org/badge/479150651.svg)](https://doi.org/10.5281/zenodo.10720011) to see the citation for latest version of Pywr-DRB or citations of previous versions.
+1. Model: Click [![DOI](https://zenodo.org/badge/479150651.svg)](https://doi.org/10.5281/zenodo.10720011) to view the citation for the latest version of Pywr-DRB, as well as citations for previous versions.
 
 2. Paper: Hamilton, A. L., Amestoy, T. J., & Reed, Patrick. M. (2024). Pywr-DRB: An open-source Python model for water availability and drought risk assessment in the Delaware River Basin. Environmental Modelling & Software, 106185. https://doi.org/10.1016/j.envsoft.2024.106185
 
