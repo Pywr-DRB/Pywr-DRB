@@ -32,7 +32,8 @@ dependencies = [
     "dataretrieval",
     "torch",
     "bmipy",
-    "joblib"
+    "joblib",
+    "tqdm"
     ]
 
 [project.optional-dependencies]
