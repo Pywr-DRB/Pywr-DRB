@@ -25,19 +25,22 @@ dependencies = [
     "pytest",
     "mpi4py",
     "hatch",
-    "torch",
-    "bmipy",
     "hydroeval",
     "jupyter-book",
     "ghp-import",
     "folium",
-    "dataretrieval"
+    "dataretrieval",
+    "torch",
+    "bmipy",
+    "joblib",
+    "tqdm"
     ]
 
 [project.optional-dependencies]
 dev = [
     "ipython",
 ]
+
 lint = [
     "pre-commit>=2.20.0",
 ]

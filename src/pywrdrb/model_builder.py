@@ -90,14 +90,12 @@ class Options:
     use_hist_NycNjDeliveries : bool
         If True, use historical NYC/NJ deliveries as demand, else use predicted demand. 
         Otherwise, assume demand is equal to max allotment under FFMP. Default is True.
-    predict_temperature : bool
-        If True, use LSTM model to predict temperature at Lordville. Default is False.
-    temperature_torch_seed : int
-        Seed for torch random number generator for temperature LSTM model. Default is 4.
-    predict_salinity : bool
-        If True, use LSTM model to predict salinity at Trenton. Default is False.
-    salinity_torch_seed : int
-        Seed for torch random number generator for salinity LSTM model. Default is 4.
+    temperature_model: Optional[dict] = None
+        If given, use LSTM model to predict temperature at Lordville. Default is None.
+        {"PywrDRB_ML_plugin_path": None, "start_date": None, "activate_thermal_control": False, "Q_C_lstm_var_name": None, "Q_i_lstm_var_name": None, "disable_tqdm": False}
+    salinity_model : Optional[dict] = None
+        If given, use LSTM model to predict salt front river mile. Default is None.
+        {"PywrDRB_ML_plugin_path": None, "start_date": None, "Q_Trenton_lstm_var_name": None, "Q_Schuylkill_lstm_var_name": None, "disable_tqdm": False}
     run_starfit_sensitivity_analysis : bool
         If True, run STARFIT sensitivity analysis. Default is False.
     sensitivity_analysis_scenarios : List[str]
@@ -108,10 +106,8 @@ class Options:
     NSCENARIOS: int = 1
     inflow_ensemble_indices: Optional[List[int]] = None
     use_hist_NycNjDeliveries: bool = True
-    predict_temperature: bool = False
-    temperature_torch_seed: int = 4
-    predict_salinity: bool = False
-    salinity_torch_seed: int = 4
+    temperature_model: Optional[dict] = None
+    salinity_model: Optional[dict] = None
     run_starfit_sensitivity_analysis: bool = False
     sensitivity_analysis_scenarios: List[str] = field(default_factory=list)
     # Initial reservoir storages as 80% of capacity
@@ -221,7 +217,7 @@ class ModelBuilder:
     add_parameter_nyc_reservoirs_balancing_methods()
         Adds parameters for balancing methods for NYC reservoirs,
         including flood control and FFMP releases.
-    add_parameter_couple_temp_lstm()
+    add_parameter_temperature_model()
         Adds parameters to couple the temperature LSTM model with the reservoir model.
     add_parameter_couple_salinity_lstm()
         Adds parameters to couple the salinity LSTM model with the reservoir model.
@@ -247,10 +243,8 @@ class ModelBuilder:
             Dictionary of options to pass to the model builder. Options include: 
             inflow_ensemble_indices (list of int): List of indices to use for inflow ensemble scenarios.
             use_hist_NycNjDeliveries (bool): If True, we use historical NYC/NJ deliveries as demand, else we use predicted demand. Otherwise, assume demand is equal to max allotment under FFMP.
-            predict_temperature (bool): If True, we use LSTM model to predict temperature at Lordville.
-            temperature_torch_seed (int): Seed for torch random number generator for temperature LSTM model.
-            predict_salinity (bool): If True, we use LSTM model to predict salinity at Trenton.
-            salinity_torch_seed (int): Seed for torch random number generator for salinity LSTM model.
+            temperature_model (dict): If given, we use LSTM model to predict temperature at Lordville.
+            salinity_model (dict): If given, we use LSTM model to predict salinity at Trenton.
             run_starfit_sensitivity_analysis (bool): If True, we run STARFIT sensitivity analysis.
             sensitivity_analysis_scenarios (list of str): List of scenarios to use for STARFIT sensitivity analysis.
             initial_volume_frac (float): Initial reservoir storage as a fraction of capacity. Default is 0.8.
@@ -416,10 +410,10 @@ class ModelBuilder:
         #######################################################################
         ### Couple temperature & salinaty LSTM model
         #######################################################################
-        if self.options.predict_temperature:
-            self.add_parameter_couple_temp_lstm()
-        if self.options.predict_salinity:
-            self.add_parameter_couple_salinity_lstm()
+        if self.options.temperature_model is not None:
+            self.add_parameter_temperature_model()
+        if self.options.salinity_model is not None:
+            self.add_parameter_salinity_model()
 
     def write_model(self, model_filename):
         """
@@ -668,7 +662,7 @@ class ModelBuilder:
             }
         # NYC Reservoirs
         elif regulatory_release and not starfit_release:
-            # outflow of cannonsville & pepacton will be overwrote later if predict_temperature is True.
+            # outflow of cannonsville & pepacton will be overwritten later if temperature_model is not None.
             outflow = {
                 "name": f"outflow_{reservoir_name}",
                 "type": "link",
@@ -1453,7 +1447,6 @@ class ModelBuilder:
         This is used to track the remaining volume in the bank storages for IERQ calculations.
         """
         model_dict = self.model_dict
-        
         # NYC IERQ bank storages
         # Currently only Trenton equivalent flow bank is implemented
         for bank in ["trenton"]:
@@ -1937,49 +1930,65 @@ class ModelBuilder:
                 "node": f"reservoir_{reservoir}",
             }
 
-    def add_parameter_couple_temp_lstm(self):
+    def add_parameter_temperature_model(self):
         """
         Add parameters for temperature prediction using LSTM model.
         This includes temperature model initialization, thermal release requirements, 
         and predicted maximum water temperature at Lordville.
         """
-        try:
-            from pywrdrb.parameters.temperature import (
-                TemperatureLSTM,
-                TemperatureModel,
-                TotalThermalReleaseRequirement, 
-                GetTemperatureLSTMValueWithoutThermalRelease,
-                AllocateThermalReleaseRequirement, 
-                PredictedMaxTemperatureAtLordville, 
-                GetTemperatureLSTMValue
-            )
-        except Exception as e:
-            print(f"Temperature prediction model not available. Error: {e}")
-
         model_dict = self.model_dict
         # Add the temperature model so that all instances can use or retrieve attributes from it.
         # The value method return None.
+        temp_options = self.options.temperature_model
+        
+        # temp_options
+        #{"PywrDRB_ML_plugin_path": None,
+        # "start_date": None,
+        # "activate_thermal_control": False,
+        # "Q_C_lstm_var_name": None,
+        # "Q_i_lstm_var_name": None,}
+        
+        PywrDRB_ML_plugin_path = temp_options["PywrDRB_ML_plugin_path"]
+        pn.sc.add("PywrDRB_ML", PywrDRB_ML_plugin_path, overwrite=True) 
+        if pn.sc.get("PywrDRB_ML").exists() is False:
+            raise FileNotFoundError(f"PywrDRB_ML plugin not found at {PywrDRB_ML_plugin_path}")
+        
+        # Main temperature model
         model_dict["parameters"]["temperature_model"] = {
                 "type": "TemperatureModel",
-                "torch_seed": self.options.temperature_torch_seed
+                "start_date": temp_options["start_date"],
+                "activate_thermal_control": temp_options["activate_thermal_control"],
+                "Q_C_lstm_var_name": temp_options["Q_C_lstm_var_name"],
+                "Q_i_lstm_var_name": temp_options["Q_i_lstm_var_name"],
+                "PywrDRB_ML_plugin_path": str(PywrDRB_ML_plugin_path),
+                "disable_tqdm": temp_options["disable_tqdm"],
             }
+        
+        model_dict["parameters"]["estimated_Q_i"] = {
+            "type": "Estimated_Q_i"
+        }
 
-        # Add the additional thermal release (plug-in need to be activated otherwise
-        # The additional thermal release is 0). The additional thermal releases only 
-        # apply to ["cannonsville", "pepacton"].
+        model_dict["parameters"]["estimated_Q_C"] = {
+            "type": "Estimated_Q_C"
+        }
 
-        model_dict["parameters"]["total_thermal_release_requirement"] = {
-                "type": "TotalThermalReleaseRequirement",
+        # Call make_control_release() in TemperatureModel if activate_thermal_control is True
+        model_dict["parameters"]["thermal_release_requirement"] = {
+                "type": "ThermalReleaseRequirement",
             }
-        model_dict["parameters"]["predicted_max_temperature_at_lordville_without_thermal_release_mu"] = {
-                "type": "GetTemperatureLSTMValueWithoutThermalRelease",
-                "variable": "mu",
+        
+        # Retrieve forecasted temperature before thermal release
+        model_dict["parameters"]["forecasted_temperature_before_thermal_release_mu"] = {
+                "type": "ForecastedTemperatureBeforeThermalRelease",
+                "variable": "mu"
             }
-        model_dict["parameters"]["predicted_max_temperature_at_lordville_without_thermal_release_sd"] = {
-                "type": "GetTemperatureLSTMValueWithoutThermalRelease",
-                "variable": "sd",
+        model_dict["parameters"]["forecasted_temperature_before_thermal_release_mu"] = {
+                "type": "ForecastedTemperatureBeforeThermalRelease",
+                "variable": "sd"
             }
-        for reservoir in ["cannonsville", "pepacton"]:
+        
+        # Overwrite original downstream setting to add the thermal release
+        for reservoir in ["cannonsville"]:
             # Overwrite the max flow of the outflow node with the additional thermal release.
             # We searched over all nodes to find the node with the name "outflow_{reservoir}".
             # Not the most efficient way, but it make the code more searchable.
@@ -1993,88 +2002,64 @@ class ModelBuilder:
                 "agg_func": "sum",
                 "parameters": [
                     f"downstream_release_target_{reservoir}",
-                    f"thermal_release_{reservoir}"
+                    "thermal_release_requirement"
                 ],
             }
-
-            model_dict["parameters"][f"thermal_release_{reservoir}"] = {
-                "type": "AllocateThermalReleaseRequirement",
-                "reservoir": reservoir,
+        
+        
+        # Call update() in TemperatureModel to compute the max water temperature at Lordville after thermal release
+        model_dict["parameters"]["update_temperature_at_lordville"] = {
+                "type": "UpdateTemperatureAtLordville",
             }
-
-        model_dict["parameters"]["predicted_max_temperature_at_lordville_run_lstm"] = {
-                "type": "PredictedMaxTemperatureAtLordville",
+        # Retrieve the max water temperature at Lordville after thermal release
+        model_dict["parameters"]["temperature_after_thermal_release_mu"] = {
+                "type": "TemperatureAfterThermalRelease",
+                "variable": "mu"
+            }
+        model_dict["parameters"]["temperature_after_thermal_release_sd"] = {
+                "type": "TemperatureAfterThermalRelease",
+                "variable": "sd"
             }
         
-        model_dict["parameters"]["predicted_max_temperature_at_lordville_mu"] = {
-                "type": "GetTemperatureLSTMValue",
-                "variable": "mu",
-            }
-        model_dict["parameters"]["predicted_max_temperature_at_lordville_sd"] = {
-                "type": "GetTemperatureLSTMValue",
-                "variable": "sd",
-            }
-        # Do we need to add an auxiliary node to store temperature?
-        # Do we need seperate parameters for mu and sig?
-        #model_dict["parameters"]["predicted_mu_max_of_temperature"] = {
-        #        "type": "TemperaturePrediction"
-        #    }
-
-
-        # Archive
-        #model_dict["parameters"]["predicted_mu_max_of_temperature"] = {
-        #        "type": "TemperaturePrediction"
-        #    }
-
-    #!! Not yet complete
-    def add_parameter_couple_salinity_lstm(self):
+    def add_parameter_salinity_model(self):
         """
         Add parameters for salinity prediction using LSTM model.
         This includes salinity model initialization and salt front river mile.
         """
         model_dict = self.model_dict
-        try:
-            from pywrdrb.parameters.salinity import (
-                SalinityModel, 
-                SaltFrontRiverMile, 
-                SaltFrontAdjustFactor
-                )
-
-        except Exception as e:
-            print(f"Salinity prediction model not available. Error: {e}")
-
-        # For salinity control
-        rivermiles = ["92_5", "87", "82_9", "below_82_9"]
-        mrfs = ["delMontague", "delTrenton"]
-        for mrf in mrfs:
-            for rm in rivermiles:
-                    # Load the monthly profile for the salinity control factor
-                    model_dict["parameters"][f"salt_front_adjust_factor_{rm}_mrf_{mrf}"] = {
-                        "type": "monthlyprofile",
-                        "url": "drb_model_monthlyProfiles.csv",
-                        "index_col": "profile",
-                        "index": f"rm_factor_mrf_{mrf}_{rm}",
-                    }
-            # Create instance of the SaltFrontAdjustFactor parameter
-            model_dict["parameters"][f"salt_front_adjust_factor_{mrf}"] = {
-                            "type": "SaltFrontAdjustFactor",
-                            "mrf": mrf
-                        }
-        # Overwrite total Montague & Trenton flow targets based on drought level of NYC aggregated storage
-        # in add_parameter_montague_trenton_flow_targets()
-        for mrf in mrfs:
-            model_dict["parameters"][f"mrf_target_{mrf}"] = {
-                "type": "aggregated",
-                "agg_func": "product",
-                "parameters": [f"mrf_baseline_{mrf}", f"mrf_drought_factor_{mrf}", f"salt_front_adjust_factor_{mrf}"],
-            }
-
-        # Set seed for salinity model
+        salinity_options = self.options.salinity_model
+        
+        # salinity_model
+        #{"PywrDRB_ML_plugin_path": None,
+        # "start_date": None,
+        # "Q_Trenton_lstm_var_name": None,
+        # "Q_Schuylkill_lstm_var_name": None,}
+        
+        PywrDRB_ML_plugin_path = salinity_options["PywrDRB_ML_plugin_path"]
+        pn.sc.add("PywrDRB_ML", PywrDRB_ML_plugin_path, overwrite=True) 
+        if pn.sc.get("PywrDRB_ML").exists() is False:
+            raise FileNotFoundError(f"PywrDRB_ML plugin not found at {PywrDRB_ML_plugin_path}")
+        
+        # Main salinity model
         model_dict["parameters"]["salinity_model"] = {
                 "type": "SalinityModel",
-                "torch_seed": self.options.salinity_torch_seed
+                "start_date": salinity_options["start_date"],
+                "Q_Trenton_lstm_var_name": salinity_options["Q_Trenton_lstm_var_name"],
+                "Q_Schuylkill_lstm_var_name": salinity_options["Q_Schuylkill_lstm_var_name"],
+                "PywrDRB_ML_plugin_path": str(PywrDRB_ML_plugin_path),
+                "disable_tqdm": salinity_options["disable_tqdm"],
             }
-        # Add parameter for salt front river mile        
-        model_dict["parameters"]["salt_front_river_mile"] = {
-                "type": "SaltFrontRiverMile"
+        
+        model_dict["parameters"]["update_salt_front_location"] = {
+            "type": "UpdateSaltFrontLocation"
+        }
+        
+        # Retrieve salt front river mile
+        model_dict["parameters"]["salt_front_location_mu"] = {
+                "type": "SaltFrontLocation",
+                "variable": "mu"
+            }
+        model_dict["parameters"]["salt_front_location_sd"] = {
+                "type": "SaltFrontLocation",
+                "variable": "sd"
             }

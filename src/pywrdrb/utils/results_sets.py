@@ -49,6 +49,7 @@ pywrdrb_results_set_descriptions = {
     "mrf_targets": "streamflow targets for Montague and Trenton (MGD).",
     "all_mrf": "All MRF data.",
     "temperature": "Temperature data.",
+    "salinity": "Salt front location."
 }
 
 
