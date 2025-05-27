@@ -8,6 +8,8 @@ The Salinity LSTM model is developed based on Gorski et al. (2024). We rebuild t
 from Zwart et al. (2023)
 to predict mean water temperature at Lordville each timestep.
 
+PywrDRB_ML plugin: github.com/philip928lin/PywrDRB-ML
+
 Gorski, G., Cook, S., Snyder, A., Appling, A. P., Thompson, T., Smith, J. D., 
 Warner, J. C., & Topp, S. N. (2024). Deep learning of estuary salinity dynamics is 
 physically accurate at a fraction of hydrodynamic model computational cost. Limnology 
@@ -18,6 +20,10 @@ H. R., ... & Read, J. S. (2023). Near‐term forecasts of stream temperature usi
 and data assimilation in support of management decisions.
 JAWRA Journal of the American Water Resources Association, 59(2), 317-337.
 
+To do
+------
+- We have not yet add salt front to the policy. Likely, we will store and use the previous day's salt front location
+  in the Trenton flow target policy during the emergent drought.
 
 Change Log
 ----------
@@ -37,9 +43,6 @@ from pywrdrb.path_manager import get_pn_object
 # https://github.com/philip928lin/PathNavigator
 global pn
 pn = get_pn_object()
-
-# We have not yet add salt front to the policy. Likely, we will store and use the previous day's salt front location
-# in the Trenton flow target policy during the emergent drought.
 
 class SalinityModel(Parameter):
     def __init__(self, model, 

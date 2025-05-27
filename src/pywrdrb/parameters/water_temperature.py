@@ -2,14 +2,25 @@
 Contains the custom parameter classes which use the LSTM model from Zwart et al. (2023)
 to predict mean water temperature at Lordville each timestep.
 
-Classes:
-- TemperaturePrediction
+Overview
+--------
+The temperature model is developed based on Zwart et al. (2023). In order to fit to the 
+control purpose, we construct LSTM1 to predict the Cannonsville downstream gauge temperature (T_C) 
+and LSTM2 to predict the East Branch flow and the natural flow to Lordville (T_i).
+The final water temperature at Lordville (T_L) is calculated by mapping the average temperature (Tavg)
+to the maximum temperature (T_L) using a random forest model.
+
+PywrDRB_ML plugin: github.com/philip928lin/PywrDRB-ML
 
 LSTM model reference:
 Zwart, J. A., Oliver, S. K., Watkins, W. D., Sadler, J. M., Appling, A. P., Corson‐Dosch,
 H. R., ... & Read, J. S. (2023). Near‐term forecasts of stream temperature using deep learning
 and data assimilation in support of management decisions.
 JAWRA Journal of the American Water Resources Association, 59(2), 317-337.
+
+Change Log
+----------
+Chung-Yi Lin, 2025-05-25, Create the script.
 """
 # Necessary evil for lstm to find files
 import sys
