@@ -29,7 +29,7 @@ dependencies = [
     "jupyter-book",
     "ghp-import",
     "folium",
-    "dataretrieval"
+    "dataretrieval",
     "torch",
     "bmipy",
     "joblib"
