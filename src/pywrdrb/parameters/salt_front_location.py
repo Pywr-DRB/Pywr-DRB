@@ -161,7 +161,6 @@ class SalinityModel(Parameter):
 SalinityModel.register()
 # salinity_model
 
-
 class UpdateSaltFrontLocation(Parameter):
     def __init__(self, model, salinity_model, **kwargs):
         super().__init__(model, **kwargs)

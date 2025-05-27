@@ -31,5 +31,8 @@ model_date_ranges["wrf1960s_calib_nlcd2016"] = ("1959-10-01", "1969-12-31")
 model_date_ranges["wrf2050s_calib_nlcd2016"] = ("1959-10-01", "1969-12-31")
 model_date_ranges["wrfaorc_calib_nlcd2016"] = ("1979-10-01", "2021-12-31")
 
+# Reconstruction datasets
+model_date_ranges["pub_nhmv10_BC_withObsScaled"] = ("1945-01-01", "2023-12-31")
+
 ## The date range where temperature prediction LSTM is able to be run
 temp_pred_date_range = ("1982-04-03", "2021-04-15")

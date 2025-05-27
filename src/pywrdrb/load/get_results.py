@@ -20,12 +20,9 @@ Links:
 Change Log:
 TJA, 2025-05-02, Added consistent docstrings. Deleted old functions.
 """
-
-import os
 import numpy as np
 import pandas as pd
 import h5py
-import warnings
 
 from pywrdrb.utils.lists import (
     reservoir_list,
@@ -34,7 +31,7 @@ from pywrdrb.utils.lists import (
     reservoir_link_pairs,
 )
 from pywrdrb.utils.lists import drbc_lower_basin_reservoirs
-from pywrdrb.utils.constants import cfs_to_mgd, mg_to_mcm
+from pywrdrb.utils.constants import mg_to_mcm
 from pywrdrb.utils.results_sets import pywrdrb_results_set_opts
 
 
@@ -208,7 +205,6 @@ def get_keys_and_column_names_for_results_set(keys, results_set):
         #TODO: raise value error
         pass
     return keys, col_names
-
 
 def get_pywrdrb_results(
     output_filename, 

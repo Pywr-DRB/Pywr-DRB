@@ -17,27 +17,16 @@ Links:
 
 Change Log:
 TJA, 2025-05-05, Implemented pathnavigator usage & added consistent docstrings.
+Chung-Yi Lin, 2025-05-27, Added flowtype_opts using the pathnavigator object.
 """
 
 from pywrdrb.load.abstract_loader import AbstractDataLoader, default_kwargs
 from pywrdrb.load.get_results import get_base_results
 from pywrdrb.utils.results_sets import hydrologic_model_results_set_opts
+from pywrdrb.path_manager import get_pn_object
 
-# TODO:
-# This list should be generated dynamically 
-# using the pathnavigator, based on all the 
-# current data/flows/ folders or other directories
-flowtype_opts = [
-    'nhmv10',
-    'nhmv10_withObsScaled', 
-    'nwmv21',
-    'nwmv21_withObsScaled',
-    'wrf1960s_calib_nlcd2016',
-    'wrf2050s_calib_nlcd2016',
-    'wrfaorc_calib_nlcd2016',
-    'wrfaorc_withObsScaled',
-    ]
-
+pn = get_pn_object()
+flowtype_opts = [i for i in pn.flows.list(type="folder") if i[0] != "_"]
 
 class HydrologicModelFlow(AbstractDataLoader):
     """

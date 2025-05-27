@@ -29,9 +29,6 @@ import pandas as pd
 
 from pywr.parameters import Parameter, load_parameter
 
-from pywrdrb.utils.lists import reservoir_list_nyc
-from pywrdrb.utils.constants import epsilon
-
 max_bank_volumes = {
     "trenton": 6090,  # 6090 MGD (6.09 BG)
     "thermal": 1620,  # 1620 MGD (1.62 BG)

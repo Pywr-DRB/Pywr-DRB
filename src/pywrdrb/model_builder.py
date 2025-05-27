@@ -38,6 +38,7 @@ Basin. Environmental Modelling & Software, 106185. https://doi.org/10.1016/j.env
  
 Change Log:
 Chung-Yi Lin, 2025-05-02, None
+Chung-Yi Lin, 2025-05-27, Add Temperature and Salinity LSTM model coupling.
 """
 import json
 from dataclasses import dataclass, field
