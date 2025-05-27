@@ -213,24 +213,138 @@ class TemperatureModel(Parameter):
 TemperatureModel.register()
 # temperature_model
 
+class Estimated_Q_C(Parameter):
+    # Cannonsville reservoir release => downstream gauge (01425000) => Lordville
+    def __init__(self, model, downstream_release_target_cannonsville, 
+                 flow_01425000, max_flow_catchmentConsumption_01425000, 
+                 flow_cannonsville, max_flow_catchmentConsumption_cannonsville,
+                 max_flow_delivery_nyc,
+                 **kwargs):
+        super().__init__(model, **kwargs)
+        self.downstream_release_target_cannonsville = downstream_release_target_cannonsville
+        self.flow_01425000 = flow_01425000
+        self.max_flow_catchmentConsumption_01425000 = max_flow_catchmentConsumption_01425000
+        self.flow_cannonsville = flow_cannonsville
+        self.max_flow_catchmentConsumption_cannonsville = max_flow_catchmentConsumption_cannonsville
+        self.max_flow_delivery_nyc = max_flow_delivery_nyc
+
+        self.children.add(downstream_release_target_cannonsville)
+        self.children.add(flow_01425000)
+        self.children.add(max_flow_catchmentConsumption_01425000)
+        self.children.add(flow_cannonsville)
+        self.children.add(max_flow_catchmentConsumption_cannonsville)
+        self.children.add(max_flow_delivery_nyc)
+        
+    def setup(self):
+        super().setup()
+        self.reservoir_cannonsville = self.model.nodes["reservoir_cannonsville"] 
+        
+    def value(self, timestep, scenario_index):
+        max_flow_delivery_nyc = self.max_flow_delivery_nyc.get_value(scenario_index)
+        # = min("demand_nyc", "max_flow_drought_delivery_nyc", "max_flow_ffmp_delivery_nyc")
+        
+        # Currently, the delivery to NYC is allocated to three NYC reservoirs through VolBalanceNYCDemand.
+        # I don't want to repeat the logic here, we approximate the allocation by the reservoir volumes.
+        max_volume_cannonsville = 95700 # MG (We manually input here to avoid complexity)
+        max_volume_nyc = 270800 # MG (We manually input here to avoid complexity)
+        max_flow_delivery_nyc_cannonsville = max_flow_delivery_nyc * max_volume_cannonsville / max_volume_nyc
+        
+        available_connonsville_volume = self.reservoir_cannonsville.volume[0] \
+            + self.flow_cannonsville.get_value(scenario_index) \
+            - self.max_flow_catchmentConsumption_cannonsville.get_value(scenario_index) \
+            
+        # outflow = downstream_release_target_cannonsville if the reservoir is not empty
+        target_outflow = self.downstream_release_target_cannonsville.get_value(scenario_index)
+            
+        # Assuming max_flow_delivery_nyc_cannonsville is not the piority during the drought
+        outflow = min(available_connonsville_volume, target_outflow)
+        
+        # For spill situation
+        available_connonsville_volume = available_connonsville_volume - max_flow_delivery_nyc_cannonsville
+        spill = max((available_connonsville_volume-target_outflow) - max_volume_cannonsville, 0)
+        
+        reservoir_release = outflow + spill 
+        
+        Q_C = reservoir_release + self.flow_01425000.get_value(scenario_index) \
+            - self.max_flow_catchmentConsumption_01425000.get_value(scenario_index)
+        return Q_C
+
+    @classmethod
+    def load(cls, model, data):
+        downstream_release_target_cannonsville = load_parameter(model, "downstream_release_target_cannonsville")
+        flow_01425000 = load_parameter(model, "flow_01425000") # catchment_01425000
+        max_flow_catchmentConsumption_01425000 = load_parameter(model, "max_flow_catchmentConsumption_01425000")
+        
+        flow_cannonsville = load_parameter(model, "flow_cannonsville") # catchment_cannonsville
+        max_flow_catchmentConsumption_cannonsville = load_parameter(model, "max_flow_catchmentConsumption_cannonsville")
+        
+        max_flow_delivery_nyc = load_parameter(model, "max_flow_delivery_nyc") # aggregated parameter
+        return cls(model, downstream_release_target_cannonsville, 
+                   flow_01425000, max_flow_catchmentConsumption_01425000, 
+                   flow_cannonsville, max_flow_catchmentConsumption_cannonsville,
+                   max_flow_delivery_nyc, **data)
+Estimated_Q_C.register()
+# estimated_Q_C
+
 class Estimated_Q_i(Parameter):
-    def __init__(self, model, downstream_release_target_pepacton, flow_01417000, max_flow_catchmentConsumption_01417000, flow_delLordville, max_flow_catchmentConsumption_delLordville, **kwargs):
+    # Pepacton reservoir release => downstream gauge (01417000) => Lordville
+    def __init__(self, model, downstream_release_target_pepacton, flow_01417000, 
+                 max_flow_catchmentConsumption_01417000, flow_delLordville, 
+                 max_flow_catchmentConsumption_delLordville, 
+                 flow_pepacton, max_flow_catchmentConsumption_pepacton,
+                 max_flow_delivery_nyc,
+                 **kwargs):
         super().__init__(model, **kwargs)
         self.downstream_release_target_pepacton = downstream_release_target_pepacton
         self.flow_01417000 = flow_01417000
         self.max_flow_catchmentConsumption_01417000 = max_flow_catchmentConsumption_01417000
         self.flow_delLordville = flow_delLordville
         self.max_flow_catchmentConsumption_delLordville = max_flow_catchmentConsumption_delLordville
+        self.flow_pepacton = flow_pepacton
+        self.max_flow_catchmentConsumption_pepacton = max_flow_catchmentConsumption_pepacton
+        self.max_flow_delivery_nyc = max_flow_delivery_nyc
 
         self.children.add(downstream_release_target_pepacton)
         self.children.add(flow_01417000)
         self.children.add(max_flow_catchmentConsumption_01417000)
         self.children.add(flow_delLordville)
         self.children.add(max_flow_catchmentConsumption_delLordville)
+        self.children.add(flow_pepacton)
+        self.children.add(max_flow_catchmentConsumption_pepacton)
+        self.children.add(max_flow_delivery_nyc)
+    
+    def setup(self):
+        super().setup()
+        self.reservoir_pepacton = self.model.nodes["reservoir_pepacton"] 
         
     def value(self, timestep, scenario_index):
+        max_flow_delivery_nyc = self.max_flow_delivery_nyc.get_value(scenario_index)
+        # = min("demand_nyc", "max_flow_drought_delivery_nyc", "max_flow_ffmp_delivery_nyc")
+        
+        # Currently, the delivery to NYC is allocated to three NYC reservoirs through VolBalanceNYCDemand.
+        # I don't want to repeat the logic here, we approximate the allocation by the reservoir volumes.
+        max_volume_pepacton = 140200 # MG (We manually input here to avoid complexity)
+        max_volume_nyc = 270800 # MG (We manually input here to avoid complexity)
+        max_flow_delivery_nyc_pepacton = max_flow_delivery_nyc * max_volume_pepacton / max_volume_nyc
+        
+        available_pepacton_volume = self.reservoir_pepacton.volume[0] \
+            + self.flow_pepacton.get_value(scenario_index) \
+            - self.max_flow_catchmentConsumption_pepacton.get_value(scenario_index) \
+            
+        # outflow = downstream_release_target_pepacton if the reservoir is not empty
+        target_outflow = self.downstream_release_target_pepacton.get_value(scenario_index)
+            
+        # Assuming max_flow_delivery_nyc_pepacton is not the piority during the drought
+        outflow = min(available_pepacton_volume, target_outflow)
+        
+        # For spill situation
+        available_pepacton_volume = available_pepacton_volume - max_flow_delivery_nyc_pepacton
+        spill = max((available_pepacton_volume - target_outflow) - max_volume_pepacton, 0)
+        
+        reservoir_release = outflow + spill 
+
         # Q_i The East Branch downstream flow (01417000) and natural inflow to Lordville.
-        Q_i = self.downstream_release_target_pepacton.get_value(scenario_index) \
+        Q_i = reservoir_release \
             + self.flow_01417000.get_value(scenario_index) \
             - self.max_flow_catchmentConsumption_01417000.get_value(scenario_index) \
             + self.flow_delLordville.get_value(scenario_index) \
@@ -250,43 +364,18 @@ class Estimated_Q_i(Parameter):
         max_flow_catchmentConsumption_01417000 = load_parameter(model, "max_flow_catchmentConsumption_01417000")
         flow_delLordville = load_parameter(model, "flow_delLordville") # catchment_delLordville
         max_flow_catchmentConsumption_delLordville = load_parameter(model, "max_flow_catchmentConsumption_delLordville")
+        flow_pepacton = load_parameter(model, "flow_pepacton") # catchment_pepacton
+        max_flow_catchmentConsumption_pepacton = load_parameter(model, "max_flow_catchmentConsumption_pepacton")
+        max_flow_delivery_nyc = load_parameter(model, "max_flow_delivery_nyc") # aggregated parameter
         
-        return cls(model, downstream_release_target_pepacton, flow_01417000, max_flow_catchmentConsumption_01417000, flow_delLordville, max_flow_catchmentConsumption_delLordville, **data)
+        return cls(model, downstream_release_target_pepacton, 
+                   flow_01417000, max_flow_catchmentConsumption_01417000, 
+                   flow_delLordville, max_flow_catchmentConsumption_delLordville, 
+                   flow_pepacton, max_flow_catchmentConsumption_pepacton,
+                   max_flow_delivery_nyc,
+                   **data)
 Estimated_Q_i.register()
 # estimated_Q_i
-
-class Estimated_Q_C(Parameter):
-    def __init__(self, model, downstream_release_target_cannonsville, flow_01425000, max_flow_catchmentConsumption_01425000, **kwargs):
-        super().__init__(model, **kwargs)
-        self.downstream_release_target_cannonsville = downstream_release_target_cannonsville
-        self.flow_01425000 = flow_01425000
-        self.max_flow_catchmentConsumption_01425000 = max_flow_catchmentConsumption_01425000
-
-        self.children.add(downstream_release_target_cannonsville)
-        self.children.add(flow_01425000)
-        self.children.add(max_flow_catchmentConsumption_01425000)
-        
-    def value(self, timestep, scenario_index):
-        Q_C = self.downstream_release_target_cannonsville.get_value(scenario_index) \
-            + self.flow_01425000.get_value(scenario_index) \
-            - self.max_flow_catchmentConsumption_01425000.get_value(scenario_index)
-        return Q_C
-
-    @classmethod
-    def load(cls, model, data):
-        # We can not directly call link_01417000 as its value require the release from Pepacton which is not available at this point
-        # link_01417000 = 0 = outflow_pepacton + spill_pepacton + catchment_01417000 - catchmentWithdrawal_01417000 - link_delLordville
-        # Uncosummed withdrawal will be return to the river
-        # Q_i = load_parameter(model, "link_01417000")
-        
-        #catchment_01417000 - catchmentWithdrawal_01417000
-        downstream_release_target_cannonsville = load_parameter(model, "downstream_release_target_cannonsville")
-        flow_01425000 = load_parameter(model, "flow_01425000") # catchment_01417000
-        max_flow_catchmentConsumption_01425000 = load_parameter(model, "max_flow_catchmentConsumption_01417000")
-        
-        return cls(model, downstream_release_target_cannonsville, flow_01425000, max_flow_catchmentConsumption_01425000, **data)
-Estimated_Q_C.register()
-# estimated_Q_C
 
 # Calculate the total thermal release requirement at Lordville    
 class ThermalReleaseRequirement(Parameter):
