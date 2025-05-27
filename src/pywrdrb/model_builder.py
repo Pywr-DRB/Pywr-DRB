@@ -243,10 +243,8 @@ class ModelBuilder:
             Dictionary of options to pass to the model builder. Options include: 
             inflow_ensemble_indices (list of int): List of indices to use for inflow ensemble scenarios.
             use_hist_NycNjDeliveries (bool): If True, we use historical NYC/NJ deliveries as demand, else we use predicted demand. Otherwise, assume demand is equal to max allotment under FFMP.
-            temperature_model (bool): If True, we use LSTM model to predict temperature at Lordville.
-            temperature_torch_seed (int): Seed for torch random number generator for temperature LSTM model.
-            salinity_model (bool): If True, we use LSTM model to predict salinity at Trenton.
-            salinity_torch_seed (int): Seed for torch random number generator for salinity LSTM model.
+            temperature_model (dict): If given, we use LSTM model to predict temperature at Lordville.
+            salinity_model (dict): If given, we use LSTM model to predict salinity at Trenton.
             run_starfit_sensitivity_analysis (bool): If True, we run STARFIT sensitivity analysis.
             sensitivity_analysis_scenarios (list of str): List of scenarios to use for STARFIT sensitivity analysis.
             initial_volume_frac (float): Initial reservoir storage as a fraction of capacity. Default is 0.8.
@@ -664,7 +662,7 @@ class ModelBuilder:
             }
         # NYC Reservoirs
         elif regulatory_release and not starfit_release:
-            # outflow of cannonsville & pepacton will be overwrote later if temperature_model is not None.
+            # outflow of cannonsville & pepacton will be overwritten later if temperature_model is not None.
             outflow = {
                 "name": f"outflow_{reservoir_name}",
                 "type": "link",
