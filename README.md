@@ -1,6 +1,6 @@
 [![DOI](https://zenodo.org/badge/479150651.svg)](https://doi.org/10.5281/zenodo.10720011)
-[![Docs](https://github.com/philip928lin/Pywr-DRB/actions/workflows/deploy.yml/badge.svg)](https://pywr-drb.github.io/Pywr-DRB/intro.html)
-![Test](https://github.com/philip928lin/Pywr-DRB/actions/workflows/run_tests.yml/badge.svg)
+[![Docs](https://github.com/Pywr-DRB/Pywr-DRB/actions/workflows/deploy.yml/badge.svg)](https://pywr-drb.github.io/Pywr-DRB/intro.html)
+![Test](https://github.com/Pywr-DRB/Pywr-DRB/actions/workflows/run_tests.yml/badge.svg)
 
 # Pywr-DRB: An open-source Python model for water availability and drought risk assessment in the Delaware River Basin
 
