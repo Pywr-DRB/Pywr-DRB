@@ -140,7 +140,7 @@ class AbstractDataLoader(ABC):
             if file_exists:
                 return True
             else:
-                raise FileNotFoundError(f"File not found at path: {file_path}")
+                raise FileNotFoundError(f"File not found at path: {file}")
     
 
     def set_data(self, 
