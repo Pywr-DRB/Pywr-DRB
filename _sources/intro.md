@@ -1,5 +1,9 @@
 # Pywr-DRB
 
+```{note}
+⭐ **New Release:** Pywr-DRB v2.0.0-beta is now available!
+```
+
 Pywr-DRB is a water resources model of the Delaware River Basin (DRB) designed to improve our understanding of water availability, drought risk, and long-term water supply planning within the Basin.
 
 Pywr-DRB is an open-source Python model for exploring the role of reservoir operations, transbasin diversions, minimum flow targets, and other regulatory rules on water availability and drought risk in the DRB. Pywr-DRB is designed to flexibly draw on streamflow estimates from a variety of emerging data resources, such as the National Water Model, the National Hydrologic Model, and hybrid datasets blending modeled and observed data. Pywr-DRB bridges state-of-the-art advances in large-scale hydrologic modeling with an open-source representation of the significant role played by the basin's evolving water infrastructure and management institutions.
@@ -17,11 +21,19 @@ A graphical representation of the Pywr-DRB model is shown below, where every oct
 </div>
 
 
+## Training Resources
+
+The following Jupyter Notebooks are designed to serve as training material for the `pywrdrb` package. In the future, we will share more Notebooks to highlight more advanced workflows or model features. 
+
+- [Getting Started (see the GitHub README)](https://github.com/Pywr-DRB/Pywr-DRB)
+
+
 ## Publications
 
 - Hamilton, A. L., Amestoy, T. J., & Reed, P. M. (2024). Pywr-DRB: An open-source Python model for water availability and drought risk assessment in the Delaware River Basin. Environmental Modelling & Software, 181, 106185. https://doi.org/10.1016/j.envsoft.2024.106185 
   - [Zenodo Repository](https://zenodo.org/records/13214630)
   - [GitHub Repository Branch](https://github.com/Pywr-DRB/Pywr-DRB/tree/diagnostic_paper)
+
 
 
 - Amestoy, T. J. & Reed, P. M., (In Review) Integrated River Basin Assessment Framework Combining Probabilistic Streamflow Reconstruction, Bayesian Bias Correction, and Drought Storyline Analysis. Available at SSRN: https://ssrn.com/abstract=5240633 or http://dx.doi.org/10.2139/ssrn.5240633
