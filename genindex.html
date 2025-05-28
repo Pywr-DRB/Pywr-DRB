@@ -181,7 +181,8 @@
         <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="api/api.html">API References</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="api/pywrdrb.html">pywrdrb</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.Data.html">pywrdrb.Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.ModelBuilder.html">pywrdrb.ModelBuilder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.OutputRecorder.html">pywrdrb.OutputRecorder</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.Data.html">pywrdrb.Data</a></li>
 </ul>
 </details></li>
@@ -349,18 +350,45 @@ document.write(`
  | <a href="#A"><strong>A</strong></a>
  | <a href="#D"><strong>D</strong></a>
  | <a href="#E"><strong>E</strong></a>
+ | <a href="#F"><strong>F</strong></a>
+ | <a href="#H"><strong>H</strong></a>
+ | <a href="#I"><strong>I</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
+ | <a href="#N"><strong>N</strong></a>
  | <a href="#O"><strong>O</strong></a>
  | <a href="#P"><strong>P</strong></a>
  | <a href="#R"><strong>R</strong></a>
+ | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
  | <a href="#U"><strong>U</strong></a>
+ | <a href="#W"><strong>W</strong></a>
  
 </div>
 <h2 id="_">_</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.__init__">__init__() (pywrdrb.Data method)</a>
+
+      <ul>
+        <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.__init__">(pywrdrb.ModelBuilder method)</a>
+</li>
+        <li><a href="api/generated/pywrdrb.OutputRecorder.html#pywrdrb.OutputRecorder.__init__">(pywrdrb.OutputRecorder method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder._add_ensemble_inflow_scenarios">_add_ensemble_inflow_scenarios() (pywrdrb.ModelBuilder method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.OutputRecorder.html#pywrdrb.OutputRecorder._get_model_node_names">_get_model_node_names() (pywrdrb.OutputRecorder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.OutputRecorder.html#pywrdrb.OutputRecorder._get_model_parameter_names">_get_model_parameter_names() (pywrdrb.OutputRecorder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder._get_reservoir_capacity">_get_reservoir_capacity() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder._get_reservoir_max_diversion_NYC">_get_reservoir_max_diversion_NYC() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder._get_reservoir_max_release">_get_reservoir_max_release() (pywrdrb.ModelBuilder method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -368,7 +396,51 @@ document.write(`
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.all_results_sets">all_results_sets (pywrdrb.Data attribute)</a>, <a href="api/pywrdrb.html#pywrdrb.Data.all_results_sets">[1]</a>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_node_final_basin_outlet">add_node_final_basin_outlet() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_node_major_reservoir">add_node_major_reservoir() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_node_major_river">add_node_major_river() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_node_nyc_aggregated_storage_and_link">add_node_nyc_aggregated_storage_and_link() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_node_nyc_and_nj_deliveries">add_node_nyc_and_nj_deliveries() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_parameter_couple_salinity_lstm">add_parameter_couple_salinity_lstm() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_parameter_montague_trenton_flow_targets">add_parameter_montague_trenton_flow_targets() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_parameter_negative_one_multiplier">add_parameter_negative_one_multiplier() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_parameter_nyc_and_nj_delivery_constraints">add_parameter_nyc_and_nj_delivery_constraints() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_parameter_nyc_and_nj_demands">add_parameter_nyc_and_nj_demands() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_parameter_nyc_bank_storage">add_parameter_nyc_bank_storage() (pywrdrb.ModelBuilder method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_aggregated_info">add_parameter_nyc_reservoirs_aggregated_info() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_balancing_methods">add_parameter_nyc_reservoirs_balancing_methods() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_current_volume">add_parameter_nyc_reservoirs_current_volume() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_flood_control">add_parameter_nyc_reservoirs_flood_control() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_min_require_flow">add_parameter_nyc_reservoirs_min_require_flow() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_operational_regimes">add_parameter_nyc_reservoirs_operational_regimes() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_variable_cost_based_on_fractional_storage">add_parameter_nyc_reservoirs_variable_cost_based_on_fractional_storage() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_parameter_predicted_lagged_non_nyc_inflows_to_Montague_and_Trenton_and_lagged_nj_demands">add_parameter_predicted_lagged_non_nyc_inflows_to_Montague_and_Trenton_and_lagged_nj_demands() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.add_parameter_temperature_model">add_parameter_temperature_model() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.OutputRecorder.html#pywrdrb.OutputRecorder.after">after() (pywrdrb.OutputRecorder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.all_results_sets">all_results_sets (pywrdrb.Data attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -376,11 +448,15 @@ document.write(`
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data">Data (class in pywrdrb)</a>, <a href="api/pywrdrb.html#pywrdrb.Data">[1]</a>
+      <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data">Data (class in pywrdrb)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.default_kwargs">default_kwargs (pywrdrb.Data attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.default_kwargs">default_kwargs (pywrdrb.Data attribute)</a>, <a href="api/pywrdrb.html#pywrdrb.Data.default_kwargs">[1]</a>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.detach_data">detach_data() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.diversion_type">diversion_type (pywrdrb.ModelBuilder attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -388,7 +464,47 @@ document.write(`
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.export">export() (pywrdrb.Data method)</a>, <a href="api/pywrdrb.html#pywrdrb.Data.export">[1]</a>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.edges">edges (pywrdrb.ModelBuilder attribute)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.end_date">end_date (pywrdrb.ModelBuilder attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.EPS">EPS (pywrdrb.ModelBuilder attribute)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.export">export() (pywrdrb.Data method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.OutputRecorder.html#pywrdrb.OutputRecorder.finish">finish() (pywrdrb.OutputRecorder method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.hist_diversions">hist_diversions (pywrdrb.ModelBuilder attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.hist_releases">hist_releases (pywrdrb.ModelBuilder attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.inflow_type">inflow_type (pywrdrb.ModelBuilder attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.istarf">istarf (pywrdrb.ModelBuilder attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -396,15 +512,17 @@ document.write(`
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.load_from_export">load_from_export() (pywrdrb.Data method)</a>, <a href="api/pywrdrb.html#pywrdrb.Data.load_from_export">[1]</a>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.levels">levels (pywrdrb.ModelBuilder attribute)</a>
 </li>
-      <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.load_hydrologic_model_flow">load_hydrologic_model_flow() (pywrdrb.Data method)</a>, <a href="api/pywrdrb.html#pywrdrb.Data.load_hydrologic_model_flow">[1]</a>
+      <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.load_from_export">load_from_export() (pywrdrb.Data method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.load_observations">load_observations() (pywrdrb.Data method)</a>, <a href="api/pywrdrb.html#pywrdrb.Data.load_observations">[1]</a>
+      <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.load_hydrologic_model_flow">load_hydrologic_model_flow() (pywrdrb.Data method)</a>
 </li>
-      <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.load_output">load_output() (pywrdrb.Data method)</a>, <a href="api/pywrdrb.html#pywrdrb.Data.load_output">[1]</a>
+      <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.load_observations">load_observations() (pywrdrb.Data method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.load_output">load_output() (pywrdrb.Data method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -412,20 +530,39 @@ document.write(`
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li>
-    module
-
-      <ul>
-        <li><a href="api/pywrdrb.html#module-pywrdrb.load">pywrdrb.load</a>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.make_model">make_model() (pywrdrb.ModelBuilder method)</a>
 </li>
-      </ul></li>
+      <li><a href="api/generated/pywrdrb.OutputRecorder.html#pywrdrb.OutputRecorder.model">model (pywrdrb.OutputRecorder attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.model_dict">model_dict (pywrdrb.ModelBuilder attribute)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder">ModelBuilder (class in pywrdrb)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="N">N</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.OutputRecorder.html#pywrdrb.OutputRecorder.nodes">nodes (pywrdrb.OutputRecorder attribute)</a>
+</li>
   </ul></td>
 </tr></table>
 
 <h2 id="O">O</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.output_filenames">output_filenames (pywrdrb.Data attribute)</a>, <a href="api/pywrdrb.html#pywrdrb.Data.output_filenames">[1]</a>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.options">options (pywrdrb.ModelBuilder attribute)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.OutputRecorder.html#pywrdrb.OutputRecorder.output_filename">output_filename (pywrdrb.OutputRecorder attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.output_filenames">output_filenames (pywrdrb.Data attribute)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.OutputRecorder.html#pywrdrb.OutputRecorder">OutputRecorder (class in pywrdrb)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -433,26 +570,57 @@ document.write(`
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.pn">pn (pywrdrb.Data attribute)</a>, <a href="api/pywrdrb.html#pywrdrb.Data.pn">[1]</a>
-</li>
-      <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.print_status">print_status (pywrdrb.Data attribute)</a>, <a href="api/pywrdrb.html#pywrdrb.Data.print_status">[1]</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li>
-    pywrdrb.load
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.parameters">parameters (pywrdrb.ModelBuilder attribute)</a>
 
       <ul>
-        <li><a href="api/pywrdrb.html#module-pywrdrb.load">module</a>
+        <li><a href="api/generated/pywrdrb.OutputRecorder.html#pywrdrb.OutputRecorder.parameters">(pywrdrb.OutputRecorder attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.pn">pn (pywrdrb.Data attribute)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.print_status">print_status (pywrdrb.Data attribute)</a>
+</li>
   </ul></td>
 </tr></table>
 
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.results_sets">results_sets (pywrdrb.Data attribute)</a>, <a href="api/pywrdrb.html#pywrdrb.Data.results_sets">[1]</a>
+      <li><a href="api/generated/pywrdrb.OutputRecorder.html#pywrdrb.OutputRecorder.recorder_dict">recorder_dict (pywrdrb.OutputRecorder attribute)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.OutputRecorder.html#pywrdrb.OutputRecorder.reservoir_list">reservoir_list (pywrdrb.OutputRecorder attribute)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.reservoirs">reservoirs (pywrdrb.ModelBuilder attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.OutputRecorder.html#pywrdrb.OutputRecorder.reset">reset() (pywrdrb.OutputRecorder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.reset_model_dict">reset_model_dict() (pywrdrb.ModelBuilder method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.results_sets">results_sets (pywrdrb.Data attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="S">S</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.OutputRecorder.html#pywrdrb.OutputRecorder.setup">setup() (pywrdrb.OutputRecorder method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.start_date">start_date (pywrdrb.ModelBuilder attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.OutputRecorder.html#pywrdrb.OutputRecorder.to_hdf5">to_hdf5() (pywrdrb.OutputRecorder method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -460,7 +628,15 @@ document.write(`
 <h2 id="U">U</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.units">units (pywrdrb.Data attribute)</a>, <a href="api/pywrdrb.html#pywrdrb.Data.units">[1]</a>
+      <li><a href="api/generated/pywrdrb.Data.html#pywrdrb.Data.units">units (pywrdrb.Data attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="W">W</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.write_model">write_model() (pywrdrb.ModelBuilder method)</a>
 </li>
   </ul></td>
 </tr></table>

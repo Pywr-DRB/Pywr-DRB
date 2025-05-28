@@ -61,7 +61,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Examples" href="../../examples/examples.html" />
-    <link rel="prev" title="pywrdrb" href="../pywrdrb.html" />
+    <link rel="prev" title="pywrdrb.OutputRecorder" href="pywrdrb.OutputRecorder.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -182,7 +182,8 @@
         <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html">API References</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="../pywrdrb.html">pywrdrb</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l3 current active"><a class="current reference internal" href="#">pywrdrb.Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pywrdrb.ModelBuilder.html">pywrdrb.ModelBuilder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pywrdrb.OutputRecorder.html">pywrdrb.OutputRecorder</a></li>
 <li class="toctree-l3 current active"><a class="current reference internal" href="#">pywrdrb.Data</a></li>
 </ul>
 </details></li>
@@ -567,19 +568,19 @@ Only necessary for Data.load_output().</p></li>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pywrdrb.Data.__init__" title="pywrdrb.Data.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([pn])</p></td>
 <td><p>Initialize the Data loader with default and provided keyword arguments.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../pywrdrb.html#pywrdrb.Data.export" title="pywrdrb.Data.export"><code class="xref py py-obj docutils literal notranslate"><span class="pre">export</span></code></a>(file)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pywrdrb.Data.export" title="pywrdrb.Data.export"><code class="xref py py-obj docutils literal notranslate"><span class="pre">export</span></code></a>(file)</p></td>
 <td><p>Export all data stored in this object to an HDF5 file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../pywrdrb.html#pywrdrb.Data.load_from_export" title="pywrdrb.Data.load_from_export"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_from_export</span></code></a>(file)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pywrdrb.Data.load_from_export" title="pywrdrb.Data.load_from_export"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_from_export</span></code></a>(file)</p></td>
 <td><p>Load data from an HDF5 file into the object.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../pywrdrb.html#pywrdrb.Data.load_hydrologic_model_flow" title="pywrdrb.Data.load_hydrologic_model_flow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_hydrologic_model_flow</span></code></a>(flowtypes, **kwargs)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pywrdrb.Data.load_hydrologic_model_flow" title="pywrdrb.Data.load_hydrologic_model_flow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_hydrologic_model_flow</span></code></a>(flowtypes, **kwargs)</p></td>
 <td><p>Load data from the internally available hydrologic model flow files.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../pywrdrb.html#pywrdrb.Data.load_observations" title="pywrdrb.Data.load_observations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_observations</span></code></a>(**kwargs)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pywrdrb.Data.load_observations" title="pywrdrb.Data.load_observations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_observations</span></code></a>(**kwargs)</p></td>
 <td><p>Load observational data.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../pywrdrb.html#pywrdrb.Data.load_output" title="pywrdrb.Data.load_output"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_output</span></code></a>(**kwargs)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pywrdrb.Data.load_output" title="pywrdrb.Data.load_output"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_output</span></code></a>(**kwargs)</p></td>
 <td><p>Load data from pywrdrb output files.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_data</span></code>(data, name)</p></td>
@@ -623,12 +624,12 @@ Only necessary for Data.load_output().</p></li>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="../pywrdrb.html"
+       href="pywrdrb.OutputRecorder.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">pywrdrb</p>
+        <p class="prev-next-title">pywrdrb.OutputRecorder</p>
       </div>
     </a>
     <a class="right-next"

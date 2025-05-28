@@ -1,0 +1,1064 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>pywrdrb.ModelBuilder &#8212; Pywr-DRB Integrated Water Resource Management Model</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/pywrdrb.ModelBuilder';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="pywrdrb.OutputRecorder" href="pywrdrb.OutputRecorder.html" />
+    <link rel="prev" title="pywrdrb" href="../pywrdrb.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../intro.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo.png" class="logo__image only-light" alt="Pywr-DRB Integrated Water Resource Management Model - Home"/>
+    <script>document.write(`<img src="../../_static/logo.png" class="logo__image only-dark" alt="Pywr-DRB Integrated Water Resource Management Model - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../intro.html">
+                    Pywr-DRB
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html">API References</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../pywrdrb.html">pywrdrb</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">pywrdrb.ModelBuilder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pywrdrb.OutputRecorder.html">pywrdrb.OutputRecorder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pywrdrb.Data.html">pywrdrb.Data</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../examples/examples.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/Tutorial%2001%20Introduction%20to%20PywrDRB.html">Intro to PywrDRB</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../results_set_options.html">Results Set Table</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/Pywr-DRB/Pywr-DRB" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/Pywr-DRB/Pywr-DRB/issues/new?title=Issue%20on%20page%20%2Fapi/generated/pywrdrb.ModelBuilder.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/api/generated/pywrdrb.ModelBuilder.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>pywrdrb.ModelBuilder</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder"><code class="docutils literal notranslate"><span class="pre">ModelBuilder</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.start_date"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.start_date</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.end_date"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.end_date</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.inflow_type"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.inflow_type</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.diversion_type"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.diversion_type</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.options"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.options</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.reservoirs"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.reservoirs</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.edges"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.edges</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.parameters"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.parameters</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.levels"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.levels</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.EPS"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.EPS</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.model_dict"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.model_dict</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.istarf"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.istarf</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.hist_releases"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.hist_releases</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.hist_diversions"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.hist_diversions</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.reset_model_dict"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.reset_model_dict()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.make_model"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.make_model()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.write_model"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.write_model()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.detach_data"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.detach_data()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder._get_reservoir_capacity"><code class="docutils literal notranslate"><span class="pre">ModelBuilder._get_reservoir_capacity()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder._get_reservoir_max_release"><code class="docutils literal notranslate"><span class="pre">ModelBuilder._get_reservoir_max_release()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder._get_reservoir_max_diversion_NYC"><code class="docutils literal notranslate"><span class="pre">ModelBuilder._get_reservoir_max_diversion_NYC()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder._add_ensemble_inflow_scenarios"><code class="docutils literal notranslate"><span class="pre">ModelBuilder._add_ensemble_inflow_scenarios()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_parameter_negative_one_multiplier"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_parameter_negative_one_multiplier()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_node_major_reservoir"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_node_major_reservoir()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_node_major_river"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_node_major_river()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_node_final_basin_outlet"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_node_final_basin_outlet()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_node_nyc_aggregated_storage_and_link"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_node_nyc_aggregated_storage_and_link()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_node_nyc_and_nj_deliveries"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_node_nyc_and_nj_deliveries()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_parameter_nyc_and_nj_demands"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_parameter_nyc_and_nj_demands()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_operational_regimes"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_parameter_nyc_reservoirs_operational_regimes()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_parameter_nyc_and_nj_delivery_constraints"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_parameter_nyc_and_nj_delivery_constraints()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_min_require_flow"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_parameter_nyc_reservoirs_min_require_flow()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_flood_control"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_parameter_nyc_reservoirs_flood_control()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_variable_cost_based_on_fractional_storage"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_parameter_nyc_reservoirs_variable_cost_based_on_fractional_storage()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_current_volume"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_parameter_nyc_reservoirs_current_volume()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_aggregated_info"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_parameter_nyc_reservoirs_aggregated_info()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_parameter_nyc_bank_storage"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_parameter_nyc_bank_storage()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_parameter_montague_trenton_flow_targets"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_parameter_montague_trenton_flow_targets()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_parameter_predicted_lagged_non_nyc_inflows_to_Montague_and_Trenton_and_lagged_nj_demands"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_parameter_predicted_lagged_non_nyc_inflows_to_Montague_and_Trenton_and_lagged_nj_demands()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_balancing_methods"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_parameter_nyc_reservoirs_balancing_methods()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_parameter_temperature_model"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_parameter_temperature_model()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_parameter_couple_salinity_lstm"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_parameter_couple_salinity_lstm()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.__init__"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.__init__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="pywrdrb-modelbuilder">
+<h1>pywrdrb.ModelBuilder<a class="headerlink" href="#pywrdrb-modelbuilder" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pywrdrb.</span></span><span class="sig-name descname"><span class="pre">ModelBuilder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inflow_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diversion_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.ModelBuilder" title="Link to this definition">#</a></dt>
+<dd><p>A model builder to create model file Pywr for the Delaware River Basin (DRB).</p>
+<p>ModelBuilder class to construct a pywr model for the Delaware River Basin.
+Essentially, this class creates model dictionary to hold all model nodes,
+edges, params, etc, following Pywr protocol. The model dictionary will be
+saved to a JSON file.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder.start_date">
+<span class="sig-name descname"><span class="pre">start_date</span></span><a class="headerlink" href="#pywrdrb.ModelBuilder.start_date" title="Link to this definition">#</a></dt>
+<dd><p>Start date of the model simulation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder.end_date">
+<span class="sig-name descname"><span class="pre">end_date</span></span><a class="headerlink" href="#pywrdrb.ModelBuilder.end_date" title="Link to this definition">#</a></dt>
+<dd><p>End date of the model simulation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder.inflow_type">
+<span class="sig-name descname"><span class="pre">inflow_type</span></span><a class="headerlink" href="#pywrdrb.ModelBuilder.inflow_type" title="Link to this definition">#</a></dt>
+<dd><p>Type of inflow data to use.
+Options are ‘nhmv10_withObsScaled’, ‘nwmv21_withObsScaled’, ‘nhmv10’,
+and ‘nwmv21’.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder.diversion_type">
+<span class="sig-name descname"><span class="pre">diversion_type</span></span><a class="headerlink" href="#pywrdrb.ModelBuilder.diversion_type" title="Link to this definition">#</a></dt>
+<dd><p>Type of diversion data to use. Default is None.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str, optional</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder.options">
+<span class="sig-name descname"><span class="pre">options</span></span><a class="headerlink" href="#pywrdrb.ModelBuilder.options" title="Link to this definition">#</a></dt>
+<dd><p>Options for the model builder, including number of scenarios,
+inflow ensemble indices, and other parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Options</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder.reservoirs">
+<span class="sig-name descname"><span class="pre">reservoirs</span></span><a class="headerlink" href="#pywrdrb.ModelBuilder.reservoirs" title="Link to this definition">#</a></dt>
+<dd><p>List of reservoirs in the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder.edges">
+<span class="sig-name descname"><span class="pre">edges</span></span><a class="headerlink" href="#pywrdrb.ModelBuilder.edges" title="Link to this definition">#</a></dt>
+<dd><p>List of edges in the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder.parameters">
+<span class="sig-name descname"><span class="pre">parameters</span></span><a class="headerlink" href="#pywrdrb.ModelBuilder.parameters" title="Link to this definition">#</a></dt>
+<dd><p>List of parameters in the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder.levels">
+<span class="sig-name descname"><span class="pre">levels</span></span><a class="headerlink" href="#pywrdrb.ModelBuilder.levels" title="Link to this definition">#</a></dt>
+<dd><p>List of reservoir operational regimes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder.EPS">
+<span class="sig-name descname"><span class="pre">EPS</span></span><a class="headerlink" href="#pywrdrb.ModelBuilder.EPS" title="Link to this definition">#</a></dt>
+<dd><p>A small epsilon value for numerical stability.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder.model_dict">
+<span class="sig-name descname"><span class="pre">model_dict</span></span><a class="headerlink" href="#pywrdrb.ModelBuilder.model_dict" title="Link to this definition">#</a></dt>
+<dd><p>Dictionary to hold the model structure, including metadata, timestepper, parameters, etc.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder.istarf">
+<span class="sig-name descname"><span class="pre">istarf</span></span><a class="headerlink" href="#pywrdrb.ModelBuilder.istarf" title="Link to this definition">#</a></dt>
+<dd><p>DataFrame to hold the ISTARF data for reservoir capacities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame, optional</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder.hist_releases">
+<span class="sig-name descname"><span class="pre">hist_releases</span></span><a class="headerlink" href="#pywrdrb.ModelBuilder.hist_releases" title="Link to this definition">#</a></dt>
+<dd><p>DataFrame to hold historical releases data for NYC reservoirs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame, optional</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder.hist_diversions">
+<span class="sig-name descname"><span class="pre">hist_diversions</span></span><a class="headerlink" href="#pywrdrb.ModelBuilder.hist_diversions" title="Link to this definition">#</a></dt>
+<dd><p>DataFrame to hold historical diversions data for NYC reservoirs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame, optional</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder.reset_model_dict">
+<span class="sig-name descname"><span class="pre">reset_model_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.ModelBuilder.reset_model_dict" title="Link to this definition">#</a></dt>
+<dd><p>Resets the model dictionary to its initial state.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder.make_model">
+<span class="sig-name descname"><span class="pre">make_model</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.ModelBuilder.make_model" title="Link to this definition">#</a></dt>
+<dd><p>Constructs the model by adding nodes, edges, and parameters based on the DRB structure.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder.write_model">
+<span class="sig-name descname"><span class="pre">write_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.ModelBuilder.write_model" title="Link to this definition">#</a></dt>
+<dd><p>Writes the model dictionary to a JSON file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder.detach_data">
+<span class="sig-name descname"><span class="pre">detach_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.ModelBuilder.detach_data" title="Link to this definition">#</a></dt>
+<dd><p>Detaches data from the model builder to release memory.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder._get_reservoir_capacity">
+<span class="sig-name descname"><span class="pre">_get_reservoir_capacity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reservoir</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.ModelBuilder._get_reservoir_capacity" title="Link to this definition">#</a></dt>
+<dd><p>Returns the capacity of a reservoir from the ISTARF data.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder._get_reservoir_max_release">
+<span class="sig-name descname"><span class="pre">_get_reservoir_max_release</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reservoir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">release_type</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.ModelBuilder._get_reservoir_max_release" title="Link to this definition">#</a></dt>
+<dd><p>Returns the maximum release for a reservoir based on historical data.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder._get_reservoir_max_diversion_NYC">
+<span class="sig-name descname"><span class="pre">_get_reservoir_max_diversion_NYC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reservoir</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.ModelBuilder._get_reservoir_max_diversion_NYC" title="Link to this definition">#</a></dt>
+<dd><p>Returns the maximum diversion for a NYC reservoir based on historical data.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder._add_ensemble_inflow_scenarios">
+<span class="sig-name descname"><span class="pre">_add_ensemble_inflow_scenarios</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inflow_ensemble_indices</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.ModelBuilder._add_ensemble_inflow_scenarios" title="Link to this definition">#</a></dt>
+<dd><p>Adds ensemble inflow scenarios to the model based on provided indices.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder.add_parameter_negative_one_multiplier">
+<span class="sig-name descname"><span class="pre">add_parameter_negative_one_multiplier</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.ModelBuilder.add_parameter_negative_one_multiplier" title="Link to this definition">#</a></dt>
+<dd><p>Adds a parameter to the model that is a constant multiplier of -1.0.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder.add_node_major_reservoir">
+<span class="sig-name descname"><span class="pre">add_node_major_reservoir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reservoir_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">downstream_lag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">downstream_node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.ModelBuilder.add_node_major_reservoir" title="Link to this definition">#</a></dt>
+<dd><p>Adds a major reservoir node to the model, including its associated nodes and edges.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder.add_node_major_river">
+<span class="sig-name descname"><span class="pre">add_node_major_river</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">downstream_lag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">downstream_node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_catchment</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.ModelBuilder.add_node_major_river" title="Link to this definition">#</a></dt>
+<dd><p>Adds a major river node to the model, including its associated nodes and edges.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder.add_node_final_basin_outlet">
+<span class="sig-name descname"><span class="pre">add_node_final_basin_outlet</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.ModelBuilder.add_node_final_basin_outlet" title="Link to this definition">#</a></dt>
+<dd><p>Adds the final basin outlet node to the model, which is the Trenton node.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder.add_node_nyc_aggregated_storage_and_link">
+<span class="sig-name descname"><span class="pre">add_node_nyc_aggregated_storage_and_link</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.ModelBuilder.add_node_nyc_aggregated_storage_and_link" title="Link to this definition">#</a></dt>
+<dd><p>Adds a node for NYC aggregated storage and links it to the reservoirs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder.add_node_nyc_and_nj_deliveries">
+<span class="sig-name descname"><span class="pre">add_node_nyc_and_nj_deliveries</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.ModelBuilder.add_node_nyc_and_nj_deliveries" title="Link to this definition">#</a></dt>
+<dd><p>Adds nodes for NYC and NJ deliveries, which are the demands for the model.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder.add_parameter_nyc_and_nj_demands">
+<span class="sig-name descname"><span class="pre">add_parameter_nyc_and_nj_demands</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.ModelBuilder.add_parameter_nyc_and_nj_demands" title="Link to this definition">#</a></dt>
+<dd><p>Adds parameters for NYC and NJ demands based on historical or predicted data.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_operational_regimes">
+<span class="sig-name descname"><span class="pre">add_parameter_nyc_reservoirs_operational_regimes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_operational_regimes" title="Link to this definition">#</a></dt>
+<dd><p>Adds parameters for the operational regimes of NYC reservoirs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder.add_parameter_nyc_and_nj_delivery_constraints">
+<span class="sig-name descname"><span class="pre">add_parameter_nyc_and_nj_delivery_constraints</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.ModelBuilder.add_parameter_nyc_and_nj_delivery_constraints" title="Link to this definition">#</a></dt>
+<dd><p>Adds parameters for the delivery constraints of NYC and NJ reservoirs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_min_require_flow">
+<span class="sig-name descname"><span class="pre">add_parameter_nyc_reservoirs_min_require_flow</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_min_require_flow" title="Link to this definition">#</a></dt>
+<dd><p>Adds parameters for the minimum required flow for NYC reservoirs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_flood_control">
+<span class="sig-name descname"><span class="pre">add_parameter_nyc_reservoirs_flood_control</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_flood_control" title="Link to this definition">#</a></dt>
+<dd><p>Adds parameters for flood control releases from NYC reservoirs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_variable_cost_based_on_fractional_storage">
+<span class="sig-name descname"><span class="pre">add_parameter_nyc_reservoirs_variable_cost_based_on_fractional_storage</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_variable_cost_based_on_fractional_storage" title="Link to this definition">#</a></dt>
+<dd><p>Adds parameters for variable costs based on fractional storage in NYC reservoirs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_current_volume">
+<span class="sig-name descname"><span class="pre">add_parameter_nyc_reservoirs_current_volume</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_current_volume" title="Link to this definition">#</a></dt>
+<dd><p>Adds parameters for the current volume of NYC reservoirs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_aggregated_info">
+<span class="sig-name descname"><span class="pre">add_parameter_nyc_reservoirs_aggregated_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_aggregated_info" title="Link to this definition">#</a></dt>
+<dd><p>Adds parameters for aggregated information of NYC reservoirs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder.add_parameter_nyc_bank_storage">
+<span class="sig-name descname"><span class="pre">add_parameter_nyc_bank_storage</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.ModelBuilder.add_parameter_nyc_bank_storage" title="Link to this definition">#</a></dt>
+<dd><p>Adds parameters for NYC bank storage, which is a storage node for NYC reservoirs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder.add_parameter_montague_trenton_flow_targets">
+<span class="sig-name descname"><span class="pre">add_parameter_montague_trenton_flow_targets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.ModelBuilder.add_parameter_montague_trenton_flow_targets" title="Link to this definition">#</a></dt>
+<dd><p>Adds parameters for flow targets between Montague and Trenton.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder.add_parameter_predicted_lagged_non_nyc_inflows_to_Montague_and_Trenton_and_lagged_nj_demands">
+<span class="sig-name descname"><span class="pre">add_parameter_predicted_lagged_non_nyc_inflows_to_Montague_and_Trenton_and_lagged_nj_demands</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.ModelBuilder.add_parameter_predicted_lagged_non_nyc_inflows_to_Montague_and_Trenton_and_lagged_nj_demands" title="Link to this definition">#</a></dt>
+<dd><p>Adds parameters for predicted lagged non-NYC inflows to Montague and Trenton,
+and lagged NJ demands.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_balancing_methods">
+<span class="sig-name descname"><span class="pre">add_parameter_nyc_reservoirs_balancing_methods</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_balancing_methods" title="Link to this definition">#</a></dt>
+<dd><p>Adds parameters for balancing methods for NYC reservoirs,
+including flood control and FFMP releases.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder.add_parameter_temperature_model">
+<span class="sig-name descname"><span class="pre">add_parameter_temperature_model</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.ModelBuilder.add_parameter_temperature_model" title="Link to this definition">#</a></dt>
+<dd><p>Adds parameters to couple the temperature LSTM model with the reservoir model.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder.add_parameter_couple_salinity_lstm">
+<span class="sig-name descname"><span class="pre">add_parameter_couple_salinity_lstm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.ModelBuilder.add_parameter_couple_salinity_lstm" title="Link to this definition">#</a></dt>
+<dd><p>Adds parameters to couple the salinity LSTM model with the reservoir model.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pywrdrb.ModelBuilder.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inflow_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diversion_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.ModelBuilder.__init__" title="Link to this definition">#</a></dt>
+<dd><p>Initialize the ModelBuilder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start_date</strong> (<em>str</em>) – Start date of the model simulation.</p></li>
+<li><p><strong>end_date</strong> (<em>str</em>) – End date of the model simulation.</p></li>
+<li><p><strong>inflow_type</strong> (<em>str</em>) – Type of inflow data to use.
+Options are ‘nhmv10_withObsScaled’, ‘nwmv21_withObsScaled’, ‘nhmv10’,
+‘nwmv21’, and “wrfaorc_withObsScaled”.</p></li>
+<li><p><strong>diversion_type</strong> (<em>str</em><em>, </em><em>optional</em>) – Type of diversion data to use. Default is None (historical average).</p></li>
+<li><p><strong>options</strong> (<em>dict</em><em>, </em><em>optional</em>) – Dictionary of options to pass to the model builder. Options include:
+inflow_ensemble_indices (list of int): List of indices to use for inflow ensemble scenarios.
+use_hist_NycNjDeliveries (bool): If True, we use historical NYC/NJ deliveries as demand, else we use predicted demand. Otherwise, assume demand is equal to max allotment under FFMP.
+temperature_model (dict): If given, we use LSTM model to predict temperature at Lordville.
+salinity_model (dict): If given, we use LSTM model to predict salinity at Trenton.
+run_starfit_sensitivity_analysis (bool): If True, we run STARFIT sensitivity analysis.
+sensitivity_analysis_scenarios (list of str): List of scenarios to use for STARFIT sensitivity analysis.
+initial_volume_frac (float): Initial reservoir storage as a fraction of capacity. Default is 0.8.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pywrdrb.ModelBuilder.__init__" title="pywrdrb.ModelBuilder.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(start_date, end_date, inflow_type)</p></td>
+<td><p>Initialize the ModelBuilder.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_ensemble_inflow_scenarios</span></code>(...)</p></td>
+<td><p>Add ensemble inflow scenarios to the model based on provided indices.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pywrdrb.ModelBuilder.add_node_final_basin_outlet" title="pywrdrb.ModelBuilder.add_node_final_basin_outlet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_node_final_basin_outlet</span></code></a>()</p></td>
+<td><p>Add a final basin outlet node to the model.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pywrdrb.ModelBuilder.add_node_major_reservoir" title="pywrdrb.ModelBuilder.add_node_major_reservoir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_node_major_reservoir</span></code></a>(reservoir_name, ...)</p></td>
+<td><p>Add a major reservoir node to the model.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pywrdrb.ModelBuilder.add_node_major_river" title="pywrdrb.ModelBuilder.add_node_major_river"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_node_major_river</span></code></a>(name, downstream_lag, ...)</p></td>
+<td><p>Add a major river node to the model.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pywrdrb.ModelBuilder.add_node_nyc_aggregated_storage_and_link" title="pywrdrb.ModelBuilder.add_node_nyc_aggregated_storage_and_link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_node_nyc_aggregated_storage_and_link</span></code></a>()</p></td>
+<td><p>Add a node for aggregated NYC storage and links to each reservoir.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pywrdrb.ModelBuilder.add_node_nyc_and_nj_deliveries" title="pywrdrb.ModelBuilder.add_node_nyc_and_nj_deliveries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_node_nyc_and_nj_deliveries</span></code></a>()</p></td>
+<td><p>Add nodes for NYC and NJ deliveries, linking them to the respective reservoirs.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pywrdrb.ModelBuilder.add_parameter_montague_trenton_flow_targets" title="pywrdrb.ModelBuilder.add_parameter_montague_trenton_flow_targets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_parameter_montague_trenton_flow_targets</span></code></a>()</p></td>
+<td><p>Add parameters defining flow targets at Montague and Trenton based on drought levels of NYC aggregated storage.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pywrdrb.ModelBuilder.add_parameter_negative_one_multiplier" title="pywrdrb.ModelBuilder.add_parameter_negative_one_multiplier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_parameter_negative_one_multiplier</span></code></a>()</p></td>
+<td><p>Add a parameter to the model that is a constant multiplier of -1.0.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pywrdrb.ModelBuilder.add_parameter_nyc_and_nj_delivery_constraints" title="pywrdrb.ModelBuilder.add_parameter_nyc_and_nj_delivery_constraints"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_parameter_nyc_and_nj_delivery_constraints</span></code></a>()</p></td>
+<td><p>Add parameters defining delivery constraints for NYC and NJ under normal and drought conditions.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pywrdrb.ModelBuilder.add_parameter_nyc_and_nj_demands" title="pywrdrb.ModelBuilder.add_parameter_nyc_and_nj_demands"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_parameter_nyc_and_nj_demands</span></code></a>()</p></td>
+<td><p>Add nyc and nj demands to model parameters.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pywrdrb.ModelBuilder.add_parameter_nyc_bank_storage" title="pywrdrb.ModelBuilder.add_parameter_nyc_bank_storage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_parameter_nyc_bank_storage</span></code></a>()</p></td>
+<td><p>Add parameters defining NYC bank storages, specifically the IERQ remaining volume for each bank.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_aggregated_info" title="pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_aggregated_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_parameter_nyc_reservoirs_aggregated_info</span></code></a>()</p></td>
+<td><p>Add parameters defining aggregated information for NYC reservoirs, including total volume, inflows, and maximum volume.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_balancing_methods" title="pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_balancing_methods"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_parameter_nyc_reservoirs_balancing_methods</span></code></a>()</p></td>
+<td><p>Add parameters for balancing methods for NYC reservoirs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_current_volume" title="pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_current_volume"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_parameter_nyc_reservoirs_current_volume</span></code></a>()</p></td>
+<td><p>Add parameters defining the current volume stored in each NYC reservoir.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_flood_control" title="pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_flood_control"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_parameter_nyc_reservoirs_flood_control</span></code></a>()</p></td>
+<td><p>Add parameters defining flood control releases from NYC reservoirs based on FFMP.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_min_require_flow" title="pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_min_require_flow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_parameter_nyc_reservoirs_min_require_flow</span></code></a>()</p></td>
+<td><p>Add parameters defining minimum release flow requirements from NYC reservoirs based on FFMP.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_operational_regimes" title="pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_operational_regimes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_parameter_nyc_reservoirs_operational_regimes</span></code></a>()</p></td>
+<td><p>Add parameters defining operational regimes for NYC reservoirs based on combined storage.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_variable_cost_based_on_fractional_storage" title="pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_variable_cost_based_on_fractional_storage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_parameter_nyc_reservoirs_variable_cost_based_on_fractional_storage</span></code></a>()</p></td>
+<td><p>Add parameters defining variable storage cost for each NYC reservoir based on its fractional storage.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pywrdrb.ModelBuilder.add_parameter_predicted_lagged_non_nyc_inflows_to_Montague_and_Trenton_and_lagged_nj_demands" title="pywrdrb.ModelBuilder.add_parameter_predicted_lagged_non_nyc_inflows_to_Montague_and_Trenton_and_lagged_nj_demands"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_parameter_predicted_lagged_non_nyc_inflows_to_Montague_and_Trenton_and_lagged_nj_demands</span></code></a>()</p></td>
+<td><p>Add parameters for predicted lagged non-NYC inflows to Montague and Trenton, and predicted lagged NJ demands.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_parameter_salinity_model</span></code>()</p></td>
+<td><p>Add parameters for salinity prediction using LSTM model.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pywrdrb.ModelBuilder.add_parameter_temperature_model" title="pywrdrb.ModelBuilder.add_parameter_temperature_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_parameter_temperature_model</span></code></a>()</p></td>
+<td><p>Add parameters for temperature prediction using LSTM model.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pywrdrb.ModelBuilder.detach_data" title="pywrdrb.ModelBuilder.detach_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">detach_data</span></code></a>()</p></td>
+<td><p>Detach data from the model builder to release memory.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pywrdrb.ModelBuilder.make_model" title="pywrdrb.ModelBuilder.make_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_model</span></code></a>()</p></td>
+<td><p>Make the model by adding nodes, edges, and parameters based on the DRB structure.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pywrdrb.ModelBuilder.reset_model_dict" title="pywrdrb.ModelBuilder.reset_model_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset_model_dict</span></code></a>()</p></td>
+<td><p>Reset the model dictionary to its initial state.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pywrdrb.ModelBuilder.write_model" title="pywrdrb.ModelBuilder.write_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_model</span></code></a>(model_filename)</p></td>
+<td><p>Write the model to a JSON file.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd></dl>
+
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./api/generated"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../pywrdrb.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">pywrdrb</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="pywrdrb.OutputRecorder.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">pywrdrb.OutputRecorder</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder"><code class="docutils literal notranslate"><span class="pre">ModelBuilder</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.start_date"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.start_date</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.end_date"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.end_date</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.inflow_type"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.inflow_type</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.diversion_type"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.diversion_type</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.options"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.options</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.reservoirs"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.reservoirs</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.edges"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.edges</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.parameters"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.parameters</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.levels"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.levels</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.EPS"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.EPS</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.model_dict"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.model_dict</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.istarf"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.istarf</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.hist_releases"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.hist_releases</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.hist_diversions"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.hist_diversions</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.reset_model_dict"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.reset_model_dict()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.make_model"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.make_model()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.write_model"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.write_model()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.detach_data"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.detach_data()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder._get_reservoir_capacity"><code class="docutils literal notranslate"><span class="pre">ModelBuilder._get_reservoir_capacity()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder._get_reservoir_max_release"><code class="docutils literal notranslate"><span class="pre">ModelBuilder._get_reservoir_max_release()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder._get_reservoir_max_diversion_NYC"><code class="docutils literal notranslate"><span class="pre">ModelBuilder._get_reservoir_max_diversion_NYC()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder._add_ensemble_inflow_scenarios"><code class="docutils literal notranslate"><span class="pre">ModelBuilder._add_ensemble_inflow_scenarios()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_parameter_negative_one_multiplier"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_parameter_negative_one_multiplier()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_node_major_reservoir"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_node_major_reservoir()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_node_major_river"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_node_major_river()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_node_final_basin_outlet"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_node_final_basin_outlet()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_node_nyc_aggregated_storage_and_link"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_node_nyc_aggregated_storage_and_link()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_node_nyc_and_nj_deliveries"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_node_nyc_and_nj_deliveries()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_parameter_nyc_and_nj_demands"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_parameter_nyc_and_nj_demands()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_operational_regimes"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_parameter_nyc_reservoirs_operational_regimes()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_parameter_nyc_and_nj_delivery_constraints"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_parameter_nyc_and_nj_delivery_constraints()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_min_require_flow"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_parameter_nyc_reservoirs_min_require_flow()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_flood_control"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_parameter_nyc_reservoirs_flood_control()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_variable_cost_based_on_fractional_storage"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_parameter_nyc_reservoirs_variable_cost_based_on_fractional_storage()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_current_volume"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_parameter_nyc_reservoirs_current_volume()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_aggregated_info"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_parameter_nyc_reservoirs_aggregated_info()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_parameter_nyc_bank_storage"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_parameter_nyc_bank_storage()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_parameter_montague_trenton_flow_targets"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_parameter_montague_trenton_flow_targets()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_parameter_predicted_lagged_non_nyc_inflows_to_Montague_and_Trenton_and_lagged_nj_demands"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_parameter_predicted_lagged_non_nyc_inflows_to_Montague_and_Trenton_and_lagged_nj_demands()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_parameter_nyc_reservoirs_balancing_methods"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_parameter_nyc_reservoirs_balancing_methods()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_parameter_temperature_model"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_parameter_temperature_model()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.add_parameter_couple_salinity_lstm"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.add_parameter_couple_salinity_lstm()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.ModelBuilder.__init__"><code class="docutils literal notranslate"><span class="pre">ModelBuilder.__init__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The Reed Group at Cornell CEE
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
