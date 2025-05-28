@@ -38,8 +38,6 @@ Change Log
 ----------
 Marilyn Smith, 2025-05-07, Initial module documentation and cleanup.
 """
-
-import pandas as pd
 import numpy as np
 
 

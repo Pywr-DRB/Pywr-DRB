@@ -1983,7 +1983,7 @@ class ModelBuilder:
                 "type": "ForecastedTemperatureBeforeThermalRelease",
                 "variable": "mu"
             }
-        model_dict["parameters"]["forecasted_temperature_before_thermal_release_mu"] = {
+        model_dict["parameters"]["forecasted_temperature_before_thermal_release_sd"] = {
                 "type": "ForecastedTemperatureBeforeThermalRelease",
                 "variable": "sd"
             }
