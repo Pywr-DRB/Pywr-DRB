@@ -1,8 +1,11 @@
 # Pywr-DRB
 
-```{note}
-⭐ **New Release:** Pywr-DRB v2.0.0-beta is now available!
-```
+
+:::{admonition} **New Release:**
+:class: tip
+
+Pywr-DRB v2.0.0-beta is now available [on GitHub!](https://github.com/Pywr-DRB/Pywr-DRB)
+:::
 
 Pywr-DRB is a water resources model of the Delaware River Basin (DRB) designed to improve our understanding of water availability, drought risk, and long-term water supply planning within the Basin.
 
@@ -31,13 +34,13 @@ The following Jupyter Notebooks are designed to serve as training material for t
 ## Publications
 
 - Hamilton, A. L., Amestoy, T. J., & Reed, P. M. (2024). Pywr-DRB: An open-source Python model for water availability and drought risk assessment in the Delaware River Basin. Environmental Modelling & Software, 181, 106185. https://doi.org/10.1016/j.envsoft.2024.106185 
-  - [Zenodo Repository](https://zenodo.org/records/13214630)
-  - [GitHub Repository Branch](https://github.com/Pywr-DRB/Pywr-DRB/tree/diagnostic_paper)
+  - [Associated Pywr-DRB v1.0.2](https://zenodo.org/records/13214630)
+  - [GitHub Repository](https://github.com/Pywr-DRB/Pywr-DRB/tree/diagnostic_paper)
 
 
 
 - Amestoy, T. J. & Reed, P. M., (In Review) Integrated River Basin Assessment Framework Combining Probabilistic Streamflow Reconstruction, Bayesian Bias Correction, and Drought Storyline Analysis. Available at SSRN: https://ssrn.com/abstract=5240633 or http://dx.doi.org/10.2139/ssrn.5240633
-  - [Zenodo Repository](https://zenodo.org/records/15101164)
+  - [Streamflow Reconstruction Dataset](https://zenodo.org/records/15101164)
   - [GitHub Repository](https://github.com/Pywr-DRB/DRB-Historic-Reconstruction)
 
 
