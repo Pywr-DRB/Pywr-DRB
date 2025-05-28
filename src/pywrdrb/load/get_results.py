@@ -189,11 +189,13 @@ def get_keys_and_column_names_for_results_set(keys, results_set):
         keys = [k for k in keys if "mrf" in k]
         col_names = [k for k in keys]
     elif results_set == "temperature":
-        keys = [k for k in keys if "temperature" in k or "thermal" in k] \
-            + ['estimated_Q_i', 'estimated_Q_C']
+        keys = ["thermal_release_requirement", "temperature_after_thermal_release_mu", "temperature_after_thermal_release_sd"] \
+            + ['forecasted_temperature_before_thermal_release_mu', 'forecasted_temperature_before_thermal_release_sd'] \
+            #[k for k in keys if "temperature" in k or "thermal" in k] \
+            #+ ['estimated_Q_i', 'estimated_Q_C']
         col_names = [k for k in keys]
     elif results_set == "salinity":
-        keys = ["salt_front_location_mu", "salt_front_location_sd", "update_salt_front_location"] 
+        keys = ["salt_front_location_mu", "salt_front_location_sd"] 
         col_names = [k for k in keys]
     # resulst_set may be a specific key in the model
     elif results_set in keys:

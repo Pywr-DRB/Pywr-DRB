@@ -22,13 +22,17 @@ JAWRA Journal of the American Water Resources Association, 59(2), 317-337.
 
 To do
 ------
-- We have not yet add salt front to the policy. Likely, we will store and use the previous day's salt front location
-  in the Trenton flow target policy during the emergent drought.
+- We have not yet add salt front to the policy. Likely, we will call 
+  UpdateSaltFrontLocation as a childern and access salinity_model to get mu 
+  (previous day salt front location) to update the Trenton/Montague flow target policy 
+  during the emergent drought.
+- Currently, the sd of the salt front is super large and not usable. We will need to further
+  investigate the model and the data to improve the sd prediction.
 
 Change Log
 ----------
 Chung-Yi Lin, 2025-05-25, Create the script.
-
+Chung-Yi Lin, 2025-05-28, Fixed logical bugs and verify the correctness of the output.
 """
 import sys
 from pathlib import Path
@@ -51,7 +55,7 @@ class SalinityModel(Parameter):
                  Q_Trenton_lstm_var_name, 
                  Q_Schuylkill_lstm_var_name, 
                  PywrDRB_ML_plugin_path, 
-                 disable_tqdm, **kwargs):
+                 disable_tqdm, debug, **kwargs):
         super().__init__(model, **kwargs)
         """
         Initialize the SalinityModel parameter.
@@ -74,6 +78,8 @@ class SalinityModel(Parameter):
             Additional keyword arguments for the Parameter class.
         """
         
+        self.debug = debug
+        
         # Add the plug-in directory to the system path and then import plugin 
         PywrDRB_ML_plugin_path = Path(PywrDRB_ML_plugin_path)
         sys.path.insert(1, PywrDRB_ML_plugin_path) 
@@ -83,6 +89,16 @@ class SalinityModel(Parameter):
         self.mu, self.sd = np.nan, np.nan
         self.delTrenton_lstm_var_name = Q_Trenton_lstm_var_name
         self.outletSchuylkill_lstm_var_name = Q_Schuylkill_lstm_var_name
+        
+        #!! For debugging purposes
+        if debug is False:
+            self.records = {
+                "date": [],
+                "mu": [],
+                "sd": [],
+                "Q_Trenton": [],
+                "Q_Schuylkill": [],
+            }
         
         # Initialize the LSTM model for salt front prediction.
         # Default model path is "models/SalinityLSTM.yml" in the PywrDRB_ML_plugin_path.
@@ -100,6 +116,9 @@ class SalinityModel(Parameter):
         length=max((self.start_date - dt1).days, 0)
         if length == 0:
             self.start_date = dt1
+            
+        if disable_tqdm is False:
+            print(f"Advancing the SalinityLSTM model to the start date: {self.start_date} (length={length} days)")
         # Advance the LSTM models to the start date 
         # For debugging
         def update_until(lstm, length):
@@ -110,9 +129,6 @@ class SalinityModel(Parameter):
                 for vi, var in enumerate(unscaled_data):
                     if var in lstm.x_vars:
                         lstm.set_value(var, unscaled_data.loc[int(lstm.t), var])
-                    
-                    # if self.delta_temp_layer and var in self.delta_vars:
-                    #     self.set_value(var, unscaled_data.loc[int(self.t), var])           
                     
                 lstm.update()
         
@@ -131,8 +147,14 @@ class SalinityModel(Parameter):
             Q_Trenton_lstm_var_name = self.delTrenton_lstm_var_name
             Q_Schuylkill_lstm_var_name = self.outletSchuylkill_lstm_var_name
             
-            lstm.set_value(Q_Trenton_lstm_var_name, Q_Trenton)
-            lstm.set_value(Q_Schuylkill_lstm_var_name, Q_Schuylkill)
+            unscaled_data = lstm.get_unscaled_values(lead_time=0) # Retrieve unscaled data for the current date
+            for var in lstm.x_vars:
+                if var == Q_Trenton_lstm_var_name:
+                    lstm.set_value(var, Q_Trenton)
+                elif var == Q_Schuylkill_lstm_var_name:
+                    lstm.set_value(var, Q_Schuylkill)
+                else:
+                    lstm.set_value(var, unscaled_data.loc[0, var]) 
             lstm.update()
             
             # salt_front (We use Jake's bmi so we still we temperature variable name internally in the bmi)
@@ -143,6 +165,15 @@ class SalinityModel(Parameter):
             salt_front_mu, salt_front_sd = salt_front_mu[0], salt_front_sd[0]
             
             self.mu, self.sd = salt_front_mu, salt_front_sd
+            
+            #!! For debugging purposes
+            if self.debug:
+                records = self.records
+                records["date"].append(previous_date)
+                records["mu"].append(salt_front_mu)
+                records["sd"].append(salt_front_sd)
+                records["Q_Trenton"].append(Q_Trenton)
+                records["Q_Schuylkill"].append(Q_Schuylkill)
             
             self.current_date += timedelta(days=1)
             return None
@@ -157,14 +188,27 @@ class SalinityModel(Parameter):
         Q_Trenton_lstm_var_name = data.pop("Q_Trenton_lstm_var_name")
         Q_Schuylkill_lstm_var_name = data.pop("Q_Schuylkill_lstm_var_name")
         PywrDRB_ML_plugin_path = data.pop("PywrDRB_ML_plugin_path")
-        disable_tqdm = data.pop("disable_tqdm", False)
-        return cls(model, start_date, Q_Trenton_lstm_var_name, Q_Schuylkill_lstm_var_name, PywrDRB_ML_plugin_path, disable_tqdm, **data)
+        disable_tqdm = data.pop("disable_tqdm", True)
+        debug = data.pop("debug", False)
+        return cls(model, start_date, Q_Trenton_lstm_var_name, Q_Schuylkill_lstm_var_name, PywrDRB_ML_plugin_path, disable_tqdm, debug, **data)
 SalinityModel.register()
 # salinity_model
 
 class UpdateSaltFrontLocation(Parameter):
     def __init__(self, model, salinity_model, **kwargs):
         super().__init__(model, **kwargs)
+        """
+        Update the salt front location based on the salinity model predictions.
+        
+        parameters
+        ----------
+        model : pywr.core.Model
+            The Pywr model object.
+        salinity_model : SalinityModel
+            The SalinityModel parameter object that provides the salt front predictions.
+        **kwargs : dict
+            Additional keyword arguments for the Parameter class.
+        """
         self.salinity_model = salinity_model
         
         # To ensure downstream_add_thermal_release_to_target_cannonsville & pepacton are updated before this parameter
@@ -200,6 +244,22 @@ UpdateSaltFrontLocation.register()
 class SaltFrontLocation(Parameter):
     def __init__(self, model, salinity_model, update_salt_front_location, variable, **kwargs):
         super().__init__(model, **kwargs)
+        """
+        A parameter to access the salt front location (mu or sd) from the salinity model.
+        
+        Parameters
+        ----------
+        model : pywr.core.Model
+            The Pywr model object.
+        salinity_model : SalinityModel
+            The SalinityModel parameter object that provides the salt front predictions.
+        update_salt_front_location : UpdateSaltFrontLocation
+            The UpdateSaltFrontLocation parameter that updates the salt front location.
+        variable : str
+            The variable to access from the salinity model, either "mu" for the mean salt front location or "sd" for the standard deviation.
+        **kwargs : dict
+            Additional keyword arguments for the Parameter class.
+        """
         self.salinity_model = salinity_model
         self.variable = variable
 
