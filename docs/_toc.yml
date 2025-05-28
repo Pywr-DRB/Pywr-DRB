@@ -13,8 +13,8 @@ parts:
           file: api/pywrdrb.rst
         - title: pywrdrb.parameters
           file: api/parameters.rst
-        # - title: pywrdrb.pre
-        #   file: api/pre.rst
+        - title: pywrdrb.pre
+          file: api/pre.rst
         # - title: pywrdrb.utils
         #   file: api/utils.rst
 

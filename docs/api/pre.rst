@@ -1,11 +1,15 @@
 pywrdrb.pre
 ================
 
-The following are used for preprocessing data, to prepare for `pywrdrb` simulation.
+The following are used for preprocessing data, to prepare standard format data for `pywrdrb` simulation.
+
+.. currentmodule:: pywrdrb.pre
 
 .. autosummary::
     :toctree: generated/
     :nosignatures:
 
-    pywrdrb.pre.PredictedInflowPreprocessor
-    pywrdrb.pre.PredictedDiversionPreprocessor
+    ObservationalDataRetriever
+    PredictedInflowPreprocessor
+    PredictedDiversionPreprocessor
+    ExtrapolatedDiversionPreprocessor
