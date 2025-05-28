@@ -37,6 +37,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 from tqdm import tqdm
 from pywr.parameters import Parameter, load_parameter
+from pywr.recorders import Recorder
 
 from pywrdrb.path_manager import get_pn_object
 # Directories (PathNavigator)
@@ -79,7 +80,7 @@ class SalinityModel(Parameter):
         from src.torch_bmi import bmi_lstm # BMI wrapper for the LSTM model
         
         # Final salt front location (river mile)
-        self.mu, self.sd = -99, -99
+        self.mu, self.sd = np.nan, np.nan
         self.delTrenton_lstm_var_name = Q_Trenton_lstm_var_name
         self.outletSchuylkill_lstm_var_name = Q_Schuylkill_lstm_var_name
         
@@ -120,11 +121,11 @@ class SalinityModel(Parameter):
         self.current_date = self.start_date # safenet to ensure the LSTM is only update once per timestep
     
     def update(self, Q_Trenton, Q_Schuylkill, current_date):
-        
-        if current_date.datetime < self.current_date:
+        previous_date = current_date.datetime - timedelta(days=1) # as we are using the previous day flow to update the LSTM
+        if previous_date < self.current_date:
             return None
         
-        elif current_date.datetime == self.current_date:
+        elif previous_date == self.current_date:
             
             lstm = self.lstm
             Q_Trenton_lstm_var_name = self.delTrenton_lstm_var_name
@@ -148,7 +149,7 @@ class SalinityModel(Parameter):
     
     def value(self, timestep, scenario_index):
         pass
-        return -99
+        return np.nan
 
     @classmethod
     def load(cls, model, data):
@@ -170,21 +171,25 @@ class UpdateSaltFrontLocation(Parameter):
         # This will also ensure forecast is run before predict
         # To ensure thermal_release_requirement is run before this parameter.
         self.children.add(salinity_model)
-    
-    def setup(self):
-        super().setup()  # CRITICAL
+        
         self.link_delTrenton = self.model.nodes["link_delTrenton"]
         self.link_outletSchuylkill = self.model.nodes["link_outletSchuylkill"]
         self.children.add(self.link_delTrenton)
         self.children.add(self.link_outletSchuylkill)
     
+    def setup(self):
+        super().setup()  # CRITICAL
+        
+        pass
+    
     def value(self, timestep, scenario_index):
         salinity_model = self.salinity_model
-        Q_Trenton = self.link_delTrenton.flow[0]
-        Q_Schuylkill = self.link_outletSchuylkill.flow[0]
+        Q_Trenton = self.link_delTrenton.prev_flow[0]
+        Q_Schuylkill = self.link_outletSchuylkill.prev_flow[0]
         salinity_model.update(Q_Trenton, Q_Schuylkill, timestep)
-        return -99
-    
+        #print(f"Update salt front location: {timestep.datetime} | Q_Trenton: {Q_Trenton}, Q_Schuylkill: {Q_Schuylkill}")
+        return Q_Trenton
+
     @classmethod
     def load(cls, model, data):
         salinity_model = load_parameter(model, "salinity_model")
