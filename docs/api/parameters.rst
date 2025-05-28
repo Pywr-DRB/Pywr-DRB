@@ -1,6 +1,8 @@
 pywrdrb.parameters
 ====================
 
+.. currentmodule:: pywrdrb.parameters
+
 Parameters are used to define operations within the pywrdrb model.
 
 Flexible Flow Management (FFMP)
@@ -10,17 +12,17 @@ Flexible Flow Management (FFMP)
    :toctree: generated/
    :nosignatures:
 
-    pywrdrb.parameters.FfmpNycRunningAvgParameter
-    pywrdrb.parameters.FfmpNjRunningAvgParameter
-    pywrdrb.parameters.NYCCombinedReleaseFactor
-    pywrdrb.parameters.NYCFloodRelease
-    pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF
-    pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1
-    pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2
-    pywrdrb.parameters.VolBalanceNYCDemand
-    pywrdrb.parameters.LowerBasinMaxMRFContribution
-    pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate
-    pywrdrb.parameters.VolBalanceLowerBasinMRFIndividual
+    FfmpNycRunningAvgParameter
+    FfmpNjRunningAvgParameter
+    NYCCombinedReleaseFactor
+    NYCFloodRelease
+    TotalReleaseNeededForDownstreamMRF
+    VolBalanceNYCDownstreamMRF_step1
+    VolBalanceNYCDownstreamMRF_step2
+    VolBalanceNYCDemand
+    LowerBasinMaxMRFContribution
+    VolBalanceLowerBasinMRFAggregate
+    VolBalanceLowerBasinMRFIndividual
 
 
 
@@ -31,7 +33,7 @@ STARFIT Reservoir Operations
    :toctree: generated/
    :nosignatures:
 
-    pywrdrb.parameters.STARFITReservoirRelease
+    STARFITReservoirRelease
 
 
 Ensemble Specific
@@ -41,8 +43,9 @@ Ensemble Specific
    :toctree: generated/
    :nosignatures:
 
-    pywrdrb.parameters.FlowEnsemble
-    pywrdrb.parameters.PredictionEnsemble
+    FlowEnsemble
+    PredictionEnsemble
+
 
 General
 -------
@@ -51,4 +54,4 @@ General
    :toctree: generated/
    :nosignatures:
 
-   pywrdrb.parameters.LaggedReservoirRelease
+   LaggedReservoirRelease
