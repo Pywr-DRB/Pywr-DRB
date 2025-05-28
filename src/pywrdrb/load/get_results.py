@@ -35,6 +35,24 @@ from pywrdrb.utils.constants import mg_to_mcm
 from pywrdrb.utils.results_sets import pywrdrb_results_set_opts
 
 
+def get_results_set_opts():
+    """
+    Return a list of valid results_set options for pywrdrb output data.
+    
+    The results_set strings are used to specify certain categories of 
+    simulation variables to extract from the pywrdrb output file,
+    when used with pywrdrb.load.get_pywrdrb_results().
+    
+    For example, "res_storage" will result in a DataFrame containing
+    reservoir storage timeseries for all model reservoirs. 
+    
+    Returns
+    -------
+    list
+        A list of valid results_set options for pywrdrb output data. 
+    """
+    return pywrdrb_results_set_opts
+
 def get_keys_and_column_names_for_results_set(keys, results_set):
     """
     For given results_set, identify hdf5 key subset and new variable names.
@@ -54,7 +72,8 @@ def get_keys_and_column_names_for_results_set(keys, results_set):
     keys : list[str]
         The full list of HDF5 keys stored in the pywrdrb output file.
     results_set : str
-        The type of results to retrieve.
+        The type of results to retrieve. Call pywrdrb.load.get_results_set_opts()
+        to see the valid options.
         
     Returns
     -------
@@ -189,13 +208,13 @@ def get_keys_and_column_names_for_results_set(keys, results_set):
         keys = [k for k in keys if "mrf" in k]
         col_names = [k for k in keys]
     elif results_set == "temperature":
-        keys = [k for k in keys if "temperature" in k] \
-            + [k for k in keys if "thermal" in k] \
-            + ['estimated_Q_i', 'estimated_Q_C']
+        keys = ["thermal_release_requirement", "temperature_after_thermal_release_mu", "temperature_after_thermal_release_sd"] \
+            + ['forecasted_temperature_before_thermal_release_mu', 'forecasted_temperature_before_thermal_release_sd'] \
+            #[k for k in keys if "temperature" in k or "thermal" in k] \
+            #+ ['estimated_Q_i', 'estimated_Q_C']
         col_names = [k for k in keys]
     elif results_set == "salinity":
-        keys = [k for k in keys if "salinity" in k] \
-            + [k for k in keys if "salt_front" in k]
+        keys = ["salt_front_location_mu", "salt_front_location_sd"] 
         col_names = [k for k in keys]
     # resulst_set may be a specific key in the model
     elif results_set in keys:
@@ -224,12 +243,10 @@ def get_pywrdrb_results(
     output_filename : str
         The full output filename from pywrdrb simulation (e.g., "<path>/drb_output_nhmv10.hdf5").
     results_set : str, optional
-        The results set to return. Options include:
-        - "all": All results.
-        - "reservoir_downstream_gage": Downstream gage flow below reservoir.
-        - "res_storage": Reservoir storages.
-        - "major_flow": Flow at major flow points of interest.
-        - "inflow": Inflow at each catchment.
+        The results set to return. Call pywrdrb.load.get_results_set_opts()
+        to get a list of the valid options. When results_set='all', then 
+        the raw variable name is preserved. Else, the variables are relabled based on their 
+        corresponding node names. Default: "all" 
     scenarios : list[int], optional
         The scenario index numbers. Only needed for ensemble simulation results. Default: [0]
     datetime_index : pd.DatetimeIndex, optional
@@ -343,12 +360,7 @@ def get_base_results(
     input_dir : str
         Directory containing input data files.
     model : str
-        Model name. Options:
-        - "obs": Observed data.
-        - "nwmv21": NWM v2.1 data.
-        - "nhmv10": NHM v1.0 data.
-        - "nwmv21_withObsScaled": NWM v2.1 data with scaled inflow observations.
-        - "nhmv10_withObsScaled": NHM v1.0 data with scaled inflow observations.
+        Model name.
     datetime_index : pd.DatetimeIndex, optional
         Existing datetime index to reuse. Creating dates is slow, so reusing is efficient.
     results_set : str, optional

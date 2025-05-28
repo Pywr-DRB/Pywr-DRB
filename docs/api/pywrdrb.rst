@@ -1,12 +1,13 @@
 pywrdrb
 ====================
 
+.. currentmodule:: pywrdrb
 
 .. autosummary::
    :toctree: generated/
    :nosignatures:
+   :recursive:
 
-   pywrdrb.ModelBuilder
-   pywrdrb.Model
-   pywrdrb.OutputRecorder
-   pywrdrb.Data
+   ModelBuilder
+   OutputRecorder
+   Data

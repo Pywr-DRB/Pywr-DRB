@@ -18,9 +18,23 @@ H. R., ... & Read, J. S. (2023). Near‐term forecasts of stream temperature usi
 and data assimilation in support of management decisions.
 JAWRA Journal of the American Water Resources Association, 59(2), 317-337.
 
+To do
+------
+- Currently, we did not dynamically update the lag-1 temperature at Lordville inputs, 
+  which we assume lag-1 information is available in the real-world.
+- Will add the thermal control algorithm to the TemperatureModel class and enable 
+  forecast functionality.
+- Thermal bank is an attribute of the TemperatureModel class, which is used to store the 
+  thermal mitigation bank size.
+  Ideally, all mitigation banks should be stored as a dedicated parameter class.
+- We use simplfied demand allocation logic to estimate the Cannonsville and Pepacton 
+  reservoir diversion, which works fine. Chung-Yi recommends not to complicate the logic 
+  and calculation here.
+
 Change Log
 ----------
 Chung-Yi Lin, 2025-05-25, Create the script.
+Chung-Yi Lin, 2025-05-28, Fixed logical bugs and verify the correctness of the output.
 """
 # Necessary evil for lstm to find files
 import sys
@@ -39,7 +53,10 @@ global pn
 pn = get_pn_object()
 
 class TemperatureModel(Parameter):
-    def __init__(self, model, start_date, activate_thermal_control, Q_C_lstm_var_name, Q_i_lstm_var_name, PywrDRB_ML_plugin_path, disable_tqdm, **kwargs):
+    def __init__(self, model, start_date, activate_thermal_control, 
+                 Q_C_lstm_var_name, Q_i_lstm_var_name, cannonsville_storage_pct_lstm_var_name,
+                 PywrDRB_ML_plugin_path, 
+                 disable_tqdm, debug, **kwargs):
         super().__init__(model, **kwargs)
         """
         A custom parameter class to predict daily maximum water temperature at Lordville using LSTM models.
@@ -60,9 +77,13 @@ class TemperatureModel(Parameter):
             The path to the PywrDRB_ML plugin directory containing the LSTM model configuration.
         disable_tqdm : bool
             If True, disables the tqdm progress bar during model initialization.
+        debug : bool
+            If True, enables debugging mode, which records intermediate values for inspection.
         **kwargs : dict
             Additional keyword arguments for the Parameter class.
         """
+        self.debug = debug
+        
         
         # import plugin 
         PywrDRB_ML_plugin_path = Path(PywrDRB_ML_plugin_path)
@@ -70,15 +91,33 @@ class TemperatureModel(Parameter):
         from src.torch_bmi import bmi_lstm
         
         # Final water temperature at Lordville
-        self.mu, self.sd = -99, -99
+        self.mu, self.sd = np.nan, np.nan
         
         # Forecasted water temperature at Lordville
-        self.forecasted_mu, self.forecasted_sd = -99, -99
+        self.forecasted_mu, self.forecasted_sd = np.nan, np.nan
         
         # Indicate whether to activate thermal control
         self.activate_thermal_control = activate_thermal_control
         self.Q_C_lstm_var_name = Q_C_lstm_var_name
         self.Q_i_lstm_var_name = Q_i_lstm_var_name
+        self.cannonsville_storage_pct_lstm_var_name = cannonsville_storage_pct_lstm_var_name
+        
+        #!! For debugging purposes
+        if debug:
+            self.records = {
+                "date": [],
+                "T_C_mu": [],
+                "T_C_sd": [],
+                "T_i_mu": [],
+                "T_i_sd": [],
+                "Tavg_mu": [],
+                "Tavg_sd": [],
+                "T_L_mu": [],
+                "T_L_sd": [],
+                "Q_C": [],
+                "Q_i": [],
+                "cannonsville_storage_pct": []
+            }
         
         # Predict the Cannonsville reservoir release temperature (T_C)
         lstm1 = bmi_lstm()
@@ -115,12 +154,15 @@ class TemperatureModel(Parameter):
         length1 = max((self.start_date - dt1).days, 0)
         length2 = max((self.start_date - dt2).days, 0)
         
+        if disable_tqdm is False: # For debugging
+            print(f"Advancing the TempLSTM1 model to the start date: {self.start_date} (length={length1} days)")
+            print(f"Advancing the TempLSTM2 model to the start date: {self.start_date} (length={length2} days)")
+        
         # Advance the LSTM models to the start date 
         def update_until(lstm, length):
             # Get unscaled lstm input data
             unscaled_data = lstm.get_unscaled_values(lead_time=length)
             for _ in tqdm(range(length), disable=disable_tqdm):
-                
                 for vi, var in enumerate(unscaled_data):
                     if var in lstm.x_vars:
                         lstm.set_value(var, unscaled_data.loc[int(lstm.t), var])
@@ -129,8 +171,8 @@ class TemperatureModel(Parameter):
         if disable_tqdm is False: # For debugging
             print(f"Advancing TempLSTM models to the {self.start_date} ...")
             
-        update_until(lstm=lstm1, length=length1)
-        update_until(lstm=lstm2, length=length2)
+        update_until(lstm=self.lstm1, length=length1)
+        update_until(lstm=self.lstm2, length=length2)
         
         # Safenet to ensure the LSTM is only update once per timestep
         self.current_date = self.start_date 
@@ -139,14 +181,14 @@ class TemperatureModel(Parameter):
         self.thermal_mitigation_bank_size = 1620
         self.remained_bank_amount = 1620
 
-    def make_control_release(self, Q_C, Q_i, timestep):
+    def make_control_release(self, Q_C, Q_i, cannonsville_storage_pct, current_date):
         # activate if self.activate_thermal_control is True
         # Here is the place to plugin control algorithm
         
         pass
-        return -99
+        return np.nan
     
-    def update(self, Q_C, Q_i, current_date):
+    def update(self, Q_C, Q_i, cannonsville_storage_pct, current_date):
         """
         Forward the LSTM models to one step.
         
@@ -156,27 +198,43 @@ class TemperatureModel(Parameter):
             The Cannonsville reservoir downstream flow (01425000).
         Q_i : float
             The East Branch downstream flow (01417000) and natural inflow to Lordville.
+        cannonsville_storage_pct : float
+            The percentage of the Cannonsville reservoir storage.        
         current_date : pywr.core.CurrentDate
             The current date in the model, used to determine if the LSTM models need to be updated.
         """
-        if current_date.datetime < self.current_date:
+        previous_date = current_date.datetime - timedelta(days=1) # as we are using the previous day flow to update the LSTM
+        if previous_date < self.current_date:
             return None
         
-        elif current_date.datetime == self.current_date:
+        elif previous_date == self.current_date:
             
             lstm1 = self.lstm1
             lstm2 = self.lstm2
             Q_C_lstm_var_name = self.Q_C_lstm_var_name
             Q_i_lstm_var_name = self.Q_i_lstm_var_name
+            cannonsville_storage_pct_lstm_var_name = self.cannonsville_storage_pct_lstm_var_name
             
             # Update the LSTM1 models with the current flow values
-            lstm1.set_value(Q_C_lstm_var_name, Q_C)
+            unscaled_data = lstm1.get_unscaled_values(lead_time=0) # Retrieve unscaled data for the current date
+            for var in lstm1.x_vars:
+                if var == Q_C_lstm_var_name:
+                    lstm1.set_value(Q_C_lstm_var_name, Q_C)
+                elif var == cannonsville_storage_pct_lstm_var_name:
+                    lstm1.set_value(cannonsville_storage_pct_lstm_var_name, cannonsville_storage_pct)
+                else:
+                    lstm1.set_value(var, unscaled_data.loc[0, var]) 
             lstm1.update()
             
             # Update the LSTM2 models with the current flow values
-            lstm2.set_value(Q_i_lstm_var_name, Q_i)
-            if Q_C_lstm_var_name in lstm2.cfg_bmi["x_vars"]:
-                lstm2.set_value(Q_C_lstm_var_name, Q_C) # connected model
+            unscaled_data = lstm2.get_unscaled_values(lead_time=0) # Retrieve unscaled data for the current date
+            for var in lstm2.x_vars:
+                if var == Q_i_lstm_var_name:
+                    lstm2.set_value(Q_i_lstm_var_name, Q_i)
+                elif var == Q_C_lstm_var_name: # connected model
+                    lstm2.set_value(Q_C_lstm_var_name, Q_C)
+                else:
+                    lstm2.set_value(var, unscaled_data.loc[0, var]) 
             lstm2.update()
             
             # T_C
@@ -204,26 +262,142 @@ class TemperatureModel(Parameter):
             T_L_sd = Tavg_sd # assuming a constant sd for T_L
             self.mu, self.sd = T_L_mu, T_L_sd
             
+            # For debugging purposes
+            if self.debug:
+                records = self.records
+                records["date"].append(previous_date)
+                records["T_C_mu"].append(T_C_mu)
+                records["T_C_sd"].append(T_C_sd)
+                records["T_i_mu"].append(T_i_mu)
+                records["T_i_sd"].append(T_i_sd)
+                records["Tavg_mu"].append(Tavg_mu)
+                records["Tavg_sd"].append(Tavg_sd)
+                records["T_L_mu"].append(T_L_mu)
+                records["T_L_sd"].append(T_L_sd)
+                records["Q_C"].append(Q_C)
+                records["Q_i"].append(Q_i)
+                records["cannonsville_storage_pct"].append(cannonsville_storage_pct)
+            
             self.current_date += timedelta(days=1) # Avoid updating the LSTM models multiple times in a single timestep
             return None
     
     def value(self, timestep, scenario_index):
-        # The values are retrieved through other parameters like ForecastedTemperatureBeforeThermalRelease and TemperatureAfterThermalRelease
+        # The values are retrieved through other parameters like 
+        # ForecastedTemperatureBeforeThermalRelease and TemperatureAfterThermalRelease
         pass
-        return -99
+        return np.nan
 
     @classmethod
     def load(cls, model, data):
-        start_date = data.pop("start_date")
-        activate_thermal_control = data.pop("activate_thermal_control")
+        start_date = data.pop("start_date", None)
+        activate_thermal_control = data.pop("activate_thermal_control", False)
         Q_C_lstm_var_name = data.pop("Q_C_lstm_var_name")
         Q_i_lstm_var_name = data.pop("Q_i_lstm_var_name")
+        cannonsville_storage_pct_lstm_var_name = data.pop("cannonsville_storage_pct_lstm_var_name")
         PywrDRB_ML_plugin_path = data.pop("PywrDRB_ML_plugin_path")
-        disable_tqdm = data.pop("disable_tqdm", False)
-        return cls(model, start_date, activate_thermal_control, Q_C_lstm_var_name, Q_i_lstm_var_name, PywrDRB_ML_plugin_path, disable_tqdm, **data)
+        disable_tqdm = data.pop("disable_tqdm", True)
+        debug = data.pop("debug", False)
+        return cls(model, start_date, activate_thermal_control, 
+                   Q_C_lstm_var_name, Q_i_lstm_var_name, cannonsville_storage_pct_lstm_var_name, 
+                   PywrDRB_ML_plugin_path, disable_tqdm, debug, **data)
 TemperatureModel.register()
 # temperature_model
 
+# Update the TempLSTMs using the flows at previous timestep as the class is called before LP.
+class UpdateTemperatureAtLordville(Parameter):
+    def __init__(self, model, temperature_model, **kwargs):
+        """
+        A custom parameter class to update the temperature model at Lordville using the previous flow values.
+        
+        Parameters
+        ----------
+        model : pywr.core.Model
+            The Pywr model object.
+        temperature_model : TemperatureModel
+            The TemperatureModel instance to be updated.
+        **kwargs : dict
+            Additional keyword arguments for the Parameter class.
+        """
+        super().__init__(model, **kwargs)
+        self.temperature_model = temperature_model
+        self.children.add(temperature_model)
+    
+    def setup(self):
+        super().setup()  
+        self.link_01425000 = self.model.nodes["link_01425000"] # Cannonsville reservoir downstream flow (01425000)
+        self.link_delLordville = self.model.nodes["link_delLordville"] # flow at delLordville
+        self.reservoir_cannonsville = self.model.nodes["reservoir_cannonsville"]
+        
+        self.children.add(self.link_01425000)
+        self.children.add(self.link_delLordville)
+        self.children.add(self.reservoir_cannonsville)
+    
+    # Need to use prev flow_delLordville and max_flow_catchmentConsumption_delLordville
+    # Or get prev_flow from Lordeville node and infer Q_i = Q_L - Q_C
+    def value(self, timestep, scenario_index):
+        temperature_model = self.temperature_model
+        # Cannonsville reservoir downstream flow (01425000)
+        Q_C = self.link_01425000.prev_flow[0]  
+        # East Branch downstream flow (01417000) and natural inflow to Lordville
+        Q_i = self.link_delLordville.prev_flow[0] - Q_C
+        cannonsville_storage_pct = self.reservoir_cannonsville.volume[0] / 95700 * 100
+        temperature_model.update(Q_C, Q_i, cannonsville_storage_pct, timestep)
+        return np.nan
+    
+    @classmethod
+    def load(cls, model, data):
+        temperature_model = load_parameter(model, "temperature_model")
+        return cls(model, temperature_model, **data) 
+UpdateTemperatureAtLordville.register()
+# update_temperature_at_lordville
+
+class TemperatureAfterThermalRelease(Parameter):
+    def __init__(self, model, temperature_model, update_temperature_at_lordville, variable, **kwargs):
+        super().__init__(model, **kwargs)
+        """
+        A custom parameter class to retrieve the temperature after thermal release at Lordville.
+        
+        Parameters
+        ----------
+        model : pywr.core.Model
+            The Pywr model object.
+        temperature_model : TemperatureModel
+            The TemperatureModel instance to retrieve the temperature from.
+        update_temperature_at_lordville : UpdateTemperatureAtLordville
+            The UpdateTemperatureAtLordville instance to ensure the temperature model is updated before this parameter.
+        variable : str
+            The variable to retrieve from the temperature model, either "mu" or "sd".
+        **kwargs : dict
+            Additional keyword arguments for the Parameter class.
+        """
+        self.temperature_model = temperature_model
+        self.variable = variable
+
+        # To ensure update_temperature_at_lordville is run before this parameter.
+        self.children.add(update_temperature_at_lordville)
+
+    def value(self, timestep, scenario_index):
+        # The forecasted temperature should be populated when making the control release decision.
+        # If activate_thermal_control is False, the forecasted temperature will be None. 
+        if self.variable == "mu":
+            return self.temperature_model.mu
+        elif self.variable == "sd":
+            return self.temperature_model.sd
+        else:
+            raise ValueError("Invalid variable. Must be 'mu' or 'sd'.")
+        
+    @classmethod
+    def load(cls, model, data):
+        assert "variable" in data.keys()
+        temperature_model = load_parameter(model, "temperature_model")
+        update_temperature_at_lordville = load_parameter(model, "update_temperature_at_lordville")
+        variable = data.pop("variable")
+        return cls(model, temperature_model, update_temperature_at_lordville, variable, **data)
+TemperatureAfterThermalRelease.register()
+# temperature_after_thermal_release_mu
+# temperature_after_thermal_release_sd
+
+# Estimated Q is for forecasting purposes (thremal control)
 class Estimated_Q_C(Parameter):
     # Cannonsville reservoir release => downstream gauge (01425000) => Lordville
     def __init__(self, model, downstream_release_target_cannonsville, 
@@ -232,6 +406,29 @@ class Estimated_Q_C(Parameter):
                  max_flow_delivery_nyc,
                  **kwargs):
         super().__init__(model, **kwargs)
+        """
+        A custom parameter class to estimate the Cannonsville reservoir downstream flow (Q_C)
+        based on the downstream release target and the water balance at the Cannonsville reservoir.
+        
+        Parameters
+        ----------
+        model : pywr.core.Model
+            The Pywr model object.
+        downstream_release_target_cannonsville : Parameter
+            The target downstream release from the Cannonsville reservoir.
+        flow_01425000 : Parameter
+            The inflow to the downstream gauge (01425000) representing the Cannonsville reservoir downstream flow.
+        max_flow_catchmentConsumption_01425000 : Parameter
+            The catchment consumption at the downstream gauge (01425000).
+        flow_cannonsville : Parameter
+            The inflow to the Cannonsville reservoir.
+        max_flow_catchmentConsumption_cannonsville : Parameter
+            The catchment consumption at the Cannonsville reservoir.
+        max_flow_delivery_nyc : Parameter
+            The maximum delivery to New York City.
+        **kwargs : dict
+            Additional keyword arguments for the Parameter class.
+        """
         self.downstream_release_target_cannonsville = downstream_release_target_cannonsville
         self.flow_01425000 = flow_01425000
         self.max_flow_catchmentConsumption_01425000 = max_flow_catchmentConsumption_01425000
@@ -248,7 +445,7 @@ class Estimated_Q_C(Parameter):
         
     def setup(self):
         super().setup()
-        self.reservoir_cannonsville = self.model.nodes["reservoir_cannonsville"] 
+        self.reservoir_cannonsville = self.model.nodes["reservoir_cannonsville"] # will retrieve the reservoir volume at the previous timestep
         
     def value(self, timestep, scenario_index):
         max_flow_delivery_nyc = self.max_flow_delivery_nyc.get_value(scenario_index)
@@ -285,7 +482,6 @@ class Estimated_Q_C(Parameter):
         downstream_release_target_cannonsville = load_parameter(model, "downstream_release_target_cannonsville")
         flow_01425000 = load_parameter(model, "flow_01425000") # catchment_01425000
         max_flow_catchmentConsumption_01425000 = load_parameter(model, "max_flow_catchmentConsumption_01425000")
-        
         flow_cannonsville = load_parameter(model, "flow_cannonsville") # catchment_cannonsville
         max_flow_catchmentConsumption_cannonsville = load_parameter(model, "max_flow_catchmentConsumption_cannonsville")
         
@@ -306,6 +502,33 @@ class Estimated_Q_i(Parameter):
                  max_flow_delivery_nyc,
                  **kwargs):
         super().__init__(model, **kwargs)
+        """
+        A custom parameter class to estimate the East Branch downstream flow + natural 
+        inflow to Lordville (Q_i).
+        
+        parameters
+        ----------
+        model : pywr.core.Model
+            The Pywr model object.
+        downstream_release_target_pepacton : Parameter
+            The target downstream release from the Pepacton reservoir.
+        flow_01417000 : Parameter
+            The inflow to the downstream gauge (01417000).
+        max_flow_catchmentConsumption_01417000 : Parameter
+            The catchment consumption at the downstream gauge (01417000).
+        flow_delLordville : Parameter
+            The inflow to the Lordville gauge.
+        max_flow_catchmentConsumption_delLordville : Parameter
+            The catchment consumption at the Lordville gauge.
+        flow_pepacton : Parameter
+            The inflow to the Pepacton reservoir.
+        max_flow_catchmentConsumption_pepacton : Parameter
+            The catchment consumption at the Pepacton reservoir.
+        max_flow_delivery_nyc : Parameter
+            The maximum delivery to New York City.
+        **kwargs : dict
+            Additional keyword arguments for the Parameter class.
+        """
         self.downstream_release_target_pepacton = downstream_release_target_pepacton
         self.flow_01417000 = flow_01417000
         self.max_flow_catchmentConsumption_01417000 = max_flow_catchmentConsumption_01417000
@@ -390,8 +613,26 @@ Estimated_Q_i.register()
 
 # Calculate the total thermal release requirement at Lordville    
 class ThermalReleaseRequirement(Parameter):
-    def __init__(self, model, temperature_model, Q_C, Q_i, **kwargs):
+    def __init__(self, model, temperature_model, update_temperature_at_lordville, Q_C, Q_i, **kwargs):
         super().__init__(model, **kwargs)
+        """
+        A custom parameter class to calculate the thermal release requirement at Lordville.
+        
+        Parameters
+        ----------
+        model : pywr.core.Model
+            The Pywr model object.
+        temperature_model : TemperatureModel
+            The TemperatureModel instance to retrieve the temperature from.
+        update_temperature_at_lordville : UpdateTemperatureAtLordville
+            The UpdateTemperatureAtLordville instance to ensure the temperature model is updated before this parameter.
+        Q_C : Estimated_Q_C
+            The estimated Cannonsville reservoir downstream flow (Q_C).
+        Q_i : Estimated_Q_i
+            The estimated East Branch downstream flow + natural inflow to Lordville (Q_i).
+        **kwargs : dict
+            Additional keyword arguments for the Parameter class.
+        """
         self.Q_C = Q_C
         self.Q_i = Q_i
         self.thermal_release = 0.0
@@ -399,10 +640,14 @@ class ThermalReleaseRequirement(Parameter):
         # To ensure cannonsville_release & pepacton_release are updated before this parameter
         self.children.add(Q_C)
         self.children.add(Q_i) 
+        self.children.add(update_temperature_at_lordville) # make sure the temperature model is updated before this parameter using the previous flow values
         self.temperature_model = temperature_model
         self.activate_thermal_control = temperature_model.activate_thermal_control
-        self.mu, self.sd = 0, 0
     
+    def setup(self):
+        super().setup()
+        self.reservoir_cannonsville = self.model.nodes["reservoir_cannonsville"] # will retrieve the reservoir volume at the previous timestep
+        
     def value(self, timestep, scenario_index):
         temperature_model = self.temperature_model
         # Check if thermal control is activated
@@ -412,6 +657,7 @@ class ThermalReleaseRequirement(Parameter):
             thermal_release = temperature_model.make_control_release(
                 Q_C = self.Q_C.get_value(scenario_index), 
                 Q_i = self.Q_i.get_value(scenario_index),
+                cannonsville_storage_pct = self.reservoir_cannonsville.volume[0] / 95700 * 100,
                 timestep = timestep
             )
             self.thermal_release = thermal_release
@@ -422,13 +668,30 @@ class ThermalReleaseRequirement(Parameter):
         Q_C = load_parameter(model, "estimated_Q_C")
         Q_i = load_parameter(model, "estimated_Q_i")      
         temperature_model = load_parameter(model, "temperature_model")
-        return cls(model, temperature_model, Q_C, Q_i, **data) 
+        update_temperature_at_lordville = load_parameter(model, "update_temperature_at_lordville")
+        return cls(model, temperature_model, update_temperature_at_lordville, Q_C, Q_i, **data) 
 ThermalReleaseRequirement.register() 
 # thermal_release_requirement
 
 class ForecastedTemperatureBeforeThermalRelease(Parameter):
     def __init__(self, model, temperature_model, thermal_release_requirement, variable, **kwargs):
         super().__init__(model, **kwargs)
+        """
+        A custom parameter class to retrieve the forecasted temperature before thermal release at Lordville.
+        
+        Parameters
+        ----------
+        model : pywr.core.Model
+            The Pywr model object.
+        temperature_model : TemperatureModel
+            The TemperatureModel instance to retrieve the forecasted temperature from.
+        thermal_release_requirement : ThermalReleaseRequirement
+            The ThermalReleaseRequirement instance to ensure the thermal release requirement is calculated before this parameter.
+        variable : str
+            The variable to retrieve from the temperature model, either "mu" or "sd".
+        **kwargs : dict
+            Additional keyword arguments for the Parameter class.
+        """
         self.temperature_model = temperature_model
         self.variable = variable
 
@@ -456,78 +719,7 @@ ForecastedTemperatureBeforeThermalRelease.register()
 # forecasted_temperature_before_thermal_release_mu
 # forecasted_temperature_before_thermal_release_sd
 
-class UpdateTemperatureAtLordville(Parameter):
-    def __init__(self, model, temperature_model, thermal_release_requirement, flow_delLordville, max_flow_catchmentConsumption_delLordville, **kwargs):
-        super().__init__(model, **kwargs)
-        self.temperature_model = temperature_model
-        self.flow_delLordville = flow_delLordville
-        self.max_flow_catchmentConsumption_delLordville = max_flow_catchmentConsumption_delLordville
-        
-        # To ensure downstream_add_thermal_release_to_target_cannonsville & pepacton are updated before this parameter
-        # This will also ensure forecast is run before predict
-        # To ensure thermal_release_requirement is run before this parameter.
-        self.children.add(thermal_release_requirement)
-        self.children.add(flow_delLordville)
-        self.children.add(max_flow_catchmentConsumption_delLordville)
-    
-    def setup(self):
-        super().setup()  # CRITICAL
-        self.link_01425000 = self.model.nodes["link_01425000"] # Cannonsville reservoir downstream flow (01425000)
-        self.link_01417000 = self.model.nodes["link_01417000"] # East Branch downstream flow (01417000) and natural inflow to Lordville
-        self.children.add(self.link_01425000)
-        self.children.add(self.link_01417000)
-        
-    def value(self, timestep, scenario_index):
-        temperature_model = self.temperature_model
-        # Cannonsville reservoir downstream flow (01425000)
-        Q_C = self.link_01425000.flow[0]  
-        # East Branch downstream flow (01417000) and natural inflow to Lordville
-        Q_i = self.link_01417000.flow[0] \
-            + self.flow_delLordville.get_value(scenario_index) \
-            - self.max_flow_catchmentConsumption_delLordville.get_value(scenario_index)
 
-        temperature_model.update(Q_C, Q_i, timestep)
-        return -99
-    
-    @classmethod
-    def load(cls, model, data):
-        temperature_model = load_parameter(model, "temperature_model")
-        thermal_release_requirement = load_parameter(model, "thermal_release_requirement")
-        flow_delLordville = load_parameter(model, "flow_delLordville") # catchment_delLordville
-        max_flow_catchmentConsumption_delLordville = load_parameter(model, "max_flow_catchmentConsumption_delLordville")
-        return cls(model, temperature_model, thermal_release_requirement, flow_delLordville, max_flow_catchmentConsumption_delLordville, **data) 
-UpdateTemperatureAtLordville.register()
-# update_temperature_at_lordville
-
-class TemperatureAfterThermalRelease(Parameter):
-    def __init__(self, model, temperature_model, update_temperature_at_lordville, variable, **kwargs):
-        super().__init__(model, **kwargs)
-        self.temperature_model = temperature_model
-        self.variable = variable
-
-        # To ensure update_temperature_at_lordville is run before this parameter.
-        self.children.add(update_temperature_at_lordville)
-
-    def value(self, timestep, scenario_index):
-        # The forecasted temperature should be populated when making the control release decision.
-        # If activate_thermal_control is False, the forecasted temperature will be None. 
-        if self.variable == "mu":
-            return self.temperature_model.mu
-        elif self.variable == "sd":
-            return self.temperature_model.sd
-        else:
-            raise ValueError("Invalid variable. Must be 'mu' or 'sd'.")
-        
-    @classmethod
-    def load(cls, model, data):
-        assert "variable" in data.keys()
-        temperature_model = load_parameter(model, "temperature_model")
-        update_temperature_at_lordville = load_parameter(model, "update_temperature_at_lordville")
-        variable = data.pop("variable")
-        return cls(model, temperature_model, update_temperature_at_lordville, variable, **data)
-TemperatureAfterThermalRelease.register()
-# temperature_after_thermal_release_mu
-# temperature_after_thermal_release_sd
 
 
 

@@ -1942,13 +1942,6 @@ class ModelBuilder:
         # The value method return None.
         temp_options = self.options.temperature_model
         
-        # temp_options
-        #{"PywrDRB_ML_plugin_path": None,
-        # "start_date": None,
-        # "activate_thermal_control": False,
-        # "Q_C_lstm_var_name": None,
-        # "Q_i_lstm_var_name": None,}
-        
         PywrDRB_ML_plugin_path = temp_options["PywrDRB_ML_plugin_path"]
         pn.sc.add("PywrDRB_ML", PywrDRB_ML_plugin_path, overwrite=True) 
         if pn.sc.get("PywrDRB_ML").exists() is False:
@@ -1957,12 +1950,20 @@ class ModelBuilder:
         # Main temperature model
         model_dict["parameters"]["temperature_model"] = {
                 "type": "TemperatureModel",
-                "start_date": temp_options["start_date"],
+                "start_date": temp_options.get("start_date", None),
                 "activate_thermal_control": temp_options["activate_thermal_control"],
                 "Q_C_lstm_var_name": temp_options["Q_C_lstm_var_name"],
                 "Q_i_lstm_var_name": temp_options["Q_i_lstm_var_name"],
+                "cannonsville_storage_pct_lstm_var_name": temp_options["cannonsville_storage_pct_lstm_var_name"],
                 "PywrDRB_ML_plugin_path": str(PywrDRB_ML_plugin_path),
-                "disable_tqdm": temp_options["disable_tqdm"],
+                "disable_tqdm": temp_options.get("disable_tqdm", True),
+                "debug": temp_options.get("debug", False),
+            }
+        
+        # Call update() in TemperatureModel to compute the max water temperature at Lordville after thermal release
+        # This will use the flow from the previous time step to update the lstms as this is pre-LP implementation.
+        model_dict["parameters"]["update_temperature_at_lordville"] = {
+                "type": "UpdateTemperatureAtLordville",
             }
         
         model_dict["parameters"]["estimated_Q_i"] = {
@@ -1978,12 +1979,12 @@ class ModelBuilder:
                 "type": "ThermalReleaseRequirement",
             }
         
-        # Retrieve forecasted temperature before thermal release
+        # Retrieve forecasted temperature before thermal release (t)
         model_dict["parameters"]["forecasted_temperature_before_thermal_release_mu"] = {
                 "type": "ForecastedTemperatureBeforeThermalRelease",
                 "variable": "mu"
             }
-        model_dict["parameters"]["forecasted_temperature_before_thermal_release_mu"] = {
+        model_dict["parameters"]["forecasted_temperature_before_thermal_release_sd"] = {
                 "type": "ForecastedTemperatureBeforeThermalRelease",
                 "variable": "sd"
             }
@@ -2007,12 +2008,7 @@ class ModelBuilder:
                 ],
             }
         
-        
-        # Call update() in TemperatureModel to compute the max water temperature at Lordville after thermal release
-        model_dict["parameters"]["update_temperature_at_lordville"] = {
-                "type": "UpdateTemperatureAtLordville",
-            }
-        # Retrieve the max water temperature at Lordville after thermal release
+        # Retrieve the max water temperature at Lordville after thermal release (t-1)
         model_dict["parameters"]["temperature_after_thermal_release_mu"] = {
                 "type": "TemperatureAfterThermalRelease",
                 "variable": "mu"
@@ -2030,12 +2026,6 @@ class ModelBuilder:
         model_dict = self.model_dict
         salinity_options = self.options.salinity_model
         
-        # salinity_model
-        #{"PywrDRB_ML_plugin_path": None,
-        # "start_date": None,
-        # "Q_Trenton_lstm_var_name": None,
-        # "Q_Schuylkill_lstm_var_name": None,}
-        
         PywrDRB_ML_plugin_path = salinity_options["PywrDRB_ML_plugin_path"]
         pn.sc.add("PywrDRB_ML", PywrDRB_ML_plugin_path, overwrite=True) 
         if pn.sc.get("PywrDRB_ML").exists() is False:
@@ -2044,18 +2034,20 @@ class ModelBuilder:
         # Main salinity model
         model_dict["parameters"]["salinity_model"] = {
                 "type": "SalinityModel",
-                "start_date": salinity_options["start_date"],
+                "start_date": salinity_options.get("start_date", None),
                 "Q_Trenton_lstm_var_name": salinity_options["Q_Trenton_lstm_var_name"],
                 "Q_Schuylkill_lstm_var_name": salinity_options["Q_Schuylkill_lstm_var_name"],
                 "PywrDRB_ML_plugin_path": str(PywrDRB_ML_plugin_path),
-                "disable_tqdm": salinity_options["disable_tqdm"],
+                "disable_tqdm": salinity_options.get("disable_tqdm", True),
+                "debug": salinity_options.get("debug", False),
             }
         
+        # Use flow at previous time step to update the salt front location as this is pre-LP implementation.
         model_dict["parameters"]["update_salt_front_location"] = {
             "type": "UpdateSaltFrontLocation"
         }
         
-        # Retrieve salt front river mile
+        # Retrieve salt front river mile (t-1)
         model_dict["parameters"]["salt_front_location_mu"] = {
                 "type": "SaltFrontLocation",
                 "variable": "mu"
