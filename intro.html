@@ -189,29 +189,6 @@
 <li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.Data.html">pywrdrb.Data</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="api/parameters.html">pywrdrb.parameters</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.FfmpNycRunningAvgParameter.html">pywrdrb.parameters.FfmpNycRunningAvgParameter</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.FfmpNjRunningAvgParameter.html">pywrdrb.parameters.FfmpNjRunningAvgParameter</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.NYCCombinedReleaseFactor.html">pywrdrb.parameters.NYCCombinedReleaseFactor</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.NYCFloodRelease.html">pywrdrb.parameters.NYCFloodRelease</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.html">pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.html">pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2.html">pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.VolBalanceNYCDemand.html">pywrdrb.parameters.VolBalanceNYCDemand</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.LowerBasinMaxMRFContribution.html">pywrdrb.parameters.LowerBasinMaxMRFContribution</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate.html">pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.VolBalanceLowerBasinMRFIndividual.html">pywrdrb.parameters.VolBalanceLowerBasinMRFIndividual</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html">pywrdrb.parameters.STARFITReservoirRelease</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.FlowEnsemble.html">pywrdrb.parameters.FlowEnsemble</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.PredictionEnsemble.html">pywrdrb.parameters.PredictionEnsemble</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.LaggedReservoirRelease.html">pywrdrb.parameters.LaggedReservoirRelease</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="api/pre.html">pywrdrb.pre</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.pre.PredictedInflowPreprocessor.html">pywrdrb.pre.PredictedInflowPreprocessor</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.pre.PredictedDiversionPreprocessor.html">pywrdrb.pre.PredictedDiversionPreprocessor</a></li>
-</ul>
-</details></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="examples/examples.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -414,7 +391,9 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#funding-acknowledgements">Funding &amp; Acknowledgements</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#publications">Publications</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#citation-and-doi">Citation and DOI</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#acknowledgements">Acknowledgements</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#license">License</a></li>
 </ul>
             </nav>
@@ -431,12 +410,8 @@ document.write(`
 <h1>Pywr-DRB<a class="headerlink" href="#pywr-drb" title="Link to this heading">#</a></h1>
 <p>Pywr-DRB is a water resources model of the Delaware River Basin (DRB) designed to improve our understanding of water availability, drought risk, and long-term water supply planning within the Basin.</p>
 <p>Pywr-DRB is an open-source Python model for exploring the role of reservoir operations, transbasin diversions, minimum flow targets, and other regulatory rules on water availability and drought risk in the DRB. Pywr-DRB is designed to flexibly draw on streamflow estimates from a variety of emerging data resources, such as the National Water Model, the National Hydrologic Model, and hybrid datasets blending modeled and observed data. Pywr-DRB bridges state-of-the-art advances in large-scale hydrologic modeling with an open-source representation of the significant role played by the basin’s evolving water infrastructure and management institutions.</p>
-<p>Pywr-DRB builds on the open-source Python package Pywr, which provides a modular, flexible structure for building and simulating complex water resources networks.</p>
-<p>You can access a pre-print of the Pywr-DRB model release publication here:</p>
-<blockquote>
-<div><p>Hamilton, A. L., Amestoy, T. J., &amp; Reed, P. M. (2024). Pywr-DRB: An open-source Python model for water availability and drought risk assessment in the Delaware River Basin. Environmental Modelling &amp; Software, 181, 106185. <a class="reference external" href="https://doi.org/10.1016/j.envsoft.2024.106185">https://doi.org/10.1016/j.envsoft.2024.106185</a></p>
-</div></blockquote>
-<p>A graphical representation of the Pywr-DRB model is shown below, where every octogon represents a reservoir in the Basin:</p>
+<p>Pywr-DRB builds on the open-source Python package <a class="reference external" href="https://github.com/pywr/pywr">Pywr</a>, which provides a flexible structure for building and simulating water resource networks.</p>
+<p>A graphical representation of the Pywr-DRB model is shown below, where every octogon represents a reservoir in the DRB:</p>
 <div style="padding-bottom:75%; position:relative; display:block; width: 100%">
   <iframe src="drb_model_map.html"
   height = "100%" width = "100%"
@@ -444,8 +419,33 @@ document.write(`
   frameborder="0" allowfullscreen="" style="position:absolute; top:0; left: 0">
   </iframe>
 </div>
-<section id="funding-acknowledgements">
-<h2>Funding &amp; Acknowledgements<a class="headerlink" href="#funding-acknowledgements" title="Link to this heading">#</a></h2>
+<section id="publications">
+<h2>Publications<a class="headerlink" href="#publications" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Hamilton, A. L., Amestoy, T. J., &amp; Reed, P. M. (2024). Pywr-DRB: An open-source Python model for water availability and drought risk assessment in the Delaware River Basin. Environmental Modelling &amp; Software, 181, 106185. <a class="reference external" href="https://doi.org/10.1016/j.envsoft.2024.106185">https://doi.org/10.1016/j.envsoft.2024.106185</a></p>
+<ul>
+<li><p><a class="reference external" href="https://zenodo.org/records/13214630">Zenodo Repository</a></p></li>
+<li><p><a class="reference external" href="https://github.com/Pywr-DRB/Pywr-DRB/tree/diagnostic_paper">GitHub Repository Branch</a></p></li>
+</ul>
+</li>
+<li><p>Amestoy, T. J. &amp; Reed, P. M., (In Review) Integrated River Basin Assessment Framework Combining Probabilistic Streamflow Reconstruction, Bayesian Bias Correction, and Drought Storyline Analysis. Available at SSRN: <a class="reference external" href="https://ssrn.com/abstract=5240633">https://ssrn.com/abstract=5240633</a> or <a class="reference external" href="http://dx.doi.org/10.2139/ssrn.5240633">http://dx.doi.org/10.2139/ssrn.5240633</a></p>
+<ul>
+<li><p><a class="reference external" href="https://zenodo.org/records/15101164">Zenodo Repository</a></p></li>
+<li><p><a class="reference external" href="https://github.com/Pywr-DRB/DRB-Historic-Reconstruction">GitHub Repository</a></p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="citation-and-doi">
+<h2>Citation and DOI<a class="headerlink" href="#citation-and-doi" title="Link to this heading">#</a></h2>
+<p>If you are using the package, we kindly ask that you acknowledge both the model and the associated publication.</p>
+<ol class="arabic simple">
+<li><p>Model: Click <a class="reference external" href="https://doi.org/10.5281/zenodo.10720011"><img alt="DOI" src="https://zenodo.org/badge/479150651.svg" /></a> to view the citation for the latest version of Pywr-DRB, as well as citations for previous versions.</p></li>
+<li><p>Paper: Hamilton, A. L., Amestoy, T. J., &amp; Reed, Patrick. M. (2024). Pywr-DRB: An open-source Python model for water availability and drought risk assessment in the Delaware River Basin. Environmental Modelling &amp; Software, 106185. <a class="reference external" href="https://doi.org/10.1016/j.envsoft.2024.106185">https://doi.org/10.1016/j.envsoft.2024.106185</a></p></li>
+</ol>
+</section>
+<section id="acknowledgements">
+<h2>Acknowledgements<a class="headerlink" href="#acknowledgements" title="Link to this heading">#</a></h2>
 <p>This research was funded by the U.S. Geological Survey (USGS) Water Availability and Use Science Program as part of the Water Resources Mission Area Predictive Understanding of Multiscale Processes Project (USGS Grant Number G21AC10668). The authors thank Hedeff Essaid and Noah Knowles from USGS and Aubrey Dugger and David Yates from the National Center for Atmospheric Research (NCAR) for providing data and feedback that improved this work. The views expressed in this work are those of the authors and do not reflect the views or policies of the USGS or NCAR.</p>
 </section>
 <section id="license">
@@ -512,7 +512,9 @@ document.write(`
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#funding-acknowledgements">Funding &amp; Acknowledgements</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#publications">Publications</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#citation-and-doi">Citation and DOI</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#acknowledgements">Acknowledgements</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#license">License</a></li>
 </ul>
   </nav></div>
