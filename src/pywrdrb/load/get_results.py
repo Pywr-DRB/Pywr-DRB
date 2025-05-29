@@ -336,6 +336,21 @@ def get_pywrdrb_results(
                         results_dict[s] = results_dict[s].rename(
                             columns={release_cols[0]: r}
                         )
+        
+        # For temp and salinity LSTM outputs, model output is lag 1;
+        # we need to shift the data 1 day
+        if results_set in ["temperature"]:
+            for s in scenarios:
+                # shift all columns except "thermal_release_requirement" for temp
+                for col in results_dict[s].columns:
+                    if col != "thermal_release_requirement":
+                        results_dict[s][col] = results_dict[s][col].shift(-1)
+                        
+        if results_set in ["salinity"]:
+            for s in scenarios:
+                results_dict[s] = results_dict[s].shift(-1)
+
+            
         return results_dict, datetime_index
 
 
