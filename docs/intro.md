@@ -37,7 +37,7 @@ For more general setup and background, see the
 - [Getting Started (GitHub README)](https://github.com/Pywr-DRB/Pywr-DRB)
 
 ##### Advanced Tutorials
-[Tutorial 04 Using Customized Data To Run Model](../notebooks/Tutorial%2004%20Using%20Customized%20Data%20To%20Run%20Model.ipynb)
+- [Tutorial 04 Using Customized Data To Run Model](../notebooks/Tutorial%2004%20Using%20Customized%20Data%20To%20Run%20Model.ipynb)
 
  In the future, we will share more notebooks to highlight advanced workflows or model features.
 
