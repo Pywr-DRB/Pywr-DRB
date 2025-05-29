@@ -34,8 +34,8 @@ jobs:
     # - name: Add GLPK to PATH
     #   run: echo "/usr/local/lib" | sudo tee -a /etc/ld.so.conf.d/glpk.conf && sudo ldconfig
 
-    # - name: Install MPI
-    #   run: sudo apt-get update && sudo apt-get install -y libopenmpi-dev openmpi-bin
+    - name: Install MPI
+      run: sudo apt-get update && sudo apt-get install -y libopenmpi-dev openmpi-bin
     
     # install python dependencies
     - name: Install python dependencies
