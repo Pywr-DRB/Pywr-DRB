@@ -225,8 +225,7 @@
 </details></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../examples/examples.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/Tutorial%2001%20Introduction%20to%20PywrDRB.html">Intro to PywrDRB</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../examples/examples.html">Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="simple">
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../../results_set_options.html">Results Set Table</a></li>
@@ -426,18 +425,6 @@ document.write(`
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.Data"><code class="docutils literal notranslate"><span class="pre">Data</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.Data.load_observations"><code class="docutils literal notranslate"><span class="pre">Data.load_observations()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.Data.load_output"><code class="docutils literal notranslate"><span class="pre">Data.load_output()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.Data.load_hydrologic_model_flow"><code class="docutils literal notranslate"><span class="pre">Data.load_hydrologic_model_flow()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.Data.export"><code class="docutils literal notranslate"><span class="pre">Data.export()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.Data.load_from_export"><code class="docutils literal notranslate"><span class="pre">Data.load_from_export()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.Data.pn"><code class="docutils literal notranslate"><span class="pre">Data.pn</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.Data.all_results_sets"><code class="docutils literal notranslate"><span class="pre">Data.all_results_sets</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.Data.default_kwargs"><code class="docutils literal notranslate"><span class="pre">Data.default_kwargs</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.Data.results_sets"><code class="docutils literal notranslate"><span class="pre">Data.results_sets</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.Data.output_filenames"><code class="docutils literal notranslate"><span class="pre">Data.output_filenames</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.Data.units"><code class="docutils literal notranslate"><span class="pre">Data.units</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.Data.print_status"><code class="docutils literal notranslate"><span class="pre">Data.print_status</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.Data.__init__"><code class="docutils literal notranslate"><span class="pre">Data.__init__()</span></code></a></li>
 </ul>
 </li>
@@ -456,120 +443,13 @@ document.write(`
 <h1>pywrdrb.Data<a class="headerlink" href="#pywrdrb-data" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="pywrdrb.Data">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pywrdrb.</span></span><span class="sig-name descname"><span class="pre">Data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pn=PathNavigator(/home/runner/work/Pywr-DRB/Pywr-DRB/src/pywrdrb/data)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.Data" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pywrdrb.</span></span><span class="sig-name descname"><span class="pre">Data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.Data" title="Link to this definition">#</a></dt>
 <dd><p>A data loader for hydrologic data from various sources.</p>
 <p>This class provides methods to load observation data, pywrdrb output data,
 and functionality to export/import data to/from HDF5 files.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="pywrdrb.Data.load_observations">
-<span class="sig-name descname"><span class="pre">load_observations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.Data.load_observations" title="Link to this definition">#</a></dt>
-<dd><p>Load observational data based on specified results_sets.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pywrdrb.Data.load_output">
-<span class="sig-name descname"><span class="pre">load_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ouput_filenames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">\*\*kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.Data.load_output" title="Link to this definition">#</a></dt>
-<dd><p>Load data from pywrdrb output files based on specified results_sets.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pywrdrb.Data.load_hydrologic_model_flow">
-<span class="sig-name descname"><span class="pre">load_hydrologic_model_flow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flowtypes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">\*\*kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.Data.load_hydrologic_model_flow" title="Link to this definition">#</a></dt>
-<dd><p>Load data from the available hydrologic model flow files.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pywrdrb.Data.export">
-<span class="sig-name descname"><span class="pre">export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.Data.export" title="Link to this definition">#</a></dt>
-<dd><p>Export all data stored in this object to an HDF5 file.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pywrdrb.Data.load_from_export">
-<span class="sig-name descname"><span class="pre">load_from_export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.Data.load_from_export" title="Link to this definition">#</a></dt>
-<dd><p>Load data from an HDF5 file into the object.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pywrdrb.Data.pn">
-<span class="sig-name descname"><span class="pre">pn</span></span><a class="headerlink" href="#pywrdrb.Data.pn" title="Link to this definition">#</a></dt>
-<dd><p>A pathnavigator object for handling file paths.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>object</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pywrdrb.Data.all_results_sets">
-<span class="sig-name descname"><span class="pre">all_results_sets</span></span><a class="headerlink" href="#pywrdrb.Data.all_results_sets" title="Link to this definition">#</a></dt>
-<dd><p>Combined list of all valid result sets across all data types.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pywrdrb.Data.default_kwargs">
-<span class="sig-name descname"><span class="pre">default_kwargs</span></span><a class="headerlink" href="#pywrdrb.Data.default_kwargs" title="Link to this definition">#</a></dt>
-<dd><p>Default keyword arguments used by the loader.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pywrdrb.Data.results_sets">
-<span class="sig-name descname"><span class="pre">results_sets</span></span><a class="headerlink" href="#pywrdrb.Data.results_sets" title="Link to this definition">#</a></dt>
-<dd><p>List of result sets to load.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pywrdrb.Data.output_filenames">
-<span class="sig-name descname"><span class="pre">output_filenames</span></span><a class="headerlink" href="#pywrdrb.Data.output_filenames" title="Link to this definition">#</a></dt>
-<dd><p>List of pywrdrb output filenames to load.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pywrdrb.Data.units">
-<span class="sig-name descname"><span class="pre">units</span></span><a class="headerlink" href="#pywrdrb.Data.units" title="Link to this definition">#</a></dt>
-<dd><p>Units for the results.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>str</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pywrdrb.Data.print_status">
-<span class="sig-name descname"><span class="pre">print_status</span></span><a class="headerlink" href="#pywrdrb.Data.print_status" title="Link to this definition">#</a></dt>
-<dd><p>Whether to print status updates.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>bool</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="pywrdrb.Data.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pn=PathNavigator(/home/runner/work/Pywr-DRB/Pywr-DRB/src/pywrdrb/data)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.Data.__init__" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.Data.__init__" title="Link to this definition">#</a></dt>
 <dd><p>Initialize the Data loader with default and provided keyword arguments.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -601,25 +481,28 @@ Only necessary for Data.load_output().</p></li>
 <p class="rubric">Methods</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pywrdrb.Data.__init__" title="pywrdrb.Data.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([pn])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pywrdrb.Data.__init__" title="pywrdrb.Data.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(**kwargs)</p></td>
 <td><p>Initialize the Data loader with default and provided keyword arguments.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pywrdrb.Data.export" title="pywrdrb.Data.export"><code class="xref py py-obj docutils literal notranslate"><span class="pre">export</span></code></a>(file)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">export</span></code>(file)</p></td>
 <td><p>Export all data stored in this object to an HDF5 file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pywrdrb.Data.load_from_export" title="pywrdrb.Data.load_from_export"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_from_export</span></code></a>(file)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_base_results</span></code>(input_dir, model[, ...])</p></td>
+<td><p>Retrieve results from gage_flow_mgd.csv or gage_flow_mgd.hdf5 fils.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_from_export</span></code>(file)</p></td>
 <td><p>Load data from an HDF5 file into the object.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pywrdrb.Data.load_hydrologic_model_flow" title="pywrdrb.Data.load_hydrologic_model_flow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_hydrologic_model_flow</span></code></a>(flowtypes, **kwargs)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_hydrologic_model_flow</span></code>(flowtypes, **kwargs)</p></td>
 <td><p>Load data from the internally available hydrologic model flow files.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pywrdrb.Data.load_observations" title="pywrdrb.Data.load_observations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_observations</span></code></a>(**kwargs)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_observations</span></code>(**kwargs)</p></td>
 <td><p>Load observational data.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pywrdrb.Data.load_output" title="pywrdrb.Data.load_output"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_output</span></code></a>(**kwargs)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_output</span></code>(**kwargs)</p></td>
 <td><p>Load data from pywrdrb output files.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_data</span></code>(data, name)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_data</span></code>(data, name)</p></td>
 <td><p>Store or update data in the object as an attribute.</p></td>
 </tr>
 </tbody>
@@ -694,18 +577,6 @@ Only necessary for Data.load_output().</p></li>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.Data"><code class="docutils literal notranslate"><span class="pre">Data</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.Data.load_observations"><code class="docutils literal notranslate"><span class="pre">Data.load_observations()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.Data.load_output"><code class="docutils literal notranslate"><span class="pre">Data.load_output()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.Data.load_hydrologic_model_flow"><code class="docutils literal notranslate"><span class="pre">Data.load_hydrologic_model_flow()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.Data.export"><code class="docutils literal notranslate"><span class="pre">Data.export()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.Data.load_from_export"><code class="docutils literal notranslate"><span class="pre">Data.load_from_export()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.Data.pn"><code class="docutils literal notranslate"><span class="pre">Data.pn</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.Data.all_results_sets"><code class="docutils literal notranslate"><span class="pre">Data.all_results_sets</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.Data.default_kwargs"><code class="docutils literal notranslate"><span class="pre">Data.default_kwargs</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.Data.results_sets"><code class="docutils literal notranslate"><span class="pre">Data.results_sets</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.Data.output_filenames"><code class="docutils literal notranslate"><span class="pre">Data.output_filenames</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.Data.units"><code class="docutils literal notranslate"><span class="pre">Data.units</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.Data.print_status"><code class="docutils literal notranslate"><span class="pre">Data.print_status</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.Data.__init__"><code class="docutils literal notranslate"><span class="pre">Data.__init__()</span></code></a></li>
 </ul>
 </li>

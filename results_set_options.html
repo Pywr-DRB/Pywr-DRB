@@ -60,7 +60,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'results_set_options';</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="Introduction to Pywr-DRB" href="examples/Tutorial%2001%20Introduction%20to%20PywrDRB.html" />
+    <link rel="prev" title="Tutorials" href="examples/examples.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -224,8 +224,7 @@
 </details></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="examples/examples.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="examples/Tutorial%2001%20Introduction%20to%20PywrDRB.html">Intro to PywrDRB</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="examples/examples.html">Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="simple">
 </ul>
 </details></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Results Set Table</a></li>
@@ -428,8 +427,7 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="results-set-table">
 <h1>Results Set Table<a class="headerlink" href="#results-set-table" title="Link to this heading">#</a></h1>
-<p>For extracting results after running a simulation, below are the following currently available results set options when using the get_pywrdrb_results set function.</p>
-<p><a class="reference external" href="https://pywr-drb.github.io/Pywr-DRB/api/generated/pywrdrb.post.get_pywrdrb_results.html#pywrdrb.post.get_pywrdrb_results"><code class="docutils literal notranslate"><span class="pre">get_pywrdrb_results()</span></code></a></p>
+<p>For extracting results after running a simulation, below are the following currently available results set options when using the <code class="docutils literal notranslate"><span class="pre">pywrdrb.Data.load_output()</span></code> functionality.</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>Results Set</p></th>
@@ -437,68 +435,53 @@ document.write(`
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">reservoir_downstream_gage</span></code></p></td>
-<td><p>Flow data below each reservoir</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;reservoir_downstream_gage&quot;</span></code></p></td>
+<td><p>Flow at the nearest gauge below each reservoir. This is majority reservoir release plus any unmanaged flows which enter the gauge catchment below the reservoir (magnitude depends how far from the reservoir the gauge is).</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">res_storage</span></code></p></td>
-<td><p>Reservoir storage dynamics</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;res_storage&quot;</span></code></p></td>
+<td><p>Reservoir storages.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">major_flow</span></code></p></td>
-<td><p>Flow at major flow points of interest</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;major_flow&quot;</span></code></p></td>
+<td><p>Flow at major node locations including USGS gauges (e.g., Montague, and Trenton gauges) and confluence points (e.g., confluence of Schuykill and Delaware Rivers).</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">res_release</span></code></p></td>
-<td><p>Reservoir releases including outflow and spill</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;res_release&quot;</span></code></p></td>
+<td><p>Reservoir releases.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">downstream_release_target</span></code></p></td>
-<td><p>Downstream release targets for specific reservoirs</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;downstream_release_target&quot;</span></code></p></td>
+<td><p>Downstream total release targets for NYC reservoirs. This is the total release from NYC reservoirs, unless the reservoir has sufficient storage to meet the target release.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">inflow</span></code></p></td>
-<td><p>Inflow data for each catchment</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;inflow&quot;</span></code></p></td>
+<td><p>Inflow data for each node. This is reservoir inflow, or marginal catchment inflow for downstream nodes.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">catchment_withdrawal</span></code></p></td>
-<td><p>Withdrawal from each catchment</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;catchment_withdrawal&quot;</span></code></p></td>
+<td><p>Daily withdrawal from each catchment.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">catchment_consumption</span></code></p></td>
-<td><p>Consumption from each catchment</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;catchment_consumption&quot;</span></code></p></td>
+<td><p>Daily consumptive use from each catchment.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">prev_flow_catchmentWithdrawal</span></code></p></td>
-<td><p>Previous flow at catchment withdrawal points</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;ffmp_level_boundaries&quot;</span></code></p></td>
+<td><p>NYC reservoir operational levels, as defined by the FFMP. This is constant for every year of simulation, and is not inflow-dependent.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">max_flow_catchmentWithdrawal</span></code></p></td>
-<td><p>Maximum flow at catchment withdrawal points</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;mrf_targets&quot;</span></code></p></td>
+<td><p>Minimum regulated flow (MRF) targets at Montague and Trenton. Note that the NYC reservoirs are used to maintain the Montague target as per the US Supreme Court Decrees, while Trenton flow target is primarily met using USACE reservoirs with some constrained annual support (&lt;=6.09BG) from NYC reservoirs.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">max_flow_catchmentConsumption</span></code></p></td>
-<td><p>Maximum flow at catchment consumption points</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;nyc_release_components&quot;</span></code></p></td>
+<td><p>NYC reservoir release components including flood releases, conservation releases, downstream contributions, etc.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">res_level</span></code></p></td>
-<td><p>Reservoir drought levels</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;lower_basin_mrf_contributions&quot;</span></code></p></td>
+<td><p>Contributions to the Trenton equivalent flow target from the USACE lower basin reservoirs</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ffmp_level_boundaries</span></code></p></td>
-<td><p>Flood frequency management program level boundaries</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;ibt_demands&quot;</span></code></p></td>
+<td><p>Inter-basin transfer (IBT) demands to NYC and NJ.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mrf_target</span></code></p></td>
-<td><p>Management of river basin (DRB) targets</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nyc_release_components</span></code></p></td>
-<td><p>NYC release components including targets, flood releases, etc.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">lower_basin_mrf_contributions</span></code></p></td>
-<td><p>Contributions to lower basin management of river basin (DRB)</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ibt_demands</span></code></p></td>
-<td><p>IBT (Inter-basin transfer) demands for NYC and NJ</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ibt_diversions</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;ibt_diversions&quot;</span></code></p></td>
 <td><p>IBT diversions for NYC and NJ</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mrf_targets</span></code></p></td>
-<td><p>MRF (Montague River Flow) targets</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;temperature&quot;</span></code></p></td>
+<td><p>Streamflow temperature (degrees C) at the Lordville gauge using an LSTM predictive model.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">all_mrf</span></code></p></td>
-<td><p>All MRF-related data</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">temperature</span></code></p></td>
-<td><p>Temperature data</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;salinity&quot;</span></code></p></td>
+<td><p>Salt front location (in units of river miles upstream from the Delaware Estuary non-tidal zone) modeled using an LSTM predictive model.</p></td>
 </tr>
 </tbody>
 </table>
@@ -536,12 +519,12 @@ document.write(`
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="examples/Tutorial%2001%20Introduction%20to%20PywrDRB.html"
+       href="examples/examples.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Introduction to Pywr-DRB</p>
+        <p class="prev-next-title">Tutorials</p>
       </div>
     </a>
 </div>

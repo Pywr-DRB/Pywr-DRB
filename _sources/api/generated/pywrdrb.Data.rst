@@ -15,6 +15,7 @@
    
       ~Data.__init__
       ~Data.export
+      ~Data.get_base_results
       ~Data.load_from_export
       ~Data.load_hydrologic_model_flow
       ~Data.load_observations

@@ -26,9 +26,14 @@ A graphical representation of the Pywr-DRB model is shown below, where every oct
 
 ## Training Resources
 
-The following Jupyter Notebooks are designed to serve as training material for the `pywrdrb` package. In the future, we will share more Notebooks to highlight more advanced workflows or model features. 
+The following Jupyter Notebooks are designed to serve as training material for the `pywrdrb` package. In the future, we will share more notebooks to highlight advanced workflows or model features.
 
-- [Getting Started (see the GitHub README)](https://github.com/Pywr-DRB/Pywr-DRB)
+- [Tutorial 01 Installation](../notebooks/Tutorial%2001%20Installation.ipynb)
+- [Tutorial 02 Run Simulation](../notebooks/Tutorial%2002%20Run%20Simulation.ipynb)
+- [Tutorial 03 Load Results](../notebooks/Tutorial%2003%20Load%20Results.ipynb)
+
+For more general setup and background, see the  
+- [Getting Started (GitHub README)](https://github.com/Pywr-DRB/Pywr-DRB)
 
 
 ## Publications
@@ -54,9 +59,10 @@ If you are using the package, we kindly ask that you acknowledge both the model 
 
 
 ## Acknowledgements
-This research was funded by the U.S. Geological Survey (USGS) Water Availability and Use Science Program as part of the Water Resources Mission Area Predictive Understanding of Multiscale Processes Project (USGS Grant Number G21AC10668). The authors thank Hedeff Essaid and Noah Knowles from USGS and Aubrey Dugger and David Yates from the National Center for Atmospheric Research (NCAR) for providing data and feedback that improved this work. The views expressed in this work are those of the authors and do not reflect the views or policies of the USGS or NCAR.
+This research was funded by the U.S. Geological Survey (USGS) as part of the Water Resources Mission area (USGS Grant Numbers G21AC10668, G23AC00678, and G24AC00124). The authors thank Hedeff Essaid and Noah Knowles from USGS and Aubrey Dugger and David Yates from the National Center for Atmospheric Research (NCAR) for providing data and feedback that improved this work. The views expressed in this work are those of the authors and do not reflect the views or policies of the USGS or NCAR.
 
 ## License
 This program is licensed under the MIT License. See the full license [here](https://github.com/Pywr-DRB/Pywr-DRB/blob/master/LICENSE).
 
-Copyright (c) 2023 Andrew Hamilton, Trevor Amestoy, Patrick Reed.
+Copyright (c) 2025 Chung-Yi Lin, Trevor Amestoy, Marilyn Smith, Andrew Hamilton, Patrick Reed.
+Copyright (c) 2023-2024 Andrew Hamilton, Trevor Amestoy, Patrick Reed.

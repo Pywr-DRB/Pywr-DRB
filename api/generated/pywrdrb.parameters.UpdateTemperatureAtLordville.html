@@ -225,8 +225,7 @@
 </details></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../examples/examples.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/Tutorial%2001%20Introduction%20to%20PywrDRB.html">Intro to PywrDRB</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../examples/examples.html">Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="simple">
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../../results_set_options.html">Results Set Table</a></li>
@@ -444,17 +443,27 @@ document.write(`
 <h1>pywrdrb.parameters.UpdateTemperatureAtLordville<a class="headerlink" href="#pywrdrb-parameters-updatetemperatureatlordville" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="pywrdrb.parameters.UpdateTemperatureAtLordville">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pywrdrb.parameters.</span></span><span class="sig-name descname"><span class="pre">UpdateTemperatureAtLordville</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flow_delLordville</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_flow_catchmentConsumption_delLordville</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.parameters.UpdateTemperatureAtLordville" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pywrdrb.parameters.</span></span><span class="sig-name descname"><span class="pre">UpdateTemperatureAtLordville</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature_model</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.parameters.UpdateTemperatureAtLordville" title="Link to this definition">#</a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="pywrdrb.parameters.UpdateTemperatureAtLordville.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flow_delLordville</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_flow_catchmentConsumption_delLordville</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.parameters.UpdateTemperatureAtLordville.__init__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature_model</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.parameters.UpdateTemperatureAtLordville.__init__" title="Link to this definition">#</a></dt>
+<dd><p>A custom parameter class to update the temperature model at Lordville using the previous flow values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>pywr.core.Model</em>) – The Pywr model object.</p></li>
+<li><p><strong>temperature_model</strong> (<a class="reference internal" href="pywrdrb.parameters.TemperatureModel.html#pywrdrb.parameters.TemperatureModel" title="pywrdrb.parameters.TemperatureModel"><em>TemperatureModel</em></a>) – The TemperatureModel instance to be updated.</p></li>
+<li><p><strong>**kwargs</strong> (<em>dict</em>) – Additional keyword arguments for the Parameter class.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <p class="rubric">Methods</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pywrdrb.parameters.UpdateTemperatureAtLordville.__init__" title="pywrdrb.parameters.UpdateTemperatureAtLordville.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(model, temperature_model, ...)</p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pywrdrb.parameters.UpdateTemperatureAtLordville.__init__" title="pywrdrb.parameters.UpdateTemperatureAtLordville.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(model, temperature_model, **kwargs)</p></td>
+<td><p>A custom parameter class to update the temperature model at Lordville using the previous flow values.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">after</span></code>(self)</p></td>
 <td><p></p></td>
