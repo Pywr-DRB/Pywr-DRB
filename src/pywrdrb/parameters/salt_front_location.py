@@ -4,9 +4,9 @@ salt front location in the Delaware River Basin (DRB).
 
 Overview
 --------
-The Salinity LSTM model is developed based on Gorski et al. (2024). We rebuild the model using the LSTM and BMI sturcture derived from Zwart et al. (2023).
-from Zwart et al. (2023)
-to predict mean water temperature at Lordville each timestep.
+The Salinity LSTM model is developed based on Gorski et al. (2024). We rebuild the model 
+using the LSTM and BMI sturcture derived from Zwart et al. (2023) to predict 7-day 
+averaged salt front location in river mile at each timestep.
 
 PywrDRB_ML plugin: github.com/philip928lin/PywrDRB-ML
 
