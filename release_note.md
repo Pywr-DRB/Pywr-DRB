@@ -1,5 +1,7 @@
 # Pywr-DRB Release Notes
 
+---
+
 ## v2.0.0 (2025)
 ### Added
 - 
@@ -158,8 +160,6 @@ Gorski, G., Cook, S., Snyder, A., Appling, A. P., Thompson, T., Smith, J. D.,
 Warner, J. C., & Topp, S. N. (2024). Deep learning of estuary salinity dynamics is physically accurate at a fraction of hydrodynamic model computational cost. Limnology and Oceanography, 69(5), 1070–1085. https://doi.org/10.1002/lno.12549
 
 Zwart, J. A., Oliver, S. K., Watkins, W. D., Sadler, J. M., Appling, A. P., Corson‐Dosch, H. R., ... & Read, J. S. (2023). Near‐term forecasts of stream temperature using deep learning and data assimilation in support of management decisions. JAWRA Journal of the American Water Resources Association, 59(2), 317-337.
-
-
 
 ---
 
