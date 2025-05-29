@@ -25,18 +25,15 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-
     # Install GLPK - this is needed for pywr
-    # - name: Install GLPK
-    #   run: |
-    #     sudo apt-get update && sudo apt-get install -y glpk-utils libglpk-dev
+    - name: Install GLPK and MPI
+      run: |
+        sudo apt-get update 
+        sudo apt-get install -y glpk-utils libglpk-dev libopenmpi-dev openmpi-bin
 
-    # - name: Add GLPK to PATH
-    #   run: echo "/usr/local/lib" | sudo tee -a /etc/ld.so.conf.d/glpk.conf && sudo ldconfig
+    - name: Add GLPK to PATH
+      run: echo "/usr/local/lib" | sudo tee -a /etc/ld.so.conf.d/glpk.conf && sudo ldconfig
 
-    - name: Install MPI
-      run: sudo apt-get update && sudo apt-get install -y libopenmpi-dev openmpi-bin
-    
     # install python dependencies
     - name: Install python dependencies
       run: |
