@@ -9,6 +9,7 @@ authors = [
     {name = "Trevor Amestoy", email = "tja73@cornell.edu"},
     {name = "Marilyn Smith", email = "ms3654@cornell.edu"},
     {name = "Andrew Hamilton", email = "andrew.hamilton.water@gmail.com"},
+    {name = "Patrick Reed", email = "patrick.reed@cornell.edu"}
 ]
 license = { file = "LICENSE" }
 description = "An open-source Python model for water availability and drought risk assessment in the Delaware River Basin"
