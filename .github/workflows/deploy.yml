@@ -47,7 +47,7 @@ jobs:
     - name: Copy example notebooks
       run: |
         mkdir -p docs/examples
-        cp -r notebooks/Tutorial\ 0*.ipynb docs/examples/
+        cp -r notebooks/Tutorial* docs/examples/
 
 
     # Build the book
