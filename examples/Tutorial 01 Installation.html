@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Tutorials &#8212; Pywr-DRB Integrated Water Resource Management Model</title>
+    <title>Tutorial 1: Installation Guide &#8212; Pywr-DRB Integrated Water Resource Management Model</title>
   
   
   
@@ -57,11 +57,11 @@
     <script async="async" src="../_static/sphinx-thebe.js?v=c100c467"></script>
     <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
     <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/examples';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/Tutorial 01 Installation';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Tutorial 1: Installation Guide" href="Tutorial%2001%20Installation.html" />
-    <link rel="prev" title="pywrdrb.pre.ExtrapolatedDiversionPreprocessor" href="../api/generated/pywrdrb.pre.ExtrapolatedDiversionPreprocessor.html" />
+    <link rel="next" title="Tutorial 01 – Running a Basic Simulation" href="Tutorial%2002%20Run%20Simulation.html" />
+    <link rel="prev" title="Tutorials" href="examples.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -225,8 +225,8 @@
 </details></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">Tutorials</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="Tutorial%2001%20Installation.html">Tutorial 01 Installation</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="examples.html">Tutorials</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Tutorial 01 Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Tutorial%2002%20Run%20Simulation.html">Tutorial 02 Run Simulation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Tutorial%2003%20Load%20Results.html">Tutorial 03 Load Results</a></li>
 </ul>
@@ -303,7 +303,7 @@
       
       
       
-      <li><a href="https://github.com/Pywr-DRB/Pywr-DRB/issues/new?title=Issue%20on%20page%20%2Fexamples/examples.html&body=Your%20issue%20content%20here." target="_blank"
+      <li><a href="https://github.com/Pywr-DRB/Pywr-DRB/issues/new?title=Issue%20on%20page%20%2Fexamples/Tutorial 01 Installation.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -333,7 +333,7 @@
       
       
       
-      <li><a href="../_sources/examples/examples.md" target="_blank"
+      <li><a href="../_sources/examples/Tutorial 01 Installation.ipynb" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -343,7 +343,7 @@
 <span class="btn__icon-container">
   <i class="fas fa-file"></i>
   </span>
-<span class="btn__text-container">.md</span>
+<span class="btn__text-container">.ipynb</span>
 </a>
 </li>
       
@@ -404,7 +404,9 @@ document.write(`
   </button>
 `);
 </script>
-
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
 </div></div>
       
     </div>
@@ -415,11 +417,26 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Tutorials</h1>
+    <h1>Tutorial 1: Installation Guide</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
             
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-create-a-virtual-environment">Step 1: Create a virtual environment</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-installing-via-pip">Step 2: Installing via pip</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2a-recommended-quick">Step 2A: Recommended (Quick)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2b-alternative-installation-developer-mode">Step 2B: Alternative Installation (Developer Mode)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-verify-the-installation">Step 3: Verify the installation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
         </div>
     </div>
 </div>
@@ -429,15 +446,66 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="tutorials">
-<h1>Tutorials<a class="headerlink" href="#tutorials" title="Link to this heading">#</a></h1>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="Tutorial%2001%20Installation.html">Tutorial 01 Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Tutorial%2002%20Run%20Simulation.html">Tutorial 02 Run Simulation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Tutorial%2003%20Load%20Results.html">Tutorial 03 Load Results</a></li>
-</ul>
+  <section class="tex2jax_ignore mathjax_ignore" id="tutorial-1-installation-guide">
+<h1>Tutorial 1: Installation Guide<a class="headerlink" href="#tutorial-1-installation-guide" title="Link to this heading">#</a></h1>
+<section id="step-1-create-a-virtual-environment">
+<h2>Step 1: Create a virtual environment<a class="headerlink" href="#step-1-create-a-virtual-environment" title="Link to this heading">#</a></h2>
+<p>For <strong>Windows</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>venv
+venv<span class="se">\S</span>cripts<span class="se">\a</span>ctivate
+</pre></div>
 </div>
+<p>For <strong>Mac/Linux</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>venv
+<span class="nb">source</span><span class="w"> </span>venv/bin/activate
+</pre></div>
+</div>
+</section>
+<section id="step-2-installing-via-pip">
+<h2>Step 2: Installing via pip<a class="headerlink" href="#step-2-installing-via-pip" title="Link to this heading">#</a></h2>
+<section id="step-2a-recommended-quick">
+<h3>Step 2A: Recommended (Quick)<a class="headerlink" href="#step-2a-recommended-quick" title="Link to this heading">#</a></h3>
+<p>After activating the virtual environment, simply run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/Pywr-DRB/Pywr-DRB.git
+</pre></div>
+</div>
+<p><strong>No need to clone the repository.</strong><br />
+This installs the latest official package version, ready for use.</p>
+</section>
+<section id="step-2b-alternative-installation-developer-mode">
+<h3>Step 2B: Alternative Installation (Developer Mode)<a class="headerlink" href="#step-2b-alternative-installation-developer-mode" title="Link to this heading">#</a></h3>
+<p>If you want to work directly with the source code, first clone or download the repository:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/Pywr-DRB/Pywr-DRB.git
+<span class="nb">cd</span><span class="w"> </span>Pywr-DRB
+</pre></div>
+</div>
+<p>Then install it in editable mode:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+</pre></div>
+</div>
+<p>This lets you make local changes that immediately affect the installed package.</p>
+</section>
+<section id="step-3-verify-the-installation">
+<h3>Step 3: Verify the installation<a class="headerlink" href="#step-3-verify-the-installation" title="Link to this heading">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pywrdrb</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="next-steps">
+<h3>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h3>
+<p>To get started, check out the example notebooks provided in the<br />
+<a class="reference external" href="https://github.com/Pywr-DRB/Pywr-DRB">Pywr-DRB GitHub repository</a> under the <code class="docutils literal notranslate"><span class="pre">notebooks/</span></code> folder.</p>
+<p>These cover:</p>
+<ul class="simple">
+<li><p>Running a simulation and viewing results</p></li>
+<li><p>Setting up custom datasets and optimization workflows</p></li>
+</ul>
+</section>
+</section>
 </section>
 
     <script type="text/x-thebe-config">
@@ -471,20 +539,20 @@ document.write(`
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="../api/generated/pywrdrb.pre.ExtrapolatedDiversionPreprocessor.html"
+       href="examples.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">pywrdrb.pre.ExtrapolatedDiversionPreprocessor</p>
+        <p class="prev-next-title">Tutorials</p>
       </div>
     </a>
     <a class="right-next"
-       href="Tutorial%2001%20Installation.html"
+       href="Tutorial%2002%20Run%20Simulation.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Tutorial 1: Installation Guide</p>
+        <p class="prev-next-title">Tutorial 01 – Running a Basic Simulation</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -494,6 +562,28 @@ document.write(`
             </div>
             
             
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-create-a-virtual-environment">Step 1: Create a virtual environment</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-installing-via-pip">Step 2: Installing via pip</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2a-recommended-quick">Step 2A: Recommended (Quick)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2b-alternative-installation-developer-mode">Step 2B: Alternative Installation (Developer Mode)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-verify-the-installation">Step 3: Verify the installation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>

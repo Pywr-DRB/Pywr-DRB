@@ -225,7 +225,10 @@
 </details></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../examples/examples.html">Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="simple">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../examples/examples.html">Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/Tutorial%2001%20Installation.html">Tutorial 01 Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/Tutorial%2002%20Run%20Simulation.html">Tutorial 02 Run Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/Tutorial%2003%20Load%20Results.html">Tutorial 03 Load Results</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../../results_set_options.html">Results Set Table</a></li>
@@ -425,15 +428,6 @@ document.write(`
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.load"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.load()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.process"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.process()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.save"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.save()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.get_prediction_node_lag_combinations"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.get_prediction_node_lag_combinations()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.input_dirs"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.input_dirs</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.output_dirs"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.output_dirs</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.timeseries_data"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.timeseries_data</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.predicted_timeseries"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.predicted_timeseries</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.catchment_wc"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.catchment_wc</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.__init__"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.__init__()</span></code></a></li>
 </ul>
 </li>
@@ -455,85 +449,6 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pywrdrb.pre.</span></span><span class="sig-name descname"><span class="pre">PredictedDiversionPreprocessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('regression_disagg',)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_log</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_zeros</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_const</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.pre.PredictedDiversionPreprocessor" title="Link to this definition">#</a></dt>
 <dd><p>Predicts catchment inflows at Montague and Trenton using specified modes
 (e.g., regression, perfect foresight, moving average).</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="pywrdrb.pre.PredictedDiversionPreprocessor.load">
-<span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.pre.PredictedDiversionPreprocessor.load" title="Link to this definition">#</a></dt>
-<dd><p>Load NJ diversions and catchment water consumption data.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pywrdrb.pre.PredictedDiversionPreprocessor.process">
-<span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.pre.PredictedDiversionPreprocessor.process" title="Link to this definition">#</a></dt>
-<dd><p>Run the full prediction workflow.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pywrdrb.pre.PredictedDiversionPreprocessor.save">
-<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.pre.PredictedDiversionPreprocessor.save" title="Link to this definition">#</a></dt>
-<dd><p>Save predicted diversion time series to pywrdrb/data/diversions.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pywrdrb.pre.PredictedDiversionPreprocessor.get_prediction_node_lag_combinations">
-<span class="sig-name descname"><span class="pre">get_prediction_node_lag_combinations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.pre.PredictedDiversionPreprocessor.get_prediction_node_lag_combinations" title="Link to this definition">#</a></dt>
-<dd><p>Return dictionary of predicted diversion column names and their defining (node, lag, mode) tuples.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pywrdrb.pre.PredictedDiversionPreprocessor.input_dirs">
-<span class="sig-name descname"><span class="pre">input_dirs</span></span><a class="headerlink" href="#pywrdrb.pre.PredictedDiversionPreprocessor.input_dirs" title="Link to this definition">#</a></dt>
-<dd><p>Input files used for prediction.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pywrdrb.pre.PredictedDiversionPreprocessor.output_dirs">
-<span class="sig-name descname"><span class="pre">output_dirs</span></span><a class="headerlink" href="#pywrdrb.pre.PredictedDiversionPreprocessor.output_dirs" title="Link to this definition">#</a></dt>
-<dd><p>Output locations for predicted timeseries.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pywrdrb.pre.PredictedDiversionPreprocessor.timeseries_data">
-<span class="sig-name descname"><span class="pre">timeseries_data</span></span><a class="headerlink" href="#pywrdrb.pre.PredictedDiversionPreprocessor.timeseries_data" title="Link to this definition">#</a></dt>
-<dd><p>DataFrame containing the timeseries data. Is None until load() is called.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DataFrame</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pywrdrb.pre.PredictedDiversionPreprocessor.predicted_timeseries">
-<span class="sig-name descname"><span class="pre">predicted_timeseries</span></span><a class="headerlink" href="#pywrdrb.pre.PredictedDiversionPreprocessor.predicted_timeseries" title="Link to this definition">#</a></dt>
-<dd><p>DataFrame containing the predicted timeseries. Is None until process() is called.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DataFrame</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pywrdrb.pre.PredictedDiversionPreprocessor.catchment_wc">
-<span class="sig-name descname"><span class="pre">catchment_wc</span></span><a class="headerlink" href="#pywrdrb.pre.PredictedDiversionPreprocessor.catchment_wc" title="Link to this definition">#</a></dt>
-<dd><p>DataFrame containing the average water consumption data for node catchments.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>DataFrame</p>
-</dd>
-</dl>
-</dd></dl>
-
 <p>Example usage:
 <a href="#id1"><span class="problematic" id="id2">``</span></a><a href="#id3"><span class="problematic" id="id4">`</span></a>python
 from pywrdrb.pre import PredictedDiversionPreprocessor
@@ -575,19 +490,19 @@ diversion_predictor.save()
 <tr class="row-odd"><td><p><a class="reference internal" href="#pywrdrb.pre.PredictedDiversionPreprocessor.__init__" title="pywrdrb.pre.PredictedDiversionPreprocessor.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([start_date, end_date, modes, ...])</p></td>
 <td><p>Initialize the PredictedDiversionPreprocessor.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pywrdrb.pre.PredictedDiversionPreprocessor.get_prediction_node_lag_combinations" title="pywrdrb.pre.PredictedDiversionPreprocessor.get_prediction_node_lag_combinations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_prediction_node_lag_combinations</span></code></a>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_prediction_node_lag_combinations</span></code>()</p></td>
 <td><p>Return dict of predicted diversion column names formatted as (node, lag, mode) tuples.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pywrdrb.pre.PredictedDiversionPreprocessor.load" title="pywrdrb.pre.PredictedDiversionPreprocessor.load"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">load</span></code>()</p></td>
 <td><p>Load NJ diversions and catchment WC data (used for structural compatibility).</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_predictions</span></code>(regressions)</p></td>
 <td><p>Generate lead-time predictions using the timeseries data and trained models.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pywrdrb.pre.PredictedDiversionPreprocessor.process" title="pywrdrb.pre.PredictedDiversionPreprocessor.process"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">process</span></code>()</p></td>
 <td><p>Run full prediction workflow.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pywrdrb.pre.PredictedDiversionPreprocessor.save" title="pywrdrb.pre.PredictedDiversionPreprocessor.save"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save</span></code></a>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">save</span></code>()</p></td>
 <td><p>Save predicted diversion time series to CSV.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">train_regressions</span></code>()</p></td>
@@ -665,15 +580,6 @@ diversion_predictor.save()
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.load"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.load()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.process"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.process()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.save"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.save()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.get_prediction_node_lag_combinations"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.get_prediction_node_lag_combinations()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.input_dirs"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.input_dirs</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.output_dirs"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.output_dirs</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.timeseries_data"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.timeseries_data</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.predicted_timeseries"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.predicted_timeseries</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.catchment_wc"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.catchment_wc</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.PredictedDiversionPreprocessor.__init__"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor.__init__()</span></code></a></li>
 </ul>
 </li>

@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Tutorials &#8212; Pywr-DRB Integrated Water Resource Management Model</title>
+    <title>Tutorial 01 – Running a Basic Simulation &#8212; Pywr-DRB Integrated Water Resource Management Model</title>
   
   
   
@@ -57,11 +57,11 @@
     <script async="async" src="../_static/sphinx-thebe.js?v=c100c467"></script>
     <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
     <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/examples';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/Tutorial 02 Run Simulation';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Tutorial 1: Installation Guide" href="Tutorial%2001%20Installation.html" />
-    <link rel="prev" title="pywrdrb.pre.ExtrapolatedDiversionPreprocessor" href="../api/generated/pywrdrb.pre.ExtrapolatedDiversionPreprocessor.html" />
+    <link rel="next" title="Tutorial 02 – Loading and Interpreting Output" href="Tutorial%2003%20Load%20Results.html" />
+    <link rel="prev" title="Tutorial 1: Installation Guide" href="Tutorial%2001%20Installation.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -225,9 +225,9 @@
 </details></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">Tutorials</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="examples.html">Tutorials</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="Tutorial%2001%20Installation.html">Tutorial 01 Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Tutorial%2002%20Run%20Simulation.html">Tutorial 02 Run Simulation</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Tutorial 02 Run Simulation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Tutorial%2003%20Load%20Results.html">Tutorial 03 Load Results</a></li>
 </ul>
 </details></li>
@@ -303,7 +303,7 @@
       
       
       
-      <li><a href="https://github.com/Pywr-DRB/Pywr-DRB/issues/new?title=Issue%20on%20page%20%2Fexamples/examples.html&body=Your%20issue%20content%20here." target="_blank"
+      <li><a href="https://github.com/Pywr-DRB/Pywr-DRB/issues/new?title=Issue%20on%20page%20%2Fexamples/Tutorial 02 Run Simulation.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -333,7 +333,7 @@
       
       
       
-      <li><a href="../_sources/examples/examples.md" target="_blank"
+      <li><a href="../_sources/examples/Tutorial 02 Run Simulation.ipynb" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -343,7 +343,7 @@
 <span class="btn__icon-container">
   <i class="fas fa-file"></i>
   </span>
-<span class="btn__text-container">.md</span>
+<span class="btn__text-container">.ipynb</span>
 </a>
 </li>
       
@@ -404,7 +404,9 @@ document.write(`
   </button>
 `);
 </script>
-
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
 </div></div>
       
     </div>
@@ -415,11 +417,30 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Tutorials</h1>
+    <h1>Tutorial 01 – Running a Basic Simulation</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
             
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-initialize-model-with-modelbuilder">Step 1 – Initialize Model with <code class="docutils literal notranslate"><span class="pre">ModelBuilder</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#built-in-inflow-type-options">Built-in Inflow Type Options</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#allowable-simulation-periods">Allowable Simulation Periods</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-load-the-model">Step 2 – Load the Model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-attach-an-output-recorder">Step 3 – Attach an Output Recorder</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-arguments-for-outputrecorder">Optional Arguments for OutputRecorder</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-run-the-simulation">Step 4 – Run the Simulation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-5-confirm-the-output-file-was-created">Step 5 – Confirm the Output File Was Created</a></li>
+</ul>
+            </nav>
         </div>
     </div>
 </div>
@@ -429,15 +450,134 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="tutorials">
-<h1>Tutorials<a class="headerlink" href="#tutorials" title="Link to this heading">#</a></h1>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="Tutorial%2001%20Installation.html">Tutorial 01 Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Tutorial%2002%20Run%20Simulation.html">Tutorial 02 Run Simulation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Tutorial%2003%20Load%20Results.html">Tutorial 03 Load Results</a></li>
+  <section class="tex2jax_ignore mathjax_ignore" id="tutorial-01-running-a-basic-simulation">
+<h1>Tutorial 01 – Running a Basic Simulation<a class="headerlink" href="#tutorial-01-running-a-basic-simulation" title="Link to this heading">#</a></h1>
+<p>This tutorial walks through running a basic Pywr-DRB simulation. You’ll create a model configuration file in JSON format using <code class="docutils literal notranslate"><span class="pre">ModelBuilder</span></code> and run a simulation using <code class="docutils literal notranslate"><span class="pre">pywrdrb</span></code> that saves the output to a standardized HDF5 file.</p>
+<p>This is a great place to start if you’re new to the Pywr-DRB model.</p>
+<section id="step-1-initialize-model-with-modelbuilder">
+<h2>Step 1 – Initialize Model with <code class="docutils literal notranslate"><span class="pre">ModelBuilder</span></code><a class="headerlink" href="#step-1-initialize-model-with-modelbuilder" title="Link to this heading">#</a></h2>
+<p>We start by creating a model configuration (<code class="docutils literal notranslate"><span class="pre">model.json</span></code>) using <code class="docutils literal notranslate"><span class="pre">pywrdrb.ModelBuilder</span></code>. The configuration file of <code class="docutils literal notranslate"><span class="pre">model.json</span></code> defines the node-link structure and meta information of the model: start and end dates, inflow dataset, node relationships, and operational constraints.</p>
+<p><code class="docutils literal notranslate"><span class="pre">pywrdrb.ModelBuilder</span></code> has three necessary arguments, <code class="docutils literal notranslate"><span class="pre">inflow_type</span></code>, <code class="docutils literal notranslate"><span class="pre">start_date</span></code>, and <code class="docutils literal notranslate"><span class="pre">end_date</span></code>. Optional <code class="docutils literal notranslate"><span class="pre">options</span></code> dictionary can be provided for advanced usage detailed in advanced tutorials and <code class="docutils literal notranslate"><span class="pre">pywrdrb</span></code> API documentation.</p>
+<section id="built-in-inflow-type-options">
+<h3>Built-in Inflow Type Options<a class="headerlink" href="#built-in-inflow-type-options" title="Link to this heading">#</a></h3>
+<p>Pywr-DRB supports a range of inflow datasets that represent historic, modeled, and hybrid hydrologic conditions:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">'nhmv10'</span></code> → National Hydrologic Model v1.0 (raw)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'nhmv10_withObsScaled'</span></code> → NHM v1.0 scaled with observed flows</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'nwmv21'</span></code> → National Water Model v2.1 (raw)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'nwmv21_withObsScaled'</span></code> → NWM v2.1 scaled with observed flows</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'pub_nhmv10_BC_withObsScaled'</span></code> → Median of public reconstruction of NHM v1.0 with bias correction and observed scaling</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'wrf1960s_calib_nlcd2016'</span></code> → WRF downscaled inflows calibrated to 1960s climate with NLCD 2016 land cover</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'wrf2050s_calib_nlcd2016'</span></code> → WRF downscaled inflows calibrated to 2050s climate with NLCD 2016 land cover</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'wrfaorc_calib_nlcd2016'</span></code> → WRF historical (AORC forcing) calibrated inflows with NLCD 2016</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'wrfaorc_withObsScaled'</span></code> → WRF historical AORC inflows scaled with observed flows</p></li>
 </ul>
+<p>These inflow types allow testing a wide variety of hydrologic scenarios — from historic reconstructions to future climate-driven projections.</p>
+</section>
+<section id="allowable-simulation-periods">
+<h3>Allowable Simulation Periods<a class="headerlink" href="#allowable-simulation-periods" title="Link to this heading">#</a></h3>
+<p>Available periods depend on the dataset:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">'nhmv10'</span></code>, <code class="docutils literal notranslate"><span class="pre">'nhmv10_withObsScaled'</span></code>: ~1983–2016</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'nwmv21'</span></code>, <code class="docutils literal notranslate"><span class="pre">'nwmv21_withObsScaled'</span></code>: ~1983–2020</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'pub_nhmv10_BC_withObsScaled'</span></code>: ~1945–2023</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'wrf1960s'</span></code>, <code class="docutils literal notranslate"><span class="pre">'wrf2050s'</span></code>, <code class="docutils literal notranslate"><span class="pre">'wrfaorc'</span></code>: modeled periods specific to scenario (check dataset metadata)</p></li>
+</ul>
+<p>⚠ Always check the dataset metadata or file coverage before setting <code class="docutils literal notranslate"><span class="pre">start_date</span></code> and <code class="docutils literal notranslate"><span class="pre">end_date</span></code> in your simulation.</p>
+<p>We will use the <code class="docutils literal notranslate"><span class="pre">'nhmv10_withObsScaled'</span></code> inflow dataset as an example.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pywrdrb</span>
+
+<span class="n">mb</span> <span class="o">=</span> <span class="n">pywrdrb</span><span class="o">.</span><span class="n">ModelBuilder</span><span class="p">(</span>
+    <span class="n">inflow_type</span><span class="o">=</span><span class="s1">&#39;nhmv10_withObsScaled&#39;</span><span class="p">,</span>
+    <span class="n">start_date</span><span class="o">=</span><span class="s2">&quot;1983-10-01&quot;</span><span class="p">,</span>
+    <span class="n">end_date</span><span class="o">=</span><span class="s2">&quot;2016-12-31&quot;</span>
+<span class="p">)</span>
+<span class="n">mb</span><span class="o">.</span><span class="n">make_model</span><span class="p">()</span>
+
+<span class="n">model_filename</span> <span class="o">=</span> <span class="s2">&quot;./model.json&quot;</span>
+<span class="n">mb</span><span class="o">.</span><span class="n">write_model</span><span class="p">(</span><span class="n">model_filename</span><span class="p">)</span>
+</pre></div>
 </div>
+</div>
+</div>
+</section>
+</section>
+<section id="step-2-load-the-model">
+<h2>Step 2 – Load the Model<a class="headerlink" href="#step-2-load-the-model" title="Link to this heading">#</a></h2>
+<p>Now that the model JSON file has been created, we can load it into memory using <code class="docutils literal notranslate"><span class="pre">pywrdrb.Model.load()</span></code>. This initializes all the Pywr nodes, parameters, and connections defined in the JSON file.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">pywrdrb</span><span class="o">.</span><span class="n">Model</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">model_filename</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="step-3-attach-an-output-recorder">
+<h2>Step 3 – Attach an Output Recorder<a class="headerlink" href="#step-3-attach-an-output-recorder" title="Link to this heading">#</a></h2>
+<p>Next, we attach an <code class="docutils literal notranslate"><span class="pre">pywrdrb.OutputRecorder</span></code> to the model. This customized recorder tracks key outputs during the simulation, stores them in memory, and writes them to an <code class="docutils literal notranslate"><span class="pre">.hdf5</span></code> file once the simulation is completed.</p>
+<p>The output file will store time series data like reservoir storage, streamflow, releases, and more. Please check <code class="docutils literal notranslate"><span class="pre">OutputRecorder</span></code> options for details.</p>
+<section id="optional-arguments-for-outputrecorder">
+<h3>Optional Arguments for OutputRecorder<a class="headerlink" href="#optional-arguments-for-outputrecorder" title="Link to this heading">#</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">pywrdrb.OutputRecorder</span></code> records and saves model simulation data to an HDF5 file.<br />
+It wraps the base <code class="docutils literal notranslate"><span class="pre">pywr.Recorder</span></code> class and is optimized for efficiency while tracking all key model variables.</p>
+<p>Key arguments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">model</span></code> → the <code class="docutils literal notranslate"><span class="pre">pywrdrb.Model</span></code> instance to record from (required)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">output_filename</span></code> → name of the output HDF5 file (required)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nodes</span></code> → optional list of <code class="docutils literal notranslate"><span class="pre">pywr.core.Node</span></code> objects to record (if <code class="docutils literal notranslate"><span class="pre">None</span></code>, all named nodes are recorded)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">parameters</span></code> → optional list of <code class="docutils literal notranslate"><span class="pre">pywr.core.Parameter</span></code> objects to record (if <code class="docutils literal notranslate"><span class="pre">None</span></code>, all named parameters are recorded)</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">output_filename</span> <span class="o">=</span> <span class="s2">&quot;./pywrdrb_output.hdf5&quot;</span>
+<span class="n">recorder</span> <span class="o">=</span> <span class="n">pywrdrb</span><span class="o">.</span><span class="n">OutputRecorder</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">output_filename</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="step-4-run-the-simulation">
+<h2>Step 4 – Run the Simulation<a class="headerlink" href="#step-4-run-the-simulation" title="Link to this heading">#</a></h2>
+<p>Now we run the model. This may take a few seconds depending on your machine. The simulation uses the configuration and input data to simulate reservoir operations and streamflows across the Delaware River Basin.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">stats</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>c:\Users\ms3654\Desktop\Research\Delaware\.venv\Lib\site-packages\pywr\dataframe_tools.py:127: FutureWarning: Resampling with a PeriodIndex is deprecated. Cast index to DatetimeIndex before resampling instead.
+  new_df = new_df.resample(target_index.freq).agg(resample_func)
+C:\Users\ms3654\AppData\Local\Temp\ipykernel_14636\1470591929.py:1: DeprecationWarning: Conversion of an array with ndim &gt; 0 to a scalar is deprecated, and will error in future. Ensure you extract a single element from your array before performing this operation. (Deprecated NumPy 1.25.)
+  stats = model.run()
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="step-5-confirm-the-output-file-was-created">
+<h2>Step 5 – Confirm the Output File Was Created<a class="headerlink" href="#step-5-confirm-the-output-file-was-created" title="Link to this heading">#</a></h2>
+<p>After running the simulation, check that the HDF5 output file was successfully created. This file will be used in the next tutorial to analyze results.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_filename</span><span class="p">),</span> <span class="s2">&quot;Simulation output not found.&quot;</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot; Simulation completed and output file saved:&quot;</span><span class="p">,</span> <span class="n">output_filename</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> Simulation completed and output file saved: ./pywrdrb_output.hdf5
+</pre></div>
+</div>
+</div>
+</div>
+</section>
 </section>
 
     <script type="text/x-thebe-config">
@@ -471,20 +611,20 @@ document.write(`
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="../api/generated/pywrdrb.pre.ExtrapolatedDiversionPreprocessor.html"
+       href="Tutorial%2001%20Installation.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">pywrdrb.pre.ExtrapolatedDiversionPreprocessor</p>
+        <p class="prev-next-title">Tutorial 1: Installation Guide</p>
       </div>
     </a>
     <a class="right-next"
-       href="Tutorial%2001%20Installation.html"
+       href="Tutorial%2003%20Load%20Results.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Tutorial 1: Installation Guide</p>
+        <p class="prev-next-title">Tutorial 02 – Loading and Interpreting Output</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -494,6 +634,32 @@ document.write(`
             </div>
             
             
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-initialize-model-with-modelbuilder">Step 1 – Initialize Model with <code class="docutils literal notranslate"><span class="pre">ModelBuilder</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#built-in-inflow-type-options">Built-in Inflow Type Options</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#allowable-simulation-periods">Allowable Simulation Periods</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-load-the-model">Step 2 – Load the Model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-attach-an-output-recorder">Step 3 – Attach an Output Recorder</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-arguments-for-outputrecorder">Optional Arguments for OutputRecorder</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-run-the-simulation">Step 4 – Run the Simulation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-5-confirm-the-output-file-was-created">Step 5 – Confirm the Output File Was Created</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>

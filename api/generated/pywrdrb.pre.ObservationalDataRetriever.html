@@ -225,7 +225,10 @@
 </details></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../examples/examples.html">Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="simple">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../examples/examples.html">Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/Tutorial%2001%20Installation.html">Tutorial 01 Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/Tutorial%2002%20Run%20Simulation.html">Tutorial 02 Run Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/Tutorial%2003%20Load%20Results.html">Tutorial 03 Load Results</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../../results_set_options.html">Results Set Table</a></li>
@@ -425,19 +428,6 @@ document.write(`
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.ObservationalDataRetriever"><code class="docutils literal notranslate"><span class="pre">ObservationalDataRetriever</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.ObservationalDataRetriever.start_date"><code class="docutils literal notranslate"><span class="pre">ObservationalDataRetriever.start_date</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id0"><code class="docutils literal notranslate"><span class="pre">ObservationalDataRetriever.start_date</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.ObservationalDataRetriever.end_date"><code class="docutils literal notranslate"><span class="pre">ObservationalDataRetriever.end_date</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.ObservationalDataRetriever.default_stat_code"><code class="docutils literal notranslate"><span class="pre">ObservationalDataRetriever.default_stat_code</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.ObservationalDataRetriever.pn"><code class="docutils literal notranslate"><span class="pre">ObservationalDataRetriever.pn</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.ObservationalDataRetriever.all_flow_gauges"><code class="docutils literal notranslate"><span class="pre">ObservationalDataRetriever.all_flow_gauges</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.ObservationalDataRetriever.non_nyc_storage_gauges"><code class="docutils literal notranslate"><span class="pre">ObservationalDataRetriever.non_nyc_storage_gauges</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.ObservationalDataRetriever.nyc_storage_gauges"><code class="docutils literal notranslate"><span class="pre">ObservationalDataRetriever.nyc_storage_gauges</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.ObservationalDataRetriever.get"><code class="docutils literal notranslate"><span class="pre">ObservationalDataRetriever.get()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.ObservationalDataRetriever.elevation_to_storage"><code class="docutils literal notranslate"><span class="pre">ObservationalDataRetriever.elevation_to_storage()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.ObservationalDataRetriever.load"><code class="docutils literal notranslate"><span class="pre">ObservationalDataRetriever.load()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.ObservationalDataRetriever.process"><code class="docutils literal notranslate"><span class="pre">ObservationalDataRetriever.process()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.ObservationalDataRetriever.save"><code class="docutils literal notranslate"><span class="pre">ObservationalDataRetriever.save()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.ObservationalDataRetriever.__init__"><code class="docutils literal notranslate"><span class="pre">ObservationalDataRetriever.__init__()</span></code></a></li>
 </ul>
 </li>
@@ -461,124 +451,6 @@ document.write(`
 <p>This class collects inflow, release, and elevation data from USGS NWIS,
 processes and saves raw time series, and converts elevation to storage using
 predefined storage curves.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pywrdrb.pre.ObservationalDataRetriever.start_date">
-<span class="sig-name descname"><span class="pre">start_date</span></span><a class="headerlink" href="#pywrdrb.pre.ObservationalDataRetriever.start_date" title="Link to this definition">#</a></dt>
-<dd><p>Start date for data retrieval in ‘YYYY-MM-DD’ format.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>str</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="id0">
-<span class="sig-name descname"><span class="pre">start_date</span></span><a class="headerlink" href="#id0" title="Link to this definition">#</a></dt>
-<dd><p>Start date for data retrieval in ‘YYYY-MM-DD’ format.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>str</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pywrdrb.pre.ObservationalDataRetriever.end_date">
-<span class="sig-name descname"><span class="pre">end_date</span></span><a class="headerlink" href="#pywrdrb.pre.ObservationalDataRetriever.end_date" title="Link to this definition">#</a></dt>
-<dd><p>End date for data retrieval (defaults to today’s date).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>str</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pywrdrb.pre.ObservationalDataRetriever.default_stat_code">
-<span class="sig-name descname"><span class="pre">default_stat_code</span></span><a class="headerlink" href="#pywrdrb.pre.ObservationalDataRetriever.default_stat_code" title="Link to this definition">#</a></dt>
-<dd><p>Default statistic code used when querying USGS data.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>str</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pywrdrb.pre.ObservationalDataRetriever.pn">
-<span class="sig-name descname"><span class="pre">pn</span></span><a class="headerlink" href="#pywrdrb.pre.ObservationalDataRetriever.pn" title="Link to this definition">#</a></dt>
-<dd><p>Object for managing standardized Pywr-DRB file paths.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>PathNavigator</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pywrdrb.pre.ObservationalDataRetriever.all_flow_gauges">
-<span class="sig-name descname"><span class="pre">all_flow_gauges</span></span><a class="headerlink" href="#pywrdrb.pre.ObservationalDataRetriever.all_flow_gauges" title="Link to this definition">#</a></dt>
-<dd><p>Flattened list of all USGS gauge flow gauges being retrieved. From pywrdrb.pywr_drb_node_data.py</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list of str</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pywrdrb.pre.ObservationalDataRetriever.non_nyc_storage_gauges">
-<span class="sig-name descname"><span class="pre">non_nyc_storage_gauges</span></span><a class="headerlink" href="#pywrdrb.pre.ObservationalDataRetriever.non_nyc_storage_gauges" title="Link to this definition">#</a></dt>
-<dd><p>List of gauges associated with non-NYC reservoirs for elevation retrieval.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list of str</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pywrdrb.pre.ObservationalDataRetriever.nyc_storage_gauges">
-<span class="sig-name descname"><span class="pre">nyc_storage_gauges</span></span><a class="headerlink" href="#pywrdrb.pre.ObservationalDataRetriever.nyc_storage_gauges" title="Link to this definition">#</a></dt>
-<dd><p>List of gauges associated with NYC reservoirs for elevation retrieval.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list of str</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pywrdrb.pre.ObservationalDataRetriever.get">
-<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gauges</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_cd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stat_cd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_map</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'flow'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.pre.ObservationalDataRetriever.get" title="Link to this definition">#</a></dt>
-<dd><p>Download daily values from NWIS for a list of gauges.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pywrdrb.pre.ObservationalDataRetriever.elevation_to_storage">
-<span class="sig-name descname"><span class="pre">elevation_to_storage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elevation_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storage_curve_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.pre.ObservationalDataRetriever.elevation_to_storage" title="Link to this definition">#</a></dt>
-<dd><p>Convert elevation values to storage using predefined curves.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pywrdrb.pre.ObservationalDataRetriever.load">
-<span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.pre.ObservationalDataRetriever.load" title="Link to this definition">#</a></dt>
-<dd><p>Downloads raw gauge flow and reservoir elevation data from NWIS.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pywrdrb.pre.ObservationalDataRetriever.process">
-<span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.pre.ObservationalDataRetriever.process" title="Link to this definition">#</a></dt>
-<dd><p>Combines and transforms elevation data into volume using storage curves.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pywrdrb.pre.ObservationalDataRetriever.save">
-<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.pre.ObservationalDataRetriever.save" title="Link to this definition">#</a></dt>
-<dd><p>Saves raw and processed data to model-compatible CSV files.</p>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="pywrdrb.pre.ObservationalDataRetriever.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'1945-01-01'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pywrdrb.pre.ObservationalDataRetriever.__init__" title="Link to this definition">#</a></dt>
@@ -599,19 +471,19 @@ predefined storage curves.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pywrdrb.pre.ObservationalDataRetriever.__init__" title="pywrdrb.pre.ObservationalDataRetriever.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([start_date, end_date])</p></td>
 <td><p>Initialize an ObservationalDataRetriever instance.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pywrdrb.pre.ObservationalDataRetriever.elevation_to_storage" title="pywrdrb.pre.ObservationalDataRetriever.elevation_to_storage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">elevation_to_storage</span></code></a>(elevation_df, ...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">elevation_to_storage</span></code>(elevation_df, ...)</p></td>
 <td><p>Convert reservoir elevation time series to volume using storage curves.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pywrdrb.pre.ObservationalDataRetriever.get" title="pywrdrb.pre.ObservationalDataRetriever.get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code></a>(gauges[, param_cd, stat_cd, label_map, type])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>(gauges[, param_cd, stat_cd, label_map, type])</p></td>
 <td><p>Download USGS daily time series for specified gauges.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pywrdrb.pre.ObservationalDataRetriever.load" title="pywrdrb.pre.ObservationalDataRetriever.load"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load</span></code></a>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">load</span></code>()</p></td>
 <td><p>Download raw observational data from USGS NWIS.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pywrdrb.pre.ObservationalDataRetriever.process" title="pywrdrb.pre.ObservationalDataRetriever.process"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">process</span></code>()</p></td>
 <td><p>Transform and combine elevation data into usable storage time series.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pywrdrb.pre.ObservationalDataRetriever.save" title="pywrdrb.pre.ObservationalDataRetriever.save"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save</span></code></a>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">save</span></code>()</p></td>
 <td><p>Save raw and processed observational data.</p></td>
 </tr>
 </tbody>
@@ -686,19 +558,6 @@ predefined storage curves.</p>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.ObservationalDataRetriever"><code class="docutils literal notranslate"><span class="pre">ObservationalDataRetriever</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.ObservationalDataRetriever.start_date"><code class="docutils literal notranslate"><span class="pre">ObservationalDataRetriever.start_date</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id0"><code class="docutils literal notranslate"><span class="pre">ObservationalDataRetriever.start_date</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.ObservationalDataRetriever.end_date"><code class="docutils literal notranslate"><span class="pre">ObservationalDataRetriever.end_date</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.ObservationalDataRetriever.default_stat_code"><code class="docutils literal notranslate"><span class="pre">ObservationalDataRetriever.default_stat_code</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.ObservationalDataRetriever.pn"><code class="docutils literal notranslate"><span class="pre">ObservationalDataRetriever.pn</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.ObservationalDataRetriever.all_flow_gauges"><code class="docutils literal notranslate"><span class="pre">ObservationalDataRetriever.all_flow_gauges</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.ObservationalDataRetriever.non_nyc_storage_gauges"><code class="docutils literal notranslate"><span class="pre">ObservationalDataRetriever.non_nyc_storage_gauges</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.ObservationalDataRetriever.nyc_storage_gauges"><code class="docutils literal notranslate"><span class="pre">ObservationalDataRetriever.nyc_storage_gauges</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.ObservationalDataRetriever.get"><code class="docutils literal notranslate"><span class="pre">ObservationalDataRetriever.get()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.ObservationalDataRetriever.elevation_to_storage"><code class="docutils literal notranslate"><span class="pre">ObservationalDataRetriever.elevation_to_storage()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.ObservationalDataRetriever.load"><code class="docutils literal notranslate"><span class="pre">ObservationalDataRetriever.load()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.ObservationalDataRetriever.process"><code class="docutils literal notranslate"><span class="pre">ObservationalDataRetriever.process()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.ObservationalDataRetriever.save"><code class="docutils literal notranslate"><span class="pre">ObservationalDataRetriever.save()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb.pre.ObservationalDataRetriever.__init__"><code class="docutils literal notranslate"><span class="pre">ObservationalDataRetriever.__init__()</span></code></a></li>
 </ul>
 </li>
