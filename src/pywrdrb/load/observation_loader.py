@@ -20,7 +20,6 @@ TJA, 2025-05-02, Added consistent docstrings.
 """
 
 from pywrdrb.load.abstract_loader import AbstractDataLoader, default_kwargs
-from pywrdrb.load.get_results import get_base_results
 from pywrdrb.utils.results_sets import obs_results_set_opts
 
 
@@ -100,7 +99,7 @@ class Observation(AbstractDataLoader):
             if self.print_status:
                 print(f"Loading {s} data from observations")
             
-            all_results_data[s]['obs'], datetime = get_base_results(
+            all_results_data[s]['obs'], datetime = super().get_base_results(
                 input_dir = self.input_dir,
                 model = 'obs',
                 results_set = s,
