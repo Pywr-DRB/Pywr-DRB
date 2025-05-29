@@ -499,6 +499,11 @@ document.write(`
 </pre></div>
 </div>
 </div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&#39;\nmb = pywrdrb.ModelBuilder(\n    inflow_type=\&#39;my_data\&#39;, \n    diversion_type=\&#39;nhmv10\&#39;,\n    start_date=&quot;1983-10-01&quot;,\n    end_date=&quot;1985-12-31&quot;\n    )\n&#39;
+</pre></div>
+</div>
+</div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -540,7 +545,7 @@ document.write(`
 <span class="n">files</span> <span class="o">=</span> <span class="n">pn</span><span class="o">.</span><span class="n">flows</span><span class="o">.</span><span class="n">nhmv10</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File needed: </span><span class="si">{</span><span class="n">files</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>  
 <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">flows</span><span class="o">.</span><span class="n">nhmv10</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">file</span><span class="p">))</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">flows</span><span class="o">.</span><span class="n">nhmv10</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">file</span><span class="p">))</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File: </span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="mi">5</span><span class="p">,</span> <span class="p">:</span><span class="mi">5</span><span class="p">])</span> <span class="c1"># print first 5 rows and 5 columns</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -552,24 +557,46 @@ document.write(`
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>For flow type folder, you need to have the following files: 
 
 File needed: [&#39;catchment_inflow_mgd.csv&#39;, &#39;gage_flow_mgd.csv&#39;, &#39;predicted_inflows_mgd.csv&#39;]
-</pre></div>
-</div>
-<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
-<span class="ne">AttributeError</span><span class="g g-Whitespace">                            </span>Traceback (most recent call last)
-<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span> <span class="n">line</span> <span class="mi">7</span>
-<span class="g g-Whitespace">      </span><span class="mi">5</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File needed: </span><span class="si">{</span><span class="n">files</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>  
-<span class="g g-Whitespace">      </span><span class="mi">6</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
-<span class="ne">----&gt; </span><span class="mi">7</span>     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">flows</span><span class="o">.</span><span class="n">nhmv10</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">file</span><span class="p">))</span>
-<span class="g g-Whitespace">      </span><span class="mi">8</span>     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File: </span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="g g-Whitespace">      </span><span class="mi">9</span>     <span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="mi">5</span><span class="p">,</span> <span class="p">:</span><span class="mi">5</span><span class="p">])</span> <span class="c1"># print first 5 rows and 5 columns</span>
 
-<span class="nn">File ~\Documents\GitHub\PathNavigator\src\pathnavigator\folder.py:129,</span> in <span class="ni">Folder.__getattr__</span><span class="nt">(self, item)</span>
-<span class="g g-Whitespace">    </span><span class="mi">127</span>     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-<span class="g g-Whitespace">    </span><span class="mi">128</span>         <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-<span class="ne">--&gt; </span><span class="mi">129</span> <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">item</span><span class="si">}</span><span class="s2">&#39; not found in the attributes of &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; folder. &quot;</span>
-<span class="g g-Whitespace">    </span><span class="mi">130</span>         <span class="sa">f</span><span class="s2">&quot;Please try to access &#39;</span><span class="si">{</span><span class="n">item</span><span class="si">}</span><span class="s2">&#39; through the `get()` method if &#39;</span><span class="si">{</span><span class="n">item</span><span class="si">}</span><span class="s2">&#39; exists in &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; folder in the file system.&quot;</span><span class="p">)</span>
+File: catchment_inflow_mgd.csv
+     datetime  cannonsville    pepacton   neversink  wallenpaupack
+0  1980-10-01    130.379373   89.325193   60.718368      33.438627
+1  1980-10-02    320.876434  234.425929   58.710650     155.951484
+2  1980-10-03    384.188487  261.300230   71.301161     196.969214
+3  1980-10-04    345.220715  265.843778  115.661384     229.965044
+4  1980-10-05    322.869093  257.040294   71.100223     208.087549
 
-<span class="ne">AttributeError</span>: &#39;data&#39; not found in the attributes of &#39;data&#39; folder. Please try to access &#39;data&#39; through the `get()` method if &#39;data&#39; exists in &#39;data&#39; folder in the file system.
+
+File: gage_flow_mgd.csv
+     datetime  cannonsville    pepacton   neversink  wallenpaupack
+0  1980-10-01    130.379373   89.325193   60.718368      33.438627
+1  1980-10-02    320.876434  234.425929   58.710650     155.951484
+2  1980-10-03    384.188487  261.300230   71.301161     196.969214
+3  1980-10-04    345.220715  265.843778  115.661384     229.965044
+4  1980-10-05    322.869093  257.040294   71.100223     208.087549
+
+
+File: predicted_inflows_mgd.csv
+     datetime  delMontague_lag1_regression_disagg  \
+0  1983-10-01                          229.021075   
+1  1983-10-02                          437.812448   
+2  1983-10-03                         1091.191061   
+3  1983-10-04                         1367.417389   
+4  1983-10-05                         1046.802593   
+
+   delMontague_lag2_regression_disagg  delTrenton_lag1_regression_disagg  \
+0                          407.304641                          34.783055   
+1                          846.733954                         330.528839   
+2                         1608.726450                        1597.578624   
+3                         1845.161086                        2856.923949   
+4                         1512.261956                        1945.907752   
+
+   delTrenton_lag2_regression_disagg  
+0                         312.558400  
+1                         654.031017  
+2                        2743.665878  
+3                        4238.030173  
+4                        2924.458661  
 </pre></div>
 </div>
 </div>
@@ -579,10 +606,10 @@ File needed: [&#39;catchment_inflow_mgd.csv&#39;, &#39;gage_flow_mgd.csv&#39;, &
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;For diversions type folder, you need to have the following files: </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="n">pn</span> <span class="o">=</span> <span class="n">pywrdrb</span><span class="o">.</span><span class="n">get_pn_object</span><span class="p">()</span>
-<span class="n">files</span> <span class="o">=</span> <span class="n">pn</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">diversions</span><span class="o">.</span><span class="n">nhmv10</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+<span class="n">files</span> <span class="o">=</span> <span class="n">pn</span><span class="o">.</span><span class="n">diversions</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File needed: </span><span class="si">{</span><span class="n">files</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>  
 <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">diversions</span><span class="o">.</span><span class="n">nhmv10</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">file</span><span class="p">))</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">diversions</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">file</span><span class="p">))</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File: </span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="mi">5</span><span class="p">,</span> <span class="p">:</span><span class="mi">5</span><span class="p">])</span> <span class="c1"># print first 5 rows and 5 columns</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -597,43 +624,43 @@ File needed: [&#39;diversion_nj_extrapolated_mgd.csv&#39;, &#39;diversion_nyc_ex
 
 File: diversion_nj_extrapolated_mgd.csv
      datetime  D_R_Canal
-0  1945-01-01  85.387245
-1  1945-01-02  80.717630
-2  1945-01-03  60.037906
-3  1945-01-04  48.030325
-4  1945-01-05  56.035379
+0  1945-01-01  86.850770
+1  1945-01-02  82.101119
+2  1945-01-03  61.066948
+3  1945-01-04  48.853558
+4  1945-01-05  56.995818
 
 
 File: diversion_nyc_extrapolated_mgd.csv
      datetime  cannonsville  pepacton  neversink   aggregate
-0  1945-01-01           NaN       NaN        NaN  501.333527
-1  1945-01-02           NaN       NaN        NaN  501.333527
-2  1945-01-03           NaN       NaN        NaN  501.333527
-3  1945-01-04           NaN       NaN        NaN  805.273987
-4  1945-01-05           NaN       NaN        NaN  837.798981
+0  1945-01-01           NaN       NaN        NaN  473.057090
+1  1945-01-02           NaN       NaN        NaN  473.057090
+2  1945-01-03           NaN       NaN        NaN  473.057090
+3  1945-01-04           NaN       NaN        NaN  759.854566
+4  1945-01-05           NaN       NaN        NaN  790.545070
 
 
 File: predicted_diversions_mgd.csv
-    datetime  demand_nj_lag1_regression_disagg  \
-0  10/1/1983                         91.425844   
-1  10/2/1983                         88.815772   
-2  10/3/1983                         88.815772   
-3  10/4/1983                         86.205637   
-4  10/5/1983                         86.205637   
+     datetime  demand_nj_lag1_regression_disagg  \
+0  1945-01-01                         85.923699   
+1  1945-01-02                         81.227992   
+2  1945-01-03                         60.430217   
+3  1945-01-04                         48.351836   
+4  1945-01-05                         56.404299   
 
-   demand_nj_lag1_perfect_foresight  demand_nj_lag1_same_day  \
-0                         89.140852                91.762642   
-1                         89.140852                89.140852   
-2                         86.519062                89.140852   
-3                         86.519062                86.519062   
-4                         85.863615                86.519062   
+   demand_nj_lag2_regression_disagg  demand_nj_lag3_regression_disagg  \
+0                         85.803003                         85.734338   
+1                         81.115331                         81.051235   
+2                         60.352036                         60.307553   
+3                         48.292680                         48.259020   
+4                         56.332553                         56.291731   
 
-   demand_nj_lag1_regression_agg  
-0                      91.425844  
-1                      88.815772  
-2                      88.815772  
-3                      86.205637  
-4                      86.205637  
+   demand_nj_lag4_regression_disagg  
+0                         85.695091  
+1                         81.014600  
+2                         60.282127  
+3                         48.239780  
+4                         56.268397  
 </pre></div>
 </div>
 </div>
