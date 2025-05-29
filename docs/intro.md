@@ -60,4 +60,5 @@ This research was funded by the U.S. Geological Survey (USGS) as part of the Wat
 This program is licensed under the MIT License. See the full license [here](https://github.com/Pywr-DRB/Pywr-DRB/blob/master/LICENSE).
 
 Copyright (c) 2025 Chung-Yi Lin, Trevor Amestoy, Marilyn Smith, Andrew Hamilton, Patrick Reed.
+
 Copyright (c) 2023-2024 Andrew Hamilton, Trevor Amestoy, Patrick Reed.
