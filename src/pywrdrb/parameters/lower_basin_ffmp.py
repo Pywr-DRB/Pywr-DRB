@@ -119,40 +119,12 @@ class LowerBasinMaxMRFContribution(Parameter):
 
     If predicted Trenton flow > flow target, then max allowable release is 0.0 (no contribution needed).
     If predicted Trenton flow < flow target, then max allowable release is determined by:
-        - the current storage of the reservoir 
-        - the priority level of the reservoir, as described in WaterCode.
+    - the current storage of the reservoir 
+    - the priority level of the reservoir, as described in WaterCode.
 
     This is provided to VolBalanceLowerBasinMRFAggregate to determine the aggregate
     MRF contribution from the lower basin reservoirs.
-
-    Methods
-    -------
-    get_current_usable_reservoirs(scenario_index)
-        Get a list of lower basin reservoirs that are allowed to be used for Trenton flow target.
-    value(timestep, scenario_index)
-        Returns the max allowable aggregate MRF contribution from lower basin reservoirs, subject to policy and conditions.
-    load(model, data)
-        Load the LowerBasinMaxMRFContribution parameter.
-
-    Attributes
-    ----------
-    model : Model
-        The pywrdrb.Model instance.
-    reservoir : str
-        The name of the reservoir, e.g. "blueMarsh", "beltzvilleCombined", "nockamixon".
-    debugging : bool
-        If True, print debugging information.
-    step : int
-        The step of the Trenton flow calculation (1-4). See pywrdrb.parameters.ffmp for more.
-    days_ahead_prediction : int
-        The number of days ahead to predict the Trenton flow target. Equal to 5 - step.
-    nodes : dict
-        Dictionary of pywrdrb.nodes.Reservoir instances for each lower basin reservoir. Format {"reservoir_name": pywr.Node}.
-    parameters : dict
-        Dictionary of pywrdrb.parameters.Parameter instances for each lower basin reservoir. Format {"parameter_name": pywr.Parameter}.
-    
     """
-
     def __init__(self, model, reservoir, 
                  step, nodes, parameters, **kwargs):
         """Initialize the LowerBasinMaxMRFContribution parameter.

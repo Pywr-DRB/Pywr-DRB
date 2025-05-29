@@ -46,32 +46,6 @@ class PredictedDiversionPreprocessor(PredictedTimeseriesPreprocessor):
     Predicts catchment inflows at Montague and Trenton using specified modes
     (e.g., regression, perfect foresight, moving average).
     
-    
-    Methods
-    -------
-    load()
-        Load NJ diversions and catchment water consumption data.
-    process()
-        Run the full prediction workflow.
-    save()
-        Save predicted diversion time series to pywrdrb/data/diversions.
-    get_prediction_node_lag_combinations()
-        Return dictionary of predicted diversion column names and their defining (node, lag, mode) tuples.
-    
-    Attributes
-    ----------
-    input_dirs : dict
-        Input files used for prediction.
-    output_dirs : dict
-        Output locations for predicted timeseries.
-    timeseries_data : DataFrame
-        DataFrame containing the timeseries data. Is None until load() is called.
-    predicted_timeseries : DataFrame
-        DataFrame containing the predicted timeseries. Is None until process() is called.
-    catchment_wc : DataFrame
-        DataFrame containing the average water consumption data for node catchments.
-    
-    
     Example usage:
     ```python
     from pywrdrb.pre import PredictedDiversionPreprocessor
@@ -84,7 +58,6 @@ class PredictedDiversionPreprocessor(PredictedTimeseriesPreprocessor):
     diversion_predictor.save()
     ```
     """
-
     def __init__(self,
                  start_date=None,
                  end_date=None,

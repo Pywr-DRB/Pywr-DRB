@@ -38,7 +38,6 @@ class PredictedInflowPreprocessor(PredictedTimeseriesPreprocessor):
     Predicts catchment inflows at Montague and Trenton using specified modes
     (e.g., regression, perfect foresight, moving average).
     
-    
     Example usage:
     ```python
     from pywrdrb.pre import PredictedInflowPreprocessor
@@ -49,7 +48,6 @@ class PredictedInflowPreprocessor(PredictedTimeseriesPreprocessor):
     inflow_predictor.save()
     ```
     """
-
     def __init__(self,
                  flow_type,
                  start_date=None,

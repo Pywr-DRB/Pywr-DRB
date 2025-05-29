@@ -49,39 +49,6 @@ class ObservationalDataRetriever(DataPreprocessor):
     This class collects inflow, release, and elevation data from USGS NWIS,
     processes and saves raw time series, and converts elevation to storage using
     predefined storage curves.
-    
-    Attributes
-    ----------
-    start_date : str
-        Start date for data retrieval in 'YYYY-MM-DD' format.
-    start_date : str
-        Start date for data retrieval in 'YYYY-MM-DD' format.
-    end_date : str
-        End date for data retrieval (defaults to today's date).
-    default_stat_code : str
-        Default statistic code used when querying USGS data.
-    pn : PathNavigator
-        Object for managing standardized Pywr-DRB file paths.
-    all_flow_gauges : list of str
-        Flattened list of all USGS gauge flow gauges being retrieved. From pywrdrb.pywr_drb_node_data.py
-    non_nyc_storage_gauges : list of str
-        List of gauges associated with non-NYC reservoirs for elevation retrieval.
-    nyc_storage_gauges : list of str
-        List of gauges associated with NYC reservoirs for elevation retrieval.
-
-    Methods
-    -------
-    get(gauges, param_cd=None, stat_cd=None, label_map=None, type="flow")
-        Download daily values from NWIS for a list of gauges.
-    elevation_to_storage(elevation_df, storage_curve_dict)
-        Convert elevation values to storage using predefined curves.
-    load()
-        Downloads raw gauge flow and reservoir elevation data from NWIS.
-    process()
-        Combines and transforms elevation data into volume using storage curves.
-    save()
-        Saves raw and processed data to model-compatible CSV files.
-    
     """
 
     def __init__(self, 
