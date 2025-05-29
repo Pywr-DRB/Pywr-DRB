@@ -1,0 +1,830 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Using Customized Data To Run PywrDRB &#8212; Pywr-DRB Integrated Water Resource Management Model</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/Tutorial 04 Using Customized Data To Run Model';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Results Set Table" href="../results_set_options.html" />
+    <link rel="prev" title="Tutorial 02 – Loading and Interpreting Output" href="Tutorial%2003%20Load%20Results.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../intro.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/logo.png" class="logo__image only-light" alt="Pywr-DRB Integrated Water Resource Management Model - Home"/>
+    <script>document.write(`<img src="../_static/logo.png" class="logo__image only-dark" alt="Pywr-DRB Integrated Water Resource Management Model - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../intro.html">
+                    Pywr-DRB
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/api.html">API References</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api/pywrdrb.html">pywrdrb</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.ModelBuilder.html">pywrdrb.ModelBuilder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.OutputRecorder.html">pywrdrb.OutputRecorder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.Data.html">pywrdrb.Data</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api/parameters.html">pywrdrb.parameters</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.NYCCombinedReleaseFactor.html">pywrdrb.parameters.NYCCombinedReleaseFactor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.NYCFloodRelease.html">pywrdrb.parameters.NYCFloodRelease</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.VolBalanceNYCDemand.html">pywrdrb.parameters.VolBalanceNYCDemand</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.FfmpNycRunningAvgParameter.html">pywrdrb.parameters.FfmpNycRunningAvgParameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.FfmpNjRunningAvgParameter.html">pywrdrb.parameters.FfmpNjRunningAvgParameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.html">pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.html">pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2.html">pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.LowerBasinMaxMRFContribution.html">pywrdrb.parameters.LowerBasinMaxMRFContribution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate.html">pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.VolBalanceLowerBasinMRFIndividual.html">pywrdrb.parameters.VolBalanceLowerBasinMRFIndividual</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.IERQRelease_step1.html">pywrdrb.parameters.IERQRelease_step1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.STARFITReservoirRelease.html">pywrdrb.parameters.STARFITReservoirRelease</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.TemperatureModel.html">pywrdrb.parameters.TemperatureModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.Estimated_Q_C.html">pywrdrb.parameters.Estimated_Q_C</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.Estimated_Q_i.html">pywrdrb.parameters.Estimated_Q_i</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.ThermalReleaseRequirement.html">pywrdrb.parameters.ThermalReleaseRequirement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.ForecastedTemperatureBeforeThermalRelease.html">pywrdrb.parameters.ForecastedTemperatureBeforeThermalRelease</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.UpdateTemperatureAtLordville.html">pywrdrb.parameters.UpdateTemperatureAtLordville</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.TemperatureAfterThermalRelease.html">pywrdrb.parameters.TemperatureAfterThermalRelease</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.SalinityModel.html">pywrdrb.parameters.SalinityModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.UpdateSaltFrontLocation.html">pywrdrb.parameters.UpdateSaltFrontLocation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.SaltFrontLocation.html">pywrdrb.parameters.SaltFrontLocation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.FlowEnsemble.html">pywrdrb.parameters.FlowEnsemble</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.PredictionEnsemble.html">pywrdrb.parameters.PredictionEnsemble</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.parameters.LaggedReservoirRelease.html">pywrdrb.parameters.LaggedReservoirRelease</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api/pre.html">pywrdrb.pre</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.pre.ObservationalDataRetriever.html">pywrdrb.pre.ObservationalDataRetriever</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.pre.PredictedInflowPreprocessor.html">pywrdrb.pre.PredictedInflowPreprocessor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.pre.PredictedDiversionPreprocessor.html">pywrdrb.pre.PredictedDiversionPreprocessor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/pywrdrb.pre.ExtrapolatedDiversionPreprocessor.html">pywrdrb.pre.ExtrapolatedDiversionPreprocessor</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="examples.html">Tutorials</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="Tutorial%2001%20Installation.html">Tutorial 01 Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial%2002%20Run%20Simulation.html">Tutorial 02 Run Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial%2003%20Load%20Results.html">Tutorial 03 Load Results</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Tutorial 04 Using Customized Data To Run Model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../results_set_options.html">Results Set Table</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/Pywr-DRB/Pywr-DRB" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/Pywr-DRB/Pywr-DRB/issues/new?title=Issue%20on%20page%20%2Fexamples/Tutorial 04 Using Customized Data To Run Model.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/examples/Tutorial 04 Using Customized Data To Run Model.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Using Customized Data To Run PywrDRB</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#path-structure-in-pywrdrb">Path Structure in PywrDRB</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datasets-you-need-to-have-in-your-customize-my-folder">Datasets you need to have in your customize “my_folder”</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#more-about-the-global-pathnavigator-object-used-in-pywrdrb">More About the Global PathNavigator Object Used in PywrDRB</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="using-customized-data-to-run-pywrdrb">
+<h1>Using Customized Data To Run PywrDRB<a class="headerlink" href="#using-customized-data-to-run-pywrdrb" title="Link to this heading">#</a></h1>
+<p>PywrDRB provides multiple <code class="docutils literal notranslate"><span class="pre">inflow_type</span></code> and <code class="docutils literal notranslate"><span class="pre">diversion_type</span></code> options for users to select directly during the model-building process. However, sometimes users may want to use their own customized data to run the model.</p>
+<p>In this tutorial, we will walk you through:</p>
+<ol class="arabic simple">
+<li><p>The path structure adopted in PywrDRB.</p></li>
+<li><p>How to use your own flow and diversion data to run the model.</p></li>
+</ol>
+<section id="path-structure-in-pywrdrb">
+<h2>Path Structure in PywrDRB<a class="headerlink" href="#path-structure-in-pywrdrb" title="Link to this heading">#</a></h2>
+<p>In PywrDRB, we use a global instance of the <a class="reference external" href="https://github.com/philip928lin/PathNavigator">PathNavigator</a> object to manage the paths associated with different datasets used in PywrDRB.</p>
+<p>To get the customizable path configuration, you can do:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pywrdrb</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pprint</span><span class="w"> </span><span class="kn">import</span> <span class="n">pprint</span>
+
+<span class="n">pn_config</span> <span class="o">=</span> <span class="n">pywrdrb</span><span class="o">.</span><span class="n">get_pn_config</span><span class="p">()</span>
+<span class="n">pprint</span><span class="p">(</span><span class="n">pn_config</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;flows/nhmv10&#39;: &#39;C:\\Users\\CL\\Documents\\GitHub\\Pywr-DRB\\src\\pywrdrb\\data\\flows\\nhmv10&#39;,
+ &#39;flows/nhmv10_withObsScaled&#39;: &#39;C:\\Users\\CL\\Documents\\GitHub\\Pywr-DRB\\src\\pywrdrb\\data\\flows\\nhmv10_withObsScaled&#39;,
+ &#39;flows/nwmv21&#39;: &#39;C:\\Users\\CL\\Documents\\GitHub\\Pywr-DRB\\src\\pywrdrb\\data\\flows\\nwmv21&#39;,
+ &#39;flows/nwmv21_withObsScaled&#39;: &#39;C:\\Users\\CL\\Documents\\GitHub\\Pywr-DRB\\src\\pywrdrb\\data\\flows\\nwmv21_withObsScaled&#39;,
+ &#39;flows/pub_nhmv10_BC_withObsScaled&#39;: &#39;C:\\Users\\CL\\Documents\\GitHub\\Pywr-DRB\\src\\pywrdrb\\data\\flows\\pub_nhmv10_BC_withObsScaled&#39;,
+ &#39;flows/wrf1960s_calib_nlcd2016&#39;: &#39;C:\\Users\\CL\\Documents\\GitHub\\Pywr-DRB\\src\\pywrdrb\\data\\flows\\wrf1960s_calib_nlcd2016&#39;,
+ &#39;flows/wrf2050s_calib_nlcd2016&#39;: &#39;C:\\Users\\CL\\Documents\\GitHub\\Pywr-DRB\\src\\pywrdrb\\data\\flows\\wrf2050s_calib_nlcd2016&#39;,
+ &#39;flows/wrfaorc_calib_nlcd2016&#39;: &#39;C:\\Users\\CL\\Documents\\GitHub\\Pywr-DRB\\src\\pywrdrb\\data\\flows\\wrfaorc_calib_nlcd2016&#39;,
+ &#39;flows/wrfaorc_withObsScaled&#39;: &#39;C:\\Users\\CL\\Documents\\GitHub\\Pywr-DRB\\src\\pywrdrb\\data\\flows\\wrfaorc_withObsScaled&#39;}
+</pre></div>
+</div>
+</div>
+</div>
+<p>From here, you can see that we provide five inflow types: <code class="docutils literal notranslate"><span class="pre">nhmv10</span></code>, <code class="docutils literal notranslate"><span class="pre">nhmv10_withObsScaled</span></code>, <code class="docutils literal notranslate"><span class="pre">nwmv21</span></code>, <code class="docutils literal notranslate"><span class="pre">nwmv21_withObsScaled</span></code>, <code class="docutils literal notranslate"><span class="pre">wrf1960s_calib_nlcd2016</span></code>, <code class="docutils literal notranslate"><span class="pre">wrf2050s_calib_nlcd2016</span></code>, and <code class="docutils literal notranslate"><span class="pre">wrfaorc_calib_nlcd2016</span></code>, along with the corresponding five diversion types: <code class="docutils literal notranslate"><span class="pre">nhmv10</span></code>, <code class="docutils literal notranslate"><span class="pre">nhmv10_withObsScaled</span></code>, <code class="docutils literal notranslate"><span class="pre">nwmv21</span></code>, <code class="docutils literal notranslate"><span class="pre">nwmv21_withObsScaled</span></code>, <code class="docutils literal notranslate"><span class="pre">wrf1960s_calib_nlcd2016</span></code>, <code class="docutils literal notranslate"><span class="pre">wrf2050s_calib_nlcd2016</span></code>, and <code class="docutils literal notranslate"><span class="pre">wrfaorc_calib_nlcd2016</span></code>.</p>
+<p>The directories of the corresponding folders are stored in a dictionary, where the keys have the prefix <code class="docutils literal notranslate"><span class="pre">flows/</span></code> and <code class="docutils literal notranslate"><span class="pre">diversions/</span></code> to distinguish between flow data and diversion data.</p>
+<p>So, if you want to use your own data to run the simulation, you will need to add your folder directory to <code class="docutils literal notranslate"><span class="pre">pn_config</span></code> and load it into <code class="docutils literal notranslate"><span class="pre">pywrdrb</span></code> before building and running the model.</p>
+<p>Let me show you how. Assuming you want to use your own flow datasets (we will discuss the required datasets soon) stored in an external folder <code class="docutils literal notranslate"><span class="pre">C:/my_data</span></code>, you need to add <code class="docutils literal notranslate"><span class="pre">{&quot;flows/my_data&quot;:</span> <span class="pre">&quot;C:/my_data&quot;}</span></code> to <code class="docutils literal notranslate"><span class="pre">pn_config</span></code>. Then, you can use <code class="docutils literal notranslate"><span class="pre">my_data</span></code> as the flow type when using the <code class="docutils literal notranslate"><span class="pre">modelbuilder</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Before adding the custom config if we try to use the custom inflow type, it will raise an error</span>
+
+<span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">mb = pywrdrb.ModelBuilder(</span>
+<span class="sd">    inflow_type=&#39;my_data&#39;, </span>
+<span class="sd">    diversion_type=&#39;nhmv10&#39;,</span>
+<span class="sd">    start_date=&quot;1983-10-01&quot;,</span>
+<span class="sd">    end_date=&quot;1985-12-31&quot;</span>
+<span class="sd">    )</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1"># Make a model (you are expected to see error here if you uncomment the line below)</span>
+<span class="c1"># mb.make_model()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># For demonstration purpose, let me assume my_data folder has the same directory of </span>
+<span class="c1"># nhmv10 flow type (you will use your actual directory to the folder)</span>
+<span class="n">pn_config</span> <span class="o">=</span> <span class="n">pywrdrb</span><span class="o">.</span><span class="n">get_pn_config</span><span class="p">()</span>
+<span class="n">pn_config</span><span class="p">[</span><span class="s2">&quot;flows/my_data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pn_config</span><span class="p">[</span><span class="s2">&quot;flows/nhmv10&quot;</span><span class="p">]</span>
+
+<span class="n">pywrdrb</span><span class="o">.</span><span class="n">load_pn_config</span><span class="p">(</span><span class="n">pn_config</span><span class="p">)</span>
+
+<span class="c1"># Now we can use the custom inflow type</span>
+<span class="n">mb</span> <span class="o">=</span> <span class="n">pywrdrb</span><span class="o">.</span><span class="n">ModelBuilder</span><span class="p">(</span>
+    <span class="n">inflow_type</span><span class="o">=</span><span class="s1">&#39;my_data&#39;</span><span class="p">,</span> 
+    <span class="n">diversion_type</span><span class="o">=</span><span class="s1">&#39;nhmv10&#39;</span><span class="p">,</span>
+    <span class="n">start_date</span><span class="o">=</span><span class="s2">&quot;1983-10-01&quot;</span><span class="p">,</span>
+    <span class="n">end_date</span><span class="o">=</span><span class="s2">&quot;1985-12-31&quot;</span>
+    <span class="p">)</span>
+
+<span class="c1"># Make a model (you are expected to see error here)</span>
+<span class="n">mb</span><span class="o">.</span><span class="n">make_model</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;You secussessfully created a model with custom inflow type&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>You secussessfully created a model with custom inflow type
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="datasets-you-need-to-have-in-your-customize-my-folder">
+<h2>Datasets you need to have in your customize “my_folder”<a class="headerlink" href="#datasets-you-need-to-have-in-your-customize-my-folder" title="Link to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;For flow type folder, you need to have the following files: </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">pn</span> <span class="o">=</span> <span class="n">pywrdrb</span><span class="o">.</span><span class="n">get_pn_object</span><span class="p">()</span>
+<span class="n">files</span> <span class="o">=</span> <span class="n">pn</span><span class="o">.</span><span class="n">flows</span><span class="o">.</span><span class="n">nhmv10</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File needed: </span><span class="si">{</span><span class="n">files</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>  
+<span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">flows</span><span class="o">.</span><span class="n">nhmv10</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">file</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File: </span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="mi">5</span><span class="p">,</span> <span class="p">:</span><span class="mi">5</span><span class="p">])</span> <span class="c1"># print first 5 rows and 5 columns</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="c1">#df.head()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>For flow type folder, you need to have the following files: 
+
+File needed: [&#39;catchment_inflow_mgd.csv&#39;, &#39;gage_flow_mgd.csv&#39;, &#39;predicted_inflows_mgd.csv&#39;]
+</pre></div>
+</div>
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">AttributeError</span><span class="g g-Whitespace">                            </span>Traceback (most recent call last)
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span> <span class="n">line</span> <span class="mi">7</span>
+<span class="g g-Whitespace">      </span><span class="mi">5</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File needed: </span><span class="si">{</span><span class="n">files</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>  
+<span class="g g-Whitespace">      </span><span class="mi">6</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+<span class="ne">----&gt; </span><span class="mi">7</span>     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">flows</span><span class="o">.</span><span class="n">nhmv10</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">file</span><span class="p">))</span>
+<span class="g g-Whitespace">      </span><span class="mi">8</span>     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File: </span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="g g-Whitespace">      </span><span class="mi">9</span>     <span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="mi">5</span><span class="p">,</span> <span class="p">:</span><span class="mi">5</span><span class="p">])</span> <span class="c1"># print first 5 rows and 5 columns</span>
+
+<span class="nn">File ~\Documents\GitHub\PathNavigator\src\pathnavigator\folder.py:129,</span> in <span class="ni">Folder.__getattr__</span><span class="nt">(self, item)</span>
+<span class="g g-Whitespace">    </span><span class="mi">127</span>     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<span class="g g-Whitespace">    </span><span class="mi">128</span>         <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+<span class="ne">--&gt; </span><span class="mi">129</span> <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">item</span><span class="si">}</span><span class="s2">&#39; not found in the attributes of &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; folder. &quot;</span>
+<span class="g g-Whitespace">    </span><span class="mi">130</span>         <span class="sa">f</span><span class="s2">&quot;Please try to access &#39;</span><span class="si">{</span><span class="n">item</span><span class="si">}</span><span class="s2">&#39; through the `get()` method if &#39;</span><span class="si">{</span><span class="n">item</span><span class="si">}</span><span class="s2">&#39; exists in &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; folder in the file system.&quot;</span><span class="p">)</span>
+
+<span class="ne">AttributeError</span>: &#39;data&#39; not found in the attributes of &#39;data&#39; folder. Please try to access &#39;data&#39; through the `get()` method if &#39;data&#39; exists in &#39;data&#39; folder in the file system.
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;For diversions type folder, you need to have the following files: </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">pn</span> <span class="o">=</span> <span class="n">pywrdrb</span><span class="o">.</span><span class="n">get_pn_object</span><span class="p">()</span>
+<span class="n">files</span> <span class="o">=</span> <span class="n">pn</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">diversions</span><span class="o">.</span><span class="n">nhmv10</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File needed: </span><span class="si">{</span><span class="n">files</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>  
+<span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">diversions</span><span class="o">.</span><span class="n">nhmv10</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">file</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File: </span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="mi">5</span><span class="p">,</span> <span class="p">:</span><span class="mi">5</span><span class="p">])</span> <span class="c1"># print first 5 rows and 5 columns</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="c1">#df.head()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>For diversions type folder, you need to have the following files: 
+
+File needed: [&#39;diversion_nj_extrapolated_mgd.csv&#39;, &#39;diversion_nyc_extrapolated_mgd.csv&#39;, &#39;predicted_diversions_mgd.csv&#39;]
+
+File: diversion_nj_extrapolated_mgd.csv
+     datetime  D_R_Canal
+0  1945-01-01  85.387245
+1  1945-01-02  80.717630
+2  1945-01-03  60.037906
+3  1945-01-04  48.030325
+4  1945-01-05  56.035379
+
+
+File: diversion_nyc_extrapolated_mgd.csv
+     datetime  cannonsville  pepacton  neversink   aggregate
+0  1945-01-01           NaN       NaN        NaN  501.333527
+1  1945-01-02           NaN       NaN        NaN  501.333527
+2  1945-01-03           NaN       NaN        NaN  501.333527
+3  1945-01-04           NaN       NaN        NaN  805.273987
+4  1945-01-05           NaN       NaN        NaN  837.798981
+
+
+File: predicted_diversions_mgd.csv
+    datetime  demand_nj_lag1_regression_disagg  \
+0  10/1/1983                         91.425844   
+1  10/2/1983                         88.815772   
+2  10/3/1983                         88.815772   
+3  10/4/1983                         86.205637   
+4  10/5/1983                         86.205637   
+
+   demand_nj_lag1_perfect_foresight  demand_nj_lag1_same_day  \
+0                         89.140852                91.762642   
+1                         89.140852                89.140852   
+2                         86.519062                89.140852   
+3                         86.519062                86.519062   
+4                         85.863615                86.519062   
+
+   demand_nj_lag1_regression_agg  
+0                      91.425844  
+1                      88.815772  
+2                      88.815772  
+3                      86.205637  
+4                      86.205637  
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="more-about-the-global-pathnavigator-object-used-in-pywrdrb">
+<h2>More About the Global PathNavigator Object Used in PywrDRB<a class="headerlink" href="#more-about-the-global-pathnavigator-object-used-in-pywrdrb" title="Link to this heading">#</a></h2>
+<p>We can get the global <code class="docutils literal notranslate"><span class="pre">PathNavigator</span></code> object used in PywrDRB by running: <code class="docutils literal notranslate"><span class="pre">pn</span> <span class="pre">=</span> <span class="pre">pywrdrb.get_pn_object()</span></code></p>
+<p>This <code class="docutils literal notranslate"><span class="pre">pn</span></code> object contains all the directory and path information, allowing you to locate specific files used in PywrDRB within the file explorer.</p>
+<p>More <code class="docutils literal notranslate"><span class="pre">pn</span></code> operations can be found <a class="reference external" href="https://github.com/philip928lin/PathNavigator">here</a>. However, users should ONLY use pn to explore file and folder locations. It is not designed for modifications unless you fully understand what you are doing.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pn</span> <span class="o">=</span> <span class="n">pywrdrb</span><span class="o">.</span><span class="n">get_pn_object</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The root directory of the pywrdrb: </span><span class="si">{</span><span class="n">pn</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The root directory of the pywrdrb: C:\Users\CL\Documents\GitHub\Pywr-DRB\src\pywrdrb\data
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pn</span><span class="o">.</span><span class="n">scan</span><span class="p">(</span><span class="n">max_depth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># scan the directory structure up to 2 levels deep</span>
+<span class="n">pn</span><span class="o">.</span><span class="n">tree</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>data
+├── catchment_withdrawals
+│   └── sw_avg_wateruse_pywrdrb_catchments_mgd.csv
+├── diversions
+│   ├── diversion_nj_extrapolated_mgd.csv
+│   ├── diversion_nyc_extrapolated_mgd.csv
+│   └── predicted_diversions_mgd.csv
+├── flows
+│   ├── nhmv10
+│   ├── nhmv10_withObsScaled
+│   ├── nwmv21
+│   ├── nwmv21_withObsScaled
+│   ├── pub_nhmv10_BC_withObsScaled
+│   ├── wrf1960s_calib_nlcd2016
+│   ├── wrf2050s_calib_nlcd2016
+│   ├── wrfaorc_calib_nlcd2016
+│   ├── wrfaorc_withObsScaled
+│   ├── _hydro_model_flow_output
+│   └── _scaled_inflows
+├── observations
+│   ├── _raw
+│   ├── catchment_inflow_mgd.csv
+│   ├── gage_flow_mgd.csv
+│   └── reservoir_storage_mg.csv
+├── operational_constants
+│   ├── constants.csv
+│   ├── ffmp_reservoir_operation_daily_profiles.csv
+│   ├── ffmp_reservoir_operation_monthly_profiles.csv
+│   ├── ffmp_reservoir_operation_weekly_profiles.csv
+│   └── istarf_conus.csv
+└── spatial
+    └── to_be_determined.txt
+
+18 directories, 13 files
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./examples"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="Tutorial%2003%20Load%20Results.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Tutorial 02 – Loading and Interpreting Output</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../results_set_options.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Results Set Table</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#path-structure-in-pywrdrb">Path Structure in PywrDRB</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datasets-you-need-to-have-in-your-customize-my-folder">Datasets you need to have in your customize “my_folder”</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#more-about-the-global-pathnavigator-object-used-in-pywrdrb">More About the Global PathNavigator Object Used in PywrDRB</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The Reed Group at Cornell CEE
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
