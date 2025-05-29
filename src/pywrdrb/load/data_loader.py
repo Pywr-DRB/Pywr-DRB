@@ -55,39 +55,9 @@ class Data(AbstractDataLoader):
     
     This class provides methods to load observation data, pywrdrb output data,
     and functionality to export/import data to/from HDF5 files.
-    
-    Methods
-    -------
-    load_observations(**kwargs)
-        Load observational data based on specified results_sets.
-    load_output(ouput_filenames, **kwargs)
-        Load data from pywrdrb output files based on specified results_sets.
-    load_hydrologic_model_flow(flowtypes, **kwargs)
-        Load data from the available hydrologic model flow files.
-    export(file)
-        Export all data stored in this object to an HDF5 file.
-    load_from_export(file)
-        Load data from an HDF5 file into the object.
-    
-    Attributes
-    ----------
-    pn : object
-        A pathnavigator object for handling file paths.
-    all_results_sets : list
-        Combined list of all valid result sets across all data types.
-    default_kwargs : dict
-        Default keyword arguments used by the loader.
-    results_sets : list
-        List of result sets to load.
-    output_filenames : list
-        List of pywrdrb output filenames to load.
-    units : str
-        Units for the results.
-    print_status : bool
-        Whether to print status updates.
     """
     
-    def __init__(self, pn=pn, **kwargs):
+    def __init__(self, **kwargs):
         """
         Initialize the Data loader with default and provided keyword arguments.
 
@@ -316,7 +286,7 @@ class Data(AbstractDataLoader):
         Parameters
         ----------
         flowtypes : list
-            List of flowtypes to load data for.
+            List of flowtypes to load data for. 
         **kwargs : dict, optional
             Keyword arguments to override instance attributes.
             See class initialization for available parameters.
