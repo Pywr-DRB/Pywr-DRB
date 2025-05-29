@@ -26,7 +26,7 @@ A graphical representation of the Pywr-DRB model is shown below, where every oct
 
 ## Training Resources
 
-The following Jupyter Notebooks are designed to serve as training material for the `pywrdrb` package. In the future, we will share more notebooks to highlight advanced workflows or model features.
+The following Jupyter Notebooks are designed to serve as training material for the `pywrdrb` package.
 
 ##### Basic Tutorials
 - [Tutorial 01 Installation](../notebooks/Tutorial%2001%20Installation.ipynb)
@@ -38,6 +38,8 @@ For more general setup and background, see the
 
 ##### Advanced Tutorials
 [Tutorial 04 Using Customized Data To Run Model](../notebooks/Tutorial%2004%20Using%20Customized%20Data%20To%20Run%20Model.ipynb)
+
+ In the future, we will share more notebooks to highlight advanced workflows or model features.
 
 ## Publications
 
