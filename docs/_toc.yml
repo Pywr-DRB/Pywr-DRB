@@ -27,6 +27,8 @@ parts:
           file: examples/Tutorial 02 Run Simulation.ipynb
         - title: Tutorial 03 Load Results
           file: examples/Tutorial 03 Load Results.ipynb
+        - title: Tutorial 04 Using Customized Data To Run Model
+          file: examples/Tutorial 04 Using Customized Data To Run Model.ipynb
           
     # ============== Results sets options ====
     - file: results_set_options.md
