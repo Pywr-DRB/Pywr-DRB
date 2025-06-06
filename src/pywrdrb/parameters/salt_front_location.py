@@ -122,16 +122,14 @@ class SalinityModel(Parameter):
         # Advance the LSTM models to the start date 
         # For debugging
         def update_until(lstm, length):
+            # If the length is 0, we do not need to update the LSTM model
+            if length == 0:
+                return None
             # Get unscaled lstm input data
-            unscaled_data = lstm.get_unscaled_values(lead_time=length)
-            for _ in tqdm(range(length), disable=disable_tqdm):
-                
-                for vi, var in enumerate(unscaled_data):
-                    if var in lstm.x_vars:
-                        lstm.set_value(var, unscaled_data.loc[int(lstm.t), var])
-                    
-                lstm.update()
-        
+            unscaled_data = lstm.get_unscaled_values(lead_time=length) 
+            for var in lstm.x_vars:
+                lstm.set_value(var, unscaled_data[var])
+            lstm.update_until(length)
         update_until(lstm=lstm, length=length)
 
         self.current_date = self.start_date # safenet to ensure the LSTM is only update once per timestep
