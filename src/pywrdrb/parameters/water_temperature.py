@@ -160,13 +160,15 @@ class TemperatureModel(Parameter):
         
         # Advance the LSTM models to the start date 
         def update_until(lstm, length):
+            # If the length is 0, we do not need to update the LSTM model
+            if length == 0:
+                return None
+            
             # Get unscaled lstm input data
-            unscaled_data = lstm.get_unscaled_values(lead_time=length)
-            for _ in tqdm(range(length), disable=disable_tqdm):
-                for vi, var in enumerate(unscaled_data):
-                    if var in lstm.x_vars:
-                        lstm.set_value(var, unscaled_data.loc[int(lstm.t), var])
-                lstm.update()
+            unscaled_data = lstm.get_unscaled_values(lead_time=length) 
+            for var in lstm.x_vars:
+                lstm.set_value(var, unscaled_data[var])
+            lstm.update_until(length)
                 
         if disable_tqdm is False: # For debugging
             print(f"Advancing TempLSTM models to the {self.start_date} ...")
