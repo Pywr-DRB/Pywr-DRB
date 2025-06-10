@@ -8,6 +8,7 @@ import pytest
 import pywrdrb
 from pywrdrb.utils.dates import model_date_ranges
 from pywrdrb.path_manager import get_pn_object
+output_folder = "./output_data"
 
 pn = get_pn_object()
 flowtype_opts = [i for i in pn.flows.list(type="folder") if i[0] != "_"]
@@ -20,7 +21,7 @@ def test_sample_run_all_datasets():
         
         
         model_filename = f"{flowtype}_model.json"
-        output_filename = f"{flowtype}_output.hdf5"
+        output_filename = f"{output_folder}/{flowtype}.hdf5"
         
         try:
             start, end = model_date_ranges[flowtype]
@@ -32,7 +33,7 @@ def test_sample_run_all_datasets():
             mb = pywrdrb.ModelBuilder(
                 inflow_type=flowtype,
                 start_date=start,
-                end_date=start
+                end_date=end
             )
             mb.make_model()
             mb.write_model(model_filename)

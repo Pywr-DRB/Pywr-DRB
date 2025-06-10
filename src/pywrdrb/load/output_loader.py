@@ -455,7 +455,7 @@ class Output(AbstractDataLoader):
                 for s in scenarios:
                     # shift all columns except "thermal_release_requirement" for temp
                     for col in results_dict[s].columns:
-                        if col != "thermal_release_requirement":
+                        if col == "temperature_after_thermal_release_mu" or col == "temperature_after_thermal_release_sd":
                             results_dict[s][col] = results_dict[s][col].shift(-1)
                             
             if results_set in ["salinity"]:
