@@ -8,7 +8,7 @@ import pytest
 import pywrdrb
 from pywrdrb.utils.dates import model_date_ranges
 from pywrdrb.path_manager import get_pn_object
-output_folder = "./output_data"
+output_folder = "."
 
 pn = get_pn_object()
 flowtype_opts = [i for i in pn.flows.list(type="folder") if i[0] != "_"]
