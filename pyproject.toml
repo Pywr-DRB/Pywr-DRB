@@ -20,26 +20,33 @@ dependencies = [
     "pandas",
     "scipy",
     "statsmodels",
+    "scikit-learn"
     "matplotlib",
     "PathNavigator",
     "h5py",
-    "pytest",
+    
     "mpi4py",
-    "hatch",
+    
     "hydroeval",
-    "jupyter-book",
-    "ghp-import",
-    "folium",
+    
+    
+    
     "dataretrieval",
     "torch",
     "bmipy",
     "joblib",
-    "tqdm"
+    "tqdm",
+    
     ]
 
 [project.optional-dependencies]
 dev = [
     "ipython",
+    "pytest",
+    "hatch",
+    "jupyter-book",
+    "ghp-import",
+    "folium",
 ]
 
 lint = [
