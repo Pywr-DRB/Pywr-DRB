@@ -17,6 +17,7 @@
       ~TemperatureModel.after
       ~TemperatureModel.before
       ~TemperatureModel.finish
+      ~TemperatureModel.forecast
       ~TemperatureModel.get_all_values
       ~TemperatureModel.get_constant_value
       ~TemperatureModel.get_double_lower_bounds
