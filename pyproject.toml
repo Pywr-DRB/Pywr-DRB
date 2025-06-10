@@ -24,19 +24,13 @@ dependencies = [
     "matplotlib",
     "PathNavigator",
     "h5py",
-
     "mpi4py",
-    
     "hydroeval",
-    
-    
-    
     "dataretrieval",
     "torch",
     "bmipy",
     "joblib",
     "tqdm",
-    
     ]
 
 [project.optional-dependencies]
