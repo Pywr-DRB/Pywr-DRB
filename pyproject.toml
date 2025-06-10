@@ -20,6 +20,7 @@ dependencies = [
     "pandas",
     "scipy",
     "statsmodels",
+    "scikit-learn",
     "matplotlib",
     "PathNavigator",
     "h5py",
