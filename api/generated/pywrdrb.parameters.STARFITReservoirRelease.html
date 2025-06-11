@@ -232,6 +232,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../examples/Tutorial%2004%20Using%20Customized%20Data%20To%20Run%20Model.html">Tutorial 04 Using Customized Data To Run Model</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../basin_resources/basin_resources.html">Basin Resources</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../basin_resources/reading_list.html">Reading List</a></li>
+</ul>
+</details></li>
 <li class="toctree-l1"><a class="reference internal" href="../../results_set_options.html">Results Set Table</a></li>
 </ul>
 
@@ -697,10 +701,10 @@ scenario samples for sensitivity analysis.</p>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pywrdrb.parameters.STARFITReservoirRelease.get_NORhi" title="pywrdrb.parameters.STARFITReservoirRelease.get_NORhi"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_NORhi</span></code></a>(timestep)</p></td>
-<td><p>Compute upper bound of the Normal Operating Range (NOR) using harmonic seasonal terms.</p></td>
+<td><p>Compute upper bound of the Normal Operating Range (NOR) using pre-computed lookup.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pywrdrb.parameters.STARFITReservoirRelease.get_NORlo" title="pywrdrb.parameters.STARFITReservoirRelease.get_NORlo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_NORlo</span></code></a>(timestep)</p></td>
-<td><p>Compute lower bound of the Normal Operating Range (NOR) using harmonic seasonal terms.</p></td>
+<td><p>Compute lower bound of the Normal Operating Range (NOR) using pre-computed lookup.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_all_values</span></code>(self)</p></td>
 <td><p></p></td>
@@ -718,7 +722,7 @@ scenario samples for sensitivity analysis.</p>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pywrdrb.parameters.STARFITReservoirRelease.get_harmonic_release" title="pywrdrb.parameters.STARFITReservoirRelease.get_harmonic_release"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_harmonic_release</span></code></a>(timestep)</p></td>
-<td><p>Compute seasonal base release using harmonic Fourier terms.</p></td>
+<td><p>Compute seasonal base release using pre-computed lookup table.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_integer_lower_bounds</span></code>(self)</p></td>
 <td><p></p></td>
@@ -736,7 +740,7 @@ scenario samples for sensitivity analysis.</p>
 <td><p>Set up the parameter.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pywrdrb.parameters.STARFITReservoirRelease.load_default_starfit_params" title="pywrdrb.parameters.STARFITReservoirRelease.load_default_starfit_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_default_starfit_params</span></code></a>()</p></td>
-<td><p>Load default STARFIT parameters from <cite>istarf_conus.csv</cite>.</p></td>
+<td><p>Load default STARFIT parameters from <cite>istarf_conus.csv</cite> with caching.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pywrdrb.parameters.STARFITReservoirRelease.load_starfit_sensitivity_samples" title="pywrdrb.parameters.STARFITReservoirRelease.load_starfit_sensitivity_samples"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_starfit_sensitivity_samples</span></code></a>(...)</p></td>
 <td><p>Load STARFIT sensitivity samples from a scenario-specific group in an HDF5 file.</p></td>
@@ -754,7 +758,7 @@ scenario samples for sensitivity analysis.</p>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pywrdrb.parameters.STARFITReservoirRelease.setup" title="pywrdrb.parameters.STARFITReservoirRelease.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code></a>()</p></td>
-<td><p>Initialize runtime arrays for simulation.</p></td>
+<td><p>Initialize runtime arrays for simulation and pre-compute seasonal lookup tables.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pywrdrb.parameters.STARFITReservoirRelease.standardize_inflow" title="pywrdrb.parameters.STARFITReservoirRelease.standardize_inflow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">standardize_inflow</span></code></a>(inflow)</p></td>
 <td><p>Normalize inflow using long-term mean flow for the reservoir.</p></td>
