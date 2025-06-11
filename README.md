@@ -113,7 +113,7 @@ plt.show()
 
 
 # Documentation
-Tutorials and APIs can be found [![Docs](https://github.com/Pywr-DRB/Pywr-DRB/actions/workflows/deploy.yml/badge.svg)](https://pywr-drb.github.io/Pywr-DRB/intro.html).
+[Tutorials](https://pywr-drb.github.io/Pywr-DRB/examples/examples.html) and [API references](https://pywr-drb.github.io/Pywr-DRB/api/api.html) can be found [![Docs](https://github.com/Pywr-DRB/Pywr-DRB/actions/workflows/deploy.yml/badge.svg)](https://pywr-drb.github.io/Pywr-DRB/intro.html) (click).
 
 # DOIs & Citations
 
