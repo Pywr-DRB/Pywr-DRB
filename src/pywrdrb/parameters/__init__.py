@@ -19,6 +19,7 @@ from pywrdrb.parameters.banks import IERQRelease_step1
 # Coupled pywrdrb parameters
 from pywrdrb.parameters.water_temperature import *
 from pywrdrb.parameters.salt_front_location import *
+
 # Old code to automatically register all parameters in the package.
 '''
 import os

@@ -28,6 +28,7 @@ Change Log:
 TJA, 2025-05-07, Minor fixes + docstrings
 """
 import h5py
+import numpy as np
 import pandas as pd
 from pywrdrb.pre.predict_timeseries import PredictedTimeseriesPreprocessor
 from pywrdrb.utils.hdf5 import extract_realization_from_hdf5

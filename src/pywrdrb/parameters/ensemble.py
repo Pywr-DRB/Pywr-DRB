@@ -80,7 +80,7 @@ class FlowEnsemble(Parameter):
 
         # ensemble input file
         input_dir = pn.sc.get(f"flows/{inflow_type}")
-        filename = os.path.join(input_dir_, f"catchment_inflow_mgd.hdf5")
+        filename = os.path.join(input_dir, f"catchment_inflow_mgd.hdf5")
 
         # Load from hfd5 specific realizations
         with h5py.File(filename, "r") as file:
