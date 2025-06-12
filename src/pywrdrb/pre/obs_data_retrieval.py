@@ -355,7 +355,7 @@ class ObservationalDataRetriever(DataPreprocessor):
                 # check that all gauges are in the inflow dataframe
                 assert all(
                     g in self.flows.columns for g in gauges
-                    ), f"Missing inflow gauges {g for g in gauges if g not in self.flow.columns} for node {node}"
+                    ), f"Missing inflow gauges {[g for g in gauges if g not in self.flow.columns]} for node {node}"
                 self.gage_flows[node] = self.flows[gauges].sum(axis=1)                
         
         ### Processed and transformed data
@@ -375,7 +375,7 @@ class ObservationalDataRetriever(DataPreprocessor):
                 # check that all gauges are in the inflow dataframe
                 assert all(
                     g in self.flows.columns for g in gauges
-                    ), f"Missing inflow gauges {g for g in gauges if g not in self.flows.columns} for node {node}"
+                    ), f"Missing inflow gauges {[g for g in gauges if g not in self.flows.columns]} for node {node}"
                 self.catchment_inflows[node] = self.flows[gauges].sum(axis=1)
         
         ## Storage
