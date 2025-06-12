@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Tutorial 01 – Running a Basic Simulation &#8212; Pywr-DRB Integrated Water Resource Management Model</title>
+    <title>Tutorial 02 – Running a Basic Simulation &#8212; Pywr-DRB Integrated Water Resource Management Model</title>
   
   
   
@@ -60,8 +60,8 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'examples/Tutorial 02 Run Simulation';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Tutorial 02 – Loading and Interpreting Output" href="Tutorial%2003%20Load%20Results.html" />
-    <link rel="prev" title="Tutorial 1: Installation Guide" href="Tutorial%2001%20Installation.html" />
+    <link rel="next" title="Tutorial 03 – Loading and Interpreting Output" href="Tutorial%2003%20Load%20Results.html" />
+    <link rel="prev" title="Tutorial 01 - Installation Guide" href="Tutorial%2001%20Installation.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -233,6 +233,7 @@
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../basin_resources/basin_resources.html">Basin Resources</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../basin_resources/drb_overview.html">DRB Overview</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../basin_resources/reading_list.html">Reading List</a></li>
 </ul>
 </details></li>
@@ -422,7 +423,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Tutorial 01 – Running a Basic Simulation</h1>
+    <h1>Tutorial 02 – Running a Basic Simulation</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -432,9 +433,9 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-overview">Model Overview</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-initialize-model-with-modelbuilder">Step 1 – Initialize Model with <code class="docutils literal notranslate"><span class="pre">ModelBuilder</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#built-in-inflow-type-options">Built-in Inflow Type Options</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#allowable-simulation-periods">Allowable Simulation Periods</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#supported-inflow-datasets-and-simulation-periods">Supported Inflow Datasets and Simulation Periods</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-load-the-model">Step 2 – Load the Model</a></li>
@@ -455,41 +456,110 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="tutorial-01-running-a-basic-simulation">
-<h1>Tutorial 01 – Running a Basic Simulation<a class="headerlink" href="#tutorial-01-running-a-basic-simulation" title="Link to this heading">#</a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="tutorial-02-running-a-basic-simulation">
+<h1>Tutorial 02 – Running a Basic Simulation<a class="headerlink" href="#tutorial-02-running-a-basic-simulation" title="Link to this heading">#</a></h1>
 <p>This tutorial walks through running a basic Pywr-DRB simulation. You’ll create a model configuration file in JSON format using <code class="docutils literal notranslate"><span class="pre">ModelBuilder</span></code> and run a simulation using <code class="docutils literal notranslate"><span class="pre">pywrdrb</span></code> that saves the output to a standardized HDF5 file.</p>
 <p>This is a great place to start if you’re new to the Pywr-DRB model.</p>
+<section id="model-overview">
+<h2>Model Overview<a class="headerlink" href="#model-overview" title="Link to this heading">#</a></h2>
+<p>Pywr-DRB is a river basin simulation model built on top of <a class="reference external" href="https://pywr.github.io/pywr/">Pywr</a>, a flexible node-link water resource modeling framework. In Pywr, the system is represented as a network of nodes (e.g., reservoirs, rivers, demands) and links (e.g., flow pathways), where each node has operational rules and constraints.</p>
+<p>The Pywr-DRB implementation represents the full Delaware River Basin, including:</p>
+<ul class="simple">
+<li><p>18 major reservoirs (e.g., Cannonsville, Pepacton, Blue Marsh)</p></li>
+<li><p>Streamflow routing between sub-basins</p></li>
+<li><p>Urban, agricultural, and ecological demands</p></li>
+<li><p>Operating rules based on institutional agreements and historical patterns</p></li>
+</ul>
+<p>Simulations are conducted at a daily time step, using input inflow datasets to drive flow dynamics through the network. In this tutorial, you’ll create a model configuration file that encodes this structure, along with the simulation period and hydrologic forcing data.</p>
+<p>The remaining tutorials will walk through running, analyzing, and customizing these simulations.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="c1"># Change to your preferred directory if needed</span>
+<span class="c1"># os.chdir(my_directory)</span>
+<span class="n">cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Current working directory: </span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
 <section id="step-1-initialize-model-with-modelbuilder">
 <h2>Step 1 – Initialize Model with <code class="docutils literal notranslate"><span class="pre">ModelBuilder</span></code><a class="headerlink" href="#step-1-initialize-model-with-modelbuilder" title="Link to this heading">#</a></h2>
-<p>We start by creating a model configuration (<code class="docutils literal notranslate"><span class="pre">model.json</span></code>) using <code class="docutils literal notranslate"><span class="pre">pywrdrb.ModelBuilder</span></code>. The configuration file of <code class="docutils literal notranslate"><span class="pre">model.json</span></code> defines the node-link structure and meta information of the model: start and end dates, inflow dataset, node relationships, and operational constraints.</p>
-<p><code class="docutils literal notranslate"><span class="pre">pywrdrb.ModelBuilder</span></code> has three necessary arguments, <code class="docutils literal notranslate"><span class="pre">inflow_type</span></code>, <code class="docutils literal notranslate"><span class="pre">start_date</span></code>, and <code class="docutils literal notranslate"><span class="pre">end_date</span></code>. Optional <code class="docutils literal notranslate"><span class="pre">options</span></code> dictionary can be provided for advanced usage detailed in advanced tutorials and <code class="docutils literal notranslate"><span class="pre">pywrdrb</span></code> API documentation.</p>
-<section id="built-in-inflow-type-options">
-<h3>Built-in Inflow Type Options<a class="headerlink" href="#built-in-inflow-type-options" title="Link to this heading">#</a></h3>
-<p>Pywr-DRB supports a range of inflow datasets that represent historic, modeled, and hybrid hydrologic conditions:</p>
+<p>We begin by creating a model configuration file (<code class="docutils literal notranslate"><span class="pre">model.json</span></code>) using <code class="docutils literal notranslate"><span class="pre">pywrdrb.ModelBuilder</span></code>. This configuration defines the model’s node-link structure and key metadata, including simulation dates, the inflow dataset, node relationships, and operational constraints.</p>
+<p><code class="docutils literal notranslate"><span class="pre">ModelBuilder</span></code> requires three arguments:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">'nhmv10'</span></code> → National Hydrologic Model v1.0 (raw)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">'nhmv10_withObsScaled'</span></code> → NHM v1.0 scaled with observed flows</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">'nwmv21'</span></code> → National Water Model v2.1 (raw)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">'nwmv21_withObsScaled'</span></code> → NWM v2.1 scaled with observed flows</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">'pub_nhmv10_BC_withObsScaled'</span></code> → Median of public reconstruction of NHM v1.0 with bias correction and observed scaling</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">'wrf1960s_calib_nlcd2016'</span></code> → WRF downscaled inflows calibrated to 1960s climate with NLCD 2016 land cover</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">'wrf2050s_calib_nlcd2016'</span></code> → WRF downscaled inflows calibrated to 2050s climate with NLCD 2016 land cover</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">'wrfaorc_calib_nlcd2016'</span></code> → WRF historical (AORC forcing) calibrated inflows with NLCD 2016</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">'wrfaorc_withObsScaled'</span></code> → WRF historical AORC inflows scaled with observed flows</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">inflow_type</span></code>: the selected inflow dataset</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">start_date</span></code>: simulation start date in <code class="docutils literal notranslate"><span class="pre">&quot;YYYY-MM-DD&quot;</span></code> format</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">end_date</span></code>: simulation end date in <code class="docutils literal notranslate"><span class="pre">&quot;YYYY-MM-DD&quot;</span></code> format</p></li>
 </ul>
-<p>These inflow types allow testing a wide variety of hydrologic scenarios — from historic reconstructions to future climate-driven projections.</p>
-</section>
-<section id="allowable-simulation-periods">
-<h3>Allowable Simulation Periods<a class="headerlink" href="#allowable-simulation-periods" title="Link to this heading">#</a></h3>
-<p>Available periods depend on the dataset:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">'nhmv10'</span></code>, <code class="docutils literal notranslate"><span class="pre">'nhmv10_withObsScaled'</span></code>: ~1983–2016</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">'nwmv21'</span></code>, <code class="docutils literal notranslate"><span class="pre">'nwmv21_withObsScaled'</span></code>: ~1983–2020</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">'pub_nhmv10_BC_withObsScaled'</span></code>: ~1945–2023</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">'wrf1960s'</span></code>, <code class="docutils literal notranslate"><span class="pre">'wrf2050s'</span></code>, <code class="docutils literal notranslate"><span class="pre">'wrfaorc'</span></code>: modeled periods specific to scenario (check dataset metadata)</p></li>
-</ul>
-<p>⚠ Always check the dataset metadata or file coverage before setting <code class="docutils literal notranslate"><span class="pre">start_date</span></code> and <code class="docutils literal notranslate"><span class="pre">end_date</span></code> in your simulation.</p>
-<p>We will use the <code class="docutils literal notranslate"><span class="pre">'nhmv10_withObsScaled'</span></code> inflow dataset as an example.</p>
+<p>An optional <code class="docutils literal notranslate"><span class="pre">options</span></code> dictionary is available for advanced usage (see advanced tutorials or the API documentation for details).</p>
+<hr class="docutils" />
+<section id="supported-inflow-datasets-and-simulation-periods">
+<h3>Supported Inflow Datasets and Simulation Periods<a class="headerlink" href="#supported-inflow-datasets-and-simulation-periods" title="Link to this heading">#</a></h3>
+<p>Pywr-DRB supports a range of inflow datasets representing historic, modeled, and scenario-based hydrologic conditions:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Inflow Dataset</p></th>
+<th class="head"><p>Start Date</p></th>
+<th class="head"><p>End Date</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nhmv10</span></code></p></td>
+<td><p>1983-10-01</p></td>
+<td><p>2016-12-31</p></td>
+<td><p>National Hydrologic Model v1.0 (raw)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nhmv10_withObsScaled</span></code></p></td>
+<td><p>1983-10-01</p></td>
+<td><p>2016-12-31</p></td>
+<td><p>NHM v1.0 scaled with observed flows</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nwmv21</span></code></p></td>
+<td><p>1983-10-01</p></td>
+<td><p>2016-12-31</p></td>
+<td><p>National Water Model v2.1 (raw)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nwmv21_withObsScaled</span></code></p></td>
+<td><p>1983-10-01</p></td>
+<td><p>2016-12-31</p></td>
+<td><p>NWM v2.1 scaled with observed flows</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pub_nhmv10_BC_withObsScaled</span></code></p></td>
+<td><p>1945-01-01</p></td>
+<td><p>2023-12-31</p></td>
+<td><p>Median Reconstruction with bias correction</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">wrf1960s_calib_nlcd2016</span></code></p></td>
+<td><p>1959-10-01</p></td>
+<td><p>1969-12-31</p></td>
+<td><p>WRF 1960s climate scenario</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">wrf2050s_calib_nlcd2016</span></code></p></td>
+<td><p>1959-10-01</p></td>
+<td><p>1969-12-31</p></td>
+<td><p>WRF 2050s future scenario</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">wrfaorc_calib_nlcd2016</span></code></p></td>
+<td><p>1979-10-01</p></td>
+<td><p>2021-12-31</p></td>
+<td><p>WRF historical simulation (AORC forcing)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">wrfaorc_withObsScaled</span></code></p></td>
+<td><p>1983-10-01</p></td>
+<td><p>2021-12-31</p></td>
+<td><p>AORC-scaled with observed flows</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>These inflow options enable users to test a range of hydrologic conditions, from observed historical records to future climate projections.</p>
+<blockquote>
+<div><p>⚠ Always confirm that the selected <code class="docutils literal notranslate"><span class="pre">start_date</span></code> and <code class="docutils literal notranslate"><span class="pre">end_date</span></code> fall within the supported range for your chosen dataset.</p>
+</div></blockquote>
+<p>We will use the <code class="docutils literal notranslate"><span class="pre">'nhmv10_withObsScaled'</span></code> dataset in the example that follows.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pywrdrb</span>
@@ -501,7 +571,9 @@ document.write(`
 <span class="p">)</span>
 <span class="n">mb</span><span class="o">.</span><span class="n">make_model</span><span class="p">()</span>
 
-<span class="n">model_filename</span> <span class="o">=</span> <span class="s2">&quot;./model.json&quot;</span>
+<span class="n">model_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cwd</span><span class="p">,</span> <span class="s2">&quot;model.json&quot;</span><span class="p">)</span>
+
+<span class="c1"># Save the model to a JSON file</span>
 <span class="n">mb</span><span class="o">.</span><span class="n">write_model</span><span class="p">(</span><span class="n">model_filename</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -537,7 +609,7 @@ It wraps the base <code class="docutils literal notranslate"><span class="pre">p
 </ul>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">output_filename</span> <span class="o">=</span> <span class="s2">&quot;./pywrdrb_output.hdf5&quot;</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">output_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cwd</span><span class="p">,</span><span class="s2">&quot;pywrdrb_output.hdf5&quot;</span><span class="p">)</span>
 <span class="n">recorder</span> <span class="o">=</span> <span class="n">pywrdrb</span><span class="o">.</span><span class="n">OutputRecorder</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">output_filename</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -555,9 +627,9 @@ It wraps the base <code class="docutils literal notranslate"><span class="pre">p
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>c:\Users\ms3654\Desktop\Research\Delaware\.venv\Lib\site-packages\pywr\dataframe_tools.py:127: FutureWarning: Resampling with a PeriodIndex is deprecated. Cast index to DatetimeIndex before resampling instead.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>c:\Users\CL\miniconda3\envs\test_pywrdrb\Lib\site-packages\pywr\dataframe_tools.py:127: FutureWarning: Resampling with a PeriodIndex is deprecated. Cast index to DatetimeIndex before resampling instead.
   new_df = new_df.resample(target_index.freq).agg(resample_func)
-C:\Users\ms3654\AppData\Local\Temp\ipykernel_14636\1470591929.py:1: DeprecationWarning: Conversion of an array with ndim &gt; 0 to a scalar is deprecated, and will error in future. Ensure you extract a single element from your array before performing this operation. (Deprecated NumPy 1.25.)
+C:\Users\CL\AppData\Local\Temp\ipykernel_39240\737189858.py:1: DeprecationWarning: Conversion of an array with ndim &gt; 0 to a scalar is deprecated, and will error in future. Ensure you extract a single element from your array before performing this operation. (Deprecated NumPy 1.25.)
   stats = model.run()
 </pre></div>
 </div>
@@ -569,15 +641,13 @@ C:\Users\ms3654\AppData\Local\Temp\ipykernel_14636\1470591929.py:1: DeprecationW
 <p>After running the simulation, check that the HDF5 output file was successfully created. This file will be used in the next tutorial to analyze results.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-
-<span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_filename</span><span class="p">),</span> <span class="s2">&quot;Simulation output not found.&quot;</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_filename</span><span class="p">),</span> <span class="s2">&quot;Simulation output not found.&quot;</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; Simulation completed and output file saved:&quot;</span><span class="p">,</span> <span class="n">output_filename</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> Simulation completed and output file saved: ./pywrdrb_output.hdf5
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> Simulation completed and output file saved: c:\Users\CL\Documents\GitHub\Pywr-DRB\notebooks\pywrdrb_output.hdf5
 </pre></div>
 </div>
 </div>
@@ -621,7 +691,7 @@ C:\Users\ms3654\AppData\Local\Temp\ipykernel_14636\1470591929.py:1: DeprecationW
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Tutorial 1: Installation Guide</p>
+        <p class="prev-next-title">Tutorial 01 - Installation Guide</p>
       </div>
     </a>
     <a class="right-next"
@@ -629,7 +699,7 @@ C:\Users\ms3654\AppData\Local\Temp\ipykernel_14636\1470591929.py:1: DeprecationW
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Tutorial 02 – Loading and Interpreting Output</p>
+        <p class="prev-next-title">Tutorial 03 – Loading and Interpreting Output</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -649,9 +719,9 @@ C:\Users\ms3654\AppData\Local\Temp\ipykernel_14636\1470591929.py:1: DeprecationW
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-overview">Model Overview</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-initialize-model-with-modelbuilder">Step 1 – Initialize Model with <code class="docutils literal notranslate"><span class="pre">ModelBuilder</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#built-in-inflow-type-options">Built-in Inflow Type Options</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#allowable-simulation-periods">Allowable Simulation Periods</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#supported-inflow-datasets-and-simulation-periods">Supported Inflow Datasets and Simulation Periods</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-load-the-model">Step 2 – Load the Model</a></li>

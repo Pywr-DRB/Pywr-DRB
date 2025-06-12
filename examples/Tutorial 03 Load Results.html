@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Tutorial 02 – Loading and Interpreting Output &#8212; Pywr-DRB Integrated Water Resource Management Model</title>
+    <title>Tutorial 03 – Loading and Interpreting Output &#8212; Pywr-DRB Integrated Water Resource Management Model</title>
   
   
   
@@ -60,8 +60,8 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'examples/Tutorial 03 Load Results';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Using Customized Data To Run PywrDRB" href="Tutorial%2004%20Using%20Customized%20Data%20To%20Run%20Model.html" />
-    <link rel="prev" title="Tutorial 01 – Running a Basic Simulation" href="Tutorial%2002%20Run%20Simulation.html" />
+    <link rel="next" title="Tutorial 04 – Using Customized Data to Run Pywr-DRB" href="Tutorial%2004%20Using%20Customized%20Data%20To%20Run%20Model.html" />
+    <link rel="prev" title="Tutorial 02 – Running a Basic Simulation" href="Tutorial%2002%20Run%20Simulation.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -233,6 +233,7 @@
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../basin_resources/basin_resources.html">Basin Resources</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../basin_resources/drb_overview.html">DRB Overview</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../basin_resources/reading_list.html">Reading List</a></li>
 </ul>
 </details></li>
@@ -422,7 +423,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Tutorial 02 – Loading and Interpreting Output</h1>
+    <h1>Tutorial 03 – Loading and Interpreting Output</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -434,8 +435,8 @@ document.write(`
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-specify-output-filename-and-result-sets">Step 1 – Specify Output Filename and Result Sets</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-load-the-output-data-using-pywrdrb-data">Step 2 – Load the Output Data Using <code class="docutils literal notranslate"><span class="pre">pywrdrb.Data</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-preview-reservoir-storage-results">Step 3 – Preview Reservoir Storage Results</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-plot-time-series-optional">Step 4 – Plot Time Series (Optional)</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-preview-reservoir-storage">Step 3 – Preview Reservoir Storage</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-plot-a-time-series-optional">Step 4 – Plot a Time Series (Optional)</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exploring-nyc-reservoir-dynamics">Exploring NYC Reservoir Dynamics</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#summary">Summary</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#next-step">Next Step:</a></li>
@@ -452,10 +453,10 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="tutorial-02-loading-and-interpreting-output">
-<h1>Tutorial 02 – Loading and Interpreting Output<a class="headerlink" href="#tutorial-02-loading-and-interpreting-output" title="Link to this heading">#</a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="tutorial-03-loading-and-interpreting-output">
+<h1>Tutorial 03 – Loading and Interpreting Output<a class="headerlink" href="#tutorial-03-loading-and-interpreting-output" title="Link to this heading">#</a></h1>
 <p>This tutorial walks through how to load and explore Pywr-DRB simulation results using the <code class="docutils literal notranslate"><span class="pre">pywrdrb.Data</span></code> class.</p>
-<p>After running a simulation (see Tutorial 01), the model writes an output file in HDF5 format containing time series data for reservoir storage, streamflows, releases, and more.</p>
+<p>After running a simulation (see Tutorial 02), the model writes an output file in HDF5 format containing time series data for reservoir storage, streamflows, releases, and more.</p>
 <p>We will use the <code class="docutils literal notranslate"><span class="pre">Data</span></code> class to:</p>
 <ul class="simple">
 <li><p>Load selected results sets from the <code class="docutils literal notranslate"><span class="pre">.hdf5</span></code> file</p></li>
@@ -463,6 +464,17 @@ document.write(`
 <li><p>Preview the data as pandas DataFrames</p></li>
 <li><p>Optionally plot key results</p></li>
 </ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="c1"># Change to your preferred directory if needed</span>
+<span class="c1"># os.chdir(my_directory)</span>
+<span class="n">cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Current working directory: </span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
 <section id="step-1-specify-output-filename-and-result-sets">
 <h2>Step 1 – Specify Output Filename and Result Sets<a class="headerlink" href="#step-1-specify-output-filename-and-result-sets" title="Link to this heading">#</a></h2>
 <p>We begin by specifying the output file path and the <code class="docutils literal notranslate"><span class="pre">results_sets</span></code> we want to load. These sets tell the <code class="docutils literal notranslate"><span class="pre">Data</span></code> class what variables to extract from the simulation results.</p>
@@ -478,7 +490,7 @@ document.write(`
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pywrdrb</span>
 
-<span class="n">output_filename</span> <span class="o">=</span> <span class="s2">&quot;./pywrdrb_output.hdf5&quot;</span>
+<span class="n">output_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cwd</span><span class="p">,</span> <span class="s2">&quot;pywrdrb_output.hdf5&quot;</span><span class="p">)</span>
 <span class="n">datatypes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">]</span>
 <span class="n">results_sets</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;major_flow&#39;</span><span class="p">,</span> <span class="s1">&#39;res_storage&#39;</span><span class="p">]</span>
 </pre></div>
@@ -499,14 +511,13 @@ document.write(`
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Initialize a data object</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">pywrdrb</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span>
-    <span class="n">print_status</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">results_sets</span><span class="o">=</span><span class="n">results_sets</span><span class="p">,</span>
-    <span class="n">output_filenames</span><span class="o">=</span><span class="p">[</span><span class="n">output_filename</span><span class="p">]</span>
-<span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">pywrdrb</span><span class="o">.</span><span class="n">Data</span><span class="p">()</span>
 
 <span class="c1"># Load model output data</span>
-<span class="n">data</span><span class="o">.</span><span class="n">load_output</span><span class="p">()</span>
+<span class="n">data</span><span class="o">.</span><span class="n">load_output</span><span class="p">(</span>
+    <span class="n">results_sets</span><span class="o">=</span><span class="n">results_sets</span><span class="p">,</span>
+    <span class="n">output_filenames</span><span class="o">=</span><span class="p">[</span><span class="n">output_filename</span><span class="p">]</span>
+    <span class="p">)</span>
 
 <span class="c1"># Extract the dataframes for plotting</span>
 <span class="n">df_major_flow</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">major_flow</span><span class="p">[</span><span class="s2">&quot;pywrdrb_output&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
@@ -514,19 +525,11 @@ document.write(`
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Loading pywrdrb output data...
-Loading major_flow data from pywrdrb_output
-Loading res_storage data from pywrdrb_output
-</pre></div>
-</div>
-</div>
 </div>
 </section>
-<section id="step-3-preview-reservoir-storage-results">
-<h2>Step 3 – Preview Reservoir Storage Results<a class="headerlink" href="#step-3-preview-reservoir-storage-results" title="Link to this heading">#</a></h2>
-<p>Let’s inspect the first few rows of reservoir storage data.</p>
-<p>Each column represents a modeled reservoir. Each row corresponds to a simulation date.</p>
+<section id="step-3-preview-reservoir-storage">
+<h2>Step 3 – Preview Reservoir Storage<a class="headerlink" href="#step-3-preview-reservoir-storage" title="Link to this heading">#</a></h2>
+<p>Each column in the <code class="docutils literal notranslate"><span class="pre">res_storage</span></code> DataFrame corresponds to a reservoir. Each row corresponds to a simulation day.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Preview the first few rows of storage</span>
@@ -678,9 +681,9 @@ Loading res_storage data from pywrdrb_output
 </div></div></div>
 </div>
 </section>
-<section id="step-4-plot-time-series-optional">
-<h2>Step 4 – Plot Time Series (Optional)<a class="headerlink" href="#step-4-plot-time-series-optional" title="Link to this heading">#</a></h2>
-<p>Here’s a simple example that visualizes storage in one of the reservoirs. You can replace <code class="docutils literal notranslate"><span class="pre">'beltzvilleCombined'</span></code> with any other reservoir name from the column headers.</p>
+<section id="step-4-plot-a-time-series-optional">
+<h2>Step 4 – Plot a Time Series (Optional)<a class="headerlink" href="#step-4-plot-a-time-series-optional" title="Link to this heading">#</a></h2>
+<p>The following example plots daily storage in one reservoir. Replace <code class="docutils literal notranslate"><span class="pre">'beltzvilleCombined'</span></code> with any reservoir name from the DataFrame.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
@@ -694,7 +697,7 @@ Loading res_storage data from pywrdrb_output
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/ce7d11e58ba188b237fed4b14d1f5c310532c225078f64b5bc1ed9bc81f7d4bb.png" src="../_images/ce7d11e58ba188b237fed4b14d1f5c310532c225078f64b5bc1ed9bc81f7d4bb.png" />
+<img alt="../_images/ccf48209b93a45036af2b0738afdc730e3d1358eb0dd9006d05b06bdac826755.png" src="../_images/ccf48209b93a45036af2b0738afdc730e3d1358eb0dd9006d05b06bdac826755.png" />
 </div>
 </div>
 <section id="exploring-nyc-reservoir-dynamics">
@@ -728,7 +731,7 @@ Loading res_storage data from pywrdrb_output
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/23102e088dd1c0c343efdab237beb71d4e00ab209127e3d7afd8a2f1a8118614.png" src="../_images/23102e088dd1c0c343efdab237beb71d4e00ab209127e3d7afd8a2f1a8118614.png" />
+<img alt="../_images/9558a2c12276f7c769ac5d8db7a7eaa027727ec0115fc198efaf0cc8d7f9b1a3.png" src="../_images/9558a2c12276f7c769ac5d8db7a7eaa027727ec0115fc198efaf0cc8d7f9b1a3.png" />
 </div>
 </div>
 </section>
@@ -742,7 +745,7 @@ Loading res_storage data from pywrdrb_output
 </section>
 <section id="next-step">
 <h3>Next Step:<a class="headerlink" href="#next-step" title="Link to this heading">#</a></h3>
-<p>Move to <a class="reference internal" href="#./03_Use_Custom_Inputs.ipynb"><span class="xref myst">Tutorial 03 – Using Custom Input Data</span></a> to simulate using your own inflow, release, or storage files.</p>
+<p>Move to <a class="reference internal" href="Tutorial%2004%20Using%20Customized%20Data%20To%20Run%20Model.html"><span class="std std-doc">Tutorial 04 – Using Custom Input Data</span></a> to simulate using your own inflow, release, or storage files.</p>
 </section>
 </section>
 </section>
@@ -783,7 +786,7 @@ Loading res_storage data from pywrdrb_output
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Tutorial 01 – Running a Basic Simulation</p>
+        <p class="prev-next-title">Tutorial 02 – Running a Basic Simulation</p>
       </div>
     </a>
     <a class="right-next"
@@ -791,7 +794,7 @@ Loading res_storage data from pywrdrb_output
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Using Customized Data To Run PywrDRB</p>
+        <p class="prev-next-title">Tutorial 04 – Using Customized Data to Run Pywr-DRB</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -813,8 +816,8 @@ Loading res_storage data from pywrdrb_output
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-specify-output-filename-and-result-sets">Step 1 – Specify Output Filename and Result Sets</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-load-the-output-data-using-pywrdrb-data">Step 2 – Load the Output Data Using <code class="docutils literal notranslate"><span class="pre">pywrdrb.Data</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-preview-reservoir-storage-results">Step 3 – Preview Reservoir Storage Results</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-plot-time-series-optional">Step 4 – Plot Time Series (Optional)</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-preview-reservoir-storage">Step 3 – Preview Reservoir Storage</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-plot-a-time-series-optional">Step 4 – Plot a Time Series (Optional)</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exploring-nyc-reservoir-dynamics">Exploring NYC Reservoir Dynamics</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#summary">Summary</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#next-step">Next Step:</a></li>

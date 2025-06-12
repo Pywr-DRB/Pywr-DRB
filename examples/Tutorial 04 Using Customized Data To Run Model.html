@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Using Customized Data To Run PywrDRB &#8212; Pywr-DRB Integrated Water Resource Management Model</title>
+    <title>Tutorial 04 – Using Customized Data to Run Pywr-DRB &#8212; Pywr-DRB Integrated Water Resource Management Model</title>
   
   
   
@@ -61,7 +61,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Basin Resources" href="../basin_resources/basin_resources.html" />
-    <link rel="prev" title="Tutorial 02 – Loading and Interpreting Output" href="Tutorial%2003%20Load%20Results.html" />
+    <link rel="prev" title="Tutorial 03 – Loading and Interpreting Output" href="Tutorial%2003%20Load%20Results.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -233,6 +233,7 @@
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../basin_resources/basin_resources.html">Basin Resources</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../basin_resources/drb_overview.html">DRB Overview</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../basin_resources/reading_list.html">Reading List</a></li>
 </ul>
 </details></li>
@@ -422,7 +423,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Using Customized Data To Run PywrDRB</h1>
+    <h1>Tutorial 04 – Using Customized Data to Run Pywr-DRB</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -432,7 +433,10 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#path-structure-in-pywrdrb">Path Structure in PywrDRB</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-understanding-the-path-structure">Step 1 – Understanding the Path Structure</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-registering-a-custom-dataset">Step 2 – Registering a Custom Dataset</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-required-files-for-custom-inflow-data">Step 3 – Required Files for Custom Inflow Data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-required-files-for-custom-diversion-data">Step 4 – Required Files for Custom Diversion Data</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datasets-you-need-to-have-in-your-customize-my-folder">Datasets you need to have in your customize “my_folder”</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#more-about-the-global-pathnavigator-object-used-in-pywrdrb">More About the Global PathNavigator Object Used in PywrDRB</a></li>
 </ul>
@@ -446,18 +450,20 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="using-customized-data-to-run-pywrdrb">
-<h1>Using Customized Data To Run PywrDRB<a class="headerlink" href="#using-customized-data-to-run-pywrdrb" title="Link to this heading">#</a></h1>
-<p>PywrDRB provides multiple <code class="docutils literal notranslate"><span class="pre">inflow_type</span></code> and <code class="docutils literal notranslate"><span class="pre">diversion_type</span></code> options for users to select directly during the model-building process. However, sometimes users may want to use their own customized data to run the model.</p>
-<p>In this tutorial, we will walk you through:</p>
-<ol class="arabic simple">
-<li><p>The path structure adopted in PywrDRB.</p></li>
-<li><p>How to use your own flow and diversion data to run the model.</p></li>
-</ol>
-<section id="path-structure-in-pywrdrb">
-<h2>Path Structure in PywrDRB<a class="headerlink" href="#path-structure-in-pywrdrb" title="Link to this heading">#</a></h2>
-<p>In PywrDRB, we use a global instance of the <a class="reference external" href="https://github.com/philip928lin/PathNavigator">PathNavigator</a> object to manage the paths associated with different datasets used in PywrDRB.</p>
-<p>To get the customizable path configuration, you can do:</p>
+  <section class="tex2jax_ignore mathjax_ignore" id="tutorial-04-using-customized-data-to-run-pywr-drb">
+<h1>Tutorial 04 – Using Customized Data to Run Pywr-DRB<a class="headerlink" href="#tutorial-04-using-customized-data-to-run-pywr-drb" title="Link to this heading">#</a></h1>
+<p>In addition to built-in inflow and diversion datasets, Pywr-DRB allows users to supply their own customized input data. This tutorial explains how to integrate external inflow or diversion files using the model’s path configuration system.</p>
+<p>You will learn:</p>
+<ul class="simple">
+<li><p>How dataset paths are managed in Pywr-DRB using the <code class="docutils literal notranslate"><span class="pre">PathNavigator</span></code></p></li>
+<li><p>How to register and use custom folders for flow and diversion data</p></li>
+<li><p>What files must be present for a valid custom input folder</p></li>
+</ul>
+<section id="step-1-understanding-the-path-structure">
+<h2>Step 1 – Understanding the Path Structure<a class="headerlink" href="#step-1-understanding-the-path-structure" title="Link to this heading">#</a></h2>
+<p>Pywr-DRB uses a centralized <a class="reference external" href="https://github.com/philip928lin/PathNavigator"><code class="docutils literal notranslate"><span class="pre">PathNavigator</span></code></a> object to manage file paths for input datasets, including flows, diversions, observations, and operational constants.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">PathNavigator</span></code> stores all dataset directories in a structured configuration that Pywr-DRB references when building or running a model.</p>
+<p>You can inspect the current path configuration using:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pywrdrb</span>
@@ -482,58 +488,166 @@ document.write(`
 </div>
 </div>
 </div>
-<p>From here, you can see that we provide five inflow types: <code class="docutils literal notranslate"><span class="pre">nhmv10</span></code>, <code class="docutils literal notranslate"><span class="pre">nhmv10_withObsScaled</span></code>, <code class="docutils literal notranslate"><span class="pre">nwmv21</span></code>, <code class="docutils literal notranslate"><span class="pre">nwmv21_withObsScaled</span></code>, <code class="docutils literal notranslate"><span class="pre">wrf1960s_calib_nlcd2016</span></code>, <code class="docutils literal notranslate"><span class="pre">wrf2050s_calib_nlcd2016</span></code>, and <code class="docutils literal notranslate"><span class="pre">wrfaorc_calib_nlcd2016</span></code>, along with the corresponding five diversion types: <code class="docutils literal notranslate"><span class="pre">nhmv10</span></code>, <code class="docutils literal notranslate"><span class="pre">nhmv10_withObsScaled</span></code>, <code class="docutils literal notranslate"><span class="pre">nwmv21</span></code>, <code class="docutils literal notranslate"><span class="pre">nwmv21_withObsScaled</span></code>, <code class="docutils literal notranslate"><span class="pre">wrf1960s_calib_nlcd2016</span></code>, <code class="docutils literal notranslate"><span class="pre">wrf2050s_calib_nlcd2016</span></code>, and <code class="docutils literal notranslate"><span class="pre">wrfaorc_calib_nlcd2016</span></code>.</p>
-<p>The directories of the corresponding folders are stored in a dictionary, where the keys have the prefix <code class="docutils literal notranslate"><span class="pre">flows/</span></code> and <code class="docutils literal notranslate"><span class="pre">diversions/</span></code> to distinguish between flow data and diversion data.</p>
-<p>So, if you want to use your own data to run the simulation, you will need to add your folder directory to <code class="docutils literal notranslate"><span class="pre">pn_config</span></code> and load it into <code class="docutils literal notranslate"><span class="pre">pywrdrb</span></code> before building and running the model.</p>
-<p>Let me show you how. Assuming you want to use your own flow datasets (we will discuss the required datasets soon) stored in an external folder <code class="docutils literal notranslate"><span class="pre">C:/my_data</span></code>, you need to add <code class="docutils literal notranslate"><span class="pre">{&quot;flows/my_data&quot;:</span> <span class="pre">&quot;C:/my_data&quot;}</span></code> to <code class="docutils literal notranslate"><span class="pre">pn_config</span></code>. Then, you can use <code class="docutils literal notranslate"><span class="pre">my_data</span></code> as the flow type when using the <code class="docutils literal notranslate"><span class="pre">modelbuilder</span></code>.</p>
+<p>The printed dictionary shows the current registered dataset paths. Each entry uses a key like <code class="docutils literal notranslate"><span class="pre">flows/nhmv10</span></code> or <code class="docutils literal notranslate"><span class="pre">diversions/nwmv21</span></code> to identify the type and name of the dataset, and maps it to a corresponding local directory.</p>
+<p>From this configuration, you can see that Pywr-DRB includes several built-in inflow and diversion datasets:</p>
+<ul class="simple">
+<li><p>Inflow types: <code class="docutils literal notranslate"><span class="pre">nhmv10</span></code>, <code class="docutils literal notranslate"><span class="pre">nhmv10_withObsScaled</span></code>, <code class="docutils literal notranslate"><span class="pre">nwmv21</span></code>, <code class="docutils literal notranslate"><span class="pre">nwmv21_withObsScaled</span></code>, <code class="docutils literal notranslate"><span class="pre">wrf1960s_calib_nlcd2016</span></code>, <code class="docutils literal notranslate"><span class="pre">wrf2050s_calib_nlcd2016</span></code>, and <code class="docutils literal notranslate"><span class="pre">wrfaorc_calib_nlcd2016</span></code></p></li>
+<li><p>Diversion types: matching diversion data folders exist for each of the inflow types listed above</p></li>
+</ul>
+<p>Each dataset folder is stored under a prefix (<code class="docutils literal notranslate"><span class="pre">flows/</span></code> or <code class="docutils literal notranslate"><span class="pre">diversions/</span></code>) to distinguish the type of input data. These paths are referenced during model building when you specify <code class="docutils literal notranslate"><span class="pre">inflow_type</span></code> and <code class="docutils literal notranslate"><span class="pre">diversion_type</span></code>.</p>
+</section>
+<hr class="docutils" />
+<section id="step-2-registering-a-custom-dataset">
+<h2>Step 2 – Registering a Custom Dataset<a class="headerlink" href="#step-2-registering-a-custom-dataset" title="Link to this heading">#</a></h2>
+<p>If you want to use your own inflow data stored in a folder like <code class="docutils literal notranslate"><span class="pre">C:/my_data</span></code>, you can add it to the path configuration and register it with a custom name (e.g., <code class="docutils literal notranslate"><span class="pre">&quot;my_data&quot;</span></code>):</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Before adding the custom config if we try to use the custom inflow type, it will raise an error</span>
-
-<span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">mb = pywrdrb.ModelBuilder(</span>
-<span class="sd">    inflow_type=&#39;my_data&#39;, </span>
-<span class="sd">    diversion_type=&#39;nhmv10&#39;,</span>
-<span class="sd">    start_date=&quot;1983-10-01&quot;,</span>
-<span class="sd">    end_date=&quot;1985-12-31&quot;</span>
-<span class="sd">    )</span>
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="c1"># Make a model (you are expected to see error here if you uncomment the line below)</span>
-<span class="c1"># mb.make_model()</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&#39;\nmb = pywrdrb.ModelBuilder(\n    inflow_type=\&#39;my_data\&#39;, \n    diversion_type=\&#39;nhmv10\&#39;,\n    start_date=&quot;1983-10-01&quot;,\n    end_date=&quot;1985-12-31&quot;\n    )\n&#39;
-</pre></div>
-</div>
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># For demonstration purpose, let me assume my_data folder has the same directory of </span>
-<span class="c1"># nhmv10 flow type (you will use your actual directory to the folder)</span>
-<span class="n">pn_config</span> <span class="o">=</span> <span class="n">pywrdrb</span><span class="o">.</span><span class="n">get_pn_config</span><span class="p">()</span>
-<span class="n">pn_config</span><span class="p">[</span><span class="s2">&quot;flows/my_data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pn_config</span><span class="p">[</span><span class="s2">&quot;flows/nhmv10&quot;</span><span class="p">]</span>
-
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pn_config</span> <span class="o">=</span> <span class="n">pywrdrb</span><span class="o">.</span><span class="n">get_pn_config</span><span class="p">()</span>
+<span class="n">pn_config</span><span class="p">[</span><span class="s2">&quot;flows/my_data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;C:/my_data&quot;</span>
 <span class="n">pywrdrb</span><span class="o">.</span><span class="n">load_pn_config</span><span class="p">(</span><span class="n">pn_config</span><span class="p">)</span>
-
-<span class="c1"># Now we can use the custom inflow type</span>
-<span class="n">mb</span> <span class="o">=</span> <span class="n">pywrdrb</span><span class="o">.</span><span class="n">ModelBuilder</span><span class="p">(</span>
-    <span class="n">inflow_type</span><span class="o">=</span><span class="s1">&#39;my_data&#39;</span><span class="p">,</span> 
-    <span class="n">diversion_type</span><span class="o">=</span><span class="s1">&#39;nhmv10&#39;</span><span class="p">,</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Once registered, you can build the model using your custom data by passing “my_data” as the inflow_type:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mb</span> <span class="o">=</span> <span class="n">pywrdrb</span><span class="o">.</span><span class="n">ModelBuilder</span><span class="p">(</span>
+    <span class="n">inflow_type</span><span class="o">=</span><span class="s2">&quot;my_data&quot;</span><span class="p">,</span>
+    <span class="n">diversion_type</span><span class="o">=</span><span class="s2">&quot;nhmv10&quot;</span><span class="p">,</span>  <span class="c1"># or another supported diversion dataset</span>
     <span class="n">start_date</span><span class="o">=</span><span class="s2">&quot;1983-10-01&quot;</span><span class="p">,</span>
     <span class="n">end_date</span><span class="o">=</span><span class="s2">&quot;1985-12-31&quot;</span>
-    <span class="p">)</span>
-
-<span class="c1"># Make a model (you are expected to see error here)</span>
+<span class="p">)</span>
 <span class="n">mb</span><span class="o">.</span><span class="n">make_model</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;You secussessfully created a model with custom inflow type&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>If the dataset is not properly registered or does not include the required files, ModelBuilder will raise an error.</p>
+</section>
+<section id="step-3-required-files-for-custom-inflow-data">
+<h2>Step 3 – Required Files for Custom Inflow Data<a class="headerlink" href="#step-3-required-files-for-custom-inflow-data" title="Link to this heading">#</a></h2>
+<p>Your custom inflow folder must include the following <strong>three files</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">catchment_inflow_mgd.csv</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gage_flow_mgd.csv</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">predicted_inflows_mgd.csv</span></code></p></li>
+</ul>
+<p>Each file should:</p>
+<ul class="simple">
+<li><p>Be a CSV file with a <code class="docutils literal notranslate"><span class="pre">datetime</span></code> column</p></li>
+<li><p>Include columns for relevant nodes or locations (e.g., reservoirs or catchments)</p></li>
+<li><p>Use consistent formatting and overlapping date ranges across all files</p></li>
+</ul>
+<p>To preview the expected format, you can inspect the structure of the built-in <code class="docutils literal notranslate"><span class="pre">nhmv10</span></code> inflow folder:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="n">pn</span> <span class="o">=</span> <span class="n">pywrdrb</span><span class="o">.</span><span class="n">get_pn_object</span><span class="p">()</span>
+<span class="n">files</span> <span class="o">=</span> <span class="n">pn</span><span class="o">.</span><span class="n">flows</span><span class="o">.</span><span class="n">nhmv10</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Required files:&quot;</span><span class="p">,</span> <span class="n">files</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">flows</span><span class="o">.</span><span class="n">nhmv10</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">file</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Preview: </span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="mi">5</span><span class="p">,</span> <span class="p">:</span><span class="mi">5</span><span class="p">])</span>  <span class="c1"># first 5 rows and 5 columns</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>You secussessfully created a model with custom inflow type
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Required files: [&#39;catchment_inflow_mgd.csv&#39;, &#39;gage_flow_mgd.csv&#39;, &#39;predicted_inflows_mgd.csv&#39;]
+
+Preview: catchment_inflow_mgd.csv
+     datetime  cannonsville    pepacton   neversink  wallenpaupack
+0  1980-10-01    130.379373   89.325193   60.718368      33.438627
+1  1980-10-02    320.876434  234.425929   58.710650     155.951484
+2  1980-10-03    384.188487  261.300230   71.301161     196.969214
+3  1980-10-04    345.220715  265.843778  115.661384     229.965044
+4  1980-10-05    322.869093  257.040294   71.100223     208.087549
+
+Preview: gage_flow_mgd.csv
+     datetime  cannonsville    pepacton   neversink  wallenpaupack
+0  1980-10-01    130.379373   89.325193   60.718368      33.438627
+1  1980-10-02    320.876434  234.425929   58.710650     155.951484
+2  1980-10-03    384.188487  261.300230   71.301161     196.969214
+3  1980-10-04    345.220715  265.843778  115.661384     229.965044
+4  1980-10-05    322.869093  257.040294   71.100223     208.087549
+
+Preview: predicted_inflows_mgd.csv
+     datetime  delMontague_lag1_regression_disagg  \
+0  1983-10-01                          229.021075   
+1  1983-10-02                          437.812448   
+2  1983-10-03                         1091.191061   
+3  1983-10-04                         1367.417389   
+4  1983-10-05                         1046.802593   
+
+   delMontague_lag2_regression_disagg  delTrenton_lag1_regression_disagg  \
+0                          407.304641                          34.783055   
+1                          846.733954                         330.528839   
+2                         1608.726450                        1597.578624   
+3                         1845.161086                        2856.923949   
+4                         1512.261956                        1945.907752   
+
+   delTrenton_lag2_regression_disagg  
+0                         312.558400  
+1                         654.031017  
+2                        2743.665878  
+3                        4238.030173  
+4                        2924.458661  
+</pre></div>
+</div>
+</div>
+</div>
+<p>Make sure your files use the same column names and structure so they can be correctly interpreted by the model.</p>
+</section>
+<section id="step-4-required-files-for-custom-diversion-data">
+<h2>Step 4 – Required Files for Custom Diversion Data<a class="headerlink" href="#step-4-required-files-for-custom-diversion-data" title="Link to this heading">#</a></h2>
+<p>If you are providing your own diversion data, your custom diversion folder must include the following <strong>three files</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">diversion_nj_extrapolated_mgd.csv</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">diversion_nyc_extrapolated_mgd.csv</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">predicted_diversions_mgd.csv</span></code></p></li>
+</ul>
+<p>Each file should:</p>
+<ul class="simple">
+<li><p>Be a CSV file with a <code class="docutils literal notranslate"><span class="pre">datetime</span></code> column</p></li>
+<li><p>Include relevant diversion points as columns (e.g., <code class="docutils literal notranslate"><span class="pre">D_R_Canal</span></code>, <code class="docutils literal notranslate"><span class="pre">cannonsville</span></code>, <code class="docutils literal notranslate"><span class="pre">aggregate</span></code>)</p></li>
+<li><p>Match the date range of your inflow data</p></li>
+</ul>
+<p>To preview the expected format, you can inspect the default diversion dataset:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load the current path configuration</span>
+<span class="n">pn_config</span> <span class="o">=</span> <span class="n">pywrdrb</span><span class="o">.</span><span class="n">get_pn_config</span><span class="p">()</span>
+
+<span class="c1"># Register your custom inflow directory</span>
+<span class="n">pn_config</span><span class="p">[</span><span class="s2">&quot;flows/my_data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pn_config</span><span class="p">[</span><span class="s2">&quot;flows/nhmv10&quot;</span><span class="p">]</span>  <span class="c1"># Replace with your own path</span>
+
+<span class="c1"># Reload the configuration into PywrDRB</span>
+<span class="n">pywrdrb</span><span class="o">.</span><span class="n">load_pn_config</span><span class="p">(</span><span class="n">pn_config</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Now, you can use my_data as the inflow_type when building the model:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mb</span> <span class="o">=</span> <span class="n">pywrdrb</span><span class="o">.</span><span class="n">ModelBuilder</span><span class="p">(</span>
+    <span class="n">inflow_type</span><span class="o">=</span><span class="s1">&#39;my_data&#39;</span><span class="p">,</span>
+    <span class="n">diversion_type</span><span class="o">=</span><span class="s1">&#39;nhmv10&#39;</span><span class="p">,</span>  <span class="c1"># You can customize this as well</span>
+    <span class="n">start_date</span><span class="o">=</span><span class="s2">&quot;1983-10-01&quot;</span><span class="p">,</span>
+    <span class="n">end_date</span><span class="o">=</span><span class="s2">&quot;1985-12-31&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># Create model JSON</span>
+<span class="n">mb</span><span class="o">.</span><span class="n">make_model</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Model created successfully using custom inflow type.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Model created successfully using custom inflow type.
 </pre></div>
 </div>
 </div>
@@ -543,8 +657,7 @@ document.write(`
 <h2>Datasets you need to have in your customize “my_folder”<a class="headerlink" href="#datasets-you-need-to-have-in-your-customize-my-folder" title="Link to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;For flow type folder, you need to have the following files: </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;For flow type folder, you need to have the following files: </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="n">pn</span> <span class="o">=</span> <span class="n">pywrdrb</span><span class="o">.</span><span class="n">get_pn_object</span><span class="p">()</span>
 <span class="n">files</span> <span class="o">=</span> <span class="n">pn</span><span class="o">.</span><span class="n">flows</span><span class="o">.</span><span class="n">nhmv10</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File needed: </span><span class="si">{</span><span class="n">files</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>  
@@ -605,70 +718,6 @@ File: predicted_inflows_mgd.csv
 </div>
 </div>
 </div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;For diversions type folder, you need to have the following files: </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="n">pn</span> <span class="o">=</span> <span class="n">pywrdrb</span><span class="o">.</span><span class="n">get_pn_object</span><span class="p">()</span>
-<span class="n">files</span> <span class="o">=</span> <span class="n">pn</span><span class="o">.</span><span class="n">diversions</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File needed: </span><span class="si">{</span><span class="n">files</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>  
-<span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">diversions</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">file</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File: </span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="mi">5</span><span class="p">,</span> <span class="p">:</span><span class="mi">5</span><span class="p">])</span> <span class="c1"># print first 5 rows and 5 columns</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="c1">#df.head()</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>For diversions type folder, you need to have the following files: 
-
-File needed: [&#39;diversion_nj_extrapolated_mgd.csv&#39;, &#39;diversion_nyc_extrapolated_mgd.csv&#39;, &#39;predicted_diversions_mgd.csv&#39;]
-
-File: diversion_nj_extrapolated_mgd.csv
-     datetime  D_R_Canal
-0  1945-01-01  86.850770
-1  1945-01-02  82.101119
-2  1945-01-03  61.066948
-3  1945-01-04  48.853558
-4  1945-01-05  56.995818
-
-
-File: diversion_nyc_extrapolated_mgd.csv
-     datetime  cannonsville  pepacton  neversink   aggregate
-0  1945-01-01           NaN       NaN        NaN  473.057090
-1  1945-01-02           NaN       NaN        NaN  473.057090
-2  1945-01-03           NaN       NaN        NaN  473.057090
-3  1945-01-04           NaN       NaN        NaN  759.854566
-4  1945-01-05           NaN       NaN        NaN  790.545070
-
-
-File: predicted_diversions_mgd.csv
-     datetime  demand_nj_lag1_regression_disagg  \
-0  1945-01-01                         85.923699   
-1  1945-01-02                         81.227992   
-2  1945-01-03                         60.430217   
-3  1945-01-04                         48.351836   
-4  1945-01-05                         56.404299   
-
-   demand_nj_lag2_regression_disagg  demand_nj_lag3_regression_disagg  \
-0                         85.803003                         85.734338   
-1                         81.115331                         81.051235   
-2                         60.352036                         60.307553   
-3                         48.292680                         48.259020   
-4                         56.332553                         56.291731   
-
-   demand_nj_lag4_regression_disagg  
-0                         85.695091  
-1                         81.014600  
-2                         60.282127  
-3                         48.239780  
-4                         56.268397  
-</pre></div>
-</div>
-</div>
-</div>
 </section>
 <section id="more-about-the-global-pathnavigator-object-used-in-pywrdrb">
 <h2>More About the Global PathNavigator Object Used in PywrDRB<a class="headerlink" href="#more-about-the-global-pathnavigator-object-used-in-pywrdrb" title="Link to this heading">#</a></h2>
@@ -688,48 +737,11 @@ File: predicted_diversions_mgd.csv
 </div>
 </div>
 </div>
+<p>You can also scan and print the folder structure:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pn</span><span class="o">.</span><span class="n">scan</span><span class="p">(</span><span class="n">max_depth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># scan the directory structure up to 2 levels deep</span>
 <span class="n">pn</span><span class="o">.</span><span class="n">tree</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>data
-├── catchment_withdrawals
-│   └── sw_avg_wateruse_pywrdrb_catchments_mgd.csv
-├── diversions
-│   ├── diversion_nj_extrapolated_mgd.csv
-│   ├── diversion_nyc_extrapolated_mgd.csv
-│   └── predicted_diversions_mgd.csv
-├── flows
-│   ├── nhmv10
-│   ├── nhmv10_withObsScaled
-│   ├── nwmv21
-│   ├── nwmv21_withObsScaled
-│   ├── pub_nhmv10_BC_withObsScaled
-│   ├── wrf1960s_calib_nlcd2016
-│   ├── wrf2050s_calib_nlcd2016
-│   ├── wrfaorc_calib_nlcd2016
-│   ├── wrfaorc_withObsScaled
-│   ├── _hydro_model_flow_output
-│   └── _scaled_inflows
-├── observations
-│   ├── _raw
-│   ├── catchment_inflow_mgd.csv
-│   ├── gage_flow_mgd.csv
-│   └── reservoir_storage_mg.csv
-├── operational_constants
-│   ├── constants.csv
-│   ├── ffmp_reservoir_operation_daily_profiles.csv
-│   ├── ffmp_reservoir_operation_monthly_profiles.csv
-│   ├── ffmp_reservoir_operation_weekly_profiles.csv
-│   └── istarf_conus.csv
-└── spatial
-    └── to_be_determined.txt
-
-18 directories, 13 files
 </pre></div>
 </div>
 </div>
@@ -773,7 +785,7 @@ File: predicted_diversions_mgd.csv
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Tutorial 02 – Loading and Interpreting Output</p>
+        <p class="prev-next-title">Tutorial 03 – Loading and Interpreting Output</p>
       </div>
     </a>
     <a class="right-next"
@@ -801,7 +813,10 @@ File: predicted_diversions_mgd.csv
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#path-structure-in-pywrdrb">Path Structure in PywrDRB</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-understanding-the-path-structure">Step 1 – Understanding the Path Structure</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-registering-a-custom-dataset">Step 2 – Registering a Custom Dataset</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-required-files-for-custom-inflow-data">Step 3 – Required Files for Custom Inflow Data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-required-files-for-custom-diversion-data">Step 4 – Required Files for Custom Diversion Data</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datasets-you-need-to-have-in-your-customize-my-folder">Datasets you need to have in your customize “my_folder”</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#more-about-the-global-pathnavigator-object-used-in-pywrdrb">More About the Global PathNavigator Object Used in PywrDRB</a></li>
 </ul>
