@@ -21,7 +21,6 @@ Chung-Yi Lin, 2025-05-27, Added flowtype_opts using the pathnavigator object.
 """
 
 from pywrdrb.load.abstract_loader import AbstractDataLoader, default_kwargs
-from pywrdrb.load.get_results import get_base_results
 from pywrdrb.utils.results_sets import hydrologic_model_results_set_opts
 from pywrdrb.path_manager import get_pn_object
 
@@ -122,7 +121,7 @@ class HydrologicModelFlow(AbstractDataLoader):
                 flow_dir = self.pn.flows.get_str(flowtype)
             
                 # load the data
-                all_results_data[s][flowtype], datetime = get_base_results(
+                all_results_data[s][flowtype], datetime = super().get_base_results(
                     input_dir = flow_dir,
                     model = flowtype,
                     results_set = s,

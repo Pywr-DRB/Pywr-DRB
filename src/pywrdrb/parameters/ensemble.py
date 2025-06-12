@@ -79,8 +79,8 @@ class FlowEnsemble(Parameter):
         super().__init__(model, **kwargs)
 
         # ensemble input file
-        input_dir = pn.flows.get(inflow_type)
-        filename = os.path.join(input_dir_, f"catchment_inflow_mgd.hdf5")
+        input_dir = pn.sc.get(f"flows/{inflow_type}")
+        filename = os.path.join(input_dir, f"catchment_inflow_mgd.hdf5")
 
         # Load from hfd5 specific realizations
         with h5py.File(filename, "r") as file:
@@ -220,7 +220,7 @@ class PredictionEnsemble(Parameter):
         super().__init__(model, **kwargs)
 
         # input file corresponding to the inflow_type
-        input_dir = pn.flows.get(inflow_type)
+        input_dir = pn.sc.get(f"flows/{inflow_type}")
         filename = os.path.join(input_dir, f"predicted_inflows_mgd.hdf5")
         prediction_ensemble = {}
 

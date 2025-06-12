@@ -15,7 +15,7 @@ Technical Notes:
         - Observation
         - HydrologicModelFlow
         - Output
-- To understand more about how these relate to the actual model parameters, look at source code for pywrdrb/load/get_results.py
+- To understand more about how these relate to the actual model parameters, look at source code for pywrdrb.load.abstract_loader().get_base_results()
 
 Links: 
 - A description of these options is on the docs: https://pywr-drb.github.io/Pywr-DRB/results_set_options.html

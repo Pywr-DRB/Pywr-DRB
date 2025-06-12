@@ -9,6 +9,7 @@ authors = [
     {name = "Trevor Amestoy", email = "tja73@cornell.edu"},
     {name = "Marilyn Smith", email = "ms3654@cornell.edu"},
     {name = "Andrew Hamilton", email = "andrew.hamilton.water@gmail.com"},
+    {name = "Patrick Reed", email = "patrick.reed@cornell.edu"}
 ]
 license = { file = "LICENSE" }
 description = "An open-source Python model for water availability and drought risk assessment in the Delaware River Basin"
@@ -19,26 +20,27 @@ dependencies = [
     "pandas",
     "scipy",
     "statsmodels",
+    "scikit-learn",
     "matplotlib",
     "PathNavigator",
     "h5py",
-    "pytest",
     "mpi4py",
-    "hatch",
     "hydroeval",
-    "jupyter-book",
-    "ghp-import",
-    "folium",
     "dataretrieval",
     "torch",
     "bmipy",
     "joblib",
-    "tqdm"
+    "tqdm",
     ]
 
 [project.optional-dependencies]
 dev = [
     "ipython",
+    "pytest",
+    "hatch",
+    "jupyter-book",
+    "ghp-import",
+    "folium",
 ]
 
 lint = [

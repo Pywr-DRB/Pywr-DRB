@@ -21,57 +21,20 @@ parts:
     # =============== Examples =================
     - file: examples/examples.md
       sections:
-    - title: Tutorial 01 Installation
-      file: examples/Tutorial 01 Installation.ipynb
-    - title: Tutorial 02 Run Simulation
-      file: examples/Tutorial 02 Run Simulation.ipynb
-    - title: Tutorial 03 Load Results
-      file: examples/Tutorial 03 Load Results.ipynb
+        - title: Tutorial 01 Installation
+          file: examples/Tutorial 01 Installation.ipynb
+        - title: Tutorial 02 Run Simulation
+          file: examples/Tutorial 02 Run Simulation.ipynb
+        - title: Tutorial 03 Load Results
+          file: examples/Tutorial 03 Load Results.ipynb
+        - title: Tutorial 04 Using Customized Data To Run Model
+          file: examples/Tutorial 04 Using Customized Data To Run Model.ipynb
+          
+    # =============== Basin Info ===============
+    - file: basin_resources/basin_resources.md
+      sections:
+        - title: Reading List
+          file: basin_resources/reading_list.md
 
     # ============== Results sets options ====
     - file: results_set_options.md
-
-
-
-
-    # =============== OLD =================
-    # =============== OLD =================
-    # =============== OLD =================
-
-        # - title: Pre-Processing
-        #   file: api/pre.rst
-    # =============== Model & DRB description =================
-    # - title: Delaware River Basin Overview
-    #   file: DRB/drb.md
-    #   sections:
-    #     - title: Hydrology
-    #       file: DRB/drb_hydrology.md
-    #     - title: Planning & Management
-    #       file: DRB/drb_planning_management.md
-    # - title: Pywr-DRB Overview
-    #   file: Model/pywr_drb.md
-    #   sections:
-    #     - title: Model Overview
-    #       file: Model/pywr_drb_overview.md
-    #     - title: Model Nodes
-    #       file: Model/pywr_drb_model_nodes.md
-    #     - title: Representing Reservoir Operations
-    #       file: Model/pywr_drb_resops.md
-    #     - title: Available Inflow Scenarios
-    #       file: Model/pywr_drb_inflow_scenarios.md
-    # =============== Getting Started =================
-    # - file: Getting_Started/getting_started.md
-    #   sections:
-    #     - title: Quick-Start
-    #       file: Getting_Started/quick_start.md
-    #     - title: Running Simulations
-    #       file: Getting_Started/Running_Simulations/run_all_simulations.md
-    #     - title: Analyzing outputs
-    #       file: Getting_Started/Interpret_Results/explore_model_outputs.ipynb
-    # =============== Supplemental  =================
-    # - file: Supplemental/supplemental.md
-    #   sections:
-    #   - title: Pywr-DRB Node List
-    #     file: Supplemental/node_list.md
-    #   - title: Streamflow Prediction in Ungauged Basins
-    #     file: Supplemental/pub.md

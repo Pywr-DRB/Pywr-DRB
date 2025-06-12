@@ -25,29 +25,27 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-
     # Install GLPK - this is needed for pywr
-    - name: Install GLPK
+    - name: Install GLPK and MPI
       run: |
-        sudo apt-get update && sudo apt-get install -y glpk-utils libglpk-dev
+        sudo apt-get update 
+        sudo apt-get install -y glpk-utils libglpk-dev libopenmpi-dev openmpi-bin
 
     - name: Add GLPK to PATH
       run: echo "/usr/local/lib" | sudo tee -a /etc/ld.so.conf.d/glpk.conf && sudo ldconfig
 
-    - name: Install MPI
-      run: sudo apt-get update && sudo apt-get install -y libopenmpi-dev openmpi-bin
-    
     # install python dependencies
     - name: Install python dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -e .
+        pip install -e .[dev]
         
     # Copy example notebooks to docs folder
     - name: Copy example notebooks
       run: |
         mkdir -p docs/examples
-        cp -r notebooks/Tutorial\ 0*.ipynb docs/examples/
+        cp -r notebooks/Tutorial* docs/examples/
+
 
 
     # Build the book

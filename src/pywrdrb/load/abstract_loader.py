@@ -22,7 +22,19 @@ TJA, Spring 2025, Initially created the data loader functionality.
 TJA, 2025-05-02, Setup documentation.
 """
 import os
+import pandas as pd
+import h5py
 from abc import ABC, abstractmethod
+
+from pywrdrb.utils.constants import mg_to_mcm
+from pywrdrb.utils.results_sets import pywrdrb_results_set_opts
+from pywrdrb.utils.lists import (
+    reservoir_list,
+    reservoir_list_nyc,
+    majorflow_list,
+    reservoir_link_pairs,
+    drbc_lower_basin_reservoirs
+)
 
 from pywrdrb.path_manager import get_pn_object
 pn = get_pn_object()
@@ -141,7 +153,137 @@ class AbstractDataLoader(ABC):
                 return True
             else:
                 raise FileNotFoundError(f"File not found at path: {file}")
-    
+
+    def get_base_results(
+        self,
+        input_dir,
+        model,
+        datetime_index=None,
+        results_set="all",
+        ensemble_scenario=None,
+        units=None,
+        ):
+        """
+        Retrieve results from gage_flow_mgd.csv or gage_flow_mgd.hdf5 fils.
+        
+        These 'base' results include flows from different sources,
+        which are _not_ the pywrdrb model. This function is designed to be used for the 
+        internally available datasets, including "obs", "nwmv21", 
+        "nhmv10", "nwmv21_withObsScaled", etc.
+        
+        Parameters
+        ----------
+        input_dir : str
+            Directory containing input data files.
+        model : str
+            Model name.
+        datetime_index : pd.DatetimeIndex, optional
+            Existing datetime index to reuse. Creating dates is slow, so reusing is efficient.
+        results_set : str, optional
+            Results set to return. Options:
+            - "all": All results.
+            - "reservoir_downstream_gage": Downstream gage flow below reservoir.
+            - "major_flow": Flow at major flow points of interest.
+        ensemble_scenario : int, optional
+            Ensemble scenario index. If provided, load data from HDF5 file 
+            instead of CSV.
+        units : str, optional
+            Units to convert flow data to. Options: "MG", "MCM"
+
+        Returns
+        -------
+        tuple
+            (dict, pd.DatetimeIndex) where dict maps scenario indices to DataFrames
+            of results, and pd.DatetimeIndex is the datetime index used.
+            
+        Notes
+        -----
+        (TJA) It would be nice to rethink this function. The term "base result" is not clear, 
+        and not appropriate. Base originally referred to natural flows, but observed flows are also
+        included which are non-natural. For now, this is important for loading the internal datasets. 
+        """
+        if ensemble_scenario is None:
+            gage_flow = pd.read_csv(f"{input_dir}/gage_flow_mgd.csv")
+            gage_flow.index = pd.DatetimeIndex(gage_flow["datetime"])
+            gage_flow = gage_flow.drop("datetime", axis=1)
+        else:
+            with h5py.File(f"{input_dir}/gage_flow_mgd.hdf5", "r") as f:
+                nodes = list(f.keys())
+                gage_flow = pd.DataFrame()
+                for node in nodes:
+                    gage_flow[node] = f[f"{node}/realization_{ensemble_scenario}"]
+
+                if datetime_index is not None:
+                    if len(datetime_index) == len(f[nodes[0]]["date"]):
+                        gage_flow.index = datetime_index
+                        reuse_datetime_index = True
+                    else:
+                        reuse_datetime_index = False
+                else:
+                    reuse_datetime_index = False
+
+                if not reuse_datetime_index:
+                    datetime = [str(d, "utf-8") for d in f[nodes[0]]["date"]]
+                    datetime_index = pd.to_datetime(datetime)
+                    gage_flow.index = datetime_index
+
+            data = gage_flow.copy()
+
+        if results_set == "reservoir_downstream_gage":
+            available_release_data = gage_flow.columns.intersection(
+                reservoir_link_pairs.values()
+            )
+            reservoirs_with_data = [
+                list(
+                    filter(lambda x: reservoir_link_pairs[x] == site, reservoir_link_pairs)
+                )[0]
+                for site in available_release_data
+            ]
+            gage_flow = gage_flow.loc[:, available_release_data]
+            gage_flow.columns = reservoirs_with_data
+
+            data = gage_flow.copy()
+
+        elif results_set == "major_flow":
+            for c in gage_flow.columns:
+                if c not in majorflow_list:
+                    gage_flow = gage_flow.drop(c, axis=1)
+            data = gage_flow.copy()
+
+        elif results_set == "res_storage" and model == "obs":
+            observed_storage_path = (
+                f"{input_dir}/reservoir_storage_mg.csv"
+            )
+            try:
+                observed_storage = pd.read_csv(observed_storage_path)
+                observed_storage.index = pd.DatetimeIndex(observed_storage["datetime"])
+                observed_storage = observed_storage.drop("datetime", axis=1)
+                data = observed_storage.copy()
+            except FileNotFoundError:
+                print(f"Observed storage CSV file not found at {observed_storage_path}.")
+                return None, datetime_index
+            except KeyError:
+                print(
+                    'The observed storage data does not contain the expected "datetime" column.'
+                )
+                return None, datetime_index
+        elif results_set == "res_storage" and model != "obs":
+            raise ValueError(
+                f"Reservoir storage data is not available for model={model}. Only available for model='obs'."
+            )
+
+        else:
+            raise ValueError("Invalid results_set specified for get_base_results().")
+
+        if units is not None:
+            if units == "MG":
+                pass
+            elif units == "MCM":
+                data *= mg_to_mcm
+
+        ## Re-organize as dict for consistency with pywrdrb results
+        results_dict = {0: data}
+        return results_dict, datetime_index
 
     def set_data(self, 
                  data, 

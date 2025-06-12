@@ -93,10 +93,15 @@ class Options:
         Otherwise, assume demand is equal to max allotment under FFMP. Default is True.
     temperature_model: Optional[dict] = None
         If given, use LSTM model to predict temperature at Lordville. Default is None.
-        {"PywrDRB_ML_plugin_path": None, "start_date": None, "activate_thermal_control": False, "Q_C_lstm_var_name": None, "Q_i_lstm_var_name": None, "disable_tqdm": False}
+        {"PywrDRB_ML_plugin_path": None, "start_date": None, 
+        "activate_thermal_control": False, "activate_input_bias_correction": False, 
+        "Q_C_lstm_var_name": None, "Q_i_lstm_var_name": None, "disable_tqdm": False,
+        debug: False}
     salinity_model : Optional[dict] = None
         If given, use LSTM model to predict salt front river mile. Default is None.
-        {"PywrDRB_ML_plugin_path": None, "start_date": None, "Q_Trenton_lstm_var_name": None, "Q_Schuylkill_lstm_var_name": None, "disable_tqdm": False}
+        {"PywrDRB_ML_plugin_path": None, "start_date": None, 
+        "Q_Trenton_lstm_var_name": None, "Q_Schuylkill_lstm_var_name": None, 
+        "disable_tqdm": False, debug: False}
     run_starfit_sensitivity_analysis : bool
         If True, run STARFIT sensitivity analysis. Default is False.
     sensitivity_analysis_scenarios : List[str]
@@ -1951,7 +1956,8 @@ class ModelBuilder:
         model_dict["parameters"]["temperature_model"] = {
                 "type": "TemperatureModel",
                 "start_date": temp_options.get("start_date", None),
-                "activate_thermal_control": temp_options["activate_thermal_control"],
+                "activate_thermal_control": temp_options.get("activate_thermal_control", False),
+                "activate_input_bias_correction": temp_options.get("activate_input_bias_correction", False),
                 "Q_C_lstm_var_name": temp_options["Q_C_lstm_var_name"],
                 "Q_i_lstm_var_name": temp_options["Q_i_lstm_var_name"],
                 "cannonsville_storage_pct_lstm_var_name": temp_options["cannonsville_storage_pct_lstm_var_name"],

@@ -159,8 +159,8 @@ class NHMFlowDataPreprocessor(DataPreprocessor):
             "streamflow_nhmv10_mgd.csv": self.pn.flows._hydro_model_flow_output.get() / "streamflow_nhmv10_mgd.csv",
         }
         self.output_dirs = {
-            "gage_flow_mgd.csv": self.pn.flows.get(self.flow_type) / "gage_flow_mgd.csv",
-            "catchment_inflow_mgd.csv": self.pn.flows.get(self.flow_type) / "catchment_inflow_mgd.csv",
+            "gage_flow_mgd.csv": self.pn.sc.get(f"flows/{self.flow_type}") / "gage_flow_mgd.csv",
+            "catchment_inflow_mgd.csv": self.pn.sc.get(f"flows/{self.flow_type}") / "catchment_inflow_mgd.csv",
         }
         # Need to make sure that pn is reloaded such that file directories are added 
         # to shortcuts. (see __init__.py)
@@ -230,8 +230,8 @@ class NWMFlowDataPreprocessor(DataPreprocessor):
             "streamflow_nwmv21_mgd.csv": self.pn.flows._hydro_model_flow_output.get() / "streamflow_nwmv21_mgd.csv",
         }
         self.output_dirs = {
-            "gage_flow_mgd.csv": self.pn.flows.get(self.flow_type) / "gage_flow_mgd.csv",
-            "catchment_inflow_mgd.csv": self.pn.flows.get(self.flow_type) / "catchment_inflow_mgd.csv",
+            "gage_flow_mgd.csv": self.pn.sc.get(f"flows/{self.flow_type}") / "gage_flow_mgd.csv",
+            "catchment_inflow_mgd.csv": self.pn.sc.get(f"flows/{self.flow_type}") / "catchment_inflow_mgd.csv",
         }
         # Need to make sure that pn is reloaded such that file directories are added 
         # to shortcuts. (see __init__.py)
@@ -303,8 +303,8 @@ class NHMWithObsScaledFlowDataPreprocessor(DataPreprocessor):
         }
         # github.com/Pywr-DRB/Input-Data-Retrieval/blob/main/inflow_scaling_regression.py
         self.output_dirs = {
-            "gage_flow_mgd.csv": self.pn.flows.get(self.flow_type) / "gage_flow_mgd.csv",
-            "catchment_inflow_mgd.csv": self.pn.flows.get(self.flow_type) / "catchment_inflow_mgd.csv",
+            "gage_flow_mgd.csv": self.pn.sc.get(f"flows/{self.flow_type}") / "gage_flow_mgd.csv",
+            "catchment_inflow_mgd.csv": self.pn.sc.get(f"flows/{self.flow_type}") / "catchment_inflow_mgd.csv",
         }
         # Need to make sure that pn is reloaded such that file directories are added 
         # to shortcuts. (see __init__.py)
@@ -388,8 +388,8 @@ class NWMWithObsScaledFlowDataPreprocessor(DataPreprocessor):
         }
         # github.com/Pywr-DRB/Input-Data-Retrieval/blob/main/inflow_scaling_regression.py
         self.output_dirs = {
-            "gage_flow_mgd.csv": self.pn.flows.get(self.flow_type) / "gage_flow_mgd.csv",
-            "catchment_inflow_mgd.csv": self.pn.flows.get(self.flow_type) / "catchment_inflow_mgd.csv",
+            "gage_flow_mgd.csv": self.pn.sc.get(f"flows/{self.flow_type}") / "gage_flow_mgd.csv",
+            "catchment_inflow_mgd.csv": self.pn.sc.get(f"flows/{self.flow_type}") / "catchment_inflow_mgd.csv",
         }
         # Need to make sure that pn is reloaded such that file directories are added 
         # to shortcuts. (see __init__.py)
@@ -473,8 +473,8 @@ class WRFAORCWithObsScaledFlowDataPreprocessor(DataPreprocessor):
         }
         # github.com/Pywr-DRB/Input-Data-Retrieval/blob/main/inflow_scaling_regression.py
         self.output_dirs = {
-            "gage_flow_mgd.csv": self.pn.flows.get(self.flow_type) / "gage_flow_mgd.csv",
-            "catchment_inflow_mgd.csv": self.pn.flows.get(self.flow_type) / "catchment_inflow_mgd.csv",
+            "gage_flow_mgd.csv": self.pn.sc.get(f"flows/{self.flow_type}") / "gage_flow_mgd.csv",
+            "catchment_inflow_mgd.csv": self.pn.sc.get(f"flows/{self.flow_type}") / "catchment_inflow_mgd.csv",
         }
         # Need to make sure that pn is reloaded such that file directories are added 
         # to shortcuts. (see __init__.py)

@@ -53,7 +53,7 @@ global pn
 pn = get_pn_object()
 
 class TemperatureModel(Parameter):
-    def __init__(self, model, start_date, activate_thermal_control, 
+    def __init__(self, model, start_date, activate_thermal_control, activate_input_bias_correction,
                  Q_C_lstm_var_name, Q_i_lstm_var_name, cannonsville_storage_pct_lstm_var_name,
                  PywrDRB_ML_plugin_path, 
                  disable_tqdm, debug, **kwargs):
@@ -94,10 +94,11 @@ class TemperatureModel(Parameter):
         self.mu, self.sd = np.nan, np.nan
         
         # Forecasted water temperature at Lordville
-        self.forecasted_mu, self.forecasted_sd = np.nan, np.nan
+        self.forecasted_mu_arr, self.forecasted_sd_arr = np.nan, np.nan
         
         # Indicate whether to activate thermal control
         self.activate_thermal_control = activate_thermal_control
+        self.activate_input_bias_correction = activate_input_bias_correction
         self.Q_C_lstm_var_name = Q_C_lstm_var_name
         self.Q_i_lstm_var_name = Q_i_lstm_var_name
         self.cannonsville_storage_pct_lstm_var_name = cannonsville_storage_pct_lstm_var_name
@@ -116,7 +117,12 @@ class TemperatureModel(Parameter):
                 "T_L_sd": [],
                 "Q_C": [],
                 "Q_i": [],
-                "cannonsville_storage_pct": []
+                "cannonsville_storage_pct": [],
+                "forecasted_mu_arr": [],
+                "forecasted_sd_arr": [],
+                "bias_Q_i": [],
+                "bias_Q_C": [],
+                "bias_cannonsville_storage_pct": []
             }
         
         # Predict the Cannonsville reservoir release temperature (T_C)
@@ -160,13 +166,15 @@ class TemperatureModel(Parameter):
         
         # Advance the LSTM models to the start date 
         def update_until(lstm, length):
+            # If the length is 0, we do not need to update the LSTM model
+            if length == 0:
+                return None
+            
             # Get unscaled lstm input data
-            unscaled_data = lstm.get_unscaled_values(lead_time=length)
-            for _ in tqdm(range(length), disable=disable_tqdm):
-                for vi, var in enumerate(unscaled_data):
-                    if var in lstm.x_vars:
-                        lstm.set_value(var, unscaled_data.loc[int(lstm.t), var])
-                lstm.update()
+            unscaled_data = lstm.get_unscaled_values(lead_time=length) 
+            for var in lstm.x_vars:
+                lstm.set_value(var, unscaled_data[var])
+            lstm.update_until(length)
                 
         if disable_tqdm is False: # For debugging
             print(f"Advancing TempLSTM models to the {self.start_date} ...")
@@ -180,13 +188,56 @@ class TemperatureModel(Parameter):
         # Initialize thermal mitigation bank size (MGD)
         self.thermal_mitigation_bank_size = 1620
         self.remained_bank_amount = 1620
-
+        
+        # Contorl algorithm (externally provided) -> used in make_control_release
+        # We will turn this into a built-in control algorithm in the future
+        self.control_algorithm = lambda ml_model, Q_C, Q_i, cannonsville_storage_pct, current_date: 3 #np.nan
+        
+        # Bias correction for the LSTM models inputs for forecasting. 
+        # If the thermal release happens in the previous timestep, the state dynamics 
+        # will be different than the training inputs. We calculate the difference between
+        # the two to shift the input array for forecasting.
+        self.bias_correction_dict = {
+            "Q_C": 0.0,  # Bias correction for Cannonsville downstream flow
+            "Q_i": 0.0,  # Bias correction for East Branch downstream flow and natural inflow to Lordville
+            "cannonsville_storage_pct": 0.0  # Bias correction for Cannonsville reservoir storage percentage
+            }
+        
     def make_control_release(self, Q_C, Q_i, cannonsville_storage_pct, current_date):
+        """
+        Make the thermal control release decision based on the LSTM model predictions.
+        
+        Parameters
+        ----------
+        Q_C : float
+            The Cannonsville reservoir downstream flow (01425000).
+        Q_i : float
+            The East Branch downstream flow (01417000) and natural inflow to Lordville.
+        cannonsville_storage_pct : float
+            The percentage of the Cannonsville reservoir storage.
+        current_date : pywr.core.CurrentDate
+            The current date in the model, used to determine if the LSTM models need to be updated.
+        
+        Returns
+        -------
+        float
+            The thermal control release amount in million gallons per day (MGD).
+        """
         # activate if self.activate_thermal_control is True
         # Here is the place to plugin control algorithm
         
-        pass
-        return np.nan
+        control_algorithm = self.control_algorithm
+        if callable(control_algorithm) is False:
+            raise ValueError("The control_algorithm must be a callable function.")
+        
+        thermal_release = control_algorithm(
+            ml_model=self,
+            Q_C=Q_C, 
+            Q_i=Q_i, 
+            cannonsville_storage_pct=cannonsville_storage_pct, 
+            current_date=current_date, 
+            )
+        return thermal_release
     
     def update(self, Q_C, Q_i, cannonsville_storage_pct, current_date):
         """
@@ -214,14 +265,19 @@ class TemperatureModel(Parameter):
             Q_C_lstm_var_name = self.Q_C_lstm_var_name
             Q_i_lstm_var_name = self.Q_i_lstm_var_name
             cannonsville_storage_pct_lstm_var_name = self.cannonsville_storage_pct_lstm_var_name
+            activate_input_bias_correction = self.activate_input_bias_correction
             
             # Update the LSTM1 models with the current flow values
             unscaled_data = lstm1.get_unscaled_values(lead_time=0) # Retrieve unscaled data for the current date
             for var in lstm1.x_vars:
                 if var == Q_C_lstm_var_name:
                     lstm1.set_value(Q_C_lstm_var_name, Q_C)
+                    if activate_input_bias_correction:
+                        self.bias_correction_dict["Q_C"] = Q_C - unscaled_data.loc[0, Q_C_lstm_var_name]
                 elif var == cannonsville_storage_pct_lstm_var_name:
                     lstm1.set_value(cannonsville_storage_pct_lstm_var_name, cannonsville_storage_pct)
+                    if activate_input_bias_correction:
+                        self.bias_correction_dict["cannonsville_storage_pct"] = cannonsville_storage_pct - unscaled_data.loc[0, cannonsville_storage_pct_lstm_var_name]
                 else:
                     lstm1.set_value(var, unscaled_data.loc[0, var]) 
             lstm1.update()
@@ -231,6 +287,8 @@ class TemperatureModel(Parameter):
             for var in lstm2.x_vars:
                 if var == Q_i_lstm_var_name:
                     lstm2.set_value(Q_i_lstm_var_name, Q_i)
+                    if activate_input_bias_correction:
+                        self.bias_correction_dict["Q_i"] = Q_i - unscaled_data.loc[0, Q_i_lstm_var_name]
                 elif var == Q_C_lstm_var_name: # connected model
                     lstm2.set_value(Q_C_lstm_var_name, Q_C)
                 else:
@@ -281,6 +339,71 @@ class TemperatureModel(Parameter):
             self.current_date += timedelta(days=1) # Avoid updating the LSTM models multiple times in a single timestep
             return None
     
+    def forecast(self, Q_C, Q_i, cannonsville_storage_pct, lead_time=0):
+            
+        lstm1 = self.lstm1
+        lstm2 = self.lstm2
+        Q_C_lstm_var_name = self.Q_C_lstm_var_name
+        Q_i_lstm_var_name = self.Q_i_lstm_var_name
+        cannonsville_storage_pct_lstm_var_name = self.cannonsville_storage_pct_lstm_var_name
+        
+        # Update the LSTM1 models with the current flow values
+        unscaled_data = lstm1.get_unscaled_values(lead_time=lead_time) # Retrieve unscaled data for the current date
+        for var in lstm1.x_vars:
+            if var == Q_C_lstm_var_name:
+                Q_C_array = unscaled_data[var] + self.bias_correction_dict["Q_C"]
+                Q_C_array[Q_C_array < 0] = 0
+                Q_C_array[0] = Q_C  # Ensure the first value is the current Q_C
+                # Do a bias correction for the Q_C variable 
+                lstm1.set_value(Q_C_lstm_var_name, Q_C_array)
+            elif var == cannonsville_storage_pct_lstm_var_name:
+                cannonsville_storage_pct_array = unscaled_data[var] + self.bias_correction_dict["cannonsville_storage_pct"]
+                cannonsville_storage_pct_array[cannonsville_storage_pct_array < 0] = 0
+                cannonsville_storage_pct_array[0] = cannonsville_storage_pct  # Ensure the first value is the current cannonsville_storage_pct
+                lstm1.set_value(cannonsville_storage_pct_lstm_var_name, cannonsville_storage_pct_array)
+            else:
+                lstm1.set_value(var, unscaled_data[var]) 
+        df_T_C = lstm1.forecast(lead_time=lead_time)
+        
+        # Update the LSTM2 models with the current flow values
+        unscaled_data = lstm2.get_unscaled_values(lead_time=lead_time) # Retrieve unscaled data for the current date
+        for var in lstm2.x_vars:
+            if var == Q_i_lstm_var_name:
+                Q_i_array = unscaled_data[var] + self.bias_correction_dict["Q_i"]
+                Q_i_array[Q_i_array < 0] = 0
+                Q_i_array[0] = Q_i  # Ensure the first value is the current Q_i
+                lstm2.set_value(Q_i_lstm_var_name, Q_i_array)
+            elif var == Q_C_lstm_var_name: # connected model
+                Q_C_array = unscaled_data[var] + self.bias_correction_dict["Q_C"]
+                Q_C_array[Q_C_array < 0] = 0
+                Q_C_array[0] = Q_C  # Ensure the first value is the current Q_C
+                lstm2.set_value(Q_C_lstm_var_name, Q_C_array)
+            else:
+                lstm2.set_value(var, unscaled_data[var]) 
+        df_T_i = lstm2.forecast(lead_time=lead_time)
+        
+        # Tavg
+        Tavg_mu = (df_T_C["mu"]*Q_C_array + df_T_i["mu"]*Q_i_array)/(Q_C_array + Q_i_array)
+        # Assuming T_i and T_C are independent
+        Tavg_sd = np.sqrt((df_T_C["sd"]**2 * Q_C_array**2 + df_T_i["sd"]**2 * Q_i_array**2) / (Q_C_array + Q_i_array)**2)
+        
+        # T_L (Tmax at Lordville) Using a random forest model to map Tavg to T_L
+        rf_model = self.rf_model
+        T_L_mu = rf_model.predict(Tavg_mu.values.reshape(-1, 1))
+        T_L_sd = Tavg_sd.values # assuming a constant sd for T_L
+        self.forecasted_mu_arr, self.forecasted_sd_arr = T_L_mu, T_L_sd
+        
+        # For debugging purposes
+        if self.debug:
+            records = self.records
+            records["forecasted_mu_arr"].append(T_L_mu)
+            records["forecasted_sd_arr"].append(T_L_sd)
+            records["bias_Q_i"].append(self.bias_correction_dict["Q_i"])
+            records["bias_Q_C"].append(self.bias_correction_dict["Q_C"])
+            records["bias_cannonsville_storage_pct"].append(self.bias_correction_dict["cannonsville_storage_pct"])
+        
+        return None
+    
     def value(self, timestep, scenario_index):
         # The values are retrieved through other parameters like 
         # ForecastedTemperatureBeforeThermalRelease and TemperatureAfterThermalRelease
@@ -291,13 +414,14 @@ class TemperatureModel(Parameter):
     def load(cls, model, data):
         start_date = data.pop("start_date", None)
         activate_thermal_control = data.pop("activate_thermal_control", False)
+        activate_input_bias_correction = data.pop("activate_input_bias_correction", False)
         Q_C_lstm_var_name = data.pop("Q_C_lstm_var_name")
         Q_i_lstm_var_name = data.pop("Q_i_lstm_var_name")
         cannonsville_storage_pct_lstm_var_name = data.pop("cannonsville_storage_pct_lstm_var_name")
         PywrDRB_ML_plugin_path = data.pop("PywrDRB_ML_plugin_path")
         disable_tqdm = data.pop("disable_tqdm", True)
         debug = data.pop("debug", False)
-        return cls(model, start_date, activate_thermal_control, 
+        return cls(model, start_date, activate_thermal_control, activate_input_bias_correction,
                    Q_C_lstm_var_name, Q_i_lstm_var_name, cannonsville_storage_pct_lstm_var_name, 
                    PywrDRB_ML_plugin_path, disable_tqdm, debug, **data)
 TemperatureModel.register()
@@ -658,7 +782,7 @@ class ThermalReleaseRequirement(Parameter):
                 Q_C = self.Q_C.get_value(scenario_index), 
                 Q_i = self.Q_i.get_value(scenario_index),
                 cannonsville_storage_pct = self.reservoir_cannonsville.volume[0] / 95700 * 100,
-                timestep = timestep
+                current_date = timestep
             )
             self.thermal_release = thermal_release
             return thermal_release
@@ -702,9 +826,17 @@ class ForecastedTemperatureBeforeThermalRelease(Parameter):
         # The forecasted temperature should be populated when making the control release decision.
         # If activate_thermal_control is False, the forecasted temperature will be None. 
         if self.variable == "mu":
-            return self.temperature_model.forecasted_mu
+            forecast_mu = self.temperature_model.forecasted_mu_arr
+            if isinstance(forecast_mu, float):
+                return forecast_mu
+            else:
+                return forecast_mu[0] # Only return nowcast value as value method can only return one value
         elif self.variable == "sd":
-            return self.temperature_model.forecasted_sd
+            forecast_sd = self.temperature_model.forecasted_sd_arr
+            if isinstance(forecast_sd, float):
+                return forecast_sd
+            else:
+                return forecast_sd[0] # Only return nowcast value as value method can only return one value
         else:
             raise ValueError("Invalid variable. Must be 'mu' or 'sd'.")
         
