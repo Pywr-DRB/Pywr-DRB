@@ -126,3 +126,4 @@ If you are using the package, we kindly ask that you acknowledge both the model 
 
 # Acknowledgements
 This research was funded by the U.S. Geological Survey (USGS) as part of the Water Resources Mission area (USGS Grant Numbers G21AC10668, G23AC00678, and G24AC00124). The authors thank Hedeff Essaid and Noah Knowles from USGS and Aubrey Dugger and David Yates from the National Center for Atmospheric Research (NCAR) for providing data and feedback that improved this work. The views expressed in this work are those of the authors and do not reflect the views or policies of the USGS or NCAR.
+
