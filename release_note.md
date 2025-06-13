@@ -7,6 +7,10 @@
 
 Pywr-DRB v2.0.0 includes a major re-structure and modularization of the Pywr-DRB v1.0.2 (Hamilton et al., 2024), which emphasizes on improving the user interfaces for flexibility and ease of use. This version also greatly improves runtime efficiency and model fidelity by adding water temperature prediction and salt front location prediction capabilities while maintaining much of the core reservoir, diversion, regulatory and management functionality as the prior versions.
 
+Please cite the release as
+
+Lin, C.Y., Amestoy, T., Smith, M., Hamilton, A., & Reed, P. (2025). Pywr‑DRB v2.0.0 [Software]. Zenodo. https://doi.org/10.5281/zenodo.15659955
+
 ## Links and References
 - [Pywr-DRB Repository](https://github.com/Pywr-DRB/Pywr-DRB)
 - [Pywr-DRB Documentation](https://pywr-drb.github.io/Pywr-DRB/intro.html)
