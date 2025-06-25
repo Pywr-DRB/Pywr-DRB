@@ -52,7 +52,7 @@ from pywrdrb.path_manager import get_pn_object
 global pn
 pn = get_pn_object()
 
-class TemperatureModel(Parameter):
+class TemperatureModelLSTM(Parameter):
     def __init__(self, model, start_date, activate_thermal_control, activate_input_bias_correction,
                  Q_C_lstm_var_name, Q_i_lstm_var_name, cannonsville_storage_pct_lstm_var_name,
                  PywrDRB_ML_plugin_path, 
@@ -424,8 +424,166 @@ class TemperatureModel(Parameter):
         return cls(model, start_date, activate_thermal_control, activate_input_bias_correction,
                    Q_C_lstm_var_name, Q_i_lstm_var_name, cannonsville_storage_pct_lstm_var_name, 
                    PywrDRB_ML_plugin_path, disable_tqdm, debug, **data)
-TemperatureModel.register()
+TemperatureModelLSTM.register()
 # temperature_model
+
+class TemperatureModelRF(Parameter):
+    def __init__(self, model, start_date, activate_thermal_control, quantile,
+                 PywrDRB_ML_plugin_path, asycronized_update,
+                 disable_tqdm, debug, **kwargs):
+        super().__init__(model, **kwargs)
+        """
+        A custom parameter class to predict daily maximum water temperature at Lordville using LSTM models.
+        
+        Parameters
+        ----------
+        model : pywr.core.Model
+            The Pywr model object.
+        start_date : str
+            The start date for the model in "YYYY-MM-DD" format. If None, uses the model's start date.
+        PywrDRB_ML_plugin_path : str
+            The path to the PywrDRB_ML plugin directory containing the LSTM model configuration.
+        disable_tqdm : bool
+            If True, disables the tqdm progress bar during model initialization.
+        debug : bool
+            If True, enables debugging mode, which records intermediate values for inspection.
+        **kwargs : dict
+            Additional keyword arguments for the Parameter class.
+        """
+        self.debug = debug
+        
+        
+        # import plugin 
+        PywrDRB_ML_plugin_path = Path(PywrDRB_ML_plugin_path)
+        sys.path.insert(1, PywrDRB_ML_plugin_path) 
+        from src.rf_model import WaterTempRandomForestUncertaintyModel
+        
+        db_TempLSTM = pd.read_csv(PywrDRB_ML_plugin_path / "data/database/TempLSTM_database.csv"), index_col=0, parse_dates=True)
+        database = db_TempLSTM[start_date: '2023-12-31'] #'1979-01-01'
+        self.asycronized_update = asycronized_update
+        self.quantile = quantile
+        self.activate_thermal_control = activate_thermal_control
+        
+        folder = "RFModels"
+        
+        model = WaterTempRandomForestUncertaintyModel(
+        rf_model1=pn.models.get(folder) / "rf_model1.gz",
+        rf_model2=pn.models.get(folder) / "rf_model2.gz",
+        rf_model_map=pn.models.get(folder) / "rf_model_map.gz",
+        debug=debug
+        )
+        model.load_data(database)
+        self.model = model
+        
+    def make_control_release(self, Q_C, Q_i, cannonsville_storage_pct, current_date):
+        """
+        Make the thermal control release decision based on the LSTM model predictions.
+        
+        Parameters
+        ----------
+        Q_C : float
+            The Cannonsville reservoir downstream flow (01425000).
+        Q_i : float
+            The East Branch downstream flow (01417000) and natural inflow to Lordville.
+        cannonsville_storage_pct : float
+            The percentage of the Cannonsville reservoir storage.
+        current_date : pywr.core.CurrentDate
+            The current date in the model, used to determine if the LSTM models need to be updated.
+        
+        Returns
+        -------
+        float
+            The thermal control release amount in million gallons per day (MGD).
+        """
+        # activate if self.activate_thermal_control is True
+        # Here is the place to plugin control algorithm
+        
+        control_algorithm = self.control_algorithm
+        if callable(control_algorithm) is False:
+            raise ValueError("The control_algorithm must be a callable function.")
+        
+        thermal_release = control_algorithm(
+            ml_model=self,
+            Q_C=Q_C, 
+            Q_i=Q_i, 
+            cannonsville_storage_pct=cannonsville_storage_pct, 
+            current_date=current_date, 
+            )
+        return thermal_release
+    
+    def update(self, Q_C, Q_i, cannonsville_storage_pct, current_date):
+        """
+        Forward the LSTM models to one step.
+        
+        Parameters
+        ----------
+        Q_C : float
+            The Cannonsville reservoir downstream flow (01425000).
+        Q_i : float
+            The East Branch downstream flow (01417000) and natural inflow to Lordville.
+        cannonsville_storage_pct : float
+            The percentage of the Cannonsville reservoir storage.        
+        current_date : pywr.core.CurrentDate
+            The current date in the model, used to determine if the LSTM models need to be updated.
+        """
+        debug = self.debug
+        model = self.model
+        previous_date = current_date.datetime - timedelta(days=1) # as we are using the previous day flow to update the LSTM
+        if previous_date < model.current_date:
+            return None
+        
+        # Update input data
+        t = model.t
+        model.Q_C[t] = Q_C
+        try:
+            model.X_1[t, model.rf_model1.x_vars.index("QbcTavg_Q_C")] = Q_C
+        except ValueError:
+            if debug: print("Warning: 'QbcTavg_Q_C' not found in rf_model1.x_vars. Skipping update.")
+        try:
+            model.X_2[t, model.rf_model2.x_vars.index("QbcTavg_Q_C")] = Q_C
+        except ValueError:
+            if debug: print("Warning: 'QbcTavg_Q_C' not found in rf_model2.x_vars. Skipping update.")
+            
+        model.Q_i[t] = Q_i
+        try:
+            model.X_2[t, model.rf_model2.x_vars.index("QbcTavg_Q_i")] = Q_i
+        except ValueError:
+            if debug: print("Warning: 'QbcTavg_Q_i' not found in rf_model2.x_vars. Skipping update.")
+            
+        try:
+            model.X_1[t, model.rf_model1.x_vars.index("bc_cannonsville_storage_pct")] = cannonsville_storage_pct
+        except ValueError:
+            if debug: print("Warning: 'bc_cannonsville_storage_pct' not found in rf_model1.x_vars. Skipping update.")
+        
+        if self.asycronized_update is False:
+            if previous_date == self.current_date: # avoid double update
+                model.update(t=model.t, quantile=self.quantile) # outputing quantile will be very slow
+            return None
+        else:
+            # User can calulate the water temperature after the simulation, which avoids for loop that make the simulation much faster!
+            # We will dynamically update the pywrdrb variables dynamically here to the model object.
+            # In the control algorithm, user can safely use the update or update until with the internal data (updated) if needed.
+            return None
+    
+    def value(self, timestep, scenario_index):
+        # The values are retrieved through other parameters like 
+        # ForecastedTemperatureBeforeThermalRelease and TemperatureAfterThermalRelease
+        pass
+        return np.nan
+
+    @classmethod
+    def load(cls, model, data):
+        start_date = data.pop("start_date", None)
+        quantile = data.pop("quantile", None)
+        activate_thermal_control = data.pop("activate_thermal_control", False)
+        PywrDRB_ML_plugin_path = data.pop("PywrDRB_ML_plugin_path")
+        disable_tqdm = data.pop("disable_tqdm", True)
+        debug = data.pop("debug", False)
+        return cls(model, start_date, activate_thermal_control, quantile,
+                   PywrDRB_ML_plugin_path, disable_tqdm, debug, **data)
+TemperatureModelRF.register()
+# temperature_model
+
 
 # Update the TempLSTMs using the flows at previous timestep as the class is called before LP.
 class UpdateTemperatureAtLordville(Parameter):
@@ -476,7 +634,7 @@ UpdateTemperatureAtLordville.register()
 # update_temperature_at_lordville
 
 class TemperatureAfterThermalRelease(Parameter):
-    def __init__(self, model, temperature_model, update_temperature_at_lordville, variable, **kwargs):
+    def __init__(self, model, temperature_model, update_temperature_at_lordville, variable, ml_model_type, **kwargs):
         super().__init__(model, **kwargs)
         """
         A custom parameter class to retrieve the temperature after thermal release at Lordville.
@@ -496,6 +654,7 @@ class TemperatureAfterThermalRelease(Parameter):
         """
         self.temperature_model = temperature_model
         self.variable = variable
+        self.ml_model_type = ml_model_type
 
         # To ensure update_temperature_at_lordville is run before this parameter.
         self.children.add(update_temperature_at_lordville)
@@ -503,23 +662,34 @@ class TemperatureAfterThermalRelease(Parameter):
     def value(self, timestep, scenario_index):
         # The forecasted temperature should be populated when making the control release decision.
         # If activate_thermal_control is False, the forecasted temperature will be None. 
-        if self.variable == "mu":
-            return self.temperature_model.mu
-        elif self.variable == "sd":
-            return self.temperature_model.sd
-        else:
-            raise ValueError("Invalid variable. Must be 'mu' or 'sd'.")
+        if self.ml_model_type == "lstm":
+            if self.variable == "mu":
+                return self.temperature_model.mu
+            elif self.variable == "sd":
+                return self.temperature_model.sd
+            else:
+                raise ValueError("Invalid variable. Must be 'mu' or 'sd'.")
+        elif self.ml_model_type == "rf":
+            if self.variable == "mu":
+                return self.temperature_model.model.T_L
+            elif self.variable == "lb":
+                return self.temperature_model.model.T_L_lb
+            elif self.variable == "ub":
+                return self.temperature_model.model.T_L_ub
+            else:
+                raise ValueError("Invalid variable. Must be 'mu', 'lb', or 'ub.")
         
     @classmethod
     def load(cls, model, data):
         assert "variable" in data.keys()
         temperature_model = load_parameter(model, "temperature_model")
         update_temperature_at_lordville = load_parameter(model, "update_temperature_at_lordville")
+        ml_model_type = data.pop("ml_model_type", "lstm")  # Default to LSTM if not specified
         variable = data.pop("variable")
-        return cls(model, temperature_model, update_temperature_at_lordville, variable, **data)
+        return cls(model, temperature_model, update_temperature_at_lordville, variable, ml_model_type, **data)
 TemperatureAfterThermalRelease.register()
 # temperature_after_thermal_release_mu
-# temperature_after_thermal_release_sd
+# temperature_after_thermal_release_sd (turning off the sd for now)
 
 # Estimated Q is for forecasting purposes (thremal control)
 class Estimated_Q_C(Parameter):
@@ -798,7 +968,7 @@ ThermalReleaseRequirement.register()
 # thermal_release_requirement
 
 class ForecastedTemperatureBeforeThermalRelease(Parameter):
-    def __init__(self, model, temperature_model, thermal_release_requirement, variable, **kwargs):
+    def __init__(self, model, temperature_model, thermal_release_requirement, variable, ml_model_type, **kwargs):
         super().__init__(model, **kwargs)
         """
         A custom parameter class to retrieve the forecasted temperature before thermal release at Lordville.
@@ -818,6 +988,7 @@ class ForecastedTemperatureBeforeThermalRelease(Parameter):
         """
         self.temperature_model = temperature_model
         self.variable = variable
+        self.ml_model_type = ml_model_type
 
         # To ensure thermal_release_requirement is run before this parameter.
         self.children.add(thermal_release_requirement)
@@ -825,20 +996,31 @@ class ForecastedTemperatureBeforeThermalRelease(Parameter):
     def value(self, timestep, scenario_index):
         # The forecasted temperature should be populated when making the control release decision.
         # If activate_thermal_control is False, the forecasted temperature will be None. 
-        if self.variable == "mu":
-            forecast_mu = self.temperature_model.forecasted_mu_arr
-            if isinstance(forecast_mu, float):
-                return forecast_mu
+        
+        if self.ml_model_type == "lstm":
+            if self.variable == "mu":
+                forecast_mu = self.temperature_model.forecasted_mu_arr
+                if isinstance(forecast_mu, float):
+                    return forecast_mu
+                else:
+                    return forecast_mu[0] # Only return nowcast value as value method can only return one value
+            elif self.variable == "sd":
+                forecast_sd = self.temperature_model.forecasted_sd_arr
+                if isinstance(forecast_sd, float):
+                    return forecast_sd
+                else:
+                    return forecast_sd[0] # Only return nowcast value as value method can only return one value
             else:
-                return forecast_mu[0] # Only return nowcast value as value method can only return one value
-        elif self.variable == "sd":
-            forecast_sd = self.temperature_model.forecasted_sd_arr
-            if isinstance(forecast_sd, float):
-                return forecast_sd
+                raise ValueError("Invalid variable. Must be 'mu' or 'sd'.")
+        elif self.ml_model_type == "rf":
+            if self.variable == "mu":
+                return self.temperature_model.model.forecast_T_L_arr[0]
+            elif self.variable == "lb":
+                return self.temperature_model.model.forecast_T_L_lb_arr[0]
+            elif self.variable == "ub":
+                return self.temperature_model.model.forecast_T_L_ub_arr[0]
             else:
-                return forecast_sd[0] # Only return nowcast value as value method can only return one value
-        else:
-            raise ValueError("Invalid variable. Must be 'mu' or 'sd'.")
+                raise ValueError("Invalid variable. Must be 'mu', 'lb', or 'ub'.")
         
     @classmethod
     def load(cls, model, data):
@@ -846,10 +1028,11 @@ class ForecastedTemperatureBeforeThermalRelease(Parameter):
         temperature_model = load_parameter(model, "temperature_model")
         thermal_release_requirement = load_parameter(model, "thermal_release_requirement")
         variable = data.pop("variable")
+        ml_model_type = data.pop("ml_model_type", "lstm")
         return cls(model, temperature_model, thermal_release_requirement, variable, **data)
 ForecastedTemperatureBeforeThermalRelease.register()
 # forecasted_temperature_before_thermal_release_mu
-# forecasted_temperature_before_thermal_release_sd
+# forecasted_temperature_before_thermal_release_sd (turning off the sd for now)
 
 
 
