@@ -1953,19 +1953,34 @@ class ModelBuilder:
             raise FileNotFoundError(f"PywrDRB_ML plugin not found at {PywrDRB_ML_plugin_path}")
         
         # Main temperature model
-        model_dict["parameters"]["temperature_model"] = {
-                "type": "TemperatureModel",
-                "start_date": temp_options.get("start_date", None),
-                "activate_thermal_control": temp_options.get("activate_thermal_control", False),
-                "activate_input_bias_correction": temp_options.get("activate_input_bias_correction", False),
-                "Q_C_lstm_var_name": temp_options["Q_C_lstm_var_name"],
-                "Q_i_lstm_var_name": temp_options["Q_i_lstm_var_name"],
-                "cannonsville_storage_pct_lstm_var_name": temp_options["cannonsville_storage_pct_lstm_var_name"],
-                "PywrDRB_ML_plugin_path": str(PywrDRB_ML_plugin_path),
-                "disable_tqdm": temp_options.get("disable_tqdm", True),
-                "debug": temp_options.get("debug", False),
-            }
-        
+        ml_model_type = temp_options.get("ml_model_type", "rf")
+        if ml_model_type == "lstm":
+            model_dict["parameters"]["temperature_model"] = {
+                    "type": "TemperatureModelLSTM",
+                    "ml_model_type": ml_model_type,
+                    "start_date": temp_options.get("start_date", None),
+                    "activate_thermal_control": temp_options.get("activate_thermal_control", False),
+                    "activate_input_bias_correction": temp_options.get("activate_input_bias_correction", False),
+                    "Q_C_lstm_var_name": temp_options["Q_C_lstm_var_name"],
+                    "Q_i_lstm_var_name": temp_options["Q_i_lstm_var_name"],
+                    "cannonsville_storage_pct_lstm_var_name": temp_options["cannonsville_storage_pct_lstm_var_name"],
+                    "PywrDRB_ML_plugin_path": str(PywrDRB_ML_plugin_path),
+                    "disable_tqdm": temp_options.get("disable_tqdm", True),
+                    "debug": temp_options.get("debug", False),
+                }
+        elif ml_model_type == "rf":
+            model_dict["parameters"]["temperature_model"] = {
+                    "type": "TemperatureModelRF",
+                    "ml_model_type": ml_model_type,
+                    "start_date": temp_options.get("start_date", None),
+                    "activate_thermal_control": temp_options.get("activate_thermal_control", False),
+                    "quantile": temp_options.get("quantile", None),
+                    "asycronized_update": temp_options.get("asycronized_update", False),
+                    "PywrDRB_ML_plugin_path": str(PywrDRB_ML_plugin_path),
+                    "disable_tqdm": temp_options.get("disable_tqdm", True),
+                    "debug": temp_options.get("debug", False),
+                }
+            
         # Call update() in TemperatureModel to compute the max water temperature at Lordville after thermal release
         # This will use the flow from the previous time step to update the lstms as this is pre-LP implementation.
         model_dict["parameters"]["update_temperature_at_lordville"] = {
@@ -1988,12 +2003,18 @@ class ModelBuilder:
         # Retrieve forecasted temperature before thermal release (t)
         model_dict["parameters"]["forecasted_temperature_before_thermal_release_mu"] = {
                 "type": "ForecastedTemperatureBeforeThermalRelease",
+                "ml_model_type": ml_model_type,
                 "variable": "mu"
             }
-        model_dict["parameters"]["forecasted_temperature_before_thermal_release_sd"] = {
-                "type": "ForecastedTemperatureBeforeThermalRelease",
-                "variable": "sd"
-            }
+        
+        # We will not output sd directly as only lstm will output the sd. RF model 
+        # output ub and lb assicated with given quantile, not sd.
+        # Users can retrieve the sd post simulation if needed.
+        # The previous timestep info (mu, sd or others) will be available in the initiated object for dynamic usage.
+        #model_dict["parameters"]["forecasted_temperature_before_thermal_release_sd"] = {
+        #        "type": "ForecastedTemperatureBeforeThermalRelease",
+        #        "variable": "sd"
+        #    }
         
         # Overwrite original downstream setting to add the thermal release
         for reservoir in ["cannonsville"]:
@@ -2017,12 +2038,18 @@ class ModelBuilder:
         # Retrieve the max water temperature at Lordville after thermal release (t-1)
         model_dict["parameters"]["temperature_after_thermal_release_mu"] = {
                 "type": "TemperatureAfterThermalRelease",
+                "ml_model_type": ml_model_type,
                 "variable": "mu"
             }
-        model_dict["parameters"]["temperature_after_thermal_release_sd"] = {
-                "type": "TemperatureAfterThermalRelease",
-                "variable": "sd"
-            }
+        
+        # We will not output sd directly as only lstm will output the sd. RF model 
+        # output ub and lb assicated with given quantile, not sd.
+        # Users can retrieve the sd post simulation if needed.
+        # The previous timestep info (mu, sd or others) will be available in the initiated object for dynamic usage.
+        #model_dict["parameters"]["temperature_after_thermal_release_sd"] = {
+        #        "type": "TemperatureAfterThermalRelease",
+        #        "variable": "sd"
+        #    }
         
     def add_parameter_salinity_model(self):
         """
