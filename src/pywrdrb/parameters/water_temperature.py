@@ -429,8 +429,7 @@ TemperatureModelLSTM.register()
 
 class TemperatureModelRF(Parameter):
     def __init__(self, model, start_date, activate_thermal_control, quantile,
-                 PywrDRB_ML_plugin_path, asycronized_update,
-                 disable_tqdm, debug, **kwargs):
+                 PywrDRB_ML_plugin_path, asycronized_update, debug, **kwargs):
         super().__init__(model, **kwargs)
         """
         A custom parameter class to predict daily maximum water temperature at Lordville using LSTM models.
@@ -443,8 +442,6 @@ class TemperatureModelRF(Parameter):
             The start date for the model in "YYYY-MM-DD" format. If None, uses the model's start date.
         PywrDRB_ML_plugin_path : str
             The path to the PywrDRB_ML plugin directory containing the LSTM model configuration.
-        disable_tqdm : bool
-            If True, disables the tqdm progress bar during model initialization.
         debug : bool
             If True, enables debugging mode, which records intermediate values for inspection.
         **kwargs : dict
@@ -458,7 +455,7 @@ class TemperatureModelRF(Parameter):
         sys.path.insert(1, PywrDRB_ML_plugin_path) 
         from src.rf_model import WaterTempRandomForestUncertaintyModel
         
-        db_TempLSTM = pd.read_csv(PywrDRB_ML_plugin_path / "data/database/TempLSTM_database.csv"), index_col=0, parse_dates=True)
+        db_TempLSTM = pd.read_csv(PywrDRB_ML_plugin_path / "data/database/TempLSTM_database.csv", index_col=0, parse_dates=True)
         database = db_TempLSTM[start_date: '2023-12-31'] #'1979-01-01'
         self.asycronized_update = asycronized_update
         self.quantile = quantile
@@ -466,14 +463,14 @@ class TemperatureModelRF(Parameter):
         
         folder = "RFModels"
         
-        model = WaterTempRandomForestUncertaintyModel(
-        rf_model1=pn.models.get(folder) / "rf_model1.gz",
-        rf_model2=pn.models.get(folder) / "rf_model2.gz",
-        rf_model_map=pn.models.get(folder) / "rf_model_map.gz",
+        ml_model = WaterTempRandomForestUncertaintyModel(
+        rf_model1 = PywrDRB_ML_plugin_path / f"models/{folder}/rf_model1.gz",
+        rf_model2 = PywrDRB_ML_plugin_path / f"models/{folder}/rf_model2.gz",
+        rf_model_map = PywrDRB_ML_plugin_path / f"models/{folder}/rf_model_map.gz",
         debug=debug
         )
-        model.load_data(database)
-        self.model = model
+        ml_model.load_data(database)
+        self.ml_model = ml_model
         
     def make_control_release(self, Q_C, Q_i, cannonsville_storage_pct, current_date):
         """
@@ -527,41 +524,41 @@ class TemperatureModelRF(Parameter):
             The current date in the model, used to determine if the LSTM models need to be updated.
         """
         debug = self.debug
-        model = self.model
+        ml_model = self.ml_model
         previous_date = current_date.datetime - timedelta(days=1) # as we are using the previous day flow to update the LSTM
-        if previous_date < model.current_date:
+        if previous_date < ml_model.current_date:
             return None
         
         # Update input data
-        t = model.t
-        model.Q_C[t] = Q_C
+        t = ml_model.t
+        ml_model.Q_C[t] = Q_C
         try:
-            model.X_1[t, model.rf_model1.x_vars.index("QbcTavg_Q_C")] = Q_C
+            ml_model.X_1[t, ml_model.rf_model1.x_vars.index("QbcTavg_Q_C")] = Q_C
         except ValueError:
             if debug: print("Warning: 'QbcTavg_Q_C' not found in rf_model1.x_vars. Skipping update.")
         try:
-            model.X_2[t, model.rf_model2.x_vars.index("QbcTavg_Q_C")] = Q_C
+            ml_model.X_2[t, ml_model.rf_model2.x_vars.index("QbcTavg_Q_C")] = Q_C
         except ValueError:
             if debug: print("Warning: 'QbcTavg_Q_C' not found in rf_model2.x_vars. Skipping update.")
             
-        model.Q_i[t] = Q_i
+        ml_model.Q_i[t] = Q_i
         try:
-            model.X_2[t, model.rf_model2.x_vars.index("QbcTavg_Q_i")] = Q_i
+            ml_model.X_2[t, ml_model.rf_model2.x_vars.index("QbcTavg_Q_i")] = Q_i
         except ValueError:
             if debug: print("Warning: 'QbcTavg_Q_i' not found in rf_model2.x_vars. Skipping update.")
             
         try:
-            model.X_1[t, model.rf_model1.x_vars.index("bc_cannonsville_storage_pct")] = cannonsville_storage_pct
+            ml_model.X_1[t, ml_model.rf_model1.x_vars.index("bc_cannonsville_storage_pct")] = cannonsville_storage_pct
         except ValueError:
             if debug: print("Warning: 'bc_cannonsville_storage_pct' not found in rf_model1.x_vars. Skipping update.")
         
         if self.asycronized_update is False:
-            if previous_date == self.current_date: # avoid double update
-                model.update(t=model.t, quantile=self.quantile) # outputing quantile will be very slow
+            if previous_date == ml_model.current_date: # avoid double update
+                ml_model.update(t=ml_model.t, quantile=self.quantile) # outputing quantile will be very slow
             return None
         else:
             # User can calulate the water temperature after the simulation, which avoids for loop that make the simulation much faster!
-            # We will dynamically update the pywrdrb variables dynamically here to the model object.
+            # We will dynamically update the pywrdrb variables dynamically here to the ml_model object.
             # In the control algorithm, user can safely use the update or update until with the internal data (updated) if needed.
             return None
     
@@ -577,10 +574,10 @@ class TemperatureModelRF(Parameter):
         quantile = data.pop("quantile", None)
         activate_thermal_control = data.pop("activate_thermal_control", False)
         PywrDRB_ML_plugin_path = data.pop("PywrDRB_ML_plugin_path")
-        disable_tqdm = data.pop("disable_tqdm", True)
+        asycronized_update = data.pop("asycronized_update", False)
         debug = data.pop("debug", False)
         return cls(model, start_date, activate_thermal_control, quantile,
-                   PywrDRB_ML_plugin_path, disable_tqdm, debug, **data)
+                     PywrDRB_ML_plugin_path, asycronized_update, debug, **data)
 TemperatureModelRF.register()
 # temperature_model
 
@@ -671,11 +668,11 @@ class TemperatureAfterThermalRelease(Parameter):
                 raise ValueError("Invalid variable. Must be 'mu' or 'sd'.")
         elif self.ml_model_type == "rf":
             if self.variable == "mu":
-                return self.temperature_model.model.T_L
+                return self.temperature_model.ml_model.T_L
             elif self.variable == "lb":
-                return self.temperature_model.model.T_L_lb
+                return self.temperature_model.ml_model.T_L_lb
             elif self.variable == "ub":
-                return self.temperature_model.model.T_L_ub
+                return self.temperature_model.ml_model.T_L_ub
             else:
                 raise ValueError("Invalid variable. Must be 'mu', 'lb', or 'ub.")
         
@@ -1014,11 +1011,11 @@ class ForecastedTemperatureBeforeThermalRelease(Parameter):
                 raise ValueError("Invalid variable. Must be 'mu' or 'sd'.")
         elif self.ml_model_type == "rf":
             if self.variable == "mu":
-                return self.temperature_model.model.forecast_T_L_arr[0]
+                return self.temperature_model.ml_model.forecast_T_L_arr[0]
             elif self.variable == "lb":
-                return self.temperature_model.model.forecast_T_L_lb_arr[0]
+                return self.temperature_model.ml_model.forecast_T_L_lb_arr[0]
             elif self.variable == "ub":
-                return self.temperature_model.model.forecast_T_L_ub_arr[0]
+                return self.temperature_model.ml_model.forecast_T_L_ub_arr[0]
             else:
                 raise ValueError("Invalid variable. Must be 'mu', 'lb', or 'ub'.")
         
@@ -1029,7 +1026,7 @@ class ForecastedTemperatureBeforeThermalRelease(Parameter):
         thermal_release_requirement = load_parameter(model, "thermal_release_requirement")
         variable = data.pop("variable")
         ml_model_type = data.pop("ml_model_type", "lstm")
-        return cls(model, temperature_model, thermal_release_requirement, variable, **data)
+        return cls(model, temperature_model, thermal_release_requirement, variable, ml_model_type, **data)
 ForecastedTemperatureBeforeThermalRelease.register()
 # forecasted_temperature_before_thermal_release_mu
 # forecasted_temperature_before_thermal_release_sd (turning off the sd for now)
