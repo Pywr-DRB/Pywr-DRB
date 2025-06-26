@@ -1957,7 +1957,6 @@ class ModelBuilder:
         if ml_model_type == "lstm":
             model_dict["parameters"]["temperature_model"] = {
                     "type": "TemperatureModelLSTM",
-                    "ml_model_type": ml_model_type,
                     "start_date": temp_options.get("start_date", None),
                     "activate_thermal_control": temp_options.get("activate_thermal_control", False),
                     "activate_input_bias_correction": temp_options.get("activate_input_bias_correction", False),
@@ -1971,13 +1970,11 @@ class ModelBuilder:
         elif ml_model_type == "rf":
             model_dict["parameters"]["temperature_model"] = {
                     "type": "TemperatureModelRF",
-                    "ml_model_type": ml_model_type,
                     "start_date": temp_options.get("start_date", None),
                     "activate_thermal_control": temp_options.get("activate_thermal_control", False),
                     "quantile": temp_options.get("quantile", None),
                     "asycronized_update": temp_options.get("asycronized_update", False),
                     "PywrDRB_ML_plugin_path": str(PywrDRB_ML_plugin_path),
-                    "disable_tqdm": temp_options.get("disable_tqdm", True),
                     "debug": temp_options.get("debug", False),
                 }
             
@@ -2065,15 +2062,27 @@ class ModelBuilder:
             raise FileNotFoundError(f"PywrDRB_ML plugin not found at {PywrDRB_ML_plugin_path}")
         
         # Main salinity model
-        model_dict["parameters"]["salinity_model"] = {
-                "type": "SalinityModel",
-                "start_date": salinity_options.get("start_date", None),
-                "Q_Trenton_lstm_var_name": salinity_options["Q_Trenton_lstm_var_name"],
-                "Q_Schuylkill_lstm_var_name": salinity_options["Q_Schuylkill_lstm_var_name"],
-                "PywrDRB_ML_plugin_path": str(PywrDRB_ML_plugin_path),
-                "disable_tqdm": salinity_options.get("disable_tqdm", True),
-                "debug": salinity_options.get("debug", False),
-            }
+        ml_model_type = salinity_options.get("ml_model_type", "rf")
+
+        if ml_model_type == "lstm":
+            model_dict["parameters"]["salinity_model"] = {
+                    "type": "SalinityModel",
+                    "start_date": salinity_options.get("start_date", None),
+                    "Q_Trenton_lstm_var_name": salinity_options["Q_Trenton_lstm_var_name"],
+                    "Q_Schuylkill_lstm_var_name": salinity_options["Q_Schuylkill_lstm_var_name"],
+                    "PywrDRB_ML_plugin_path": str(PywrDRB_ML_plugin_path),
+                    "disable_tqdm": salinity_options.get("disable_tqdm", True),
+                    "debug": salinity_options.get("debug", False),
+                }
+        elif ml_model_type == "rf":
+            model_dict["parameters"]["salinity_model"] = {
+                    "type": "SalinityModelRF",
+                    "start_date": salinity_options.get("start_date", None),
+                    "quantile": salinity_options.get("quantile", None),
+                    "asycronized_update": salinity_options.get("asycronized_update", False),
+                    "PywrDRB_ML_plugin_path": str(PywrDRB_ML_plugin_path),
+                    "debug": salinity_options.get("debug", False),
+                }
         
         # Use flow at previous time step to update the salt front location as this is pre-LP implementation.
         model_dict["parameters"]["update_salt_front_location"] = {
@@ -2083,9 +2092,10 @@ class ModelBuilder:
         # Retrieve salt front river mile (t-1)
         model_dict["parameters"]["salt_front_location_mu"] = {
                 "type": "SaltFrontLocation",
-                "variable": "mu"
+                "variable": "mu",
+                "ml_model_type": ml_model_type
             }
-        model_dict["parameters"]["salt_front_location_sd"] = {
-                "type": "SaltFrontLocation",
-                "variable": "sd"
-            }
+        #model_dict["parameters"]["salt_front_location_sd"] = {
+        #        "type": "SaltFrontLocation",
+        #        "variable": "sd"
+        #    }

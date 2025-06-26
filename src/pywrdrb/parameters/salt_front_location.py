@@ -39,9 +39,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from datetime import datetime, timedelta
-from tqdm import tqdm
 from pywr.parameters import Parameter, load_parameter
-from pywr.recorders import Recorder
 
 from pywrdrb.path_manager import get_pn_object
 # Directories (PathNavigator)
@@ -192,6 +190,107 @@ class SalinityModel(Parameter):
 SalinityModel.register()
 # salinity_model
 
+class SalinityModelRF(Parameter):
+    def __init__(self, model, start_date, quantile,
+                 PywrDRB_ML_plugin_path, asycronized_update, debug, **kwargs):
+        super().__init__(model, **kwargs)
+        """
+        A custom parameter class to predict daily maximum water temperature at Lordville using LSTM models.
+        
+        Parameters
+        ----------
+        model : pywr.core.Model
+            The Pywr model object.
+        start_date : str
+            The start date for the model in "YYYY-MM-DD" format. If None, uses the model's start date.
+        PywrDRB_ML_plugin_path : str
+            The path to the PywrDRB_ML plugin directory containing the LSTM model configuration.
+        debug : bool
+            If True, enables debugging mode, which records intermediate values for inspection.
+        **kwargs : dict
+            Additional keyword arguments for the Parameter class.
+        """
+        self.debug = debug
+        
+        # import plugin 
+        PywrDRB_ML_plugin_path = Path(PywrDRB_ML_plugin_path)
+        sys.path.insert(1, PywrDRB_ML_plugin_path) 
+        from src.rf_model import SaltfrontRandomForestUncertaintyModel
+        
+        db_SalinityLSTM = pd.read_csv(PywrDRB_ML_plugin_path / "data/database/SalinityLSTM_database.csv", index_col=0, parse_dates=True)
+        database = db_SalinityLSTM[start_date: '2023-12-31'] #'1979-01-01'
+        self.asycronized_update = asycronized_update
+        self.quantile = quantile
+        
+        folder = "RFModels"
+        
+        ml_model = SaltfrontRandomForestUncertaintyModel(
+        rf_model_saltfront = PywrDRB_ML_plugin_path / f"models/{folder}/rf_model_saltfront.gz",
+        debug=debug
+        )
+        ml_model.load_data(database)
+        self.ml_model = ml_model
+        
+    def update(self, Q_Trenton, Q_Schuylkill, current_date):
+        ml_model = self.ml_model
+        previous_date = current_date.datetime - timedelta(days=1) # as we are using the previous day flow to update the LSTM
+        if previous_date < ml_model.current_date:
+            return None
+        
+        # Update input data
+        t = ml_model.t
+        
+        ml_model.Q_Trenton[t] = Q_Trenton
+        try:
+            ml_model.X[t, ml_model.rf_model_saltfront.x_vars.index("Q_Trenton_bc")] = Q_Trenton
+        except ValueError:
+            print("Warning: 'Q_Trenton_bc' not found in rf_model_saltfront.x_vars. Skipping update.")
+        
+        ml_model.Q_Schuylkill[t] = Q_Schuylkill
+        try:
+            ml_model.X[t, ml_model.rf_model_saltfront.x_vars.index("Q_Schuylkill_bc")] = Q_Schuylkill
+        except ValueError:
+            print("Warning: 'Q_Schuylkill_bc' not found in rf_model_saltfront.x_vars. Skipping update.")
+                
+        ml_model.Q_Trenton_7darr.append(ml_model.Q_Trenton[t])
+        ml_model.Q_Schuylkill_7darr.append(ml_model.Q_Schuylkill[t])        
+        ml_model.Q_Trenton_7d_avg[t] = np.mean(ml_model.Q_Trenton_7darr)
+        ml_model.Q_Schuylkill_7d_avg[t] = np.mean(ml_model.Q_Schuylkill_7darr)
+        
+        try:
+            ml_model.X[t, ml_model.rf_model_saltfront.x_vars.index("Q_Trenton_bc_7d_avg")] = ml_model.Q_Trenton_7d_avg[t]
+        except ValueError:
+            print("Warning: 'Q_Trenton_bc_7d_avg' not found in rf_model_saltfront.x_vars. Skipping update.")
+        try:
+            ml_model.X[t, ml_model.rf_model_saltfront.x_vars.index("Q_Schuylkill_bc_7d_avg")] = ml_model.Q_Schuylkill_7d_avg[t]
+        except ValueError:
+            print("Warning: 'Q_Schuylkill_bc_7d_avg' not found in rf_model_saltfront.x_vars. Skipping update.") 
+            return None
+        else:
+            # User can calulate the salt front after the simulation, which avoids for loop that make the simulation much faster!
+            # We will dynamically update the pywrdrb variables dynamically here to the ml_model object.
+            # In the control algorithm, user can safely use the update or update until with the internal data (updated) if needed.
+            return None
+    
+    def value(self, timestep, scenario_index):
+        # The values are retrieved through other parameters like 
+        # ForecastedTemperatureBeforeThermalRelease and TemperatureAfterThermalRelease
+        pass
+        return np.nan
+
+    @classmethod
+    def load(cls, model, data):
+        start_date = data.pop("start_date", None)
+        quantile = data.pop("quantile", None)
+        PywrDRB_ML_plugin_path = data.pop("PywrDRB_ML_plugin_path")
+        asycronized_update = data.pop("asycronized_update", False)
+        debug = data.pop("debug", False)
+        return cls(model, start_date, quantile,
+                     PywrDRB_ML_plugin_path, asycronized_update, debug, **data)
+SalinityModelRF.register()
+# salinity_model
+
+
 class UpdateSaltFrontLocation(Parameter):
     def __init__(self, model, salinity_model, **kwargs):
         super().__init__(model, **kwargs)
@@ -240,7 +339,7 @@ UpdateSaltFrontLocation.register()
 # update_salt_front_location
 
 class SaltFrontLocation(Parameter):
-    def __init__(self, model, salinity_model, update_salt_front_location, variable, **kwargs):
+    def __init__(self, model, salinity_model, update_salt_front_location, variable, ml_model_type, **kwargs):
         super().__init__(model, **kwargs)
         """
         A parameter to access the salt front location (mu or sd) from the salinity model.
@@ -260,6 +359,7 @@ class SaltFrontLocation(Parameter):
         """
         self.salinity_model = salinity_model
         self.variable = variable
+        self.ml_model_type = ml_model_type
 
         # To ensure update_salt_front_location is run before this parameter.
         self.children.add(update_salt_front_location)
@@ -267,12 +367,22 @@ class SaltFrontLocation(Parameter):
     def value(self, timestep, scenario_index):
         # The forecasted temperature should be populated when making the control release decision.
         # If activate_thermal_control is False, the forecasted temperature will be None. 
-        if self.variable == "mu":
-            return self.salinity_model.mu
-        elif self.variable == "sd":
-            return self.salinity_model.sd
-        else:
-            raise ValueError("Invalid variable. Must be 'mu' or 'sd'.")
+        if self.ml_model_type == "lstm":
+            if self.variable == "mu":
+                return self.salinity_model.mu
+            elif self.variable == "sd":
+                return self.salinity_model.sd
+            else:
+                raise ValueError("Invalid variable. Must be 'mu' or 'sd'.")
+        elif self.ml_model_type == "rf":
+            if self.variable == "mu":
+                return self.salinity_model.ml_model.saltfront
+            elif self.variable == "lb":
+                return self.salinity_model.ml_model.saltfront_lb
+            elif self.variable == "ub":
+                return self.salinity_model.ml_model.saltfront_ub
+            else:
+                raise ValueError("Invalid variable. Must be 'mu', 'lb' or 'ub'.")
         
     @classmethod
     def load(cls, model, data):
@@ -280,7 +390,8 @@ class SaltFrontLocation(Parameter):
         salinity_model = load_parameter(model, "salinity_model")
         update_salt_front_location = load_parameter(model, "update_salt_front_location")
         variable = data.pop("variable")
-        return cls(model, salinity_model, update_salt_front_location, variable, **data)
+        ml_model_type = data.pop("ml_model_type", "lstm")
+        return cls(model, salinity_model, update_salt_front_location, variable, ml_model_type, **data)
 SaltFrontLocation.register()
 # salt_front_location_mu
 # salt_front_location_sd
