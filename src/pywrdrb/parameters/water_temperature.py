@@ -500,11 +500,11 @@ class TemperatureModelRF(Parameter):
             raise ValueError("The control_algorithm must be a callable function.")
         
         thermal_release = control_algorithm(
-            ml_model=self,
+            model=self,
             Q_C=Q_C, 
             Q_i=Q_i, 
             cannonsville_storage_pct=cannonsville_storage_pct, 
-            current_date=current_date, 
+            current_date=current_date.datetime, 
             )
         return thermal_release
     

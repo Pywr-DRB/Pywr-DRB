@@ -265,9 +265,13 @@ class SalinityModelRF(Parameter):
             ml_model.X[t, ml_model.rf_model_saltfront.x_vars.index("Q_Schuylkill_bc_7d_avg")] = ml_model.Q_Schuylkill_7d_avg[t]
         except ValueError:
             print("Warning: 'Q_Schuylkill_bc_7d_avg' not found in rf_model_saltfront.x_vars. Skipping update.") 
+        
+        if self.asycronized_update is False:
+            if previous_date == ml_model.current_date: # avoid double update
+                ml_model.update(t=ml_model.t, quantile=self.quantile) # outputing quantile will be very slow
             return None
         else:
-            # User can calulate the salt front after the simulation, which avoids for loop that make the simulation much faster!
+            # User can calulate the water temperature after the simulation, which avoids for loop that make the simulation much faster!
             # We will dynamically update the pywrdrb variables dynamically here to the ml_model object.
             # In the control algorithm, user can safely use the update or update until with the internal data (updated) if needed.
             return None
