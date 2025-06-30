@@ -1952,20 +1952,24 @@ class ModelBuilder:
         if pn.sc.get("PywrDRB_ML").exists() is False:
             raise FileNotFoundError(f"PywrDRB_ML plugin not found at {PywrDRB_ML_plugin_path}")
         
-        # Main temperature model
-        ml_model_type = temp_options.get("ml_model_type", "rf")
+        # Main temperature model        
+        ml_model_type = temp_options.get("ml_model_type", "lstm")
         if ml_model_type == "lstm":
             model_dict["parameters"]["temperature_model"] = {
                     "type": "TemperatureModelLSTM",
-                    "start_date": temp_options.get("start_date", None),
+                    "model1": temp_options.get("model1"),
+                    "model2": temp_options.get("model2"),
+                    "Tavg2Tmax_coefs": temp_options.get("Tavg2Tmax_coefs"),
+                    "start_date": temp_options.get("start_date", None),       
+                    "end_date": temp_options.get("end_date", '2023-12-31'),
                     "activate_thermal_control": temp_options.get("activate_thermal_control", False),
-                    "activate_input_bias_correction": temp_options.get("activate_input_bias_correction", False),
-                    "Q_C_lstm_var_name": temp_options["Q_C_lstm_var_name"],
-                    "Q_i_lstm_var_name": temp_options["Q_i_lstm_var_name"],
-                    "cannonsville_storage_pct_lstm_var_name": temp_options["cannonsville_storage_pct_lstm_var_name"],
+                    "Q_C_lstm_var_name": temp_options.get("Q_C_lstm_var_name", "QbcTavg_Q_C"),
+                    "Q_i_lstm_var_name": temp_options.get("Q_i_lstm_var_name", "QbcTavg_Q_i"),
+                    "cannonsville_storage_pct_lstm_var_name": temp_options.get("cannonsville_storage_pct_lstm_var_name", "bc_cannonsville_storage_pct"),
                     "PywrDRB_ML_plugin_path": str(PywrDRB_ML_plugin_path),
-                    "disable_tqdm": temp_options.get("disable_tqdm", True),
-                    "debug": temp_options.get("debug", False),
+                    "thermal_mitigation_bank_size": temp_options.get("thermal_mitigation_bank_size", 1620),  # mgd
+                    "asycronized_update": temp_options.get("asycronized_update", False),
+                    "debug": temp_options.get("debug", False),    
                 }
         elif ml_model_type == "rf":
             model_dict["parameters"]["temperature_model"] = {

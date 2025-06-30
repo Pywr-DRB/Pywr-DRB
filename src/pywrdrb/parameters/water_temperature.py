@@ -4,8 +4,8 @@ to predict mean water temperature at Lordville each timestep.
 
 Overview
 --------
-The temperature model is developed based on Zwart et al. (2023). In order to fit to the 
-control purpose, we construct LSTM1 to predict the Cannonsville downstream gauge temperature (T_C) 
+The temperature model is developed based on Zwart et al. (2023). In order to fit to the
+control purpose, we construct LSTM1 to predict the Cannonsville downstream gauge temperature (T_C)
 and LSTM2 to predict the East Branch flow and the natural flow to Lordville (T_i).
 The final water temperature at Lordville (T_L) is calculated by mapping the average temperature (Tavg)
 to the maximum temperature (T_L) using a random forest model.
@@ -20,15 +20,15 @@ JAWRA Journal of the American Water Resources Association, 59(2), 317-337.
 
 To do
 ------
-- Currently, we did not dynamically update the lag-1 temperature at Lordville inputs, 
+- Currently, we did not dynamically update the lag-1 temperature at Lordville inputs,
   which we assume lag-1 information is available in the real-world.
-- Will add the thermal control algorithm to the TemperatureModel class and enable 
+- Will add the thermal control algorithm to the TemperatureModel class and enable
   forecast functionality.
-- Thermal bank is an attribute of the TemperatureModel class, which is used to store the 
+- Thermal bank is an attribute of the TemperatureModel class, which is used to store the
   thermal mitigation bank size.
   Ideally, all mitigation banks should be stored as a dedicated parameter class.
-- We use simplfied demand allocation logic to estimate the Cannonsville and Pepacton 
-  reservoir diversion, which works fine. Chung-Yi recommends not to complicate the logic 
+- We use simplfied demand allocation logic to estimate the Cannonsville and Pepacton
+  reservoir diversion, which works fine. Chung-Yi recommends not to complicate the logic
   and calculation here.
 
 Change Log
@@ -53,160 +53,66 @@ global pn
 pn = get_pn_object()
 
 class TemperatureModelLSTM(Parameter):
-    def __init__(self, model, start_date, activate_thermal_control, activate_input_bias_correction,
+    def __init__(self, model,
+                 model1, model2, Tavg2Tmax_coefs,
+                 start_date, end_date, activate_thermal_control,
                  Q_C_lstm_var_name, Q_i_lstm_var_name, cannonsville_storage_pct_lstm_var_name,
-                 PywrDRB_ML_plugin_path, 
-                 disable_tqdm, debug, **kwargs):
+                 PywrDRB_ML_plugin_path,
+                 thermal_mitigation_bank_size,
+                 asycronized_update,
+                 debug,
+                 **kwargs):
         super().__init__(model, **kwargs)
         """
-        A custom parameter class to predict daily maximum water temperature at Lordville using LSTM models.
-        
-        Parameters
-        ----------
-        model : pywr.core.Model
-            The Pywr model object.
-        start_date : str
-            The start date for the model in "YYYY-MM-DD" format. If None, uses the model's start date.
-        activate_thermal_control : bool
-            If True, activates the thermal control mechanism.
-        Q_C_lstm_var_name : str
-            The variable name for the Cannonsville reservoir downstream flow in the LSTM model.
-        Q_i_lstm_var_name : str
-            The variable name for the East Branch flow and the natural flow to Lordville in the LSTM model.
-        PywrDRB_ML_plugin_path : str
-            The path to the PywrDRB_ML plugin directory containing the LSTM model configuration.
-        disable_tqdm : bool
-            If True, disables the tqdm progress bar during model initialization.
-        debug : bool
-            If True, enables debugging mode, which records intermediate values for inspection.
-        **kwargs : dict
-            Additional keyword arguments for the Parameter class.
+
         """
         self.debug = debug
-        
-        
-        # import plugin 
+
+         # import plugin
         PywrDRB_ML_plugin_path = Path(PywrDRB_ML_plugin_path)
-        sys.path.insert(1, PywrDRB_ML_plugin_path) 
-        from src.torch_bmi import bmi_lstm
-        
-        # Final water temperature at Lordville
-        self.mu, self.sd = np.nan, np.nan
-        
-        # Forecasted water temperature at Lordville
-        self.forecasted_mu_arr, self.forecasted_sd_arr = np.nan, np.nan
-        
-        # Indicate whether to activate thermal control
+        sys.path.insert(1, PywrDRB_ML_plugin_path)
+        from src.lstm_model import WaterTempLSTMModel
+
+        db_TempLSTM = pd.read_csv(PywrDRB_ML_plugin_path / "data/database/TempLSTM_database.csv", index_col=0, parse_dates=True)
+        database = db_TempLSTM[start_date: '2023-12-31'] #'1979-01-01'
+        self.asycronized_update = asycronized_update
         self.activate_thermal_control = activate_thermal_control
-        self.activate_input_bias_correction = activate_input_bias_correction
-        self.Q_C_lstm_var_name = Q_C_lstm_var_name
-        self.Q_i_lstm_var_name = Q_i_lstm_var_name
-        self.cannonsville_storage_pct_lstm_var_name = cannonsville_storage_pct_lstm_var_name
-        
-        #!! For debugging purposes
-        if debug:
-            self.records = {
-                "date": [],
-                "T_C_mu": [],
-                "T_C_sd": [],
-                "T_i_mu": [],
-                "T_i_sd": [],
-                "Tavg_mu": [],
-                "Tavg_sd": [],
-                "T_L_mu": [],
-                "T_L_sd": [],
-                "Q_C": [],
-                "Q_i": [],
-                "cannonsville_storage_pct": [],
-                "forecasted_mu_arr": [],
-                "forecasted_sd_arr": [],
-                "bias_Q_i": [],
-                "bias_Q_C": [],
-                "bias_cannonsville_storage_pct": []
-            }
-        
-        # Predict the Cannonsville reservoir release temperature (T_C)
-        lstm1 = bmi_lstm()
-        lstm1.initialize(config_file=PywrDRB_ML_plugin_path / "models" / "TempLSTM1.yml", train=False, root_dir=PywrDRB_ML_plugin_path)
-        self.lstm1 = lstm1
-        
-        # Predict the water temperature for east branch (T_i)
-        lstm2 = bmi_lstm()
-        lstm2.initialize(config_file=PywrDRB_ML_plugin_path / "models" / "TempLSTM2.yml", train=False, root_dir=PywrDRB_ML_plugin_path)
-        self.lstm2 = lstm2
-        
-        # Map Tavg to Tmax (T_L) at Lordville
-        rf_model = joblib.load(PywrDRB_ML_plugin_path / "models" / "rf_model.gz")
-        self.rf_model = rf_model
-        
-        # Get the start date, which the latest among LSTM1, LSTM2, and pywrdrb start dates
-        if start_date is not None:
-            dt = max(model.timestepper.start, datetime.strptime(start_date, "%Y-%m-%d"))
+
+        ml_model = WaterTempLSTMModel(
+            model1=model1,
+            model2=model2,
+            Tavg2Tmax_coefs=Tavg2Tmax_coefs,
+            start_date=start_date, end_date=end_date,
+            Q_C_lstm_var_name=Q_C_lstm_var_name,
+            Q_i_lstm_var_name=Q_i_lstm_var_name,
+            cannonsville_storage_pct_lstm_var_name=cannonsville_storage_pct_lstm_var_name,
+            thermal_mitigation_bank_size=thermal_mitigation_bank_size,  # mgd
+            debug=debug
+            )
+        ml_model.load_data(database)
+
+        self.ml_model = ml_model
+
+        self.control_algorithm = None  # Placeholder for the control algorithm function
+
+    def set_control_algorithm(self, control_algorithm):
+        """
+        Set the control algorithm function for the thermal control release decision.
+
+        Parameters
+        ----------
+        control_algorithm : callable
+            A function that takes the LSTM model and other parameters to make the thermal control release decision.
+        """
+        if callable(control_algorithm):
+            self.control_algorithm = control_algorithm
         else:
-            dt = model.timestepper.start
-        
-        # Identify the start date of the LSTM models
-        dt1 = pd.to_datetime(lstm1.get_current_date())
-        dt2 = pd.to_datetime(lstm2.get_current_date())
-        self.start_date = min(max(dt1, dt2, dt), dt)
-        length1 = max((self.start_date - dt1).days, 0)
-        length2 = max((self.start_date - dt2).days, 0)
-        if length1 == 0 and length2 == 0:
-            self.start_date = max(dt1, dt2)
-        elif length1 == 0 and length2 > 0:
-            self.start_date = dt1
-        elif length1 > 0 and length2 == 0:
-            self.start_date = dt2
-        length1 = max((self.start_date - dt1).days, 0)
-        length2 = max((self.start_date - dt2).days, 0)
-        
-        if disable_tqdm is False: # For debugging
-            print(f"Advancing the TempLSTM1 model to the start date: {self.start_date} (length={length1} days)")
-            print(f"Advancing the TempLSTM2 model to the start date: {self.start_date} (length={length2} days)")
-        
-        # Advance the LSTM models to the start date 
-        def update_until(lstm, length):
-            # If the length is 0, we do not need to update the LSTM model
-            if length == 0:
-                return None
-            
-            # Get unscaled lstm input data
-            unscaled_data = lstm.get_unscaled_values(lead_time=length) 
-            for var in lstm.x_vars:
-                lstm.set_value(var, unscaled_data[var])
-            lstm.update_until(length)
-                
-        if disable_tqdm is False: # For debugging
-            print(f"Advancing TempLSTM models to the {self.start_date} ...")
-            
-        update_until(lstm=self.lstm1, length=length1)
-        update_until(lstm=self.lstm2, length=length2)
-        
-        # Safenet to ensure the LSTM is only update once per timestep
-        self.current_date = self.start_date 
-        
-        # Initialize thermal mitigation bank size (MGD)
-        self.thermal_mitigation_bank_size = 1620
-        self.remained_bank_amount = 1620
-        
-        # Contorl algorithm (externally provided) -> used in make_control_release
-        # We will turn this into a built-in control algorithm in the future
-        self.control_algorithm = lambda ml_model, Q_C, Q_i, cannonsville_storage_pct, current_date: 3 #np.nan
-        
-        # Bias correction for the LSTM models inputs for forecasting. 
-        # If the thermal release happens in the previous timestep, the state dynamics 
-        # will be different than the training inputs. We calculate the difference between
-        # the two to shift the input array for forecasting.
-        self.bias_correction_dict = {
-            "Q_C": 0.0,  # Bias correction for Cannonsville downstream flow
-            "Q_i": 0.0,  # Bias correction for East Branch downstream flow and natural inflow to Lordville
-            "cannonsville_storage_pct": 0.0  # Bias correction for Cannonsville reservoir storage percentage
-            }
-        
+            raise ValueError("The control_algorithm must be a callable function.")
+
     def make_control_release(self, Q_C, Q_i, cannonsville_storage_pct, current_date):
         """
         Make the thermal control release decision based on the LSTM model predictions.
-        
+
         Parameters
         ----------
         Q_C : float
@@ -217,7 +123,7 @@ class TemperatureModelLSTM(Parameter):
             The percentage of the Cannonsville reservoir storage.
         current_date : pywr.core.CurrentDate
             The current date in the model, used to determine if the LSTM models need to be updated.
-        
+
         Returns
         -------
         float
@@ -225,205 +131,57 @@ class TemperatureModelLSTM(Parameter):
         """
         # activate if self.activate_thermal_control is True
         # Here is the place to plugin control algorithm
-        
+
         control_algorithm = self.control_algorithm
-        if callable(control_algorithm) is False:
-            raise ValueError("The control_algorithm must be a callable function.")
-        
+
         thermal_release = control_algorithm(
-            ml_model=self,
-            Q_C=Q_C, 
-            Q_i=Q_i, 
-            cannonsville_storage_pct=cannonsville_storage_pct, 
-            current_date=current_date, 
+            ml_model=self.ml_model,
+            Q_C=Q_C,
+            Q_i=Q_i,
+            cannonsville_storage_pct=cannonsville_storage_pct,
+            current_date=current_date,
             )
         return thermal_release
-    
+
     def update(self, Q_C, Q_i, cannonsville_storage_pct, current_date):
-        """
-        Forward the LSTM models to one step.
-        
-        Parameters
-        ----------
-        Q_C : float
-            The Cannonsville reservoir downstream flow (01425000).
-        Q_i : float
-            The East Branch downstream flow (01417000) and natural inflow to Lordville.
-        cannonsville_storage_pct : float
-            The percentage of the Cannonsville reservoir storage.        
-        current_date : pywr.core.CurrentDate
-            The current date in the model, used to determine if the LSTM models need to be updated.
-        """
+
+        ml_model = self.ml_model
+
         previous_date = current_date.datetime - timedelta(days=1) # as we are using the previous day flow to update the LSTM
-        if previous_date < self.current_date:
+        if previous_date < ml_model.current_date:
             return None
-        
-        elif previous_date == self.current_date:
-            
-            lstm1 = self.lstm1
-            lstm2 = self.lstm2
-            Q_C_lstm_var_name = self.Q_C_lstm_var_name
-            Q_i_lstm_var_name = self.Q_i_lstm_var_name
-            cannonsville_storage_pct_lstm_var_name = self.cannonsville_storage_pct_lstm_var_name
-            activate_input_bias_correction = self.activate_input_bias_correction
-            
-            # Update the LSTM1 models with the current flow values
-            unscaled_data = lstm1.get_unscaled_values(lead_time=0) # Retrieve unscaled data for the current date
-            for var in lstm1.x_vars:
-                if var == Q_C_lstm_var_name:
-                    lstm1.set_value(Q_C_lstm_var_name, Q_C)
-                    if activate_input_bias_correction:
-                        self.bias_correction_dict["Q_C"] = Q_C - unscaled_data.loc[0, Q_C_lstm_var_name]
-                elif var == cannonsville_storage_pct_lstm_var_name:
-                    lstm1.set_value(cannonsville_storage_pct_lstm_var_name, cannonsville_storage_pct)
-                    if activate_input_bias_correction:
-                        self.bias_correction_dict["cannonsville_storage_pct"] = cannonsville_storage_pct - unscaled_data.loc[0, cannonsville_storage_pct_lstm_var_name]
-                else:
-                    lstm1.set_value(var, unscaled_data.loc[0, var]) 
-            lstm1.update()
-            
-            # Update the LSTM2 models with the current flow values
-            unscaled_data = lstm2.get_unscaled_values(lead_time=0) # Retrieve unscaled data for the current date
-            for var in lstm2.x_vars:
-                if var == Q_i_lstm_var_name:
-                    lstm2.set_value(Q_i_lstm_var_name, Q_i)
-                    if activate_input_bias_correction:
-                        self.bias_correction_dict["Q_i"] = Q_i - unscaled_data.loc[0, Q_i_lstm_var_name]
-                elif var == Q_C_lstm_var_name: # connected model
-                    lstm2.set_value(Q_C_lstm_var_name, Q_C)
-                else:
-                    lstm2.set_value(var, unscaled_data.loc[0, var]) 
-            lstm2.update()
-            
-            # T_C
-            T_C_mu = np.zeros(1)
-            T_C_sd = np.zeros(1)
-            lstm1.get_value("channel_water_surface_water__mu_max_of_temperature", T_C_mu)
-            lstm1.get_value("channel_water_surface_water__sd_max_of_temperature", T_C_sd)
-            T_C_mu, T_C_sd = T_C_mu[0], T_C_sd[0]
-            
-            # T_i
-            T_i_mu = np.zeros(1)
-            T_i_sd = np.zeros(1)
-            lstm2.get_value("channel_water_surface_water__mu_max_of_temperature", T_i_mu)
-            lstm2.get_value("channel_water_surface_water__sd_max_of_temperature", T_i_sd)
-            T_i_mu, T_i_sd = T_i_mu[0], T_i_sd[0]
-            
-            # Tavg
-            Tavg_mu = (T_C_mu*Q_C + T_i_mu*Q_i)/(Q_C + Q_i)
-            # Assuming T_i and T_C are independent
-            Tavg_sd = np.sqrt((T_C_sd**2 * Q_C**2 + T_i_sd**2 * Q_i**2) / (Q_C + Q_i)**2)
-            
-            # T_L (Tmax at Lordville) Using a random forest model to map Tavg to T_L
-            rf_model = self.rf_model
-            T_L_mu = rf_model.predict([[Tavg_mu]])[0]
-            T_L_sd = Tavg_sd # assuming a constant sd for T_L
-            self.mu, self.sd = T_L_mu, T_L_sd
-            
-            # For debugging purposes
-            if self.debug:
-                records = self.records
-                records["date"].append(previous_date)
-                records["T_C_mu"].append(T_C_mu)
-                records["T_C_sd"].append(T_C_sd)
-                records["T_i_mu"].append(T_i_mu)
-                records["T_i_sd"].append(T_i_sd)
-                records["Tavg_mu"].append(Tavg_mu)
-                records["Tavg_sd"].append(Tavg_sd)
-                records["T_L_mu"].append(T_L_mu)
-                records["T_L_sd"].append(T_L_sd)
-                records["Q_C"].append(Q_C)
-                records["Q_i"].append(Q_i)
-                records["cannonsville_storage_pct"].append(cannonsville_storage_pct)
-            
-            self.current_date += timedelta(days=1) # Avoid updating the LSTM models multiple times in a single timestep
-            return None
-    
-    def forecast(self, Q_C, Q_i, cannonsville_storage_pct, lead_time=0):
-            
-        lstm1 = self.lstm1
-        lstm2 = self.lstm2
-        Q_C_lstm_var_name = self.Q_C_lstm_var_name
-        Q_i_lstm_var_name = self.Q_i_lstm_var_name
-        cannonsville_storage_pct_lstm_var_name = self.cannonsville_storage_pct_lstm_var_name
-        
-        # Update the LSTM1 models with the current flow values
-        unscaled_data = lstm1.get_unscaled_values(lead_time=lead_time) # Retrieve unscaled data for the current date
-        for var in lstm1.x_vars:
-            if var == Q_C_lstm_var_name:
-                Q_C_array = unscaled_data[var] + self.bias_correction_dict["Q_C"]
-                Q_C_array[Q_C_array < 0] = 0
-                Q_C_array[0] = Q_C  # Ensure the first value is the current Q_C
-                # Do a bias correction for the Q_C variable 
-                lstm1.set_value(Q_C_lstm_var_name, Q_C_array)
-            elif var == cannonsville_storage_pct_lstm_var_name:
-                cannonsville_storage_pct_array = unscaled_data[var] + self.bias_correction_dict["cannonsville_storage_pct"]
-                cannonsville_storage_pct_array[cannonsville_storage_pct_array < 0] = 0
-                cannonsville_storage_pct_array[0] = cannonsville_storage_pct  # Ensure the first value is the current cannonsville_storage_pct
-                lstm1.set_value(cannonsville_storage_pct_lstm_var_name, cannonsville_storage_pct_array)
-            else:
-                lstm1.set_value(var, unscaled_data[var]) 
-        df_T_C = lstm1.forecast(lead_time=lead_time)
-        
-        # Update the LSTM2 models with the current flow values
-        unscaled_data = lstm2.get_unscaled_values(lead_time=lead_time) # Retrieve unscaled data for the current date
-        for var in lstm2.x_vars:
-            if var == Q_i_lstm_var_name:
-                Q_i_array = unscaled_data[var] + self.bias_correction_dict["Q_i"]
-                Q_i_array[Q_i_array < 0] = 0
-                Q_i_array[0] = Q_i  # Ensure the first value is the current Q_i
-                lstm2.set_value(Q_i_lstm_var_name, Q_i_array)
-            elif var == Q_C_lstm_var_name: # connected model
-                Q_C_array = unscaled_data[var] + self.bias_correction_dict["Q_C"]
-                Q_C_array[Q_C_array < 0] = 0
-                Q_C_array[0] = Q_C  # Ensure the first value is the current Q_C
-                lstm2.set_value(Q_C_lstm_var_name, Q_C_array)
-            else:
-                lstm2.set_value(var, unscaled_data[var]) 
-        df_T_i = lstm2.forecast(lead_time=lead_time)
-        
-        # Tavg
-        Tavg_mu = (df_T_C["mu"]*Q_C_array + df_T_i["mu"]*Q_i_array)/(Q_C_array + Q_i_array)
-        # Assuming T_i and T_C are independent
-        Tavg_sd = np.sqrt((df_T_C["sd"]**2 * Q_C_array**2 + df_T_i["sd"]**2 * Q_i_array**2) / (Q_C_array + Q_i_array)**2)
-        
-        # T_L (Tmax at Lordville) Using a random forest model to map Tavg to T_L
-        rf_model = self.rf_model
-        T_L_mu = rf_model.predict(Tavg_mu.values.reshape(-1, 1))
-        T_L_sd = Tavg_sd.values # assuming a constant sd for T_L
-        self.forecasted_mu_arr, self.forecasted_sd_arr = T_L_mu, T_L_sd
-        
-        # For debugging purposes
-        if self.debug:
-            records = self.records
-            records["forecasted_mu_arr"].append(T_L_mu)
-            records["forecasted_sd_arr"].append(T_L_sd)
-            records["bias_Q_i"].append(self.bias_correction_dict["Q_i"])
-            records["bias_Q_C"].append(self.bias_correction_dict["Q_C"])
-            records["bias_cannonsville_storage_pct"].append(self.bias_correction_dict["cannonsville_storage_pct"])
-        
+
+        asycronized_update = self.asycronized_update
+
+        _ = ml_model.update(t=ml_model.t,
+                        Q_C=Q_C, Q_i=Q_i, cannonsville_storage_pct=cannonsville_storage_pct,
+                        asycronized_update=asycronized_update)
         return None
-    
+
     def value(self, timestep, scenario_index):
-        # The values are retrieved through other parameters like 
+        # The values are retrieved through other parameters like
         # ForecastedTemperatureBeforeThermalRelease and TemperatureAfterThermalRelease
         pass
         return np.nan
 
     @classmethod
     def load(cls, model, data):
-        start_date = data.pop("start_date", None)
+        model1 = data.pop("model1")
+        model2 = data.pop("model2")
+        Tavg2Tmax_coefs = data.pop("Tavg2Tmax_coefs")
+        start_date = data.pop("start_date")
+        end_date = data.pop("end_date")
         activate_thermal_control = data.pop("activate_thermal_control", False)
-        activate_input_bias_correction = data.pop("activate_input_bias_correction", False)
         Q_C_lstm_var_name = data.pop("Q_C_lstm_var_name")
         Q_i_lstm_var_name = data.pop("Q_i_lstm_var_name")
         cannonsville_storage_pct_lstm_var_name = data.pop("cannonsville_storage_pct_lstm_var_name")
         PywrDRB_ML_plugin_path = data.pop("PywrDRB_ML_plugin_path")
-        disable_tqdm = data.pop("disable_tqdm", True)
+        thermal_mitigation_bank_size = data.pop("thermal_mitigation_bank_size")  # mgd
+        asycronized_update = data.pop("asycronized_update", False)
         debug = data.pop("debug", False)
-        return cls(model, start_date, activate_thermal_control, activate_input_bias_correction,
-                   Q_C_lstm_var_name, Q_i_lstm_var_name, cannonsville_storage_pct_lstm_var_name, 
-                   PywrDRB_ML_plugin_path, disable_tqdm, debug, **data)
+        return cls(model, model1, model2, Tavg2Tmax_coefs, start_date, end_date, activate_thermal_control,
+                   Q_C_lstm_var_name, Q_i_lstm_var_name, cannonsville_storage_pct_lstm_var_name,
+                   PywrDRB_ML_plugin_path, thermal_mitigation_bank_size, asycronized_update, debug, **data)
 TemperatureModelLSTM.register()
 # temperature_model
 
@@ -433,7 +191,7 @@ class TemperatureModelRF(Parameter):
         super().__init__(model, **kwargs)
         """
         A custom parameter class to predict daily maximum water temperature at Lordville using LSTM models.
-        
+
         Parameters
         ----------
         model : pywr.core.Model
@@ -448,34 +206,34 @@ class TemperatureModelRF(Parameter):
             Additional keyword arguments for the Parameter class.
         """
         self.debug = debug
-        
-        
-        # import plugin 
+
+
+        # import plugin
         PywrDRB_ML_plugin_path = Path(PywrDRB_ML_plugin_path)
-        sys.path.insert(1, PywrDRB_ML_plugin_path) 
+        sys.path.insert(1, PywrDRB_ML_plugin_path)
         from src.rf_model import WaterTempRandomForestUncertaintyModel
-        
+
         db_TempLSTM = pd.read_csv(PywrDRB_ML_plugin_path / "data/database/TempLSTM_database.csv", index_col=0, parse_dates=True)
         database = db_TempLSTM[start_date: '2023-12-31'] #'1979-01-01'
         self.asycronized_update = asycronized_update
         self.quantile = quantile
         self.activate_thermal_control = activate_thermal_control
-        
+
         folder = "RFModels"
-        
+
         ml_model = WaterTempRandomForestUncertaintyModel(
-        rf_model1 = PywrDRB_ML_plugin_path / f"models/{folder}/rf_model1.gz",
-        rf_model2 = PywrDRB_ML_plugin_path / f"models/{folder}/rf_model2.gz",
-        rf_model_map = PywrDRB_ML_plugin_path / f"models/{folder}/rf_model_map.gz",
+        rf_model1=PywrDRB_ML_plugin_path / f"models/{folder}/rf_model1.gz",
+        rf_model2=PywrDRB_ML_plugin_path / f"models/{folder}/rf_model2.gz",
+        rf_model_map=PywrDRB_ML_plugin_path / f"models/{folder}/rf_model_map.gz",
         debug=debug
         )
         ml_model.load_data(database)
         self.ml_model = ml_model
-        
+
     def make_control_release(self, Q_C, Q_i, cannonsville_storage_pct, current_date):
         """
         Make the thermal control release decision based on the LSTM model predictions.
-        
+
         Parameters
         ----------
         Q_C : float
@@ -486,7 +244,7 @@ class TemperatureModelRF(Parameter):
             The percentage of the Cannonsville reservoir storage.
         current_date : pywr.core.CurrentDate
             The current date in the model, used to determine if the LSTM models need to be updated.
-        
+
         Returns
         -------
         float
@@ -494,24 +252,24 @@ class TemperatureModelRF(Parameter):
         """
         # activate if self.activate_thermal_control is True
         # Here is the place to plugin control algorithm
-        
+
         control_algorithm = self.control_algorithm
         if callable(control_algorithm) is False:
             raise ValueError("The control_algorithm must be a callable function.")
-        
+
         thermal_release = control_algorithm(
             model=self,
-            Q_C=Q_C, 
-            Q_i=Q_i, 
-            cannonsville_storage_pct=cannonsville_storage_pct, 
-            current_date=current_date.datetime, 
+            Q_C=Q_C,
+            Q_i=Q_i,
+            cannonsville_storage_pct=cannonsville_storage_pct,
+            current_date=current_date.datetime,
             )
         return thermal_release
-    
+
     def update(self, Q_C, Q_i, cannonsville_storage_pct, current_date):
         """
         Forward the LSTM models to one step.
-        
+
         Parameters
         ----------
         Q_C : float
@@ -519,7 +277,7 @@ class TemperatureModelRF(Parameter):
         Q_i : float
             The East Branch downstream flow (01417000) and natural inflow to Lordville.
         cannonsville_storage_pct : float
-            The percentage of the Cannonsville reservoir storage.        
+            The percentage of the Cannonsville reservoir storage.
         current_date : pywr.core.CurrentDate
             The current date in the model, used to determine if the LSTM models need to be updated.
         """
@@ -528,7 +286,7 @@ class TemperatureModelRF(Parameter):
         previous_date = current_date.datetime - timedelta(days=1) # as we are using the previous day flow to update the LSTM
         if previous_date < ml_model.current_date:
             return None
-        
+
         # Update input data
         t = ml_model.t
         ml_model.Q_C[t] = Q_C
@@ -540,18 +298,18 @@ class TemperatureModelRF(Parameter):
             ml_model.X_2[t, ml_model.rf_model2.x_vars.index("QbcTavg_Q_C")] = Q_C
         except ValueError:
             if debug: print("Warning: 'QbcTavg_Q_C' not found in rf_model2.x_vars. Skipping update.")
-            
+
         ml_model.Q_i[t] = Q_i
         try:
             ml_model.X_2[t, ml_model.rf_model2.x_vars.index("QbcTavg_Q_i")] = Q_i
         except ValueError:
             if debug: print("Warning: 'QbcTavg_Q_i' not found in rf_model2.x_vars. Skipping update.")
-            
+
         try:
             ml_model.X_1[t, ml_model.rf_model1.x_vars.index("bc_cannonsville_storage_pct")] = cannonsville_storage_pct
         except ValueError:
             if debug: print("Warning: 'bc_cannonsville_storage_pct' not found in rf_model1.x_vars. Skipping update.")
-        
+
         if self.asycronized_update is False:
             if previous_date == ml_model.current_date: # avoid double update
                 ml_model.update(t=ml_model.t, quantile=self.quantile) # outputing quantile will be very slow
@@ -561,9 +319,9 @@ class TemperatureModelRF(Parameter):
             # We will dynamically update the pywrdrb variables dynamically here to the ml_model object.
             # In the control algorithm, user can safely use the update or update until with the internal data (updated) if needed.
             return None
-    
+
     def value(self, timestep, scenario_index):
-        # The values are retrieved through other parameters like 
+        # The values are retrieved through other parameters like
         # ForecastedTemperatureBeforeThermalRelease and TemperatureAfterThermalRelease
         pass
         return np.nan
@@ -587,7 +345,7 @@ class UpdateTemperatureAtLordville(Parameter):
     def __init__(self, model, temperature_model, **kwargs):
         """
         A custom parameter class to update the temperature model at Lordville using the previous flow values.
-        
+
         Parameters
         ----------
         model : pywr.core.Model
@@ -600,33 +358,33 @@ class UpdateTemperatureAtLordville(Parameter):
         super().__init__(model, **kwargs)
         self.temperature_model = temperature_model
         self.children.add(temperature_model)
-    
+
     def setup(self):
-        super().setup()  
+        super().setup()
         self.link_01425000 = self.model.nodes["link_01425000"] # Cannonsville reservoir downstream flow (01425000)
         self.link_delLordville = self.model.nodes["link_delLordville"] # flow at delLordville
         self.reservoir_cannonsville = self.model.nodes["reservoir_cannonsville"]
-        
+
         self.children.add(self.link_01425000)
         self.children.add(self.link_delLordville)
         self.children.add(self.reservoir_cannonsville)
-    
+
     # Need to use prev flow_delLordville and max_flow_catchmentConsumption_delLordville
     # Or get prev_flow from Lordeville node and infer Q_i = Q_L - Q_C
     def value(self, timestep, scenario_index):
         temperature_model = self.temperature_model
         # Cannonsville reservoir downstream flow (01425000)
-        Q_C = self.link_01425000.prev_flow[0]  
+        Q_C = self.link_01425000.prev_flow[0]
         # East Branch downstream flow (01417000) and natural inflow to Lordville
         Q_i = self.link_delLordville.prev_flow[0] - Q_C
         cannonsville_storage_pct = self.reservoir_cannonsville.volume[0] / 95700 * 100
         temperature_model.update(Q_C, Q_i, cannonsville_storage_pct, timestep)
         return np.nan
-    
+
     @classmethod
     def load(cls, model, data):
         temperature_model = load_parameter(model, "temperature_model")
-        return cls(model, temperature_model, **data) 
+        return cls(model, temperature_model, **data)
 UpdateTemperatureAtLordville.register()
 # update_temperature_at_lordville
 
@@ -635,7 +393,7 @@ class TemperatureAfterThermalRelease(Parameter):
         super().__init__(model, **kwargs)
         """
         A custom parameter class to retrieve the temperature after thermal release at Lordville.
-        
+
         Parameters
         ----------
         model : pywr.core.Model
@@ -658,12 +416,12 @@ class TemperatureAfterThermalRelease(Parameter):
 
     def value(self, timestep, scenario_index):
         # The forecasted temperature should be populated when making the control release decision.
-        # If activate_thermal_control is False, the forecasted temperature will be None. 
+        # If activate_thermal_control is False, the forecasted temperature will be None.
         if self.ml_model_type == "lstm":
             if self.variable == "mu":
-                return self.temperature_model.mu
+                return self.temperature_model.ml_model.T_L_mu
             elif self.variable == "sd":
-                return self.temperature_model.sd
+                return self.temperature_model.ml_model.T_L_sd
             else:
                 raise ValueError("Invalid variable. Must be 'mu' or 'sd'.")
         elif self.ml_model_type == "rf":
@@ -675,7 +433,7 @@ class TemperatureAfterThermalRelease(Parameter):
                 return self.temperature_model.ml_model.T_L_ub
             else:
                 raise ValueError("Invalid variable. Must be 'mu', 'lb', or 'ub.")
-        
+
     @classmethod
     def load(cls, model, data):
         assert "variable" in data.keys()
@@ -691,8 +449,8 @@ TemperatureAfterThermalRelease.register()
 # Estimated Q is for forecasting purposes (thremal control)
 class Estimated_Q_C(Parameter):
     # Cannonsville reservoir release => downstream gauge (01425000) => Lordville
-    def __init__(self, model, downstream_release_target_cannonsville, 
-                 flow_01425000, max_flow_catchmentConsumption_01425000, 
+    def __init__(self, model, downstream_release_target_cannonsville,
+                 flow_01425000, max_flow_catchmentConsumption_01425000,
                  flow_cannonsville, max_flow_catchmentConsumption_cannonsville,
                  max_flow_delivery_nyc,
                  **kwargs):
@@ -700,7 +458,7 @@ class Estimated_Q_C(Parameter):
         """
         A custom parameter class to estimate the Cannonsville reservoir downstream flow (Q_C)
         based on the downstream release target and the water balance at the Cannonsville reservoir.
-        
+
         Parameters
         ----------
         model : pywr.core.Model
@@ -733,37 +491,37 @@ class Estimated_Q_C(Parameter):
         self.children.add(flow_cannonsville)
         self.children.add(max_flow_catchmentConsumption_cannonsville)
         self.children.add(max_flow_delivery_nyc)
-        
+
     def setup(self):
         super().setup()
         self.reservoir_cannonsville = self.model.nodes["reservoir_cannonsville"] # will retrieve the reservoir volume at the previous timestep
-        
+
     def value(self, timestep, scenario_index):
         max_flow_delivery_nyc = self.max_flow_delivery_nyc.get_value(scenario_index)
         # = min("demand_nyc", "max_flow_drought_delivery_nyc", "max_flow_ffmp_delivery_nyc")
-        
+
         # Currently, the delivery to NYC is allocated to three NYC reservoirs through VolBalanceNYCDemand.
         # I don't want to repeat the logic here, we approximate the allocation by the reservoir volumes.
         max_volume_cannonsville = 95700 # MG (We manually input here to avoid complexity)
         max_volume_nyc = 270800 # MG (We manually input here to avoid complexity)
         max_flow_delivery_nyc_cannonsville = max_flow_delivery_nyc * max_volume_cannonsville / max_volume_nyc
-        
+
         available_connonsville_volume = self.reservoir_cannonsville.volume[0] \
             + self.flow_cannonsville.get_value(scenario_index) \
             - self.max_flow_catchmentConsumption_cannonsville.get_value(scenario_index) \
-            
+
         # outflow = downstream_release_target_cannonsville if the reservoir is not empty
         target_outflow = self.downstream_release_target_cannonsville.get_value(scenario_index)
-            
+
         # Assuming max_flow_delivery_nyc_cannonsville is not the piority during the drought
         outflow = min(available_connonsville_volume, target_outflow)
-        
+
         # For spill situation
         available_connonsville_volume = available_connonsville_volume - max_flow_delivery_nyc_cannonsville
         spill = max((available_connonsville_volume-target_outflow) - max_volume_cannonsville, 0)
-        
-        reservoir_release = outflow + spill 
-        
+
+        reservoir_release = outflow + spill
+
         Q_C = reservoir_release + self.flow_01425000.get_value(scenario_index) \
             - self.max_flow_catchmentConsumption_01425000.get_value(scenario_index)
         return Q_C
@@ -775,10 +533,10 @@ class Estimated_Q_C(Parameter):
         max_flow_catchmentConsumption_01425000 = load_parameter(model, "max_flow_catchmentConsumption_01425000")
         flow_cannonsville = load_parameter(model, "flow_cannonsville") # catchment_cannonsville
         max_flow_catchmentConsumption_cannonsville = load_parameter(model, "max_flow_catchmentConsumption_cannonsville")
-        
+
         max_flow_delivery_nyc = load_parameter(model, "max_flow_delivery_nyc") # aggregated parameter
-        return cls(model, downstream_release_target_cannonsville, 
-                   flow_01425000, max_flow_catchmentConsumption_01425000, 
+        return cls(model, downstream_release_target_cannonsville,
+                   flow_01425000, max_flow_catchmentConsumption_01425000,
                    flow_cannonsville, max_flow_catchmentConsumption_cannonsville,
                    max_flow_delivery_nyc, **data)
 Estimated_Q_C.register()
@@ -786,17 +544,17 @@ Estimated_Q_C.register()
 
 class Estimated_Q_i(Parameter):
     # Pepacton reservoir release => downstream gauge (01417000) => Lordville
-    def __init__(self, model, downstream_release_target_pepacton, flow_01417000, 
-                 max_flow_catchmentConsumption_01417000, flow_delLordville, 
-                 max_flow_catchmentConsumption_delLordville, 
+    def __init__(self, model, downstream_release_target_pepacton, flow_01417000,
+                 max_flow_catchmentConsumption_01417000, flow_delLordville,
+                 max_flow_catchmentConsumption_delLordville,
                  flow_pepacton, max_flow_catchmentConsumption_pepacton,
                  max_flow_delivery_nyc,
                  **kwargs):
         super().__init__(model, **kwargs)
         """
-        A custom parameter class to estimate the East Branch downstream flow + natural 
+        A custom parameter class to estimate the East Branch downstream flow + natural
         inflow to Lordville (Q_i).
-        
+
         parameters
         ----------
         model : pywr.core.Model
@@ -837,43 +595,43 @@ class Estimated_Q_i(Parameter):
         self.children.add(flow_pepacton)
         self.children.add(max_flow_catchmentConsumption_pepacton)
         self.children.add(max_flow_delivery_nyc)
-    
+
     def setup(self):
         super().setup()
-        self.reservoir_pepacton = self.model.nodes["reservoir_pepacton"] 
-        
+        self.reservoir_pepacton = self.model.nodes["reservoir_pepacton"]
+
     def value(self, timestep, scenario_index):
         max_flow_delivery_nyc = self.max_flow_delivery_nyc.get_value(scenario_index)
         # = min("demand_nyc", "max_flow_drought_delivery_nyc", "max_flow_ffmp_delivery_nyc")
-        
+
         # Currently, the delivery to NYC is allocated to three NYC reservoirs through VolBalanceNYCDemand.
         # I don't want to repeat the logic here, we approximate the allocation by the reservoir volumes.
         max_volume_pepacton = 140200 # MG (We manually input here to avoid complexity)
         max_volume_nyc = 270800 # MG (We manually input here to avoid complexity)
         max_flow_delivery_nyc_pepacton = max_flow_delivery_nyc * max_volume_pepacton / max_volume_nyc
-        
+
         available_pepacton_volume = self.reservoir_pepacton.volume[0] \
             + self.flow_pepacton.get_value(scenario_index) \
             - self.max_flow_catchmentConsumption_pepacton.get_value(scenario_index) \
-            
+
         # outflow = downstream_release_target_pepacton if the reservoir is not empty
         target_outflow = self.downstream_release_target_pepacton.get_value(scenario_index)
-            
+
         # Assuming max_flow_delivery_nyc_pepacton is not the piority during the drought
         outflow = min(available_pepacton_volume, target_outflow)
-        
+
         # For spill situation
         available_pepacton_volume = available_pepacton_volume - max_flow_delivery_nyc_pepacton
         spill = max((available_pepacton_volume - target_outflow) - max_volume_pepacton, 0)
-        
-        reservoir_release = outflow + spill 
+
+        reservoir_release = outflow + spill
 
         # Q_i The East Branch downstream flow (01417000) and natural inflow to Lordville.
         Q_i = reservoir_release \
             + self.flow_01417000.get_value(scenario_index) \
             - self.max_flow_catchmentConsumption_01417000.get_value(scenario_index) \
             + self.flow_delLordville.get_value(scenario_index) \
-            - self.max_flow_catchmentConsumption_delLordville.get_value(scenario_index) 
+            - self.max_flow_catchmentConsumption_delLordville.get_value(scenario_index)
         return Q_i
 
     @classmethod
@@ -882,7 +640,7 @@ class Estimated_Q_i(Parameter):
         # link_01417000 = 0 = outflow_pepacton + spill_pepacton + catchment_01417000 - catchmentWithdrawal_01417000 - link_delLordville
         # Uncosummed withdrawal will be return to the river
         # Q_i = load_parameter(model, "link_01417000")
-        
+
         #catchment_01417000 - catchmentWithdrawal_01417000
         downstream_release_target_pepacton = load_parameter(model, "downstream_release_target_pepacton")
         flow_01417000 = load_parameter(model, "flow_01417000") # catchment_01417000
@@ -892,23 +650,23 @@ class Estimated_Q_i(Parameter):
         flow_pepacton = load_parameter(model, "flow_pepacton") # catchment_pepacton
         max_flow_catchmentConsumption_pepacton = load_parameter(model, "max_flow_catchmentConsumption_pepacton")
         max_flow_delivery_nyc = load_parameter(model, "max_flow_delivery_nyc") # aggregated parameter
-        
-        return cls(model, downstream_release_target_pepacton, 
-                   flow_01417000, max_flow_catchmentConsumption_01417000, 
-                   flow_delLordville, max_flow_catchmentConsumption_delLordville, 
+
+        return cls(model, downstream_release_target_pepacton,
+                   flow_01417000, max_flow_catchmentConsumption_01417000,
+                   flow_delLordville, max_flow_catchmentConsumption_delLordville,
                    flow_pepacton, max_flow_catchmentConsumption_pepacton,
                    max_flow_delivery_nyc,
                    **data)
 Estimated_Q_i.register()
 # estimated_Q_i
 
-# Calculate the total thermal release requirement at Lordville    
+# Calculate the total thermal release requirement at Lordville
 class ThermalReleaseRequirement(Parameter):
     def __init__(self, model, temperature_model, update_temperature_at_lordville, Q_C, Q_i, **kwargs):
         super().__init__(model, **kwargs)
         """
         A custom parameter class to calculate the thermal release requirement at Lordville.
-        
+
         Parameters
         ----------
         model : pywr.core.Model
@@ -927,18 +685,18 @@ class ThermalReleaseRequirement(Parameter):
         self.Q_C = Q_C
         self.Q_i = Q_i
         self.thermal_release = 0.0
-        
+
         # To ensure cannonsville_release & pepacton_release are updated before this parameter
         self.children.add(Q_C)
-        self.children.add(Q_i) 
+        self.children.add(Q_i)
         self.children.add(update_temperature_at_lordville) # make sure the temperature model is updated before this parameter using the previous flow values
         self.temperature_model = temperature_model
         self.activate_thermal_control = temperature_model.activate_thermal_control
-    
+
     def setup(self):
         super().setup()
         self.reservoir_cannonsville = self.model.nodes["reservoir_cannonsville"] # will retrieve the reservoir volume at the previous timestep
-        
+
     def value(self, timestep, scenario_index):
         temperature_model = self.temperature_model
         # Check if thermal control is activated
@@ -946,22 +704,22 @@ class ThermalReleaseRequirement(Parameter):
             return 0.0 # No thermal release
         else:
             thermal_release = temperature_model.make_control_release(
-                Q_C = self.Q_C.get_value(scenario_index), 
-                Q_i = self.Q_i.get_value(scenario_index),
-                cannonsville_storage_pct = self.reservoir_cannonsville.volume[0] / 95700 * 100,
-                current_date = timestep
+                Q_C=self.Q_C.get_value(scenario_index),
+                Q_i=self.Q_i.get_value(scenario_index),
+                cannonsville_storage_pct=self.reservoir_cannonsville.volume[0] / 95700 * 100,
+                current_date=timestep
             )
             self.thermal_release = thermal_release
             return thermal_release
-    
+
     @classmethod
     def load(cls, model, data):
         Q_C = load_parameter(model, "estimated_Q_C")
-        Q_i = load_parameter(model, "estimated_Q_i")      
+        Q_i = load_parameter(model, "estimated_Q_i")
         temperature_model = load_parameter(model, "temperature_model")
         update_temperature_at_lordville = load_parameter(model, "update_temperature_at_lordville")
-        return cls(model, temperature_model, update_temperature_at_lordville, Q_C, Q_i, **data) 
-ThermalReleaseRequirement.register() 
+        return cls(model, temperature_model, update_temperature_at_lordville, Q_C, Q_i, **data)
+ThermalReleaseRequirement.register()
 # thermal_release_requirement
 
 class ForecastedTemperatureBeforeThermalRelease(Parameter):
@@ -969,7 +727,7 @@ class ForecastedTemperatureBeforeThermalRelease(Parameter):
         super().__init__(model, **kwargs)
         """
         A custom parameter class to retrieve the forecasted temperature before thermal release at Lordville.
-        
+
         Parameters
         ----------
         model : pywr.core.Model
@@ -992,33 +750,33 @@ class ForecastedTemperatureBeforeThermalRelease(Parameter):
 
     def value(self, timestep, scenario_index):
         # The forecasted temperature should be populated when making the control release decision.
-        # If activate_thermal_control is False, the forecasted temperature will be None. 
-        
+        # If activate_thermal_control is False, the forecasted temperature will be None.
+
         if self.ml_model_type == "lstm":
             if self.variable == "mu":
-                forecast_mu = self.temperature_model.forecasted_mu_arr
+                forecast_mu = self.temperature_model.ml_model.forecast_T_L_mu_arr
                 if isinstance(forecast_mu, float):
                     return forecast_mu
                 else:
-                    return forecast_mu[0] # Only return nowcast value as value method can only return one value
+                    return float(forecast_mu[0]) # Only return nowcast value as value method can only return one value
             elif self.variable == "sd":
-                forecast_sd = self.temperature_model.forecasted_sd_arr
+                forecast_sd = self.temperature_model.ml_model.forecast_T_L_sd_arr
                 if isinstance(forecast_sd, float):
                     return forecast_sd
                 else:
-                    return forecast_sd[0] # Only return nowcast value as value method can only return one value
+                    return float(forecast_sd[0]) # Only return nowcast value as value method can only return one value
             else:
                 raise ValueError("Invalid variable. Must be 'mu' or 'sd'.")
         elif self.ml_model_type == "rf":
             if self.variable == "mu":
-                return self.temperature_model.ml_model.forecast_T_L_arr[0]
+                return float(self.temperature_model.ml_model.forecast_T_L_arr[0])
             elif self.variable == "lb":
-                return self.temperature_model.ml_model.forecast_T_L_lb_arr[0]
+                return float(self.temperature_model.ml_model.forecast_T_L_lb_arr[0])
             elif self.variable == "ub":
-                return self.temperature_model.ml_model.forecast_T_L_ub_arr[0]
+                return float(self.temperature_model.ml_model.forecast_T_L_ub_arr[0])
             else:
                 raise ValueError("Invalid variable. Must be 'mu', 'lb', or 'ub'.")
-        
+
     @classmethod
     def load(cls, model, data):
         assert "variable" in data.keys()
