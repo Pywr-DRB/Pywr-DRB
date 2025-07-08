@@ -2070,12 +2070,14 @@ class ModelBuilder:
 
         if ml_model_type == "lstm":
             model_dict["parameters"]["salinity_model"] = {
-                    "type": "SalinityModel",
+                    "type": "SalinityModelLSTM",
+                    "model_salinity": salinity_options.get("model_salinity", None),
                     "start_date": salinity_options.get("start_date", None),
+                    "end_date": salinity_options.get("end_date", None),
                     "Q_Trenton_lstm_var_name": salinity_options["Q_Trenton_lstm_var_name"],
                     "Q_Schuylkill_lstm_var_name": salinity_options["Q_Schuylkill_lstm_var_name"],
                     "PywrDRB_ML_plugin_path": str(PywrDRB_ML_plugin_path),
-                    "disable_tqdm": salinity_options.get("disable_tqdm", True),
+                    "asycronized_update": salinity_options.get("asycronized_update", False),
                     "debug": salinity_options.get("debug", False),
                 }
         elif ml_model_type == "rf":
@@ -2103,3 +2105,25 @@ class ModelBuilder:
         #        "type": "SaltFrontLocation",
         #        "variable": "sd"
         #    }
+        
+        # Overwrite original flow target function to account for salt front location
+        # Note that we will use the previous day salt front location to update the flow target.
+        # It will be complicated to predict the salt front location at the same time as the flow target.
+        # Also, this will only be activate if the salinity model is not asynchronizly updated.
+        asycronized_update = salinity_options.get("asycronized_update", False)
+        if asycronized_update is False:
+            ### Total Montague & Trenton flow targets based on drought level of NYC aggregated storage
+            for mrf in ["delMontague", "delTrenton"]:
+                # Salt front adjustment ratio based on the salt front location
+                model_dict["parameters"][f"flow_target_salt_front_adjustment_ratio_{mrf}"] = {
+                    "type": "FlowTargetSaltFrontAdjustmentRatio",
+                    "flow_target": mrf,
+                    "ml_model_type": ml_model_type,
+                }
+                
+                # Overwrite the flow target function to include the salt front location
+                model_dict["parameters"][f"mrf_target_{mrf}"] = {
+                    "type": "aggregated",
+                    "agg_func": "product",
+                    "parameters": [f"mrf_baseline_{mrf}", f"mrf_drought_factor_{mrf}", f"flow_target_salt_front_adjustment_ratio_{mrf}"],
+                }
