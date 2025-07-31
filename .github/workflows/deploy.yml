@@ -1,0 +1,116 @@
+### github actions to build & deploy book
+
+name: Docs
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  # This builds and deploys Pywr-DRB documentation
+  build-docs:
+    if: contains(github.event.head_commit.message, '[build]')
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.11]
+    steps:
+    - uses: actions/checkout@v3
+
+
+    # Install python
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    # Install GLPK - this is needed for pywr
+    - name: Install GLPK and MPI
+      run: |
+        sudo apt-get update 
+        sudo apt-get install -y glpk-utils libglpk-dev libopenmpi-dev openmpi-bin
+
+    - name: Add GLPK to PATH
+      run: echo "/usr/local/lib" | sudo tee -a /etc/ld.so.conf.d/glpk.conf && sudo ldconfig
+
+    # install python dependencies
+    - name: Install python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .[dev]
+        
+    # Copy example notebooks to docs folder
+    - name: Copy example notebooks
+      run: |
+        mkdir -p docs/examples
+        cp -r notebooks/Tutorial* docs/examples/
+
+
+
+    # Build the book
+    - name: Build book
+      run: |
+        # first use jupyter-books to build sphinx config file
+        jupyter-book config sphinx docs/
+
+        # Now manually fix path in config file to include the base dir outside docs, so we can import pywrdrb
+        echo "Appending sys.path modification to conf.py"
+        echo -e "import sys\nimport os\nsys.path.insert(0, os.path.abspath('../'))\nsys.path.insert(0, os.path.abspath('../pywrdrb/'))" >> docs/conf.py
+
+        # Print contents of modified config file
+        echo "Contents of conf.py:"
+        cat docs/conf.py
+
+        ### now build jupyter book directly from altered sphinx config file
+        sphinx-build docs/ docs/_build/html -b html -v
+
+
+    # Copy images to build
+    - name: copy images
+      uses: canastro/copy-file-action@master
+      with:
+        source: docs/images/.
+        target: docs/_build/html/_images/
+        flags: '-r'
+
+    # Copy map to build
+    - name: copy map
+      uses: canastro/copy-file-action@master
+      with:
+        source: "docs/drb_model_map.html"
+        target: "docs/_build/html/drb_model_map.html"
+
+    # Deploy html to gh-pages
+    - name: GitHub Pages action
+      uses: peaceiris/actions-gh-pages@v3.9.1
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: docs/_build/html
+        publish_branch: gh-pages
+
+
+
+
+
+  # schedule:
+    # jupyter-book is updated regularly, let's run this deployment every month in case something fails
+    # <minute [0,59]> <hour [0,23]> <day of the month [1,31]> <month of the year [1,12]> <day of the week [0,6]>
+    # https://pubs.opengroup.org/onlinepubs/9699919799/utilities/crontab.html#tag_20_25_07
+    # https://crontab.guru/every-month
+    # Run cron job every month
+    # - cron: '0 0 1 * *'
+
+    # - name: upgrade pip
+    #   run: pip install --upgrade pip
+
+    # - name: Clear Build Cache
+    # run: rm -rf docs/_build
+
+  #- name: Verify pywrdrb imports
+  #  run: |
+  #    python -c "import pywrdrb; print('pywrdrb imported successfully')"
+  #    python -c "import pywrdrb.parameters; print('pywrdrb.parameters imported successfully')"
+  #    python -c "import pywrdrb.pre; print('pywrdrb.pre imported successfully')"
+  #    python -c "import pywrdrb.utils; print('pywrdrb.utils imported successfully')"
+  #    python -c "import pywrdrb.plotting; print('pywrdrb.plotting imported successfully')"
