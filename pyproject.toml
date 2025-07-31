@@ -1,0 +1,85 @@
+[project]
+name = "pywrdrb"
+version = "2.0.0"
+packages = [
+  { include = "pywrdrb", from = "src" }
+]
+authors = [
+    {name = "Chung-Yi Lin", email = "philip928lin@gmail.com"},
+    {name = "Trevor Amestoy", email = "tja73@cornell.edu"},
+    {name = "Marilyn Smith", email = "ms3654@cornell.edu"},
+    {name = "Andrew Hamilton", email = "andrew.hamilton.water@gmail.com"},
+    {name = "Patrick Reed", email = "patrick.reed@cornell.edu"}
+]
+license = { file = "LICENSE" }
+description = "An open-source Python model for water availability and drought risk assessment in the Delaware River Basin"
+readme = { file = "README.md", content-type = "text/markdown" }  # Specify README with content type
+dependencies = [
+    "pywr",
+    "numpy",
+    "pandas",
+    "scipy",
+    "statsmodels",
+    "scikit-learn",
+    "matplotlib",
+    "PathNavigator",
+    "h5py",
+    "mpi4py",
+    "hydroeval",
+    "dataretrieval",
+    "torch",
+    "bmipy",
+    "joblib",
+    "tqdm",
+    ]
+
+[project.optional-dependencies]
+dev = [
+    "ipython",
+    "pytest",
+    "hatch",
+    "jupyter-book",
+    "ghp-import",
+    "folium",
+]
+
+lint = [
+    "pre-commit>=2.20.0",
+]
+plotting = [
+    "matplotlib",
+    "seaborn"
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build]
+include = [
+    "src/**/*",
+]
+
+[tool.hatch.build.package]
+# Force hatch to treat 'src' as the root. 
+# It ensures your top-level 'pywrdrb' inside 'src' is discovered.
+source = "src"
+
+[tool.hatch.build.targets.wheel]
+sources = ["src"]
+
+[tool.hatch.build.data]
+include = [
+  "pywrdrb/data/**/*",
+]
+
+[tool.black]
+line-length = 88
+target-version = ["py310", "py311", "py312"]
+
+[tool.hatch.envs.default]
+dependencies = [
+    "pytest",
+]
+
+# Note: hatch need to be installed in the environment to use the hatchling build backend.
