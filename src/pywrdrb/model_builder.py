@@ -106,10 +106,12 @@ class Options:
         {"PywrDRB_ML_plugin_path": None, "start_date": None, 
         "Q_Trenton_lstm_var_name": None, "Q_Schuylkill_lstm_var_name": None, 
         "disable_tqdm": False, debug: False}
-    run_starfit_sensitivity_analysis : bool
+    run_sensitivity_analysis : bool
         If True, run STARFIT sensitivity analysis. Default is False.
     sensitivity_analysis_scenarios : List[str]
         List of scenarios to use for STARFIT sensitivity analysis. Default is an empty list.
+    release_policy_dict: Optional[dict]
+        Dictionary mapping reservoir names to release policy class names (e.g., STARFIT, PWL, RBF).
     initial_volume_frac : float
         Initial reservoir storage as a fraction of capacity. Default is 0.8.
     """
@@ -118,8 +120,9 @@ class Options:
     nyc_nj_demand_source: str = "historical"  # "historical", "custom", "constant_max"
     temperature_model: Optional[dict] = None
     salinity_model: Optional[dict] = None
-    run_starfit_sensitivity_analysis: bool = False
+    run_sensitivity_analysis: bool = False
     sensitivity_analysis_scenarios: List[str] = field(default_factory=list)
+    release_policy_dict: Optional[dict] = field(default_factory=dict)
     # Initial reservoir storages as 80% of capacity
     initial_volume_frac: float = 0.8
 
@@ -255,9 +258,10 @@ class ModelBuilder:
             nyc_nj_demand_source (str): Options: "historical", "custom", "constant_max". Default is "historical". See Options class docstring for details.
             temperature_model (dict): If given, we use LSTM model to predict temperature at Lordville.
             salinity_model (dict): If given, we use LSTM model to predict salinity at Trenton.
-            run_starfit_sensitivity_analysis (bool): If True, we run STARFIT sensitivity analysis.
+            run_sensitivity_analysis (bool): If True, we run STARFIT sensitivity analysis.
             sensitivity_analysis_scenarios (list of str): List of scenarios to use for STARFIT sensitivity analysis.
             initial_volume_frac (float): Initial reservoir storage as a fraction of capacity. Default is 0.8.
+            release_policy_dict : dictionary mapping reservoir names to release policy class names (e.g., STARFIT, PWL, RBF).
         """
         
         self.start_date = start_date
@@ -581,6 +585,22 @@ class ModelBuilder:
 
         model_dict = self.model_dict
 
+        # Determine release parameter type from Options, with fallback to STARFIT
+        release_policy_entry = self.options.release_policy_dict.get(reservoir_name, {})
+        if not isinstance(release_policy_entry, dict):
+            # old style string shortcut or missing entirely
+            release_param_type = (
+                release_policy_entry if isinstance(release_policy_entry, str)
+                else "STARFITReservoirRelease"
+            )
+            release_param_id = "default"
+        else:
+            release_param_type = release_policy_entry.get("type", "STARFITReservoirRelease")
+            release_param_id = release_policy_entry.get("id", "default")
+
+        release_param_name = f"{release_param_type}_{reservoir_name}"
+        print(f"Using release param for {reservoir_name}: {release_param_type} (policy_id: {release_param_id})")
+
         # Initial settings
         initial_volume_frac = self.options.initial_volume_frac
         regulatory_release = (
@@ -588,6 +608,7 @@ class ModelBuilder:
             if reservoir_name in (reservoir_list_nyc + drbc_lower_basin_reservoirs)
             else False
         )
+        #TODO: double check if this is necessary
         starfit_release = True if reservoir_name not in reservoir_list_nyc else False
         variable_cost = True if (regulatory_release and not starfit_release) else False
 
@@ -655,8 +676,9 @@ class ModelBuilder:
                 "name": f"outflow_{reservoir_name}",
                 "type": "link",
                 "cost": -500.0,
-                "max_flow": f"starfit_release_{reservoir_name}",
+                "max_flow": f"{release_param_name}",
                 # the fitted values are in f"{model_data_dir}drb_model_istarf_conus.csv"
+                # depending on the release_param_type, it will be either STARFITReservoirRelease or RBFReservoirRelease or PiecewiseLinearRelease
             }
         # Lower basin reservoirs which contribute to Montague/Trenton
         elif starfit_release and regulatory_release:
@@ -770,10 +792,13 @@ class ModelBuilder:
         # For STARFIT reservoirs (where we do not know the opertational rules), use custom parameter
         # all the fitted values are in f"{model_data_dir}drb_model_istarf_conus.csv"
         if starfit_release:
-            model_dict["parameters"][f"starfit_release_{reservoir_name}"] = {
-                "type": "STARFITReservoirRelease",
-                "node": reservoir_name,
-                "run_starfit_sensitivity_analysis": self.options.run_starfit_sensitivity_analysis,
+            print(f"Assigning release parameter {release_param_name} to {reservoir_name}")
+
+            model_dict["parameters"][f"{release_param_name}"] = {
+                "type": release_param_type,
+                "node": reservoir_name, 
+                "policy_id": release_param_id,
+                "run_sensitivity_analysis": self.options.run_sensitivity_analysis,
                 "sensitivity_analysis_scenarios": self.options.sensitivity_analysis_scenarios,
             }
 
@@ -1970,12 +1995,25 @@ class ModelBuilder:
             }
         ## From Lower Basin reservoirs: sum of STARFIT and mrf contribution
         for reservoir in drbc_lower_basin_reservoirs:
+            #extract reservoir parameter name
+            release_policy_entry = self.options.release_policy_dict.get(reservoir, {})
+            if not isinstance(release_policy_entry, dict):
+                # old style string shortcut or missing entirely
+                release_param_type = (
+                    release_policy_entry if isinstance(release_policy_entry, str)
+                    else "STARFITReservoirRelease"
+                    )
+            else:
+                release_param_type = release_policy_entry.get("type", "STARFITReservoirRelease")
+
+            release_param_name = f"{release_param_type}_{reservoir}"
+            
             model_dict["parameters"][f"downstream_release_target_{reservoir}"] = {
                 "type": "aggregated",
                 "agg_func": "sum",
                 "parameters": [
                     f"mrf_trenton_{reservoir}",
-                    f"starfit_release_{reservoir}",
+                    f"{release_param_name}",
                 ],
             }
 

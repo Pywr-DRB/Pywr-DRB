@@ -122,13 +122,15 @@ class STARFITReservoirRelease(Parameter):
         reservoir_name,
         storage_node,
         flow_parameter,
-        run_starfit_sensitivity_analysis,
+        run_sensitivity_analysis,
         sensitivity_analysis_scenarios,
+        policy_id="default",
         **kwargs,
     ):
         super().__init__(model, **kwargs)
 
         self.node = storage_node
+        self.policy_id = policy_id
         self.reservoir_name = reservoir_name
         self.inflow = flow_parameter
 
@@ -139,7 +141,7 @@ class STARFITReservoirRelease(Parameter):
         self.parameters_loaded = False
         # Load the sample scenario IDs
         self.sample_scenario_index = None
-        self.run_sensitivity_analysis = run_starfit_sensitivity_analysis
+        self.run_sensitivity_analysis = run_sensitivity_analysis
         self.sensitivity_analysis_scenarios = sensitivity_analysis_scenarios
 
         # Modifications to
@@ -172,7 +174,7 @@ class STARFITReservoirRelease(Parameter):
             cls._default_params_cache = pd.read_csv(
                 pn.operational_constants.get_str("istarf_conus.csv"), 
                 sep=",", 
-                index_col=0
+                index_col=["reservoir", "policy_id"]
             )
         return cls._default_params_cache
 
@@ -220,13 +222,20 @@ class STARFITReservoirRelease(Parameter):
             if self.reservoir_name in modified_starfit_reservoir_list 
             else self.reservoir_name
         )
+        
+        key = (self.starfit_name, self.policy_id)
 
-        # Check if parameters are available
-        if self.starfit_name not in starfit_params.index:
-            print(f"Warning: No STARFIT parameters found for '{self.starfit_name}'.")
-            return
+        if key not in starfit_params.index:
+            fallback_key = (self.starfit_name, "default")
+            if fallback_key in starfit_params.index:
+                print(f"Warning: policy_id '{self.policy_id}' not found. Falling back to 'default'.")
+                key = fallback_key
+            else:
+                raise KeyError(f"STARFIT parameters not found for '{self.starfit_name}' with policy_id '{self.policy_id}' or 'default'.")
+        
+        print(f"[STARFIT] Loaded parameters for {self.starfit_name}, policy_id = {self.policy_id}")
 
-        params = starfit_params.loc[self.starfit_name]
+        params = starfit_params.loc[key]
 
         # Pull data from node
         if self.use_adjusted_storage:
@@ -550,15 +559,17 @@ class STARFITReservoirRelease(Parameter):
         reservoir_name = data.pop("node")
         storage_node = model.nodes[f"reservoir_{reservoir_name}"]
         flow_parameter = load_parameter(model, f"flow_{reservoir_name}")
-        run_starfit_sensitivity_analysis = data.pop("run_starfit_sensitivity_analysis")
+        run_sensitivity_analysis = data.pop("run_sensitivity_analysis")
         sensitivity_analysis_scenarios = data.pop("sensitivity_analysis_scenarios")
+        policy_id = data.pop("policy_id")
         return cls(
             model,
             reservoir_name,
             storage_node,
             flow_parameter,
-            run_starfit_sensitivity_analysis,
+            run_sensitivity_analysis,
             sensitivity_analysis_scenarios,
+            policy_id=policy_id,
             **data,
         )
 

@@ -39,4 +39,5 @@ input_data/*/*.hdf5
 
 ./synthetics/*
 dist/*
-.claude/
+*/.DS_Store
+*/*/.DS_Store
