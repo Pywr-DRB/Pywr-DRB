@@ -1,6 +1,6 @@
 [project]
 name = "pywrdrb"
-version = "2.0.0"
+version = "2.0.1"
 packages = [
   { include = "pywrdrb", from = "src" }
 ]
@@ -15,22 +15,22 @@ license = { file = "LICENSE" }
 description = "An open-source Python model for water availability and drought risk assessment in the Delaware River Basin"
 readme = { file = "README.md", content-type = "text/markdown" }  # Specify README with content type
 dependencies = [
-    "pywr",
-    "numpy",
-    "pandas",
-    "scipy",
-    "statsmodels",
-    "scikit-learn",
+    "pywr==1.27.4",
+    "numpy==2.2.6",
+    "pandas==2.3.0",
+    "scipy==1.15.3",
+    "statsmodels>=0.14.4",
+    "scikit-learn==1.7.0",
     "matplotlib",
-    "PathNavigator",
-    "h5py",
-    "mpi4py",
-    "hydroeval",
-    "dataretrieval",
-    "torch",
-    "bmipy",
-    "joblib",
-    "tqdm",
+    "PathNavigator==0.6.3",
+    "h5py>=3.13.0",
+    "mpi4py>=4.0.3",
+    "hydroeval==0.1.0",
+    "dataretrieval==1.0.12",
+    "torch==2.7.1",
+    "bmipy==2.0.1",
+    "joblib==1.5.1",
+    "tqdm==4.67.1",
     ]
 
 [project.optional-dependencies]
