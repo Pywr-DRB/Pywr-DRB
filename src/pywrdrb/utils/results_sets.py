@@ -56,4 +56,4 @@ pywrdrb_results_set_descriptions = {
 # Different results_set options which are available for different datasets
 pywrdrb_results_set_opts = list(pywrdrb_results_set_descriptions.keys())
 obs_results_set_opts = ['major_flow', 'reservoir_downstream_gage', 'res_storage']
-hydrologic_model_results_set_opts = ['major_flow', 'reservoir_downstream_gage']
+hydrologic_model_results_set_opts = ['all', 'major_flow', 'reservoir_downstream_gage']
