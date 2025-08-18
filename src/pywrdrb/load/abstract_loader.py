@@ -259,8 +259,19 @@ class AbstractDataLoader(ABC):
 
         
         realization_ids = list(data.keys())
-        
-        if results_set == "reservoir_downstream_gage":
+
+        if results_set == "all":
+            pass
+
+        elif results_set == "major_flow":
+            for realization_id in realization_ids:
+                gage_flow = data[realization_id]
+                for c in gage_flow.columns:
+                    if c not in majorflow_list:
+                        gage_flow = gage_flow.drop(c, axis=1)
+                data[realization_id] = gage_flow.copy()
+
+        elif results_set == "reservoir_downstream_gage":
             for realization_id in realization_ids:
                 gage_flow = data[realization_id]
                 
@@ -277,14 +288,6 @@ class AbstractDataLoader(ABC):
                 gage_flow = gage_flow.loc[:, available_release_data]
                 gage_flow.columns = reservoirs_with_data
 
-                data[realization_id] = gage_flow.copy()
-
-        elif results_set == "major_flow":
-            for realization_id in realization_ids:
-                gage_flow = data[realization_id]
-                for c in gage_flow.columns:
-                    if c not in majorflow_list:
-                        gage_flow = gage_flow.drop(c, axis=1)
                 data[realization_id] = gage_flow.copy()
 
         elif results_set == "res_storage" and model == "obs":
