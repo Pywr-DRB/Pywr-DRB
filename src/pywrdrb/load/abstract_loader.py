@@ -26,6 +26,7 @@ import pandas as pd
 import h5py
 from abc import ABC, abstractmethod
 
+from pywrdrb.utils.hdf5 import get_hdf5_realization_numbers
 from pywrdrb.utils.constants import mg_to_mcm
 from pywrdrb.utils.results_sets import pywrdrb_results_set_opts
 from pywrdrb.utils.lists import (
@@ -202,53 +203,89 @@ class AbstractDataLoader(ABC):
         and not appropriate. Base originally referred to natural flows, but observed flows are also
         included which are non-natural. For now, this is important for loading the internal datasets. 
         """
-        if ensemble_scenario is None:
+        is_ensemble = True if 'ensemble' in str(input_dir) else False
+        
+        # Store data as:
+        # data = dict{scenario_id: pd.DataFrame}
+        data = {}
+        
+        if not is_ensemble:
             gage_flow = pd.read_csv(f"{input_dir}/gage_flow_mgd.csv")
             gage_flow.index = pd.DatetimeIndex(gage_flow["datetime"])
             gage_flow = gage_flow.drop("datetime", axis=1)
+            
+            data[0] = gage_flow.copy()
+            
         else:
+            if ensemble_scenario is None:
+                realization_ids = get_hdf5_realization_numbers(f"{input_dir}/gage_flow_mgd.hdf5")
+                # print(f"Found realizations: {realization_ids}")
+            else:
+                realization_ids = [ensemble_scenario]
+            
+            # Load from HDF5 file            
             with h5py.File(f"{input_dir}/gage_flow_mgd.hdf5", "r") as f:
                 nodes = list(f.keys())
-                gage_flow = pd.DataFrame()
-                for node in nodes:
-                    gage_flow[node] = f[f"{node}/realization_{ensemble_scenario}"]
+                
+                for realization_id in realization_ids:
+                    
+                    gage_flow = pd.DataFrame()
+                    for node in nodes:
+                        # Key will be either {node}/realization_{realization_id}
+                        # Or {node}/{realization_id}
+                        # But we need to check and find the right case
+                        if f"{node}/realization_{realization_id}" in f:
+                            gage_flow[node] = f[f"{node}/realization_{realization_id}"]
+                        elif f"{node}/{realization_id}" in f:
+                            gage_flow[node] = f[f"{node}/{realization_id}"]
+                        else:
+                            raise KeyError(f"Ensemble scenario {realization_id} not found in HDF5 file for node {node}. Keys: {list(f.keys())}")
 
-                if datetime_index is not None:
-                    if len(datetime_index) == len(f[nodes[0]]["date"]):
-                        gage_flow.index = datetime_index
-                        reuse_datetime_index = True
+                    if datetime_index is not None:
+                        if len(datetime_index) == len(f[nodes[0]]["date"]):
+                            gage_flow.index = datetime_index
+                            reuse_datetime_index = True
+                        else:
+                            reuse_datetime_index = False
                     else:
                         reuse_datetime_index = False
-                else:
-                    reuse_datetime_index = False
 
-                if not reuse_datetime_index:
-                    datetime = [str(d, "utf-8") for d in f[nodes[0]]["date"]]
-                    datetime_index = pd.to_datetime(datetime)
-                    gage_flow.index = datetime_index
+                    if not reuse_datetime_index:
+                        datetime = [str(d, "utf-8") for d in f[nodes[0]]["date"]]
+                        datetime_index = pd.to_datetime(datetime)
+                        gage_flow.index = datetime_index
 
-            data = gage_flow.copy()
+                    data[realization_id] = gage_flow.copy()
 
+        
+        realization_ids = list(data.keys())
+        
         if results_set == "reservoir_downstream_gage":
-            available_release_data = gage_flow.columns.intersection(
-                reservoir_link_pairs.values()
-            )
-            reservoirs_with_data = [
-                list(
-                    filter(lambda x: reservoir_link_pairs[x] == site, reservoir_link_pairs)
-                )[0]
-                for site in available_release_data
-            ]
-            gage_flow = gage_flow.loc[:, available_release_data]
-            gage_flow.columns = reservoirs_with_data
+            for realization_id in realization_ids:
+                gage_flow = data[realization_id]
+                
+                # Filter to only include reservoirs with downstream gage flows
+                available_release_data = gage_flow.columns.intersection(
+                    reservoir_link_pairs.values()
+                )
+                reservoirs_with_data = [
+                    list(
+                        filter(lambda x: reservoir_link_pairs[x] == site, reservoir_link_pairs)
+                    )[0]
+                    for site in available_release_data
+                ]
+                gage_flow = gage_flow.loc[:, available_release_data]
+                gage_flow.columns = reservoirs_with_data
 
-            data = gage_flow.copy()
+                data[realization_id] = gage_flow.copy()
 
         elif results_set == "major_flow":
-            for c in gage_flow.columns:
-                if c not in majorflow_list:
-                    gage_flow = gage_flow.drop(c, axis=1)
-            data = gage_flow.copy()
+            for realization_id in realization_ids:
+                gage_flow = data[realization_id]
+                for c in gage_flow.columns:
+                    if c not in majorflow_list:
+                        gage_flow = gage_flow.drop(c, axis=1)
+                data[realization_id] = gage_flow.copy()
 
         elif results_set == "res_storage" and model == "obs":
             observed_storage_path = (
@@ -258,7 +295,7 @@ class AbstractDataLoader(ABC):
                 observed_storage = pd.read_csv(observed_storage_path)
                 observed_storage.index = pd.DatetimeIndex(observed_storage["datetime"])
                 observed_storage = observed_storage.drop("datetime", axis=1)
-                data = observed_storage.copy()
+                data[0] = observed_storage.copy()
             except FileNotFoundError:
                 print(f"Observed storage CSV file not found at {observed_storage_path}.")
                 return None, datetime_index
@@ -279,10 +316,11 @@ class AbstractDataLoader(ABC):
             if units == "MG":
                 pass
             elif units == "MCM":
-                data *= mg_to_mcm
+                for k, v in data.items():
+                    data[k] = v * mg_to_mcm
 
-        ## Re-organize as dict for consistency with pywrdrb results
-        results_dict = {0: data}
+        # To match pywrdrb output format, realization_ids should be int
+        results_dict = {int(k): v for k, v in data.items()}
         return results_dict, datetime_index
 
     def set_data(self, 

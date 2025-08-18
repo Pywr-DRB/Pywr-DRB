@@ -20,12 +20,9 @@ TJA, 2025-05-05, Implemented pathnavigator usage & added consistent docstrings.
 Chung-Yi Lin, 2025-05-27, Added flowtype_opts using the pathnavigator object.
 """
 
+import pywrdrb
 from pywrdrb.load.abstract_loader import AbstractDataLoader, default_kwargs
 from pywrdrb.utils.results_sets import hydrologic_model_results_set_opts
-from pywrdrb.path_manager import get_pn_object
-
-pn = get_pn_object()
-flowtype_opts = [i for i in pn.flows.list(type="folder") if i[0] != "_"]
 
 class HydrologicModelFlow(AbstractDataLoader):
     """
@@ -49,8 +46,7 @@ class HydrologicModelFlow(AbstractDataLoader):
     flowtype_opts : list
         List of valid flowtype options, which are available in the data/flows/ directory.
     """
-    def __init__(self, 
-                 flowtype_opts = flowtype_opts, 
+    def __init__(self,
                  **kwargs):
         """
         Initialize the loader with default and provided kwargs.
@@ -66,6 +62,10 @@ class HydrologicModelFlow(AbstractDataLoader):
         print_status : bool, optional
             Print status of the data loading process.
         """
+        pn = pywrdrb.get_pn_object()
+        sc_flows = list(pn.sc.to_dict().keys())
+        flowtype_opts = [i.replace("flows/", "") for i in sc_flows]
+
         self.flowtype_opts = flowtype_opts
         self.default_kwargs = default_kwargs
         self.valid_results_sets = hydrologic_model_results_set_opts
@@ -118,8 +118,8 @@ class HydrologicModelFlow(AbstractDataLoader):
                     print(f'Loading {s} data from {flowtype}')
             
                 # Get the input_dir from the pathnavigator
-                flow_dir = self.pn.flows.get_str(flowtype)
-            
+                flow_dir = self.pn.sc.get(f"flows/{flowtype}")
+                
                 # load the data
                 all_results_data[s][flowtype], datetime = super().get_base_results(
                     input_dir = flow_dir,

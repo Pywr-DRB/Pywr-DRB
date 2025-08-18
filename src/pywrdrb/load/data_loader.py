@@ -26,19 +26,18 @@ Links:
 
 Change Log:
 TJA, 2025-05-05, Added consistent docstrings.
+TJA, 2025-07-16, Modified export() and load_from_export() methods to allow custom/new data attributes.
 """
 import pandas as pd
 
 # other data classes used in this implementation
+import pywrdrb
 from pywrdrb.load.abstract_loader import AbstractDataLoader, default_kwargs
 from pywrdrb.load.output_loader import Output
 from pywrdrb.load.observation_loader import Observation
 from pywrdrb.load.hydrologic_model_loader import HydrologicModelFlow
-
 from pywrdrb.utils.results_sets import pywrdrb_results_set_opts, hydrologic_model_results_set_opts, obs_results_set_opts
 
-from pywrdrb.path_manager import get_pn_object
-pn = get_pn_object()
 
 all_valid_results_set_opts = {
     "output": pywrdrb_results_set_opts,
@@ -90,6 +89,7 @@ class Data(AbstractDataLoader):
         """
         
         # pathnavigator object
+        pn = pywrdrb.get_pn_object()
         self.pn = pn
         
         self.all_results_sets = all_results_sets
@@ -333,8 +333,25 @@ class Data(AbstractDataLoader):
         None
             The data is written to the specified file.
         """
+        
+        # Get a list of all attributes of the data class
+        # then filter for attributes that we want to keep
+        # Ignore:
+        # - dunder attributes
+        # - non-dictionary attributes
+        all_attrs = dir(self)
+        ignore_attrs = []
+        for attr in all_attrs:
+            if attr.startswith('_') or attr in ['pn', 'default_kwargs', 'all_results_sets']:
+                ignore_attrs.append(attr)
+            
+            # ignore non-dictionary attributes
+            if not isinstance(getattr(self, attr, None), dict):
+                ignore_attrs.append(attr)
+        export_attrs = [attr for attr in all_attrs if attr not in ignore_attrs]
+        
         with pd.HDFStore(file, mode='w') as store:
-            for attr_name in self.all_results_sets:
+            for attr_name in export_attrs:
                 if hasattr(self, attr_name):
                     result_set = getattr(self, attr_name)
                     for datatype, scenarios in result_set.items():
@@ -378,9 +395,6 @@ class Data(AbstractDataLoader):
                 _, attr_name, datatype, scenario_id = key.split('/')
                 scenario_id = int(scenario_id)
 
-                if attr_name not in self.all_results_sets:
-                    continue
-
                 if not hasattr(self, attr_name):
                     setattr(self, attr_name, {})
 
@@ -389,4 +403,3 @@ class Data(AbstractDataLoader):
                     result_set[datatype] = {}
 
                 result_set[datatype][scenario_id] = store[key]
-    
