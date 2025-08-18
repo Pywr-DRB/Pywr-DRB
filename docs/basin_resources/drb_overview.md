@@ -3,9 +3,11 @@
 The Delaware River Basin (DRB) spans four states (New York, Pennsylvania, New Jersey, and Delaware) covering approximately 35,000 km² and supplying water to over 14 million people. The basin supports diverse water uses including ecosystems, agriculture, recreation, transportation, mining, and hydroelectric generation.
 
 **Key Infrastructure & Operations**
+
 The Delaware River mainstem remains the longest undammed river east of the Mississippi, but multiple tributary reservoirs significantly influence basin hydrology. Three NYC-owned reservoirs in the upper basin (Cannonsville, Pepacton, and Neversink) provide 1,030 MCM of aggregate storage and enable major transbasin diversions—up to 3.0 MCM/day to NYC and 0.45 MCM/day to New Jersey. Additional reservoirs are operated by USACE, private companies, and state agencies for water supply, flood control, hydropower, and recreation.
 
 **Institutional Regulatory & Management Framework**
+
 Basin management operates through a complex multi-jurisdictional system rooted in Supreme Court Decrees (1931, 1954) that established diversion limits and downstream flow targets. The Delaware River Basin Commission (DRBC), formed in 1961 through interstate-federal compact, provides comprehensive basin-wide governance with representatives from the four states, NYC, and federal government. The Office of the Delaware River Master (ODRM) monitors and enforces decree provisions. Emergency drought modifications require unanimous consent among all parties, necessitating careful balance of diverse stakeholder interests across the basin.
 
 The complex water management infrastructure and multi-jurisdictional governance described above create significant impacts on hydrologic dynamics throughout the basin. 
