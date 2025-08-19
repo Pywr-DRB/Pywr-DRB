@@ -38,3 +38,4 @@ input_data/*.hdf5
 input_data/*/*.hdf5
 
 ./synthetics/*
+dist/*
