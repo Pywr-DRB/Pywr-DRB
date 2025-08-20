@@ -462,7 +462,7 @@ class ModelBuilder:
             The capacity of the reservoir in million gallons (MG).
         """
         if self.istarf is None:
-            self.istarf = pd.read_csv(pn.operational_constants.get_str("istarf_conus.csv"))
+            self.istarf = pd.read_csv(pn.operational_constants.get_str("istarf_capacity.csv"))
         return float(
             self.istarf["Adjusted_CAP_MG"].loc[self.istarf["reservoir"] == reservoir].iloc[0]
         )
@@ -605,7 +605,7 @@ class ModelBuilder:
             if reservoir_name in (reservoir_list_nyc + drbc_lower_basin_reservoirs)
             else False
         )
-        #TODO: double check if this is necessary
+
         starfit_release = True if reservoir_name not in reservoir_list_nyc else False
         variable_cost = True if (regulatory_release and not starfit_release) else False
 
@@ -764,10 +764,11 @@ class ModelBuilder:
         ########## Add standard parameters ##########
         #############################################
 
+
         # max volume of reservoir, from GRanD database except where adjusted from other sources (eg NYC)
         model_dict["parameters"][f"max_volume_{reservoir_name}"] = {
             "type": "constant",
-            "url": pn.operational_constants.get_str("istarf_conus.csv"),
+            "url": pn.operational_constants.get_str("istarf_capacity.csv"),
             "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": f"modified_{reservoir_name}"
