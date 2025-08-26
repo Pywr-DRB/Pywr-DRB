@@ -1,9 +1,7 @@
 # Pywr-DRB Release Notes
 
-## v2.0.1-beta
+## v2.0.1
 ## Overview
-
-**This is a beta release of Pywr-DRB version 2.0.1.**
 
 Pywr-DRB v2.0.1 adds package dependency versions to avoid installation issues, and contains minor bug fixes with the `pywrdrb.Data()` class functionality.
 
