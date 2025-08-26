@@ -1,5 +1,117 @@
 # Pywr-DRB Release Notes
 
+## v2.0.1
+## Overview
+
+Pywr-DRB v2.0.1 adds package dependency versions to avoid installation issues, and contains minor bug fixes with the `pywrdrb.Data()` class functionality.
+
+## Package Dependencies
+
+Recent updates to the `pywr` and `scipy` packages cause issues during installation.  
+
+We have updated the `pywrdrb` dependency list to include:
+- `"pywr==1.27.4"`
+- `"scipy==1.15.3"`
+
+We specify versions across the dependency list, however the only necessary version requirements at the moment are for the two packages above. 
+
+## Minor Bug Fixes and Updates
+
+### `pywrdrb.Data()` Updates
+
+- Modified the `AbstractDataLoader` class to support ensemble flow files in `AbstractDataLoader.get_base_results()
+	- Previously, this only supported loading data from `gage_flow_mgd.csv` files
+	- Now, it supports ensemble files (`gage_flow_mgd.hdf5`) for a list of `realization_ids`
+- Moved the `flowtye_opts` list creation into the `__init__()` of the `HydrologicModelFlow()` class.  This is necessary to allow for custom inflow types to be recognized as a valid flowtype option when using:
+	- `pywrdrb.Data().load_hydrologic_model_flow()`
+	- User's are still required to register the custom flowtype using the `pathnavigator` as demonstrated in [Tutorial 04 - Using Customized Data to Run Pywr-DRB](https://pywr-drb.github.io/Pywr-DRB/examples/Tutorial%2004%20Using%20Customized%20Data%20To%20Run%20Model.html)
+- Added `"all"` to the `hydrologic_model_results_set_opts`
+	- This allows uses to load flows from all nodes (instead of just major_nodes) when running `pywrdrb.Data().load_hydrologic_model_flow()`
+- Modified the `pywrdrb.Data().export()` and `pywrdrb.Data().load_from_export()` to support custom data.
+	- Previously, these functions only allowed for export/load of existing `results_set` options.
+	- Now, users can add new/custom data to the `pywrdrb.Data` object, then export and re-load that data later. 
+	- See the example
+
+
+## Example: Modifying, exporting and re-loading data objects
+
+Below is an example of how custom/new data can be added to the `pywrdrb.Data` class, and how the full data class can be exported to a new file and later reloaded. 
+
+First, load the Pywr-DRB output using the existing `pywrdrb.Data` functionality.  See [Tutorial 03 - Loading and Interpreting Output](https://pywr-drb.github.io/Pywr-DRB/examples/Tutorial%2003%20Load%20Results.html) for more detail on this existing functionality.
+```python
+## Existing functionality
+import pywrdrb
+data = pywrdrb.Data()
+data.load_output(
+    results_sets=['major_flow'],
+    output_filenames=['./pywrdrb_output.hdf5']
+)
+df_flow = data.major_flow["pywrdrb_output"][0]
+```
+
+We can calculate new data using the loaded output data. In this example below, I'll do a simple 7-day mean flow calculation.
+
+Then, we can store the newly calculated `rolling_mean_major_flow` inside the data object. Importantly, this addition must match the hierarchical data dictionary formatting. 
+
+After the data is stored in the `data` object, we can use the `export()` function. 
+
+The export function will save all attributes/contents of the `data` object to an HDF5 file with the given name. 
+
+```python
+## New functionality
+# Calculate new metrics based on the original output data
+df_flow_rolling = df_flow.rolling(window=7).mean()
+
+# Store the new df in the data object
+# Important: Format of dictionaries must match
+data.rolling_mean_major_flow = {}
+data.rolling_mean_major_flow["pywrdrb_output"] = {}
+data.rolling_mean_major_flow["pywrdrb_output"][0] = df_flow_rolling
+
+# Save the full data object as an export
+# This will include all metrics, including the added rolling mean flow
+data.export("./pywrdrb_output_with_postprocessing.hdf5")
+```
+
+Then, later we can re-load the modified data object using:
+
+```python
+data = pywrdrb.Data()
+data.load_from_export("./pywrdrb_output_with_postprocessing.hdf5")
+```
+
+## Example: Loading custom hydrologic data using `pywrdrb.Data()`
+
+The `load_hydrologic_model_flow()` function is designed to load `<flowtype>/gage_flow_mgd.csv` files.  Thus, the resulting data is reflective of the full natural flow as modeled by the model/dataset being loaded. This flow is _not_ routed through Pywr-DRB.
+
+Previously, this funciton was unable to be used for custom `flowtypes` arguments, and was only able to load the datasets that came pre-packaged with `pywrdrb` installation.  
+
+The 2.0.1 patch fixes this, as shown below.
+
+Importantly, this assumes that the custom data `csv` file has the same formatting as the existing pywrdrb datasets (node names as column names and datetime index) which is generally a pre-requisit for using custom data in the pywrdrb modeling workflow. 
+
+```python
+# Register custom dataset with pathnavigator
+pn_config = pywrdrb.get_pn_config()
+pn_config["flows/custom_data"] = "custom_data"
+pywrdrb.load_pn_config(pn_config)
+
+# List of result types to load
+# these include all valid options given the input data
+results_sets=['all', 'major_flow', 'reservoir_downstream_gage']
+
+data = pywrdrb.Data()
+
+# Previously, using flowtypes=['custom_data'] would give error
+data.load_hydrologic_model_flow(flowtypes=["custom_data"],
+                                results_sets=results_sets)
+
+# The "all" results set is new, and returns gage_flow (full natural) at all nodes
+data.all['custom_data'][0].head()
+```
+
+
+
 ---
 
 ## v2.0.0 (2025)
