@@ -17,7 +17,7 @@ We have updated the `pywrdrb` dependency list to include:
 
 We specify versions across the dependency list, however the only necessary version requirements at the moment are for the two packages above. 
 
-## Minor Updates
+## Minor Bug Fixes and Updates
 
 ### `pywrdrb.Data()` Updates
 
@@ -34,6 +34,8 @@ We specify versions across the dependency list, however the only necessary versi
 	- Now, users can add new/custom data to the `pywrdrb.Data` object, then export and re-load that data later. 
 	- See the example
 
+
+## Example: Modifying, exporting and re-loading data objects
 
 Below is an example of how custom/new data can be added to the `pywrdrb.Data` class, and how the full data class can be exported to a new file and later reloaded. 
 
@@ -79,6 +81,37 @@ Then, later we can re-load the modified data object using:
 data = pywrdrb.Data()
 data.load_from_export("./pywrdrb_output_with_postprocessing.hdf5")
 ```
+
+## Example: Loading custom hydrologic data using `pywrdrb.Data()`
+
+The `load_hydrologic_model_flow()` function is designed to load `<flowtype>/gage_flow_mgd.csv` files.  Thus, the resulting data is reflective of the full natural flow as modeled by the model/dataset being loaded. This flow is _not_ routed through Pywr-DRB.
+
+Previously, this funciton was unable to be used for custom `flowtypes` arguments, and was only able to load the datasets that came pre-packaged with `pywrdrb` installation.  
+
+The 2.0.1 patch fixes this, as shown below.
+
+Importantly, this assumes that the custom data `csv` file has the same formatting as the existing pywrdrb datasets (node names as column names and datetime index) which is generally a pre-requisit for using custom data in the pywrdrb modeling workflow. 
+
+```python
+# Register custom dataset with pathnavigator
+pn_config = pywrdrb.get_pn_config()
+pn_config["flows/custom_data"] = "custom_data"
+pywrdrb.load_pn_config(pn_config)
+
+# List of result types to load
+# these include all valid options given the input data
+results_sets=['all', 'major_flow', 'reservoir_downstream_gage']
+
+data = pywrdrb.Data()
+
+# Previously, using flowtypes=['custom_data'] would give error
+data.load_hydrologic_model_flow(flowtypes=["custom_data"],
+                                results_sets=results_sets)
+
+# The "all" results set is new, and returns gage_flow (full natural) at all nodes
+data.all['custom_data'][0].head()
+```
+
 
 
 ---

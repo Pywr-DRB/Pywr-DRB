@@ -19,7 +19,7 @@ dependencies = [
     "numpy",
     "pandas",
     "scipy==1.15.3",
-    "statsmodels",
+    "statsmodels==0.14.15",
     "scikit-learn",
     "matplotlib",
     "PathNavigator",
