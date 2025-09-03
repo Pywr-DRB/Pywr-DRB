@@ -12,7 +12,7 @@ Custom Pywr parameter that computes reservoir releases based on a surrogate oper
 
 Inputs:
 - Normalized storage (S/S_cap)
-- Standardized inflow ((I - I_bar) / I_bar)
+- Min–max normalized inflow to [0,1] using I_min / I_max
 - Seasonal indicator (STARFIT: day of year, RBF: normalized week, PWL: storage/inflow breakpoints)
 
 
@@ -106,10 +106,12 @@ class RBFReservoirRelease(Parameter):
             )
         return cls._default_params_cache
     
+    
     def assign_policy_params(self, rbf_params):
         """
         Parse and store RBF policy parameters.
         """
+        
         key = (self.reservoir_name, self.policy_id)
 
         if key not in rbf_params.index:
@@ -124,82 +126,65 @@ class RBFReservoirRelease(Parameter):
 
         policy_params = rbf_params.loc[key]
 
-        # Extract and assemble RBF data
-        centers = []
-        widths = []
-        weights = []
-
-        for i in range(1, 10):  # support up to 9 RBFs (adjust as needed)
+        # ---- Centers / widths / weights (storage, inflow, day) ----
+        centers, widths, weights = [], [], []
+        for i in range(1, 10):
             try:
-                c = [
-                    policy_params[f"rbf{i}_center_storage"],
+                c = [policy_params[f"rbf{i}_center_storage"],
                     policy_params[f"rbf{i}_center_inflow"],
-                    policy_params[f"rbf{i}_center_doy"]
-                ]
-                s = [
-                    policy_params[f"rbf{i}_scale_storage"],
+                    policy_params[f"rbf{i}_center_doy"]]
+                s = [policy_params[f"rbf{i}_scale_storage"],
                     policy_params[f"rbf{i}_scale_inflow"],
-                    policy_params[f"rbf{i}_scale_doy"]
-                ]
+                    policy_params[f"rbf{i}_scale_doy"]]
                 w = policy_params[f"rbf{i}_weight"]
-
-                centers.append(c)
-                widths.append(s)
-                weights.append(w)
+                centers.append(c); widths.append(s); weights.append(w)
             except KeyError:
-                break  # Stop at first missing group
+                break
 
-        self.centers = np.array(centers)
-        self.widths = np.maximum(np.array(widths), 1e-6)
-        self.weights = np.array(weights) / np.sum(weights)
+        self.centers = np.array(centers, dtype=float)
+        self.widths  = np.maximum(np.array(widths, dtype=float), 1e-6)
+        w = np.array(weights, dtype=float)
+        self.weights = (w / w.sum()) if w.sum() != 0 else np.ones_like(w)/len(w)
 
-        # Capacity and inflow mean
-        self.S_cap = policy_params["Adjusted_CAP_MG"]
-        self.I_bar = policy_params["Adjusted_MEANFLOW_MGD"]
+        # ---- Capacity / mean inflow (for constraints & fallback caps) ----
+        self.S_cap = float(policy_params["Adjusted_CAP_MG"])
+        self.I_bar = float(policy_params["Adjusted_MEANFLOW_MGD"])
 
-        # Release limits
-        # Override RBF max releases at DRBC lower reservoirs
+        # ---- Release limits (prefer DRBC overrides) ----
         if self.reservoir_name in max_discharges:
-            self.R_max = max_discharges[self.reservoir_name]
+            self.R_max = float(max_discharges[self.reservoir_name])
         else:
-            self.R_max = (
-                999999
-                if self.remove_R_max
-                else (policy_params["Release_max"] + 1) * self.I_bar
-            )
-
-        # Override STARFIT min releases at DRBC lower reservoirs
+            if not np.isnan(policy_params.get("Max_release", np.nan)):
+                self.R_max = float(policy_params["Max_release"])
+            else:
+                self.R_max = float((policy_params["Release_max"] + 1.0) * self.I_bar)
         if self.reservoir_name in conservation_releases:
-            self.R_min = conservation_releases[self.reservoir_name]
+            self.R_min = float(conservation_releases[self.reservoir_name])
         else:
-            self.R_min = (policy_params["Release_min"] + 1) * self.I_bar
+            self.R_min = float((policy_params["Release_min"] + 1.0) * self.I_bar)
 
-    def evaluate_policy(self, S_norm, I_std, W_norm):
+        # ---- EXACT same normalization as optimizer ----
+        # require I_min / I_max in CSV
+        if any(k not in policy_params.index for k in ("I_min", "I_max")):
+            raise KeyError("rbf.csv must include I_min and I_max.")
+        self.I_min = float(policy_params["I_min"]); self.I_max = float(policy_params["I_max"])
+        if not (self.I_max > self.I_min):
+            raise ValueError(f"I_max ({self.I_max}) must be > I_min ({self.I_min}).")
+
+        self.x_min = np.array([0.0, self.I_min, 1.0], dtype=float)
+        self.x_max = np.array([self.S_cap, self.I_max, 366.0], dtype=float)
+
+
+    def evaluate_policy(self, X_norm):
         """
-        Evaluate the RBF function using normalized scalar inputs for a single scenario.
-
-        Parameters
-        ----------
-        S_norm : float
-            Normalized storage.
-        I_std : float
-            Standardized inflow.
-        W_norm : float
-            Normalized day-of-year indicator (0–1).
-
-        Returns
-        -------
-        float
-            Release fraction (between 0 and 1).
-
+        Evaluate the RBF using normalized inputs X_norm = [S_norm, I_norm, D_norm] in [0,1]^3.
         """
-        X = np.array([S_norm, I_std, W_norm])
+        X = np.asarray(X_norm, dtype=float)
+        assert X.shape == (3,), "X_norm must be a length-3 vector [S_norm, I_norm, D_norm]"
         z = 0.0
-
         for i in range(len(self.weights)):
             sq_term = np.sum(((X - self.centers[i]) / self.widths[i]) ** 2)
             z += self.weights[i] * np.exp(-sq_term)
-        
         return np.clip(z, 0.0, 1.0)
 
     def value(self, timestep, scenario_index):
@@ -221,15 +206,18 @@ class RBFReservoirRelease(Parameter):
         # Get scalar inputs
         S_t = float(self.node.volume[scenario_index.indices])
         I_t = float(self.inflow.get_value(scenario_index))
-        week_of_year_norm = timestep.dayofyear / 365.0
+        d = self.model.timestep_times[timestep]
+        day_of_year = float(getattr(d, "dayofyear", d.timetuple().tm_yday))
 
-        # Normalize storage
-        S_norm = S_t / self.S_cap
-        # Standardize inflow using I_bar
-        I_std = (I_t - self.I_bar) / self.I_bar
+        # Build raw vector and normalize EXACTLY like the optimizer
+        X = np.array([S_t, I_t, day_of_year], dtype=float)
+        denom = (self.x_max - self.x_min)
+        # guard: if any denom is 0 (shouldn't be), avoid divide-by-zero
+        denom = np.where(denom == 0.0, 1.0, denom)
+        X_norm = np.clip((X - self.x_min) / denom, 0.0, 1.0)
 
-        # Evaluate
-        release_fraction = self.evaluate_policy(S_norm, I_std, week_of_year_norm)
+        # Evaluate RBF and scale by R_max
+        release_fraction = self.evaluate_policy(X_norm)
         raw_release = release_fraction * self.R_max
 
         # Physical constraints
