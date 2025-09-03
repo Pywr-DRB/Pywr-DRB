@@ -444,7 +444,7 @@ class STARFITReservoirRelease(Parameter):
             Adjustment factor for release (unitless).
         """
         # Calculate normalized value within NOR
-        A_t = (S_hat - NORlo_t) / NORhi_t
+        A_t = (S_hat - NORlo_t) / (NORhi_t + 1e-6)
         return self.Release_c + self.Release_p1 * A_t + self.Release_p2 * I_hat
 
     def calculate_target_release(self, harmonic_release, epsilon, NORhi, NORlo, S_hat, I):
@@ -551,7 +551,7 @@ class STARFITReservoirRelease(Parameter):
         min_required = available_water - self.S_cap
         release_t = max(min(target_release, available_water), min_required)
 
-        return max(0.0, release_t)
+        return max(self.R_min, release_t)
 
     @classmethod
     def load(cls, model, data):
