@@ -147,34 +147,34 @@ starfit_param_bounds = [
 
 ## Piecewise Linear
 n_segments = 3         # linear segments 
-n_piecewise_linear_inputs = 3         # Number of input variables (inflow, storage, week_of_year)
-n_piecewise_linear_params = (2 * n_segments - 1) * n_piecewise_linear_inputs   # n_params =  (2 * n_segments - 1) * n_predictors
+n_pwl_inputs = 3         # Number of input variables (inflow, storage, week_of_year)
+n_pwl_params = (2 * n_segments - 1) * n_pwl_inputs   # n_params =  (2 * n_segments - 1) * n_predictors
 
 # param order = [segment_breakpoints, slopes] 
 # Segment breakpoints (x_i) in [0.0, 1.0]
 # Segment slopes (θ_i) in [0.0, π/3]
-single_input_piecewise_linear_param_bounds = [
+single_input_pwl_param_bounds = [
     [[i/(n_segments-1), (i+1)/(n_segments-1)] for i in range(n_segments-1)] +
     [[-np.pi/2, np.pi/2]] * n_segments  
 ][0]
 
 # repeat parameter bounds for each input
-piecewise_linear_param_bounds = []
-for _ in range(n_piecewise_linear_inputs):
-    piecewise_linear_param_bounds += single_input_piecewise_linear_param_bounds
+pwl_param_bounds = []
+for _ in range(n_pwl_inputs):
+    pwl_param_bounds += single_input_pwl_param_bounds
 
 
 ## Dictionaries of configurations
 policy_n_params = {
     "STARFIT": n_starfit_params,
     "RBF": n_rbf_params,                  
-    "PiecewiseLinear": n_piecewise_linear_params,  
+    "PiecewiseLinear": n_pwl_params,  
 }
 
 policy_param_bounds = {
     "STARFIT": starfit_param_bounds,
     "RBF": rbf_param_bounds,
-    "PiecewiseLinear": piecewise_linear_param_bounds,
+    "PiecewiseLinear": pwl_param_bounds,
 }
 
 

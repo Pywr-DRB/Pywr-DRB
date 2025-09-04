@@ -2,8 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from pywrdrb.release_policies.abstract_policy import AbstractPolicy
-
-# ## TODO: REPLACE THESE IMPORTS
 from pywrdrb.release_policies.config import policy_n_params, policy_param_bounds, drbc_conservation_releases
 from pywrdrb.release_policies.config import n_rbfs, n_rbf_inputs
 
@@ -42,13 +40,10 @@ class RBF(AbstractPolicy):
     """
     
     def __init__(self,
-                 release_max,
                  release_min,
+                 release_max,
                  storage_capacity,
-                 n_rbfs,
-                 n_rbf_inputs,
-                 policy_n_params,
-                 policy_param_bounds,
+                 input_scaling_dict,
                  policy_params):
         
         # Policy parameters
@@ -136,6 +131,13 @@ class RBF(AbstractPolicy):
         self.w = w_norm
         
         return 
+
+    def enforce_constraints(self, release):
+        """
+        Enforce release constraints.
+        """
+        # Enforce min/max release constraints
+        return release
 
     def evaluate(self, X):
         """

@@ -1,10 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-#TODO: verify loading of config variables
 from pywrdrb.release_policies.abstract_policy import AbstractPolicy
 from pywrdrb.release_policies.config import policy_n_params, policy_param_bounds, drbc_conservation_releases
-from pywrdrb.release_policies.config import n_segments, n_piecewise_linear_inputs
+from pywrdrb.release_policies.config import n_segments, n_pwl_inputs
 
 
 class PWL(AbstractPolicy):
@@ -34,7 +33,7 @@ class PWL(AbstractPolicy):
                  release_min,
                  storage_capacity,
                  n_rbfs,
-                 n_rbf_inputs,
+                 n_pwl_inputs,
                  policy_n_params,
                  policy_param_bounds,
                  policy_params):
@@ -51,9 +50,9 @@ class PWL(AbstractPolicy):
         
         # Policy parameters
         self.n_segments = n_segments
-        self.n_inputs = n_piecewise_linear_inputs
-        self.param_bounds = policy_param_bounds["PiecewiseLinear"]
-        self.n_params = policy_n_params["PiecewiseLinear"]
+        self.n_inputs = n_pwl_inputs
+        self.param_bounds = policy_param_bounds["PWL"]
+        self.n_params = policy_n_params["PWL"]
         
         # X (input) max and min values
         # used to normalize the input data
@@ -68,25 +67,6 @@ class PWL(AbstractPolicy):
         
         self.policy_params = policy_params
         self.parse_policy_params()
-
-    @classmethod
-    def load_default_params(cls):
-        """
-        Load default piecewise linear parameters from a CSV file.
-
-        Returns
-        -------
-        pd.DataFrame
-            DataFrame indexed by reservoir name containing PWL calibration parameters.
-
-        """
-        if cls._default_params_cache is None:
-            cls._default_params_cache = pd.read_csv(
-                pn.operational_constants.get_str("pwl.csv"), 
-                sep=",", 
-                index_col=["reservoir", "policy_id"]
-            )
-        return cls._default_params_cache
 
         
     def validate_policy_params(self):
@@ -261,8 +241,8 @@ class PWL(AbstractPolicy):
 
         # ---- Release limits (DRBC overrides take precedence) ----
         # R_min
-        if self.reservoir_name in conservation_releases:
-            self.R_min = float(conservation_releases[self.reservoir_name])
+        if self.reservoir_name in drbc_conservation_releases:
+            self.R_min = float(drbc_conservation_releases[self.reservoir_name])
         else:
             self.R_min = float((row["Release_min"] + 1.0) * self.I_bar) \
                         if pd.notnull(row.get("Release_min", np.nan)) else 0.0
