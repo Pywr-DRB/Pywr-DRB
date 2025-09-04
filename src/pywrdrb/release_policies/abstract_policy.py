@@ -7,33 +7,37 @@ class AbstractPolicy(ABC):
     """
     @abstractmethod
     def __init__(self, 
-                 min_release,
-                 max_release,
+                 release_min,
+                 release_max,
                  storage_capacity,
                  input_scaling_dict,
+                 policy_n_params,
+                 policy_param_bounds,
                  policy_params):
         """
         Initialize policy class.
         
         Parameters
         ----------
-        policy_params : dict
-            Dictionary of policy parameters.
+        release_min : float
+            Minimum allowable release (e.g., conservation release).
+        release_max : float
+            Maximum allowable release (e.g., based on historical data).
+        storage_capacity : float
+            Maximum storage capacity of the reservoir.
+        input_scaling_dict : dict
+            Dictionary with min/max values for each input variable,
+            used for normalization.
+            Example: {"storage": (S_min, S_max), "inflow": (I_min, I_max), "day_of_year": (D_min, D_max)}
+        policy_n_params : dict
+            Dictionary with number of parameters for each policy type.
+            Example: {"RBF": 7, "STARFIT": 17, "PiecewiseLinear": 25}
+        policy_param_bounds : dict
+            Dictionary with parameter bounds for each policy type.
+            Example: {"RBF": [[0,1], [0,1], ..., [0,1]], "STARFIT": [[0,1], ..., [0,pi/2]], "PiecewiseLinear": [[0,1], ..., [0,pi/2]]}
+        policy_params : list or np.array
+            List or array of policy parameters to be parsed and used by the policy.
         """
-    
-        self.release_min = None
-        self.release_max = None
-        self.storage_capacity = None
-        self.input_scaling_dict = None
-        self.x_min = None  # np.array([S_min, I_min, D_min])
-        self.x_max = None  # np.array([S_max, I_max, D_max])
-
-        self.release_min = float(release_min)
-        self.release_max = float(release_max)
-        self.storage_capacity = float(storage_capacity)
-        self.input_scaling_dict = input_scaling_dict
-        self.x_min = np.array(x_min, dtype=float)
-        self.x_max = np.array(x_max, dtype=float)
 
         pass
 
