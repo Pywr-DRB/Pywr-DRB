@@ -39,6 +39,7 @@ Basin. Environmental Modelling & Software, 106185. https://doi.org/10.1016/j.env
 Change Log:
 Chung-Yi Lin, 2025-05-02, None
 Chung-Yi Lin, 2025-05-27, Add Temperature and Salinity LSTM model coupling.
+Marilyn Smith, 2025-10-01, Add ParameticRelease class for alternative reservoir release policies.
 """
 import json
 from dataclasses import dataclass, field
@@ -585,21 +586,25 @@ class ModelBuilder:
 
         model_dict = self.model_dict
 
+        # TODO: Make this function accept ParametricRelease class and also specify release policy and id
         # Determine release parameter type from Options, with fallback to STARFIT
         release_policy_entry = self.options.release_policy_dict.get(reservoir_name, {})
         if not isinstance(release_policy_entry, dict):
-            # old style string shortcut or missing entirely
             release_param_type = (
                 release_policy_entry if isinstance(release_policy_entry, str)
                 else "STARFITReservoirRelease"
-            )
+            ) # TODO: to use either ParametericRelease or STARFITReservoirRelease
             release_param_id = "default"
+            #TODO: clarify the usage of this variable (RBF, PWL, STARFIT)
+            release_param_function = "default" # The default should be STARFIT
         else:
             release_param_type = release_policy_entry.get("type", "STARFITReservoirRelease")
             release_param_id = release_policy_entry.get("id", "default")
+            #TODO: clarify the usage of this variable (RBF, PWL, STARFIT)
+            release_param_function = release_policy_entry.get("function", "default")
 
-        release_param_name = f"{release_param_type}_{reservoir_name}"
-        print(f"Using release param for {reservoir_name}: {release_param_type} (policy_id: {release_param_id})")
+        release_param_name = f"{release_param_type}_{release_param_function}_{reservoir_name}"
+        print(f"Using {release_param_type} for {reservoir_name}: {release_param_function} (policy_id: {release_param_id})")
 
         # Initial settings
         initial_volume_frac = self.options.initial_volume_frac
@@ -1999,7 +2004,6 @@ class ModelBuilder:
             #extract reservoir parameter name
             release_policy_entry = self.options.release_policy_dict.get(reservoir, {})
             if not isinstance(release_policy_entry, dict):
-                # old style string shortcut or missing entirely
                 release_param_type = (
                     release_policy_entry if isinstance(release_policy_entry, str)
                     else "STARFITReservoirRelease"
@@ -2007,7 +2011,7 @@ class ModelBuilder:
             else:
                 release_param_type = release_policy_entry.get("type", "STARFITReservoirRelease")
 
-            release_param_name = f"{release_param_type}_{reservoir}"
+            release_param_name = f"{release_param_type}_{release_param_function}_{reservoir_name}"
             
             model_dict["parameters"][f"downstream_release_target_{reservoir}"] = {
                 "type": "aggregated",
