@@ -405,6 +405,10 @@ class STARFITReservoirRelease(Parameter):
             self._precompute_seasonal_lookups()
         return self._nor_lo_lookup[timestep.dayofyear - 1]
 
+    def test_nor_constraint(self) -> bool:
+        lo, hi = self.calculate_weekly_NOR()
+        return bool(np.all(hi >= lo))
+
     def get_harmonic_release(self, timestep):
         """
         Compute seasonal base release using pre-computed lookup table.
