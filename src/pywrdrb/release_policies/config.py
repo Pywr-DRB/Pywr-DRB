@@ -221,3 +221,56 @@ inflow_bounds_by_reservoir = {
     "prompton": {"I_min": 0.0, "I_max": 900.585},
     "fewalter": {"I_min": 0.0, "I_max": 3652.15 }
 }
+
+def get_policy_context(
+    reservoir_name: str,
+    *,
+    release_min_override: float | None = None,
+    release_max_override: float | None = None,
+    capacity_override: float | None = None,
+    inflow_bounds_override: tuple[float, float] | None = None,
+) -> dict:
+    """
+    Assemble kwargs for AbstractPolicy.set_context(...) for a given reservoir.
+
+    Returns a dict with:
+      - release_min, release_max, storage_capacity
+      - x_min = (0.0, I_min, 1.0)
+      - x_max = (S_cap, I_max, 366.0)
+    """
+
+    # Base values from config tables
+    try:
+        S_cap_cfg = float(reservoir_capacity[reservoir_name])
+        R_min_cfg = float(reservoir_min_release[reservoir_name])
+        R_max_cfg = float(reservoir_max_release[reservoir_name])
+        I_min_cfg = float(inflow_bounds_by_reservoir[reservoir_name]["I_min"])
+        I_max_cfg = float(inflow_bounds_by_reservoir[reservoir_name]["I_max"])
+    except KeyError as e:
+        raise KeyError(f"Missing config for {reservoir_name}: {e}")
+
+    # Apply optional overrides (e.g., from CLI or CSV)
+    S_cap = float(capacity_override) if capacity_override is not None else S_cap_cfg
+    R_min = float(release_min_override) if release_min_override is not None else R_min_cfg
+    R_max = float(release_max_override) if release_max_override is not None else R_max_cfg
+    if inflow_bounds_override is not None:
+        I_min, I_max = map(float, inflow_bounds_override)
+    else:
+        I_min, I_max = I_min_cfg, I_max_cfg
+
+    # Basic sanity
+    if not (I_max > I_min):
+        raise ValueError(f"{reservoir_name}: I_max ({I_max}) must be > I_min ({I_min}).")
+    if not (R_max >= R_min >= 0.0):
+        raise ValueError(f"{reservoir_name}: release bounds invalid: [{R_min}, {R_max}].")
+
+    return {
+        "release_min": R_min,
+        "release_max": R_max,
+        "storage_capacity": S_cap,
+        "x_min": (0.0, I_min, 1.0),
+        "x_max": (S_cap, I_max, 366.0),
+    }
+
+# Optional: precompute for convenience
+POLICY_CONTEXT_BY_RESERVOIR = {r: get_policy_context(r) for r in reservoir_options}

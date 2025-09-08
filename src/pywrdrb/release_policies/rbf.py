@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from typing import Sequence, Mapping, Any, Optional
 
 from pywrdrb.release_policies.abstract_policy import AbstractPolicy
 from pywrdrb.release_policies.config import policy_n_params, policy_param_bounds, drbc_conservation_releases
@@ -40,32 +41,25 @@ class RBF(AbstractPolicy):
     """
     
     def __init__(self,
-                 release_min,
-                 release_max,
-                 storage_capacity,
-                 input_scaling_dict,
                  policy_params):
         
-        # Policy parameters
-        self.nRBFs = n_rbfs
+        super().__init__(policy_params=policy_params)
+        self.nRBFs = int(n_rbfs)
+        self.n_inputs = int(n_rbf_inputs)   # should be 3 for [S, I, D]
         self.n_params = policy_n_params["RBF"]
         self.param_bounds = policy_param_bounds["RBF"]
-        self.n_inputs = n_rbf_inputs
-        
-        # X (input) max and min values
-        # used to normalize the input data
-        # X = [storage, inflow, day_of_year]
-        # self.x_min = np.array([0.0, 
-        #                     #    self.Reservoir.inflow_min,
-        #                        1.0])
-        
-        # self.x_max = np.array([self.Reservoir.capacity, 
-        #                        self.Reservoir.inflow_max,
-        #                        366.0])
-        
-        self.policy_params = policy_params
-        self.parse_policy_params()
-        
+
+        #self.policy_id = policy_id
+
+        # Parsed parameter arrays (filled by parse_policy_params)
+        self.w = None                 # (nRBFs,)
+        self.c = None                 # (nRBFs, n_inputs)
+        self.r = None                 # (nRBFs, n_inputs)
+
+        if policy_params is not None:
+            self.parse_policy_params()
+
+    # ---------- optimizer-path: flat vector ----------
     def validate_policy_params(self):
         """
         Validates the policy parameters
@@ -132,14 +126,127 @@ class RBF(AbstractPolicy):
         
         return 
 
-    def enforce_constraints(self, release):
+    # ---------- Pywr-path: CSV row params (dict/Series row) ----------
+    def assign_policy_params(
+        self,
+        row: Mapping[str, Any],
+        *,
+        set_context_from_row: bool = False,
+        max_rbfs: Optional[int] = None,
+    ) -> None:
         """
-        Enforce release constraints.
-        """
-        # Enforce min/max release constraints
-        return release
+        Define RBF centers, widths (scales), and weights from a pandas Series / dict-like row.
 
-    def evaluate(self, X):
+        Expected per-basis columns (1-indexed):
+          - rbf{i}_center_storage, rbf{i}_center_inflow, rbf{i}_center_doy
+          - rbf{i}_scale_storage,  rbf{i}_scale_inflow,  rbf{i}_scale_doy
+          - rbf{i}_weight
+
+        Optionally (if set_context_from_row=True), also expects:
+          - S_cap (or Adjusted_CAP_MG / GRanD_CAP_MG)
+          - I_min, I_max
+          - R_min (optional), R_max (optional)
+        """
+        cap = int(max_rbfs if max_rbfs is not None else self.nRBFs)
+
+        found = []
+        i = 1
+        while i <= 999:
+            keys = [
+                f"rbf{i}_center_storage", f"rbf{i}_center_inflow", f"rbf{i}_center_doy",
+                f"rbf{i}_scale_storage",  f"rbf{i}_scale_inflow",  f"rbf{i}_scale_doy",
+                f"rbf{i}_weight",
+            ]
+            if all(k in row for k in keys):
+                found.append(i)
+                if len(found) >= cap:
+                    break
+                i += 1
+            else:
+                break
+
+        if len(found) == 0:
+            raise KeyError("No RBF entries found (expected keys like 'rbf1_center_storage', etc.).")
+
+        n, d = len(found), self.n_inputs
+        centers = np.zeros((n, d), dtype=float)
+        scales  = np.zeros((n, d), dtype=float)
+        weights = np.zeros(n, dtype=float)
+
+        for idx, i in enumerate(found):
+            centers[idx, 0] = float(row[f"rbf{i}_center_storage"])
+            centers[idx, 1] = float(row[f"rbf{i}_center_inflow"])
+            centers[idx, 2] = float(row[f"rbf{i}_center_doy"])
+
+            scales[idx, 0]  = float(row[f"rbf{i}_scale_storage"])
+            scales[idx, 1]  = float(row[f"rbf{i}_scale_inflow"])
+            scales[idx, 2]  = float(row[f"rbf{i}_scale_doy"])
+
+            weights[idx]    = float(row[f"rbf{i}_weight"])
+
+        scales = np.maximum(scales, 1e-6)
+
+        w_sum = float(np.sum(weights))
+        weights = (weights / w_sum) if w_sum > 0.0 else np.full(n, 1.0 / n, dtype=float)
+
+        self.w, self.c, self.r = weights, centers, scales
+        self.nRBFs = n  # reflect actual number loaded
+
+        if set_context_from_row:
+            S_cap = row.get("S_cap", row.get("Adjusted_CAP_MG", row.get("GRanD_CAP_MG", None)))
+            if S_cap is None:
+                raise KeyError("assign_policy_params: missing S_cap/Adjusted_CAP_MG/GRanD_CAP_MG")
+
+            I_min = row.get("I_min")
+            I_max = row.get("I_max")
+            if I_min is None or I_max is None:
+                raise KeyError("assign_policy_params: missing I_min / I_max")
+
+            R_min = float(row.get("R_min", 0.0))
+            R_max = float(row.get("R_max", 1e12))
+
+            self.set_context(
+                release_min=float(R_min),
+                release_max=float(R_max),
+                storage_capacity=float(S_cap),
+                x_min=(0.0, float(I_min), 1.0),
+                x_max=(float(S_cap), float(I_max), 366.0),
+            )
+
+    # ---------- Convenience: MultiIndex DataFrame (reservoir_name, policy_id) ----------
+    def assign_from_df(
+        self,
+        df,  # pandas DataFrame
+        *,
+        reservoir_name: Optional[str] = None,
+        policy_id: Optional[str] = None,
+        **kwargs,
+    ) -> None:
+        """
+        Load parameters from a MultiIndex DataFrame with index (reservoir_name, policy_id).
+        Falls back to (reservoir_name, 'default') if the exact row is missing.
+        """
+        if df.index.nlevels < 2:
+            raise ValueError("assign_from_df expects a MultiIndex with (reservoir_name, policy_id).")
+
+        res = reservoir_name or self.reservoir_name
+        pid = policy_id or self.policy_id or "default"
+        if res is None:
+            raise ValueError("reservoir_name not provided and self.reservoir_name is None.")
+
+        key = (res, pid)
+        if key not in df.index:
+            fallback = (res, "default")
+            if fallback in df.index:
+                print(f"[RBF] policy_id '{pid}' not found for '{res}'. Falling back to 'default'.")
+                key = fallback
+            else:
+                raise KeyError(f"Parameters not found for {res}/{pid} (and no 'default').")
+
+        row = df.loc[key]
+        self.assign_policy_params(row, **kwargs)
+
+    def evaluate(self, X_norm):
         """
         Evaluate the policy function.
 
@@ -154,11 +261,11 @@ class RBF(AbstractPolicy):
         """
         
         # Make sure we got the right number of inputs
-        assert len(X) == self.n_inputs, \
+        assert len(X_norm) == self.n_inputs, \
             f"Expected {self.n_inputs} input variables; got {len(X)}."
 
         # make sure X values are in [0, 1]
-        assert all(0 <= x <= 1 for x in X), \
+        assert all(0 <= x <= 1 for x in X_norm), \
             f"Input values must be in the range [0, 1]. Values: {X}."
         
         # Calculate 
@@ -167,7 +274,7 @@ class RBF(AbstractPolicy):
             sq_term = 0.0
             for j in range(self.n_inputs):
                 idx = i * self.n_inputs + j
-                sq_term += ((X[j] - self.c[idx]) / self.r[idx]) ** 2
+                sq_term += ((X_norm[j] - self.c[idx]) / self.r[idx]) ** 2
             z += self.w[i] * np.exp(-sq_term)
         
         # Impose bound limits
@@ -175,60 +282,31 @@ class RBF(AbstractPolicy):
                        
         return z
     
-    def get_release(self, 
-                    inflow, 
-                    storage,
-                    day_of_year):
-        
-        # Get state variables
-        I_t = float(inflow)
+    def get_release(self, storage: float, inflow: float, day_of_year: float) -> float:
+        """Normalize via base class, scale, then enforce constraints with availability."""
         S_t = float(storage)
-        day_of_year = float(day_of_year)
+        I_t = float(inflow)
+        D_t = float(day_of_year)
 
-        # inputs  = [storage, inflow, day_of_year]
-        X = np.array([S_t, I_t, day_of_year])
-        
-        # Normalize X
-        #TODO: Check the normalization logic 
-        X_norm = np.zeros(self.n_inputs)
-        for i in range(self.n_inputs):
-            X_norm[i] = (X[i] - self.x_min[i]) / (self.x_max[i] - self.x_min[i])        
-            X_norm[i] = max(0.0, min(1.0, X_norm[i])) # enforce bounds [0, 1]
-        
-        # Compute release
-        release  = self.evaluate(X_norm) * self.release_max
-        
-        # Enforce constraints (defined in AbstractPolicy)
-        release = self.enforce_constraints(release)
-        release = min(release, S_t + I_t)
-        release = max(release, self.release_min)
+        X_norm = self._normalize(S_t, I_t, D_t)
+        z = self.evaluate(X_norm)
+        release = z * float(self.release_max)
+        return self.enforce_constraints(release, available=S_t + I_t)
 
-        return release
+    # ---------- quick 3D slice plot ----------
+    def plot(self, N=41):
+        xs = np.linspace(0.0, 1.0, N)
+        ys = np.linspace(0.0, 1.0, N)
+        Z  = np.zeros((N, N))
+        for i, s in enumerate(xs):
+            for j, q in enumerate(ys):
+                Z[i, j] = self.evaluate([s, q, 0.5])  # hold day mid-season
 
-    def plot(self):
-        
-        # plot 3d surface
-        
-        fig, axs = plt.subplots(1, 1, 
-                                figsize=(5, 5), 
-                                subplot_kw={"projection": "3d"})
-        
-        xs = np.linspace(0.0, 1.0, 50)
-        ys = np.linspace(0.0, 1.0, 50)
-        zs = np.zeros((len(xs), len(ys)))
-        for i, x in enumerate(xs):
-            for j, y in enumerate(ys):
-                X = np.array([x, y])
-                zs[i,j] = self.evaluate(X)
-        
-        # plot surface
         X, Y = np.meshgrid(xs, ys)
-        axs.plot_surface(X, Y, zs.T, cmap='viridis', alpha=0.5)
-        
-        axs.set_xlabel('Storage (normalized)')
-        axs.set_ylabel('Inflow (normalized)')
-        axs.set_zlabel('Release (normalized)')
-        axs.set_title('RBF Policy Function')
-        
+        fig = plt.figure(figsize=(6, 5))
+        ax = fig.add_subplot(111, projection="3d")
+        ax.plot_surface(X, Y, Z.T, alpha=0.7)
+        ax.set_xlabel("S_norm"); ax.set_ylabel("I_norm"); ax.set_zlabel("z")
+        ax.set_title("RBF policy surface (D_norm=0.5)")
         plt.tight_layout()
         plt.show()
