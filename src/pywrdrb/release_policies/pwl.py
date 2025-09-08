@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from typing import Sequence, Mapping, Any, Optional
 
 from pywrdrb.release_policies.abstract_policy import AbstractPolicy
 from pywrdrb.release_policies.config import policy_n_params, policy_param_bounds, drbc_conservation_releases
@@ -29,13 +30,6 @@ class PWL(AbstractPolicy):
     """
 
     def __init__(self,
-                 release_max,
-                 release_min,
-                 storage_capacity,
-                 n_rbfs,
-                 n_pwl_inputs,
-                 policy_n_params,
-                 policy_param_bounds,
                  policy_params):
         """
         Initializes the PiecewiseLinear policy.
@@ -49,51 +43,41 @@ class PWL(AbstractPolicy):
         """
         
         # Policy parameters
+        super().__init__(policy_params=policy_params)
         self.n_segments = n_segments
-        self.n_inputs = n_pwl_inputs
-        self.param_bounds = policy_param_bounds["PWL"]
+        self.n_inputs = n_pwl_inputs   # should be 3 for [S,I,D]
         self.n_params = policy_n_params["PWL"]
-        
-        # X (input) max and min values
-        # used to normalize the input data
-        # X = [storage, inflow, day_of_year]
-        # self.x_min = np.array([0.0, 
-        #                        self.Reservoir.inflow_min,
-        #                        1.0])
-        
-        # self.x_max = np.array([self.Reservoir.capacity, 
-        #                        self.Reservoir.inflow_max,
-        #                        366.0])
-        
-        self.policy_params = policy_params
-        self.parse_policy_params()
+        self.param_bounds = policy_param_bounds["PWL"]
 
-        
+        # storage/inflow/day PWL pieces set by parse or assign
+        self.storage_bounds = self.storage_slopes = self.storage_intercepts = None
+        self.inflow_bounds  = self.inflow_slopes  = self.inflow_intercepts  = None
+        self.day_bounds     = self.day_slopes     = self.day_intercepts     = None
+
+        # If params provided (optimizer path), parse them now
+        if policy_params is not None:
+            self.parse_policy_params()
+
+    # ---------- Optimizer-path: vector params ----------
     def validate_policy_params(self):
-        """
-        Validates the policy parameters.
-        """
-        # Check if the number of parameters is correct
-        assert len(self.policy_params) == self.n_params, \
-            f"PiecewiseLinear policy expected {self.n_params} parameters, got {len(self.policy_params)}."
-        
-        # check parameter bounds
+        """Validate the optimizer vector."""
+        if self.policy_params is None:
+            raise ValueError("PWL.policy_params is None; provide a vector or use assign_policy_params(...).")
+        if len(self.policy_params) != self.n_params:
+            raise AssertionError(
+                f"PWL expected {self.n_params} parameters, got {len(self.policy_params)}."
+            )
         for i, p in enumerate(self.policy_params):
-            bounds = self.param_bounds[i]
-            assert (p >= bounds[0]) and (p <= bounds[1]), \
-                f"Parameter with index {i} is out of bounds {bounds}. Value: {p}."
-            
+            lo, hi = self.param_bounds[i]
+            if not (lo <= p <= hi):
+                raise AssertionError(f"Param idx {i} out of bounds {lo, hi}. Value: {p}")
         return
-        
-    def parse_policy_params(self):
-        """
-        Parses policy parameters into segment boundaries and slopes.
-        """
 
-        # Validate the policy parameters
+    def parse_policy_params(self):
+        """Parse flattened vector into three 1-D PWLs (storage, inflow, day-of-year)."""
         self.validate_policy_params()
 
-        def parse_segment_params(segment_params, M = self.n_segments):
+        def _parse_segment_params(segment_params, M=self.n_segments):
             """
             Decomposes the policy parameters into segment boundaries, slopes, and intercepts.
             
@@ -106,303 +90,142 @@ class PWL(AbstractPolicy):
                     - slopes (list): Slopes of the segments, length n_segments.
                     - intercepts (list): Intercepts of the segments, length n_segments.
             """
-            
-            x_bounds = [0.0] + list(segment_params[:M - 1]) + [1.0]
-            theta_vals = segment_params[M - 1:]
-            slopes = [np.tan(theta) for theta in theta_vals]
-
+            # x bounds: [0, x1, x2, ..., 1]; slopes = tan(theta_k); intercepts continuous
+            x_bounds   = [0.0] + list(segment_params[:M-1]) + [1.0]
+            theta_vals = segment_params[M-1:]
+            slopes     = [np.tan(theta) for theta in theta_vals]
             intercepts = [0.0]
-            for i in range(1, M):
-                dx = x_bounds[i] - x_bounds[i - 1]
-                b = intercepts[i - 1] + slopes[i - 1] * dx
-                intercepts.append(b)
+            for k in range(1, M):
+                dx = x_bounds[k] - x_bounds[k-1]
+                intercepts.append(intercepts[k-1] + slopes[k-1] * dx)
             return x_bounds, slopes, intercepts
 
+        # vector packs [storage block | inflow block | day block]
+        block = len(self.policy_params) // 3
+        s_params = self.policy_params[:block]
+        i_params = self.policy_params[block:2*block]
+        d_params = self.policy_params[2*block:]
 
-        ### Params contains [storage_params, inflow_params, day_of_year_params]
-        # split params in thirds
+        (self.storage_bounds, self.storage_slopes, self.storage_intercepts) = _parse_segment_params(s_params)
+        (self.inflow_bounds,  self.inflow_slopes,  self.inflow_intercepts)  = _parse_segment_params(i_params)
+        (self.day_bounds,     self.day_slopes,     self.day_intercepts)     = _parse_segment_params(d_params)
 
-        n_param_subset = len(self.policy_params) // 3
-        
-        s_params = self.policy_params[:n_param_subset]
-        i_params = self.policy_params[n_param_subset:(2 * n_param_subset)]
-        d_params = self.policy_params[(2 * n_param_subset):]
-
-        # Calculate and store the segment boundaries, slopes, and intercepts
-        # for storage, inflow, and day of year functions
-        (self.storage_bounds,
-        self.storage_slopes,
-        self.storage_intercepts) = parse_segment_params(s_params)
-
-        (self.inflow_bounds,
-        self.inflow_slopes,
-        self.inflow_intercepts) = parse_segment_params(i_params)
-
-        (self.day_bounds,
-        self.day_slopes,
-        self.day_intercepts) = parse_segment_params(d_params)
-
-    def assign_policy_params(self, pwl_params):
+    # ---------- Pywr-path: CSV row params ----------
+    def assign_policy_params(self, row: Mapping[str, Any], *, set_context_from_row: bool = False):
         """
-        Load PWL parameters for (reservoir_name, policy_id) and build the three
-        1-D piecewise linear mappings (storage, inflow, season).
+        Define the three PWLs from a pandas Series / dict-like row.
 
-        Expects `pwl_params` indexed by ['reservoir','policy_id'] with columns:
-        storage_x1, storage_x2, storage_theta1..3,
-        inflow_x1,  inflow_x2,  inflow_theta1..3,
-        season_x1,  season_x2,  season_theta1..3,
-        GRanD_CAP_MG, GRanD_MEANFLOW_MGD,
-        Adjusted_CAP_MG, Adjusted_MEANFLOW_MGD,
-        Max_release, Release_max, Release_min
+        Expects per-axis columns for M = self.n_segments:
+          storage_x1..x{M-1}, storage_theta1..theta{M}
+          inflow_x1..x{M-1},  inflow_theta1..theta{M}
+          season_x1..x{M-1},  season_theta1..theta{M}
 
-        Notes:
-        - Thetas are radians; slopes = tan(theta).
-        - DRBC overrides take precedence for R_min / R_max.
-        - If `self.M` is unset, defaults to 3.
+        If set_context_from_row=True, also expects:
+          - S_cap (or Adjusted_CAP_MG / GRanD_CAP_MG)
+          - I_min, I_max
+          - R_min (optional), R_max (optional)
         """
-        # Ensure expected index
-        if not isinstance(pwl_params.index, pd.MultiIndex) or \
-        set(pwl_params.index.names) != {"reservoir", "policy_id"}:
-            pwl_params = pwl_params.set_index(["reservoir", "policy_id"])
+        def seg_params(prefix: str):
+            xs = [float(row[f"{prefix}_x{i}"]) for i in range(1, self.n_segments)]
+            thetas = [float(row[f"{prefix}_theta{i}"]) for i in range(1, self.n_segments + 1)]
+            return xs + thetas
 
-        # Resolve key (with fallback to policy_id='default')
-        key = (self.reservoir_name, self.policy_id)
-        if key not in pwl_params.index:
-            fallback_key = (self.reservoir_name, "default")
-            if fallback_key in pwl_params.index:
-                if hasattr(self.model, "logger"):
-                    self.model.logger.warning(
-                        f"[PWL] policy_id='{self.policy_id}' not found for {self.reservoir_name}; "
-                        f"falling back to 'default'."
-                    )
-                key = fallback_key
-            else:
-                raise KeyError(
-                    f"PWL parameters not found for reservoir='{self.reservoir_name}' "
-                    f"with policy_id='{self.policy_id}' or 'default'."
-                )
+        def parse_segment_params(segment_params, M=self.n_segments):
+            x_bounds   = [0.0] + list(segment_params[:M-1]) + [1.0]
+            theta_vals = segment_params[M-1:]
+            slopes     = [np.tan(theta) for theta in theta_vals]
+            intercepts = [0.0]
+            for k in range(1, M):
+                dx = x_bounds[k] - x_bounds[k-1]
+                intercepts.append(intercepts[k-1] + slopes[k-1] * dx)
+            return x_bounds, slopes, intercepts
 
-        row = pwl_params.loc[key]
+        s_params = seg_params("storage")
+        i_params = seg_params("inflow")
+        d_params = seg_params("season")
 
-        if hasattr(self.model, "logger"):
-            self.model.logger.info(f"[PWL] Loaded parameters for {self.reservoir_name}, policy_id={key[1]}")
+        (self.storage_bounds, self.storage_slopes, self.storage_intercepts) = parse_segment_params(s_params)
+        (self.inflow_bounds,  self.inflow_slopes,  self.inflow_intercepts)  = parse_segment_params(i_params)
+        (self.day_bounds,     self.day_slopes,     self.day_intercepts)     = parse_segment_params(d_params)
 
-        # Number of segments
-        if getattr(self, "M", None) is None:
-            self.M = 3  # matches your config
+        if set_context_from_row:
+            # capacity
+            S_cap = row.get("S_cap", row.get("Adjusted_CAP_MG", row.get("GRanD_CAP_MG", None)))
+            if S_cap is None:
+                raise KeyError("assign_policy_params: missing S_cap/Adjusted_CAP_MG/GRanD_CAP_MG")
+            # inflow bounds
+            I_min = row.get("I_min"); I_max = row.get("I_max")
+            if I_min is None or I_max is None:
+                raise KeyError("assign_policy_params: missing I_min / I_max")
+            # release limits (optional)
+            R_min = float(row.get("R_min", 0.0))
+            R_max = float(row.get("R_max", 1e12))
 
-        # ---- 15 PWL params in Storage → Inflow → Season order ----
-        required_cols = [
-            "storage_x1","storage_x2","storage_theta1","storage_theta2","storage_theta3",
-            "inflow_x1","inflow_x2","inflow_theta1","inflow_theta2","inflow_theta3",
-            "season_x1","season_x2","season_theta1","season_theta2","season_theta3",
-        ]
-        missing = [c for c in required_cols if c not in row.index]
-        if missing:
-            raise KeyError(f"Missing PWL columns in CSV: {missing}")
+            self.set_context(
+                release_min=float(R_min),
+                release_max=float(R_max),
+                storage_capacity=float(S_cap),
+                x_min=(0.0, float(I_min), 1.0),
+                x_max=(float(S_cap), float(I_max), 366.0),
+            )
 
-        s_params = [
-            float(row["storage_x1"]),
-            float(row["storage_x2"]),
-            float(row["storage_theta1"]),
-            float(row["storage_theta2"]),
-            float(row["storage_theta3"]),
-        ]
-        i_params = [
-            float(row["inflow_x1"]),
-            float(row["inflow_x2"]),
-            float(row["inflow_theta1"]),
-            float(row["inflow_theta2"]),
-            float(row["inflow_theta3"]),
-        ]
-        d_params = [
-            float(row["season_x1"]),
-            float(row["season_x2"]),
-            float(row["season_theta1"]),
-            float(row["season_theta2"]),
-            float(row["season_theta3"]),
-        ]
+    # ---------- Core math ----------
+    def _segment_eval(self, x, bounds, slopes, intercepts):
+        # f(x) = m_i * (x - x_i) + b_i on the active segment
+        for i in range(self.n_segments):
+            if bounds[i] <= x < bounds[i+1]:
+                return slopes[i] * (x - bounds[i]) + intercepts[i]
+        # right-closed
+        if x >= bounds[-1]:
+            return slopes[-1] * (x - bounds[-2]) + intercepts[-1]
+        raise ValueError(f"x={x} outside bounds {bounds}")
 
-        # Build PWLs (same logic as standalone)
-        (self.s_bounds, self.s_slopes, self.s_intercepts) = self._parse_segment_params(s_params, M=self.M)
-        (self.i_bounds, self.i_slopes, self.i_intercepts) = self._parse_segment_params(i_params, M=self.M)
-        (self.d_bounds, self.d_slopes, self.d_intercepts) = self._parse_segment_params(d_params, M=self.M)
+    def evaluate(self, X_norm):
+        """X_norm = [S_norm, I_norm, D_norm] in [0,1]^3  -> z in [0,1]."""
+        if len(X_norm) != self.n_inputs:
+            raise AssertionError(f"Expected {self.n_inputs} inputs; got {len(X_norm)}.")
+        if not all(0.0 <= x <= 1.0 for x in X_norm):
+            raise AssertionError(f"Inputs must be in [0,1]. Got {X_norm}.")
 
-        # Optional: quick hardening identical to standalone expectations
-        self._validate_axis(self.s_bounds, self.s_slopes)
-        self._validate_axis(self.i_bounds, self.i_slopes)
-        self._validate_axis(self.d_bounds, self.d_slopes)
+        S, I, D = X_norm
+        zS = self._segment_eval(S, self.storage_bounds, self.storage_slopes, self.storage_intercepts)
+        zI = self._segment_eval(I, self.inflow_bounds,  self.inflow_slopes,  self.inflow_intercepts)
+        zD = self._segment_eval(D, self.day_bounds,     self.day_slopes,     self.day_intercepts)
 
-        # ---- Capacity & mean inflow (normalization / factor scaling) ----
-        self.S_cap = float(row["Adjusted_CAP_MG"]) if pd.notnull(row.get("Adjusted_CAP_MG", np.nan)) \
-                    else float(row["GRanD_CAP_MG"])
-        self.I_bar = float(row["Adjusted_MEANFLOW_MGD"]) if pd.notnull(row.get("Adjusted_MEANFLOW_MGD", np.nan)) \
-                    else float(row["GRanD_MEANFLOW_MGD"])
+        # clamp each piece and average
+        z = (max(0.0, min(1.0, zS)) +
+             max(0.0, min(1.0, zI)) +
+             max(0.0, min(1.0, zD))) / 3.0
+        return max(0.0, min(1.0, z))
 
-        # ---- Release limits (DRBC overrides take precedence) ----
-        # R_min
-        if self.reservoir_name in drbc_conservation_releases:
-            self.R_min = float(drbc_conservation_releases[self.reservoir_name])
-        else:
-            self.R_min = float((row["Release_min"] + 1.0) * self.I_bar) \
-                        if pd.notnull(row.get("Release_min", np.nan)) else 0.0
-
-        # R_max
-        if self.reservoir_name in max_discharges:
-            self.R_max = float(max_discharges[self.reservoir_name])
-        else:
-            if pd.notnull(row.get("Max_release", np.nan)) and float(row["Max_release"]) > 0.0:
-                # absolute cap provided
-                self.R_max = float(row["Max_release"])
-            elif pd.notnull(row.get("Release_max", np.nan)):
-                # factor × mean-flow style cap
-                self.R_max = float((row["Release_max"] + 1.0) * self.I_bar)
-            else:
-                # fallback
-                self.R_max = float(getattr(self.node, "max_flow", 1e12))
-
-        # Optional flag to remove R_max entirely
-        if getattr(self, "remove_R_max", False):
-            self.R_max = 999999.0
-
-        #TODO: require this to be loaded from the shared config file
-        # Require exact inflow bounds from CSV
-        for col in ("I_min", "I_max"):
-            if col not in row.index or pd.isnull(row[col]):
-                raise KeyError("pwl.csv must include columns I_min and I_max for exact normalization.")
-
-        self.I_min = float(row["I_min"])
-        self.I_max = float(row["I_max"])
-        if not (self.I_max > self.I_min):
-            raise ValueError(f"I_max ({self.I_max}) must be > I_min ({self.I_min}).")
-
-        # EXACT same min–max ranges as the standalone
-        self.x_min = np.array([0.0, self.I_min, 1.0], dtype=float)
-        self.x_max = np.array([float(self.S_cap), float(self.I_max), 366.0], dtype=float)
-
-
-    def evaluate(self, X):
-        """
-        Evaluate PWL on normalized [S_norm, I_norm, D_norm] -> z in [0,1].
-        
-        Args:
-            X (list): A list of input values, including normalized:
-                - Storage (S)
-                - Inflow (I)
-                - Day of year (D)
-        
-        Returns:
-            float: The computed release.
-        """
-        # Separate inputs [storage, inflow, day_of_year]
-        S, I, D = X
-        
-        assert I is not None, "Inflow input required but not provided."
-        assert S is not None, "Storage input required but not provided."
-        assert D is not None, "Day of year input required but not provided."
-
-        
-        def segment_eval(x, bounds, slopes, intercepts):
-            """
-            Resolves the piecewise linear function for a given x.
-            
-            Uses function:
-            f(x) = m_i * (x - x_i) + b_i
-            
-            where:
-                - m_i is the slope of the segment
-                - x_i is the lower bound of the segment
-                - b_i is the intercept of the segment
-            
-            
-            Args:
-                x (float): The input value.
-                bounds (list): The segment boundaries.
-                slopes (list): The slopes of the segments.
-                intercepts (list): The intercepts of the segments.
-            
-            Returns:
-                float: The evaluated value at x.
-            """
-            for i in range(self.n_segments):
-                if bounds[i] <= x < bounds[i + 1]:
-                    dx = x - bounds[i]
-                    return slopes[i] * dx + intercepts[i]
-            if x >= bounds[-1]:
-                dx = x - bounds[-2]
-                return slopes[-1] * dx + intercepts[-1]
-            raise ValueError(f"Value {x} outside bounds: {bounds}")
-
-        zS = segment_eval(S, self.storage_bounds, self.storage_slopes, self.storage_intercepts)
-        zS = max(0.0, min(1.0, zS)) 
-        
-        zI = segment_eval(I, self.inflow_bounds, self.inflow_slopes, self.inflow_intercepts)
-        zI = max(0.0, min(1.0, zI))
-
-        zD = segment_eval(D, self.day_bounds, self.day_slopes, self.day_intercepts)
-        zD = max(0.0, min(1.0, zD))
-
-        # Compute the final release value
-        z = (zS + zI + zD) / 3.0
-
-        # Impose bound limits
-        z = max(0.0, min(1.0, z)) 
-        return z
-
-
-    def get_release(self, 
-                    inflow, 
-                    storage,
-                    day_of_year):
-        """
-        Computes the reservoir release for a given timestep based on the 
-        current storage level.
-
-        Args:
-            inflow (float): Current inflow (MGD).
-            storage (float): Current storage (MG).
-            day_of_year (float): Current day of the year (1-366).
-
-        Returns:
-            float: The computed release.
-        """
-        
-       # Get state variables
-        I_t = float(inflow)
+    def get_release(self, storage, inflow, day_of_year):
+        """Normalize raw (S,I,D) -> evaluate -> scale -> enforce constraints."""
         S_t = float(storage)
-        day_of_year = float(day_of_year)
+        I_t = float(inflow)
+        D_t = float(day_of_year)
 
-        # inputs  = [storage, inflow, day_of_year]
-        X = np.array([S_t, I_t, day_of_year])
+        X_norm = self._normalize(S_t, I_t, D_t)   # << use AbstractPolicy normalizer
+        z = self.evaluate(X_norm)                 # in [0,1]
+        release = float(z) * float(self.release_max)
+        return self.enforce_constraints(release, available=S_t + I_t)
 
-        # Normalize X
-        #TODO: Check the normalization logic
-        X_norm = np.zeros(self.n_inputs)
-        for i in range(self.n_inputs):
-            X_norm[i] = (X[i] - self.x_min[i]) / (self.x_max[i] - self.x_min[i])        
-            X_norm[i] = max(0.0, min(1.0, X_norm[i])) # enforce bounds [0, 1]
-        
-        # Compute release
-        release  = self.evaluate(X_norm) * self.Reservoir.release_max
+    # ---------- optional: quick surface plot ----------
+    def plot(self, N=41):
+        xs = np.linspace(0.0, 1.0, N)
+        ys = np.linspace(0.0, 1.0, N)
+        Z = np.zeros((N, N))
+        # hold D at mid-season for a slice
+        for i, s in enumerate(xs):
+            for j, q in enumerate(ys):
+                Z[i, j] = self.evaluate([s, q, 0.5])
+        X, Y = np.meshgrid(xs, ys)
+        fig = plt.figure(figsize=(6, 5))
+        ax = fig.add_subplot(111, projection="3d")
+        ax.plot_surface(X, Y, Z.T, alpha=0.7)
+        ax.set_xlabel("S_norm"); ax.set_ylabel("I_norm"); ax.set_zlabel("z")
+        ax.set_title("PWL policy surface (D_norm=0.5)")
+        plt.tight_layout()
+        plt.show()
 
-        # Enforce constraints (defined in AbstractPolicy)
-        release = self.enforce_constraints(release)
-        release = min(release, S_t + I_t)
-        release = max(release, self.Reservoir.release_min)
-        
-        return release
-
-    def plot(self, 
-             fname=None,
-             save=False):
-        """
-        Plot the piecewise linear policy function.
-
-        Args:
-            fname (str): Filename for saving the plot.
-            save (bool): Whether to save the plot as a file.
-        """
-        self.plot_surfaces_for_different_weeks(fname=fname, save=save)
-        # self.plot_storage_policy(fname=fname, save=save)
         
         
