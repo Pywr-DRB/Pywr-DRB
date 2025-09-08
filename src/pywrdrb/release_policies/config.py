@@ -78,7 +78,7 @@ reservoir_options = [
 policy_type_options = [
     "STARFIT",
     "RBF",
-    "PiecewiseLinear",
+    "PWL",
 ]
 
 
