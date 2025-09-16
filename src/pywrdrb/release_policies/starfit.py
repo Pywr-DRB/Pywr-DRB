@@ -1,13 +1,22 @@
+import datetime
 import numpy as np
 import matplotlib.pyplot as plt
 from typing import Mapping, Any, Optional, Sequence
+import pandas as pd
+from math import pi, sin, cos
+import os
+from functools import lru_cache
 
 from pywrdrb.release_policies.abstract_policy import AbstractPolicy
 from pywrdrb.release_policies.config import (
     policy_n_params,
     policy_param_bounds,
     n_starfit_inputs,   # should be 3 for [S, I, D]
+    DATA_DIR,
 )
+from pywrdrb.path_manager import get_pn_object
+
+pn = get_pn_object()
 
 
 class STARFIT(AbstractPolicy):
@@ -53,12 +62,16 @@ class STARFIT(AbstractPolicy):
       (via `assign_policy_params` or `set_mean_inflow`).
     """
 
-    def __init__(self, policy_params):
+    def __init__(self, policy_params, reservoir_name: Optional[str] = None,):
+
         super().__init__(policy_params=policy_params)
+
+        self.reservoir_name = reservoir_name
 
         self.n_inputs = int(n_starfit_inputs)  # expected 3 for [S, I, D]
         self.n_params = policy_n_params["STARFIT"]
         self.param_bounds = policy_param_bounds["STARFIT"]
+        self.policy_params = policy_params
 
         # seasonal phase offset (days)
         self.WATER_YEAR_OFFSET: float = 0.0
@@ -75,21 +88,58 @@ class STARFIT(AbstractPolicy):
         self.Release_c = self.Release_p1 = self.Release_p2 = None
 
         # standardized inflow mean (must be set for evaluate)
-        self.I_bar: Optional[float] = None
+        self.I_bar = None
 
         # optional behavior toggle (kept for parity with legacy)
         self.linear_below_NOR: bool = False
 
+        # log file path (created once we know the name)
+        self.log_path = None
+
         if policy_params is not None:
             self.parse_policy_params()
 
-    # ---------- helpers ----------
+    # ---------- capacity constants ----------
+    @lru_cache(maxsize=1)
+    def _capacity_df(self) -> pd.DataFrame:
+        """Read istarf_capacity.csv once and cache; index is lowercase reservoir."""
+        path = pn.operational_constants.get_str("istarf_capacity.csv")
+        df = pd.read_csv(path)
+        if "reservoir" not in df.columns:
+            raise KeyError("[STARFIT] istarf_capacity.csv must contain a 'reservoir' column.")
+        df["_key"] = df["reservoir"].astype(str).str.strip().str.lower()
+        df = df.set_index("_key", drop=False)
+        return df
+
+    def _ensure_I_bar_from_capacity(self) -> None:
+        """Ensure self.I_bar is populated from istarf_capacity.csv using reservoir only."""
+        if self.I_bar not in (None, 0.0):
+            return
+        if not self.reservoir_name:
+            raise ValueError("[STARFIT] reservoir_name is required to resolve I_bar from capacity.")
+
+        key = str(self.reservoir_name).strip().str.lower() if isinstance(self.reservoir_name, pd.Series) \
+              else str(self.reservoir_name).strip().lower()
+
+        df = self._capacity_df()
+        if key not in df.index:
+            raise KeyError(f"[STARFIT] '{self.reservoir_name}' not found in istarf_capacity.csv.")
+
+        row = df.loc[key]
+        if "Adjusted_MEANFLOW_MGD" in row and pd.notna(row["Adjusted_MEANFLOW_MGD"]):
+            self.I_bar = float(row["Adjusted_MEANFLOW_MGD"])
+        elif "GRanD_MEANFLOW_MGD" in row and pd.notna(row["GRanD_MEANFLOW_MGD"]):
+            self.I_bar = float(row["GRanD_MEANFLOW_MGD"])
+        else:
+            raise KeyError(
+                f"[STARFIT] istarf_capacity.csv missing Adjusted_MEANFLOW_MGD/GRanD_MEANFLOW_MGD "
+                f"for reservoir '{row.get('reservoir', self.reservoir_name)}'."
+            )
     @staticmethod
-    def _pct_to_unit(v):
-        """Allow 0–100 or 0–1 inputs for min/max; convert to 0–1."""
+    def _pct_to_unit(v: float) -> float:
         v = float(v)
         return v / 100.0 if v > 1.0 else v
-
+    
     # ---------- optimizer-path: flat vector ----------
     def validate_policy_params(self) -> None:
         if self.policy_params is None:
@@ -114,14 +164,64 @@ class STARFIT(AbstractPolicy):
             self.Release_alpha1, self.Release_alpha2,
             self.Release_beta1, self.Release_beta2,
             self.Release_c, self.Release_p1, self.Release_p2,
-        ) = map(float, self.policy_params)
+        ) = self.policy_params
 
-        # allow percent-style inputs for bounds
+        # allow percent inputs like the old code
         self.NORhi_min = self._pct_to_unit(self.NORhi_min)
         self.NORhi_max = self._pct_to_unit(self.NORhi_max)
         self.NORlo_min = self._pct_to_unit(self.NORlo_min)
         self.NORlo_max = self._pct_to_unit(self.NORlo_max)
 
+    def load_starfit_params(self, reservoir_name=None, csv_path=None):
+        """Load I_bar (and set a log path) like the old code, but not in __init__."""
+        if reservoir_name is not None:
+            self.reservoir_name = reservoir_name
+        if not self.reservoir_name:
+            raise ValueError("load_starfit_params requires reservoir_name.")
+
+        path = csv_path or os.path.join(DATA_DIR, "drb_model_istarf_conus.csv")
+        if not os.path.isabs(path):
+            path = os.path.abspath(path) # make absolute for worker nodes
+        if not os.path.exists(path):
+            raise FileNotFoundError(f"STARFIT CSV not found at: {path}")
+
+        df = pd.read_csv(path)
+        row = df.loc[df["reservoir"] == self.reservoir_name]
+        if row.empty:
+            raise ValueError(f"STARFIT parameters not found for '{self.reservoir_name}' in {path}.")
+
+        rec = row.iloc[0]
+        self.I_bar = float(rec["Adjusted_MEANFLOW_MGD"]) if pd.notna(rec["Adjusted_MEANFLOW_MGD"]) \
+                    else float(rec["GRanD_MEANFLOW_MGD"])
+
+        # optional log file, same as old behavior
+        self.log_path = f"STARFIT_release_log_{self.reservoir_name}.txt"
+        if os.path.exists(self.log_path):
+            os.remove(self.log_path)
+
+    def test_nor_constraint(self):
+        self.calculate_weekly_NOR()
+        if np.any(self.weekly_NORhi_array < self.weekly_NORlo_array):
+            # Optional: Write violating parameters to a file
+            with open("violated_params.log", "a") as f:
+                f.write(f"\nViolation for {self.reservoir_name} at {pd.Timestamp.now()}:\n")
+                f.write(f"{self.policy_params}\n")
+                f.write("--------\n")
+            return False
+        else:
+            return True
+        
+    def set_context(self, **ctx):
+        """
+        Set STARFIT context (min/max releases, capacity, normalization) via base class,
+        then ensure I_bar from istarf_capacity.csv (keyed by reservoir only).
+        """
+        # call base set_context to populate release_min/max, storage_capacity, x_min/x_max
+        ret = super().set_context(**ctx) if hasattr(super(), "set_context") else None
+        # now make sure we have I_bar
+        self._ensure_I_bar_from_capacity()
+        return ret
+        
     # ---------- Pywr-path: CSV row params ----------
     def assign_policy_params(
         self,
@@ -134,7 +234,6 @@ class STARFIT(AbstractPolicy):
 
         Expects columns named exactly as in the docstring. For context:
           - S_cap or Adjusted_CAP_MG / GRanD_CAP_MG
-          - Adjusted_MEANFLOW_MGD or GRanD_MEANFLOW_MGD (for I_bar)
           - I_min, I_max (for normalization)
           - optional R_min, R_max
         """
@@ -152,12 +251,6 @@ class STARFIT(AbstractPolicy):
             vals.append(float(row[k]))
         self.policy_params = vals
         self.parse_policy_params()
-
-        # set mean inflow for standardization
-        I_bar = row.get("Adjusted_MEANFLOW_MGD", row.get("GRanD_MEANFLOW_MGD", None))
-        if I_bar is None:
-            raise KeyError("assign_policy_params: missing Adjusted_MEANFLOW_MGD / GRanD_MEANFLOW_MGD")
-        self.I_bar = float(I_bar)
 
         if set_context_from_row:
             # capacity
@@ -199,10 +292,6 @@ class STARFIT(AbstractPolicy):
                 raise KeyError(f"Parameters not found for {reservoir_name}/{policy_id} (and no 'default').")
         row = df.loc[key]
         self.assign_policy_params(row, **kwargs)
-
-    # Optional: allow setting I_bar directly if needed
-    def set_mean_inflow(self, I_bar: float) -> None:
-        self.I_bar = float(I_bar)
 
     # ---------- core math ----------
     def _seasonal_terms(self, doy: float):
@@ -300,17 +389,25 @@ class STARFIT(AbstractPolicy):
         return self.enforce_constraints(release, available=S_t + I_t)
 
     # ---------- utilities / plots ----------
-    def calculate_weekly_NOR(self, weeks: int = 52) -> tuple[np.ndarray, np.ndarray]:
-        xs = np.arange(weeks, dtype=float)
-        # map week to representative day-of-year
-        doy = 1.0 + xs * (366.0 / weeks)
-        s2, c2, s4, c4 = self._seasonal_terms(doy)
-        hi_raw = self.NORhi_mu + self.NORhi_alpha * s2 + self.NORhi_beta * c2
-        lo_raw = self.NORlo_mu + self.NORlo_alpha * s2 + self.NORlo_beta * c2
-        hi = np.clip(hi_raw, self.NORhi_min, self.NORhi_max)
-        lo = np.clip(lo_raw, self.NORlo_min, self.NORlo_max)
-        return lo, hi
+    def calculate_weekly_NOR(self):
+        weekly_NORhi = []
+        weekly_NORlo = []
 
+        dummy_dates = pd.date_range("2020-10-01", periods=52, freq='W')
+        for dt in dummy_dates:
+            doy = (dt.timetuple().tm_yday) % 365
+            c = pi * doy / 365
+
+            NOR_hi = self.NORhi_mu + self.NORhi_alpha * sin(c * 2) + self.NORhi_beta * cos(c * 2)
+            NOR_lo = self.NORlo_mu + self.NORlo_alpha * sin(c * 2) + self.NORlo_beta * cos(c * 2)
+            # NOTE: parse_policy_params() already converts *_min/max to [0,1] via _pct_to_unit.
+            # Keep everything in [0,1] here (no "/100").
+            weekly_NORhi.append(np.clip(NOR_hi, self.NORhi_min, self.NORhi_max))
+            weekly_NORlo.append(np.clip(NOR_lo, self.NORlo_min, self.NORlo_max))
+
+        self.weekly_NORhi_array = np.array(weekly_NORhi)
+        self.weekly_NORlo_array = np.array(weekly_NORlo)
+    
     def plot(self, N: int = 41) -> None:
         """Plot a D_norm=0.5 slice of z(S_norm, I_norm)."""
         xs = np.linspace(0.0, 1.0, N)
