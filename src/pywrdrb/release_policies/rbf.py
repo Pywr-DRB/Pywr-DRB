@@ -1,6 +1,134 @@
-import numpy as np
+"""
+Radial Basis Function (RBF) reservoir release policy.
+
+Overview
+--------
+`RBF` implements a smooth, flexible operating rule using a weighted sum of
+Gaussian radial basis functions (RBFs). The policy maps **normalized inputs**
+(storage, inflow, season/day-of-year) to a unitless control signal `z ∈ [0,1]`,
+then scales to a physical release and enforces policy/physics constraints.
+
+Inputs are normalized by the base class (`AbstractPolicy.set_context(...)`)
+using per‐axis min/max ranges. The policy supports two ways of supplying
+parameters:
+  1) a **flat optimizer vector** (preferred for calibration/optimization), or
+  2) a **row from a CSV table** (preferred for Pywr integration).
+
+Units & Normalization
+---------------------
+- Storage S: **MG**
+- Inflow  I: **MGD**
+- Release R: **MGD**
+- Day-of-year D: integer in [1, 366]
+
+Normalization is handled by `AbstractPolicy` with
+`x_min = (S_min, I_min, D_min)` and `x_max = (S_max, I_max, D_max)` provided via
+`set_context(...)`. Typical context for DRB models:
+  - `S_min=0`, `S_max=storage_capacity`
+  - `I_min`, `I_max` from configuration bounds
+  - `D_min=1`, `D_max=366`
+The method `_normalize(S, I, D)` returns `(S_norm, I_norm, D_norm) ∈ [0,1]^3`.
+
+Policy Formulation
+------------------
+Let there be `n` RBFs and `d` inputs (usually `d=3` for S, I, D).
+For normalized input vector `x ∈ [0,1]^d`, the policy computes
+
+    z(x) = Σ_{i=1..n} w_i · exp( - Σ_{j=1..d} ((x_j - c_{ij}) / r_{ij})^2 ),
+
+where:
+- `w_i`   are nonnegative weights (normalized to sum to 1 by the parser),
+- `c_{ij}` are RBF centers (in normalized units),
+- `r_{ij}` are RBF scales (strictly positive; clipped to ≥ 1e-6).
+
+The final (unconstrained) release is `r* = z · release_max`.
+The **constrained** release `r` is returned by
+`AbstractPolicy.enforce_constraints(r*, available=S+I)`, which:
+  1) applies `release_max` and `release_min`,
+  2) caps by physically available water (S + I),
+  3) records binding/violation flags for diagnostics.
+
+Parameterization
+----------------
+Two equivalent parameter sources are supported:
+
+1) **Optimizer vector** (flat list; recommended for search/optimization):
+   - Count: `policy_n_params["RBF"]`
+   - Packing order:
+       `[ w_1 .. w_n, c(1,S), c(1,I), c(1,D), ..., c(n,S), c(n,I), c(n,D),
+          r(1,S), r(1,I), r(1,D), ..., r(n,S), r(n,I), r(n,D) ]`
+   - Bounds: `policy_param_bounds["RBF"]` (validated in `validate_policy_params()`)
+
+   Use `parse_policy_params()` to populate internal arrays after setting
+   `policy_params`.
+
+2) **CSV row** (dict/Series; convenient for Pywr models):
+   Expected per-basis columns (1-indexed):
+     - `rbf{i}_center_storage`, `rbf{i}_center_inflow`, `rbf{i}_center_doy`
+     - `rbf{i}_scale_storage`,  `rbf{i}_scale_inflow`,  `rbf{i}_scale_doy`
+     - `rbf{i}_weight`
+   Call `assign_policy_params(row, set_context_from_row=False/True)`.
+   If `set_context_from_row=True`, the row must also provide
+     - `S_cap` (or `Adjusted_CAP_MG` / `GRanD_CAP_MG`)
+     - `I_min`, `I_max`
+     - optional `R_min`, `R_max`
+   which are forwarded to `set_context(...)` as:
+     `x_min=(0.0, I_min, 1.0)`, `x_max=(S_cap, I_max, 366.0)`.
+
+Key Behaviors & Guardrails
+--------------------------
+- **Weight normalization**: weights are normalized to sum to 1; if all zero,
+  uniform weights are used.
+- **Scale floor**: each `r_{ij}` is floored to 1e-6 to avoid division by zero.
+- **Clamping**: `z` is clamped to `[0,1]` before scaling.
+- **Constraints**: minimum/maximum release and water availability are enforced
+  via `enforce_constraints(...)`; binding/violation tallies are accessible with
+  `get_violation_summary()` from the base class.
+- **Dimensions**: the number of bases `n` is `n_rbfs`; inputs `d` are
+  `n_rbf_inputs` (typically 3).
+
+API Summary
+-----------
+- `__init__(policy_params)`: optionally takes a flat vector and parses it.
+- `validate_policy_params()`: checks vector length and bounds.
+- `parse_policy_params()`: converts the flat vector into `(w, c, r)`.
+- `assign_policy_params(row, set_context_from_row=False)`: CSV-row loader and
+  optional context setter.
+- `evaluate(X_norm) -> float`: returns `z ∈ [0,1]` for normalized inputs.
+- `get_release(storage, inflow, day_of_year) -> float`: normalize → evaluate →
+  scale → enforce; returns **MGD**.
+- `plot(N=41)`: 3D surface slice of `z(S_norm, I_norm)` at `D_norm=0.5`.
+
+Example (optimizer-vector path)
+-------------------------------
+>>> pol = RBF(policy_params=[
+...   # weights (n=2)
+...   0.6, 0.4,
+...   # centers (2*3)
+...   0.3, 0.2, 0.5,   0.8, 0.6, 0.5,
+...   # scales  (2*3)
+...   0.2, 0.3, 0.4,   0.25, 0.25, 0.35,
+... ])
+>>> pol.set_context(
+...   release_min=10.0, release_max=1200.0,
+...   storage_capacity=18000.0,
+...   x_min=(0.0, 0.0, 1.0), x_max=(18000.0, 3000.0, 366.0),
+... )
+>>> r = pol.get_release(storage=9000.0, inflow=200.0, day_of_year=180)
+
+References
+----------
+- 
+
+Change Log
+----------
+- 2025-09-24 — Added comprehensive documentation: vector packing, CSV schema,
+  normalization/constraints, guardrails, and example usage.
+"""
+
 import matplotlib.pyplot as plt
 from typing import Sequence, Mapping, Any, Optional
+import numpy as np
 
 from pywrdrb.release_policies.abstract_policy import AbstractPolicy
 from pywrdrb.release_policies.config import policy_n_params, policy_param_bounds, drbc_conservation_releases
@@ -213,39 +341,6 @@ class RBF(AbstractPolicy):
                 x_max=(float(S_cap), float(I_max), 366.0),
             )
 
-    # ---------- Convenience: MultiIndex DataFrame (reservoir_name, policy_id) ----------
-    def assign_from_df(
-        self,
-        df,  # pandas DataFrame
-        *,
-        reservoir_name: Optional[str] = None,
-        policy_id: Optional[str] = None,
-        **kwargs,
-    ) -> None:
-        """
-        Load parameters from a MultiIndex DataFrame with index (reservoir_name, policy_id).
-        Falls back to (reservoir_name, 'default') if the exact row is missing.
-        """
-        if df.index.nlevels < 2:
-            raise ValueError("assign_from_df expects a MultiIndex with (reservoir_name, policy_id).")
-
-        res = reservoir_name or self.reservoir_name
-        pid = policy_id or self.policy_id or "default"
-        if res is None:
-            raise ValueError("reservoir_name not provided and self.reservoir_name is None.")
-
-        key = (res, pid)
-        if key not in df.index:
-            fallback = (res, "default")
-            if fallback in df.index:
-                print(f"[RBF] policy_id '{pid}' not found for '{res}'. Falling back to 'default'.")
-                key = fallback
-            else:
-                raise KeyError(f"Parameters not found for {res}/{pid} (and no 'default').")
-
-        row = df.loc[key]
-        self.assign_policy_params(row, **kwargs)
-
     def evaluate(self, X_norm):
         """
         Evaluate the policy function.
@@ -262,13 +357,13 @@ class RBF(AbstractPolicy):
         
         # Make sure we got the right number of inputs
         assert len(X_norm) == self.n_inputs, \
-            f"Expected {self.n_inputs} input variables; got {len(X)}."
+            f"Expected {self.n_inputs} input variables; got {len(X_norm)}."
 
         # make sure X values are in [0, 1]
         assert all(0 <= x <= 1 for x in X_norm), \
-            f"Input values must be in the range [0, 1]. Values: {X}."
-        
-        # Calculate 
+            f"Input values must be in the range [0, 1]. Values: {X_norm}."
+
+        # Calculate
         z = 0.0
         for i in range(self.nRBFs):
             sq_term = 0.0

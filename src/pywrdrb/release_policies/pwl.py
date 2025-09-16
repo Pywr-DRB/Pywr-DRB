@@ -1,3 +1,133 @@
+"""
+Piecewise-Linear (PWL) reservoir release policy.
+
+Overview
+--------
+`PWL` implements a simple, interpretable operating rule where the final release
+decision is the average of three **independent 1-D piecewise-linear (PWL) mappings**
+defined over *normalized* inputs:
+  1) storage S_norm ∈ [0, 1]
+  2) inflow  I_norm ∈ [0, 1]
+  3) season/day-of-year D_norm ∈ [0, 1]
+
+Each 1-D PWL is specified by:
+- `M` segments (configured globally as `n_segments`).
+- `M-1` internal breakpoints (x₁..x_{M-1}) in (0,1), with x₀=0 and x_M=1 implied.
+- `M` segment angles (θ₁..θ_M). Slopes are `tan(θ_k)`. Intercepts are computed to
+  ensure continuity at each breakpoint.
+
+The policy:
+1) Normalizes raw inputs (S, I, D) using the context provided by
+   `AbstractPolicy.set_context(...)`.
+2) Evaluates the three PWLs to obtain z_S, z_I, z_D (each clamped to [0,1]).
+3) Averages them: `z = (z_S + z_I + z_D)/3`.
+4) Scales by the policy maximum: `release_target = z * release_max`.
+5) Enforces constraints (policy bounds & physical availability S + I) via
+   `enforce_constraints(...)`.
+
+Units & Inputs
+--------------
+- Storage S: **MG**
+- Inflow  I: **MGD**
+- Release R: **MGD**
+- Day-of-year D: integer in [1, 366]; normalized using the day bounds in context.
+Normalization is handled by `AbstractPolicy` using `x_min`/`x_max` per input.
+
+Parameterization (two supported paths)
+--------------------------------------
+1) **Optimizer vector path** (flattened numeric vector):
+   - Expected length = `(2*M - 1) * n_pwl_inputs`
+   - Packing order (three contiguous blocks of equal length):
+       `[storage block | inflow block | day block]`
+   - Within each block (length `2*M-1`):
+       `[x₁, …, x_{M-1}, θ₁, …, θ_M]`
+     where `x_k ∈ (0,1)` are strictly increasing; θ are angles (radians).
+
+   Use:
+     - `validate_policy_params()` to check shape and bounds.
+     - `parse_policy_params()` to convert the flat vector into three PWLs
+       (bounds, slopes, intercepts).
+
+2) **CSV row path** (Pywr integration):
+   - Provide a pandas‐like `row` with columns:
+
+     Storage block:
+       `storage_x1..storage_x{M-1}`, `storage_theta1..storage_theta{M}`
+
+     Inflow block:
+       `inflow_x1..inflow_x{M-1}`,  `inflow_theta1..inflow_theta{M}`
+
+     Season/Day block:
+       `season_x1..season_x{M-1}`,  `season_theta1..season_theta{M}`
+
+   - Call `assign_policy_params(row, set_context_from_row=False/True)`.
+     If `set_context_from_row=True`, the row must also provide context fields:
+       - `S_cap` (or `Adjusted_CAP_MG` / `GRanD_CAP_MG`)
+       - `I_min`, `I_max`
+       - optional `R_min`, `R_max`
+     These are forwarded to `set_context(...)` as:
+       `x_min = (0.0, I_min, 1.0)`, `x_max = (S_cap, I_max, 366.0)`.
+
+Core Evaluation
+---------------
+- Segment math (on a single axis):
+  For `x_norm ∈ [0,1]`, find segment i such that `x_i ≤ x_norm < x_{i+1}` and compute
+  `f(x_norm) = m_i * (x_norm - x_i) + b_i`,
+  where `m_i = tan(θ_i)` and intercepts `b_i` are constructed for continuity.
+- The class evaluates each axis independently, clamps each to [0,1], averages,
+  scales by `release_max`, and then calls `enforce_constraints(...)`.
+
+Configuration Hooks
+-------------------
+- `n_segments` and `n_pwl_inputs` are imported from config. Default usage assumes
+  `n_pwl_inputs == 3` for (S, I, D).
+- Parameter bounds for the optimizer vector are taken from
+  `policy_param_bounds["PWL"]`. Count is `policy_n_params["PWL"]`.
+
+API Summary
+-----------
+- `__init__(policy_params)`: optional flat vector; will `parse_policy_params()` if provided.
+- `validate_policy_params()`: shape/value checks against bounds and expected length.
+- `parse_policy_params()`: splits the flat vector into three PWLs (storage/inflow/day).
+- `assign_policy_params(row, set_context_from_row=False)`: Pywr CSV row interface.
+- `evaluate(X_norm) -> z`: maps normalized (S,I,D) to z ∈ [0,1].
+- `get_release(storage, inflow, day_of_year) -> float`: normalize → evaluate → scale →
+  `enforce_constraints`; returns **MGD**.
+- `plot(N=41)`: quick surface plot of z over (S_norm, I_norm) with D_norm fixed at 0.5.
+
+Practical Notes & Guardrails
+----------------------------
+- **Monotonic breakpoints**: `x₁ < x₂ < … < x_{M-1}` in (0,1) ensure well-defined segments.
+- **Angle stability**: avoid θ near ±π/2 to prevent extreme slopes; if needed, restrict
+  θ to `(-π/2 + ε, π/2 - ε)`.
+- **Clamping**: each axis output and the final average are clamped to [0,1], limiting
+  the impact of minor extrapolations or steep local slopes.
+- **Interpretability**: keeping M small (e.g., 3–5) yields smooth, explainable rule shapes.
+
+Example (optimizer vector path)
+-------------------------------
+>>> M = 3  # segments
+>>> # For each axis: [x1, x2, theta1, theta2, theta3]  -> length 5
+>>> # Whole vector packs: storage(5) + inflow(5) + day(5) = 15 params
+>>> params = [
+...   0.3, 0.7,  0.10, 0.00, -0.05,   # storage
+...   0.2, 0.6,  0.20, 0.05, -0.05,   # inflow
+...   0.25,0.75, 0.00, 0.10,  0.00,   # day
+... ]
+>>> pol = PWL(policy_params=params)
+>>> pol.set_context(
+...   release_min=10.0, release_max=1200.0,
+...   storage_capacity=18000.0,
+...   x_min=(0.0, 0.0, 1.0), x_max=(18000.0, 3000.0, 366.0),
+... )
+>>> r = pol.get_release(storage=12000.0, inflow=250.0, day_of_year=200)
+
+Change Log
+----------
+- 2025-09-24 — Detailed documentation added; clarified vector packing, CSV schema,
+  continuity construction, and constraint order. Minor wording & guardrails.
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 from typing import Sequence, Mapping, Any, Optional

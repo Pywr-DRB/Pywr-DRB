@@ -11,8 +11,7 @@ Chung-Yi Lin, 2025-05-02, None
 """
 from pywrdrb.parameters.ffmp import *
 from pywrdrb.parameters.starfit import STARFITReservoirRelease
-from pywrdrb.parameters.rbf import RBFReservoirRelease
-from pywrdrb.parameters.pwl import PWLReservoirRelease
+from pywrdrb.parameters.parametric_release import ParametricReservoirRelease
 from pywrdrb.parameters.ensemble import FlowEnsemble, PredictionEnsemble
 from pywrdrb.parameters.general import LaggedReservoirRelease
 from pywrdrb.parameters.lower_basin_ffmp import *

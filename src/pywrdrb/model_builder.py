@@ -58,6 +58,7 @@ from pywrdrb.pywr_drb_node_data import (
     immediate_downstream_nodes_dict,
     downstream_node_lags,
 )
+from pywrdrb.release_policies.config import parse_params_inline 
 
 # Import here to avoid circular import
 from pywrdrb.path_manager import get_pn_object
@@ -583,25 +584,26 @@ class ModelBuilder:
 
         model_dict = self.model_dict
 
-        # TODO: Make this function accept ParametricRelease class and also specify release policy and id
-        # Determine release parameter type from Options, with fallback to STARFIT
-        release_policy_entry = self.options.release_policy_dict.get(reservoir_name, {})
-        if not isinstance(release_policy_entry, dict):
-            release_param_type = (
-                release_policy_entry if isinstance(release_policy_entry, str)
-                else "STARFITReservoirRelease"
-            ) # TODO: to use either ParametericRelease or STARFITReservoirRelease
-            release_param_id = "default"
-            #TODO: clarify the usage of this variable (RBF, PWL, STARFIT)
-            release_param_function = "default" # The default should be STARFIT
-        else:
-            release_param_type = release_policy_entry.get("type", "STARFITReservoirRelease")
-            release_param_id = release_policy_entry.get("id", "default")
-            #TODO: clarify the usage of this variable (RBF, PWL, STARFIT)
-            release_param_function = release_policy_entry.get("function", "default")
+        # -----------------------------
+        # Set a default release policy entry
+        # -----------------------------
+        default_entry = {
+            "class_type": "STARFITReservoirRelease",
+            "policy_type": "STARFIT", 
+            "policy_id": "default",
+            "params": None,           # comma-separated string or list[float]
+        }
 
-        release_param_name = f"{release_param_type}_{release_param_function}_{reservoir_name}"
-        print(f"Using {release_param_type} for {reservoir_name}: {release_param_function} (policy_id: {release_param_id})")
+        release_policy_entry = self.options.release_policy_dict.get(reservoir_name, default_entry)
+
+        class_type = release_policy_entry['class_type']
+        policy_type = release_policy_entry['policy_type']
+        policy_id = release_policy_entry['policy_id']
+        params_inline  = release_policy_entry.get("params")
+        
+        release_param_name = f"{class_type}_{policy_type}_{reservoir_name}"
+        
+        print(f"Using {class_type} for {reservoir_name}: {policy_type} (policy_id: {policy_id})")
 
         # Initial settings
         initial_volume_frac = self.options.initial_volume_frac
@@ -796,14 +798,40 @@ class ModelBuilder:
         # all the fitted values are in f"{model_data_dir}drb_model_istarf_conus.csv"
         if starfit_release:
             print(f"Assigning release parameter {release_param_name} to {reservoir_name}")
+            #old code
+            # model_dict["parameters"][f"{release_param_name}"] = {
+            #     "type": class_type,
+            #     "node": reservoir_name,
+            #     "policy_type": policy_type,
+            #     "policy_id": policy_id,
+            #     "run_sensitivity_analysis": self.options.run_sensitivity_analysis,
+            #     "sensitivity_analysis_scenarios": self.options.sensitivity_analysis_scenarios,
+            # }
+        # -----------------------------
+        # Create / update parameter
+        # -----------------------------
+            if class_type == "STARFITReservoirRelease":
+                model_dict["parameters"][f"{release_param_name}"] = {
+                    "type": "STARFITReservoirRelease",
+                    "node": reservoir_name,
+                    "policy_id": policy_id,
+                    "run_sensitivity_analysis": self.options.run_sensitivity_analysis,
+                    "sensitivity_analysis_scenarios": self.options.sensitivity_analysis_scenarios,
+                }
+            elif class_type == "ParametricReservoirRelease":
+                model_dict["parameters"][f"{release_param_name}"] = {
+                    "type": "ParametricReservoirRelease",
+                    "node": reservoir_name,
+                    "policy_type": policy_type,   # STARFIT | PWL | RBF
+                    "policy_id": policy_id,
+                    "run_sensitivity_analysis": self.options.run_sensitivity_analysis,
+                    "sensitivity_analysis_scenarios": self.options.sensitivity_analysis_scenarios,
+                    "params_inline": parse_params_inline(policy_type, params_inline) if params_inline else None,
+                }
+            else:
+                raise ValueError(f"Unknown class_type '{class_type}' for {reservoir_name}.")
 
-            model_dict["parameters"][f"{release_param_name}"] = {
-                "type": release_param_type,
-                "node": reservoir_name, 
-                "policy_id": release_param_id,
-                "run_sensitivity_analysis": self.options.run_sensitivity_analysis,
-                "sensitivity_analysis_scenarios": self.options.sensitivity_analysis_scenarios,
-            }
+        print(f"[ModelBuilder] {reservoir_name}: class_type={class_type}, policy_type={policy_type}, id={policy_id}")
 
         ### assign inflows to nodes
         inflow_ensemble_indices = self.options.inflow_ensemble_indices
@@ -1943,17 +1971,27 @@ class ModelBuilder:
             }
         ## From Lower Basin reservoirs: sum of STARFIT and mrf contribution
         for reservoir in drbc_lower_basin_reservoirs:
-            #extract reservoir parameter name
-            release_policy_entry = self.options.release_policy_dict.get(reservoir, {})
-            if not isinstance(release_policy_entry, dict):
-                release_param_type = (
-                    release_policy_entry if isinstance(release_policy_entry, str)
-                    else "STARFITReservoirRelease"
-                    )
-            else:
-                release_param_type = release_policy_entry.get("type", "STARFITReservoirRelease")
+            entry = self.options.release_policy_dict.get(reservoir, None)
 
-            release_param_name = f"{release_param_type}_{release_param_function}_{reservoir_name}"
+            if isinstance(entry, dict):
+                class_type  = entry.get("class_type", "STARFITReservoirRelease")
+                policy_type = entry.get("policy_type", "STARFIT")
+                # policy_id = entry.get("policy_id", "default")  # is this needed?
+            elif isinstance(entry, str):
+                # Shorthand like "RBF" | "PWL" | "STARFIT"
+                if entry in ("RBF", "PWL", "STARFIT"):
+                    class_type  = "ParametricReservoirRelease"
+                    policy_type = entry
+                else:
+                    # Legacy: class name provided directly
+                    class_type  = entry
+                    policy_type = "STARFIT"
+            else:
+                # Default if missing
+                class_type  = "STARFITReservoirRelease"
+                policy_type = "STARFIT"
+
+            release_param_name = f"{class_type}_{policy_type}_{reservoir}"
             
             model_dict["parameters"][f"downstream_release_target_{reservoir}"] = {
                 "type": "aggregated",
