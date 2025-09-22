@@ -149,6 +149,7 @@ class AbstractPolicy(ABC):
         self.storage_capacity = None
         self.x_min = None      # array-like length = n_inputs
         self.x_max = None      # array-like length = n_inputs
+        self.low_storage_threshold = None
 
         # convenience copies of inflow bounds
         self.I_min = None
@@ -161,7 +162,7 @@ class AbstractPolicy(ABC):
         self.n_inputs = 3  # default [S, I, D]
 
     # ---------- context ----------
-    def set_context(self, *, release_min, release_max, storage_capacity, x_min, x_max):
+    def set_context(self, *, release_min, release_max, storage_capacity, x_min, x_max, low_storage_threshold=None):
         """Host provides operating envelope & scaling."""
         self.release_min = float(release_min)
         self.release_max = float(release_max)
@@ -183,6 +184,11 @@ class AbstractPolicy(ABC):
             raise ValueError(f"x_min/x_max length ({len(self.x_min)}) must equal n_inputs ({self.n_inputs}).")
         if not np.all(self.x_max > self.x_min):
             raise ValueError("x_max must be > x_min element-wise.")
+
+        if low_storage_threshold is None:
+            self.low_storage_threshold = 0.05 * self.storage_capacity
+        else:
+            self.low_storage_threshold = float(low_storage_threshold)
 
         # cache inflow bounds; assert storage dim matches cap
         self.I_min = float(self.x_min[1])
@@ -221,6 +227,7 @@ class AbstractPolicy(ABC):
             "x_max": tuple(np.asarray(self.x_max, float)),
             "I_min": self.I_min,
             "I_max": self.I_max,
+            "low_storage_threshold": self.low_storage_threshold,
         }
     
     # ---------- normalization ----------
@@ -283,6 +290,27 @@ class AbstractPolicy(ABC):
 
         return r_final
     
+    def _storage_safety_override(self, storage, inflow, *, eps=1e-6):
+        """
+        Implements simple guardrails suggested by Trevor / Sai Veena:
+          - If storage >= capacity (≈ normalized S >= 1), force max release.
+          - If storage <= low_storage_threshold, force min release.
+        Returns:
+          float | None  -> the forced release if guard triggered, else None.
+        """
+        S = float(storage)
+        if self.storage_capacity is None:
+            return None  # context not set; skip
+
+        # Full (or numerically full): dump using max release
+        if S >= self.storage_capacity - eps:
+            return float(self.release_max) if self.release_max is not None else None
+
+        # Very low storage: preserve water with min release
+        if self.low_storage_threshold is not None and S <= self.low_storage_threshold + eps:
+            return float(self.release_min) if self.release_min is not None else None
+
+        return None
     # ---------- policy contracts ----------
     @abstractmethod
     def validate_policy_params(self):

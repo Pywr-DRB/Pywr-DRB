@@ -383,25 +383,58 @@ class RBF(AbstractPolicy):
         I_t = float(inflow)
         D_t = float(day_of_year)
 
+        forced = self._storage_safety_override(S_t, I_t)
+        if forced is not None:
+            return self.enforce_constraints(forced, available=S_t + I_t)
+        
         X_norm = self._normalize(S_t, I_t, D_t)
         z = self.evaluate(X_norm)
         release = z * float(self.release_max)
         return self.enforce_constraints(release, available=S_t + I_t)
 
-    # ---------- quick 3D slice plot ----------
-    def plot(self, N=41):
-        xs = np.linspace(0.0, 1.0, N)
-        ys = np.linspace(0.0, 1.0, N)
-        Z  = np.zeros((N, N))
-        for i, s in enumerate(xs):
-            for j, q in enumerate(ys):
-                Z[i, j] = self.evaluate([s, q, 0.5])  # hold day mid-season
+    # ---------- optional: surface plot ----------
 
-        X, Y = np.meshgrid(xs, ys)
-        fig = plt.figure(figsize=(6, 5))
-        ax = fig.add_subplot(111, projection="3d")
-        ax.plot_surface(X, Y, Z.T, alpha=0.7)
-        ax.set_xlabel("S_norm"); ax.set_ylabel("I_norm"); ax.set_zlabel("z")
-        ax.set_title("RBF policy surface (D_norm=0.5)")
-        plt.tight_layout()
+    def plot_surfaces_for_different_weeks(self, fname=None, save=False, *, grid=30, weeks=None, n_weeks=5):
+        """
+        3D surfaces: X=inflow (normalized), Y=storage (normalized), Z=policy output,
+        with multiple 'week' (D_norm) slices. Matches your legacy look.
+        """
+        import numpy as np
+        import matplotlib.pyplot as plt
+
+        inflow  = np.linspace(0.0, 1.0, grid)
+        storage = np.linspace(0.0, 1.0, grid)
+        weeks   = np.linspace(0.0, 1.0, n_weeks) if weeks is None else np.asarray(weeks, float)
+
+        I, S = np.meshgrid(inflow, storage, indexing="xy")
+
+        fig = plt.figure(figsize=(12, 9))
+        ax  = fig.add_subplot(111, projection='3d')
+        cmap = plt.cm.viridis
+
+        for idx, week in enumerate(weeks):
+            Z = np.zeros(I.shape, dtype=float)
+            for i in range(I.shape[0]):
+                for j in range(I.shape[1]):
+                    Z[i, j] = float(self.evaluate([S[i, j], I[i, j], week]))
+            color = cmap(idx / max(1, len(weeks)-1))
+            ax.plot_surface(I, S, Z, color=color, alpha=0.6, linewidth=0, antialiased=True)
+
+        ax.set_xlabel('Inflow')
+        ax.set_ylabel('Storage')
+        ax.set_zlabel('Release')  # keep legacy label (unitless z)
+        ax.set_title('RBF: 3D Policy Output for Different Weeks')
+
+        custom = [plt.Line2D([0],[0], linestyle="none", marker='s', markersize=10,
+                            markerfacecolor=cmap(i / max(1, len(weeks)-1)), alpha=0.6)
+                for i in range(len(weeks))]
+        ax.legend(custom, [f'Week {w:.2f}' for w in weeks], loc='upper left', framealpha=0.9)
+
+        if save:
+            assert fname is not None, "Filename must be provided to save the plot."
+            plt.savefig(fname, dpi=300)
         plt.show()
+
+    def plot(self, N=41):
+        return self.plot_surfaces_for_different_weeks(grid=N)
+

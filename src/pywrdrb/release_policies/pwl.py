@@ -334,13 +334,25 @@ class PWL(AbstractPolicy):
         I_t = float(inflow)
         D_t = float(day_of_year)
 
+        forced = self._storage_safety_override(S_t, I_t)
+        if forced is not None:
+            return self.enforce_constraints(forced, available=S_t + I_t)
+        
         X_norm = self._normalize(S_t, I_t, D_t)   # << use AbstractPolicy normalizer
         z = self.evaluate(X_norm)                 # in [0,1]
         release = float(z) * float(self.release_max)
         return self.enforce_constraints(release, available=S_t + I_t)
 
-    # ---------- optional: quick surface plot ----------
+    # ---------- optional: surface plot ----------
     def plot(self, N=41):
+        """
+        Creates a 3D plot with inflow (X), storage (Y), release (Z),
+        and multiple surfaces for different weeks of the year.
+
+        Args:
+            fname (str): Filename to save the plot.
+            save (bool): Flag to save the plot.
+        """
         xs = np.linspace(0.0, 1.0, N)
         ys = np.linspace(0.0, 1.0, N)
         Z = np.zeros((N, N))
@@ -356,6 +368,52 @@ class PWL(AbstractPolicy):
         ax.set_title("PWL policy surface (D_norm=0.5)")
         plt.tight_layout()
         plt.show()
+
+    # --- add inside class PWL ---
+
+    def plot_surfaces_for_different_weeks(self, fname=None, save=False, *, grid=30, weeks=None, n_weeks=5):
+        """
+        3D surfaces: X=inflow (normalized), Y=storage (normalized), Z=policy output,
+        with multiple 'week' (D_norm) slices. Matches your legacy look.
+        """
+
+        inflow  = np.linspace(0.0, 1.0, grid)
+        storage = np.linspace(0.0, 1.0, grid)
+        weeks   = np.linspace(0.0, 1.0, n_weeks) if weeks is None else np.asarray(weeks, float)
+
+        I, S = np.meshgrid(inflow, storage, indexing="xy")
+
+        fig = plt.figure(figsize=(12, 9))
+        ax  = fig.add_subplot(111, projection='3d')
+        cmap = plt.cm.viridis
+
+        for idx, week in enumerate(weeks):
+            Z = np.zeros(I.shape, dtype=float)
+            for i in range(I.shape[0]):
+                for j in range(I.shape[1]):
+                    Z[i, j] = float(self.evaluate([S[i, j], I[i, j], week]))
+            color = cmap(idx / max(1, len(weeks)-1))
+            ax.plot_surface(I, S, Z, color=color, alpha=0.6, linewidth=0, antialiased=True)
+
+        ax.set_xlabel('Inflow')
+        ax.set_ylabel('Storage')
+        ax.set_zlabel('Release')  # keep legacy label (unitless z)
+        ax.set_title('PWL: 3D Policy Output for Different Weeks')
+
+        # legend squares
+        custom = [plt.Line2D([0],[0], linestyle="none", marker='s', markersize=10,
+                            markerfacecolor=cmap(i / max(1, len(weeks)-1)), alpha=0.6)
+                  for i in range(len(weeks))]
+        ax.legend(custom, [f'Week {w:.2f}' for w in weeks], loc='upper left', framealpha=0.9)
+
+        if save:
+            assert fname is not None, "Filename must be provided to save the plot."
+            plt.savefig(fname, dpi=300)
+        plt.show()
+
+    def plot(self, N=41):
+        # default to the legacy multi-week surfaces
+        return self.plot_surfaces_for_different_weeks(grid=N)
 
         
         

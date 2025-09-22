@@ -25,10 +25,10 @@ FIG_DIR = os.path.join(CONFIG_DIR, "../figures")
 ### Constants ###############
 cfs_to_mgd = cfs_to_mgd
 ACRE_FEET_TO_MG = ACRE_FEET_TO_MG  # Acre-feet to million gallons
+
 ### MOEA Settings ##########
 NFE = 30000
 ISLANDS = 4
-
 
 RELEASE_METRICS = [
     'neg_nse',           # Negative Nash Sutcliffe Efficiency
@@ -65,9 +65,11 @@ reservoir_options = [
     'beltzvilleCombined',
     'fewalter',
     'prompton',
-] #blueMarsh not ready 
+    'blueMarsh', # keep if/when ready 
+]
 
 ### Polcy Settings ###############
+
 policy_type_options = [
     "STARFIT",
     "RBF",
@@ -160,14 +162,14 @@ reservoir_capacity = {
     "blueMarsh": 42320.35,
 }
 
+LOW_STORAGE_FRACTION = 0.05
+
 # Inflow bounds used for normalization (MGD)
-# Updated from your verifier output (OBS maxima).
-# If you later prefer p99 instead of max, change these.
 inflow_bounds_by_reservoir = {
-    "prompton":           {"I_min": 0.0, "I_max": 2533.48},   # was 900.585
-    "beltzvilleCombined": {"I_min": 0.0, "I_max": 3002.50},   # was 22300.0 (!) / 1483.45 base
-    "fewalter":           {"I_min": 0.0, "I_max": 19099.99},  # was 3652.15 / 2168.7 base
-    # "blueMarsh": {"I_min": 0.0, "I_max": 692.06},  # keep if/when ready
+    "prompton":           {"I_min": 0.0, "I_max": 7500.00},   # I_max = 1740.00 × 1.5 = 2610.00
+    "beltzvilleCombined": {"I_min": 0.0, "I_max": 3002.50},   # I_max = 1440.00 × 1.5 = 2160.00
+    "fewalter":           {"I_min": 0.0, "I_max": 20000.00},  # I_max = 7690.00 × 1.5 = 11535.00
+    "blueMarsh": {"I_min": 0.0, "I_max": 7500.00},  # keep if/when ready
 }
 
 # Conservation minimums (MGD) from DRBC Water Code
@@ -178,12 +180,11 @@ drbc_conservation_releases = {
 }
 
 # Release maxima (MGD) updated from your OBS maxima
-# If you have physical outlet/rating-curve limits, prefer those over OBS max.
 release_max_by_reservoir = {
-    "prompton":           1740.00,  # was 231.61 base / 1020 CTX; OBS max=1740
-    "beltzvilleCombined": 1440.00,  # was 969.5 base / 1260 CTX; OBS max=1440
-    "fewalter":           7690.00,  # was 1292.6 base / 4900 CTX; OBS max=7690
-    # "blueMarsh": <fill when ready>
+    "prompton":           3000.00,  # R_max = 1740.00 × 1.5 = 2610.00
+    "beltzvilleCombined": 3000.00,  # R_max = 1440.00 × 1.5 = 2160.00
+    "fewalter":           11535.00,  # R_max = 7690.00 × 1.5 = 11535.00
+    "blueMarsh":          7500.00,
 }
 
 # Optional: if a reservoir isn’t in DRBC table, you can define its min here.
@@ -220,6 +221,7 @@ BASE_POLICY_CONTEXT_BY_RESERVOIR = {
         "storage_capacity": _icap(name),
         "x_min": (0.0, _ibounds(name)[0], 1.0),
         "x_max": (_icap(name), _ibounds(name)[1], 366.0),
+        "low_storage_threshold": LOW_STORAGE_FRACTION * _icap(name),
     }
     for name in reservoir_options
 }
@@ -231,6 +233,7 @@ def get_policy_context(
     release_max_override: float | None = None,
     capacity_override: float | None = None,
     inflow_bounds_override: tuple[float, float] | None = None,
+    low_storage_threshold_override: float | None = None,
 ) -> dict:
     from copy import deepcopy
     try:
@@ -246,6 +249,7 @@ def get_policy_context(
     S_cap = float(ctx["storage_capacity"])
     _, I_min_base, _ = ctx["x_min"]
     _, I_max_base, _ = ctx["x_max"]
+    S_low = float(base["low_storage_threshold"])
 
     if release_min_override is not None:
         R_min = float(release_min_override)
@@ -257,6 +261,11 @@ def get_policy_context(
         I_min, I_max = map(float, inflow_bounds_override)
     else:
         I_min, I_max = float(I_min_base), float(I_max_base)
+    if low_storage_threshold_override is not None:
+        S_low = float(low_storage_threshold_override)
+    else:
+        # keep S_low consistent with possibly overridden capacity
+        S_low = max(0.0, LOW_STORAGE_FRACTION * S_cap) if capacity_override is not None else S_low
 
     if not (I_max > I_min):
         raise ValueError(f"{reservoir_name}: I_max ({I_max}) must be > I_min ({I_min}).")
@@ -269,6 +278,7 @@ def get_policy_context(
         "storage_capacity": S_cap,
         "x_min": (0.0, I_min, 1.0),
         "x_max": (S_cap, I_max, 366.0),
+        "low_storage_threshold": S_low,
     }
 
 # Optional: precompute
