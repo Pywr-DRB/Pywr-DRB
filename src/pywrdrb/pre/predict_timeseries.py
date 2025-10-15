@@ -26,6 +26,7 @@ import numpy as np
 import statsmodels.api as sm
 from abc import abstractmethod
 
+from pywrdrb.utils.lists import reservoir_list, majorflow_list
 from pywrdrb.utils.timeseries import subset_timeseries
 from pywrdrb.pre.datapreprocessor_ABC import DataPreprocessor
 
@@ -128,6 +129,10 @@ class PredictedTimeseriesPreprocessor(DataPreprocessor):
                                training_start_date, training_end_date)
         
         for (node, lag) in self._unique_node_lag_pairs():
+            # When lag < 0, we are 'predicting' past values so no regression needed
+            # we will just use actual observations
+            if lag < 0:
+                continue
             const, slope = self._fit_regression(df, node, lag)
             regressions[(node, lag)] = {"const": const, "slope": slope}
         return regressions
@@ -154,7 +159,7 @@ class PredictedTimeseriesPreprocessor(DataPreprocessor):
         X = df[node].iloc[:-lag].values if lag > 0 else df[node].values
 
         if lag == 0:
-                    Y = Y[:len(X)]
+            Y = Y[:len(X)]
                     
         if self.use_const:
             X = np.column_stack((np.ones(len(X)), X))
@@ -170,6 +175,10 @@ class PredictedTimeseriesPreprocessor(DataPreprocessor):
         if self.use_log:
             eps = 0.001
             Y, X = np.log(Y + eps), np.log(X + eps)
+
+        # ### Print summary:
+        # print(f'Fitting regression for node:{node}, lag:{lag}')
+        # print(f'  Number of training samples: len(Y) = {len(Y)} | len(X) = {len(X)}')
 
         model = sm.OLS(Y, X, hasconst=self.use_const).fit()
         if self.use_const:
@@ -205,10 +214,22 @@ class PredictedTimeseriesPreprocessor(DataPreprocessor):
         for col, node_lag_mode_list in node_lags.items():
             pred_df[col] = np.zeros(len(index))
             for (node, lag), mode in node_lag_mode_list:
-                pred_df[col] += np.array([
+                
+                predicted_node_lag_flows= [
                     self._predict_value(idx, node, lag, mode, regressions)
                     for idx in range(len(index))
-                ])
+                    ]
+                
+                pred_df[col] += np.array(predicted_node_lag_flows)
+                
+                ### Print summary:
+                # print(f'Predicting {col} using node:{node}, lag:{lag}, mode:{mode}')
+                # print(f'  First 5 predicted values: {predicted_node_lag_flows[:5]}')
+                # print(f'  Last 5 predicted values: {predicted_node_lag_flows[-5:]}')
+                # print(f'  Mean predicted value: {np.mean(predicted_node_lag_flows)}')
+                # print(f'  Min predicted value: {np.min(predicted_node_lag_flows)}')
+                # print(f'  Max predicted value: {np.max(predicted_node_lag_flows)}')
+                # print('---'*20)
         return pred_df
 
     def _predict_value(self, idx, node, lag, mode, regressions):
@@ -245,27 +266,52 @@ class PredictedTimeseriesPreprocessor(DataPreprocessor):
         if mode == "same_day":
             value = val_t
 
-        elif mode == "perfect_foresight":
+        elif mode == "perfect_foresight":            
             value = self.timeseries_data[node].iloc[min(idx + lag, n - 1)]
 
         elif mode.startswith("regression"):
-            const = regressions[(node, lag)]["const"]
-            slope = regressions[(node, lag)]["slope"]
-            value = self._regression_prediction(val_t, const, slope)
+            
+            ### Handle negative lag (past) days
+            # When lag < 0, we are 'predicting' past values so we use actual observations
+            if lag <= 0:
+                Yhat_lag_prediction = self.timeseries_data[node].iloc[max(idx + lag, 0)]
+                Yhat_lag_minus1_prediction = self.timeseries_data[node].iloc[max(idx + lag - 1, 0)]
+            elif lag > 0:
+                
+                const = regressions[(node, lag)]["const"]
+                slope = regressions[(node, lag)]["slope"]
+                Yhat_lag_prediction = self._regression_prediction(val_t, const, slope)
+                
+                # need to get the lag-1 prediction for the autoregressive model
+                if lag==1:
+                    Yhat_lag_minus1_prediction = val_t
+                else:
+                    const = regressions[(node, lag - 1)]["const"]
+                    slope = regressions[(node, lag - 1)]["slope"]
+                    Yhat_lag_minus1_prediction = self._regression_prediction(val_t, const, slope)
 
         elif mode == "moving_average":
             start = max(0, idx - 6)
             value = self.timeseries_data[node].iloc[start:idx+1].mean()
-
         else:
             raise ValueError(f"Unknown mode: {mode}")
 
-        if node in self.catchment_wc.index:
-            wd = self.catchment_wc.loc[node, "Total_WD_MGD"]
-            cu = self.catchment_wc.loc[node, "Total_CU_WD_Ratio"]
-            prev_val = self.timeseries_data[node].iloc[max(idx - 1, 0)]
-            value -= min(value, cu * min(prev_val, wd))
-
+        ### Account for catchment water consumption if applicable
+        # Predicted flow = prediction - consumption
+        if node in reservoir_list + majorflow_list:
+            pywr_node = f'reservoir_{node}' if node in reservoir_list else f'link_{node}'
+            wd = self.catchment_wc.loc[pywr_node, "Total_WD_MGD"]
+            cu = self.catchment_wc.loc[pywr_node, "Total_CU_WD_Ratio"]
+            
+            consumption_prediction = min(Yhat_lag_prediction, 
+                                         cu * min(Yhat_lag_minus1_prediction, wd))
+            
+            value = Yhat_lag_prediction - consumption_prediction
+            
+        # If no catchment water consumption, just return the prediction
+        else:
+            value = Yhat_lag_prediction
+            
         return value
 
     def _regression_prediction(self, x, const, slope):
@@ -303,6 +349,5 @@ class PredictedTimeseriesPreprocessor(DataPreprocessor):
         pairs = set()
         for combos in self.get_prediction_node_lag_combinations().values():
             for (node, lag), _ in combos:
-                if lag >= 0:
-                    pairs.add((node, lag))
+                pairs.add((node, lag))
         return pairs

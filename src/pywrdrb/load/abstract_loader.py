@@ -320,6 +320,11 @@ class AbstractDataLoader(ABC):
                 pass
             elif units == "MCM":
                 for k, v in data.items():
+                    
+                    # Skip if k == 'ffmp_level_boundaries'
+                    if k == 'ffmp_level_boundaries':
+                        continue
+                    
                     data[k] = v * mg_to_mcm
 
         # To match pywrdrb output format, realization_ids should be int
