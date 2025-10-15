@@ -354,13 +354,13 @@ class Data(AbstractDataLoader):
             for attr_name in export_attrs:
                 if hasattr(self, attr_name):
                     result_set = getattr(self, attr_name)
-                    for datatype, scenarios in result_set.items():
-                        for scenario_id, df in scenarios.items():
+                    for datatype, realizations in result_set.items():
+                        for scenario_id, df in realizations.items():
                             key = f"/{attr_name}/{datatype}/{scenario_id}"
                             store.put(key, df)
     
     
-    def load_from_export(self, file):
+    def load_from_export(self, file, results_sets=None, realizations=None):
         """
         Load data from an HDF5 file into the object.
         
@@ -372,6 +372,13 @@ class Data(AbstractDataLoader):
         ----------
         file : str
             Path to the HDF5 file to load.
+        results_sets : list of str, optional
+            List of results_sets to load. If None, loads all results_sets in the file.
+            Example: ['res_storage', 'major_flow']
+        realizations : list of int or str, optional
+            List of scenario IDs to load. If None, loads all realizations in the file.
+            Scenario IDs are converted to int for comparison.
+            Example: [0, 1, 2] or ['stationary_ensemble', 'reconstruction']
             
         Returns
         -------
@@ -384,16 +391,60 @@ class Data(AbstractDataLoader):
         /{results_set}/{datatype}/{scenario_id}
         
         This structure is created by the Data.export() method.
+        
+        Examples
+        --------
+        # Load only specific results_sets
+        data.load_from_export('output.hdf5', results_sets=['res_storage', 'major_flow'])
+        
+        # Load specific results_sets and realizations
+        data.load_from_export('output.hdf5', 
+                            results_sets=['res_storage'], 
+                            realizations=['0', '1'])
         """
         
         super().__verify_files_exist__([file])
+        
+        # Convert realizations to set for fast lookup if provided
+        scenario_filter = None
+        if realizations is not None:
+            # Handle both int and string scenario IDs
+            scenario_filter = set()
+            for s in realizations:
+                if isinstance(s, int):
+                    scenario_filter.add(s)
+                else:
+                    scenario_filter.add(str(s))
+        
+        # Convert results_sets to set for fast lookup if provided
+        results_set_filter = set(results_sets) if results_sets is not None else None
 
         with pd.HDFStore(file, mode='r') as store:
             for key in store.keys():
                 
                 # Key format: /attr_name/datatype/scenario_id
                 _, attr_name, datatype, scenario_id = key.split('/')
-                scenario_id = int(scenario_id)
+                
+                # Filter by results_set
+                if results_set_filter is not None and attr_name not in results_set_filter:
+                    continue
+                
+                # Filter by scenario
+                if scenario_filter is not None:
+                    # Try to match as int first, then as string
+                    try:
+                        sid_int = int(scenario_id)
+                        if sid_int not in scenario_filter and scenario_id not in scenario_filter:
+                            continue
+                    except ValueError:
+                        if scenario_id not in scenario_filter:
+                            continue
+                
+                # Convert scenario_id to int if possible (maintain original behavior)
+                try:
+                    scenario_id = int(scenario_id)
+                except ValueError:
+                    pass  # Keep as string if can't convert
 
                 if not hasattr(self, attr_name):
                     setattr(self, attr_name, {})

@@ -203,11 +203,7 @@ class PredictedInflowPreprocessor(PredictedTimeseriesPreprocessor):
         # (node, (lag - travel_time)) pairs
         for lag in [1, 2]:
             for node, travel_time in self.node_to_montague_travel_time.items():
-                
-                if lag - travel_time < 0:
-                    continue
-                
-                
+
                 node_lag = [
                     (node, lag - travel_time),
                 ]
@@ -227,9 +223,6 @@ class PredictedInflowPreprocessor(PredictedTimeseriesPreprocessor):
         # (node, (lag - travel_time)) pairs
         for lag in [1, 2, 3, 4]:
             for node, travel_time in self.node_to_trenton_travel_time.items():
-                
-                if lag - travel_time < 0:
-                    continue
                 
                 node_lag = [
                     (node, lag - travel_time),
