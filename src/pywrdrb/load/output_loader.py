@@ -320,13 +320,16 @@ class Output(AbstractDataLoader):
             keys = [k for k in keys if "mrf" in k]
             col_names = [k for k in keys]
         elif results_set == "temperature":
-            keys = ["thermal_release_requirement", "temperature_after_thermal_release_mu", "temperature_after_thermal_release_sd"] \
-                + ['forecasted_temperature_before_thermal_release_mu', 'forecasted_temperature_before_thermal_release_sd'] \
+            
+            keys = ["thermal_release_requirement", "temperature_after_thermal_release_mu"] \
+                + ['forecasted_temperature_before_thermal_release_mu']
+                #, "temperature_after_thermal_release_sd"] \
+                #, 'forecasted_temperature_before_thermal_release_sd'] \
                 #[k for k in keys if "temperature" in k or "thermal" in k] \
                 #+ ['estimated_Q_i', 'estimated_Q_C']
             col_names = [k for k in keys]
         elif results_set == "salinity":
-            keys = ["salt_front_location_mu", "salt_front_location_sd"] 
+            keys = ["salt_front_location_mu"]#, "salt_front_location_sd"] 
             col_names = [k for k in keys]
         # resulst_set may be a specific key in the model
         elif results_set in keys:

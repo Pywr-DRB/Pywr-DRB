@@ -1952,20 +1952,36 @@ class ModelBuilder:
         if pn.sc.get("PywrDRB_ML").exists() is False:
             raise FileNotFoundError(f"PywrDRB_ML plugin not found at {PywrDRB_ML_plugin_path}")
         
-        # Main temperature model
-        model_dict["parameters"]["temperature_model"] = {
-                "type": "TemperatureModel",
-                "start_date": temp_options.get("start_date", None),
-                "activate_thermal_control": temp_options.get("activate_thermal_control", False),
-                "activate_input_bias_correction": temp_options.get("activate_input_bias_correction", False),
-                "Q_C_lstm_var_name": temp_options["Q_C_lstm_var_name"],
-                "Q_i_lstm_var_name": temp_options["Q_i_lstm_var_name"],
-                "cannonsville_storage_pct_lstm_var_name": temp_options["cannonsville_storage_pct_lstm_var_name"],
-                "PywrDRB_ML_plugin_path": str(PywrDRB_ML_plugin_path),
-                "disable_tqdm": temp_options.get("disable_tqdm", True),
-                "debug": temp_options.get("debug", False),
-            }
-        
+        # Main temperature model        
+        ml_model_type = temp_options.get("ml_model_type", "lstm")
+        if ml_model_type == "lstm":
+            model_dict["parameters"]["temperature_model"] = {
+                    "type": "TemperatureModelLSTM",
+                    "model1": temp_options.get("model1"),
+                    "model2": temp_options.get("model2"),
+                    "Tavg2Tmax_coefs": temp_options.get("Tavg2Tmax_coefs"),
+                    "start_date": temp_options.get("start_date", None),       
+                    "end_date": temp_options.get("end_date", '2023-12-31'),
+                    "activate_thermal_control": temp_options.get("activate_thermal_control", False),
+                    "Q_C_lstm_var_name": temp_options.get("Q_C_lstm_var_name", "QbcTavg_Q_C"),
+                    "Q_i_lstm_var_name": temp_options.get("Q_i_lstm_var_name", "QbcTavg_Q_i"),
+                    "cannonsville_storage_pct_lstm_var_name": temp_options.get("cannonsville_storage_pct_lstm_var_name", "bc_cannonsville_storage_pct"),
+                    "PywrDRB_ML_plugin_path": str(PywrDRB_ML_plugin_path),
+                    "thermal_mitigation_bank_size": temp_options.get("thermal_mitigation_bank_size", 1620),  # mgd
+                    "asycronized_update": temp_options.get("asycronized_update", False),
+                    "debug": temp_options.get("debug", False),    
+                }
+        elif ml_model_type == "rf":
+            model_dict["parameters"]["temperature_model"] = {
+                    "type": "TemperatureModelRF",
+                    "start_date": temp_options.get("start_date", None),
+                    "activate_thermal_control": temp_options.get("activate_thermal_control", False),
+                    "quantile": temp_options.get("quantile", None),
+                    "asycronized_update": temp_options.get("asycronized_update", False),
+                    "PywrDRB_ML_plugin_path": str(PywrDRB_ML_plugin_path),
+                    "debug": temp_options.get("debug", False),
+                }
+            
         # Call update() in TemperatureModel to compute the max water temperature at Lordville after thermal release
         # This will use the flow from the previous time step to update the lstms as this is pre-LP implementation.
         model_dict["parameters"]["update_temperature_at_lordville"] = {
@@ -1988,12 +2004,18 @@ class ModelBuilder:
         # Retrieve forecasted temperature before thermal release (t)
         model_dict["parameters"]["forecasted_temperature_before_thermal_release_mu"] = {
                 "type": "ForecastedTemperatureBeforeThermalRelease",
+                "ml_model_type": ml_model_type,
                 "variable": "mu"
             }
-        model_dict["parameters"]["forecasted_temperature_before_thermal_release_sd"] = {
-                "type": "ForecastedTemperatureBeforeThermalRelease",
-                "variable": "sd"
-            }
+        
+        # We will not output sd directly as only lstm will output the sd. RF model 
+        # output ub and lb assicated with given quantile, not sd.
+        # Users can retrieve the sd post simulation if needed.
+        # The previous timestep info (mu, sd or others) will be available in the initiated object for dynamic usage.
+        #model_dict["parameters"]["forecasted_temperature_before_thermal_release_sd"] = {
+        #        "type": "ForecastedTemperatureBeforeThermalRelease",
+        #        "variable": "sd"
+        #    }
         
         # Overwrite original downstream setting to add the thermal release
         for reservoir in ["cannonsville"]:
@@ -2017,12 +2039,18 @@ class ModelBuilder:
         # Retrieve the max water temperature at Lordville after thermal release (t-1)
         model_dict["parameters"]["temperature_after_thermal_release_mu"] = {
                 "type": "TemperatureAfterThermalRelease",
+                "ml_model_type": ml_model_type,
                 "variable": "mu"
             }
-        model_dict["parameters"]["temperature_after_thermal_release_sd"] = {
-                "type": "TemperatureAfterThermalRelease",
-                "variable": "sd"
-            }
+        
+        # We will not output sd directly as only lstm will output the sd. RF model 
+        # output ub and lb assicated with given quantile, not sd.
+        # Users can retrieve the sd post simulation if needed.
+        # The previous timestep info (mu, sd or others) will be available in the initiated object for dynamic usage.
+        #model_dict["parameters"]["temperature_after_thermal_release_sd"] = {
+        #        "type": "TemperatureAfterThermalRelease",
+        #        "variable": "sd"
+        #    }
         
     def add_parameter_salinity_model(self):
         """
@@ -2038,15 +2066,29 @@ class ModelBuilder:
             raise FileNotFoundError(f"PywrDRB_ML plugin not found at {PywrDRB_ML_plugin_path}")
         
         # Main salinity model
-        model_dict["parameters"]["salinity_model"] = {
-                "type": "SalinityModel",
-                "start_date": salinity_options.get("start_date", None),
-                "Q_Trenton_lstm_var_name": salinity_options["Q_Trenton_lstm_var_name"],
-                "Q_Schuylkill_lstm_var_name": salinity_options["Q_Schuylkill_lstm_var_name"],
-                "PywrDRB_ML_plugin_path": str(PywrDRB_ML_plugin_path),
-                "disable_tqdm": salinity_options.get("disable_tqdm", True),
-                "debug": salinity_options.get("debug", False),
-            }
+        ml_model_type = salinity_options.get("ml_model_type", "rf")
+
+        if ml_model_type == "lstm":
+            model_dict["parameters"]["salinity_model"] = {
+                    "type": "SalinityModelLSTM",
+                    "model_salinity": salinity_options.get("model_salinity", None),
+                    "start_date": salinity_options.get("start_date", None),
+                    "end_date": salinity_options.get("end_date", None),
+                    "Q_Trenton_lstm_var_name": salinity_options["Q_Trenton_lstm_var_name"],
+                    "Q_Schuylkill_lstm_var_name": salinity_options["Q_Schuylkill_lstm_var_name"],
+                    "PywrDRB_ML_plugin_path": str(PywrDRB_ML_plugin_path),
+                    "asycronized_update": salinity_options.get("asycronized_update", False),
+                    "debug": salinity_options.get("debug", False),
+                }
+        elif ml_model_type == "rf":
+            model_dict["parameters"]["salinity_model"] = {
+                    "type": "SalinityModelRF",
+                    "start_date": salinity_options.get("start_date", None),
+                    "quantile": salinity_options.get("quantile", None),
+                    "asycronized_update": salinity_options.get("asycronized_update", False),
+                    "PywrDRB_ML_plugin_path": str(PywrDRB_ML_plugin_path),
+                    "debug": salinity_options.get("debug", False),
+                }
         
         # Use flow at previous time step to update the salt front location as this is pre-LP implementation.
         model_dict["parameters"]["update_salt_front_location"] = {
@@ -2056,9 +2098,32 @@ class ModelBuilder:
         # Retrieve salt front river mile (t-1)
         model_dict["parameters"]["salt_front_location_mu"] = {
                 "type": "SaltFrontLocation",
-                "variable": "mu"
+                "variable": "mu",
+                "ml_model_type": ml_model_type
             }
-        model_dict["parameters"]["salt_front_location_sd"] = {
-                "type": "SaltFrontLocation",
-                "variable": "sd"
-            }
+        #model_dict["parameters"]["salt_front_location_sd"] = {
+        #        "type": "SaltFrontLocation",
+        #        "variable": "sd"
+        #    }
+        
+        # Overwrite original flow target function to account for salt front location
+        # Note that we will use the previous day salt front location to update the flow target.
+        # It will be complicated to predict the salt front location at the same time as the flow target.
+        # Also, this will only be activate if the salinity model is not asynchronizly updated.
+        asycronized_update = salinity_options.get("asycronized_update", False)
+        if asycronized_update is False:
+            ### Total Montague & Trenton flow targets based on drought level of NYC aggregated storage
+            for mrf in ["delMontague", "delTrenton"]:
+                # Salt front adjustment ratio based on the salt front location
+                model_dict["parameters"][f"flow_target_salt_front_adjustment_ratio_{mrf}"] = {
+                    "type": "FlowTargetSaltFrontAdjustmentRatio",
+                    "flow_target": mrf,
+                    "ml_model_type": ml_model_type,
+                }
+                
+                # Overwrite the flow target function to include the salt front location
+                model_dict["parameters"][f"mrf_target_{mrf}"] = {
+                    "type": "aggregated",
+                    "agg_func": "product",
+                    "parameters": [f"mrf_baseline_{mrf}", f"mrf_drought_factor_{mrf}", f"flow_target_salt_front_adjustment_ratio_{mrf}"],
+                }
