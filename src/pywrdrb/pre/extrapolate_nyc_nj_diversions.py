@@ -15,13 +15,20 @@ Technical Notes:
   value based on streamflow.
 - Uses nearest neighbor matching to disaggregate and create daily diversion patterns from the 
   predicted monthly values.
-- The processed data is saved to CSV files in pywrdrb/data/diversions/.
+- The processed data is saved to CSV files in pywrdrb/data/diversions/ (default) or 
+  flows/{flow_type}/ (custom data).
 
 
 Example Usage:
+# Default behavior (historical observations)
 from pywrdrb.pre import ExtrapolatedDiversionPreprocessor
 processor = ExtrapolatedDiversionPreprocessor(loc='nj')
 hist_diversions, hist_flows = processor.load()
+processor.process()
+processor.save()
+
+# Custom flow data
+processor = ExtrapolatedDiversionPreprocessor(loc='nyc', flow_type='my_custom_flows')
 processor.process()
 processor.save()
 
@@ -31,8 +38,10 @@ Links:
 
 Change Log:
 TJA, 2025-05-07, Bug fixes to align with old methods + docstrings
+Modified, Aug 27 2025, Added support for custom flow datasets
 """
-
+import os
+import h5py
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -42,9 +51,16 @@ import datetime
 from pywrdrb.utils.constants import cfs_to_mgd
 from pywrdrb.pre.datapreprocessor_ABC import DataPreprocessor
 from pywrdrb.pywr_drb_node_data import obs_site_matches, nyc_reservoirs
+from pywrdrb.utils.hdf5 import extract_realization_from_hdf5
+
+# List of NYC inflow gages to aggregate for "NYC_inflow"
+nyc_inflow_gages = []
+for res in nyc_reservoirs:
+    nyc_inflow_gages.extend(obs_site_matches[res])
 
 
-__all__ = ["ExtrapolatedDiversionPreprocessor"]
+__all__ = ["ExtrapolatedDiversionPreprocessor",
+           "ExtrapolatedDiversionEnsemblePreprocessor"]
 
 class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
     r"""
@@ -75,6 +91,8 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
     ----------
     loc : str
         Location indicator, either "nyc" or "nj".
+    flow_type : str, optional
+        Flow type for custom data. If None, uses historical observations.
     quarters : tuple
         Seasons used for different regression models (DJF, MAM, JJA, SON).
     lrms : dict
@@ -85,6 +103,10 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
         DataFrame containing the historical diversion data.
     flow : pd.DataFrame
         DataFrame containing the historical streamflow data.
+    training_flow : pd.DataFrame
+        DataFrame containing streamflow data used for training (always historical).
+    extrapolation_flow : pd.DataFrame
+        DataFrame containing streamflow data used for extrapolation (custom or historical).
     df : pd.DataFrame
         DataFrame of daily states combining diversion and flow data.
     df_m : pd.DataFrame
@@ -104,9 +126,16 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
     >>> processor.process()
     >>> processor.save()
     >>> [out] Saved extrapolated diversion data to <path>src\pywrdrb\data\diversions\
+    
+    >>> # Using custom flow data
+    >>> processor = ExtrapolatedDiversionPreprocessor(loc='nyc', flow_type='my_custom_flows')
+    >>> processor.process()
+    >>> processor.save()
+    >>> [out] Saved extrapolated diversion data to <path>src\pywrdrb\data\flows\my_custom_flows\
     """
     def __init__(self, 
-                 loc):
+                 loc,
+                 flow_type=None):
         """
         Initialize the ExtrapolatedDiversionPreprocessor.
         
@@ -114,6 +143,9 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
         ----------
         loc : str
             Location indicator, must be either "nyc" or "nj".
+        flow_type : str, optional
+            Flow type for custom data. If None, uses historical observations.
+            When provided, uses gage_flow_mgd.csv from flows/{flow_type}/ folder.
             
         Raises
         ------
@@ -125,6 +157,7 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
         assert loc in ["nyc", "nj"], f"Invalid location specified. Expected 'nyc' or 'nj'. Got {loc}"
         
         self.loc = loc
+        self.flow_type = flow_type
         
         # Seasons (quarters) used for different regression models
         self.quarters = ("DJF", "MAM", "JJA", "SON")
@@ -133,7 +166,8 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
         self.lrms = None  # Linear regression models
         self.lrrs = None  # Linear regression results
         self.diversion = None  # Historical diversion data
-        self.flow = None  # Historical streamflow data
+        self.training_flow = None  # Streamflow data used for training (always historical)
+        self.extrapolation_flow = None  # Streamflow data used for extrapolation (custom or historical)
         self.df = None  # DataFrame of daily states
         self.df_m = None  # DataFrame of monthly mean states
         self.df_long = None  # Full time series data for extrapolation
@@ -141,40 +175,47 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
 
         # Set random seed for consistent results
         np.random.seed(1)
-        
-        # Setup input and output directories based on location
-        if self.loc == "nyc":
-            self.input_dirs = {
-                "diversion": self.pn.observations.get_str("_raw", "Pep_Can_Nev_diversions_daily_2000-2021.xlsx"),
-                "flow": self.pn.observations.get_str("_raw", "streamflow_daily_usgs_mgd.csv")
-            }
-            self.output_dirs = {
-                "diversion": self.pn.diversions.get_str("diversion_nyc_extrapolated_mgd.csv")
-            }
-        elif self.loc == "nj":
-            self.input_dirs = {
-                "flow": self.pn.observations.get_str("_raw", "streamflow_daily_usgs_mgd.csv")
-            }
-            self.output_dirs = {
-                "diversion": self.pn.diversions.get_str("diversion_nj_extrapolated_mgd.csv")
-            }
 
-    def load(self):
-        """
-        Load historical diversion and streamflow data.
+        # Dictionary of files needed based on settings
+        self.input_dirs = {}
+        self.output_dirs = {}
+
+        # Always use historical flow & diversions data for training
+        self.input_dirs["flow_training"] = self.pn.observations.get_str("_raw", "streamflow_daily_usgs_mgd.csv")
+
+        # diversion comes from DRBC data if NYC, else inferred from USGS data if NJ
+        if self.loc == "nyc":
+            self.input_dirs["diversion"] = self.pn.observations.get_str("_raw", "Pep_Can_Nev_diversions_daily_2000-2021.xlsx")        
+        elif self.loc == "nj":  
+            # NJ diversions are assumed to be the USGS flow in the Delaware-Raritan Canal
+            # so the diversion input comes from the USGS flow data file
+            self.input_dirs["diversion"] = self.input_dirs["flow_training"]  
         
-        This method loads the required data for the extrapolation:
-        - For NYC: loads diversion data from a spreadsheet containing daily diversions 
-          from Pepacton, Cannonsville, and Neversink reservoirs.
-        - For NJ: extracts Delaware-Raritan Canal flow data from the USGS streamflow data.
-        - For both: loads streamflow data for relevant locations.
         
-        Returns
-        -------
-        tuple
-            A tuple containing (diversion, flow) DataFrames.
-        """
-        ### Get historical diversion data
+        # Load either historic or custom flow data for extrapolation
+        if flow_type is not None:
+            print(f"Using custom flow data for extrapolation: {flow_type}")
+            
+            self.input_dirs["flow_extrapolation"] = self.pn.sc.get(f"flows/{flow_type}") / "gage_flow_mgd.csv"
+
+            # Different diversion output files based on NYC or NJ location
+            if self.loc == "nyc":
+                self.output_dirs["diversion"] = self.pn.sc.get(f"flows/{flow_type}") / "diversion_nyc_extrapolated_mgd.csv"
+            else:
+                self.output_dirs["diversion"] = self.pn.sc.get(f"flows/{flow_type}") / "diversion_nj_extrapolated_mgd.csv"
+
+        # Historical flow data for extrapolation
+        else:
+            print("Using historical flow data for extrapolation.")
+            
+            self.input_dirs["flow_extrapolation"] = self.pn.observations.get_str("_raw", "streamflow_daily_usgs_mgd.csv")
+
+            if self.loc == "nyc":
+                self.output_dirs["diversion"] = self.pn.diversions.get_str("diversion_nyc_extrapolated_mgd.csv")
+            else:
+                self.output_dirs["diversion"] = self.pn.diversions.get_str("diversion_nj_extrapolated_mgd.csv")
+                                
+    def load_training_data(self):
         if self.loc == "nyc":
             fname = self.input_dirs["diversion"]
             diversion = pd.read_excel(fname, index_col=0)
@@ -185,11 +226,9 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
             ### Convert CFS to MGD
             diversion *= cfs_to_mgd
         elif self.loc == "nj":
-            ### Now get NJ demands/deliveries
-            ### The gage for D_R_Canal starts 1989-10-23, but lots of NA's early on. 
-            ### Pretty good after 1991-01-01, but a few remaining to clean up.
+            ### Load NJ diversions from training flow data (historical)
             start_date = (1991, 1, 1)
-            fname = self.input_dirs["flow"]
+            fname = self.input_dirs["flow_training"]
             gage_flow = pd.read_csv(fname)
             gage_flow.index = pd.DatetimeIndex(gage_flow["datetime"]).date
             
@@ -214,30 +253,84 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
                     ind = diversion.index[i]
                     diversion.loc[ind, "D_R_Canal"] = diversion["D_R_Canal"].iloc[i - 1]
 
-            ### Flow becomes negative sometimes, presumably due to storms and/or drought reversing flow. 
-            ### Don't count as deliveries
-            diversion[diversion < 0] = 0
+            ### Flow becomes negative sometimes, presumably due to storms and/or drought reversing flow.
+            ### Set negative values to zero.
+            diversion.loc[diversion["D_R_Canal"] < 0, "D_R_Canal"] = 0.0
 
-        ### Get historical flows
-        fname = self.input_dirs["flow"]
-        flow = pd.read_csv(fname)
-        flow.index = pd.to_datetime(flow["datetime"])
+
+        ### Load training flow data (always historical USGS data)
+        fname_training = self.input_dirs["flow_training"]
+        training_flow = pd.read_csv(fname_training)
+        training_flow.index = pd.DatetimeIndex(training_flow["datetime"]).date
+        training_flow.index = pd.to_datetime(training_flow.index)
+        self.training_flow = training_flow
+
+        ## Calculate/preprocess columns needed for training
+
         
-        # Calculate total NYC inflow
-        nyc_inflow_gages = []
-        for res in nyc_reservoirs:
-            nyc_inflow_gages.extend(obs_site_matches[res])
-        flow["NYC_inflow"] = flow[nyc_inflow_gages].sum(axis=1)
+        if self.loc == "nyc":
+            training_flow["NYC_inflow"] = training_flow[nyc_inflow_gages].sum(axis=1)
+        else:  # NJ
+            training_flow["delTrenton"] = training_flow["01463500"]
+            
+        return training_flow, diversion
+
+    def load_extrapolation_data(self):
+        fname_extrapolation = self.input_dirs["flow_extrapolation"]
         
-        # Relabel the trenton gage ("01463500") to "delTrenton"
-        flow["delTrenton"] = flow["01463500"]
-                
-        # Store the data for later
+        ## For custom flow data, columns must be node names
+        if self.flow_type is not None:
+            # Load custom flow data
+            extrapolation_flow = pd.read_csv(fname_extrapolation, index_col=0, parse_dates=True)
+            
+            # Calculate NYC_inflow from reservoir components if using custom data
+            if self.loc == "nyc":
+                extrapolation_flow["NYC_inflow"] = extrapolation_flow[nyc_reservoirs].sum(axis=1)
+            
+            # Ensure delTrenton column exists (required for NJ)
+            if self.loc == "nj" and "delTrenton" not in extrapolation_flow.columns:
+                raise ValueError(f"Custom flow data must contain 'delTrenton' column for NJ diversions.")
+        
+        ## For default, historic data, columns will be gauge ID numbers
+        else:
+            # Use historical flow data (original behavior)
+            extrapolation_flow = pd.read_csv(fname_extrapolation)
+            extrapolation_flow.index = pd.to_datetime(extrapolation_flow["datetime"])
+
+            # Calculate total NYC inflow
+            if self.loc == 'nyc':
+                extrapolation_flow["NYC_inflow"] = extrapolation_flow[nyc_inflow_gages].sum(axis=1)
+            else:  # NJ
+                extrapolation_flow["delTrenton"] = extrapolation_flow["01463500"]
+
+        return extrapolation_flow
+
+    def load(self):
+        """
+        Load historical diversion and streamflow data.
+        
+        This method loads the required data for the extrapolation:
+        - For NYC: loads diversion data from a spreadsheet containing daily diversions 
+          from Pepacton, Cannonsville, and Neversink reservoirs.
+        - For NJ: extracts Delaware-Raritan Canal flow data from the USGS streamflow data.
+        - For both: loads streamflow data for training (always historical) and extrapolation (custom or historical).
+        
+        Returns
+        -------
+        tuple
+            A tuple containing (diversion, flow) DataFrames.
+        """
+        # Load historical diversion data (unchanged for training)
+        training_flow, diversion = self.load_training_data()
         self.diversion = diversion
-        self.flow = flow
-        
-        return diversion, flow
-    
+        self.training_flow = training_flow
+
+        # Load extrapolation flow data (custom or historical)
+        extrapolation_flow = self.load_extrapolation_data()
+        self.extrapolation_flow = extrapolation_flow
+
+        return diversion, extrapolation_flow
+
     def get_quarter(self, m):
         """
         Return the quarter (season) of the year for a given month.
@@ -245,22 +338,22 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
         Parameters
         ----------
         m : int
-            The month (1-12).
-        
+            Month number (1-12).
+            
         Returns
         -------
         str
-            The quarter/season abbreviation: "DJF", "MAM", "JJA", or "SON".
+            Quarter string ("DJF", "MAM", "JJA", or "SON").
         """
-        if m in (12, 1, 2):
+        if m in [12, 1, 2]:
             return "DJF"
-        elif m in (3, 4, 5):
+        elif m in [3, 4, 5]:
             return "MAM"
-        elif m in (6, 7, 8):
+        elif m in [6, 7, 8]:
             return "JJA"
-        elif m in (9, 10, 11):
+        elif m in [9, 10, 11]:
             return "SON"
-    
+
     def get_overlapping_timespan(self, df1, df2):
         """
         Find the maximum overlapping timespan between two DataFrames.
@@ -295,47 +388,43 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
         ]
         assert np.all(df1.index == df2.index), "Indices do not match after get_overlapping_timespan()."
         return df1, df2
-    
+
     def train_regressions(self, df_m):
         """
         Train seasonal regression models for diversion prediction.
         
-        For each season (quarter), trains a linear regression model relating 
-        log-transformed streamflow to diversion amounts.
-        
         Parameters
         ----------
         df_m : pd.DataFrame
-            DataFrame containing monthly mean values with 'diversion', 'flow_log',
-            'm', 'y', and 'quarter' columns.
+            Monthly DataFrame containing flow_log, diversion, and quarter columns.
             
         Returns
         -------
         tuple
-            A tuple containing (lrms, lrrs) where:
-            - lrms is a dictionary of regression models for each quarter
-            - lrrs is a dictionary of fitted regression results for each quarter
+            A tuple containing (lrms, lrrs) where lrms is a dict of regression models
+            and lrrs is a dict of regression results for each quarter.
         """
-        # Check for required columns
-        required_cols = ['diversion', 'flow_log', 'm', 'y', 'quarter']
-        for col in required_cols:
-            assert col in df_m.columns, f"Required column '{col}' not found in df_m"
-
         lrms = {}
         lrrs = {}
         
-        # Train a separate regression model for each season (quarter)
         for q in self.quarters:
-            # Create OLS regression model
-            lrms[q] = sm.OLS(
-                df_m["diversion"].loc[df_m["quarter"] == q],
-                sm.add_constant(df_m["flow_log"].loc[df_m["quarter"] == q]),
-            )
-            # Fit the model
-            lrrs[q] = lrms[q].fit()
+            data = df_m.loc[df_m["quarter"] == q]
+            
+            x = data["flow_log"].values
+            y = data["diversion"].values
+            
+            # Add constant term
+            x_with_const = sm.add_constant(x)
+            
+            # Fit regression model
+            model = sm.OLS(y, x_with_const)
+            results = model.fit()
+            
+            lrms[q] = model
+            lrrs[q] = results
             
         return lrms, lrrs
-    
+
     def get_random_prediction_sample(self, lrms, lrrs, quarter, x):
         """
         Generate a random prediction sample from the regression distribution.
@@ -370,17 +459,17 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
             ).rvs()[0]
         
         return pred
-    
+
     def process(self):
         """
-        Process the loaded data to extrapolate diversions.
+        Run the full extrapolation workflow.
         
         This method implements the full extrapolation workflow:
         1. Load diversion and flow data
-        2. Create daily dataframe combining diversions and flows
+        2. Create daily dataframe combining diversions and training flows
         3. Create monthly mean dataframe
-        4. Train seasonal regression models between flow and diversion
-        5. Predict monthly diversions for the full time period
+        4. Train seasonal regression models between flow and diversion using training data
+        5. Predict monthly diversions for the full extrapolation time period
         6. Use nearest neighbor matching to create daily patterns from 
            monthly predictions
         7. Combine historical and extrapolated diversions into a single dataset
@@ -389,32 +478,32 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
         The processed data is stored in the self.processed_data dictionary.
         """
         # Load data if not already loaded
-        if self.diversion is None or self.flow is None:
-            self.diversion, self.flow = self.load()
+        if self.diversion is None or self.training_flow is None or self.extrapolation_flow is None:
+            self.diversion, _ = self.load()
         
         # Make copies to keep the full version for later
-        flow = self.flow.copy()
+        training_flow = self.training_flow.copy()
         diversion = self.diversion.copy()
         
-        # Get maximum overlapping timespan for diversions and flow
-        flow, diversion = self.get_overlapping_timespan(flow, diversion)
+        # Get maximum overlapping timespan for diversions and training flow (for model training)
+        training_flow, diversion = self.get_overlapping_timespan(training_flow, diversion)
         
         # Set up column names based on location
         diversion_column = "aggregate" if self.loc == "nyc" else "D_R_Canal"
         flow_column = "NYC_inflow" if self.loc == "nyc" else "delTrenton"
         
-        # Create dataframe of daily states
+        # Create dataframe of daily states using training data
         df = pd.DataFrame(
             {
                 "diversion": diversion[diversion_column],
-                "flow_log": np.log(flow[flow_column]),
+                "flow_log": np.log(training_flow[flow_column]),
                 "m": diversion.index.month,
                 "y": diversion.index.year,
             }
         )
 
         # Create dataframe of monthly mean states
-        df_m = df.resample("m").mean()
+        df_m = df.resample("ME").mean()
         df["quarter"] = [self.get_quarter(m) for m in df["m"]]
         df_m["quarter"] = [self.get_quarter(m) for m in df_m["m"]]
 
@@ -423,25 +512,26 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
             nj_trans_max = df_m["diversion"].max() + 5
             df_m["diversion"] = np.log(nj_trans_max - df_m["diversion"])
 
-        # Train linear regression models for each quarter
-        lrms, lrrs = self.train_regressions(df_m)
-        self.lrms = lrms
-        self.lrrs = lrrs
-        
-        # Prepare data for extrapolation using full flow dataset
-        flow_full = self.flow.copy()
+        # Train linear regression models for each quarter using training data
+        if self.lrms is None or self.lrrs is None:
+            lrms, lrrs = self.train_regressions(df_m)
+            self.lrms = lrms
+            self.lrrs = lrrs
+                    
+        # Prepare data for extrapolation using extrapolation flow dataset
+        extrapolation_flow_full = self.extrapolation_flow.copy()
 
-        # Set up dataframe with flow data for full time period
+        # Set up dataframe with extrapolation flow data for full time period
         df_long = pd.DataFrame(
             {
-                "flow_log": np.log(flow_full[flow_column]),
-                "m": flow_full.index.month,
-                "y": flow_full.index.year,
+                "flow_log": np.log(extrapolation_flow_full[flow_column]),
+                "m": extrapolation_flow_full.index.month,
+                "y": extrapolation_flow_full.index.year,
             }
         )
 
         # Get monthly means and add quarter info
-        df_long_m = df_long.resample("m").mean()
+        df_long_m = df_long.resample("ME").mean()
         df_long["quarter"] = [self.get_quarter(m) for m in df_long["m"]]
         df_long_m["quarter"] = [self.get_quarter(m) for m in df_long_m["m"]]
 
@@ -454,8 +544,8 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
 
             # Get random sample value from linear regression model
             pred = self.get_random_prediction_sample(
-                lrms=lrms, 
-                lrrs=lrrs, 
+                lrms=self.lrms, 
+                lrrs=self.lrrs, 
                 quarter=q, 
                 x=f
             )
@@ -469,6 +559,7 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
                 nj_trans_max - np.exp(df_long_m["diversion_pred"]), 0
             )
 
+        # Existing code for nearest neighbor matching and daily disaggregation
         # Set up for nearest neighbor matching in normalized 2D space of log-flow & diversion
         flow_bounds = [df_m["flow_log"].min(), df_m["flow_log"].max()]
         diversion_bounds = [df_m["diversion"].min(), df_m["diversion"].max()]
@@ -495,58 +586,59 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
             f = df_long_m["flow_log_norm"].iloc[i]
             n = df_long_m["diversion_pred_norm"].iloc[i]
             
-            # Get subset of monthly data for the same quarter
-            df_m_sub = df_m.loc[df_m["quarter"] == q]
+            # Get subset of training data for the same quarter
+            subset = df_m.loc[df_m["quarter"] == q]
             
-            # Calculate squared distance in normalized space
-            dist_squ = (f - df_m_sub["flow_log_norm"]) ** 2 + (
-                n - df_m_sub["diversion_norm"]
-            ) ** 2
-            
-            # Find index of minimum distance
-            nn = np.argmin(dist_squ)
-            df_long_m.loc[ind, "nn"] = df_m_sub.index[nn]
-
-        # Use each month's nearest neighbor to get flow shape for predicted diversion at daily time step
-        df_long["diversion_pred"] = -1
-        for i, row in df_long_m.iterrows():
-            m = row["m"]
-            y = row["y"]
-            
-            # Get the daily diversions in nearest neighbor from shorter record
-            df_long_idx = df_long.loc[
-                np.logical_and(df_long["m"] == m, df_long["y"] == y)
-            ].index
-            
-            # Get matching daily pattern from historical data
-            df_m_match = df_m.loc[row["nn"]]
-            df_match = df.loc[
-                np.logical_and(df["m"] == df_m_match["m"], df["y"] == df_m_match["y"])
-            ]
-            
-            # Scale daily diversions based on ratio of monthly prediction to match
-            new_diversion = (
-                df_match["diversion"].values
-                * row["diversion_pred"]
-                / df_m_match["diversion"]
+            # Calculate Euclidean distance in normalized 2D space
+            distances = np.sqrt(
+                (subset["flow_log_norm"] - f) ** 2 + (subset["diversion_norm"] - n) ** 2
             )
             
-            # Warn if negative values are created
-            if np.any(new_diversion < 0):
-                print(f"Warning: Negative diversion values detected for {row['m']}-{row['y']}")
+            # Find index of nearest neighbor
+            nn_idx = distances.idxmin()
+            df_long_m.loc[ind, "nn"] = nn_idx
+
+        # Use nearest neighbor to disaggregate monthly predictions to daily
+        df_long["diversion_pred"] = 0.0
+        for i in range(df_long_m.shape[0]):
+            # Get month info
+            month_start = df_long_m.index[i]
+            nn_month = df_long_m["nn"].iloc[i]
+            monthly_pred = df_long_m["diversion_pred"].iloc[i]
+            
+            # Get daily data for this month and nearest neighbor month
+            month_mask = (df_long.index.year == month_start.year) & (df_long.index.month == month_start.month)
+            nn_mask = (df.index.year == nn_month.year) & (df.index.month == nn_month.month)
+            
+            if nn_mask.sum() > 0 and month_mask.sum() > 0:
+                # Get daily pattern from nearest neighbor
+                nn_daily = df.loc[nn_mask, "diversion"]
+                nn_monthly_mean = nn_daily.mean()
                 
-            # Adjust length of record when months have different number of days
-            len_new = len(df_long_idx)
-            len_match = len(new_diversion)
-            if len_match > len_new:
-                new_diversion = new_diversion[:len_new]
-            elif len_match < len_new:
-                new_diversion = np.append(
-                    new_diversion, [new_diversion[-1]] * (len_new - len_match)
-                )
-                
-            # Assign daily predicted values
-            df_long.loc[df_long_idx, "diversion_pred"] = new_diversion
+                if nn_monthly_mean > 0:
+                    # Scale daily pattern to match predicted monthly value
+                    daily_pattern = nn_daily / nn_monthly_mean
+                    new_diversion = daily_pattern * monthly_pred
+                    
+                    # Assign to corresponding days in long time series
+                    # Check if the months have the same number of days
+                    if len(new_diversion) == month_mask.sum():
+                        df_long.loc[month_mask, "diversion_pred"] = new_diversion.values
+                    else:
+                        # Handle different month lengths (e.g., Feb 28 vs 29 days, or 30 vs 31)
+                        # Interpolate or repeat pattern to match target month length
+                        target_days = month_mask.sum()
+                        source_days = len(new_diversion)
+                        
+                        if target_days > source_days:
+                            # Need to extend the pattern - repeat last day(s)
+                            extension = np.tile(new_diversion.values[-1], target_days - source_days)
+                            extended_diversion = np.concatenate([new_diversion.values, extension])
+                            df_long.loc[month_mask, "diversion_pred"] = extended_diversion
+                        else:
+                            # Need to truncate the pattern
+                            df_long.loc[month_mask, "diversion_pred"] = new_diversion.values[:target_days]
+                            
 
         # Store for potential plotting
         self.df = df
@@ -599,13 +691,21 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
             diversion_combined = diversion_combined.iloc[:, [-1, 0]]
 
             self.processed_data = diversion_combined
+        
+        
+        # Keep only dates that overlap the extrapolation data time period
+        keep_dates = np.logical_and(
+            self.processed_data.index >= self.extrapolation_flow.index.min(),
+            self.processed_data.index <= self.extrapolation_flow.index.max(),
+        )
+        self.processed_data = self.processed_data.loc[keep_dates]   
 
     def save(self):
         """
         Save the processed extrapolated diversion data to CSV.
         
         The data is saved to the output directory specified in self.output_dirs,
-        with the filename format determined by the location (NYC or NJ).
+        with the filename format determined by the location (NYC or NJ) and flow_type.
         
         Raises
         ------
@@ -616,12 +716,19 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
         if self.processed_data is None:
             raise ValueError("No processed data available. Run the process() method first.")
         
-        # Save to the appropriate output file
-        output_path = self.output_dirs["diversion"]
-        self.processed_data.to_csv(output_path, index=False)
-        print(f"Saved extrapolated diversion data to {output_path}")
+        # Get output file path
+        output_file = self.output_dirs["diversion"]
         
-    def plot(self, kind="regressions"):
+        # Ensure output directory exists
+        output_file.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Save to CSV
+        self.processed_data.to_csv(output_file, index=False)
+        
+        print(f"Saved extrapolated diversion data to {output_file}")
+
+    def plot(self, fig_dir=None, 
+             kind="regressions"):
         """
         Create plots of the extrapolation process.
         
@@ -646,12 +753,15 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
         """
         assert kind in ["regressions", "diversions"], "Invalid kind. Expected 'regressions' or 'diversions'."
         
+        if fig_dir is None:
+            fig_dir = str(self.pn.sc.get(f"flows/{self.flow_type}")) + "/figures/"
+        
         if kind == "regressions":
-            self.plot_regressions()
+            self.plot_regressions(fig_dir)
         elif kind == "diversions":
-            self.plot_diversions()
+            self.plot_diversions(fig_dir)
     
-    def plot_regressions(self):
+    def plot_regressions(self, fig_dir='./figures/'):
         """
         Plot the seasonal regression models and data points.
         
@@ -696,17 +806,21 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
                 label="Observed",
             )
             
-            # Plot sampled data during observed period
-            data = self.df_long_m.loc[self.df_m.index].copy()
-            data = data.loc[data["quarter"] == q]
-            ax.scatter(
-                data["flow_log"],
-                data["diversion_pred"],
-                zorder=1,
-                alpha=0.7,
-                color="firebrick",
-                label="Extrapolated over\nobserved period",
-            )
+            # Plot sampled data during observed period, if there is overlap
+            
+            if len(self.df_long_m.index.intersection(self.df_m.index)) > 3:
+                # Plot sampled data during observed period
+                # get intersection of indices
+                data = self.df_long_m.loc[self.df_long_m.index.intersection(self.df_m.index)].copy()
+                data = data.loc[data["quarter"] == q]
+                ax.scatter(
+                    data["flow_log"],
+                    data["diversion_pred"],
+                    zorder=1,
+                    alpha=0.7,
+                    color="firebrick",
+                    label="Extrapolated over\nobserved period",
+                )
             
             # Plot sampled data during unobserved period
             data = self.df_long_m.loc[[i not in self.df_m.index for i in self.df_long_m.index]].copy()
@@ -745,14 +859,14 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
                 ax.set_ylabel("Transformed monthly NJ diversion")
 
         # Save the figure
-        fig_dir = self.pn.data.get_str("../figs")
+        os.makedirs(fig_dir, exist_ok=True)
         plt.savefig(
             f"{fig_dir}/extrapolation_{self.loc}_pt1.png", 
             dpi=400, bbox_inches="tight"
         )
         plt.close()
 
-    def plot_diversions(self):
+    def plot_diversions(self, fig_dir='./figures/'):
         """
         Plot the historical and extrapolated diversion time series.
         
@@ -804,9 +918,169 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
         ax.set_ylabel(ylab)
 
         # Save the figure
-        fig_dir = self.pn.data.get_str("../figs")
+        os.makedirs(fig_dir, exist_ok=True)
         plt.savefig(
             f"{fig_dir}/extrapolation_{self.loc}_pt2.png", 
             dpi=400, bbox_inches="tight"
         )
         plt.close()
+        
+
+class ExtrapolatedDiversionEnsemblePreprocessor(ExtrapolatedDiversionPreprocessor):
+    """
+    Class for generating an ensemble of extrapolated diversion datasets.
+    
+    This class extends ExtrapolatedDiversionPreprocessor to create multiple 
+    realizations of extrapolated diversion data, allowing for ensembles with 
+    unique diversion dynamics for each realization.
+    """
+    def __init__(self,
+                 loc,
+                 flow_type,
+                 ensemble_hdf5_file,
+                 realization_ids=None,
+                 use_mpi=True):
+        """
+        Initialize the ExtrapolatedDiversionEnsemblePreprocessor.
+        
+        Parameters
+        ----------
+        loc : str
+            Location indicator, must be either "nyc" or "nj".
+        flow_type : str
+            Flow type for custom data. Must be provided.
+        ensemble_hdf5_file : str
+            Path to the HDF5 file containing ensemble gage_flow_mgd data.
+        """
+        super().__init__(loc=loc, 
+                         flow_type=flow_type)
+
+        self.ensemble_hdf5_file = ensemble_hdf5_file
+        self.realization_ids = realization_ids
+        
+        assert loc in ["nyc", "nj"], f"Invalid location specified. Expected 'nyc' or 'nj'. Got {loc}"
+        self.loc = loc
+        
+        self.use_mpi = use_mpi
+        if self.use_mpi:
+            from mpi4py import MPI
+            self.comm = MPI.COMM_WORLD
+            self.rank = self.comm.Get_rank()
+            self.size = self.comm.Get_size()
+        else:
+            self.comm = None
+            self.rank = 0
+            self.size = 1
+        
+        # Overwrite the input and output files to use hdf5 instead of csv
+        # It is assumed that the ensemble will have filetype hdf5
+        csv_input = self.input_dirs["flow_extrapolation"]
+        csv_output = self.output_dirs["diversion"]
+        
+        self.input_dirs["flow_extrapolation"] = self.ensemble_hdf5_file
+        self.output_dirs["diversions"] = str(csv_output).replace(".csv", ".hdf5")
+
+        # Storage for ensemble results
+        self.ensemble_diversions = {}
+
+    def load(self):
+        """Load available realization IDs."""
+
+        ### Load realization IDs from HDF5 if not provided
+        # Get available realization IDs if not specified
+        if self.realization_ids is None:
+            with h5py.File(self.ensemble_hdf5_file, 'r') as f:
+                self.realization_ids = [key for key in f.keys()]
+        else:
+            # Ensure provided IDs are strings
+            self.realization_ids = [str(rid) for rid in self.realization_ids]
+        
+        if self.rank == 0:
+            print(f"Processing {len(self.realization_ids)} realizations across {self.size} processes")
+        
+        ### Load training data
+        training_flow, diversion = self.load_training_data()
+        self.diversion = diversion
+        self.training_flow = training_flow
+        return
+
+
+    def process(self):
+        """Process ensemble extrapolations using MPI parallelization."""
+        
+        # Distribute realizations across MPI processes
+        realizations_per_rank = np.array_split(self.realization_ids, self.size)
+        my_realizations = realizations_per_rank[self.rank]
+        
+        local_predictions = {}
+        
+        # Process assigned realizations
+        for realization_id in my_realizations:
+            if self.rank == 0:
+                print(f"Processing realization {realization_id}")
+            
+            # Extract realization data
+            extrapolation_flow_i = extract_realization_from_hdf5(
+                self.ensemble_hdf5_file, 
+                realization_id, 
+                stored_by_node=True
+            )
+            
+            # Need to add NYC_inflow columns if not present
+            if self.loc == "nyc" and "NYC_inflow" not in extrapolation_flow_i.columns:
+                extrapolation_flow_i["NYC_inflow"] = extrapolation_flow_i[nyc_reservoirs].sum(axis=1)
+            
+            # Ensure delTrenton column exists (required for NJ)
+            if self.loc == "nj" and "delTrenton" not in extrapolation_flow_i.columns:
+                raise ValueError(f"Custom flow data must contain 'delTrenton' column for NJ diversions.")
+            
+            # Set the extrapolation_flow with this realization
+            # This attribute is expected before super().process() is called
+            self.extrapolation_flow = extrapolation_flow_i
+            
+            # Run the extrapolation using the base class 
+            super().process()
+            
+            # Pull out the processed data for this realization
+            extrapolated_diversion_i = self.processed_data.copy()
+
+            local_predictions[str(realization_id)] = extrapolated_diversion_i
+        
+        # Gather all predictions to rank 0
+        if self.use_mpi:
+            all_predictions = self.comm.gather(local_predictions, root=0)
+        else:
+            all_predictions = [local_predictions]
+        
+        if self.rank == 0:
+            # Combine predictions from all processes
+            for diversions_dict in all_predictions:
+                self.ensemble_diversions.update(diversions_dict)
+
+    def save(self):
+        """Save ensemble extrapolated diversions to HDF5 format."""
+        if self.rank == 0:
+            if not self.ensemble_diversions:
+                raise ValueError("No ensemble diversions to save. Run process() first.")
+
+            fname = self.output_dirs["diversions"]
+            
+            with h5py.File(fname, 'w') as hf:
+                for realization_id, predictions_df in self.ensemble_diversions.items():
+                    # Create group for this realization
+                    realization_group = hf.create_group(realization_id)
+                    
+                    # Store datetime
+                    datetime_strings = predictions_df['datetime'].astype(str).values
+                    realization_group.create_dataset('datetime', data=datetime_strings)
+                    
+                    # Store prediction columns
+                    for col in predictions_df.columns:
+                        if col != 'datetime':
+                            realization_group.create_dataset(col, data=predictions_df[col].values)
+
+            print(f"Saved ensemble diversions to {fname}")
+
+        # Ensure all processes wait for save to complete
+        if self.use_mpi:
+            self.comm.barrier()

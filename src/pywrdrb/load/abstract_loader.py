@@ -203,7 +203,8 @@ class AbstractDataLoader(ABC):
         and not appropriate. Base originally referred to natural flows, but observed flows are also
         included which are non-natural. For now, this is important for loading the internal datasets. 
         """
-        is_ensemble = True if 'ensemble' in str(input_dir) else False
+        # TODO! Need better way to handle ensemble vs non-ensemble data
+        is_ensemble = True if ('ensemble' in str(input_dir) or 'climate_adjusted' in str(input_dir)) else False
         
         # Store data as:
         # data = dict{scenario_id: pd.DataFrame}
