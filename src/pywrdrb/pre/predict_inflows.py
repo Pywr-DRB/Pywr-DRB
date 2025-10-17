@@ -17,7 +17,7 @@ Technical Notes:
 
 Example Usage:
 from pywrdrb.pre import PredictedInflowPreprocessor
-inflow_predictor = PredictedInflowPreprocessor(flow_type="pub_nhmv10_BC_withObsScaled", start_date="1945-01-01", end_date="2023-12-31", modes=("regression_disagg",),)
+inflow_predictor = PredictedInflowPreprocessor(flow_type="nhmv10")
 inflow_predictor.process()
 inflow_predictor.save()
 
@@ -26,6 +26,7 @@ Links:
 
 Change Log:
 TJA, 2025-05-07, Minor fixes + docstrings
+TJA, 2025-10, Fixed bug where nodes with lag < 0 were not being included in predictions
 """
 import h5py
 import numpy as np
@@ -45,8 +46,7 @@ class PredictedInflowPreprocessor(PredictedTimeseriesPreprocessor):
     ```python
     from pywrdrb.pre import PredictedInflowPreprocessor
 
-    inflow_predictor = PredictedInflowPreprocessor(flow_type="nhmv10", start_date="1983-10-01", end_date="2016-12-31", modes=("regression_disagg",),)
-    
+    inflow_predictor = PredictedInflowPreprocessor(flow_type="nhmv10")
     inflow_predictor.process()
     inflow_predictor.save()
     ```
@@ -177,7 +177,7 @@ class PredictedInflowPreprocessor(PredictedTimeseriesPreprocessor):
 
     def process(self):
         """Run full prediction workflow."""
-        # FIXED: Ensure data is loaded first
+        # Ensure data is loaded
         if self.timeseries_data is None:
             self.load()
             
@@ -265,8 +265,8 @@ class PredictedInflowEnsemblePreprocessor(PredictedInflowPreprocessor):
             flow_type: Label for the dataset.
             ensemble_hdf5_file: Path to HDF5 file containing ensemble inflow data.
             realization_ids: List of realization IDs to process. If None, uses all available.
-            start_date: Start date for predictions.
-            end_date: End date for predictions.
+            start_date: Start date for predictions. If None, match input data.
+            end_date: End date for predictions. If None, match input data.
             modes: Prediction modes to use.
             use_log: Whether to use log transformation.
             remove_zeros: Whether to remove zero values.
