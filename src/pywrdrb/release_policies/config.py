@@ -16,6 +16,7 @@ DEBUG = True
 CONFIG_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Other directories relative to this file
+# Other directories relative to this file
 DATA_DIR = os.path.join(CONFIG_DIR, "../obs_data")
 RAW_DATA_DIR = os.path.join(DATA_DIR, "raw")
 PROCESSED_DATA_DIR = os.path.join(DATA_DIR, "processed")
@@ -64,8 +65,8 @@ OBJ_LABELS = {
 # Used to filter pareto front
 # obj : (min, max)
 OBJ_FILTER_BOUNDS = {
-    "Release NSE": (-1.5, 1.0),
-    "Q20 Log Release NSE": (-3, 1.0),
+    "Release NSE": (0, 1.0),
+    "Q20 Log Release NSE": (-1, 1.0),
     "Q80 Release Abs % Bias": (0, 50.0),
     "Release Inertia": (0.3, 1.0),
     "Storage KGE": (-3, 1.0),            
@@ -313,3 +314,22 @@ def get_policy_context(
 
 # Optional: precompute
 POLICY_CONTEXT_BY_RESERVOIR = {r: get_policy_context(r) for r in reservoir_options}
+
+
+def parse_params_inline(policy_type: str, params: str | list[float]) -> list[float]:
+    """Accepts comma-separated string or list of floats."""
+    if params is None:
+        raise ValueError("parse_params_inline: 'params' is None.")
+    if isinstance(params, str):
+        # allow whitespace, mixed commas
+        vec = [float(x.strip()) for x in params.replace("，", ",").split(",") if x.strip() != ""]
+    elif isinstance(params, (list, tuple)):
+        vec = [float(x) for x in params]
+    else:
+        raise TypeError(f"Unsupported params type: {type(params)}")
+
+    # optional: quick length checks to fail fast (kept permissive if you change bounds later
+    expected = policy_n_params.get(policy_type)
+    if expected is not None and len(vec) != expected:
+        raise ValueError(f"{policy_type} expects {expected} params; got {len(vec)}.")
+    return vec

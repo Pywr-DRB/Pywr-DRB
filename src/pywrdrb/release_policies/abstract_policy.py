@@ -199,15 +199,15 @@ class AbstractPolicy(ABC):
                 f"x_max[0] ({self.x_max[0]}) must equal storage_capacity ({self.storage_capacity})."
             )
 
-        # one-line context log (printed once per policy instance)
-        if not self._ctx_printed:
-            name = getattr(self, "reservoir_name", getattr(self, "name", "unknown"))
-            print(
-                f"[CTX] {name}: S_cap={self.storage_capacity:.2f}, "
-                f"I∈[{self.I_min:.2f}, {self.I_max:.2f}], "
-                f"R∈[{self.release_min:.2f}, {self.release_max:.2f}]"
-            )
-            self._ctx_printed = True
+        # # one-line context log (printed once per policy instance)
+        # if not self._ctx_printed:
+        #     name = getattr(self, "reservoir_name", getattr(self, "name", "unknown"))
+        #     print(
+        #         f"[CTX] {name}: S_cap={self.storage_capacity:.2f}, "
+        #         f"I∈[{self.I_min:.2f}, {self.I_max:.2f}], "
+        #         f"R∈[{self.release_min:.2f}, {self.release_max:.2f}]"
+        #     )
+        #     self._ctx_printed = True
 
     def reset_violation_log(self):
         for k in self._violations:

@@ -13,6 +13,7 @@ from pywrdrb.release_policies.config import (
     policy_param_bounds,
     n_starfit_inputs,   # should be 3 for [S, I, D]
     DATA_DIR,
+    CONFIG_DIR,
 )
 from pywrdrb.path_manager import get_pn_object
 
@@ -179,11 +180,11 @@ class STARFIT(AbstractPolicy):
         if not self.reservoir_name:
             raise ValueError("load_starfit_params requires reservoir_name.")
 
-        path = csv_path or os.path.join(DATA_DIR, "drb_model_istarf_conus.csv")
+        path = csv_path or os.path.join(CONFIG_DIR, "drb_model_istarf_conus.csv")
         if not os.path.isabs(path):
             path = os.path.abspath(path) # make absolute for worker nodes
         if not os.path.exists(path):
-            raise FileNotFoundError(f"STARFIT CSV not found at: {path}")
+            raise FileNotFoundError(f"STARFIT CStV not found at: {path}")
 
         df = pd.read_csv(path)
         row = df.loc[df["reservoir"] == self.reservoir_name]
