@@ -69,6 +69,7 @@ drbc_max_usable_storages = {
 }
 
 # Max discharges at lower reservoirs
+# NOTE: Used in the STARFIT parameter
 max_discharges = {
     "blueMarsh": 1500 * cfs_to_mgd,
     "beltzvilleCombined": 1500 * cfs_to_mgd,
@@ -106,7 +107,7 @@ conservation_releases = {
 
 # To be used when NYC is in Normal conditions,
 # but when lower basin drought condition is in effect 
-# (not currently implemented)
+# NOTE: Lower basin drought is not currently implemented!
 lower_basin_drought_conservation_releases = {
     "blueMarsh": 30 * cfs_to_mgd,
     "beltzvilleCombined": 15 * cfs_to_mgd,
