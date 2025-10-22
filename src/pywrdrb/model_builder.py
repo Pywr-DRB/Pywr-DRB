@@ -1102,7 +1102,7 @@ class ModelBuilder:
             }
 
         # Otherwise, assume demand is equal to max allotment under FFMP
-        elif nyc_nj_demand_source == "max_constant":
+        elif nyc_nj_demand_source == "constant_max":
             # NYC
             model_dict["parameters"][f"demand_nyc"] = {
                 "type": "constant",
@@ -1120,7 +1120,7 @@ class ModelBuilder:
                 "index": "max_flow_baseline_monthlyAvg_delivery_nj",
             }
         else:
-            raise ValueError(f"Invalid nyc_nj_demand_source: {nyc_nj_demand_source}. Options are 'historical', 'custom', or 'max_constant'.")
+            raise ValueError(f"Invalid nyc_nj_demand_source: {nyc_nj_demand_source}. Options are 'historical', 'custom', or 'constant_max'.")
 
 
     def add_parameter_nyc_reservoirs_operational_regimes(self):
