@@ -59,8 +59,7 @@ for res in nyc_reservoirs:
     nyc_inflow_gages.extend(obs_site_matches[res])
 
 
-__all__ = ["ExtrapolatedDiversionPreprocessor",
-           "ExtrapolatedDiversionEnsemblePreprocessor"]
+__all__ = ["ExtrapolatedDiversionPreprocessor"]
 
 class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
     r"""
@@ -926,161 +925,161 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
         plt.close()
         
 
-class ExtrapolatedDiversionEnsemblePreprocessor(ExtrapolatedDiversionPreprocessor):
-    """
-    Class for generating an ensemble of extrapolated diversion datasets.
+# class ExtrapolatedDiversionEnsemblePreprocessor(ExtrapolatedDiversionPreprocessor):
+#     """
+#     Class for generating an ensemble of extrapolated diversion datasets.
     
-    This class extends ExtrapolatedDiversionPreprocessor to create multiple 
-    realizations of extrapolated diversion data, allowing for ensembles with 
-    unique diversion dynamics for each realization.
-    """
-    def __init__(self,
-                 loc,
-                 flow_type,
-                 ensemble_hdf5_file,
-                 realization_ids=None,
-                 use_mpi=True):
-        """
-        Initialize the ExtrapolatedDiversionEnsemblePreprocessor.
+#     This class extends ExtrapolatedDiversionPreprocessor to create multiple 
+#     realizations of extrapolated diversion data, allowing for ensembles with 
+#     unique diversion dynamics for each realization.
+#     """
+#     def __init__(self,
+#                  loc,
+#                  flow_type,
+#                  ensemble_hdf5_file,
+#                  realization_ids=None,
+#                  use_mpi=True):
+#         """
+#         Initialize the ExtrapolatedDiversionEnsemblePreprocessor.
         
-        Parameters
-        ----------
-        loc : str
-            Location indicator, must be either "nyc" or "nj".
-        flow_type : str
-            Flow type for custom data. Must be provided.
-        ensemble_hdf5_file : str
-            Path to the HDF5 file containing ensemble gage_flow_mgd data.
-        """
-        super().__init__(loc=loc, 
-                         flow_type=flow_type)
+#         Parameters
+#         ----------
+#         loc : str
+#             Location indicator, must be either "nyc" or "nj".
+#         flow_type : str
+#             Flow type for custom data. Must be provided.
+#         ensemble_hdf5_file : str
+#             Path to the HDF5 file containing ensemble gage_flow_mgd data.
+#         """
+#         super().__init__(loc=loc, 
+#                          flow_type=flow_type)
 
-        self.ensemble_hdf5_file = ensemble_hdf5_file
-        self.realization_ids = realization_ids
+#         self.ensemble_hdf5_file = ensemble_hdf5_file
+#         self.realization_ids = realization_ids
         
-        assert loc in ["nyc", "nj"], f"Invalid location specified. Expected 'nyc' or 'nj'. Got {loc}"
-        self.loc = loc
+#         assert loc in ["nyc", "nj"], f"Invalid location specified. Expected 'nyc' or 'nj'. Got {loc}"
+#         self.loc = loc
         
-        self.use_mpi = use_mpi
-        if self.use_mpi:
-            from mpi4py import MPI
-            self.comm = MPI.COMM_WORLD
-            self.rank = self.comm.Get_rank()
-            self.size = self.comm.Get_size()
-        else:
-            self.comm = None
-            self.rank = 0
-            self.size = 1
+#         self.use_mpi = use_mpi
+#         if self.use_mpi:
+#             from mpi4py import MPI
+#             self.comm = MPI.COMM_WORLD
+#             self.rank = self.comm.Get_rank()
+#             self.size = self.comm.Get_size()
+#         else:
+#             self.comm = None
+#             self.rank = 0
+#             self.size = 1
         
-        # Overwrite the input and output files to use hdf5 instead of csv
-        # It is assumed that the ensemble will have filetype hdf5
-        csv_input = self.input_dirs["flow_extrapolation"]
-        csv_output = self.output_dirs["diversion"]
+#         # Overwrite the input and output files to use hdf5 instead of csv
+#         # It is assumed that the ensemble will have filetype hdf5
+#         csv_input = self.input_dirs["flow_extrapolation"]
+#         csv_output = self.output_dirs["diversion"]
         
-        self.input_dirs["flow_extrapolation"] = self.ensemble_hdf5_file
-        self.output_dirs["diversions"] = str(csv_output).replace(".csv", ".hdf5")
+#         self.input_dirs["flow_extrapolation"] = self.ensemble_hdf5_file
+#         self.output_dirs["diversions"] = str(csv_output).replace(".csv", ".hdf5")
 
-        # Storage for ensemble results
-        self.ensemble_diversions = {}
+#         # Storage for ensemble results
+#         self.ensemble_diversions = {}
 
-    def load(self):
-        """Load available realization IDs."""
+#     def load(self):
+#         """Load available realization IDs."""
 
-        ### Load realization IDs from HDF5 if not provided
-        # Get available realization IDs if not specified
-        if self.realization_ids is None:
-            with h5py.File(self.ensemble_hdf5_file, 'r') as f:
-                self.realization_ids = [key for key in f.keys()]
-        else:
-            # Ensure provided IDs are strings
-            self.realization_ids = [str(rid) for rid in self.realization_ids]
+#         ### Load realization IDs from HDF5 if not provided
+#         # Get available realization IDs if not specified
+#         if self.realization_ids is None:
+#             with h5py.File(self.ensemble_hdf5_file, 'r') as f:
+#                 self.realization_ids = [key for key in f.keys()]
+#         else:
+#             # Ensure provided IDs are strings
+#             self.realization_ids = [str(rid) for rid in self.realization_ids]
         
-        if self.rank == 0:
-            print(f"Processing {len(self.realization_ids)} realizations across {self.size} processes")
+#         if self.rank == 0:
+#             print(f"Processing {len(self.realization_ids)} realizations across {self.size} processes")
         
-        ### Load training data
-        training_flow, diversion = self.load_training_data()
-        self.diversion = diversion
-        self.training_flow = training_flow
-        return
+#         ### Load training data
+#         training_flow, diversion = self.load_training_data()
+#         self.diversion = diversion
+#         self.training_flow = training_flow
+#         return
 
 
-    def process(self):
-        """Process ensemble extrapolations using MPI parallelization."""
+#     def process(self):
+#         """Process ensemble extrapolations using MPI parallelization."""
         
-        # Distribute realizations across MPI processes
-        realizations_per_rank = np.array_split(self.realization_ids, self.size)
-        my_realizations = realizations_per_rank[self.rank]
+#         # Distribute realizations across MPI processes
+#         realizations_per_rank = np.array_split(self.realization_ids, self.size)
+#         my_realizations = realizations_per_rank[self.rank]
         
-        local_predictions = {}
+#         local_predictions = {}
         
-        # Process assigned realizations
-        for realization_id in my_realizations:
-            if self.rank == 0:
-                print(f"Processing realization {realization_id}")
+#         # Process assigned realizations
+#         for realization_id in my_realizations:
+#             if self.rank == 0:
+#                 print(f"Processing realization {realization_id}")
             
-            # Extract realization data
-            extrapolation_flow_i = extract_realization_from_hdf5(
-                self.ensemble_hdf5_file, 
-                realization_id, 
-                stored_by_node=True
-            )
+#             # Extract realization data
+#             extrapolation_flow_i = extract_realization_from_hdf5(
+#                 self.ensemble_hdf5_file, 
+#                 realization_id, 
+#                 stored_by_node=True
+#             )
             
-            # Need to add NYC_inflow columns if not present
-            if self.loc == "nyc" and "NYC_inflow" not in extrapolation_flow_i.columns:
-                extrapolation_flow_i["NYC_inflow"] = extrapolation_flow_i[nyc_reservoirs].sum(axis=1)
+#             # Need to add NYC_inflow columns if not present
+#             if self.loc == "nyc" and "NYC_inflow" not in extrapolation_flow_i.columns:
+#                 extrapolation_flow_i["NYC_inflow"] = extrapolation_flow_i[nyc_reservoirs].sum(axis=1)
             
-            # Ensure delTrenton column exists (required for NJ)
-            if self.loc == "nj" and "delTrenton" not in extrapolation_flow_i.columns:
-                raise ValueError(f"Custom flow data must contain 'delTrenton' column for NJ diversions.")
+#             # Ensure delTrenton column exists (required for NJ)
+#             if self.loc == "nj" and "delTrenton" not in extrapolation_flow_i.columns:
+#                 raise ValueError(f"Custom flow data must contain 'delTrenton' column for NJ diversions.")
             
-            # Set the extrapolation_flow with this realization
-            # This attribute is expected before super().process() is called
-            self.extrapolation_flow = extrapolation_flow_i
+#             # Set the extrapolation_flow with this realization
+#             # This attribute is expected before super().process() is called
+#             self.extrapolation_flow = extrapolation_flow_i
             
-            # Run the extrapolation using the base class 
-            super().process()
+#             # Run the extrapolation using the base class 
+#             super().process()
             
-            # Pull out the processed data for this realization
-            extrapolated_diversion_i = self.processed_data.copy()
+#             # Pull out the processed data for this realization
+#             extrapolated_diversion_i = self.processed_data.copy()
 
-            local_predictions[str(realization_id)] = extrapolated_diversion_i
+#             local_predictions[str(realization_id)] = extrapolated_diversion_i
         
-        # Gather all predictions to rank 0
-        if self.use_mpi:
-            all_predictions = self.comm.gather(local_predictions, root=0)
-        else:
-            all_predictions = [local_predictions]
+#         # Gather all predictions to rank 0
+#         if self.use_mpi:
+#             all_predictions = self.comm.gather(local_predictions, root=0)
+#         else:
+#             all_predictions = [local_predictions]
         
-        if self.rank == 0:
-            # Combine predictions from all processes
-            for diversions_dict in all_predictions:
-                self.ensemble_diversions.update(diversions_dict)
+#         if self.rank == 0:
+#             # Combine predictions from all processes
+#             for diversions_dict in all_predictions:
+#                 self.ensemble_diversions.update(diversions_dict)
 
-    def save(self):
-        """Save ensemble extrapolated diversions to HDF5 format."""
-        if self.rank == 0:
-            if not self.ensemble_diversions:
-                raise ValueError("No ensemble diversions to save. Run process() first.")
+#     def save(self):
+#         """Save ensemble extrapolated diversions to HDF5 format."""
+#         if self.rank == 0:
+#             if not self.ensemble_diversions:
+#                 raise ValueError("No ensemble diversions to save. Run process() first.")
 
-            fname = self.output_dirs["diversions"]
+#             fname = self.output_dirs["diversions"]
             
-            with h5py.File(fname, 'w') as hf:
-                for realization_id, predictions_df in self.ensemble_diversions.items():
-                    # Create group for this realization
-                    realization_group = hf.create_group(realization_id)
+#             with h5py.File(fname, 'w') as hf:
+#                 for realization_id, predictions_df in self.ensemble_diversions.items():
+#                     # Create group for this realization
+#                     realization_group = hf.create_group(realization_id)
                     
-                    # Store datetime
-                    datetime_strings = predictions_df['datetime'].astype(str).values
-                    realization_group.create_dataset('datetime', data=datetime_strings)
+#                     # Store datetime
+#                     datetime_strings = predictions_df['datetime'].astype(str).values
+#                     realization_group.create_dataset('datetime', data=datetime_strings)
                     
-                    # Store prediction columns
-                    for col in predictions_df.columns:
-                        if col != 'datetime':
-                            realization_group.create_dataset(col, data=predictions_df[col].values)
+#                     # Store prediction columns
+#                     for col in predictions_df.columns:
+#                         if col != 'datetime':
+#                             realization_group.create_dataset(col, data=predictions_df[col].values)
 
-            print(f"Saved ensemble diversions to {fname}")
+#             print(f"Saved ensemble diversions to {fname}")
 
-        # Ensure all processes wait for save to complete
-        if self.use_mpi:
-            self.comm.barrier()
+#         # Ensure all processes wait for save to complete
+#         if self.use_mpi:
+#             self.comm.barrier()
