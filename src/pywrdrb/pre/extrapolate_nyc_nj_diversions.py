@@ -52,6 +52,9 @@ from pywrdrb.utils.constants import cfs_to_mgd
 from pywrdrb.pre.datapreprocessor_ABC import DataPreprocessor
 from pywrdrb.pywr_drb_node_data import obs_site_matches, nyc_reservoirs
 from pywrdrb.utils.hdf5 import extract_realization_from_hdf5
+# Import pywrdrb_all_nodes for optimized HDF5 extraction
+from pywrdrb.pywr_drb_node_data import immediate_downstream_nodes_dict
+pywrdrb_all_nodes = list(immediate_downstream_nodes_dict.keys())
 
 # List of NYC inflow gages to aggregate for "NYC_inflow"
 nyc_inflow_gages = []
@@ -983,8 +986,48 @@ class ExtrapolatedDiversionEnsemblePreprocessor(ExtrapolatedDiversionPreprocesso
         # Storage for ensemble results
         self.ensemble_diversions = {}
 
+    def _extract_realization_from_open_file(self, hdf5_file, realization_id):
+        """
+        Extract a single realization from an already-open HDF5 file.
+
+        This is an optimized version of extract_realization_from_hdf5() that works
+        with an already-open file handle to avoid repeated file open/close operations.
+
+        Parameters
+        ----------
+        hdf5_file : h5py.File
+            Open HDF5 file handle
+        realization_id : str
+            The realization ID to extract
+
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame containing the extracted realization data
+        """
+        # Extract timeseries data from realization for each node
+        data = {}
+
+        for node in pywrdrb_all_nodes:
+            node_data = hdf5_file[node]
+            column_labels = node_data.attrs["column_labels"]
+
+            err_msg = f"The specified realization {realization_id} is not available in the HDF file."
+            assert realization_id in column_labels, (
+                err_msg + f" Realizations available: {column_labels}"
+            )
+            data[node] = node_data[realization_id][:]
+
+        dates = node_data["date"][:].tolist()
+        data["datetime"] = dates
+
+        # Combine into dataframe
+        df = pd.DataFrame(data, index=dates)
+        df.index = pd.to_datetime(df.index.astype(str))
+        return df
+
     def load(self):
-        """Load available realization IDs."""
+        """Load available realization IDs and training data (optimized for MPI)."""
 
         ### Load realization IDs from HDF5 if not provided
         # Get available realization IDs if not specified
@@ -994,64 +1037,89 @@ class ExtrapolatedDiversionEnsemblePreprocessor(ExtrapolatedDiversionPreprocesso
         else:
             # Ensure provided IDs are strings
             self.realization_ids = [str(rid) for rid in self.realization_ids]
-        
+
         if self.rank == 0:
             print(f"Processing {len(self.realization_ids)} realizations across {self.size} processes")
-        
-        ### Load training data
-        training_flow, diversion = self.load_training_data()
-        self.diversion = diversion
-        self.training_flow = training_flow
+
+        ### OPTIMIZATION: Load training data only on rank 0, then broadcast
+        # This avoids redundant disk I/O across all MPI ranks
+        if self.rank == 0:
+            print(f"Rank 0: Loading training data...")
+            training_flow, diversion = self.load_training_data()
+        else:
+            training_flow, diversion = None, None
+
+        # Broadcast training data to all ranks
+        if self.use_mpi:
+            if self.rank == 0:
+                print(f"Rank 0: Broadcasting training data to all ranks...")
+            self.training_flow = self.comm.bcast(training_flow, root=0)
+            self.diversion = self.comm.bcast(diversion, root=0)
+        else:
+            self.training_flow = training_flow
+            self.diversion = diversion
+
+        if self.rank == 0:
+            print(f"Training data loaded and distributed to all ranks")
+
         return
 
 
     def process(self):
-        """Process ensemble extrapolations using MPI parallelization."""
-        
+        """Process ensemble extrapolations using MPI parallelization (optimized I/O)."""
+
         # Distribute realizations across MPI processes
         realizations_per_rank = np.array_split(self.realization_ids, self.size)
         my_realizations = realizations_per_rank[self.rank]
-        
-        local_predictions = {}
-        
-        # Process assigned realizations
-        for realization_id in my_realizations:
-            if self.rank == 0:
-                print(f"Processing realization {realization_id}")
-            
-            # Extract realization data
-            extrapolation_flow_i = extract_realization_from_hdf5(
-                self.ensemble_hdf5_file, 
-                realization_id, 
-                stored_by_node=True
-            )
-            
-            # Need to add NYC_inflow columns if not present
-            if self.loc == "nyc" and "NYC_inflow" not in extrapolation_flow_i.columns:
-                extrapolation_flow_i["NYC_inflow"] = extrapolation_flow_i[nyc_reservoirs].sum(axis=1)
-            
-            # Ensure delTrenton column exists (required for NJ)
-            if self.loc == "nj" and "delTrenton" not in extrapolation_flow_i.columns:
-                raise ValueError(f"Custom flow data must contain 'delTrenton' column for NJ diversions.")
-            
-            # Set the extrapolation_flow with this realization
-            # This attribute is expected before super().process() is called
-            self.extrapolation_flow = extrapolation_flow_i
-            
-            # Run the extrapolation using the base class 
-            super().process()
-            
-            # Pull out the processed data for this realization
-            extrapolated_diversion_i = self.processed_data.copy()
 
-            local_predictions[str(realization_id)] = extrapolated_diversion_i
-        
+        local_predictions = {}
+
+        ### OPTIMIZATION: Batch HDF5 reads - open file once per rank
+        # This reduces file I/O overhead from N opens to 1 per rank
+        if self.rank == 0:
+            print(f"Rank {self.rank}: Processing {len(my_realizations)} realizations with batched HDF5 reads...")
+
+        with h5py.File(self.ensemble_hdf5_file, 'r') as hdf5_file:
+            # Process assigned realizations with the file already open
+            for i, realization_id in enumerate(my_realizations):
+                if self.rank == 0 and (i + 1) % max(1, len(my_realizations) // 5) == 0:
+                    print(f"Rank 0: Processing realization {i+1}/{len(my_realizations)}: {realization_id}")
+
+                # Extract realization data from open HDF5 file
+                extrapolation_flow_i = self._extract_realization_from_open_file(
+                    hdf5_file,
+                    realization_id
+                )
+
+                # Need to add NYC_inflow columns if not present
+                if self.loc == "nyc" and "NYC_inflow" not in extrapolation_flow_i.columns:
+                    extrapolation_flow_i["NYC_inflow"] = extrapolation_flow_i[nyc_reservoirs].sum(axis=1)
+
+                # Ensure delTrenton column exists (required for NJ)
+                if self.loc == "nj" and "delTrenton" not in extrapolation_flow_i.columns:
+                    raise ValueError(f"Custom flow data must contain 'delTrenton' column for NJ diversions.")
+
+                # Set the extrapolation_flow with this realization
+                # This attribute is expected before super().process() is called
+                self.extrapolation_flow = extrapolation_flow_i
+
+                # Run the extrapolation using the base class
+                super().process()
+
+                # Pull out the processed data for this realization
+                extrapolated_diversion_i = self.processed_data.copy()
+
+                local_predictions[str(realization_id)] = extrapolated_diversion_i
+
+        if self.rank == 0:
+            print(f"Rank 0: Completed processing all assigned realizations")
+
         # Gather all predictions to rank 0
         if self.use_mpi:
             all_predictions = self.comm.gather(local_predictions, root=0)
         else:
             all_predictions = [local_predictions]
-        
+
         if self.rank == 0:
             # Combine predictions from all processes
             for diversions_dict in all_predictions:
