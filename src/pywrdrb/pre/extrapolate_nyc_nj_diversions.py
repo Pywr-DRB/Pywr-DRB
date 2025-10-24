@@ -334,28 +334,28 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
 
         return diversion, extrapolation_flow
 
+    # Quarter mapping dictionary for vectorized operations
+    _quarter_map = {
+        1: "DJF", 2: "DJF", 3: "MAM", 4: "MAM",
+        5: "MAM", 6: "JJA", 7: "JJA", 8: "JJA",
+        9: "SON", 10: "SON", 11: "SON", 12: "DJF"
+    }
+
     def get_quarter(self, m):
         """
         Return the quarter (season) of the year for a given month.
-        
+
         Parameters
         ----------
         m : int
             Month number (1-12).
-            
+
         Returns
         -------
         str
             Quarter string ("DJF", "MAM", "JJA", or "SON").
         """
-        if m in [12, 1, 2]:
-            return "DJF"
-        elif m in [3, 4, 5]:
-            return "MAM"
-        elif m in [6, 7, 8]:
-            return "JJA"
-        elif m in [9, 10, 11]:
-            return "SON"
+        return self._quarter_map.get(m, "DJF")
 
     def get_overlapping_timespan(self, df1, df2):
         """
@@ -431,7 +431,7 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
     def get_random_prediction_sample(self, lrms, lrrs, quarter, x):
         """
         Generate a random prediction sample from the regression distribution.
-        
+
         Parameters
         ----------
         lrms : dict
@@ -442,7 +442,7 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
             The quarter/season for the prediction.
         x : float
             The input value (log flow) for prediction.
-            
+
         Returns
         -------
         float
@@ -452,7 +452,7 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
         lrr = lrrs[quarter]
         exog = lrm.exog.copy()  # Create a copy to avoid modifying original
         exog[:, 1] = x  # Set the second column (flow_log) to x
-        
+
         # Get randomly sampled value from linear regression model
         # Throw out if negative
         pred = -1
@@ -460,8 +460,75 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
             pred = lrm.get_distribution(
                 lrr.params, scale=np.var(lrr.resid), exog=exog
             ).rvs()[0]
-        
+
         return pred
+
+    def get_random_prediction_samples_vectorized(self, lrms, lrrs, quarter, x_values):
+        """
+        Generate random prediction samples from the regression distribution (vectorized).
+
+        This is a vectorized version of get_random_prediction_sample() that processes
+        multiple x values at once for better performance.
+
+        IMPORTANT: For NJ diversions, predictions are in log-transformed space where
+        negative values are valid. The rejection sampling only applies to NYC.
+
+        Parameters
+        ----------
+        lrms : dict
+            Dictionary of regression models for each quarter.
+        lrrs : dict
+            Dictionary of fitted regression results for each quarter.
+        quarter : str
+            The quarter/season for the prediction.
+        x_values : np.ndarray
+            Array of input values (log flow) for predictions.
+
+        Returns
+        -------
+        np.ndarray
+            Array of randomly sampled prediction values.
+        """
+        lrm = lrms[quarter]
+        lrr = lrrs[quarter]
+
+        n_samples = len(x_values)
+
+        # Create exog matrix with constant and flow_log values
+        exog = np.column_stack([np.ones(n_samples), x_values])
+
+        # Get variance for random sampling
+        scale = np.var(lrr.resid)
+
+        # Generate predictions with random noise
+        # This matches the behavior of lrm.get_distribution().rvs()
+        predictions = lrr.predict(exog) + np.random.normal(0, np.sqrt(scale), n_samples)
+
+        # Reject negative values and resample them
+        # This maintains the same behavior as the original while loop
+        # Note: For both NYC and NJ, the original code rejects negative predictions
+        # even though NJ is in log-transformed space
+        negative_mask = predictions < 0
+        max_iterations = 100  # Safety limit to prevent infinite loops
+        iteration = 0
+
+        while negative_mask.any() and iteration < max_iterations:
+            n_negative = negative_mask.sum()
+            # Resample only the negative values
+            new_samples = lrr.predict(exog[negative_mask]) + np.random.normal(0, np.sqrt(scale), n_negative)
+            predictions[negative_mask] = new_samples
+            negative_mask = predictions < 0
+            iteration += 1
+
+        # If we hit max iterations with still some negatives, warn and clamp
+        if negative_mask.any():
+            n_still_negative = negative_mask.sum()
+            # Only print warning from rank 0 (or if not using MPI)
+            if getattr(self, 'rank', 0) == 0:
+                print(f"Warning: {n_still_negative}/{n_samples} predictions remained negative after {max_iterations} iterations. Clamping to 0.")
+            predictions = np.maximum(predictions, 0)
+
+        return predictions
 
     def process(self):
         """
@@ -507,8 +574,9 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
 
         # Create dataframe of monthly mean states
         df_m = df.resample("ME").mean()
-        df["quarter"] = [self.get_quarter(m) for m in df["m"]]
-        df_m["quarter"] = [self.get_quarter(m) for m in df_m["m"]]
+        # OPTIMIZED: Use vectorized map instead of list comprehension
+        df["quarter"] = df["m"].map(self._quarter_map)
+        df_m["quarter"] = df_m["m"].map(self._quarter_map)
 
         # NJ diversion data are left skewed, so negate and then apply log transform
         if self.loc == "nj":
@@ -535,25 +603,31 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
 
         # Get monthly means and add quarter info
         df_long_m = df_long.resample("ME").mean()
-        df_long["quarter"] = [self.get_quarter(m) for m in df_long["m"]]
-        df_long_m["quarter"] = [self.get_quarter(m) for m in df_long_m["m"]]
+        # OPTIMIZED: Use vectorized map instead of list comprehension
+        df_long["quarter"] = df_long["m"].map(self._quarter_map)
+        df_long_m["quarter"] = df_long_m["m"].map(self._quarter_map)
 
         # Use trained regression models to predict monthly diversions
+        # OPTIMIZED: Vectorized prediction by quarter instead of row-by-row loop
         df_long_m["diversion_pred"] = 0.0
-        for i in range(df_long_m.shape[0]):
-            ind = df_long_m.index[i]
-            q = df_long_m["quarter"].iloc[i]
-            f = df_long_m["flow_log"].iloc[i]
 
-            # Get random sample value from linear regression model
-            pred = self.get_random_prediction_sample(
-                lrms=self.lrms, 
-                lrrs=self.lrrs, 
-                quarter=q, 
-                x=f
+        for q in self.quarters:
+            # Get mask for this quarter
+            mask = df_long_m["quarter"] == q
+
+            # Get flow values for this quarter
+            flow_values = df_long_m.loc[mask, "flow_log"].values
+
+            # Generate predictions for all months in this quarter at once
+            predictions = self.get_random_prediction_samples_vectorized(
+                lrms=self.lrms,
+                lrrs=self.lrrs,
+                quarter=q,
+                x_values=flow_values
             )
-            
-            df_long_m.loc[ind, "diversion_pred"] = pred
+
+            # Assign all predictions at once (much faster than row-by-row)
+            df_long_m.loc[mask, "diversion_pred"] = predictions
 
         # For NJ, transform data back to original scale
         if self.loc == "nj":

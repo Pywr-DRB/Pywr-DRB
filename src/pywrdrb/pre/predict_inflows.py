@@ -33,6 +33,9 @@ import numpy as np
 import pandas as pd
 from pywrdrb.pre.predict_timeseries import PredictedTimeseriesPreprocessor
 from pywrdrb.utils.hdf5 import extract_realization_from_hdf5
+# Import pywrdrb_all_nodes for optimized HDF5 extraction
+from pywrdrb.pywr_drb_node_data import immediate_downstream_nodes_dict
+pywrdrb_all_nodes = list(immediate_downstream_nodes_dict.keys())
 
 __all__ = ["PredictedInflowPreprocessor",
            "PredictedInflowEnsemblePreprocessor"]
@@ -296,57 +299,120 @@ class PredictedInflowEnsemblePreprocessor(PredictedInflowPreprocessor):
         # Storage for ensemble results
         self.ensemble_predictions = {}
 
+    def _extract_realization_from_open_file(self, hdf5_file, realization_id):
+        """
+        Extract a single realization from an already-open HDF5 file.
+
+        This is an optimized version of extract_realization_from_hdf5() that works
+        with an already-open file handle to avoid repeated file open/close operations.
+
+        Parameters
+        ----------
+        hdf5_file : h5py.File
+            Open HDF5 file handle
+        realization_id : str
+            The realization ID to extract
+
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame containing the extracted realization data
+        """
+        # Extract timeseries data from realization for each node
+        data = {}
+
+        for node in pywrdrb_all_nodes:
+            node_data = hdf5_file[node]
+            column_labels = node_data.attrs["column_labels"]
+
+            err_msg = f"The specified realization {realization_id} is not available in the HDF file."
+            assert realization_id in column_labels, (
+                err_msg + f" Realizations available: {column_labels}"
+            )
+            data[node] = node_data[realization_id][:]
+
+        dates = node_data["date"][:].tolist()
+        data["datetime"] = dates
+
+        # Combine into dataframe
+        df = pd.DataFrame(data, index=dates)
+        df.index = pd.to_datetime(df.index.astype(str))
+        return df
+
     def load(self):
-        """Load available realization IDs and catchment water consumption data."""
-        # Load water consumption data (same for all realizations)
+        """Load available realization IDs and catchment water consumption data (optimized for MPI)."""
+
+        ### OPTIMIZATION: Load water consumption data only on rank 0, then broadcast
+        # This avoids redundant disk I/O across all MPI ranks
         fname = self.input_dirs["sw_avg_wateruse_pywrdrb_catchments_mgd.csv"]
-        wc = pd.read_csv(fname)
-        wc.index = wc["node"]
-        self.catchment_wc = wc
-        
+
+        if self.rank == 0:
+            print(f"Rank 0: Loading catchment water consumption data...")
+            wc = pd.read_csv(fname)
+            wc.index = wc["node"]
+        else:
+            wc = None
+
+        # Broadcast water consumption data to all ranks
+        if self.use_mpi:
+            if self.rank == 0:
+                print(f"Rank 0: Broadcasting water consumption data to all ranks...")
+            self.catchment_wc = self.comm.bcast(wc, root=0)
+        else:
+            self.catchment_wc = wc
+
         # Get available realization IDs if not specified
         if self.realization_ids is None:
             with h5py.File(self.ensemble_hdf5_file, 'r') as f:
                 self.realization_ids = [key for key in f.keys()]
-        
+
         if self.rank == 0:
             print(f"Processing {len(self.realization_ids)} realizations across {self.size} processes")
+            print(f"Water consumption data loaded and distributed to all ranks")
 
     def process(self):
-        """Process ensemble predictions using MPI parallelization."""
+        """Process ensemble predictions using MPI parallelization (optimized I/O)."""
         if not hasattr(self, 'realization_ids'):
             self.load()
-        
+
         # Distribute realizations across MPI processes
         realizations_per_rank = np.array_split(self.realization_ids, self.size)
         my_realizations = realizations_per_rank[self.rank]
-        
+
         local_predictions = {}
-        
-        # Process assigned realizations
-        for realization_id in my_realizations:
-            if self.rank == 0:
-                print(f"Processing realization {realization_id}")
-            
-            # Extract realization data
-            self.timeseries_data = extract_realization_from_hdf5(
-                self.ensemble_hdf5_file, 
-                realization_id, 
-                stored_by_node=True
-            )
-            
-            # Train regressions and make predictions for this realization
-            regressions = self.train_regressions()
-            realization_predictions = self.make_predictions(regressions)
-            
-            local_predictions[str(realization_id)] = realization_predictions
-        
+
+        ### OPTIMIZATION: Batch HDF5 reads - open file once per rank
+        # This reduces file I/O overhead from N opens to 1 per rank
+        if self.rank == 0:
+            print(f"Rank {self.rank}: Processing {len(my_realizations)} realizations with batched HDF5 reads...")
+
+        with h5py.File(self.ensemble_hdf5_file, 'r') as hdf5_file:
+            # Process assigned realizations with the file already open
+            for i, realization_id in enumerate(my_realizations):
+                if self.rank == 0 and (i + 1) % max(1, len(my_realizations) // 5) == 0:
+                    print(f"Rank 0: Processing realization {i+1}/{len(my_realizations)}: {realization_id}")
+
+                # Extract realization data from open HDF5 file
+                self.timeseries_data = self._extract_realization_from_open_file(
+                    hdf5_file,
+                    realization_id
+                )
+
+                # Train regressions and make predictions for this realization
+                regressions = self.train_regressions()
+                realization_predictions = self.make_predictions(regressions)
+
+                local_predictions[str(realization_id)] = realization_predictions
+
+        if self.rank == 0:
+            print(f"Rank 0: Completed processing all assigned realizations")
+
         # Gather all predictions to rank 0
         if self.use_mpi:
             all_predictions = self.comm.gather(local_predictions, root=0)
         else:
             all_predictions = [local_predictions]
-        
+
         if self.rank == 0:
             # Combine predictions from all processes
             for predictions_dict in all_predictions:
