@@ -209,8 +209,13 @@ def extract_realization_from_hdf5(hdf5_file, realization, stored_by_node=False):
                 dataset = realization_group[label]
                 data[label] = dataset[:]
 
-            # Get date indices
-            dates = realization_group["date"][:].tolist()
+            # Get date indices - handle both 'date' and 'datetime' keys
+            if "datetime" in realization_group.keys():
+                dates = realization_group["datetime"][:].tolist()
+            elif "date" in realization_group.keys():
+                dates = realization_group["date"][:].tolist()
+            else:
+                raise KeyError("Neither 'date' nor 'datetime' found in realization group")
         data["datetime"] = dates
 
     # Combine into dataframe

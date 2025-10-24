@@ -313,12 +313,17 @@ class PredictedDiversionEnsemblePreprocessor(PredictedDiversionPreprocessor):
                 print(f"Processing realization {realization_id}")
             
             # Extract realization data
+            # Note: diversion HDF5 files are stored by realization, not by node
             self.timeseries_data = extract_realization_from_hdf5(
-                self.ensemble_hdf5_file, 
-                realization_id, 
-                stored_by_node=True
+                self.ensemble_hdf5_file,
+                realization_id,
+                stored_by_node=False
             )
-            
+
+            # Create 'demand_nj' column from 'D_R_Canal' (matching base class load() behavior)
+            if 'D_R_Canal' in self.timeseries_data.columns:
+                self.timeseries_data["demand_nj"] = self.timeseries_data["D_R_Canal"]
+
             # Train regressions and make predictions for this realization
             regressions = self.train_regressions()
             realization_predictions = self.make_predictions(regressions)
@@ -348,11 +353,15 @@ class PredictedDiversionEnsemblePreprocessor(PredictedDiversionPreprocessor):
                 for realization_id, predictions_df in self.ensemble_predictions.items():
                     # Create group for this realization
                     realization_group = hf.create_group(realization_id)
-                    
+
+                    # Store column labels as attribute for compatibility with extract_realization_from_hdf5
+                    column_labels = list(predictions_df.columns)
+                    realization_group.attrs['column_labels'] = column_labels
+
                     # Store datetime
                     datetime_strings = predictions_df['datetime'].astype(str).values
                     realization_group.create_dataset('datetime', data=datetime_strings)
-                    
+
                     # Store prediction columns
                     for col in predictions_df.columns:
                         if col != 'datetime':

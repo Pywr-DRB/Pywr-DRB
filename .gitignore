@@ -39,3 +39,4 @@ input_data/*/*.hdf5
 
 ./synthetics/*
 dist/*
+.claude/
