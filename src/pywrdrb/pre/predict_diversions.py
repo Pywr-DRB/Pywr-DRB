@@ -295,47 +295,99 @@ class PredictedDiversionEnsemblePreprocessor(PredictedDiversionPreprocessor):
         if self.rank == 0:
             print(f"Processing {len(self.realization_ids)} realizations across {self.size} processes")
 
+    def _extract_realization_from_open_file(self, hdf5_file, realization_id):
+        """
+        Extract a single realization from an already-open HDF5 file.
+
+        This is an optimized version of extract_realization_from_hdf5() that works
+        with an already-open file handle to avoid repeated file open/close operations.
+
+        Parameters
+        ----------
+        hdf5_file : h5py.File
+            Open HDF5 file handle
+        realization_id : str
+            The realization ID to extract
+
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame containing the extracted realization data
+        """
+        realization_group = hdf5_file[realization_id]
+
+        # Extract column labels
+        column_labels = realization_group.attrs["column_labels"]
+
+        # Extract timeseries data for each location
+        data = {}
+        for label in column_labels:
+            dataset = realization_group[label]
+            data[label] = dataset[:]
+
+        # Get date indices - handle both 'date' and 'datetime' keys
+        if "datetime" in realization_group.keys():
+            dates = realization_group["datetime"][:].tolist()
+        elif "date" in realization_group.keys():
+            dates = realization_group["date"][:].tolist()
+        else:
+            raise KeyError("Neither 'date' nor 'datetime' found in realization group")
+
+        data["datetime"] = dates
+
+        # Combine into dataframe
+        df = pd.DataFrame(data, index=dates)
+        df.index = pd.to_datetime(df.index.astype(str))
+        return df
+
     def process(self):
-        """Process ensemble predictions using MPI parallelization."""
+        """Process ensemble predictions using MPI parallelization (optimized I/O)."""
         if not hasattr(self, 'realization_ids'):
             self.load()
-        
+
         # Distribute realizations across MPI processes
-        
         realizations_per_rank = np.array_split(self.realization_ids, self.size)
         my_realizations = realizations_per_rank[self.rank]
-        
+
         local_predictions = {}
-        
-        # Process assigned realizations
-        for realization_id in my_realizations:
-            if self.rank == 0:
-                print(f"Processing realization {realization_id}")
-            
-            # Extract realization data
-            # Note: diversion HDF5 files are stored by realization, not by node
-            self.timeseries_data = extract_realization_from_hdf5(
-                self.ensemble_hdf5_file,
-                realization_id,
-                stored_by_node=False
-            )
 
-            # Create 'demand_nj' column from 'D_R_Canal' (matching base class load() behavior)
-            if 'D_R_Canal' in self.timeseries_data.columns:
-                self.timeseries_data["demand_nj"] = self.timeseries_data["D_R_Canal"]
+        ### OPTIMIZATION: Batch HDF5 reads - open file once per rank
+        # This reduces file I/O overhead from N opens to 1 per rank
+        if self.rank == 0:
+            print(f"Rank {self.rank}: Processing {len(my_realizations)} realizations with batched HDF5 reads...")
 
-            # Train regressions and make predictions for this realization
-            regressions = self.train_regressions()
-            realization_predictions = self.make_predictions(regressions)
-            
-            local_predictions[str(realization_id)] = realization_predictions
-        
+        with h5py.File(self.ensemble_hdf5_file, 'r') as hdf5_file:
+            # Process assigned realizations with the file already open
+            for i, realization_id in enumerate(my_realizations):
+                if self.rank == 0 and (i + 1) % max(1, len(my_realizations) // 5) == 0:
+                    print(f"Rank 0: Processing realization {i+1}/{len(my_realizations)}: {realization_id}")
+
+                # Extract realization data from open HDF5 file
+                # Note: diversion HDF5 files are stored by realization, not by node
+                self.timeseries_data = self._extract_realization_from_open_file(
+                    hdf5_file,
+                    realization_id
+                )
+
+                # Create 'demand_nj' column from 'D_R_Canal' (matching base class load() behavior)
+                if 'D_R_Canal' in self.timeseries_data.columns:
+                    self.timeseries_data["demand_nj"] = self.timeseries_data["D_R_Canal"]
+
+                # Train regressions and make predictions for this realization
+                regressions = self.train_regressions()
+                realization_predictions = self.make_predictions(regressions)
+
+                local_predictions[str(realization_id)] = realization_predictions
+
+        if self.rank == 0:
+            print(f"Rank 0: Completed processing all assigned realizations")
+
         # Gather all predictions to rank 0
         if self.use_mpi:
             all_predictions = self.comm.gather(local_predictions, root=0)
         else:
             all_predictions = [local_predictions]
-        
+
         if self.rank == 0:
             # Combine predictions from all processes
             for predictions_dict in all_predictions:
