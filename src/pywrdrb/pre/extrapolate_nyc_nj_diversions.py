@@ -506,31 +506,27 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
         # This matches the behavior of lrm.get_distribution().rvs()
         predictions = lrr.predict(exog) + np.random.normal(0, np.sqrt(scale), n_samples)
 
-        # For NYC (untransformed space), reject negative values makes sense
-        # For NJ (log-transformed space), negative predictions are valid and will be
-        # transformed back appropriately
-        if self.loc == "nyc":
-            # Only for NYC: reject and resample negative values
+        # Reject negative values and resample them
+        # This maintains the exact same behavior as the original while loop
+        negative_mask = predictions < 0
+        max_iterations = 100  # Safety limit to prevent infinite loops
+        iteration = 0
+
+        while negative_mask.any() and iteration < max_iterations:
+            n_negative = negative_mask.sum()
+            # Resample only the negative values
+            new_samples = lrr.predict(exog[negative_mask]) + np.random.normal(0, np.sqrt(scale), n_negative)
+            predictions[negative_mask] = new_samples
             negative_mask = predictions < 0
-            max_iterations = 100
-            iteration = 0
+            iteration += 1
 
-            while negative_mask.any() and iteration < max_iterations:
-                n_negative = negative_mask.sum()
-                new_samples = lrr.predict(exog[negative_mask]) + np.random.normal(0, np.sqrt(scale), n_negative)
-                predictions[negative_mask] = new_samples
-                negative_mask = predictions < 0
-                iteration += 1
-
-            # Final safety for NYC only
-            if negative_mask.any():
-                n_still_negative = negative_mask.sum()
-                if getattr(self, 'rank', 0) == 0:
-                    print(f"Warning (NYC): {n_still_negative}/{n_samples} predictions remained negative after {max_iterations} iterations. Clamping to 0.")
-                predictions = np.maximum(predictions, 0)
-
-        # For NJ, allow negative predictions - they're in log-transformed space
-        # The back-transformation will handle physical constraints
+        # If we hit max iterations with still some negatives, warn and clamp
+        if negative_mask.any():
+            n_still_negative = negative_mask.sum()
+            # Only print warning from rank 0 (or if not using MPI)
+            if getattr(self, 'rank', 0) == 0:
+                print(f"Warning: {n_still_negative}/{n_samples} predictions remained negative after {max_iterations} iterations. Clamping to 0.")
+            predictions = np.maximum(predictions, 0)
 
         return predictions
 
