@@ -560,13 +560,14 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
         
         # Set up column names based on location
         diversion_column = "aggregate" if self.loc == "nyc" else "D_R_Canal"
-        flow_column = "NYC_inflow" if self.loc == "nyc" else "delDRCanal"
+        training_flow_column = "NYC_inflow" if self.loc == "nyc" else "delTrenton"
+        extrapolation_flow_column = "NYC_inflow" if self.loc == "nyc" else "delDRCanal"
         
         # Create dataframe of daily states using training data
         df = pd.DataFrame(
             {
                 "diversion": diversion[diversion_column],
-                "flow_log": np.log(training_flow[flow_column]),
+                "flow_log": np.log(training_flow[training_flow_column]),
                 "m": diversion.index.month,
                 "y": diversion.index.year,
             }
@@ -595,12 +596,12 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
         # Set up dataframe with extrapolation flow data for full time period
         df_long = pd.DataFrame(
             {
-                "flow_log": np.log(extrapolation_flow_full[flow_column]),
+                "flow_log": np.log(extrapolation_flow_full[extrapolation_flow_column]),
                 "m": extrapolation_flow_full.index.month,
                 "y": extrapolation_flow_full.index.year,
             }
         )
-
+        
         # Get monthly means and add quarter info
         df_long_m = df_long.resample("ME").mean()
         # OPTIMIZED: Use vectorized map instead of list comprehension
