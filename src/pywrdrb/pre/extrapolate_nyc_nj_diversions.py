@@ -197,8 +197,7 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
         
         # Load either historic or custom flow data for extrapolation
         if flow_type is not None:
-            print(f"Using custom flow data for extrapolation: {flow_type}")
-            
+
             self.input_dirs["flow_extrapolation"] = self.pn.sc.get(f"flows/{flow_type}") / "gage_flow_mgd.csv"
 
             # Different diversion output files based on NYC or NJ location
