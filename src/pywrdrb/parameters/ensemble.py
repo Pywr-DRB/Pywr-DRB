@@ -168,6 +168,156 @@ class FlowEnsemble(Parameter):
 FlowEnsemble.register()
 
 
+class DiversionEnsemble(Parameter):
+    """This parameter provides access to diversion ensemble timeseries.
+
+    For a given diversion ensemble file, we load and access specific realizations
+    for a given model run. These realizations are loaded from an HDF5 file, then
+    stored in a pandas DataFrame for easy access during simulation.
+
+    Methods
+    -------
+    setup()
+        Perform setup operations for the parameter. Automated pywr operation.
+    value(timestep, scenario_index)
+        Return the current diversion for the specified timestep and scenario index.
+    load(model, data)
+        Load the parameter from the model dictionary.
+
+    Attributes
+    ----------
+    diversion_ensemble_indices : list
+        The realization indices of the diversion ensemble to be used for this simulation.
+    diversion_column_indices : list
+        The column indices of the diversion ensemble DataFrame corresponding to the realization indices.
+    diversion_ensemble : DataFrame
+        The DataFrame containing the diversion ensemble data, indexed by datetime.
+    """
+
+    def __init__(self, model, diversion_location, inflow_type, diversion_ensemble_indices, **kwargs):
+        """Initialize the DiversionEnsemble parameter.
+
+        Parameters
+        ----------
+        model : Model
+            The pywrdrb.Model object.
+        diversion_location : str
+            Either "nyc" or "nj" to specify which diversion ensemble to load.
+        inflow_type : str
+            The dataset label. Expects to find an HDF5 file with diversion ensemble data in the pn.flows directory.
+        diversion_ensemble_indices : list
+            The realization indices of the diversion ensemble to be used for this simulation.
+        **kwargs : dict
+            Additional keyword arguments to be passed to the pywr.Parameter class. None used.
+
+        Returns
+        -------
+        None
+        """
+        super().__init__(model, **kwargs)
+
+        # Validate diversion_location
+        assert diversion_location in ["nyc", "nj"], f"diversion_location must be 'nyc' or 'nj', got {diversion_location}"
+
+        # ensemble input file
+        input_dir = pn.sc.get(f"flows/{inflow_type}")
+        if diversion_location == "nyc":
+            filename = os.path.join(input_dir, f"diversion_nyc_extrapolated_mgd.hdf5")
+            column_name = "aggregate"  # NYC uses aggregate column
+        else:  # nj
+            filename = os.path.join(input_dir, f"diversion_nj_extrapolated_mgd.hdf5")
+            column_name = "D_R_Canal"  # NJ uses D_R_Canal column
+
+        # Load from hdf5 specific realizations
+        with h5py.File(filename, "r") as file:
+            # Get all realizations and extract the relevant column
+            data = {}
+            for real_id in diversion_ensemble_indices:
+                realization_group = file[str(real_id)]
+
+                # Get the diversion column for this realization
+                data[str(real_id)] = realization_group[column_name][:]
+
+                # Get datetime from first realization
+                if "datetime_array" not in locals():
+                    if "datetime" in realization_group.keys():
+                        datetime_array = realization_group["datetime"][:].tolist()
+                    elif "date" in realization_group.keys():
+                        datetime_array = realization_group["date"][:].tolist()
+
+        # Store in DF
+        diversion_df = pd.DataFrame(data, index=datetime_array)
+        diversion_df.index = pd.to_datetime(diversion_df.index.astype(str))
+
+        ## Match ensemble indices to columns
+        # diversion_ensemble_indices is a list of integers or strings;
+        # We need to:
+        # 1) verify that the indices are included in the df
+        # 2) find the columns corresponding to these realization IDs
+        diversion_ensemble_columns = []
+        for real_id in diversion_ensemble_indices:
+            assert (
+                str(real_id) in diversion_df.columns
+            ), f"The specified diversion_ensemble_index {real_id} is not available in the HDF file."
+            diversion_ensemble_columns.append(
+                np.argwhere(diversion_df.columns == str(real_id))[0][0]
+            )
+
+        self.diversion_ensemble_indices = diversion_ensemble_indices
+        self.diversion_column_indices = diversion_ensemble_columns
+        self.diversion_ensemble = diversion_df.iloc[:, diversion_ensemble_columns]
+
+    def setup(self):
+        """Perform setup operations for the parameter."""
+        super().setup()
+
+    def value(self, timestep, scenario_index):
+        """Return the current diversion across scenarios for the specified timestep and scenario index.
+
+        This is automatically called by pywr during each timestep of the simulation.
+        The timestep and scenario_index are passed in by pywr automatically.
+        The scenario_index is used to determine which realization to use.
+
+        Parameters
+        ----------
+        timestep : Timestep
+            The timestep being evaluated.
+        scenario_index : ScenarioIndex
+            The index of the simulation scenario.
+
+        Returns
+        -------
+        float
+            The diversion value for the specified timestep and scenario.
+        """
+        s_id = self.diversion_ensemble_indices[scenario_index.global_id]
+        return self.diversion_ensemble.loc[timestep.datetime, str(s_id)]
+
+    @classmethod
+    def load(cls, model, data):
+        """Load the parameter using the pywrdrb.Model dictionary.
+
+        Parameters
+        ----------
+        model : Model
+            The pywrdrb.Model object.
+        data : dict
+            The dictionary containing the parameter data. Must include diversion_ensemble_indices, diversion_location, and inflow_type.
+
+        Returns
+        -------
+        DiversionEnsemble
+            An instance of the DiversionEnsemble class, for the given model specifications.
+        """
+        diversion_location = data.pop("diversion_location")
+        diversion_ensemble_indices = data.pop("diversion_ensemble_indices")
+        inflow_type = data.pop("inflow_type")
+        return cls(model, diversion_location, inflow_type, diversion_ensemble_indices, **data)
+
+
+DiversionEnsemble.register()
+
+
 class PredictionEnsemble(Parameter):
     """Loads and stored ensemble of prediction timeseries used to inform NYC releases during simulation.
 
@@ -194,11 +344,12 @@ class PredictionEnsemble(Parameter):
     pred_ensemble : DataFrame
         The DataFrame containing the inflow ensemble data, indexed by datetime.
     """
-    def __init__(self, model, column, 
-                 inflow_type, ensemble_indices, 
+    def __init__(self, model, column,
+                 inflow_type, ensemble_indices,
+                 prediction_type="inflows",
                  **kwargs):
         """Initialize the PredictionEnsemble parameter.
-        
+
         Parameters
         ----------
         model : Model
@@ -206,22 +357,30 @@ class PredictionEnsemble(Parameter):
         column : str
             The name of the column in the HDF5 file to be used for the ensemble.
         inflow_type : str
-            The dataset label. Expects to find an HDF5 file with inflow ensemble data in the pn.flows.input_dir directory.
+            The dataset label. Expects to find an HDF5 file with prediction ensemble data in the pn.flows directory.
         ensemble_indices : list
-            The realization indices of the inflow ensemble to be used for this simulation.
+            The realization indices of the prediction ensemble to be used for this simulation.
+        prediction_type : str, optional
+            Either "inflows" or "diversions" to specify which prediction file to load. Default is "inflows".
         **kwargs : dict
             Additional keyword arguments to be passed to the pywr.Parameter class. None used.
-        
+
         Returns
         -------
-        None        
+        None
         """
-        
+
         super().__init__(model, **kwargs)
 
-        # input file corresponding to the inflow_type
+        # Validate prediction_type
+        assert prediction_type in ["inflows", "diversions"], f"prediction_type must be 'inflows' or 'diversions', got {prediction_type}"
+
+        # input file corresponding to the inflow_type and prediction_type
         input_dir = pn.sc.get(f"flows/{inflow_type}")
-        filename = os.path.join(input_dir, f"predicted_inflows_mgd.hdf5")
+        if prediction_type == "inflows":
+            filename = os.path.join(input_dir, f"predicted_inflows_mgd.hdf5")
+        else:  # diversions
+            filename = os.path.join(input_dir, f"predicted_diversions_mgd.hdf5")
         prediction_ensemble = {}
 
         # Load from hfd5 specific realizations
@@ -293,14 +452,14 @@ class PredictionEnsemble(Parameter):
     @classmethod
     def load(cls, model, data):
         """Load the parameter using the pywrdrb.Model dictionary.
-        
+
         Parameters
         ----------
         model : Model
             The pywrdrb.Model object.
         data : dict
-                The dictionary containing the parameter data. Must include column, ensemble_indices and inflow_type.
-        
+                The dictionary containing the parameter data. Must include column, ensemble_indices, inflow_type, and optionally prediction_type.
+
         Returns
         -------
         PredictionEnsemble
@@ -309,7 +468,8 @@ class PredictionEnsemble(Parameter):
         column = data.pop("column")
         ensemble_indices = data.pop("ensemble_indices")
         inflow_type = data.pop("inflow_type")
-        return cls(model, column, inflow_type, ensemble_indices, **data)
+        prediction_type = data.pop("prediction_type", "inflows")  # Default to "inflows" for backwards compatibility
+        return cls(model, column, inflow_type, ensemble_indices, prediction_type=prediction_type, **data)
 
 
 PredictionEnsemble.register()
