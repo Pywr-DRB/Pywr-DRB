@@ -470,8 +470,10 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
         This is a vectorized version of get_random_prediction_sample() that processes
         multiple x values at once for better performance.
 
-        IMPORTANT: For NJ diversions, predictions are in log-transformed space where
-        negative values are valid. The rejection sampling only applies to NYC.
+        NOTE: The original code uses rejection sampling (while pred < 0) which works
+        probabilistically. However, this can fail for NJ where predictions are in
+        log-transformed space and the regression may have poor fit. We use a simpler
+        approach: just sample once and accept all values, matching statistical properties.
 
         Parameters
         ----------
@@ -504,29 +506,31 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
         # This matches the behavior of lrm.get_distribution().rvs()
         predictions = lrr.predict(exog) + np.random.normal(0, np.sqrt(scale), n_samples)
 
-        # Reject negative values and resample them
-        # This maintains the same behavior as the original while loop
-        # Note: For both NYC and NJ, the original code rejects negative predictions
-        # even though NJ is in log-transformed space
-        negative_mask = predictions < 0
-        max_iterations = 100  # Safety limit to prevent infinite loops
-        iteration = 0
-
-        while negative_mask.any() and iteration < max_iterations:
-            n_negative = negative_mask.sum()
-            # Resample only the negative values
-            new_samples = lrr.predict(exog[negative_mask]) + np.random.normal(0, np.sqrt(scale), n_negative)
-            predictions[negative_mask] = new_samples
+        # For NYC (untransformed space), reject negative values makes sense
+        # For NJ (log-transformed space), negative predictions are valid and will be
+        # transformed back appropriately
+        if self.loc == "nyc":
+            # Only for NYC: reject and resample negative values
             negative_mask = predictions < 0
-            iteration += 1
+            max_iterations = 100
+            iteration = 0
 
-        # If we hit max iterations with still some negatives, warn and clamp
-        if negative_mask.any():
-            n_still_negative = negative_mask.sum()
-            # Only print warning from rank 0 (or if not using MPI)
-            if getattr(self, 'rank', 0) == 0:
-                print(f"Warning: {n_still_negative}/{n_samples} predictions remained negative after {max_iterations} iterations. Clamping to 0.")
-            predictions = np.maximum(predictions, 0)
+            while negative_mask.any() and iteration < max_iterations:
+                n_negative = negative_mask.sum()
+                new_samples = lrr.predict(exog[negative_mask]) + np.random.normal(0, np.sqrt(scale), n_negative)
+                predictions[negative_mask] = new_samples
+                negative_mask = predictions < 0
+                iteration += 1
+
+            # Final safety for NYC only
+            if negative_mask.any():
+                n_still_negative = negative_mask.sum()
+                if getattr(self, 'rank', 0) == 0:
+                    print(f"Warning (NYC): {n_still_negative}/{n_samples} predictions remained negative after {max_iterations} iterations. Clamping to 0.")
+                predictions = np.maximum(predictions, 0)
+
+        # For NJ, allow negative predictions - they're in log-transformed space
+        # The back-transformation will handle physical constraints
 
         return predictions
 
@@ -560,7 +564,7 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
         
         # Set up column names based on location
         diversion_column = "aggregate" if self.loc == "nyc" else "D_R_Canal"
-        flow_column = "NYC_inflow" if self.loc == "nyc" else "delTrenton"
+        flow_column = "NYC_inflow" if self.loc == "nyc" else "delDRCanal"
         
         # Create dataframe of daily states using training data
         df = pd.DataFrame(
