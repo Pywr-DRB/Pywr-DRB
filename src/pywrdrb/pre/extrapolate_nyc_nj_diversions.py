@@ -560,7 +560,7 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
         # Set up column names based on location
         diversion_column = "aggregate" if self.loc == "nyc" else "D_R_Canal"
         training_flow_column = "NYC_inflow" if self.loc == "nyc" else "delTrenton"
-        extrapolation_flow_column = "NYC_inflow" if self.loc == "nyc" else "delDRCanal"
+        extrapolation_flow_column = "NYC_inflow" if self.loc == "nyc" else "delTrenton"
         
         # Create dataframe of daily states using training data
         df = pd.DataFrame(
