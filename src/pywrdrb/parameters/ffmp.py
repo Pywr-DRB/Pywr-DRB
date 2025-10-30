@@ -807,6 +807,7 @@ class TotalReleaseNeededForDownstreamMRF(Parameter):
         mrf_target_individual_nyc,
         flood_release_nyc,
         previous_release_reservoirs,
+        lower_basin_agg_mrf_trenton_step1,
         **kwargs,
     ):
         """
@@ -842,9 +843,11 @@ class TotalReleaseNeededForDownstreamMRF(Parameter):
         self.step = step
         self.predicted_nonnyc_gage_flow_mrf = predicted_nonnyc_gage_flow_mrf
         self.mrf_target_flow = mrf_target_flow
+        
 
         self.children.add(predicted_nonnyc_gage_flow_mrf)
         self.children.add(mrf_target_flow)
+        self.children.add(lower_basin_agg_mrf_trenton_step1)
 
         ### we only have to acct for previous NYC releases after step 1
         if step > 1:
@@ -865,6 +868,10 @@ class TotalReleaseNeededForDownstreamMRF(Parameter):
             self.release_needed_mrf_montague = release_needed_mrf_montague
             self.children.add(predicted_demand_nj)
             self.children.add(release_needed_mrf_montague)
+    
+            if step == 4:
+                self.lower_basin_agg_mrf_trenton_step1 = lower_basin_agg_mrf_trenton_step1
+                self.children.add(lower_basin_agg_mrf_trenton_step1)
 
     def value(self, timestep, scenario_index):
         """
@@ -889,7 +896,7 @@ class TotalReleaseNeededForDownstreamMRF(Parameter):
             )
         else:
             previous_release_reservoirs_total = 0.0
-
+        
         ### we only have to acct for NYC FFMP individual & flood releases in steps 1-2
         if self.step < 3:
             mrf_target_individual_nyc = self.mrf_target_individual_nyc.get_value(
@@ -900,13 +907,28 @@ class TotalReleaseNeededForDownstreamMRF(Parameter):
                 release_needed_mrf_montague = (
                     self.release_needed_mrf_montague.get_value(scenario_index)
                 )
-        else:
+                
+            prior_lower_basin_trenton_contribution = 0.0  # not used in steps 1-2
+        
+        elif self.step == 3:
+            prior_lower_basin_trenton_contribution = 0.0 
+            mrf_target_individual_nyc = 0.0
+            flood_release_nyc = 0.0
+            release_needed_mrf_montague = 0.0
+        
+        elif self.step == 4:
+            # Get the lower basin Trenton releases from step 3
+            prior_lower_basin_trenton_contribution = self.lower_basin_agg_mrf_trenton_step1.get_value(
+                scenario_index
+            )
             mrf_target_individual_nyc = 0.0
             flood_release_nyc = 0.0
             release_needed_mrf_montague = 0.0
 
+
         ### we only need to account for upstream Montague mrf releases & NJ diversions if currently mrf=Trenton
         if self.mrf == "delTrenton":
+                        
             release_needed = max(
                 self.mrf_target_flow.get_value(scenario_index)
                 - self.predicted_nonnyc_gage_flow_mrf.get_value(scenario_index)
@@ -914,6 +936,7 @@ class TotalReleaseNeededForDownstreamMRF(Parameter):
                 - flood_release_nyc
                 - previous_release_reservoirs_total
                 - release_needed_mrf_montague
+                - prior_lower_basin_trenton_contribution
                 + self.predicted_demand_nj.get_value(scenario_index),
                 0.0,
             )
@@ -961,6 +984,11 @@ class TotalReleaseNeededForDownstreamMRF(Parameter):
             model, f"predicted_nonnyc_gage_flow_{mrf}_lag{days_ahead}"
         )
 
+        # Make sure that if mrf is delMontague, step is in [1,2] only
+        assert not (mrf == "delMontague" and step not in [1, 2]), (
+            f"TotalReleaseNeededForDownstreamMRF: Invalid step for delMontague MRF. Got step={step}, expected in [1, 2]"
+        )
+
         ### now fill in previous releases and current-step flood/ffmp releases based on step
         if step == 1:
             ### for step 1, we aggegate flood/indiv releases across 3 NYC reservoirs, and don't have any previous releases to acct for
@@ -979,6 +1007,9 @@ class TotalReleaseNeededForDownstreamMRF(Parameter):
                 load_parameter(model, f"release_{r}_lag1")
                 for r in ["cannonsville", "pepacton"]
             ]
+            
+        ### Steps 3 and 4 are only used for delTrenton MRF calculations
+        # Used to predict Trenton flow 2-days from now 
         elif step == 3:
             ### for step 3, we only need to acct for can/pep/nev previous releases, 
             # not any NYC indiv/flood releases this time step
@@ -991,9 +1022,12 @@ class TotalReleaseNeededForDownstreamMRF(Parameter):
             previous_release_reservoirs += [
                 load_parameter(model, f"release_{r}_lag1") for r in ["neversink"]
             ]
+            
+        # Used to predict Trenton flow 1-day from now 
         elif step == 4:
-            # for step 3, we only need to acct for can/pep/nev previous releases, 
+            # for step 4, we only need to acct for can/pep/nev previous releases, 
             # not any NYC indiv/flood releases this time step
+            # Also load blueMarsh releases which are included in the Trenton equivalent flow
             mrf_target_individual_nyc = None
             flood_release_nyc = None
             previous_release_reservoirs = [
@@ -1003,9 +1037,12 @@ class TotalReleaseNeededForDownstreamMRF(Parameter):
             previous_release_reservoirs += [
                 load_parameter(model, f"release_{r}_lag2") for r in ["neversink"]
             ]
+            
+            # blueMarsh is downstream of Trenton, but is included in the Trenton equivalent flow
+            # so we need to account for it's previous releases
             previous_release_reservoirs += [
                 load_parameter(model, f"release_{r}_lag1")
-                for r in ["beltzvilleCombined", "blueMarsh"]
+                for r in ["blueMarsh"]
             ]
         else:
             print(
@@ -1022,10 +1059,20 @@ class TotalReleaseNeededForDownstreamMRF(Parameter):
                 )  ### only used for delTrenton
             else:
                 release_needed_mrf_montague = None
+                
+            # Get the lower basin contributions to Trenton from prior step
+            # Only used for 1-day ahead (step 4) Trenton balancing
+            if step == 4:
+                lower_basin_agg_mrf_trenton_step1 = load_parameter(
+                    model, "lower_basin_agg_mrf_trenton_step1"
+                )
+            else:
+                lower_basin_agg_mrf_trenton_step1 = None
 
         else:
             predicted_demand_nj = None
             release_needed_mrf_montague = None
+            lower_basin_agg_mrf_trenton_step1 = None
 
         return cls(
             model,
@@ -1038,6 +1085,7 @@ class TotalReleaseNeededForDownstreamMRF(Parameter):
             mrf_target_individual_nyc,
             flood_release_nyc,
             previous_release_reservoirs,
+            lower_basin_agg_mrf_trenton_step1,
             **data,
         )
 

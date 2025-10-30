@@ -1,5 +1,83 @@
 # Pywr-DRB Release Notes
 
+## v2.1.0
+
+## Bug Fixes
+
+### 1. Fixed bug in `PredictedInflowPreprocessor`
+
+Starting in Pywr-DRB v2.0.0, we include the `pywrdrb.pre.PredictedInflowPreprocessor()` class. This is designed to flexibly support inflow prediction for any custom dataset. 
+
+This class contained a bug which was previously resulting in predicted flows being much less than the actual modeled flows at Trenton.  As a result, the model was over-compensating and Blue Marsh and Beltzville reservoirs were releasing un-necessary water toward Trenton. 
+
+This bug has been fixed in the latest version. 
+
+#### 1.1 Fixed `predicted_inflows_mgd.csv` for certain pre-packaged datasets
+
+Due to the bug described above, a few of the pre-packaged datasets which were new to version 2.0.0 included faulty input data for the `predicted_inflow_mgd.csv`. 
+
+This bug affected the following datasets:
+- `pub_nhmv10_BC_withObsScaled` (with package installation)
+- All `wrf*` datasets (with package installation)
+
+
+The `predicted_inflow_mgd.csv` for each of these datasets has been re-generated using the revised `PredictedInflowPreprocessor`, and the correct values are now included in the package installation.
+
+### 2. Fixed lower basin release accounting for Trenton flow target
+
+Lower basin reservoirs (beltzville, blue marsh, nockamixon) are used to help support the Trenton equivalent flow target with additional releases. 
+
+In prior versions of the model, these reservoirs were releasing excessive volumes to support Trenton flows, even when they were not necessary. 
+
+This was a bug located in the `pywrdrb.parameters.ffmp.TotalReleaseNeededForDownstreamMRF` parameter which was not considering prior lower basin releases when determining the remaining contribution requirements.  This new version improves the accounting and helps avoid unnecessary releases. 
+
+
+## Improved Trenton Equivalent Flow Calculation
+
+This new version includes a more accurate representation of the "Trenton Equivalent Flow". 
+
+> "The Trenton Equivalent Flow is computed as the sum of flows at the USGS Trenton gaging station, releases in excess of conservation releases from Blue Marsh Reservoir, and an amount of water, determined by the Delaware River Basin Commission (DRBC), to account for bypass flows via Yardley and the Point Pleasant Pumping Station." (2017 FFMP Section 2.b)
+
+In prior versions of the model, the Trenton Equivalent Flow was calculated as: Total flow at Trenton gauge + Blue Marsh reservoir releases beyond the normal, STARFIT-based releases.  
+
+In the revised model, the Trenton Equivalent Flow is calculated as: Total flow at Trenton gauge + Blue Marsh releases above the conservation release value (50 cfs) 
+
+
+## Updated ML temperature and salinity modeling capabilities
+
+Improved API and functionality for the LSTM temperature and salinity models. 
+
+A new tutorial notebook will be available soon. 
+
+## New Functionality
+
+### Use custom diversion data
+
+In prior versions of the model, there was only a single historical diversion dataset available. This restricted simulation to the historic period, since future diversions were not available. Additionally, the user could not use any alternative diversion other than the single historic data.
+
+In the new version, we allow for custom diversions when running custom inflow scenarios.
+
+The custom diversions can either be manually generated or generated using the preprocessor described below.
+
+#### `ExtrapolatedDiversionPreprocessor` to generate for custom diversion data
+
+
+A new tutorial notebook demonstrating this functionality will be available soon.
+
+
+In the ModelBuilder options, there is a new option `nyc_nj_demand_data` which can take values ['historic', 'custom', 'constant'].  When 
+
+
+### `PredictedDiversionEnsemblePreprocessor` to support custom inflow ensemble simulation
+
+The `PredictedDiversionPreprocessor` is needed when running custom inflow scenarios.  However, prior versions only supporting single-scenario datasets.  This prevented the use of custom inflow _ensemble_ data from being used. 
+
+The new `PredictedDiversionEnsemblePreprocessor` allows for ensembles of custom inflow to be run using Pywr-DRB. 
+
+
+
+---
+
 ## v2.0.1
 ## Overview
 
