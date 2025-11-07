@@ -30,7 +30,7 @@ for nxm in ["nhmv10", "nwmv21"]:
 model_date_ranges["wrf1960s_calib_nlcd2016"] = ("1959-10-01", "1969-12-31")
 model_date_ranges["wrf2050s_calib_nlcd2016"] = ("1959-10-01", "1969-12-31")
 model_date_ranges["wrfaorc_calib_nlcd2016"] = ("1979-10-01", "2021-12-31")
-model_date_ranges["wrfaorc_withObsScaled"] = ("1983-10-01", "2021-12-31")
+model_date_ranges["wrfaorc_withObsScaled"] = ("1979-10-01", "2021-12-31")
 
 
 # Reconstruction datasets
