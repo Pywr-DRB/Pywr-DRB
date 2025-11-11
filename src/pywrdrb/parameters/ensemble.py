@@ -91,7 +91,7 @@ class FlowEnsemble(Parameter):
                 # Get timeseries
                 data = {}
                 for label in column_labels:
-                    data[label] = node_inflow_ensemble[label][:]
+                    data[str(label)] = node_inflow_ensemble[str(label)][:]
 
                 date_column = "datetime" if "datetime" in column_labels else "date"
                 datetime = node_inflow_ensemble[date_column][:].tolist()

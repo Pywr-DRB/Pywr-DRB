@@ -1302,7 +1302,7 @@ class ExtrapolatedDiversionEnsemblePreprocessor(ExtrapolatedDiversionPreprocesso
             with h5py.File(fname, "w") as hf:
                 for realization_id, predictions_df in self.ensemble_diversions.items():
                     # Create group for this realization
-                    realization_group = hf.create_group(realization_id)
+                    realization_group = hf.create_group(str(realization_id))
 
                     # Store column labels as attribute for compatibility with extract_realization_from_hdf5
                     column_labels = list(predictions_df.columns)

@@ -446,7 +446,7 @@ class PredictedInflowEnsemblePreprocessor(PredictedInflowPreprocessor):
             with h5py.File(fname, "w") as hf:
                 for realization_id, predictions_df in self.ensemble_predictions.items():
                     # Create group for this realization
-                    realization_group = hf.create_group(realization_id)
+                    realization_group = hf.create_group(str(realization_id))
 
                     # Store datetime
                     datetime_strings = predictions_df["datetime"].astype(str).values
