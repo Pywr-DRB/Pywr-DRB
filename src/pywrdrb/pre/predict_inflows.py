@@ -335,7 +335,9 @@ class PredictedInflowEnsemblePreprocessor(PredictedInflowPreprocessor):
             column_labels = node_data.attrs["column_labels"]
 
             err_msg = f"The specified realization {realization_id} is not available in the HDF file."
-            assert realization_id in column_labels, (
+            # Convert both to strings for consistent comparison
+            column_labels_str = [str(label) for label in column_labels]
+            assert str(realization_id) in column_labels_str, (
                 err_msg + f" Realizations available: {column_labels}"
             )
 
