@@ -2,15 +2,15 @@
 Custom parameter used to handle simulation ensemble input data.
 
 Overview:
-Pywr is designed to handle running simulations in parallel, but it is helpful to have some 
+Pywr is designed to handle running simulations in parallel, but it is helpful to have some
 custom parameters to help facilitate this. These parameters are used to load ensemble, then
-store the relevant realizations in a pandas DataFrame which is accessible during simulation. 
+store the relevant realizations in a pandas DataFrame which is accessible during simulation.
 
 Technical Notes:
 - The FlowEnsemble is used to access to inflow ensemble timeseries during the simulation period.
 - The PredictionEnsemble is used to access an ensemble of flow prediction timeseries, which is used to inform NYC releases.
-- #TODO: 
-    - Should add some documentation or other standardization for the inflow ensemble data formating 
+- #TODO:
+    - Should add some documentation or other standardization for the inflow ensemble data formating
 
 Links:
 NA
@@ -34,7 +34,7 @@ class FlowEnsemble(Parameter):
     """This parameter provides access to inflow ensemble timeseries.
 
     For a given inflow ensemble file, we want to load and access specific realizations
-    for a given model run. These realizations are loaded from an HDF5 file, then 
+    for a given model run. These realizations are loaded from an HDF5 file, then
     stored in a pandas DataFrame for easy access during simulation.
 
     Methods
@@ -42,10 +42,10 @@ class FlowEnsemble(Parameter):
     setup()
         Perform setup operations for the parameter. Automated pywr operation.
     value(timestep, scenario_index)
-        Return the current flow for the specified timestep and scenario index. 
+        Return the current flow for the specified timestep and scenario index.
     load(model, data)
         Load the parameter from the model dictionary.
-        
+
     Attributes
     ----------
     inflow_ensemble_indices : list
@@ -58,7 +58,7 @@ class FlowEnsemble(Parameter):
 
     def __init__(self, model, name, inflow_type, inflow_ensemble_indices, **kwargs):
         """Initialize the FlowEnsemble parameter.
-        
+
         Parameters
         ----------
         model : Model
@@ -70,8 +70,8 @@ class FlowEnsemble(Parameter):
         inflow_ensemble_indices : list
             The realization indices of the inflow ensemble to be used for this simulation.
         **kwargs : dict
-            Additional keyword arguments to be passed to the pywr.Parameter class. None used. 
-        
+            Additional keyword arguments to be passed to the pywr.Parameter class. None used.
+
         Returns
         -------
         None
@@ -83,17 +83,22 @@ class FlowEnsemble(Parameter):
         filename = os.path.join(input_dir, f"catchment_inflow_mgd.hdf5")
 
         # Load from hfd5 specific realizations
-        with h5py.File(filename, "r") as file:
-            node_inflow_ensemble = file[name]
-            column_labels = node_inflow_ensemble.attrs["column_labels"]
+        try:
+            with h5py.File(filename, "r") as file:
+                node_inflow_ensemble = file[name]
+                column_labels = node_inflow_ensemble.attrs["column_labels"]
 
-            # Get timeseries
-            data = {}
-            for label in column_labels:
-                data[label] = node_inflow_ensemble[label][:]
+                # Get timeseries
+                data = {}
+                for label in column_labels:
+                    data[label] = node_inflow_ensemble[label][:]
 
-            date_column = "datetime" if "datetime" in column_labels else "date"
-            datetime = node_inflow_ensemble[date_column][:].tolist()
+                date_column = "datetime" if "datetime" in column_labels else "date"
+                datetime = node_inflow_ensemble[date_column][:].tolist()
+        except KeyError:
+            err_msg = f"The specified node {name} is not available in the HDF file."
+            err_msg += f" Available nodes: {list(file.keys())}"
+            raise KeyError(err_msg)
 
         # Store in DF
         inflow_df = pd.DataFrame(data, index=datetime)
@@ -101,7 +106,7 @@ class FlowEnsemble(Parameter):
 
         ## Match ensemble indices to columns
         # inflow_ensemble_indices is a list of integers;
-        # We need to: 
+        # We need to:
         # 1) verify that the indices are included in the df
         # 2) find the columns corresponding to these realization IDs
         inflow_ensemble_columns = []
@@ -116,6 +121,8 @@ class FlowEnsemble(Parameter):
         self.inflow_ensemble_indices = inflow_ensemble_indices
         self.inflow_column_indices = inflow_ensemble_columns
         self.inflow_ensemble = inflow_df.iloc[:, inflow_ensemble_columns]
+
+        print(f"Loaded inflow ensemble from {filename} for location {name}.")
 
     def setup(self):
         """Perform setup operations for the parameter."""
@@ -134,7 +141,7 @@ class FlowEnsemble(Parameter):
             The timestep being evaluated.
         scenario_index : ScenarioIndex
             The index of the simulation scenario.
-        
+
         Returns
         -------
         float
@@ -146,14 +153,14 @@ class FlowEnsemble(Parameter):
     @classmethod
     def load(cls, model, data):
         """Load the parameter using the pywrdrb.Model dictionary.
-        
+
         Parameters
         ----------
         model : Model
             The pywrdrb.Model object.
         data : dict
             The dictionary containing the parameter data. Must include inflow_ensemble_indices and inflow_type.
-        
+
         Returns
         -------
         FlowEnsemble
@@ -194,7 +201,14 @@ class DiversionEnsemble(Parameter):
         The DataFrame containing the diversion ensemble data, indexed by datetime.
     """
 
-    def __init__(self, model, diversion_location, inflow_type, diversion_ensemble_indices, **kwargs):
+    def __init__(
+        self,
+        model,
+        diversion_location,
+        inflow_type,
+        diversion_ensemble_indices,
+        **kwargs,
+    ):
         """Initialize the DiversionEnsemble parameter.
 
         Parameters
@@ -217,7 +231,10 @@ class DiversionEnsemble(Parameter):
         super().__init__(model, **kwargs)
 
         # Validate diversion_location
-        assert diversion_location in ["nyc", "nj"], f"diversion_location must be 'nyc' or 'nj', got {diversion_location}"
+        assert diversion_location in [
+            "nyc",
+            "nj",
+        ], f"diversion_location must be 'nyc' or 'nj', got {diversion_location}"
 
         # ensemble input file
         input_dir = pn.sc.get(f"flows/{inflow_type}")
@@ -229,21 +246,27 @@ class DiversionEnsemble(Parameter):
             column_name = "D_R_Canal"  # NJ uses D_R_Canal column
 
         # Load from hdf5 specific realizations
-        with h5py.File(filename, "r") as file:
-            # Get all realizations and extract the relevant column
-            data = {}
-            for real_id in diversion_ensemble_indices:
-                realization_group = file[str(real_id)]
 
-                # Get the diversion column for this realization
-                data[str(real_id)] = realization_group[column_name][:]
+        try:
+            with h5py.File(filename, "r") as file:
+                # Get all realizations and extract the relevant column
+                data = {}
+                for real_id in diversion_ensemble_indices:
+                    realization_group = file[str(real_id)]
 
-                # Get datetime from first realization
-                if "datetime_array" not in locals():
-                    if "datetime" in realization_group.keys():
-                        datetime_array = realization_group["datetime"][:].tolist()
-                    elif "date" in realization_group.keys():
-                        datetime_array = realization_group["date"][:].tolist()
+                    # Get the diversion column for this realization
+                    data[str(real_id)] = realization_group[column_name][:]
+
+                    # Get datetime from first realization
+                    if "datetime_array" not in locals():
+                        if "datetime" in realization_group.keys():
+                            datetime_array = realization_group["datetime"][:].tolist()
+                        elif "date" in realization_group.keys():
+                            datetime_array = realization_group["date"][:].tolist()
+        except KeyError:
+            err_msg = f"The specified diversion location {diversion_location} is not available in the HDF file."
+            err_msg += f" Available locations: {list(file.keys())}"
+            raise KeyError(err_msg)
 
         # Store in DF
         diversion_df = pd.DataFrame(data, index=datetime_array)
@@ -266,6 +289,10 @@ class DiversionEnsemble(Parameter):
         self.diversion_ensemble_indices = diversion_ensemble_indices
         self.diversion_column_indices = diversion_ensemble_columns
         self.diversion_ensemble = diversion_df.iloc[:, diversion_ensemble_columns]
+
+        print(
+            f"Loaded diversion ensemble from {filename} for location {diversion_location}."
+        )
 
     def setup(self):
         """Perform setup operations for the parameter."""
@@ -312,7 +339,9 @@ class DiversionEnsemble(Parameter):
         diversion_location = data.pop("diversion_location")
         diversion_ensemble_indices = data.pop("diversion_ensemble_indices")
         inflow_type = data.pop("inflow_type")
-        return cls(model, diversion_location, inflow_type, diversion_ensemble_indices, **data)
+        return cls(
+            model, diversion_location, inflow_type, diversion_ensemble_indices, **data
+        )
 
 
 DiversionEnsemble.register()
@@ -323,8 +352,8 @@ class PredictionEnsemble(Parameter):
 
     When calculating NYC release, we need use forecast/predicted downstream flows to calculate the
     releases neede to maintain the Montague and Trenton flow targets in 1-4 days ahead.
-    These predictions are generated prior to the simulation (e.g., pywrdrb.pre.PredictedInflowPreprocessor) 
-    and stored in an HDF5 file, with unique predictions for each realization member. 
+    These predictions are generated prior to the simulation (e.g., pywrdrb.pre.PredictedInflowPreprocessor)
+    and stored in an HDF5 file, with unique predictions for each realization member.
 
     Methods
     -------
@@ -344,10 +373,16 @@ class PredictionEnsemble(Parameter):
     pred_ensemble : DataFrame
         The DataFrame containing the inflow ensemble data, indexed by datetime.
     """
-    def __init__(self, model, column,
-                 inflow_type, ensemble_indices,
-                 prediction_type="inflows",
-                 **kwargs):
+
+    def __init__(
+        self,
+        model,
+        column,
+        inflow_type,
+        ensemble_indices,
+        prediction_type="inflows",
+        **kwargs,
+    ):
         """Initialize the PredictionEnsemble parameter.
 
         Parameters
@@ -373,7 +408,10 @@ class PredictionEnsemble(Parameter):
         super().__init__(model, **kwargs)
 
         # Validate prediction_type
-        assert prediction_type in ["inflows", "diversions"], f"prediction_type must be 'inflows' or 'diversions', got {prediction_type}"
+        assert prediction_type in [
+            "inflows",
+            "diversions",
+        ], f"prediction_type must be 'inflows' or 'diversions', got {prediction_type}"
 
         # input file corresponding to the inflow_type and prediction_type
         input_dir = pn.sc.get(f"flows/{inflow_type}")
@@ -386,15 +424,21 @@ class PredictionEnsemble(Parameter):
         # Load from hfd5 specific realizations
         with h5py.File(filename, "r") as file:
             for i in ensemble_indices:
-                prediction_realization = file[f"{i}"]
+                try:
+                    prediction_realization = file[str(i)]
 
-                column_labels = list(prediction_realization.keys())
-                assert (
-                    column in column_labels
-                ), f"The specified column {column} is not available in the HDF file."
+                    column_labels = list(prediction_realization.keys())
+                    assert (
+                        column in column_labels
+                    ), f"The specified column {column} is not available in the HDF file."
 
-                # Get timeseries values
-                prediction_ensemble[f"{i}"] = prediction_realization[column][:]
+                    # Get timeseries values
+                    prediction_ensemble[f"{i}"] = prediction_realization[column][:]
+
+                except KeyError:
+                    raise KeyError(
+                        f"The specified prediction realization {i} (type {type(i)}) is not available in the HDF file."
+                    )
 
             # Pull datetime from one of the realizations
             date_column = "datetime" if "datetime" in column_labels else "date"
@@ -408,7 +452,7 @@ class PredictionEnsemble(Parameter):
 
         ## Match ensemble indices to columns
         # inflow_ensemble_indices is a list of integers;
-        # We need to: 
+        # We need to:
         # 1) verify that the indices are included in the df
         # 2) find the columns corresponding to these realization IDs
         ensemble_columns = []
@@ -423,6 +467,8 @@ class PredictionEnsemble(Parameter):
         self.pred_ensemble_indices = ensemble_indices
         self.pred_column_indices = ensemble_columns
         self.pred_ensemble = prediction_ensemble_df.iloc[:, ensemble_columns]
+
+        print(f"Loaded prediction ensemble from {filename} for column {column}.")
 
     def setup(self):
         """Perform setup operations for the parameter."""
@@ -440,7 +486,7 @@ class PredictionEnsemble(Parameter):
             The timestep being evaluated.
         scenario_index : ScenarioIndex
             The index of the simulation scenario.
-        
+
         Returns
         -------
         float
@@ -468,8 +514,17 @@ class PredictionEnsemble(Parameter):
         column = data.pop("column")
         ensemble_indices = data.pop("ensemble_indices")
         inflow_type = data.pop("inflow_type")
-        prediction_type = data.pop("prediction_type", "inflows")  # Default to "inflows" for backwards compatibility
-        return cls(model, column, inflow_type, ensemble_indices, prediction_type=prediction_type, **data)
+        prediction_type = data.pop(
+            "prediction_type", "inflows"
+        )  # Default to "inflows" for backwards compatibility
+        return cls(
+            model,
+            column,
+            inflow_type,
+            ensemble_indices,
+            prediction_type=prediction_type,
+            **data,
+        )
 
 
 PredictionEnsemble.register()

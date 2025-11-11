@@ -1,21 +1,21 @@
 """
 Preprocessor for generating NJ diversion predictions for Delaware-Raritan Canal operations.
 
-Overview: 
-This module creates lag-based predictions for NJ diversions from the 
+Overview:
+This module creates lag-based predictions for NJ diversions from the
 Delaware-Raritan Canal, which are needed to properly implement the NYC and lower basin
-reservoir releases, when predicted flow is less than target flow. 
-It uses regression models trained on historical diversion data to forecast demand 
-1-4 days ahead, which helps determine appropriate reservoir releases that account 
+reservoir releases, when predicted flow is less than target flow.
+It uses regression models trained on historical diversion data to forecast demand
+1-4 days ahead, which helps determine appropriate reservoir releases that account
 for downstream travel time and anticipated withdrawals.
 
-Technical Notes: 
+Technical Notes:
 - Extends PredictedTimeseriesPreprocessor specifically for diversion predictions
 - The historical NJ diversions are based on DR Canal gauge flow
 - Uses historical NJ diversion data from the extrapolated dataset
 - Creates prediction files for "demand_nj" used by FFMP parameters
 - Supports multiple prediction modes (regression_disagg, perfect_foresight, etc.)
-- Predictions follow the pattern "demand_nj_lag{1-4}_{mode}" 
+- Predictions follow the pattern "demand_nj_lag{1-4}_{mode}"
 - Output is saved as a CSV file in the data/diversions directory for use by the model
 
 Example usage:
@@ -44,14 +44,14 @@ from pywrdrb.pre.predict_timeseries import PredictedTimeseriesPreprocessor
 from pywrdrb.utils.hdf5 import extract_realization_from_hdf5
 
 
-__all__ = ["PredictedDiversionPreprocessor", 
-           "PredictedDiversionEnsemblePreprocessor"]
+__all__ = ["PredictedDiversionPreprocessor", "PredictedDiversionEnsemblePreprocessor"]
+
 
 class PredictedDiversionPreprocessor(PredictedTimeseriesPreprocessor):
     """
     Predicts NJ diversions from the Delaware-Raritan Canal using regression models.
     (e.g., regression, perfect foresight, moving average).
-    
+
     Example usage:
     ```python
     from pywrdrb.pre import PredictedDiversionPreprocessor
@@ -64,16 +64,19 @@ class PredictedDiversionPreprocessor(PredictedTimeseriesPreprocessor):
     diversion_predictor.save()
     ```
     """
-    def __init__(self,
-                 flow_type=None,
-                 start_date=None,
-                 end_date=None,
-                 modes=('regression_disagg',),
-                 use_log=True,
-                 remove_zeros=False,
-                 use_const=False):
+
+    def __init__(
+        self,
+        flow_type=None,
+        start_date=None,
+        end_date=None,
+        modes=("regression_disagg",),
+        use_log=True,
+        remove_zeros=False,
+        use_const=False,
+    ):
         """Initialize the PredictedDiversionPreprocessor.
-        
+
         Parameters
         ----------
         start_date : str, None
@@ -85,24 +88,21 @@ class PredictedDiversionPreprocessor(PredictedTimeseriesPreprocessor):
             "regression_disagg", "perfect_foresight", "moving_average", "same_day".
         use_log : bool
             Whether to use log transformation for model vars. Default is True.
-        remove_zeros : bool            
+        remove_zeros : bool
             Whether to remove zero values. Default is False.
         use_const : bool
             Whether to use a constant/intercept in regression. Default is False.
-        
+
         Returns
         -------
-        None                
+        None
         """
-        
-        # Initialize the PredictedTimeseriesPreprocessor 
-        super().__init__(flow_type, 
-                         start_date, 
-                         end_date, 
-                         use_log, 
-                         remove_zeros, 
-                         use_const)
-        
+
+        # Initialize the PredictedTimeseriesPreprocessor
+        super().__init__(
+            flow_type, start_date, end_date, use_log, remove_zeros, use_const
+        )
+
         # List of regression modes options
         self.regression_mode_options = [
             "regression_disagg",
@@ -111,37 +111,46 @@ class PredictedDiversionPreprocessor(PredictedTimeseriesPreprocessor):
             "same_day",
         ]
 
-        # Modes being used; check validity        
+        # Modes being used; check validity
         self.modes = modes
         for mode in self.modes:
-            assert mode in self.regression_mode_options, f"Invalid regression mode: {mode}. Must be one of {self.regression_mode_options}."
-    
+            assert (
+                mode in self.regression_mode_options
+            ), f"Invalid regression mode: {mode}. Must be one of {self.regression_mode_options}."
+
         # Input files used for prediction
         if flow_type is None:
             # use default historical diversions
-            diversion_fname = self.pn.diversions.get("diversion_nj_extrapolated_mgd.csv")
+            diversion_fname = self.pn.diversions.get(
+                "diversion_nj_extrapolated_mgd.csv"
+            )
             output_fname = self.pn.get("diversions") / "predicted_diversions_mgd.csv"
         else:
-            diversion_fname = self.pn.sc.get(f"flows/{self.flow_type}") / "diversion_nj_extrapolated_mgd.csv"
-            output_fname = self.pn.sc.get(f"flows/{self.flow_type}") / "predicted_diversions_mgd.csv"
-            
+            diversion_fname = (
+                self.pn.sc.get(f"flows/{self.flow_type}")
+                / "diversion_nj_extrapolated_mgd.csv"
+            )
+            output_fname = (
+                self.pn.sc.get(f"flows/{self.flow_type}")
+                / "predicted_diversions_mgd.csv"
+            )
+
         self.input_dirs = {
-            "diversion_nj_extrapolated_mgd.csv" : diversion_fname,
+            "diversion_nj_extrapolated_mgd.csv": diversion_fname,
         }
-        
+
         # Output locations for predicted timeseries
         self.output_dirs = {
             "predicted_diversions_mgd.csv": output_fname,
         }
-        
 
     def load(self):
         """Load NJ diversions and catchment WC data (used for structural compatibility).
-        
+
         Parameters
         ----------
         None
-        
+
         Returns
         -------
         None
@@ -160,20 +169,18 @@ class PredictedDiversionPreprocessor(PredictedTimeseriesPreprocessor):
         # self.timeseries_data = subset_timeseries(df, self.start_date, self.end_date)
         self.timeseries_data = df.copy()
 
-
-
     def process(self):
         """Run full prediction workflow.
-        
+
         Steps:
         1. Load timeseries data (if not already loaded).
         2. Train regressions on the data.
         3. Make predictions using the trained regressions.
-        
+
         Parameters
         ----------
         None
-        
+
         Returns
         -------
         None
@@ -184,33 +191,34 @@ class PredictedDiversionPreprocessor(PredictedTimeseriesPreprocessor):
         regressions = self.train_regressions()
         self.predicted_timeseries = self.make_predictions(regressions)
 
-
     def save(self):
         """Save predicted diversion time series to CSV.
-        
+
         Parameters
         ----------
         None
-        
+
         Returns
         -------
         None
             The predicted timeseries is saved to the specified output directory.
         """
         # Make sure the predictions are done successfully
-        assert self.predicted_timeseries is not None, "Predicted timeseries is None. Cannot save."
-        
+        assert (
+            self.predicted_timeseries is not None
+        ), "Predicted timeseries is None. Cannot save."
+
         # Save
         fname = self.output_dirs["predicted_diversions_mgd.csv"]
         self.predicted_timeseries.to_csv(fname, index=False)
 
     def get_prediction_node_lag_combinations(self):
         """Return dict of predicted diversion column names formatted as (node, lag, mode) tuples.
-        
+
         Parameters
         ----------
         None
-        
+
         Returns
         -------
         combos : dict
@@ -226,30 +234,30 @@ class PredictedDiversionPreprocessor(PredictedTimeseriesPreprocessor):
         return combos
 
 
-
-
 class PredictedDiversionEnsemblePreprocessor(PredictedDiversionPreprocessor):
     """
     Generates ensemble predictions for NJ diversions using MPI parallelization.
-    
+
     Processes multiple realization members from an ensemble HDF5 file and saves predictions
     in HDF5 format compatible with PredictionEnsemble parameter.
     """
-    
-    def __init__(self,
-                 flow_type,
-                 ensemble_hdf5_file,
-                 realization_ids=None,
-                 start_date=None,
-                 end_date=None,
-                 modes=('regression_disagg',),
-                 use_log=True,
-                 remove_zeros=False,
-                 use_const=False,
-                 use_mpi=False):
+
+    def __init__(
+        self,
+        flow_type,
+        ensemble_hdf5_file,
+        realization_ids=None,
+        start_date=None,
+        end_date=None,
+        modes=("regression_disagg",),
+        use_log=True,
+        remove_zeros=False,
+        use_const=False,
+        use_mpi=False,
+    ):
         """
         Initialize the PredictedDiversionEnsemblePreprocessor.
-        
+
         Args:
             flow_type: Label for the dataset.
             ensemble_hdf5_file: Path to HDF5 file containing ensemble diversion data.
@@ -261,14 +269,17 @@ class PredictedDiversionEnsemblePreprocessor(PredictedDiversionPreprocessor):
             remove_zeros: Whether to remove zero values.
             use_const: Whether to use constant in regression.
         """
-        super().__init__(flow_type, start_date, end_date, modes, use_log, remove_zeros, use_const)
-        
+        super().__init__(
+            flow_type, start_date, end_date, modes, use_log, remove_zeros, use_const
+        )
+
         self.ensemble_hdf5_file = ensemble_hdf5_file
         self.realization_ids = realization_ids
-        
+
         self.use_mpi = use_mpi
         if self.use_mpi:
             from mpi4py import MPI
+
             self.comm = MPI.COMM_WORLD
             self.rank = self.comm.Get_rank()
             self.size = self.comm.Get_size()
@@ -276,24 +287,27 @@ class PredictedDiversionEnsemblePreprocessor(PredictedDiversionPreprocessor):
             self.comm = None
             self.rank = 0
             self.size = 1
-        
+
         # Update output path for ensemble predictions
         self.output_dirs = {
-            "predicted_diversions_mgd.hdf5": self.pn.sc.get(f"flows/{self.flow_type}") / "predicted_diversions_mgd.hdf5",
+            "predicted_diversions_mgd.hdf5": self.pn.sc.get(f"flows/{self.flow_type}")
+            / "predicted_diversions_mgd.hdf5",
         }
-        
+
         # Storage for ensemble results
         self.ensemble_predictions = {}
 
     def load(self):
-        """Load available realization IDs to be distributed."""        
+        """Load available realization IDs to be distributed."""
         # Get available realization IDs if not specified
         if self.realization_ids is None:
-            with h5py.File(self.ensemble_hdf5_file, 'r') as f:
+            with h5py.File(self.ensemble_hdf5_file, "r") as f:
                 self.realization_ids = [key for key in f.keys()]
-        
+
         if self.rank == 0:
-            print(f"Processing {len(self.realization_ids)} realizations across {self.size} processes")
+            print(
+                f"Processing {len(self.realization_ids)} realizations across {self.size} processes"
+            )
 
     def _extract_realization_from_open_file(self, hdf5_file, realization_id):
         """
@@ -314,7 +328,7 @@ class PredictedDiversionEnsemblePreprocessor(PredictedDiversionPreprocessor):
         pd.DataFrame
             DataFrame containing the extracted realization data
         """
-        realization_group = hdf5_file[realization_id]
+        realization_group = hdf5_file[str(realization_id)]
 
         # Extract column labels
         column_labels = realization_group.attrs["column_labels"]
@@ -342,7 +356,7 @@ class PredictedDiversionEnsemblePreprocessor(PredictedDiversionPreprocessor):
 
     def process(self):
         """Process ensemble predictions using MPI parallelization (optimized I/O)."""
-        if not hasattr(self, 'realization_ids'):
+        if not hasattr(self, "realization_ids"):
             self.load()
 
         # Distribute realizations across MPI processes
@@ -354,24 +368,29 @@ class PredictedDiversionEnsemblePreprocessor(PredictedDiversionPreprocessor):
         ### OPTIMIZATION: Batch HDF5 reads - open file once per rank
         # This reduces file I/O overhead from N opens to 1 per rank
         if self.rank == 0:
-            print(f"Rank {self.rank}: Processing {len(my_realizations)} realizations with batched HDF5 reads...")
+            print(
+                f"Rank {self.rank}: Processing {len(my_realizations)} realizations with batched HDF5 reads..."
+            )
 
-        with h5py.File(self.ensemble_hdf5_file, 'r') as hdf5_file:
+        with h5py.File(self.ensemble_hdf5_file, "r") as hdf5_file:
             # Process assigned realizations with the file already open
             for i, realization_id in enumerate(my_realizations):
                 if self.rank == 0 and (i + 1) % max(1, len(my_realizations) // 5) == 0:
-                    print(f"Rank 0: Processing realization {i+1}/{len(my_realizations)}: {realization_id}")
+                    print(
+                        f"Rank 0: Processing realization {i+1}/{len(my_realizations)}: {realization_id}"
+                    )
 
                 # Extract realization data from open HDF5 file
                 # Note: diversion HDF5 files are stored by realization, not by node
                 self.timeseries_data = self._extract_realization_from_open_file(
-                    hdf5_file,
-                    realization_id
+                    hdf5_file, realization_id
                 )
 
                 # Create 'demand_nj' column from 'D_R_Canal' (matching base class load() behavior)
-                if 'D_R_Canal' in self.timeseries_data.columns:
-                    self.timeseries_data["demand_nj"] = self.timeseries_data["D_R_Canal"]
+                if "D_R_Canal" in self.timeseries_data.columns:
+                    self.timeseries_data["demand_nj"] = self.timeseries_data[
+                        "D_R_Canal"
+                    ]
 
                 # Train regressions and make predictions for this realization
                 regressions = self.train_regressions()
@@ -397,30 +416,34 @@ class PredictedDiversionEnsemblePreprocessor(PredictedDiversionPreprocessor):
         """Save ensemble predictions to HDF5 format."""
         if self.rank == 0:
             if not self.ensemble_predictions:
-                raise ValueError("No ensemble predictions to save. Run process() first.")
-            
+                raise ValueError(
+                    "No ensemble predictions to save. Run process() first."
+                )
+
             fname = self.output_dirs["predicted_diversions_mgd.hdf5"]
-            
-            with h5py.File(fname, 'w') as hf:
+
+            with h5py.File(fname, "w") as hf:
                 for realization_id, predictions_df in self.ensemble_predictions.items():
                     # Create group for this realization
                     realization_group = hf.create_group(realization_id)
 
                     # Store column labels as attribute for compatibility with extract_realization_from_hdf5
                     column_labels = list(predictions_df.columns)
-                    realization_group.attrs['column_labels'] = column_labels
+                    realization_group.attrs["column_labels"] = column_labels
 
                     # Store datetime
-                    datetime_strings = predictions_df['datetime'].astype(str).values
-                    realization_group.create_dataset('datetime', data=datetime_strings)
+                    datetime_strings = predictions_df["datetime"].astype(str).values
+                    realization_group.create_dataset("datetime", data=datetime_strings)
 
                     # Store prediction columns
                     for col in predictions_df.columns:
-                        if col != 'datetime':
-                            realization_group.create_dataset(col, data=predictions_df[col].values)
-            
+                        if col != "datetime":
+                            realization_group.create_dataset(
+                                col, data=predictions_df[col].values
+                            )
+
             print(f"Saved ensemble diversion predictions to {fname}")
-        
+
         # Ensure all processes wait for save to complete
         if self.use_mpi:
             self.comm.barrier()
