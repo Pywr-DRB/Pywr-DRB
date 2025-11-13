@@ -101,6 +101,8 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
         Location indicator, either "nyc" or "nj".
     flow_type : str, optional
         Flow type for custom data. If None, uses historical observations.
+    max_mean_demand : float
+        Maximum allowable mean monthly demand (MGD). Defaults: NYC=800, NJ=100.
     quarters : tuple
         Seasons used for different regression models (DJF, MAM, JJA, SON).
     lrms : dict
@@ -140,9 +142,16 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
     >>> processor.process()
     >>> processor.save()
     >>> [out] Saved extrapolated diversion data to <path>src\pywrdrb\data\flows\my_custom_flows\
+
+    >>> # Using custom max mean demand constraint
+    >>> processor = ExtrapolatedDiversionPreprocessor(loc='nyc', max_mean_demand=750.0)
+    >>> processor.process()
+    >>> processor.save()
+    >>> [out] Enforcing maximum mean monthly demand constraint...
+    >>> [out] Max mean demand constraint (750 MGD) enforced: Scaled X months...
     """
 
-    def __init__(self, loc, flow_type=None):
+    def __init__(self, loc, flow_type=None, max_mean_demand=None):
         """
         Initialize the ExtrapolatedDiversionPreprocessor.
 
@@ -153,6 +162,12 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
         flow_type : str, optional
             Flow type for custom data. If None, uses historical observations.
             When provided, uses gage_flow_mgd.csv from flows/{flow_type}/ folder.
+        max_mean_demand : float, optional
+            Maximum allowable mean monthly demand (MGD). If None, uses defaults:
+            - NYC: 800 MGD
+            - NJ: 100 MGD
+            After extrapolation, any month with mean demand exceeding this threshold
+            will have its daily demands scaled uniformly to meet the constraint.
 
         Raises
         ------
@@ -168,6 +183,13 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
 
         self.loc = loc
         self.flow_type = flow_type
+
+        # Set maximum mean monthly demand constraint
+        if max_mean_demand is None:
+            # Default values based on location
+            self.max_mean_demand = 800.0 if loc == "nyc" else 100.0
+        else:
+            self.max_mean_demand = max_mean_demand
 
         # Seasons (quarters) used for different regression models
         self.quarters = ("DJF", "MAM", "JJA", "SON")
@@ -573,6 +595,91 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
 
         return predictions
 
+    def enforce_max_mean_demand(self, diversion_data):
+        """
+        Enforce maximum mean monthly demand constraint.
+
+        For any month where the mean daily demand exceeds max_mean_demand, this method
+        scales all daily demands in that month uniformly so the monthly mean equals
+        max_mean_demand.
+
+        Parameters
+        ----------
+        diversion_data : pd.DataFrame
+            DataFrame with datetime index and diversion columns to be constrained.
+
+        Returns
+        -------
+        pd.DataFrame
+            Modified DataFrame with demand constraints applied.
+        """
+        # Create a copy to avoid modifying the original
+        diversion_constrained = diversion_data.copy()
+
+        # Determine which column(s) contain the diversion data
+        if self.loc == "nyc":
+            diversion_columns = ["pepacton", "cannonsville", "neversink", "aggregate"]
+        else:  # NJ
+            diversion_columns = ["D_R_Canal"]
+
+        # Track statistics for reporting
+        n_months_scaled = 0
+        max_reduction_pct = 0.0
+
+        # Group by year-month
+        grouped = diversion_constrained.groupby([diversion_constrained.index.year,
+                                                  diversion_constrained.index.month])
+
+        for (year, month), month_data in grouped:
+            # Calculate mean for this month
+            if self.loc == "nyc":
+                # For NYC, check the aggregate column
+                monthly_mean = month_data["aggregate"].mean()
+
+                if monthly_mean > self.max_mean_demand:
+                    # Calculate scaling factor to bring mean down to threshold
+                    scale_factor = self.max_mean_demand / monthly_mean
+
+                    # Apply scaling uniformly to all daily values in this month
+                    month_indices = month_data.index
+                    for col in diversion_columns:
+                        diversion_constrained.loc[month_indices, col] *= scale_factor
+
+                    # Track statistics
+                    n_months_scaled += 1
+                    reduction_pct = (1 - scale_factor) * 100
+                    max_reduction_pct = max(max_reduction_pct, reduction_pct)
+
+            else:  # NJ
+                # For NJ, check the D_R_Canal column
+                monthly_mean = month_data["D_R_Canal"].mean()
+
+                if monthly_mean > self.max_mean_demand:
+                    # Calculate scaling factor
+                    scale_factor = self.max_mean_demand / monthly_mean
+
+                    # Apply scaling uniformly to all daily values in this month
+                    month_indices = month_data.index
+                    diversion_constrained.loc[month_indices, "D_R_Canal"] *= scale_factor
+
+                    # Track statistics
+                    n_months_scaled += 1
+                    reduction_pct = (1 - scale_factor) * 100
+                    max_reduction_pct = max(max_reduction_pct, reduction_pct)
+
+        # Report constraint enforcement results
+        if n_months_scaled > 0:
+            # Only print from rank 0 if using MPI
+            if getattr(self, "rank", 0) == 0:
+                print(f"  Max mean demand constraint ({self.max_mean_demand:.0f} MGD) enforced:")
+                print(f"    - Scaled {n_months_scaled} months")
+                print(f"    - Maximum reduction: {max_reduction_pct:.1f}%")
+        else:
+            if getattr(self, "rank", 0) == 0:
+                print(f"  No months exceeded max mean demand threshold ({self.max_mean_demand:.0f} MGD)")
+
+        return diversion_constrained
+
     def process(self):
         """
         Run the full extrapolation workflow.
@@ -840,6 +947,11 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
         )
         self.processed_data = self.processed_data.loc[keep_dates]
 
+        # Enforce maximum mean monthly demand constraint
+        if getattr(self, "rank", 0) == 0:
+            print(f"\nEnforcing maximum mean monthly demand constraint...")
+        self.processed_data = self.enforce_max_mean_demand(self.processed_data)
+
     def save(self):
         """
         Save the processed extrapolated diversion data to CSV.
@@ -1086,7 +1198,8 @@ class ExtrapolatedDiversionEnsemblePreprocessor(ExtrapolatedDiversionPreprocesso
     """
 
     def __init__(
-        self, loc, flow_type, ensemble_hdf5_file, realization_ids=None, use_mpi=True
+        self, loc, flow_type, ensemble_hdf5_file, realization_ids=None, use_mpi=True,
+        max_mean_demand=None
     ):
         """
         Initialize the ExtrapolatedDiversionEnsemblePreprocessor.
@@ -1099,8 +1212,16 @@ class ExtrapolatedDiversionEnsemblePreprocessor(ExtrapolatedDiversionPreprocesso
             Flow type for custom data. Must be provided.
         ensemble_hdf5_file : str
             Path to the HDF5 file containing ensemble gage_flow_mgd data.
+        realization_ids : list, optional
+            List of realization IDs to process. If None, processes all realizations.
+        use_mpi : bool, optional
+            Whether to use MPI for parallel processing (default: True).
+        max_mean_demand : float, optional
+            Maximum allowable mean monthly demand (MGD). If None, uses defaults:
+            - NYC: 800 MGD
+            - NJ: 100 MGD
         """
-        super().__init__(loc=loc, flow_type=flow_type)
+        super().__init__(loc=loc, flow_type=flow_type, max_mean_demand=max_mean_demand)
 
         self.ensemble_hdf5_file = ensemble_hdf5_file
         self.realization_ids = realization_ids
