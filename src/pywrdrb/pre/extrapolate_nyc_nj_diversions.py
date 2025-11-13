@@ -810,7 +810,8 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
         ) / (diversion_bounds[1] - diversion_bounds[0])
 
         # Find nearest neighbor in historical data for each month in full time period
-        df_long_m["nn"] = -1
+        # Initialize with object dtype to store datetime index values
+        df_long_m["nn"] = pd.NaT
         for i in range(df_long_m.shape[0]):
             ind = df_long_m.index[i]
             q = df_long_m["quarter"].iloc[i]
@@ -825,7 +826,7 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
                 (subset["flow_log_norm"] - f) ** 2 + (subset["diversion_norm"] - n) ** 2
             )
 
-            # Find index of nearest neighbor
+            # Find index of nearest neighbor (returns a datetime)
             nn_idx = distances.idxmin()
             df_long_m.loc[ind, "nn"] = nn_idx
 

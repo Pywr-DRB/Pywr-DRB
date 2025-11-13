@@ -122,8 +122,6 @@ class FlowEnsemble(Parameter):
         self.inflow_column_indices = inflow_ensemble_columns
         self.inflow_ensemble = inflow_df.iloc[:, inflow_ensemble_columns]
 
-        print(f"Loaded inflow ensemble from {filename} for location {name}.")
-
     def setup(self):
         """Perform setup operations for the parameter."""
         super().setup()
@@ -290,9 +288,6 @@ class DiversionEnsemble(Parameter):
         self.diversion_column_indices = diversion_ensemble_columns
         self.diversion_ensemble = diversion_df.iloc[:, diversion_ensemble_columns]
 
-        print(
-            f"Loaded diversion ensemble from {filename} for location {diversion_location}."
-        )
 
     def setup(self):
         """Perform setup operations for the parameter."""
@@ -467,8 +462,6 @@ class PredictionEnsemble(Parameter):
         self.pred_ensemble_indices = ensemble_indices
         self.pred_column_indices = ensemble_columns
         self.pred_ensemble = prediction_ensemble_df.iloc[:, ensemble_columns]
-
-        print(f"Loaded prediction ensemble from {filename} for column {column}.")
 
     def setup(self):
         """Perform setup operations for the parameter."""
