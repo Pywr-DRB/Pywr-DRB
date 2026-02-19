@@ -126,7 +126,13 @@ class Options:
     sensitivity_analysis_scenarios: List[str] = field(default_factory=list)
     release_policy_dict: Optional[dict] = field(default_factory=dict)
     # Initial reservoir storages as 80% of capacity
-    initial_volume_frac: float = 0.8
+    initial_volume_frac: float = 0.8 # global default
+    # Dictionary of initial reservoir storages as fraction of capacity
+    initial_volume_frac_dict: Optional[dict] = field(
+        default_factory=lambda: {
+            "prompton": 0.1,
+        }
+    )
 
     def list(self):
         """Prints the options."""
@@ -594,7 +600,7 @@ class ModelBuilder:
             "class_type": "STARFITReservoirRelease",
             "policy_type": "STARFIT", 
             "policy_id": "default",
-            "params": None,           # comma-separated string or list[float]
+            "params": None,   # comma-separated string or list[float]
         }
 
         release_policy_entry = self.options.release_policy_dict.get(reservoir_name, default_entry)
@@ -608,8 +614,30 @@ class ModelBuilder:
         
         print(f"Using {class_type} for {reservoir_name}: {policy_type} (policy_id: {policy_id})")
 
-        # Initial settings
-        initial_volume_frac = self.options.initial_volume_frac
+        # -----------------------------
+        # Initial settings [Global default (e.g., 0.8)]
+        # -----------------------------
+        #initial_volume_frac = self.options.initial_volume_frac
+        global_initial_frac = self.options.initial_volume_frac
+
+        # Per-reservoir overrides (may be None)
+        initial_frac_dict = getattr(self.options, "initial_volume_frac_dict", None) or {}
+
+        # If reservoir has an entry in the dict → use that.
+        # Otherwise → fall back to the global default.
+        initial_volume_frac = initial_frac_dict.get(reservoir_name, global_initial_frac)
+        
+        if reservoir_name in initial_frac_dict:
+            print(
+                f"[ModelBuilder] {reservoir_name}: "
+                f"using OVERRIDE initial_volume_frac={initial_volume_frac:.3f}"
+            )
+        else:
+            print(
+                f"[ModelBuilder] {reservoir_name}: "
+                f"using GLOBAL initial_volume_frac={initial_volume_frac:.3f}"
+            )
+
         regulatory_release = (
             True
             if reservoir_name in (reservoir_list_nyc + drbc_lower_basin_reservoirs)

@@ -1,3 +1,25 @@
+"""
+STARFIT policy class for reservoir operation.
+
+Overview
+--------
+This module implements the STARFIT policy class used by the release_policies framework.
+The logic is aligned with `pywrdrb.parameters.starfit.STARFITReservoirRelease` to ensure
+structural and conceptual consistency between the two implementations.
+
+Key Alignment Points (with parameters/starfit.py):
+--------------------------------------------------
+1. linear_below_NOR default: False (no linear scaling when storage < NOR_lo)
+2. R_max application: Applied during target calculation, not just in constraints
+3. Constraint enforcement order: Capacity constraint → Availability → R_min
+4. No storage safety overrides: Relies on explicit capacity constraint logic
+
+Change Log
+----------
+2025-XX-XX: Aligned logic with parameters/starfit.py to ensure identical behavior.
+            See docstring changes for detailed modifications.
+"""
+
 import datetime
 import numpy as np
 import matplotlib.pyplot as plt
@@ -31,14 +53,25 @@ class STARFIT(AbstractPolicy):
       • A Normal Operating Range (NOR) envelope varying seasonally (NOR_lo/hi)
       • Adjustments using normalized storage and standardized inflow
 
+    Alignment with parameters/starfit.py
+    ------------------------------------
+    This implementation is structurally and conceptually aligned with 
+    `pywrdrb.parameters.starfit.STARFITReservoirRelease` to ensure identical
+    behavior when given the same inputs:
+    
+    - linear_below_NOR: Default False (matches original)
+    - R_max application: Applied during evaluate() calculation, not just constraints
+    - Constraint order: Capacity → Availability → R_min (matches original)
+    - No storage safety overrides: Uses explicit capacity constraint logic
+
     Interface (matches PWL/RBF)
     ---------------------------
     - Call `set_context(release_min, release_max, storage_capacity, x_min, x_max)` once.
       * x_min/x_max define min–max normalization for inputs [S, I, D].
       * Typically: x_min = (0, I_min, 1), x_max = (S_cap, I_max, 366).
     - `evaluate([S_norm, I_norm, D_norm]) -> z in [0,1]`
-    - `get_release(S, I, D)` normalizes with the base class, then scales by `release_max`
-      and enforces constraints via `enforce_constraints(..., available=S+I)`.
+    - `get_release(S, I, D)` normalizes, evaluates, scales, then enforces constraints
+      in the same order as parameters/starfit.py
 
     Parameters
     ----------
@@ -61,6 +94,8 @@ class STARFIT(AbstractPolicy):
     - Standardized inflow uses I_hat = (I - I_bar) / I_bar (I in original units).
       We reconstruct I from I_norm using x_min/x_max, so `I_bar` must be set
       (via `assign_policy_params` or `set_mean_inflow`).
+    - Changed from AbstractPolicy default constraint order to match original:
+      capacity constraint → availability → R_min (instead of R_max → R_min → availability)
     """
 
     def __init__(self, policy_params, reservoir_name: Optional[str] = None,):
@@ -91,7 +126,9 @@ class STARFIT(AbstractPolicy):
         # standardized inflow mean (must be set for evaluate)
         self.I_bar = None
 
-        # optional behavior toggle (kept for parity with legacy)
+        # optional behavior toggle (aligned with parameters/starfit.py)
+        # When False: uses R_min directly when storage < NOR_lo (default, matches original)
+        # When True: linearly scales release by S_hat/NOR_lo before applying R_min
         self.linear_below_NOR: bool = False
 
         # log file path (created once we know the name)
@@ -199,19 +236,136 @@ class STARFIT(AbstractPolicy):
         self.log_path = f"STARFIT_release_log_{self.reservoir_name}.txt"
         if os.path.exists(self.log_path):
             os.remove(self.log_path)
-
-    def test_nor_constraint(self):
-        self.calculate_weekly_NOR()
-        if np.any(self.weekly_NORhi_array < self.weekly_NORlo_array):
-            # Optional: Write violating parameters to a file
-            with open("violated_params.log", "a") as f:
-                f.write(f"\nViolation for {self.reservoir_name} at {pd.Timestamp.now()}:\n")
-                f.write(f"{self.policy_params}\n")
-                f.write("--------\n")
-            return False
-        else:
-            return True
         
+    # def test_nor_constraint(self) -> bool:
+    #     """
+    #     Return False if STARFIT violates basic NOR structure:
+    #     - min < max for both hi/lo bands
+    #     - weekly NOR_hi never drops below weekly NOR_lo
+    #     """
+    #     # 1) Scalar ordering checks
+    #     if (self.NORhi_min >= self.NORhi_max) or (self.NORlo_min >= self.NORlo_max):
+    #         with open("violated_params.log", "a") as f:
+    #             f.write(f"\n[SCALAR] Violation for {self.reservoir_name} at {pd.Timestamp.now()}:\n")
+    #             f.write(f"policy_params = {self.policy_params}\n")
+    #             f.write(f"NORhi_min={self.NORhi_min}, NORhi_max={self.NORhi_max}\n")
+    #             f.write(f"NORlo_min={self.NORlo_min}, NORlo_max={self.NORlo_max}\n")
+    #             f.write("--------\n")
+    #         return False
+
+
+    #     # 2) Weekly curve crossing checks
+    #     self.calculate_weekly_NOR()
+    #     if np.any(self.weekly_NORhi_array < self.weekly_NORlo_array):
+    #         with open("violated_params.log", "a") as f:
+    #             f.write(f"\n[CURVE] Violation for {self.reservoir_name} at {pd.Timestamp.now()}:\n")
+    #             f.write(f"{self.policy_params}\n")
+    #             f.write("--------\n")
+    #         return False
+
+    #     return True
+    
+    def test_nor_constraint(self) -> bool:
+            """
+            Return False if STARFIT violates NOR structure:
+
+            Scalar checks:
+            --------------
+            - 0 <= NORlo_min < NORlo_max <= 1
+            - 0 <= NORhi_min < NORhi_max <= 1
+            - NORlo_min <= NORhi_min
+            - NORlo_max <= NORhi_max
+
+            Daily curve checks (doy = 1..366):
+            ----------------------------------
+            Using the same harmonic form as in `evaluate()`:
+                NOR_hi_raw = mu + alpha * s2 + beta * c2
+                NOR_lo_raw = mu + alpha * s2 + beta * c2
+
+            After clipping to [min,max], we require for all days:
+                0 <= NOR_lo(t) <= NOR_hi(t) <= 1
+            """
+            tol = 1e-8
+            log_file = "violated_params.log"
+
+            # ---- 1) Scalar bounds and ordering ---------------------------------
+            # mins/maxs are already converted to unit space [0,1] by parse_policy_params()
+            # via _pct_to_unit, so here we treat them as unit values.
+            if any(v is None for v in [
+                self.NORhi_min, self.NORhi_max,
+                self.NORlo_min, self.NORlo_max,
+            ]):
+                raise RuntimeError("STARFIT parameters must be parsed before test_nor_constraint().")
+
+            # basic 0–1 bounds
+            if not (0.0 <= self.NORlo_min <= 1.0 and 0.0 <= self.NORlo_max <= 1.0 and
+                    0.0 <= self.NORhi_min <= 1.0 and 0.0 <= self.NORhi_max <= 1.0):
+                with open(log_file, "a") as f:
+                    f.write(f"\n[SCALAR-BOUNDS] Violation for {self.reservoir_name} at {pd.Timestamp.now()}:\n")
+                    f.write(f"policy_params = {self.policy_params}\n")
+                    f.write(f"NORhi_min={self.NORhi_min}, NORhi_max={self.NORhi_max}\n")
+                    f.write(f"NORlo_min={self.NORlo_min}, NORlo_max={self.NORlo_max}\n")
+                    f.write("--------\n")
+                return False
+
+            # ordering: min < max
+            if not (self.NORhi_min + tol < self.NORhi_max and
+                    self.NORlo_min + tol < self.NORlo_max):
+                with open(log_file, "a") as f:
+                    f.write(f"\n[SCALAR-ORDER] Violation for {self.reservoir_name} at {pd.Timestamp.now()}:\n")
+                    f.write(f"policy_params = {self.policy_params}\n")
+                    f.write(f"NORhi_min={self.NORhi_min}, NORhi_max={self.NORhi_max}\n")
+                    f.write(f"NORlo_min={self.NORlo_min}, NORlo_max={self.NORlo_max}\n")
+                    f.write("--------\n")
+                return False
+
+            # low band must not sit above high band at the scalar level
+            if not (self.NORlo_min <= self.NORhi_min + tol and
+                    self.NORlo_max <= self.NORhi_max + tol):
+                with open(log_file, "a") as f:
+                    f.write(f"\n[SCALAR-CROSS] Violation for {self.reservoir_name} at {pd.Timestamp.now()}:\n")
+                    f.write(f"policy_params = {self.policy_params}\n")
+                    f.write(f"NORhi_min={self.NORhi_min}, NORhi_max={self.NORhi_max}\n")
+                    f.write(f"NORlo_min={self.NORlo_min}, NORlo_max={self.NORlo_max}\n")
+                    f.write("--------\n")
+                return False
+
+            # ---- 2) Daily curve checks over doy=1..366 --------------------------
+            doys = np.arange(1.0, 367.0, dtype=float)
+            hi_vals = []
+            lo_vals = []
+
+            for doy in doys:
+                s2, c2, s4, c4 = self._seasonal_terms(doy)
+
+                NOR_hi_raw = self.NORhi_mu + self.NORhi_alpha * s2 + self.NORhi_beta * c2
+                NOR_lo_raw = self.NORlo_mu + self.NORlo_alpha * s2 + self.NORlo_beta * c2
+
+                NOR_hi = float(np.clip(NOR_hi_raw, self.NORhi_min, self.NORhi_max))
+                NOR_lo = float(np.clip(NOR_lo_raw, self.NORlo_min, self.NORlo_max))
+
+                hi_vals.append(NOR_hi)
+                lo_vals.append(NOR_lo)
+
+            hi_vals = np.asarray(hi_vals)
+            lo_vals = np.asarray(lo_vals)
+
+            # constraints for all days
+            bad_lo = np.any(lo_vals < -tol)
+            bad_hi = np.any(hi_vals > 1.0 + tol)
+            cross  = np.any(lo_vals > hi_vals + tol)
+
+            if bad_lo or bad_hi or cross:
+                with open(log_file, "a") as f:
+                    f.write(f"\n[CURVE-DAILY] Violation for {self.reservoir_name} at {pd.Timestamp.now()}:\n")
+                    f.write(f"policy_params = {self.policy_params}\n")
+                    f.write(f"min(lo)={lo_vals.min():.4f}, max(lo)={lo_vals.max():.4f}\n")
+                    f.write(f"min(hi)={hi_vals.min():.4f}, max(hi)={hi_vals.max():.4f}\n")
+                    f.write("--------\n")
+                return False
+
+            return True
+
     def set_context(self, **ctx):
         """
         Set STARFIT context (min/max releases, capacity, normalization) via base class,
@@ -355,43 +509,75 @@ class STARFIT(AbstractPolicy):
         A_t = (S_hat - NOR_lo) / (NOR_hi + 1e-6)
         epsilon = self.Release_c + self.Release_p1 * A_t + self.Release_p2 * I_hat
 
+        # Get R_max for capping during calculation (aligned with parameters/starfit.py)
+        R_max = float(self.release_max if self.release_max is not None else 999999.0)
+
         # target release in original units (MGD)
-        # use release_max (context) as cap later; for within-NOR branch, the
-        # Turner-style formula multiplies by I_bar and adds +1*I_bar baseline
+        # Aligned with parameters/starfit.py.calculate_target_release():
+        # - Within NOR: apply R_max cap during calculation
+        # - Above NOR: apply R_max cap during calculation  
+        # - Below NOR: use linear scaling only if linear_below_NOR=True (default False)
         if NOR_lo <= S_hat <= NOR_hi:
-            target = self.I_bar * (harmonic + epsilon + 1.0)
+            target = min(
+                self.I_bar * (harmonic + epsilon + 1.0),
+                R_max
+            )
         elif S_hat > NOR_hi:
             # spill-like logic; weekly smoothing per legacy
             S_cap = float(self.storage_capacity)
-            target = (S_cap * (S_hat - NOR_hi) + I * 7.0) / 7.0
+            target = min((S_cap * (S_hat - NOR_hi) + I * 7.0) / 7.0, R_max)
         else:
+            # Below NOR: default (linear_below_NOR=False) uses R_min directly
+            # This matches parameters/starfit.py behavior
             if self.linear_below_NOR and NOR_lo > 0.0:
                 base = self.I_bar * (harmonic + epsilon + 1.0)
                 target = base * (S_hat / NOR_lo)
+                target = max(target, float(self.release_min if self.release_min is not None else 0.0))
             else:
                 target = float(self.release_min if self.release_min is not None else 0.0)
 
         # convert to z in [0,1] by scaling with release_max
-        R_max = float(self.release_max if self.release_max is not None else 1.0)
-        z = target / R_max
+        # Note: R_max already applied above, this is just for normalization to [0,1]
+        z = target / R_max if R_max > 0 else 0.0
         return max(0.0, min(1.0, float(z)))
 
     def get_release(self, storage: float, inflow: float, day_of_year: float) -> float:
         """
-        Normalize via base class, scale by release_max, then clamp with constraints and availability.
+        Compute release following parameters/starfit.py constraint enforcement order.
+        
+        Constraint order (aligned with STARFITReservoirRelease.value()):
+        1. Capacity constraint (prevent overfilling)
+        2. Availability constraint (cannot exceed S + I)
+        3. R_min constraint (conservation minimum)
+        
+        Note: R_max is already applied during evaluate() calculation, matching
+        the original implementation where R_max caps are applied in calculate_target_release().
+        Storage safety override is disabled to match original behavior.
         """
         S_t = float(storage)
         I_t = float(inflow)
         D_t = float(day_of_year)
 
-        forced = self._storage_safety_override(S_t, I_t)
-        if forced is not None:
-            return self.enforce_constraints(forced, available=S_t + I_t)
+        # Disable storage safety override to match parameters/starfit.py behavior
+        # (original doesn't use this override mechanism)
+        # forced = self._storage_safety_override(S_t, I_t)
+        # if forced is not None:
+        #     return self.enforce_constraints(forced, available=S_t + I_t)
 
         Xn = self._normalize(S_t, I_t, D_t)
-        z = self.evaluate(Xn)              # [0,1]
-        release = z * float(self.release_max)
-        return self.enforce_constraints(release, available=S_t + I_t)
+        z = self.evaluate(Xn)              # [0,1] - R_max already applied in evaluate()
+        R_max = float(self.release_max if self.release_max is not None else 999999.0)
+        target_release = z * R_max
+
+        # Apply constraints in same order as parameters/starfit.py.value():
+        # 1. Capacity constraint: ensure release doesn't cause overfilling
+        available_water = I_t + S_t
+        min_required = available_water - self.storage_capacity
+        release_t = max(min(target_release, available_water), min_required)
+
+        # 2. R_min constraint (conservation minimum)
+        R_min = float(self.release_min if self.release_min is not None else 0.0)
+        return max(R_min, release_t)
 
     # ---------- utilities / plots ----------
     def calculate_weekly_NOR(self):

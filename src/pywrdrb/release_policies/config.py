@@ -38,7 +38,7 @@ RELEASE_METRICS = [
 ]
 
 STORAGE_METRICS = [
-    "neg_kge",          # storage shape/timing/variance/bias (minimize -KGE)
+    "neg_nse",          # storage shape/timing/variance/bias (minimize -KGE)
     "Q80_abs_pbias",    # High flow storage percent bias
 ]
 
@@ -50,17 +50,33 @@ EPSILONS = [0.01, 0.01, 0.01, 0.01]
 OBJ_LABELS = {
     "obj1": "Release NSE",
     "obj2": "Q20 Abs % Bias (Release)",
-    "obj3": "Storage KGE",
+    "obj3": "Storage NSE",
     "obj4": "Q80 Abs % Bias (Storage)",
 }
 
 OBJ_FILTER_BOUNDS = {
     "Release NSE": (-1.0, 1.0),
     "Q20 Abs % Bias (Release)": (0.0, 50.0),
-    "Storage KGE": (-1.0, 1.0),
+    "Storage NSE": (-1.0, 1.0),
     "Q80 Abs % Bias (Storage)": (0.0, 50.0),
 }
 
+# === Objective senses & baseline aliases (needed by selection/plotting) ======
+SENSES_ALL = {
+    "Release NSE": "max",
+    "Q20 Abs % Bias (Release)": "min",
+    "Storage NSE": "max",
+    "Q80 Abs % Bias (Storage)": "min",
+}
+
+BASELINE_ALIASES = {
+    "Release NSE":              "neg_nse",                 # your baseline CSV keys
+    "Q20 Abs % Bias (Release)": "Q20_abs_pbias",
+    "Storage NSE":              "neg_nse",
+    "Q80 Abs % Bias (Storage)": "Q80_abs_pbias",
+}
+
+BASELINE_VALUE_COL = "pywr_baseline"
 
 # Symmetric inertia settings by reservoir (release + storage)
 # scale ∈ {"range","max","value"}; for "value", provide scale_value (S0)
@@ -99,6 +115,13 @@ policy_type_options = [
     "RBF",
     "PWL",
 ]
+
+# === Baseline/validation settings used by plotting ===
+BASELINE_DIR_NAME   = "baseline_pywr"   # subfolder under FIG_DIR that holds baseline CSVs
+BASELINE_INFLOW_TAG = "inflow_pub"      # which inflow series name the baseline used
+VAL_START           = "2019-01-01"      # validation window (string or pandas-parseable)
+VAL_END             = "2024-12-31"
+
 
 ## RBF
 n_rbfs = 2              # Number of radial basis functions (RBFs) used in the policy
@@ -160,7 +183,7 @@ def make_pwl_bounds(n_segments: int, n_inputs: int, *, eps: float = 1e-3):
     return n_params, bounds
 
 # Wire it in
-n_segments     = 5
+n_segments     = 3
 n_pwl_inputs   = 3
 n_pwl_params, pwl_param_bounds = make_pwl_bounds(n_segments, n_pwl_inputs)
 
@@ -193,7 +216,7 @@ policy_param_bounds = {
 # NOTE: For Beltzville, OBS storage max is 17,736 MG while we currently use 13,500 MG (crest).
 reservoir_capacity = {
     "prompton": 27956.02,
-    "beltzvilleCombined": 48317.0588,   # OBS max 17736.09
+    "beltzvilleCombined": 13500.0, #48317.0588,   # OBS max 17736.09
     "fewalter": 35800.0,
     "blueMarsh": 42320.35,
 }
@@ -227,7 +250,7 @@ LOW_STORAGE_FRACTION_BY_RES = {
     "blueMarsh": 0.00192,
     "beltzvilleCombined": 0.00106,
     "fewalter": 0.00159,
-    "prompton": 0.0,   # fallback (no published deadpool)
+    "prompton": 0.035,   # fallback (no published deadpool)
 }
 
 
@@ -235,28 +258,28 @@ LOW_STORAGE_FRACTION_BY_RES = {
 inflow_bounds_by_reservoir = {
     "prompton":           {"I_min": 0.0, "I_max": 7500.00},   # I_max = 1740.00 × 1.5 = 2610.00
     "beltzvilleCombined": {"I_min": 0.0, "I_max": 3002.50},   # I_max = 1440.00 × 1.5 = 2160.00
-    "fewalter":           {"I_min": 0.0, "I_max": 20000.00},  # I_max = 7690.00 × 1.5 = 11535.00
-    "blueMarsh": {"I_min": 0.0, "I_max": 7500.00},  # keep if/when ready
+    "fewalter":           {"I_min": 0.0, "I_max": 30000.00},  # I_max = 7690.00 × 1.5 = 11535.00
+    "blueMarsh": {"I_min": 0.0, "I_max": 7500.00},  
 }
 
 # Conservation minimums (MGD) from DRBC Water Code
 drbc_conservation_releases = {
     "blueMarsh": 50 * cfs_to_mgd,
     "beltzvilleCombined": 35 * cfs_to_mgd,  # ~22.61 MGD
-    "fewalter": 50 * cfs_to_mgd,            # ~32.30 MGD
+    #"fewalter": 50 * cfs_to_mgd,            # ~32.30 MGD
 }
 
 # Release maxima (MGD) updated from your OBS maxima
 release_max_by_reservoir = {
     "prompton":           2610.00,  # R_max = 1740.00 × 1.5 = 2610.00, 231.60651
     "beltzvilleCombined": 969.5,  # R_max = 1440.00 × 1.5 = 2160.00
-    "fewalter":           11535.00,  # R_max = 7690.00 × 1.5 = 11535.00, 1292.6
+    "fewalter":           1292.6,  # R_max = 7690.00 × 1.5 = 11535.00, 1292.6
     "blueMarsh":          969.5,
 }
 
 # promton observed minimum reported (~5.75 MGD).
 release_min_by_reservoir = {
-    "prompton": 0.0,  # from CTX print
+    "prompton": 5.75,  # from CTX print
 }
 
 # --- Build BASE_POLICY_CONTEXT directly from the dicts above ---
