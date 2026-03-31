@@ -11,9 +11,6 @@ It serves two purposes:
 2. **Trimmed model** — generate pre-simulated releases CSV for use_trimmed_model mode,
    replacing the need to run a full Pywr model first
 
-The existing `generate_presimulated_releases()` function (which extracts releases from
-a full model output HDF5) is also included for backward compatibility.
-
 Technical Notes
 ---------------
 - The STARFITOfflineSimulator replicates the exact arithmetic from
@@ -38,14 +35,13 @@ from pywrdrb.path_manager import get_pn_object
 from pywrdrb.utils.lists import (
     starfit_reservoir_list,
     modified_starfit_reservoir_list,
-    independent_starfit_reservoirs,
     reservoir_list,
 )
 from pywrdrb.parameters.lower_basin_ffmp import conservation_releases, max_discharges
 
 pn = get_pn_object()
 
-__all__ = ["STARFITOfflineSimulator", "generate_presimulated_releases"]
+__all__ = ["STARFITOfflineSimulator"]
 
 
 class STARFITOfflineSimulator:
@@ -75,12 +71,13 @@ class STARFITOfflineSimulator:
         self.initial_volume_frac = initial_volume_frac
         self._params_loaded = False
         self._istarf = None
+        self._catchment_wc = None
         # Cache for per-reservoir parameter dicts
         self._reservoir_params_cache = {}
 
     def load_parameters(self):
         """
-        Load STARFIT parameters from istarf_conus.csv.
+        Load STARFIT parameters from istarf_conus.csv and water consumption data.
 
         Mirrors STARFITReservoirRelease.load_default_starfit_params()
         (starfit.py lines 162-177).
@@ -90,6 +87,20 @@ class STARFITOfflineSimulator:
             sep=",",
             index_col=0,
         )
+
+        # Load catchment water consumption data for storage balance correction.
+        # In the Pywr model, catchment flow is split between reservoir inflow and
+        # withdrawal/consumption nodes. The net inflow to the reservoir is
+        # gross_inflow - consumption. The release formula uses gross inflow
+        # (matching the online STARFITReservoirRelease parameter), but the
+        # storage balance must use net inflow to match the model's mass balance.
+        wc_file = pn.catchment_withdrawals.get(
+            "sw_avg_wateruse_pywrdrb_catchments_mgd.csv"
+        )
+        wc = pd.read_csv(wc_file)
+        wc.index = wc["node"]
+        self._catchment_wc = wc
+
         self._params_loaded = True
         self._reservoir_params_cache = {}
 
@@ -178,6 +189,33 @@ class STARFITOfflineSimulator:
         self._reservoir_params_cache[reservoir_name] = params
         return params
 
+    def _get_catchment_consumption(self, reservoir_name):
+        """
+        Get the daily water consumption for a reservoir's catchment.
+
+        Returns the consumptive use (CU_ratio * withdrawal) which represents
+        the water removed from the system before reaching the reservoir.
+        This matches the model's catchmentConsumption node behavior.
+
+        Parameters
+        ----------
+        reservoir_name : str
+            Reservoir name matching starfit_reservoir_list entries.
+
+        Returns
+        -------
+        float
+            Daily consumption in MGD. Returns 0.0 if no data available.
+        """
+        if self._catchment_wc is None:
+            return 0.0
+        pywr_node = f"reservoir_{reservoir_name}"
+        if pywr_node in self._catchment_wc.index:
+            wd = self._catchment_wc.loc[pywr_node, "Total_WD_MGD"]
+            cu = self._catchment_wc.loc[pywr_node, "Total_CU_WD_Ratio"]
+            return cu * wd
+        return 0.0
+
     def _precompute_seasonal_arrays(self, params):
         """
         Pre-compute 366-day lookup arrays for harmonic release, NORhi, NORlo.
@@ -252,14 +290,20 @@ class STARFITOfflineSimulator:
         Simulate a single STARFIT reservoir over all timesteps.
 
         Replicates STARFITReservoirRelease.value() (starfit.py lines 480-560)
-        exactly, line-by-line.
+        for the release formula, but uses net inflow (gross - consumption)
+        for the storage balance to match the Pywr model's mass balance.
+
+        In the Pywr model, the STARFIT parameter uses gross inflow (I_t) for
+        its release formula, but the reservoir's actual storage dynamics use
+        net inflow (gross - catchment consumption). This method replicates
+        that behavior.
 
         Parameters
         ----------
         reservoir_name : str
             Reservoir name matching starfit_reservoir_list.
         inflows : np.ndarray
-            Daily inflows in MGD, shape (n_days,).
+            Daily gross inflows in MGD, shape (n_days,).
         day_of_year : np.ndarray
             Day-of-year values (1-366), shape (n_days,).
 
@@ -285,6 +329,9 @@ class STARFITOfflineSimulator:
         inv_S_cap = 1.0 / S_cap
         inv_I_bar = 1.0 / I_bar
 
+        # Get catchment consumption for storage balance correction
+        consumption = self._get_catchment_consumption(reservoir_name)
+
         n = len(inflows)
         storage = np.empty(n + 1)
         releases = np.empty(n)
@@ -295,11 +342,12 @@ class STARFITOfflineSimulator:
         # Main simulation loop — sequential due to storage dependency
         # Each iteration mirrors starfit.py lines 522-560
         for t in range(n):
-            I_t = inflows[t]
+            I_t = inflows[t]  # gross inflow (used in release formula)
             S_t = storage[t]
 
             # Inlined: standardize_inflow and calculate_percent_storage
             # (starfit.py lines 527-528)
+            # NOTE: uses gross I_t, matching online STARFITReservoirRelease
             I_hat_t = (I_t - I_bar) * inv_I_bar
             S_hat_t = S_t * inv_S_cap
 
@@ -328,13 +376,19 @@ class STARFITOfflineSimulator:
                 target_release = R_min
 
             # Constraints (starfit.py lines 556-560)
+            # NOTE: uses gross I_t for available_water, matching online STARFIT
             available_water = I_t + S_t
             min_required = available_water - S_cap
             release_t = max(min(target_release, available_water), min_required)
             release_t = max(0.0, release_t)
 
             releases[t] = release_t
-            storage[t + 1] = S_t + I_t - release_t
+
+            # Storage balance uses NET inflow (gross - consumption)
+            # to match the Pywr model's mass balance where catchment flow
+            # is split between reservoir inflow and consumption nodes.
+            net_inflow = max(I_t - consumption, 0.0)
+            storage[t + 1] = S_t + net_inflow - release_t
 
         return releases, storage
 
@@ -451,103 +505,3 @@ class STARFITOfflineSimulator:
 
         return metadata
 
-
-# =============================================================================
-# Legacy function: extract releases from full model output (backward compat)
-# =============================================================================
-
-
-def generate_presimulated_releases(
-    output_filename,
-    inflow_type,
-    output_dir=None,
-    reservoirs=None,
-    scenario=0,
-):
-    """
-    Generate pre-simulated releases CSV from a full model run output.
-
-    This is the legacy approach that requires running the full Pywr model first.
-    For most use cases, prefer STARFITOfflineSimulator.generate_and_save() which
-    does not require a full model run.
-
-    Parameters
-    ----------
-    output_filename : str
-        Path to the HDF5 output file from a full model run.
-    inflow_type : str
-        The inflow type used in the full model run.
-    output_dir : str, optional
-        Directory to save the CSV. If None, uses package data directory.
-    reservoirs : list, optional
-        Reservoir names to extract. If None, uses independent_starfit_reservoirs.
-    scenario : int, optional
-        Scenario index for multi-scenario runs. Default is 0.
-
-    Returns
-    -------
-    dict
-        Metadata dictionary.
-    """
-    from pywrdrb.load.output_loader import Output
-
-    if not os.path.exists(output_filename):
-        raise FileNotFoundError(f"Output file not found: {output_filename}")
-
-    if reservoirs is None:
-        reservoirs = independent_starfit_reservoirs
-
-    if output_dir is None:
-        output_dir = str(pn.sc.get(f"flows/{inflow_type}"))
-
-    os.makedirs(output_dir, exist_ok=True)
-
-    output_loader = Output(
-        output_filenames=[output_filename],
-        results_sets=["res_release"],
-        print_status=False,
-    )
-    output_loader.load()
-
-    model_label = output_loader.output_labels[0]
-    releases_data = output_loader.res_release[model_label][scenario]
-
-    available_reservoirs = releases_data.columns.tolist()
-    missing = [r for r in reservoirs if r not in available_reservoirs]
-    if missing:
-        raise ValueError(
-            f"Requested reservoirs not found in output: {missing}\n"
-            f"Available reservoirs: {available_reservoirs}"
-        )
-
-    releases_df = releases_data[reservoirs].copy()
-    releases_df.index.name = "datetime"
-    releases_df.index = pd.to_datetime(releases_df.index).strftime("%Y-%m-%d")
-
-    csv_file = os.path.join(output_dir, "presimulated_releases_mgd.csv")
-    metadata_file = os.path.join(
-        output_dir, "presimulated_releases_mgd_metadata.json"
-    )
-
-    releases_df.to_csv(csv_file, float_format="%.10f")
-
-    metadata = {
-        "inflow_type": inflow_type,
-        "start_date": str(releases_df.index[0]),
-        "end_date": str(releases_df.index[-1]),
-        "reservoirs": reservoirs,
-        "source_output_file": os.path.abspath(output_filename),
-        "scenario": scenario,
-        "source": "full_model_extraction",
-        "output_file": csv_file,
-        "metadata_file": metadata_file,
-    }
-
-    with open(metadata_file, "w") as f:
-        json.dump(metadata, f, indent=2)
-
-    print(
-        f"Saved pre-simulated releases for {len(reservoirs)} reservoirs to: {csv_file}"
-    )
-
-    return metadata
