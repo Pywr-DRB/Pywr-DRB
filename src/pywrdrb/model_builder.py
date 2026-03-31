@@ -108,6 +108,8 @@ class Options:
         List of scenarios to use for STARFIT sensitivity analysis. Default is an empty list.
     initial_volume_frac : float
         Initial reservoir storage as a fraction of capacity. Default is 0.8.
+    flow_prediction_mode : str
+        Flow prediction mode for FFMP operations. Determines which prediction columns to use from predicted_inflows_mgd.csv. Options are "regression_disagg" (default), "perfect_foresight", and "gage_flow".
     """
     NSCENARIOS: int = 1
     inflow_ensemble_indices: Optional[List[int]] = None
@@ -118,9 +120,6 @@ class Options:
     sensitivity_analysis_scenarios: List[str] = field(default_factory=list)
     # Initial reservoir storages as 80% of capacity
     initial_volume_frac: float = 0.8
-    # Flow prediction mode for FFMP operations
-    # Determines which prediction columns to use from predicted_inflows_mgd.csv
-    # Options: "regression_disagg" (default), "perfect_foresight", "gage_flow"
     flow_prediction_mode: str = "regression_disagg"
 
     def list(self):
