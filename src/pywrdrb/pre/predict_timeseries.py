@@ -296,7 +296,8 @@ class PredictedTimeseriesPreprocessor(DataPreprocessor):
             data_source = self.timeseries_data
             val_t = data_source.loc[date_t, node]
 
-        # Initialize prediction variables
+        # Initialize prediction variables for all modes
+        # Both are needed by the catchment water consumption logic below
         Yhat_lag_prediction = None
         Yhat_lag_minus1_prediction = None
 
@@ -305,7 +306,13 @@ class PredictedTimeseriesPreprocessor(DataPreprocessor):
             Yhat_lag_minus1_prediction = val_t
 
         elif mode in ("gage_flow", "perfect_foresight"):
-            # Use actual observations as predictions
+            # Use actual observations as predictions.
+            # Note: PredictedInflowPreprocessor overrides _predict_value to handle
+            # perfect_foresight differently (using STARFIT-simulated releases for
+            # reservoir nodes). This base class implementation is used by
+            # PredictedDiversionPreprocessor where perfect_foresight == raw demand data.
+            # Date-based indexing (loc) is used instead of positional (iloc) to avoid
+            # bugs when start_date/end_date subset the data.
             date_lag = date_t + pd.Timedelta(days=lag)
             date_lag_minus_1 = date_t + pd.Timedelta(days=lag - 1)
 
@@ -334,6 +341,7 @@ class PredictedTimeseriesPreprocessor(DataPreprocessor):
         elif mode.startswith("regression"):
 
             ### Handle negative lag (past) days
+            # When lag < 0, we are 'predicting' past values so we use actual observations
             if lag <= 0:
                 date_lag = date_t + pd.Timedelta(days=lag)
                 date_lag_minus_1 = date_t + pd.Timedelta(days=lag - 1)
