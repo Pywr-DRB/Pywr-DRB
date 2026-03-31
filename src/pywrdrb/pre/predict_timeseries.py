@@ -115,19 +115,28 @@ class PredictedTimeseriesPreprocessor(DataPreprocessor):
 
     def train_regressions(self):
         """Train the AR models for different node, lag combinations.
-        
+
+        Returns empty dict if no regression modes are used.
+
         Returns
         -------
             dict: A dictionary of regression coefficients for each (node, lag) pair.
             The keys are tuples of (node, lag) and the values are dictionaries with "const" and "slope" keys.
         """
+        # Check if any regression modes need training
+        has_regression = any(mode.startswith("regression") for mode in self.modes)
+
+        if not has_regression:
+            # No regression modes - skip training
+            return {}
+
         training_start_date = self.start_date if self.start_date else self.timeseries_data.index[0]
         training_end_date = self.end_date if self.end_date else self.timeseries_data.index[-1]
-        
+
         regressions = {}
-        df = subset_timeseries(self.timeseries_data, 
+        df = subset_timeseries(self.timeseries_data,
                                training_start_date, training_end_date)
-        
+
         for (node, lag) in self._unique_node_lag_pairs():
             # When lag < 0, we are 'predicting' past values so no regression needed
             # we will just use actual observations
@@ -172,6 +181,12 @@ class PredictedTimeseriesPreprocessor(DataPreprocessor):
                 mask = (Y > 0.01) & (X > 0.01)
                 Y, X = Y[mask], X[mask]
 
+        ## Check if we have enough data points to fit the regression
+        if len(Y) < 10 or len(X) < 10:
+            summary_msg = f"Not enough data points to fit regression after zero removal for\nnode:{node}\nlag:{lag}\n"
+            summary_msg += f"After removing zeros, we have {len(Y)} samples. Consider setting remove_zeros=False or adjusting the threshold."
+            raise ValueError(summary_msg)
+
         if self.use_log:
             eps = 0.001
             Y, X = np.log(Y + eps), np.log(X + eps)
@@ -199,27 +214,33 @@ class PredictedTimeseriesPreprocessor(DataPreprocessor):
         DataFrame
             A DataFrame containing the predicted timeseries data.
         """
-        # Setip the prediction dataframe
-        index = self.timeseries_data.index
-        
-        # use state_date and end_date if not None
+        # Setup the prediction dataframe
+        # Use gage_data index if timeseries_data is None (perfect_foresight only mode)
+        if self.timeseries_data is not None:
+            index = self.timeseries_data.index
+        elif hasattr(self, 'gage_data') and self.gage_data is not None:
+            index = self.gage_data.index
+        else:
+            raise ValueError("No data loaded for making predictions")
+
+        # use start_date and end_date if not None
         if self.start_date is not None:
             index = index[index >= self.start_date]
         if self.end_date is not None:
             index = index[index <= self.end_date]
-        
+
         pred_df = pd.DataFrame({"datetime": index})
         node_lags = self.get_prediction_node_lag_combinations()
 
         for col, node_lag_mode_list in node_lags.items():
             pred_df[col] = np.zeros(len(index))
             for (node, lag), mode in node_lag_mode_list:
-                
+
                 predicted_node_lag_flows= [
-                    self._predict_value(idx, node, lag, mode, regressions)
+                    self._predict_value(idx, index[idx], node, lag, mode, regressions)
                     for idx in range(len(index))
                     ]
-                
+
                 pred_df[col] += np.array(predicted_node_lag_flows)
                 
                 ### Print summary:
@@ -232,56 +253,106 @@ class PredictedTimeseriesPreprocessor(DataPreprocessor):
                 # print('---'*20)
         return pred_df
 
-    def _predict_value(self, idx, node, lag, mode, regressions):
-        """Generate a single prediction value for a given timeidex, node, lag, and mode.
-        
+    def _predict_value(self, idx, date_t, node, lag, mode, regressions):
+        """Generate a single prediction value for a given time index, node, lag, and mode.
+
         Parameters
         ----------
         idx : int
-            The index of the time series data to predict.
+            The position index in the prediction array.
+        date_t : pd.Timestamp
+            The date for this prediction.
         node : str
             The name of the node to predict for.
         lag : int
             The lag to use for the prediction.
         mode : str
-            The prediction mode to use (e.g., "same_day", "perfect_foresight", "regression", "moving_average").
+            The prediction mode to use (e.g., "same_day", "gage_flow", "perfect_foresight", "regression", "moving_average").
         regressions : dict
             A dictionary of regression coefficients for each (node, lag) pair.
             The keys are tuples of (node, lag) and the values are dictionaries with "const" and "slope" keys.
-        
+
         Returns
         -------
         float
             The predicted value for the given time index, node, and lag.
-            
+
         Notes
         -----
-        When 'node' has a non-None catchment water consumption, then 
+        When 'node' has a non-None catchment water consumption, then
         the predicted value is adjusted by the catchment water consumption ratio.
         """
-        
-        n = self.timeseries_data.shape[0]
-        val_t = self.timeseries_data[node].iloc[idx]
+
+        # Determine which data source to use based on mode and node
+        use_gage_data = (mode in ("gage_flow", "perfect_foresight") and
+                        hasattr(self, 'gage_data') and
+                        self.gage_data is not None and
+                        node in ['delMontague', 'delTrenton'])
+
+        if use_gage_data:
+            data_source = self.gage_data
+            val_t = data_source.loc[date_t, node] if mode != "gage_flow" else None
+        else:
+            data_source = self.timeseries_data
+            val_t = data_source.loc[date_t, node]
+
+        # Initialize prediction variables
+        Yhat_lag_prediction = None
+        Yhat_lag_minus1_prediction = None
 
         if mode == "same_day":
-            value = val_t
+            Yhat_lag_prediction = val_t
+            Yhat_lag_minus1_prediction = val_t
 
-        elif mode == "perfect_foresight":            
-            value = self.timeseries_data[node].iloc[min(idx + lag, n - 1)]
+        elif mode in ("gage_flow", "perfect_foresight"):
+            # Use actual observations as predictions
+            date_lag = date_t + pd.Timedelta(days=lag)
+            date_lag_minus_1 = date_t + pd.Timedelta(days=lag - 1)
+
+            if use_gage_data:
+                if date_lag in data_source.index:
+                    Yhat_lag_prediction = data_source.loc[date_lag, node]
+                else:
+                    Yhat_lag_prediction = data_source[node].iloc[-1]
+
+                if date_lag_minus_1 in data_source.index:
+                    Yhat_lag_minus1_prediction = data_source.loc[date_lag_minus_1, node]
+                else:
+                    Yhat_lag_minus1_prediction = data_source[node].iloc[-1]
+            else:
+                data_source = self.timeseries_data
+                if date_lag in data_source.index:
+                    Yhat_lag_prediction = data_source.loc[date_lag, node]
+                else:
+                    Yhat_lag_prediction = data_source[node].iloc[-1]
+
+                if date_lag_minus_1 in data_source.index:
+                    Yhat_lag_minus1_prediction = data_source.loc[date_lag_minus_1, node]
+                else:
+                    Yhat_lag_minus1_prediction = data_source[node].iloc[-1]
 
         elif mode.startswith("regression"):
-            
+
             ### Handle negative lag (past) days
-            # When lag < 0, we are 'predicting' past values so we use actual observations
             if lag <= 0:
-                Yhat_lag_prediction = self.timeseries_data[node].iloc[max(idx + lag, 0)]
-                Yhat_lag_minus1_prediction = self.timeseries_data[node].iloc[max(idx + lag - 1, 0)]
+                date_lag = date_t + pd.Timedelta(days=lag)
+                date_lag_minus_1 = date_t + pd.Timedelta(days=lag - 1)
+
+                if date_lag in self.timeseries_data.index:
+                    Yhat_lag_prediction = self.timeseries_data.loc[date_lag, node]
+                else:
+                    Yhat_lag_prediction = self.timeseries_data[node].iloc[0]
+
+                if date_lag_minus_1 in self.timeseries_data.index:
+                    Yhat_lag_minus1_prediction = self.timeseries_data.loc[date_lag_minus_1, node]
+                else:
+                    Yhat_lag_minus1_prediction = self.timeseries_data[node].iloc[0]
             elif lag > 0:
-                
+
                 const = regressions[(node, lag)]["const"]
                 slope = regressions[(node, lag)]["slope"]
                 Yhat_lag_prediction = self._regression_prediction(val_t, const, slope)
-                
+
                 # need to get the lag-1 prediction for the autoregressive model
                 if lag==1:
                     Yhat_lag_minus1_prediction = val_t
@@ -291,27 +362,32 @@ class PredictedTimeseriesPreprocessor(DataPreprocessor):
                     Yhat_lag_minus1_prediction = self._regression_prediction(val_t, const, slope)
 
         elif mode == "moving_average":
-            start = max(0, idx - 6)
-            value = self.timeseries_data[node].iloc[start:idx+1].mean()
+            date_start = date_t - pd.Timedelta(days=6)
+            date_end = date_t
+            Yhat_lag_prediction = self.timeseries_data.loc[date_start:date_end, node].mean()
+
+            date_start_minus1 = date_t - pd.Timedelta(days=7)
+            date_end_minus1 = date_t - pd.Timedelta(days=1)
+            Yhat_lag_minus1_prediction = self.timeseries_data.loc[date_start_minus1:date_end_minus1, node].mean()
+
         else:
             raise ValueError(f"Unknown mode: {mode}")
 
         ### Account for catchment water consumption if applicable
-        # Predicted flow = prediction - consumption
         if node in reservoir_list + majorflow_list:
             pywr_node = f'reservoir_{node}' if node in reservoir_list else f'link_{node}'
             wd = self.catchment_wc.loc[pywr_node, "Total_WD_MGD"]
             cu = self.catchment_wc.loc[pywr_node, "Total_CU_WD_Ratio"]
-            
-            consumption_prediction = min(Yhat_lag_prediction, 
+
+            consumption_prediction = min(Yhat_lag_prediction,
                                          cu * min(Yhat_lag_minus1_prediction, wd))
-            
+
             value = Yhat_lag_prediction - consumption_prediction
-            
+
         # If no catchment water consumption, just return the prediction
         else:
             value = Yhat_lag_prediction
-            
+
         return value
 
     def _regression_prediction(self, x, const, slope):
