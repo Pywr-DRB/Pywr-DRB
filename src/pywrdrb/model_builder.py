@@ -69,12 +69,8 @@ __all__ = ["ModelBuilder"]
 global pn
 pn = get_pn_object()
 
-### model options/parameters (should not be placed into options)
-# flow_prediction_mode was something Andrew set up when he was developing the FFMP.
-# I'm not sure if the other regression approaches would actually still work...
-flow_prediction_mode = "regression_disagg"  
-# Decrepated options, but kept for backward compatibility
-### 'regression_agg', 'regression_disagg', 'perfect_foresight', 'same_day', 'moving_average'
+### DEPRECATED: flow_prediction_mode moved to Options dataclass
+# Supported modes: "regression_disagg", "perfect_foresight", "gage_flow"
 # Always True
 use_lower_basin_mrf_contributions = True
 
@@ -122,6 +118,10 @@ class Options:
     sensitivity_analysis_scenarios: List[str] = field(default_factory=list)
     # Initial reservoir storages as 80% of capacity
     initial_volume_frac: float = 0.8
+    # Flow prediction mode for FFMP operations
+    # Determines which prediction columns to use from predicted_inflows_mgd.csv
+    # Options: "regression_disagg" (default), "perfect_foresight", "gage_flow"
+    flow_prediction_mode: str = "regression_disagg"
 
     def list(self):
         """Prints the options."""
@@ -345,6 +345,14 @@ class ModelBuilder:
         minor nodes (withdrawals, consumption, outflows, etc.), edges between nodes, and parameters
         for the model. It also handles scenarios for inflows and temperature/salinity predictions.
         """
+        # Validate flow_prediction_mode
+        valid_flow_modes = ["regression_disagg", "perfect_foresight", "gage_flow"]
+        if self.options.flow_prediction_mode not in valid_flow_modes:
+            raise ValueError(
+                f"Invalid flow_prediction_mode: '{self.options.flow_prediction_mode}'. "
+                f"Must be one of {valid_flow_modes}."
+            )
+
         ####################################################################
         ### Add pywr scenarios
         ####################################################################
@@ -1548,7 +1556,7 @@ class ModelBuilder:
                 ),
                 (1, 2, 1, 2, 3, 4),
             ):
-                label = f"{mrf}_lag{lag}_{flow_prediction_mode}"
+                label = f"{mrf}_lag{lag}_{self.options.flow_prediction_mode}"
                 model_dict["parameters"][
                     f"predicted_nonnyc_gage_flow_{mrf}_lag{lag}"
                 ] = {
@@ -1567,7 +1575,7 @@ class ModelBuilder:
                     pred_div_fname = str(pn.sc.get(f"flows/{inflow_type}") / "predicted_diversions_mgd.csv")
                     assert os.path.exists(pred_div_fname), f"Custom predicted diversion file {pred_div_fname} does not exist but is required when nyc_nj_demand_source is 'custom'."
                 
-                label = f"demand_nj_lag{lag}_{flow_prediction_mode}"
+                label = f"demand_nj_lag{lag}_{self.options.flow_prediction_mode}"
                 model_dict["parameters"][f"predicted_demand_nj_lag{lag}"] = {
                     "type": "dataframe",
                     "url": pred_div_fname,
@@ -1588,7 +1596,7 @@ class ModelBuilder:
                 ),
                 (1, 2, 1, 2, 3, 4),
             ):
-                label = f"{mrf}_lag{lag}_{flow_prediction_mode}"
+                label = f"{mrf}_lag{lag}_{self.options.flow_prediction_mode}"
 
                 model_dict["parameters"][
                     f"predicted_nonnyc_gage_flow_{mrf}_lag{lag}"
@@ -1601,7 +1609,7 @@ class ModelBuilder:
 
             ### now get predicted nj demand - use PredictionEnsemble for ensemble mode
             for lag in range(1, 5):
-                label = f"demand_nj_lag{lag}_{flow_prediction_mode}"
+                label = f"demand_nj_lag{lag}_{self.options.flow_prediction_mode}"
                 model_dict["parameters"][f"predicted_demand_nj_lag{lag}"] = {
                     "type": "PredictionEnsemble",
                     "column": label,
