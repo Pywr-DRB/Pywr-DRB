@@ -512,7 +512,7 @@ class STARFITReservoirRelease(Parameter):
 
         # Get current storage and inflow conditions
         I_t = self.inflow.get_value(scenario_index)
-        S_t = self.node.volume[scenario_index.indices]
+        S_t = self.node.volume[scenario_index.global_id]
 
         # Fast computation using pre-computed values and constants
         I_hat_t = self.standardize_inflow(I_t)
