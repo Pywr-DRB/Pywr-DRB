@@ -107,3 +107,10 @@ drbc_lower_basin_reservoirs = [
     "blueMarsh",
     "nockamixon",
 ]  # 'wallenpaupack' at comission request; not implemented
+
+# Independent STARFIT reservoirs (not NYC, not DRBC lower basin)
+# Used by STARFITOfflineSimulator for pre-simulating releases
+independent_starfit_reservoirs = [
+    r for r in starfit_reservoir_list
+    if r not in drbc_lower_basin_reservoirs
+]

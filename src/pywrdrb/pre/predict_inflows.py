@@ -1,15 +1,21 @@
 """
 Preprocessor for generating inflow predictions at nodes in the pywrdrb model.
 
-Overview: 
+Overview:
 This class generates lag-based inflow predictions/forecasts at Montague and Trenton,
-which are used to determine NYC and lower basin reservoir operations while accounting for travel time. 
+which are used to determine NYC and lower basin reservoir operations while accounting for travel time.
 It uses regression models, trained on historical data, to predict flows 1-4 days ahead
-based on catchment-level data and travel times between nodes. The output data has 
-multiple different columns corresponding to different prediction nodes, lead time lags, and 
-regression modes. 
+based on catchment-level data and travel times between nodes. The output data has
+multiple different columns corresponding to different prediction nodes, lead time lags, and
+regression modes.
 
-Technical Notes: 
+Prediction Modes:
+- "regression_disagg": AR regression predictions using catchment inflows (realistic forecasts)
+- "perfect_foresight": Pre-simulated STARFIT releases + actual catchment inflows with lag routing
+  (best retrospective analysis, accounts for reservoir operations)
+- "gage_flow": Raw natural gage flow lookup (legacy, does not account for STARFIT operations)
+
+Technical Notes:
 - Extends PredictedTimeseriesPreprocessor with specific inflow prediction logic
 - Incorporates travel times to properly account for flow routing
 - Adjusts predictions for water consumption in each catchment
@@ -27,24 +33,33 @@ Links:
 Change Log:
 TJA, 2025-05-07, Minor fixes + docstrings
 TJA, 2025-10, Fixed bug where nodes with lag < 0 were not being included in predictions
+TJA, 2026-03, Added STARFIT-aware perfect_foresight mode; renamed old PF to gage_flow
 """
 import h5py
 import numpy as np
 import pandas as pd
 from pywrdrb.pre.predict_timeseries import PredictedTimeseriesPreprocessor
 from pywrdrb.utils.hdf5 import extract_realization_from_hdf5
+from pywrdrb.utils.lists import (
+    starfit_reservoir_list,
+    reservoir_list_nyc,
+    reservoir_list,
+    majorflow_list,
+)
+
 # Import pywrdrb_all_nodes for optimized HDF5 extraction
 from pywrdrb.pywr_drb_node_data import immediate_downstream_nodes_dict
+
 pywrdrb_all_nodes = list(immediate_downstream_nodes_dict.keys())
 
-__all__ = ["PredictedInflowPreprocessor",
-           "PredictedInflowEnsemblePreprocessor"]
+__all__ = ["PredictedInflowPreprocessor", "PredictedInflowEnsemblePreprocessor"]
+
 
 class PredictedInflowPreprocessor(PredictedTimeseriesPreprocessor):
     """
     Predicts catchment inflows at Montague and Trenton using specified modes
-    (e.g., regression, perfect foresight, moving average).
-    
+    (e.g., regression, perfect foresight, gage flow).
+
     Example usage:
     ```python
     from pywrdrb.pre import PredictedInflowPreprocessor
@@ -54,61 +69,67 @@ class PredictedInflowPreprocessor(PredictedTimeseriesPreprocessor):
     inflow_predictor.save()
     ```
     """
-    def __init__(self,
-                 flow_type,
-                 start_date=None,
-                 end_date=None,
-                 modes=('regression_disagg',),
-                 use_log=True,
-                 remove_zeros=False,
-                 use_const=False):
+
+    def __init__(
+        self,
+        flow_type,
+        start_date=None,
+        end_date=None,
+        modes=("regression_disagg",),
+        use_log=True,
+        remove_zeros=False,
+        use_const=False,
+    ):
         """
         Initialize the PredictedInflowPreprocessor.
-        
+
         Args:
             flow_type (str): Label for the dataset.
             start_date (bool, None): Start date for the time series. If None, match the input data.
             end_date (bool, None): End date for the time series. If None, match the input data.
             modes (tuple): Modes to use for prediction. Default is ('regression_disagg',).
+                Options: "regression_disagg", "perfect_foresight", "gage_flow"
             use_log (bool): Whether to use log transformation. Default is True.
             remove_zeros (bool): Whether to remove zero values. Default is False.
             use_const (bool): Whether to use a constant in regression. Default is False.
-        
+
         Returns:
-            None        
+            None
         """
-        # Initialize the PredictedTimeseriesPreprocessor 
-        super().__init__(flow_type, 
-                         start_date, 
-                         end_date, 
-                         use_log, 
-                         remove_zeros, 
-                         use_const)
-        
-        # List of regression modes options
+        # Initialize the PredictedTimeseriesPreprocessor
+        super().__init__(
+            flow_type, start_date, end_date, use_log, remove_zeros, use_const
+        )
+
+        # Valid prediction modes
         self.regression_mode_options = [
             "regression_disagg",
             "perfect_foresight",
-            "moving_average",
-            "same_day",
+            "gage_flow",
         ]
 
-        # Modes being used; check validity        
+        # Modes being used; check validity
         self.modes = modes
         for mode in self.modes:
-            assert mode in self.regression_mode_options, f"Invalid regression mode: {mode}. Must be one of {self.regression_mode_options}."
-    
+            assert (
+                mode in self.regression_mode_options
+            ), f"Invalid regression mode: {mode}. Must be one of {self.regression_mode_options}."
+
         # Input files used for prediction
         self.input_dirs = {
-            "sw_avg_wateruse_pywrdrb_catchments_mgd.csv": self.pn.catchment_withdrawals.get("sw_avg_wateruse_pywrdrb_catchments_mgd.csv"),
-            "catchment_inflow_mgd.csv": self.pn.sc.get(f"flows/{self.flow_type}") / "catchment_inflow_mgd.csv",
+            "sw_avg_wateruse_pywrdrb_catchments_mgd.csv": self.pn.catchment_withdrawals.get(
+                "sw_avg_wateruse_pywrdrb_catchments_mgd.csv"
+            ),
+            "catchment_inflow_mgd.csv": self.pn.sc.get(f"flows/{self.flow_type}")
+            / "catchment_inflow_mgd.csv",
         }
-        
+
         # Output locations for predicted timeseries
         self.output_dirs = {
-            "predicted_inflows_mgd.csv": self.pn.sc.get(f"flows/{self.flow_type}") / "predicted_inflows_mgd.csv",
+            "predicted_inflows_mgd.csv": self.pn.sc.get(f"flows/{self.flow_type}")
+            / "predicted_inflows_mgd.csv",
         }
-        
+
         # Dictionary with (node, travel_time) pairs
         # travel_time is time from each node to Trenton
         self.node_to_trenton_travel_time = {
@@ -132,7 +153,7 @@ class PredictedInflowPreprocessor(PredictedTimeseriesPreprocessor):
             "delDRCanal": 0,
         }
 
-        # travel_time is time from each node to Montague        
+        # travel_time is time from each node to Montague
         self.node_to_montague_travel_time = {
             "01425000": 2,
             "01417000": 2,
@@ -145,17 +166,50 @@ class PredictedInflowPreprocessor(PredictedTimeseriesPreprocessor):
             "01433500": 0,
             "delMontague": 0,
         }
-        
+
+        # STARFIT releases (populated during load() for perfect_foresight mode)
+        self.starfit_releases = None
 
     def load(self):
         """
-        Loads catchment inflows and water consumption data.
+        Loads catchment inflows, gage flows, STARFIT releases, and water consumption data.
+
+        For regression modes: Uses catchment_inflow_mgd.csv (marginal/incremental flows)
+        For perfect_foresight mode: Uses catchment_inflow_mgd.csv + pre-simulated STARFIT releases
+        For gage_flow mode: Uses gage_flow_mgd.csv (total natural flow at gages)
         """
-        # Load catchment inflow data
-        # used to predict inflows at Montague and Trenton
-        fname = self.input_dirs["catchment_inflow_mgd.csv"]
-        self.timeseries_data = pd.read_csv(fname, index_col=0, parse_dates=True)
-        self.timeseries_data.index = pd.DatetimeIndex(self.timeseries_data.index)
+        # Determine which data sources to load based on modes
+        has_regression = any(mode.startswith("regression") for mode in self.modes)
+        has_perfect_foresight = "perfect_foresight" in self.modes
+        has_gage_flow = "gage_flow" in self.modes
+
+        # Load catchment inflow data for regression and perfect_foresight modes
+        # used to predict inflows at Montague and Trenton via aggregation
+        if has_regression or has_perfect_foresight:
+            fname = self.input_dirs["catchment_inflow_mgd.csv"]
+            self.timeseries_data = pd.read_csv(fname, index_col=0, parse_dates=True)
+            self.timeseries_data.index = pd.DatetimeIndex(self.timeseries_data.index)
+        else:
+            self.timeseries_data = None
+
+        # Load gage flow data for gage_flow mode
+        # provides total natural flow directly at gage locations (delMontague, delTrenton)
+        if has_gage_flow:
+            gage_fname = self.pn.sc.get(f"flows/{self.flow_type}") / "gage_flow_mgd.csv"
+            self.gage_data = pd.read_csv(gage_fname, index_col=0, parse_dates=True)
+            self.gage_data.index = pd.DatetimeIndex(self.gage_data.index)
+        else:
+            self.gage_data = None
+
+        # Pre-simulate STARFIT releases for perfect_foresight mode
+        if has_perfect_foresight:
+            from pywrdrb.pre.generate_presimulated_releases import (
+                STARFITOfflineSimulator,
+            )
+
+            simulator = STARFITOfflineSimulator(initial_volume_frac=0.8)
+            simulator.load_parameters()
+            self.starfit_releases = simulator.simulate_all(self.timeseries_data)
 
         # Load average water consumption data
         # used to adjust the inflow prediction, accounting for water use
@@ -164,106 +218,169 @@ class PredictedInflowPreprocessor(PredictedTimeseriesPreprocessor):
         wc.index = wc["node"]
         self.catchment_wc = wc
 
-
     def save(self):
         """
         Save predicted timeseries to CSV.
         """
         # Make sure the predictions are done successfully
-        assert self.predicted_timeseries is not None, "Predicted timeseries is None. Cannot save."
-        
+        assert (
+            self.predicted_timeseries is not None
+        ), "Predicted timeseries is None. Cannot save."
+
         # Save
         fname = self.output_dirs["predicted_inflows_mgd.csv"]
         self.predicted_timeseries.to_csv(fname, index=False)
 
-
-
     def process(self):
         """Run full prediction workflow."""
         # Ensure data is loaded
-        if self.timeseries_data is None:
+        if self.timeseries_data is None and self.gage_data is None:
             self.load()
-            
+
         # Train regression models for all node-lag combinations
         regressions = self.train_regressions()
-        
+
         # Generate predictions using the trained regression models
         self.predicted_timeseries = self.make_predictions(regressions)
-        
 
     def get_prediction_node_lag_combinations(self):
         """
         Return dict of {column_label: [((node, lag), mode)]} across all modes.
         This defines the structure used in make_predictions().
+
+        For regression modes: Aggregates upstream catchments with travel time adjustments
+        For perfect_foresight: Aggregates upstream catchments with travel times + STARFIT releases
+        For gage_flow: Uses gage data directly at target locations (no aggregation)
         """
-        
+
         # Dictionary to hold regression combination
         # keys are strings of the form "target_lag_mode"
         # values are lists of tuples (node, lag)
         combos = {}
 
-        # Montague
-        # (node, (lag - travel_time)) pairs
+        # Montague predictions
         for lag in [1, 2]:
-            for node, travel_time in self.node_to_montague_travel_time.items():
+            for mode in self.modes:
+                col = f"delMontague_lag{lag}_{mode}"
 
-                node_lag = [
-                    (node, lag - travel_time),
-                ]
-                
-                # Create node-lag pairs for each prediction mode
-                node_lag = [(node, lag - travel_time)]
-                
-                # Add combinations for all requested modes
-                for mode in self.modes:
-                    col = f"delMontague_lag{lag}_{mode}"
-                    if col not in combos:
-                        combos[col] = []
-                    # Add this node's contribution to the prediction
-                    combos[col].extend([((n, l), mode) for (n, l) in node_lag])
+                if mode == "gage_flow":
+                    # Use gage data directly - no aggregation needed
+                    combos[col] = [(("delMontague", lag), mode)]
+                elif mode == "perfect_foresight" or mode.startswith("regression"):
+                    # Aggregate upstream catchments with travel times
+                    combos[col] = []
+                    for node, travel_time in self.node_to_montague_travel_time.items():
+                        combos[col].append(((node, lag - travel_time), mode))
 
-        # For Trenton
-        # (node, (lag - travel_time)) pairs
+        # Trenton predictions
         for lag in [1, 2, 3, 4]:
-            for node, travel_time in self.node_to_trenton_travel_time.items():
-                
-                node_lag = [
-                    (node, lag - travel_time),
-                ]
+            for mode in self.modes:
+                col = f"delTrenton_lag{lag}_{mode}"
 
-                # Add combinations for all requested modes
-                for mode in self.modes:
-                    col = f"delTrenton_lag{lag}_{mode}"
-                    if col not in combos:
-                        combos[col] = []
-                    # Add this node's contribution to the prediction
-                    combos[col].extend([((n, l), mode) for (n, l) in node_lag])
+                if mode == "gage_flow":
+                    # Use gage data directly - no aggregation needed
+                    combos[col] = [(("delTrenton", lag), mode)]
+                elif mode == "perfect_foresight" or mode.startswith("regression"):
+                    # Aggregate upstream catchments with travel times
+                    combos[col] = []
+                    for node, travel_time in self.node_to_trenton_travel_time.items():
+                        combos[col].append(((node, lag - travel_time), mode))
 
         return combos
+
+    def _predict_value(self, idx, date_t, node, lag, mode, regressions):
+        """
+        Generate a single prediction value for a given time index, node, lag, and mode.
+
+        Overrides the base class to handle the new "perfect_foresight" mode
+        which uses pre-simulated STARFIT releases for reservoir nodes.
+
+        For "perfect_foresight" mode:
+        - STARFIT reservoir nodes: returns pre-simulated release (no WC adjustment)
+        - NYC reservoir nodes: returns 0.0 (NYC releases are the control variable)
+        - Non-reservoir nodes: returns catchment inflow (with WC adjustment)
+
+        For other modes: delegates to base class.
+        """
+        if mode != "perfect_foresight":
+            return super()._predict_value(idx, date_t, node, lag, mode, regressions)
+
+        # === perfect_foresight mode ===
+        date_lag = date_t + pd.Timedelta(days=lag)
+
+        # NYC reservoir nodes: return 0 (inflow stored, release is control variable)
+        if node in reservoir_list_nyc:
+            return 0.0
+
+        # STARFIT reservoir nodes: return pre-simulated release
+        if node in starfit_reservoir_list:
+            if self.starfit_releases is not None and node in self.starfit_releases.columns:
+                if date_lag in self.starfit_releases.index:
+                    return self.starfit_releases.loc[date_lag, node]
+                else:
+                    # Beyond data range: use last available
+                    return self.starfit_releases[node].iloc[-1]
+            else:
+                # Fallback: use catchment inflow if STARFIT releases not available
+                if date_lag in self.timeseries_data.index:
+                    return self.timeseries_data.loc[date_lag, node]
+                else:
+                    return self.timeseries_data[node].iloc[-1]
+
+        # Non-reservoir nodes: return catchment inflow with water consumption adjustment
+        if date_lag in self.timeseries_data.index:
+            Yhat_lag_prediction = self.timeseries_data.loc[date_lag, node]
+        else:
+            Yhat_lag_prediction = self.timeseries_data[node].iloc[-1]
+
+        # Get lag-1 prediction for water consumption calculation
+        date_lag_minus_1 = date_t + pd.Timedelta(days=lag - 1)
+        if date_lag_minus_1 in self.timeseries_data.index:
+            Yhat_lag_minus1_prediction = self.timeseries_data.loc[date_lag_minus_1, node]
+        else:
+            Yhat_lag_minus1_prediction = self.timeseries_data[node].iloc[-1]
+
+        # Apply water consumption adjustment (same as base class, lines 402-416)
+        if node in reservoir_list + majorflow_list:
+            pywr_node = (
+                f"reservoir_{node}" if node in reservoir_list else f"link_{node}"
+            )
+            wd = self.catchment_wc.loc[pywr_node, "Total_WD_MGD"]
+            cu = self.catchment_wc.loc[pywr_node, "Total_CU_WD_Ratio"]
+
+            consumption_prediction = min(
+                Yhat_lag_prediction, cu * min(Yhat_lag_minus1_prediction, wd)
+            )
+            return Yhat_lag_prediction - consumption_prediction
+
+        return Yhat_lag_prediction
 
 
 class PredictedInflowEnsemblePreprocessor(PredictedInflowPreprocessor):
     """
     Generates ensemble predictions for inflows at Montague and Trenton using MPI parallelization.
-    
+
     Processes multiple realization members from an ensemble HDF5 file and saves predictions
     in HDF5 format compatible with PredictionEnsemble parameter.
     """
-    
-    def __init__(self,
-                 flow_type,
-                 ensemble_hdf5_file,
-                 realization_ids=None,
-                 start_date=None,
-                 end_date=None,
-                 modes=('regression_disagg',),
-                 use_log=True,
-                 remove_zeros=False,
-                 use_const=False,
-                 use_mpi=False):
+
+    def __init__(
+        self,
+        flow_type,
+        ensemble_hdf5_file,
+        realization_ids=None,
+        start_date=None,
+        end_date=None,
+        modes=("regression_disagg",),
+        use_log=True,
+        remove_zeros=False,
+        use_const=False,
+        use_mpi=False,
+        comm=None,
+    ):
         """
         Initialize the PredictedInflowEnsemblePreprocessor.
-        
+
         Args:
             flow_type: Label for the dataset.
             ensemble_hdf5_file: Path to HDF5 file containing ensemble inflow data.
@@ -274,30 +391,40 @@ class PredictedInflowEnsemblePreprocessor(PredictedInflowPreprocessor):
             use_log: Whether to use log transformation.
             remove_zeros: Whether to remove zero values.
             use_const: Whether to use constant in regression.
+            comm: MPI communicator. If None and use_mpi=True, uses MPI.COMM_WORLD.
         """
-        super().__init__(flow_type, start_date, end_date, modes, use_log, remove_zeros, use_const)
-        
+        super().__init__(
+            flow_type, start_date, end_date, modes, use_log, remove_zeros, use_const
+        )
+
         self.ensemble_hdf5_file = ensemble_hdf5_file
         self.realization_ids = realization_ids
-        
+
         self.use_mpi = use_mpi
         if self.use_mpi:
-            from mpi4py import MPI
-            self.comm = MPI.COMM_WORLD
+            if comm is not None:
+                self.comm = comm
+            else:
+                from mpi4py import MPI
+                self.comm = MPI.COMM_WORLD
             self.rank = self.comm.Get_rank()
             self.size = self.comm.Get_size()
         else:
             self.comm = None
             self.rank = 0
             self.size = 1
-        
+
         # Update output path for ensemble predictions
         self.output_dirs = {
-            "predicted_inflows_mgd.hdf5": self.pn.sc.get(f"flows/{self.flow_type}") / "predicted_inflows_mgd.hdf5",
+            "predicted_inflows_mgd.hdf5": self.pn.sc.get(f"flows/{self.flow_type}")
+            / "predicted_inflows_mgd.hdf5",
         }
-        
+
         # Storage for ensemble results
         self.ensemble_predictions = {}
+
+        # STARFIT simulator instance (created once, reused per realization)
+        self._starfit_simulator = None
 
     def _extract_realization_from_open_file(self, hdf5_file, realization_id):
         """
@@ -326,10 +453,13 @@ class PredictedInflowEnsemblePreprocessor(PredictedInflowPreprocessor):
             column_labels = node_data.attrs["column_labels"]
 
             err_msg = f"The specified realization {realization_id} is not available in the HDF file."
-            assert realization_id in column_labels, (
+            # Convert both to strings for consistent comparison
+            column_labels_str = [str(label) for label in column_labels]
+            assert str(realization_id) in column_labels_str, (
                 err_msg + f" Realizations available: {column_labels}"
             )
-            data[node] = node_data[realization_id][:]
+
+            data[node] = node_data[str(realization_id)][:]
 
         dates = node_data["date"][:].tolist()
         data["datetime"] = dates
@@ -363,16 +493,27 @@ class PredictedInflowEnsemblePreprocessor(PredictedInflowPreprocessor):
 
         # Get available realization IDs if not specified
         if self.realization_ids is None:
-            with h5py.File(self.ensemble_hdf5_file, 'r') as f:
+            with h5py.File(self.ensemble_hdf5_file, "r") as f:
                 self.realization_ids = [key for key in f.keys()]
 
+        # Initialize STARFIT simulator once if perfect_foresight mode is used
+        if "perfect_foresight" in self.modes:
+            from pywrdrb.pre.generate_presimulated_releases import (
+                STARFITOfflineSimulator,
+            )
+
+            self._starfit_simulator = STARFITOfflineSimulator(initial_volume_frac=0.8)
+            self._starfit_simulator.load_parameters()
+
         if self.rank == 0:
-            print(f"Processing {len(self.realization_ids)} realizations across {self.size} processes")
+            print(
+                f"Processing {len(self.realization_ids)} realizations across {self.size} processes"
+            )
             print(f"Water consumption data loaded and distributed to all ranks")
 
     def process(self):
         """Process ensemble predictions using MPI parallelization (optimized I/O)."""
-        if not hasattr(self, 'realization_ids'):
+        if not hasattr(self, "realization_ids"):
             self.load()
 
         # Distribute realizations across MPI processes
@@ -384,19 +525,28 @@ class PredictedInflowEnsemblePreprocessor(PredictedInflowPreprocessor):
         ### OPTIMIZATION: Batch HDF5 reads - open file once per rank
         # This reduces file I/O overhead from N opens to 1 per rank
         if self.rank == 0:
-            print(f"Rank {self.rank}: Processing {len(my_realizations)} realizations with batched HDF5 reads...")
+            print(
+                f"Rank {self.rank}: Processing {len(my_realizations)} realizations with batched HDF5 reads..."
+            )
 
-        with h5py.File(self.ensemble_hdf5_file, 'r') as hdf5_file:
+        with h5py.File(self.ensemble_hdf5_file, "r") as hdf5_file:
             # Process assigned realizations with the file already open
             for i, realization_id in enumerate(my_realizations):
                 if self.rank == 0 and (i + 1) % max(1, len(my_realizations) // 5) == 0:
-                    print(f"Rank 0: Processing realization {i+1}/{len(my_realizations)}: {realization_id}")
+                    print(
+                        f"Rank 0: Processing realization {i+1}/{len(my_realizations)}: {realization_id}"
+                    )
 
                 # Extract realization data from open HDF5 file
                 self.timeseries_data = self._extract_realization_from_open_file(
-                    hdf5_file,
-                    realization_id
+                    hdf5_file, realization_id
                 )
+
+                # Run STARFIT simulation for this realization if perfect_foresight
+                if self._starfit_simulator is not None:
+                    self.starfit_releases = self._starfit_simulator.simulate_all(
+                        self.timeseries_data
+                    )
 
                 # Train regressions and make predictions for this realization
                 regressions = self.train_regressions()
@@ -422,26 +572,30 @@ class PredictedInflowEnsemblePreprocessor(PredictedInflowPreprocessor):
         """Save ensemble predictions to HDF5 format."""
         if self.rank == 0:
             if not self.ensemble_predictions:
-                raise ValueError("No ensemble predictions to save. Run process() first.")
-            
+                raise ValueError(
+                    "No ensemble predictions to save. Run process() first."
+                )
+
             fname = self.output_dirs["predicted_inflows_mgd.hdf5"]
-            
-            with h5py.File(fname, 'w') as hf:
+
+            with h5py.File(fname, "w") as hf:
                 for realization_id, predictions_df in self.ensemble_predictions.items():
                     # Create group for this realization
-                    realization_group = hf.create_group(realization_id)
-                    
+                    realization_group = hf.create_group(str(realization_id))
+
                     # Store datetime
-                    datetime_strings = predictions_df['datetime'].astype(str).values
-                    realization_group.create_dataset('datetime', data=datetime_strings)
-                    
+                    datetime_strings = predictions_df["datetime"].astype(str).values
+                    realization_group.create_dataset("datetime", data=datetime_strings)
+
                     # Store prediction columns
                     for col in predictions_df.columns:
-                        if col != 'datetime':
-                            realization_group.create_dataset(col, data=predictions_df[col].values)
-            
+                        if col != "datetime":
+                            realization_group.create_dataset(
+                                col, data=predictions_df[col].values
+                            )
+
             print(f"Saved ensemble predictions to {fname}")
-        
+
         # Ensure all processes wait for save to complete
         if self.use_mpi:
             self.comm.barrier()
