@@ -28,7 +28,9 @@ cfs_to_mgd = cfs_to_mgd
 ACRE_FEET_TO_MG = ACRE_FEET_TO_MG  # Acre-feet to million gallons
 
 ### MOEA Settings ##########
-NFE = 30000
+# Higher NFE helps fill the objective space and reach extreme trade-offs (thin Pareto sets
+# often look "similar" with too few evaluations). Scale up further (e.g. 2e5) if runs are affordable.
+NFE = 100000
 ISLANDS = 4
 
 # === Objectives ===============================================================
@@ -38,14 +40,11 @@ RELEASE_METRICS = [
 ]
 
 STORAGE_METRICS = [
-    "neg_nse",          # storage shape/timing/variance/bias (minimize -KGE)
-    "Q80_abs_pbias",    # High flow storage percent bias
+    "neg_nse",          # storage vs obs: minimize -NSE
+    "Q80_abs_pbias",    # high-flow storage: |PBIAS| at Q80
 ]
 
 METRICS = RELEASE_METRICS + STORAGE_METRICS
-
-# Epsilons must match #objectives (here: 4)
-EPSILONS = [0.01, 0.01, 0.01, 0.01]
 
 OBJ_LABELS = {
     "obj1": "Release NSE",
@@ -60,6 +59,41 @@ OBJ_FILTER_BOUNDS = {
     "Storage NSE": (-1.0, 1.0),
     "Q80 Abs % Bias (Storage)": (0.0, 50.0),
 }
+
+# --- ε-dominance (Borg / ε-MOEA) -----------------------------------------------
+# Each objective is minimized in the form stored in METRICS. Below: what that number is,
+# and how you might set ε_j (grid width in the same units as the objective passed to the MOEA).
+#
+# Release NSE & Storage NSE (keys "neg_nse" in METRICS):
+#   Optimizer minimizes  neg_nse = −NSE.
+#   Nash–Sutcliffe:  NSE = 1 − Σ(y_sim − y_obs)² / Σ(y_obs − ȳ_obs)²
+#   Perfect match → NSE = 1 → neg_nse = −1.  Worse models → neg_nse increases toward 0 or above.
+#   Example ε scale:  ε ← f × (NSE_hi − NSE_lo)  with NSE in [−1, 1] from OBJ_FILTER_BOUNDS → span 2;
+#   e.g. f = 0.015 gives ε ≈ 0.03 on the neg_nse axis.
+#
+# Q20 / Q80 absolute percent bias (release & storage):
+#   Optimizer minimizes  |PBIAS| (%) in the low-flow (Q20) or high-flow (Q80) FDC regime.
+#   Common whole-series percent bias:  PBIAS = 100 × Σ(y_sim − y_obs) / Σ(y_obs)
+#   Q20 / Q80 variants restrict y to the duration-curve slice near the 20th or 80th percentile;
+#   use the same definition as your evaluation code.  Ideal |PBIAS| = 0.
+#   Example ε scale:  ε ← f × (bias_hi − bias_lo)  from OBJ_FILTER_BOUNDS → span 50;
+#   e.g. f = 0.015 gives ε ≈ 0.75.
+#
+# General tuning: smaller ε → finer Pareto grid (more distinct boxes); larger ε → coarser grid.
+# -----------------------------------------------------------------------------
+
+EPSILONS_BY_OBJECTIVE = {
+    "Release NSE": 0.03,
+    "Q20 Abs % Bias (Release)": 0.75,
+    "Storage NSE": 0.03,
+    "Q80 Abs % Bias (Storage)": 0.75,
+}
+
+# List order must match METRICS (via obj1 … objN in OBJ_LABELS).
+EPSILONS = [
+    EPSILONS_BY_OBJECTIVE[OBJ_LABELS[f"obj{i}"]]
+    for i in range(1, len(METRICS) + 1)
+]
 
 # === Objective senses & baseline aliases (needed by selection/plotting) ======
 SENSES_ALL = {
@@ -216,7 +250,7 @@ policy_param_bounds = {
 # NOTE: For Beltzville, OBS storage max is 17,736 MG while we currently use 13,500 MG (crest).
 reservoir_capacity = {
     "prompton": 27956.02,
-    "beltzvilleCombined": 13500.0, #48317.0588,   # OBS max 17736.09
+    "beltzvilleCombined": 17736.09, #48317.0588,   # OBS max 17736.09 #Old 13500.0
     "fewalter": 35800.0,
     "blueMarsh": 42320.35,
 }
