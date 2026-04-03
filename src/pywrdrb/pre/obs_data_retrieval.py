@@ -446,4 +446,45 @@ class ObservationalDataRetriever(DataPreprocessor):
         gage_flow_df = self.gage_flows.copy()
         gage_flow_fname = os.path.join(self.processed_dir, "gage_flow_mgd.csv")
         gage_flow_df.to_csv(gage_flow_fname)
+
+
+if __name__ == "__main__":
+    """
+    Run observational data retrieval when executed directly.
+
+    Usage:
+        python -m pywrdrb.pre.obs_data_retrieval
+
+    This will retrieve all USGS observational data including:
+    - Flow data at all gauges (including flood monitoring gauges)
+    - Reservoir elevation data
+    - Storage data (converted from elevation)
+    """
+    start_date = "1945-01-01"
+    end_date = None
+
+    print("=" * 60)
+    print("USGS Observational Data Retrieval")
+    print("=" * 60)
+    print(f"Start date: {start_date}")
+    print(f"End date: {end_date or 'today'}")
+    print()
+
+    retriever = ObservationalDataRetriever(
+        start_date=start_date,
+        end_date=end_date
+    )
+
+    print("Step 1: Loading data from USGS NWIS...")
+    retriever.load()
+
+    print("\nStep 2: Processing data...")
+    retriever.process()
+
+    print("\nStep 3: Saving data...")
+    retriever.save()
+
+    print("\n" + "=" * 60)
+    print("Data retrieval complete!")
+    print("=" * 60)
         
