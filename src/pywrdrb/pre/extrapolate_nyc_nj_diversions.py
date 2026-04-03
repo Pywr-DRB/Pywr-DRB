@@ -1016,10 +1016,11 @@ class ExtrapolatedDiversionEnsemblePreprocessor(ExtrapolatedDiversionPreprocesso
                  flow_type,
                  ensemble_hdf5_file,
                  realization_ids=None,
-                 use_mpi=True):
+                 use_mpi=True,
+                 comm=None):
         """
         Initialize the ExtrapolatedDiversionEnsemblePreprocessor.
-        
+
         Parameters
         ----------
         loc : str
@@ -1028,20 +1029,27 @@ class ExtrapolatedDiversionEnsemblePreprocessor(ExtrapolatedDiversionPreprocesso
             Flow type for custom data. Must be provided.
         ensemble_hdf5_file : str
             Path to the HDF5 file containing ensemble gage_flow_mgd data.
+        use_mpi : bool, optional
+            Whether to use MPI for parallel processing (default: True).
+        comm : MPI communicator, optional
+            If None and use_mpi=True, uses MPI.COMM_WORLD.
         """
-        super().__init__(loc=loc, 
+        super().__init__(loc=loc,
                          flow_type=flow_type)
 
         self.ensemble_hdf5_file = ensemble_hdf5_file
         self.realization_ids = realization_ids
-        
+
         assert loc in ["nyc", "nj"], f"Invalid location specified. Expected 'nyc' or 'nj'. Got {loc}"
         self.loc = loc
-        
+
         self.use_mpi = use_mpi
         if self.use_mpi:
-            from mpi4py import MPI
-            self.comm = MPI.COMM_WORLD
+            if comm is not None:
+                self.comm = comm
+            else:
+                from mpi4py import MPI
+                self.comm = MPI.COMM_WORLD
             self.rank = self.comm.Get_rank()
             self.size = self.comm.Get_size()
         else:
