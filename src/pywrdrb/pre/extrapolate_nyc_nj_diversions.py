@@ -1094,11 +1094,12 @@ class ExtrapolatedDiversionEnsemblePreprocessor(ExtrapolatedDiversionPreprocesso
             node_data = hdf5_file[node]
             column_labels = node_data.attrs["column_labels"]
 
-            err_msg = f"The specified realization {realization_id} is not available in the HDF file."
-            assert realization_id in column_labels, (
-                err_msg + f" Realizations available: {column_labels}"
+            err_msg = f"The specified realization {realization_id} with type {type(realization_id)} is not available in the HDF file."
+            column_labels_str = [str(label) for label in column_labels]
+            assert str(realization_id) in column_labels_str, (
+                err_msg + f" Realizations available, with type {type(column_labels[0]) if len(column_labels) > 0 else 'unknown'}: {column_labels}"
             )
-            data[node] = node_data[realization_id][:]
+            data[node] = node_data[str(realization_id)][:]
 
         dates = node_data["date"][:].tolist()
         data["datetime"] = dates
