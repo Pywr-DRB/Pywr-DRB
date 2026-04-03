@@ -1110,29 +1110,19 @@ class ExtrapolatedDiversionEnsemblePreprocessor(ExtrapolatedDiversionPreprocesso
         return df
 
     def load(self):
-        """Load available realization IDs and training data (optimized for MPI)."""
+        """Load available realization IDs, training data, and all realization data.
 
-        ### Load realization IDs from HDF5 if not provided
-        # Get available realization IDs if not specified
-        if self.realization_ids is None:
-            with h5py.File(self.ensemble_hdf5_file, 'r') as f:
-                self.realization_ids = [key for key in f.keys()]
-        else:
-            # Ensure provided IDs are strings
-            self.realization_ids = [str(rid) for rid in self.realization_ids]
-
-        if self.rank == 0:
-            print(f"Processing {len(self.realization_ids)} realizations across {self.size} processes")
-
-        ### OPTIMIZATION: Load training data only on rank 0, then broadcast
-        # This avoids redundant disk I/O across all MPI ranks
+        Rank 0 performs all HDF5 reads; data is then broadcast to all ranks to avoid
+        concurrent file access on shared HPC filesystems (which causes HDF5 heap
+        corruption errors with the default sec2 driver).
+        """
+        ### Load training data on rank 0, then broadcast
         if self.rank == 0:
             print(f"Rank 0: Loading training data...")
             training_flow, diversion = self.load_training_data()
         else:
             training_flow, diversion = None, None
 
-        # Broadcast training data to all ranks
         if self.use_mpi:
             if self.rank == 0:
                 print(f"Rank 0: Broadcasting training data to all ranks...")
@@ -1142,14 +1132,42 @@ class ExtrapolatedDiversionEnsemblePreprocessor(ExtrapolatedDiversionPreprocesso
             self.training_flow = training_flow
             self.diversion = diversion
 
+        ### Rank 0 reads all realization data from HDF5, then broadcasts to all ranks.
+        # This prevents N ranks from opening the same file simultaneously, which causes
+        # "unable to offset into local heap data block" errors on Lustre/GPFS filesystems.
         if self.rank == 0:
-            print(f"Training data loaded and distributed to all ranks")
+            print(f"Rank 0: Reading all realization data from HDF5...")
+            with h5py.File(self.ensemble_hdf5_file, 'r') as f:
+                if self.realization_ids is None:
+                    self.realization_ids = [key for key in f.keys()]
+                else:
+                    self.realization_ids = [str(rid) for rid in self.realization_ids]
+                realization_data = {
+                    rid: self._extract_realization_from_open_file(f, rid)
+                    for rid in self.realization_ids
+                }
+        else:
+            realization_data = None
+
+        if self.use_mpi:
+            if self.rank == 0:
+                print(f"Rank 0: Broadcasting realization IDs and data to all ranks...")
+            self.realization_ids = self.comm.bcast(self.realization_ids, root=0)
+            self.realization_data = self.comm.bcast(realization_data, root=0)
+        else:
+            self.realization_data = realization_data
+
+        if self.rank == 0:
+            print(f"Processing {len(self.realization_ids)} realizations across {self.size} processes")
+            print(f"Training data and realization data loaded and distributed to all ranks")
 
         return
 
 
     def process(self):
-        """Process ensemble extrapolations using MPI parallelization (optimized I/O)."""
+        """Process ensemble extrapolations using MPI parallelization."""
+        if not hasattr(self, "realization_data"):
+            self.load()
 
         # Distribute realizations across MPI processes
         realizations_per_rank = np.array_split(self.realization_ids, self.size)
@@ -1157,42 +1175,35 @@ class ExtrapolatedDiversionEnsemblePreprocessor(ExtrapolatedDiversionPreprocesso
 
         local_predictions = {}
 
-        ### OPTIMIZATION: Batch HDF5 reads - open file once per rank
-        # This reduces file I/O overhead from N opens to 1 per rank
         if self.rank == 0:
-            print(f"Rank {self.rank}: Processing {len(my_realizations)} realizations with batched HDF5 reads...")
+            print(f"Rank {self.rank}: Processing {len(my_realizations)} realizations...")
 
-        with h5py.File(self.ensemble_hdf5_file, 'r') as hdf5_file:
-            # Process assigned realizations with the file already open
-            for i, realization_id in enumerate(my_realizations):
-                if self.rank == 0 and (i + 1) % max(1, len(my_realizations) // 5) == 0:
-                    print(f"Rank 0: Processing realization {i+1}/{len(my_realizations)}: {realization_id}")
+        for i, realization_id in enumerate(my_realizations):
+            if self.rank == 0 and (i + 1) % max(1, len(my_realizations) // 5) == 0:
+                print(f"Rank 0: Processing realization {i+1}/{len(my_realizations)}: {realization_id}")
 
-                # Extract realization data from open HDF5 file
-                extrapolation_flow_i = self._extract_realization_from_open_file(
-                    hdf5_file,
-                    realization_id
-                )
+            # Use pre-loaded realization data (read by rank 0 and broadcast in load())
+            extrapolation_flow_i = self.realization_data[str(realization_id)]
 
-                # Need to add NYC_inflow columns if not present
-                if self.loc == "nyc" and "NYC_inflow" not in extrapolation_flow_i.columns:
-                    extrapolation_flow_i["NYC_inflow"] = extrapolation_flow_i[nyc_reservoirs].sum(axis=1)
+            # Need to add NYC_inflow columns if not present
+            if self.loc == "nyc" and "NYC_inflow" not in extrapolation_flow_i.columns:
+                extrapolation_flow_i["NYC_inflow"] = extrapolation_flow_i[nyc_reservoirs].sum(axis=1)
 
-                # Ensure delTrenton column exists (required for NJ)
-                if self.loc == "nj" and "delTrenton" not in extrapolation_flow_i.columns:
-                    raise ValueError(f"Custom flow data must contain 'delTrenton' column for NJ diversions.")
+            # Ensure delTrenton column exists (required for NJ)
+            if self.loc == "nj" and "delTrenton" not in extrapolation_flow_i.columns:
+                raise ValueError(f"Custom flow data must contain 'delTrenton' column for NJ diversions.")
 
-                # Set the extrapolation_flow with this realization
-                # This attribute is expected before super().process() is called
-                self.extrapolation_flow = extrapolation_flow_i
+            # Set the extrapolation_flow with this realization
+            # This attribute is expected before super().process() is called
+            self.extrapolation_flow = extrapolation_flow_i
 
-                # Run the extrapolation using the base class
-                super().process()
+            # Run the extrapolation using the base class
+            super().process()
 
-                # Pull out the processed data for this realization
-                extrapolated_diversion_i = self.processed_data.copy()
+            # Pull out the processed data for this realization
+            extrapolated_diversion_i = self.processed_data.copy()
 
-                local_predictions[str(realization_id)] = extrapolated_diversion_i
+            local_predictions[str(realization_id)] = extrapolated_diversion_i
 
         if self.rank == 0:
             print(f"Rank 0: Completed processing all assigned realizations")

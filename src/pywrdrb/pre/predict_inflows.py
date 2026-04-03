@@ -470,10 +470,14 @@ class PredictedInflowEnsemblePreprocessor(PredictedInflowPreprocessor):
         return df
 
     def load(self):
-        """Load available realization IDs and catchment water consumption data (optimized for MPI)."""
+        """Load available realization IDs, catchment water consumption, and all realization data.
 
-        ### OPTIMIZATION: Load water consumption data only on rank 0, then broadcast
-        # This avoids redundant disk I/O across all MPI ranks
+        Rank 0 performs all HDF5 reads; data is then broadcast to all ranks to avoid
+        concurrent file access on shared HPC filesystems (which causes HDF5 heap
+        corruption errors with the default sec2 driver).
+        """
+
+        ### Load water consumption data on rank 0, then broadcast
         fname = self.input_dirs["sw_avg_wateruse_pywrdrb_catchments_mgd.csv"]
 
         if self.rank == 0:
@@ -483,7 +487,6 @@ class PredictedInflowEnsemblePreprocessor(PredictedInflowPreprocessor):
         else:
             wc = None
 
-        # Broadcast water consumption data to all ranks
         if self.use_mpi:
             if self.rank == 0:
                 print(f"Rank 0: Broadcasting water consumption data to all ranks...")
@@ -491,10 +494,28 @@ class PredictedInflowEnsemblePreprocessor(PredictedInflowPreprocessor):
         else:
             self.catchment_wc = wc
 
-        # Get available realization IDs if not specified
-        if self.realization_ids is None:
+        ### Rank 0 reads all realization data from HDF5, then broadcasts to all ranks.
+        # This prevents N ranks from opening the same file simultaneously, which causes
+        # "unable to offset into local heap data block" errors on Lustre/GPFS filesystems.
+        if self.rank == 0:
+            print(f"Rank 0: Reading all realization data from HDF5...")
             with h5py.File(self.ensemble_hdf5_file, "r") as f:
-                self.realization_ids = [key for key in f.keys()]
+                if self.realization_ids is None:
+                    self.realization_ids = [key for key in f.keys()]
+                realization_data = {
+                    rid: self._extract_realization_from_open_file(f, rid)
+                    for rid in self.realization_ids
+                }
+        else:
+            realization_data = None
+
+        if self.use_mpi:
+            if self.rank == 0:
+                print(f"Rank 0: Broadcasting realization IDs and data to all ranks...")
+            self.realization_ids = self.comm.bcast(self.realization_ids, root=0)
+            self.realization_data = self.comm.bcast(realization_data, root=0)
+        else:
+            self.realization_data = realization_data
 
         # Initialize STARFIT simulator once if perfect_foresight mode is used
         if "perfect_foresight" in self.modes:
@@ -509,11 +530,11 @@ class PredictedInflowEnsemblePreprocessor(PredictedInflowPreprocessor):
             print(
                 f"Processing {len(self.realization_ids)} realizations across {self.size} processes"
             )
-            print(f"Water consumption data loaded and distributed to all ranks")
+            print(f"Water consumption data and realization data loaded and distributed to all ranks")
 
     def process(self):
-        """Process ensemble predictions using MPI parallelization (optimized I/O)."""
-        if not hasattr(self, "realization_ids"):
+        """Process ensemble predictions using MPI parallelization."""
+        if not hasattr(self, "realization_data"):
             self.load()
 
         # Distribute realizations across MPI processes
@@ -522,37 +543,31 @@ class PredictedInflowEnsemblePreprocessor(PredictedInflowPreprocessor):
 
         local_predictions = {}
 
-        ### OPTIMIZATION: Batch HDF5 reads - open file once per rank
-        # This reduces file I/O overhead from N opens to 1 per rank
         if self.rank == 0:
             print(
-                f"Rank {self.rank}: Processing {len(my_realizations)} realizations with batched HDF5 reads..."
+                f"Rank {self.rank}: Processing {len(my_realizations)} realizations..."
             )
 
-        with h5py.File(self.ensemble_hdf5_file, "r") as hdf5_file:
-            # Process assigned realizations with the file already open
-            for i, realization_id in enumerate(my_realizations):
-                if self.rank == 0 and (i + 1) % max(1, len(my_realizations) // 5) == 0:
-                    print(
-                        f"Rank 0: Processing realization {i+1}/{len(my_realizations)}: {realization_id}"
-                    )
-
-                # Extract realization data from open HDF5 file
-                self.timeseries_data = self._extract_realization_from_open_file(
-                    hdf5_file, realization_id
+        for i, realization_id in enumerate(my_realizations):
+            if self.rank == 0 and (i + 1) % max(1, len(my_realizations) // 5) == 0:
+                print(
+                    f"Rank 0: Processing realization {i+1}/{len(my_realizations)}: {realization_id}"
                 )
 
-                # Run STARFIT simulation for this realization if perfect_foresight
-                if self._starfit_simulator is not None:
-                    self.starfit_releases = self._starfit_simulator.simulate_all(
-                        self.timeseries_data
-                    )
+            # Use pre-loaded realization data (read by rank 0 and broadcast in load())
+            self.timeseries_data = self.realization_data[str(realization_id)]
 
-                # Train regressions and make predictions for this realization
-                regressions = self.train_regressions()
-                realization_predictions = self.make_predictions(regressions)
+            # Run STARFIT simulation for this realization if perfect_foresight
+            if self._starfit_simulator is not None:
+                self.starfit_releases = self._starfit_simulator.simulate_all(
+                    self.timeseries_data
+                )
 
-                local_predictions[str(realization_id)] = realization_predictions
+            # Train regressions and make predictions for this realization
+            regressions = self.train_regressions()
+            realization_predictions = self.make_predictions(regressions)
+
+            local_predictions[str(realization_id)] = realization_predictions
 
         if self.rank == 0:
             print(f"Rank 0: Completed processing all assigned realizations")
