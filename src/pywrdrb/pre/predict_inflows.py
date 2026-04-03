@@ -35,6 +35,7 @@ TJA, 2025-05-07, Minor fixes + docstrings
 TJA, 2025-10, Fixed bug where nodes with lag < 0 were not being included in predictions
 TJA, 2026-03, Added STARFIT-aware perfect_foresight mode; renamed old PF to gage_flow
 """
+import io
 import h5py
 import numpy as np
 import pandas as pd
@@ -472,50 +473,61 @@ class PredictedInflowEnsemblePreprocessor(PredictedInflowPreprocessor):
     def load(self):
         """Load available realization IDs, catchment water consumption, and all realization data.
 
-        Rank 0 performs all HDF5 reads; data is then broadcast to all ranks to avoid
-        concurrent file access on shared HPC filesystems (which causes HDF5 heap
-        corruption errors with the default sec2 driver).
+        Rank 0 performs all HDF5 reads. Data is distributed to other ranks using
+        MPI primitives that avoid pickle-based large-object broadcasts:
+        - wc CSV is broadcast as a raw UTF-8 string (avoids DataFrame pickle)
+        - realization DataFrames are scattered so each rank receives only its slice
         """
 
-        ### Load water consumption data on rank 0, then broadcast
+        ### Load water consumption CSV on rank 0; broadcast as raw string to avoid
+        # pickle-based DataFrame bcast which fails on some HPC MPI stacks.
         fname = self.input_dirs["sw_avg_wateruse_pywrdrb_catchments_mgd.csv"]
 
         if self.rank == 0:
             print(f"Rank 0: Loading catchment water consumption data...")
-            wc = pd.read_csv(fname)
-            wc.index = wc["node"]
+            with open(fname, "r") as f:
+                wc_str = f.read()
         else:
-            wc = None
+            wc_str = None
 
         if self.use_mpi:
-            if self.rank == 0:
-                print(f"Rank 0: Broadcasting water consumption data to all ranks...")
-            self.catchment_wc = self.comm.bcast(wc, root=0)
-        else:
-            self.catchment_wc = wc
+            wc_str = self.comm.bcast(wc_str, root=0)
 
-        ### Rank 0 reads all realization data from HDF5, then broadcasts to all ranks.
-        # This prevents N ranks from opening the same file simultaneously, which causes
-        # "unable to offset into local heap data block" errors on Lustre/GPFS filesystems.
+        wc = pd.read_csv(io.StringIO(wc_str))
+        wc.index = wc["node"]
+        self.catchment_wc = wc
+
+        ### Rank 0 reads all realization data from HDF5, then scatters each rank's
+        # assigned slice. This avoids (a) concurrent file opens and (b) broadcasting
+        # a large dict of all DataFrames to every rank.
         if self.rank == 0:
             print(f"Rank 0: Reading all realization data from HDF5...")
             with h5py.File(self.ensemble_hdf5_file, "r") as f:
                 if self.realization_ids is None:
                     self.realization_ids = [key for key in f.keys()]
-                realization_data = {
+                all_data = {
                     rid: self._extract_realization_from_open_file(f, rid)
                     for rid in self.realization_ids
                 }
         else:
-            realization_data = None
+            all_data = None
 
         if self.use_mpi:
-            if self.rank == 0:
-                print(f"Rank 0: Broadcasting realization IDs and data to all ranks...")
+            # Broadcast the realization ID list (small) so all ranks know the full set
             self.realization_ids = self.comm.bcast(self.realization_ids, root=0)
-            self.realization_data = self.comm.bcast(realization_data, root=0)
+
+            # Build per-rank slices on rank 0, then scatter one slice per rank
+            if self.rank == 0:
+                slices = [
+                    {rid: all_data[rid] for rid in chunk}
+                    for chunk in np.array_split(self.realization_ids, self.size)
+                ]
+                print(f"Rank 0: Scattering realization data to {self.size} ranks...")
+            else:
+                slices = None
+            self.realization_data = self.comm.scatter(slices, root=0)
         else:
-            self.realization_data = realization_data
+            self.realization_data = all_data
 
         # Initialize STARFIT simulator once if perfect_foresight mode is used
         if "perfect_foresight" in self.modes:
@@ -530,7 +542,6 @@ class PredictedInflowEnsemblePreprocessor(PredictedInflowPreprocessor):
             print(
                 f"Processing {len(self.realization_ids)} realizations across {self.size} processes"
             )
-            print(f"Water consumption data and realization data loaded and distributed to all ranks")
 
     def process(self):
         """Process ensemble predictions using MPI parallelization."""

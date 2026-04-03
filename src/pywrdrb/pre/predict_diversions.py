@@ -36,6 +36,7 @@ Change Log:
 TJA, 2025-05-07, review+docstrings
 """
 
+import io
 import h5py
 import numpy as np
 
@@ -309,32 +310,39 @@ class PredictedDiversionEnsemblePreprocessor(PredictedDiversionPreprocessor):
     def load(self):
         """Load available realization IDs and all realization data.
 
-        Rank 0 performs all HDF5 reads; data is then broadcast to all ranks to avoid
-        concurrent file access on shared HPC filesystems (which causes HDF5 heap
-        corruption errors with the default sec2 driver).
+        Rank 0 performs all HDF5 reads, then scatters each rank's assigned slice.
+        This avoids (a) concurrent file opens and (b) broadcasting a large dict of
+        all DataFrames to every rank, both of which cause MPI_ERR_OTHER on HPC.
         """
-        ### Rank 0 reads all realization data from HDF5, then broadcasts to all ranks.
-        # This prevents N ranks from opening the same file simultaneously, which causes
-        # "unable to offset into local heap data block" errors on Lustre/GPFS filesystems.
+        ### Rank 0 reads all realization data from HDF5, then scatters per-rank slices.
         if self.rank == 0:
             print(f"Rank 0: Reading all realization data from HDF5...")
             with h5py.File(self.ensemble_hdf5_file, "r") as f:
                 if self.realization_ids is None:
                     self.realization_ids = [key for key in f.keys()]
-                realization_data = {
+                all_data = {
                     rid: self._extract_realization_from_open_file(f, rid)
                     for rid in self.realization_ids
                 }
         else:
-            realization_data = None
+            all_data = None
 
         if self.use_mpi:
-            if self.rank == 0:
-                print(f"Rank 0: Broadcasting realization IDs and data to all ranks...")
+            # Broadcast the realization ID list (small) so all ranks know the full set
             self.realization_ids = self.comm.bcast(self.realization_ids, root=0)
-            self.realization_data = self.comm.bcast(realization_data, root=0)
+
+            # Build per-rank slices on rank 0, then scatter one slice per rank
+            if self.rank == 0:
+                slices = [
+                    {rid: all_data[rid] for rid in chunk}
+                    for chunk in np.array_split(self.realization_ids, self.size)
+                ]
+                print(f"Rank 0: Scattering realization data to {self.size} ranks...")
+            else:
+                slices = None
+            self.realization_data = self.comm.scatter(slices, root=0)
         else:
-            self.realization_data = realization_data
+            self.realization_data = all_data
 
         if self.rank == 0:
             print(
