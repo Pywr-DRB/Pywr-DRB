@@ -59,7 +59,7 @@ from pywrdrb.pywr_drb_node_data import (
     immediate_downstream_nodes_dict,
     downstream_node_lags,
 )
-from pywrdrb.release_policies.config import parse_params_inline 
+from pywrdrb.release_policies.config import parse_params_inline
 
 # Import here to avoid circular import
 from pywrdrb.path_manager import get_pn_object
@@ -1081,6 +1081,7 @@ class ModelBuilder:
                     f"prev_flow_catchmentWithdrawal_{name}",
                 ],
             }
+
         pass
 
     def add_node_final_basin_outlet(self):

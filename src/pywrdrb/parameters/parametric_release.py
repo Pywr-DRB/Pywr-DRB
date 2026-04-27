@@ -154,7 +154,7 @@ import os
 from pywr.parameters import Parameter, load_parameter
 
 from pywrdrb.path_manager import get_pn_object
-from pywrdrb.release_policies.config import get_policy_context
+from pywrdrb.release_policies.config import get_policy_context, n_segments, n_rbfs
 from pywrdrb.release_policies import RBF, PWL, STARFIT
 
 pn = get_pn_object()
@@ -164,8 +164,39 @@ _POLICY_LABEL = {"PWL": "PWL", "RBF": "RBF", "STARFIT": "STARFIT"}
 _POLICY_FILENAME = {
     "RBF": "rbf.csv",
     "PWL": "pwl.csv",
-    "STARFIT": "starfit.csv",  
+    # Dedicated STARFIT optimization defaults CSV (from CEE pipeline handoff).
+    "STARFIT": "starfit.csv",
 }
+
+
+def _pwl_csv_column_names() -> list[str]:
+    """Names expected in pwl.csv for current n_segments (three axes: storage, inflow, season)."""
+    names: list[str] = []
+    for prefix in ("storage", "inflow", "season"):
+        for k in range(1, n_segments):
+            names.append(f"{prefix}_x{k}")
+        for k in range(1, n_segments + 1):
+            names.append(f"{prefix}_theta{k}")
+    return names
+
+
+def _rbf_csv_column_names() -> list[str]:
+    """Names expected in rbf.csv for current n_rbfs (order matches RBF.assign_policy_params keys)."""
+    cols: list[str] = []
+    for i in range(1, n_rbfs + 1):
+        cols.extend(
+            [
+                f"rbf{i}_center_storage",
+                f"rbf{i}_center_inflow",
+                f"rbf{i}_center_doy",
+                f"rbf{i}_scale_storage",
+                f"rbf{i}_scale_inflow",
+                f"rbf{i}_scale_doy",
+                f"rbf{i}_weight",
+            ]
+        )
+    return cols
+
 
 _VARIABLE_NAMES = {
     "STARFIT": [
@@ -174,17 +205,8 @@ _VARIABLE_NAMES = {
         "Release_alpha1","Release_alpha2","Release_beta1","Release_beta2",
         "Release_c","Release_p1","Release_p2"
     ],
-    "RBF": [
-        "rbf1_center_storage","rbf1_center_inflow","rbf1_center_doy",
-        "rbf1_scale_storage","rbf1_scale_inflow","rbf1_scale_doy","rbf1_weight",
-        "rbf2_center_storage","rbf2_center_inflow","rbf2_center_doy",
-        "rbf2_scale_storage","rbf2_scale_inflow","rbf2_scale_doy","rbf2_weight"
-    ],
-    "PWL": [
-        "storage_x1","storage_x2","storage_theta1","storage_theta2","storage_theta3",
-        "inflow_x1","inflow_x2","inflow_theta1","inflow_theta2","inflow_theta3",
-        "season_x1","season_x2","season_theta1","season_theta2","season_theta3"
-    ],
+    "RBF": _rbf_csv_column_names(),
+    "PWL": _pwl_csv_column_names(),
 }
 
 class ParametricReservoirRelease(Parameter):
@@ -248,7 +270,7 @@ class ParametricReservoirRelease(Parameter):
         return path
 
     def _select_row(self, df: pd.DataFrame, csv_path: str) -> pd.Series:
-        # Handle MultiIndex (['reservoir','policy_id']) 
+        # Handle MultiIndex (['reservoir','policy_id'])
         if isinstance(df.index, pd.MultiIndex) and set(df.index.names) >= {"reservoir", "policy_id"}:
             key = (self.reservoir_name, self.policy_id)
             if key not in df.index:
@@ -256,6 +278,33 @@ class ParametricReservoirRelease(Parameter):
                 if key not in df.index:
                     raise KeyError(f"Params not found in {csv_path} for {self.reservoir_name}/{self.policy_id} (and no 'default').")
             return df.loc[key]
+
+        # Handle standard CSVs where reservoir/policy_id are regular columns.
+        required_cols = {"reservoir", "policy_id"}
+        if not required_cols.issubset(df.columns):
+            raise KeyError(
+                f"{csv_path} must contain columns {sorted(required_cols)} "
+                f"or have a MultiIndex with names ['reservoir', 'policy_id']."
+            )
+
+        exact = df[
+            (df["reservoir"].astype(str) == str(self.reservoir_name))
+            & (df["policy_id"].astype(str) == str(self.policy_id))
+        ]
+        if not exact.empty:
+            return exact.iloc[0]
+
+        fallback = df[
+            (df["reservoir"].astype(str) == str(self.reservoir_name))
+            & (df["policy_id"].astype(str) == "default")
+        ]
+        if not fallback.empty:
+            return fallback.iloc[0]
+
+        raise KeyError(
+            f"Params not found in {csv_path} for {self.reservoir_name}/{self.policy_id} "
+            "(and no 'default')."
+        )
 
     def _apply_row_to_policy(self, row: pd.Series) -> None:
         """
@@ -322,6 +371,10 @@ class ParametricReservoirRelease(Parameter):
         else: 
             # Load optimizer vector from CSV and assign to policy (no extra context set)
             self._load_params_from_csv()
+
+        # Align with STARFITReservoirRelease: below NOR_lo, ramp release via S_hat/NORlo (not R_min-only).
+        if self.policy_type == "STARFIT" and self.policy is not None:
+            self.policy.linear_below_NOR = True
 
     def value(self, timestep, scenario_index):
         # scenario-safe storage

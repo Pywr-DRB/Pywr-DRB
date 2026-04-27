@@ -68,6 +68,7 @@ reservoir_link_pairs = {
     "fewalter": "01447800",
     "assunpink": "01463620",
     "blueMarsh": "01470960",
+    "prompton": "01429000",
 }
 
 starfit_reservoir_list = [

@@ -36,7 +36,11 @@ from dataretrieval import nwis
 from pywrdrb.utils.constants import ACRE_FEET_TO_MG, GAL_TO_MG, cfs_to_mgd
 from pywrdrb.pre.datapreprocessor_ABC import DataPreprocessor
 
-from pywrdrb.pywr_drb_node_data import obs_site_matches, obs_pub_site_matches
+from pywrdrb.pywr_drb_node_data import (
+    obs_site_matches,
+    obs_pub_site_matches,
+    obs_release_site_matches,
+)
 from pywrdrb.pywr_drb_node_data import all_flow_gauges, nyc_reservoirs
 from pywrdrb.pywr_drb_node_data import storage_curves, storage_gauge_map
 
@@ -357,6 +361,13 @@ class ObservationalDataRetriever(DataPreprocessor):
                     g in self.flows.columns for g in gauges
                     ), f"Missing inflow gauges {[g for g in gauges if g not in self.flow.columns]} for node {node}"
                 self.gage_flows[node] = self.flows[gauges].sum(axis=1)                
+
+        # Ensure downstream release gauges needed by policy calibration are carried
+        # directly in gage_flow_mgd.csv as gauge-ID columns.
+        for gauges in obs_release_site_matches.values():
+            for gauge in gauges:
+                if gauge in self.flows.columns and gauge not in self.gage_flows.columns:
+                    self.gage_flows[gauge] = self.flows[gauge]
         
         ### Processed and transformed data
         ## Inflows (only unmanaged flow data)

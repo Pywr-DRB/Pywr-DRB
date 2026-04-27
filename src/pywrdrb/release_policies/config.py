@@ -1,14 +1,21 @@
 """
 Contains configuration required for optimization.
 """
+from __future__ import annotations
+
 import os
-import numpy as np
 from copy import deepcopy
-from typing import Tuple
+
+import numpy as np
 from pywrdrb.utils.constants import cfs_to_mgd, ACRE_FEET_TO_MG
 
 ### Random ##################
 SEED = 71
+# Borg / MOEA result CSV filename seeds (``MMBorg_*_nfe*_seed{N}*.csv``):
+# - MRF-filtered bundles use ``..._seed{SEED}_mrffiltered_*`` (same as the MOEA run).
+# - Unfiltered (full-objective) bundles omit ``_mrffiltered_``; set ``BORG_SEED_FULL`` when that
+#   export used a different seed than ``SEED`` (e.g. separate Slurm batch).
+BORG_SEED_FULL = 72
 DEBUG = True
 
 ### Directories ###########
@@ -46,6 +53,9 @@ STORAGE_METRICS = [
 
 METRICS = RELEASE_METRICS + STORAGE_METRICS
 
+# Pretty names for obj* columns. Names say "NSE" for humans, but **on-disk values** follow
+# ``METRICS`` (e.g. ``neg_nse`` = minimize −NSE), not raw NSE. Do not infer CSV sign from
+# these labels alone.
 OBJ_LABELS = {
     "obj1": "Release NSE",
     "obj2": "Q20 Abs % Bias (Release)",
@@ -95,7 +105,17 @@ EPSILONS = [
     for i in range(1, len(METRICS) + 1)
 ]
 
+# Column names in each Borg ``MMBorg_*.csv`` row for objectives (``obj1`` … ``objN``).
+# Order matches :data:`EPSILONS`, :data:`METRICS`, and :data:`OBJ_LABELS`.
+MOEA_OBJECTIVE_CSV_KEYS = tuple(f"obj{i}" for i in range(1, len(OBJ_LABELS) + 1))
+
 # === Objective senses & baseline aliases (needed by selection/plotting) ======
+# **Not** the sign stored in raw ``MMBorg_*.csv`` ``obj*`` columns. Those follow ``METRICS``
+# (all minimized: ``neg_nse``, |PBIAS|, …). :data:`SENSES_ALL` describes the *physical*
+# preference (e.g. higher NSE is better) after any sign convention used in figures /
+# ``load_results``. Post-processing ε-Pareto sorts on raw Borg rows should **minimize** every
+# ``obj*`` — the default in ``pareto.eps_sort`` — and must **not** use ``maximize=`` for NSE
+# columns that are already ``neg_nse`` on disk.
 SENSES_ALL = {
     "Release NSE": "max",
     "Q20 Abs % Bias (Release)": "min",
@@ -158,23 +178,40 @@ VAL_END             = "2024-12-31"
 
 
 ## RBF
-n_rbfs = 2              # Number of radial basis functions (RBFs) used in the policy
+n_rbfs = 3              # Number of radial basis functions (RBFs) used in the policy
 n_rbf_inputs = 3         # Number of input variables (inflow, storage, day_of_year)
 n_rbf_params = n_rbfs * (2 * n_rbf_inputs + 1)
 rbf_param_bounds = [[0.0, 1.0]] * n_rbf_params
 
 ## STARFIT
 n_starfit_params = 17         # Number of parameters in STARFIT policy
-# param order = [ NORhi_mu, NORhi_min, NORhi_max, NORhi_alpha, NORhi_beta,
-#                  NORlo_mu, NORlo_min, NORlo_max, NORlo_alpha, NORlo_beta,
-#                  Release_alpha1, Release_alpha2, Release_beta1, Release_beta2,
-#                  Release_c, Release_p1, Release_p2]
+STARFIT_PARAM_NAMES = (
+    "NORhi_mu",
+    "NORhi_min",
+    "NORhi_max",
+    "NORhi_alpha",
+    "NORhi_beta",
+    "NORlo_mu",
+    "NORlo_min",
+    "NORlo_max",
+    "NORlo_alpha",
+    "NORlo_beta",
+    "Release_alpha1",
+    "Release_alpha2",
+    "Release_beta1",
+    "Release_beta2",
+    "Release_c",
+    "Release_p1",
+    "Release_p2",
+)
+assert len(STARFIT_PARAM_NAMES) == n_starfit_params
+STARFIT_PARAM_NAME_TO_IDX = {name: i for i, name in enumerate(STARFIT_PARAM_NAMES)}
 n_starfit_inputs = 3         # Number of input variables (inflow, storage, week_of_year)
 
-#Starfit parameter bounds
-starfit_param_bounds = [
+# Starfit parameter bounds (global default; per-reservoir overrides below)
+starfit_param_bounds_default = [
     [0.0, 100.0],         # NORhi_mu
-    [0, 100.0],         # NORhi_min
+    [0.0, 100.0],         # NORhi_min
     [0.07, 100.0],        # NORhi_max
     [-10.95, 79.63],      # NORhi_alpha
     [-44.29, 5.21],       # NORhi_beta
@@ -194,6 +231,66 @@ starfit_param_bounds = [
     [0.0, 97.625],        # Release_p1
     [0.0, 0.957],         # Release_p2
 ]
+
+starfit_param_bounds = starfit_param_bounds_default
+
+# Per-reservoir: only listed keys replace entries from ``starfit_param_bounds_default``.
+# Use ``STARFIT_PARAM_NAMES`` keys; values are ``[lower, upper]`` in the same units as
+# ``starfit_param_bounds_default`` (NOR min/max: storage % on 0–100 scale, matching CSV/Pywr).
+#
+# Example — tighten only NOR band for one reservoir while leaving release terms global:
+#   "someReservoir": {"NORhi_min": [5.0, 30.0], "NORhi_max": [5.0, 30.0], ...}
+STARFIT_PARAM_BOUNDS_OVERRIDES_BY_RESERVOIR = {
+    "blueMarsh": {
+        "NORhi_min": [10.0,25.0],
+        "NORhi_max": [10.0, 25.0],
+        "NORlo_min": [10.0, 25.0],
+        "NORlo_max": [10.0, 25.0],
+    },
+    "fewalter": {
+        "NORhi_min": [1.0, 30.0],
+        "NORhi_max": [1.0, 30.0],
+        "NORlo_min": [1.0, 30.0],
+        "NORlo_max": [1.0, 30.0],
+    },
+    "prompton": {
+        "NORhi_min": [1.0, 10.0],
+        "NORhi_max": [1.0, 10.0],
+        "NORlo_min": [1.0, 10.0],
+        "NORlo_max": [1.0, 10.0],
+    },
+}
+
+
+def build_starfit_param_bounds_for_reservoir(reservoir_name: str) -> list[list[float]]:
+    """Return STARFIT bounds for ``reservoir_name``: defaults merged with per-reservoir overrides."""
+    overrides = STARFIT_PARAM_BOUNDS_OVERRIDES_BY_RESERVOIR.get(reservoir_name)
+    if not overrides:
+        raise KeyError(
+            f"No STARFIT bounds overrides for '{reservoir_name}'. "
+            f"Known: {sorted(STARFIT_PARAM_BOUNDS_OVERRIDES_BY_RESERVOIR)}"
+        )
+    b = deepcopy(starfit_param_bounds_default)
+    for pname, pair in overrides.items():
+        if pname not in STARFIT_PARAM_NAME_TO_IDX:
+            raise KeyError(
+                f"Unknown STARFIT param '{pname}' in overrides for '{reservoir_name}'. "
+                f"Valid names: {STARFIT_PARAM_NAMES}"
+            )
+        if len(pair) != 2:
+            raise ValueError(
+                f"Override for '{reservoir_name}'.'{pname}' must be [lo, hi]; got {pair!r}"
+            )
+        i = STARFIT_PARAM_NAME_TO_IDX[pname]
+        b[i] = [float(pair[0]), float(pair[1])]
+    return b
+
+
+def get_starfit_param_bounds(reservoir_name: str) -> list[list[float]]:
+    """STARFIT bounds for Borg / validation: merged overrides when configured, else global default."""
+    if reservoir_name in STARFIT_PARAM_BOUNDS_OVERRIDES_BY_RESERVOIR:
+        return build_starfit_param_bounds_for_reservoir(reservoir_name)
+    return deepcopy(starfit_param_bounds_default)
 
 # ---------------- Piecewise Linear (PWL) ----------------
 # Each input block uses: [x1..x_{M-1}, theta1..thetaM]
@@ -217,7 +314,7 @@ def make_pwl_bounds(n_segments: int, n_inputs: int, *, eps: float = 1e-3):
     return n_params, bounds
 
 # Wire it in
-n_segments     = 3
+n_segments     = 4
 n_pwl_inputs   = 3
 n_pwl_params, pwl_param_bounds = make_pwl_bounds(n_segments, n_pwl_inputs)
 
@@ -239,7 +336,7 @@ policy_n_params = {
 }
 
 policy_param_bounds = {
-    "STARFIT": starfit_param_bounds,
+    "STARFIT": starfit_param_bounds_default,
     "RBF": rbf_param_bounds,
     "PWL": pwl_param_bounds,
 }

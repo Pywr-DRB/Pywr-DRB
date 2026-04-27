@@ -270,6 +270,14 @@ obs_site_matches = {
     "outletAssunpink": ["01464000"],
     "01470960": ["01470960"],
     "outletSchuylkill": ["01474500"],
+    # Additional observed downstream release gauge used by release-policy calibration.
+    "01429000": ["01429000"],  # Prompton downstream release gage
+}
+
+# Explicit mapping for observed downstream release gauges that should be present in
+# observations/gage_flow_mgd.csv and available via results_set='reservoir_downstream_gage'.
+obs_release_site_matches = {
+    "prompton": ["01429000"],
 }
 
 # NHM data IDs
@@ -408,6 +416,11 @@ for node, gauges in obs_site_matches.items():
 
 # Add DR Canal gauge, which used for the diversion extrapolation
 all_flow_gauges.extend(["01460440"])
+
+# Add observed downstream release gauges used by release-policy workflows
+for gauges in obs_release_site_matches.values():
+    if len(gauges) > 0:
+        all_flow_gauges.extend(gauges)
 
 # Remove duplicates
 all_flow_gauges = list(set(all_flow_gauges))  

@@ -146,7 +146,7 @@ class STARFITReservoirRelease(Parameter):
 
         # Modifications to
         self.remove_R_max = False
-        self.linear_below_NOR = False
+        self.linear_below_NOR = True
         self.use_adjusted_storage = True
         self.WATER_YEAR_OFFSET = 0
 
@@ -299,6 +299,8 @@ class STARFITReservoirRelease(Parameter):
         super().setup()
         self.N_SCENARIOS = len(self.model.scenarios.combinations)
         self.releases = np.empty([self.N_SCENARIOS], np.float64)
+        # Match ParametricReservoirRelease / release_policies.STARFIT: always linear ramp below NOR_lo.
+        self.linear_below_NOR = True
 
     def _precompute_seasonal_lookups(self):
         """Pre-compute seasonal values for all days of year to avoid repeated calculations."""
