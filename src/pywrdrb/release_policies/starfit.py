@@ -9,7 +9,7 @@ structural and conceptual consistency between the two implementations.
 
 Key Alignment Points (with parameters/starfit.py):
 --------------------------------------------------
-1. linear_below_NOR default: False (no linear scaling when storage < NOR_lo)
+1. linear_below_NOR default: True (linear scaling when storage < NOR_lo toward R_min)
 2. R_max application: Applied during target calculation, not just in constraints
 3. Constraint enforcement order: Capacity constraint → Availability → R_min
 4. No storage safety overrides: Relies on explicit capacity constraint logic
@@ -33,6 +33,7 @@ from pywrdrb.release_policies.abstract_policy import AbstractPolicy
 from pywrdrb.release_policies.config import (
     policy_n_params,
     policy_param_bounds,
+    get_starfit_param_bounds,
     n_starfit_inputs,   # should be 3 for [S, I, D]
     DATA_DIR,
     CONFIG_DIR,
@@ -59,7 +60,7 @@ class STARFIT(AbstractPolicy):
     `pywrdrb.parameters.starfit.STARFITReservoirRelease` to ensure identical
     behavior when given the same inputs:
     
-    - linear_below_NOR: Default False (matches original)
+    - linear_below_NOR: Default True (smoother releases below NOR_lo)
     - R_max application: Applied during evaluate() calculation, not just constraints
     - Constraint order: Capacity → Availability → R_min (matches original)
     - No storage safety overrides: Uses explicit capacity constraint logic
@@ -106,7 +107,12 @@ class STARFIT(AbstractPolicy):
 
         self.n_inputs = int(n_starfit_inputs)  # expected 3 for [S, I, D]
         self.n_params = policy_n_params["STARFIT"]
-        self.param_bounds = policy_param_bounds["STARFIT"]
+        # Match Borg / MOEA search box: per-reservoir NOR envelope when configured.
+        self.param_bounds = (
+            get_starfit_param_bounds(reservoir_name)
+            if reservoir_name
+            else policy_param_bounds["STARFIT"]
+        )
         self.policy_params = policy_params
 
         # seasonal phase offset (days)
@@ -127,9 +133,9 @@ class STARFIT(AbstractPolicy):
         self.I_bar = None
 
         # optional behavior toggle (aligned with parameters/starfit.py)
-        # When False: uses R_min directly when storage < NOR_lo (default, matches original)
-        # When True: linearly scales release by S_hat/NOR_lo before applying R_min
-        self.linear_below_NOR: bool = False
+        # When False: uses R_min directly when storage < NOR_lo
+        # When True: linearly scales release by S_hat/NOR_lo before applying R_min (default)
+        self.linear_below_NOR: bool = True
 
         # log file path (created once we know the name)
         self.log_path = None
@@ -516,7 +522,7 @@ class STARFIT(AbstractPolicy):
         # Aligned with parameters/starfit.py.calculate_target_release():
         # - Within NOR: apply R_max cap during calculation
         # - Above NOR: apply R_max cap during calculation  
-        # - Below NOR: use linear scaling only if linear_below_NOR=True (default False)
+        # - Below NOR: use linear scaling only if linear_below_NOR=True (default True)
         if NOR_lo <= S_hat <= NOR_hi:
             target = min(
                 self.I_bar * (harmonic + epsilon + 1.0),
@@ -527,7 +533,7 @@ class STARFIT(AbstractPolicy):
             S_cap = float(self.storage_capacity)
             target = min((S_cap * (S_hat - NOR_hi) + I * 7.0) / 7.0, R_max)
         else:
-            # Below NOR: default (linear_below_NOR=False) uses R_min directly
+            # Below NOR: if linear_below_NOR=False uses R_min directly; default True uses linear scale
             # This matches parameters/starfit.py behavior
             if self.linear_below_NOR and NOR_lo > 0.0:
                 base = self.I_bar * (harmonic + epsilon + 1.0)

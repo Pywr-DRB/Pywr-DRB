@@ -363,13 +363,21 @@ class RBF(AbstractPolicy):
         assert all(0 <= x <= 1 for x in X_norm), \
             f"Input values must be in the range [0, 1]. Values: {X_norm}."
 
-        # Calculate
+        # Calculate (supports flat c/r from parse_policy_params or (n,d) from assign_policy_params)
         z = 0.0
+        c_arr = np.asarray(self.c, dtype=float)
+        r_arr = np.asarray(self.r, dtype=float)
         for i in range(self.nRBFs):
             sq_term = 0.0
             for j in range(self.n_inputs):
-                idx = i * self.n_inputs + j
-                sq_term += ((X_norm[j] - self.c[idx]) / self.r[idx]) ** 2
+                if c_arr.ndim == 2:
+                    c_ij = float(c_arr[i, j])
+                    r_ij = float(r_arr[i, j])
+                else:
+                    idx = i * self.n_inputs + j
+                    c_ij = float(c_arr[idx])
+                    r_ij = float(r_arr[idx])
+                sq_term += ((X_norm[j] - c_ij) / r_ij) ** 2
             z += self.w[i] * np.exp(-sq_term)
         
         # Impose bound limits

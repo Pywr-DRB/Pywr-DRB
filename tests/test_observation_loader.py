@@ -22,3 +22,8 @@ def test_data_load_observations():
         
         # Make sure the scenario of 'obs' is a DataFrame
         assert isinstance(results_data["obs"][0], pd.DataFrame)
+
+    # Regression check: Prompton downstream observed release gage should load
+    # through the reservoir_downstream_gage results_set.
+    downstream_df = data.reservoir_downstream_gage["obs"][0]
+    assert "prompton" in downstream_df.columns
