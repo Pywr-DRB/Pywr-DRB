@@ -402,7 +402,8 @@ class ModelBuilder:
                 self.add_node_major_reservoir(node, downstream_lag, downstream_node)
             # River node
             else:
-                has_catchment = False if node == "delTrenton" else True
+                # Transit-only gage links should not create catchment inflow nodes.
+                has_catchment = False if node in ("delTrenton", "01429000") else True
                 self.add_node_major_river(
                     node, downstream_lag, downstream_node, has_catchment
                 )
