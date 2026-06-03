@@ -378,7 +378,7 @@ class ParametricReservoirRelease(Parameter):
 
     def value(self, timestep, scenario_index):
         # scenario-safe storage
-        S_t = float(self.node.volume[scenario_index.indices]) if hasattr(scenario_index, "indices") else float(self.node.volume)
+        S_t = self.node.volume[scenario_index.global_id]
         # robust inflow access
         I_t = float(self.inflow.value(timestep, scenario_index)) if hasattr(self.inflow, "value") \
               else float(self.inflow.get_value(scenario_index))
