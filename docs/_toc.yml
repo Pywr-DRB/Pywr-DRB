@@ -1,0 +1,42 @@
+# Table of contents
+# Learn more at https://jupyterbook.org/customize/toc.html
+
+format: jb-book
+# =============== Landing Page =================
+root: intro.md
+parts:
+  - chapters:
+    # =============== References =================
+    - file: api/api.md
+      sections:
+        - title: pywrdrb
+          file: api/pywrdrb.rst
+        - title: pywrdrb.parameters
+          file: api/parameters.rst
+        - title: pywrdrb.pre
+          file: api/pre.rst
+        # - title: pywrdrb.utils
+        #   file: api/utils.rst
+
+    # =============== Examples =================
+    - file: examples/examples.md
+      sections:
+        - title: Tutorial 01 Installation
+          file: examples/Tutorial 01 Installation.ipynb
+        - title: Tutorial 02 Run Simulation
+          file: examples/Tutorial 02 Run Simulation.ipynb
+        - title: Tutorial 03 Load Results
+          file: examples/Tutorial 03 Load Results.ipynb
+        - title: Tutorial 04 Using Customized Data To Run Model
+          file: examples/Tutorial 04 Using Customized Data To Run Model.ipynb
+          
+    # =============== Basin Info ===============
+    - file: basin_resources/basin_resources.md
+      sections:
+        - title: DRB Overview
+          file: basin_resources/drb_overview.md
+        - title: Reading List
+          file: basin_resources/reading_list.md
+
+    # ============== Results sets options ====
+    - file: results_set_options.md
