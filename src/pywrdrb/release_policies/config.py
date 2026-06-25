@@ -7,7 +7,7 @@ import os
 from copy import deepcopy
 
 import numpy as np
-from pywrdrb.utils.constants import cfs_to_mgd, ACRE_FEET_TO_MG
+from pywrdrb.utils.constants import cfs_to_mgd
 
 ### Random ##################
 SEED = 71
@@ -29,10 +29,6 @@ PROCESSED_DATA_DIR = os.path.join(DATA_DIR, "processed")
 PUB_RECON_DIR = os.path.join(DATA_DIR, "pub_reconstruction")
 OUTPUT_DIR = os.path.join(CONFIG_DIR, "../outputs")
 FIG_DIR = os.path.join(CONFIG_DIR, "../figures")
-
-### Constants ###############
-cfs_to_mgd = cfs_to_mgd
-ACRE_FEET_TO_MG = ACRE_FEET_TO_MG  # Acre-feet to million gallons
 
 ### MOEA Settings ##########
 # Higher NFE helps fill the objective space and reach extreme trade-offs (thin Pareto sets
@@ -232,8 +228,6 @@ starfit_param_bounds_default = [
     [0.0, 0.957],         # Release_p2
 ]
 
-starfit_param_bounds = starfit_param_bounds_default
-
 # Per-reservoir: only listed keys replace entries from ``starfit_param_bounds_default``.
 # Use ``STARFIT_PARAM_NAMES`` keys; values are ``[lower, upper]`` in the same units as
 # ``starfit_param_bounds_default`` (NOR min/max: storage % on 0–100 scale, matching CSV/Pywr).
@@ -317,15 +311,6 @@ def make_pwl_bounds(n_segments: int, n_inputs: int, *, eps: float = 1e-3):
 n_segments     = 4
 n_pwl_inputs   = 3
 n_pwl_params, pwl_param_bounds = make_pwl_bounds(n_segments, n_pwl_inputs)
-
-# --- Keep the legacy for reference (but commented) ---
-# single_input_pwl_param_bounds = [
-#     [[i/(n_segments-1), (i+1)/(n_segments-1)] for i in range(n_segments-1)] +
-#     [[-np.pi/2, np.pi/2]] * n_segments
-# ][0]
-# pwl_param_bounds = []
-# for _ in range(n_pwl_inputs):
-#     pwl_param_bounds += single_input_pwl_param_bounds
 
 
 ## Dictionaries of configurations

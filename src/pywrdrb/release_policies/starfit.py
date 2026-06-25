@@ -98,7 +98,7 @@ class STARFIT(AbstractPolicy):
 
         super().__init__(policy_params=policy_params)
 
-        self.reservoir_name = reservoir_name
+        self.reservoir_name = self._effective_starfit_name(reservoir_name)
 
         self.n_inputs = int(n_starfit_inputs)  # expected 3 for [S, I, D]
         self.n_params = policy_n_params["STARFIT"]
@@ -216,41 +216,35 @@ class STARFIT(AbstractPolicy):
         self.NORlo_min = self._pct_to_unit(self.NORlo_min)
         self.NORlo_max = self._pct_to_unit(self.NORlo_max)
 
-    def _effective_starfit_name(self) -> str:
+    def _effective_starfit_name(self, reservoir_name: str) -> str:
         """Row to read coefficients from. DRBC-modified reservoirs use the
         'modified_<reservoir>' row, same as parameters/starfit.py."""
-        name = str(self.reservoir_name)
+        name = str(reservoir_name)
         return ("modified_" + name) if name in modified_starfit_reservoir_list else name
 
-    def load_starfit_params(self, reservoir_name=None, csv_path=None):
-        """Load coefficients, I_bar, and Release_max/min from CSV.
-
-        Applies the modified_<reservoir> remap so modified reservoirs read the
-        same row the reference does.
-        """
-        if reservoir_name is not None:
-            self.reservoir_name = reservoir_name
-        if not self.reservoir_name:
-            raise ValueError("load_starfit_params requires reservoir_name.")
-
+    def _read_starfit_row(self, reservoir_name=None, csv_path=None):
+        """Read the (possibly modified_<reservoir>-remapped) CSV row for this reservoir."""
         path = csv_path or os.path.join(CONFIG_DIR, "drb_model_istarf_conus.csv")
         if not os.path.isabs(path):
             path = os.path.abspath(path) # make absolute for worker nodes
         if not os.path.exists(path):
-            raise FileNotFoundError(f"STARFIT CStV not found at: {path}")
+            raise FileNotFoundError(f"STARFIT CSV not found at: {path}")
 
         df = pd.read_csv(path)
-        starfit_name = self._effective_starfit_name()
+        starfit_name = self._effective_starfit_name(reservoir_name)
         row = df.loc[df["reservoir"] == starfit_name]
         if row.empty:
             raise ValueError(f"STARFIT parameters not found for '{starfit_name}' in {path}.")
+        return row.iloc[0]
 
-        rec = row.iloc[0]
-        # 17 coefficients from the (possibly remapped) row
-        self.policy_params = [float(rec[k]) for k in STARFIT_PARAM_NAMES]
-        self.parse_policy_params()
+    def load_starfit_constants(self, reservoir_name=None, csv_path=None):
+        """Load the fixed constants (I_bar, Release_max/min) from CSV, leaving the 17
+        policy params untouched. Use this on the optimization path so Borg's decision
+        variables survive. I_bar standardizes inflow; Release_max/min feed R_max/R_min
+        reconstruction in set_context.
+        """
+        rec = self._read_starfit_row(reservoir_name, csv_path)
 
-        # Release_max/min feed R_max/R_min reconstruction in set_context
         self.Release_max = float(rec["Release_max"]) if "Release_max" in rec and pd.notna(rec["Release_max"]) else None
         self.Release_min = float(rec["Release_min"]) if "Release_min" in rec and pd.notna(rec["Release_min"]) else None
 
@@ -261,6 +255,18 @@ class STARFIT(AbstractPolicy):
         self.log_path = f"STARFIT_release_log_{self.reservoir_name}.txt"
         if os.path.exists(self.log_path):
             os.remove(self.log_path)
+
+    def load_starfit_params(self, reservoir_name=None, csv_path=None):
+        """Load the 17 published coefficients plus constants from CSV.
+
+        Reference / non-optimization path: overwrites self.policy_params with the
+        coefficients from the (possibly remapped) row. On the optimization path use
+        load_starfit_constants instead, so Borg's decision variables are not clobbered.
+        """
+        rec = self._read_starfit_row(reservoir_name, csv_path)
+        self.policy_params = [float(rec[k]) for k in STARFIT_PARAM_NAMES]
+        self.parse_policy_params()
+        self.load_starfit_constants(reservoir_name, csv_path)
         
     
     def test_nor_constraint(self) -> bool:
