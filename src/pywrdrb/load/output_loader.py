@@ -387,8 +387,18 @@ class Output(AbstractDataLoader):
         # Get result data from HDF5 output file
         with h5py.File(output_filename, "r") as f:
             all_keys = list(f.keys())
-            keys, col_names = self.get_keys_and_column_names_for_results_set(keys=all_keys, 
+            keys, col_names = self.get_keys_and_column_names_for_results_set(keys=all_keys,
                                                                         results_set=results_set)
+
+            # 'all' includes every key in the file; keep only 2D (time x scenario)
+            # timeseries datasets (excludes e.g. the 1D 'time' array)
+            if results_set == "all":
+                kept = [
+                    i for i, k in enumerate(keys)
+                    if isinstance(f[k], h5py.Dataset) and f[k].ndim == 2
+                ]
+                keys = [keys[i] for i in kept]
+                col_names = [col_names[i] for i in kept]
 
             data = []
             # Now pull the data using keys

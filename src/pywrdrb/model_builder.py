@@ -110,6 +110,11 @@ class Options:
         Initial reservoir storage as a fraction of capacity. Default is 0.8.
     flow_prediction_mode : str
         Flow prediction mode for FFMP operations. Determines which prediction columns to use from predicted_inflows_mgd.csv. Options are "regression_disagg" (default), "perfect_foresight", and "gage_flow".
+    starfit_params_filename : Optional[str]
+        If given, path to an alternative STARFIT parameter CSV (same format as
+        istarf_conus.csv, containing all reservoir rows). Used for reservoir
+        capacities and STARFIT release rules in place of the default file.
+        Default is None.
     """
     NSCENARIOS: int = 1
     inflow_ensemble_indices: Optional[List[int]] = None
@@ -121,6 +126,7 @@ class Options:
     # Initial reservoir storages as 80% of capacity
     initial_volume_frac: float = 0.8
     flow_prediction_mode: str = "regression_disagg"
+    starfit_params_filename: Optional[str] = None
 
     def list(self):
         """Prints the options."""
@@ -257,6 +263,7 @@ class ModelBuilder:
             run_starfit_sensitivity_analysis (bool): If True, we run STARFIT sensitivity analysis.
             sensitivity_analysis_scenarios (list of str): List of scenarios to use for STARFIT sensitivity analysis.
             initial_volume_frac (float): Initial reservoir storage as a fraction of capacity. Default is 0.8.
+            starfit_params_filename (str): If given, path to an alternative STARFIT parameter CSV (same format as istarf_conus.csv). Default is None.
         """
         
         self.start_date = start_date
@@ -271,6 +278,23 @@ class ModelBuilder:
         self.diversion_type = diversion_type
 
         self.options = Options(**options)
+
+        # Validate and resolve custom STARFIT parameter file, if given
+        if self.options.starfit_params_filename is not None:
+            if self.options.run_starfit_sensitivity_analysis:
+                raise ValueError(
+                    "starfit_params_filename cannot be combined with "
+                    "run_starfit_sensitivity_analysis; the sensitivity analysis "
+                    "loads parameters from scenarios_data.h5."
+                )
+            self.options.starfit_params_filename = os.path.abspath(
+                self.options.starfit_params_filename
+            )
+            if not os.path.exists(self.options.starfit_params_filename):
+                raise FileNotFoundError(
+                    f"STARFIT parameter file not found: "
+                    f"{self.options.starfit_params_filename}"
+                )
 
         # Tracking purposes
         self.reservoirs = []
@@ -453,22 +477,37 @@ class ModelBuilder:
         self.hist_releases = None
         self.hist_diversions = None
 
+    def _starfit_csv_path(self):
+        """
+        Get the STARFIT parameter CSV path: the custom file from options if
+        given, otherwise the default istarf_conus.csv.
+
+        returns
+        -------
+        str
+            Absolute path to the STARFIT parameter CSV.
+        """
+        return (
+            self.options.starfit_params_filename
+            or pn.operational_constants.get_str("istarf_conus.csv")
+        )
+
     def _get_reservoir_capacity(self, reservoir):
         """
         Get the capacity of a reservoir from the ISTARF data.
-        
+
         Parameters
         ----------
         reservoir : str
             The name of the reservoir to get the capacity for.
-        
+
         returns
         -------
         float
             The capacity of the reservoir in million gallons (MG).
         """
         if self.istarf is None:
-            self.istarf = pd.read_csv(pn.operational_constants.get_str("istarf_conus.csv"))
+            self.istarf = pd.read_csv(self._starfit_csv_path())
         return float(
             self.istarf["Adjusted_CAP_MG"].loc[self.istarf["reservoir"] == reservoir].iloc[0]
         )
@@ -755,7 +794,7 @@ class ModelBuilder:
         # max volume of reservoir, from GRanD database except where adjusted from other sources (eg NYC)
         model_dict["parameters"][f"max_volume_{reservoir_name}"] = {
             "type": "constant",
-            "url": pn.operational_constants.get_str("istarf_conus.csv"),
+            "url": self._starfit_csv_path(),
             "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": f"modified_{reservoir_name}"
@@ -783,6 +822,10 @@ class ModelBuilder:
                 "run_starfit_sensitivity_analysis": self.options.run_starfit_sensitivity_analysis,
                 "sensitivity_analysis_scenarios": self.options.sensitivity_analysis_scenarios,
             }
+            if self.options.starfit_params_filename is not None:
+                model_dict["parameters"][f"starfit_release_{reservoir_name}"][
+                    "starfit_params_filename"
+                ] = self.options.starfit_params_filename
 
         ### assign inflows to nodes
         inflow_ensemble_indices = self.options.inflow_ensemble_indices

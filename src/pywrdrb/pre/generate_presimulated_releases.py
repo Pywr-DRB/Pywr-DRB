@@ -58,6 +58,9 @@ class STARFITOfflineSimulator:
     initial_volume_frac : float
         Initial reservoir storage as a fraction of capacity. Default is 0.8,
         matching the default in ModelBuilder.Options.
+    starfit_params_filename : str, optional
+        Path to an alternative STARFIT parameter CSV (same format as
+        istarf_conus.csv). If None, the default packaged file is used.
 
     Examples
     --------
@@ -67,8 +70,9 @@ class STARFITOfflineSimulator:
     >>> releases_df = sim.simulate_all(catchment_inflows_df)
     """
 
-    def __init__(self, initial_volume_frac=0.8):
+    def __init__(self, initial_volume_frac=0.8, starfit_params_filename=None):
         self.initial_volume_frac = initial_volume_frac
+        self.starfit_params_filename = starfit_params_filename
         self._params_loaded = False
         self._istarf = None
         self._catchment_wc = None
@@ -82,8 +86,12 @@ class STARFITOfflineSimulator:
         Mirrors STARFITReservoirRelease.load_default_starfit_params()
         (starfit.py lines 162-177).
         """
+        istarf_path = (
+            self.starfit_params_filename
+            or pn.operational_constants.get_str("istarf_conus.csv")
+        )
         self._istarf = pd.read_csv(
-            pn.operational_constants.get_str("istarf_conus.csv"),
+            istarf_path,
             sep=",",
             index_col=0,
         )
