@@ -40,3 +40,6 @@ parts:
 
     # ============== Results sets options ====
     - file: results_set_options.md
+
+    # ============== ModelBuilder options ====
+    - file: model_options.md

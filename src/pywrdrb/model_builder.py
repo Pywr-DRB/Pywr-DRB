@@ -263,6 +263,7 @@ class ModelBuilder:
             run_starfit_sensitivity_analysis (bool): If True, we run STARFIT sensitivity analysis.
             sensitivity_analysis_scenarios (list of str): List of scenarios to use for STARFIT sensitivity analysis.
             initial_volume_frac (float): Initial reservoir storage as a fraction of capacity. Default is 0.8.
+            flow_prediction_mode (str): Options: "regression_disagg", "perfect_foresight", "gage_flow". Default is "regression_disagg".
             starfit_params_filename (str): If given, path to an alternative STARFIT parameter CSV (same format as istarf_conus.csv). Default is None.
         """
         

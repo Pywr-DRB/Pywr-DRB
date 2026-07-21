@@ -13,3 +13,4 @@ The following are used for preprocessing data, to prepare standard format data f
     PredictedInflowPreprocessor
     PredictedDiversionPreprocessor
     ExtrapolatedDiversionPreprocessor
+    STARFITOfflineSimulator

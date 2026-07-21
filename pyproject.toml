@@ -1,6 +1,6 @@
 [project]
 name = "pywrdrb"
-version = "2.1.0-beta"
+version = "2.2.0-beta"
 packages = [
   { include = "pywrdrb", from = "src" }
 ]
@@ -38,7 +38,7 @@ dev = [
     "ipython",
     "pytest",
     "hatch",
-    "jupyter-book",
+    "jupyter-book<2",
     "ghp-import",
     "folium",
 ]

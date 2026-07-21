@@ -61,14 +61,12 @@ class PredictedInflowPreprocessor(PredictedTimeseriesPreprocessor):
     Predicts catchment inflows at Montague and Trenton using specified modes
     (e.g., regression, perfect foresight, gage flow).
 
-    Example usage:
-    ```python
-    from pywrdrb.pre import PredictedInflowPreprocessor
-
-    inflow_predictor = PredictedInflowPreprocessor(flow_type="nhmv10")
-    inflow_predictor.process()
-    inflow_predictor.save()
-    ```
+    Examples
+    --------
+    >>> from pywrdrb.pre import PredictedInflowPreprocessor
+    >>> inflow_predictor = PredictedInflowPreprocessor(flow_type="nhmv10")
+    >>> inflow_predictor.process()
+    >>> inflow_predictor.save()
     """
 
     def __init__(

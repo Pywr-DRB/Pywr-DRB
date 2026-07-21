@@ -41,3 +41,10 @@ input_data/*/*.hdf5
 dist/*
 .claude/
 experiments/manual_starfit_tuning/output/*
+
+# docs build artifacts
+docs/_build/
+docs/conf.py
+docs/api/generated/
+docs/examples/Tutorial*
+docs/Appendix_A*

@@ -53,17 +53,16 @@ class PredictedDiversionPreprocessor(PredictedTimeseriesPreprocessor):
     Predicts NJ diversions from the Delaware-Raritan Canal using regression models.
     (e.g., regression, perfect foresight, moving average).
 
-    Example usage:
-    ```python
-    from pywrdrb.pre import PredictedDiversionPreprocessor
-    diversion_predictor = PredictedDiversionPreprocessor(
-        start_date="1983-10-01",
-        end_date="2016-12-31",
-        modes=("regression_disagg",),
-    )
-    diversion_predictor.process()
-    diversion_predictor.save()
-    ```
+    Examples
+    --------
+    >>> from pywrdrb.pre import PredictedDiversionPreprocessor
+    >>> diversion_predictor = PredictedDiversionPreprocessor(
+    ...     start_date="1983-10-01",
+    ...     end_date="2016-12-31",
+    ...     modes=("regression_disagg",),
+    ... )
+    >>> diversion_predictor.process()
+    >>> diversion_predictor.save()
     """
 
     def __init__(
