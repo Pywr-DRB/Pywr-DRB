@@ -67,7 +67,24 @@ mb = pywrdrb.ModelBuilder(
 
 Note that this option cannot be combined with the `run_starfit_sensitivity_analysis` option, which loads parameters from a separate scenario file.
 
-<!-- Section 4: updated default STARFIT parameters in istarf_conus.csv; to be added before release. -->
+### 4. Updated default STARFIT parameters for FE Walter, Beltzville, Blue Marsh, and Prompton
+
+The default STARFIT rule parameters for the four lower basin flood control reservoirs (`fewalter`, `beltzvilleCombined`, `blueMarsh`, `prompton`) have been updated in `istarf_conus.csv`. The new parameters were fit to the observed reservoir storage and release records (2004-2023): the normal operating range (NOR) bounds now follow the observed seasonal storage guide curves, and the seasonal release harmonics were fit by water balance so that simulated releases reproduce the observed seasonal storage cycle.
+
+Compared to the prior defaults, the updated parameters substantially improve simulated storage and release accuracy at all four reservoirs. Notable changes:
+
+- `Adjusted_MEANFLOW_MGD` values are now set to the mean catchment inflows for each reservoir, correcting values which were previously off by up to a factor of three (e.g., FE Walter listed 137 MGD vs. an actual mean inflow near 400 MGD). This corrects the scaling of the inflow-response and storage-response terms in the release function.
+- The Beltzville capacity (`Adjusted_CAP_MG`) was raised from 13,500 MG to the storage-curve maximum of 17,750 MG. The prior value was below the observed normal pool volume (~14,000 MG), which made the observed storage level unreachable in simulation. The DRBC Water Code priority staging in `lower_basin_ffmp.py` uses separate hard-coded usable-storage values and is unaffected.
+- Prompton's release bounds were updated using the Prompton release gauge (USGS 01429000): a 10 MGD minimum consistent with observed low releases, and a 2,000 MGD maximum which allows observed flood peaks to pass.
+- The DRBC-specified conservation releases and maximum discharges at FE Walter, Beltzville, and Blue Marsh are hard-coded in `lower_basin_ffmp.py` and are unchanged by the new parameters.
+
+The prior default parameter values are retained in `istarf_conus.csv` under new row names (`fewalter_v2.1_default`, `beltzvilleCombined_v2.1_default`, `blueMarsh_v2.1_default`, `prompton_v2.1_default`) for reference. To run the model with the prior parameters, copy these rows into a custom parameter CSV (using the original row names) and pass it via the `starfit_params_filename` option.
+
+The packaged `perfect_foresight` prediction files were re-generated using the updated default parameters, since the pre-simulated STARFIT releases embedded in those predictions are computed from the default parameter set.
+
+#### 4.1 Prompton release gauge added to observed data
+
+The Prompton release gauge (USGS 01429000, Lackawaxen River at Prompton) is now retrieved with the observational data and included as its own column (`01429000`) in `gage_flow_mgd.csv`. Prompton has no downstream gauge node in the model network, so this record is provided for observation comparisons such as evaluating simulated Prompton releases.
 
 ## Updated Observed Data Records
 
