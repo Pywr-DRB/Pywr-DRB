@@ -215,11 +215,8 @@ class PredictedTimeseriesPreprocessor(DataPreprocessor):
             A DataFrame containing the predicted timeseries data.
         """
         # Setup the prediction dataframe
-        # Use gage_data index if timeseries_data is None (perfect_foresight only mode)
         if self.timeseries_data is not None:
             index = self.timeseries_data.index
-        elif hasattr(self, 'gage_data') and self.gage_data is not None:
-            index = self.gage_data.index
         else:
             raise ValueError("No data loaded for making predictions")
 
@@ -267,7 +264,7 @@ class PredictedTimeseriesPreprocessor(DataPreprocessor):
         lag : int
             The lag to use for the prediction.
         mode : str
-            The prediction mode to use (e.g., "same_day", "gage_flow", "perfect_foresight", "regression", "moving_average").
+            The prediction mode to use (e.g., "same_day", "perfect_foresight", "regression", "moving_average").
         regressions : dict
             A dictionary of regression coefficients for each (node, lag) pair.
             The keys are tuples of (node, lag) and the values are dictionaries with "const" and "slope" keys.
@@ -283,18 +280,8 @@ class PredictedTimeseriesPreprocessor(DataPreprocessor):
         the predicted value is adjusted by the catchment water consumption ratio.
         """
 
-        # Determine which data source to use based on mode and node
-        use_gage_data = (mode in ("gage_flow", "perfect_foresight") and
-                        hasattr(self, 'gage_data') and
-                        self.gage_data is not None and
-                        node in ['delMontague', 'delTrenton'])
-
-        if use_gage_data:
-            data_source = self.gage_data
-            val_t = data_source.loc[date_t, node] if mode != "gage_flow" else None
-        else:
-            data_source = self.timeseries_data
-            val_t = data_source.loc[date_t, node]
+        data_source = self.timeseries_data
+        val_t = data_source.loc[date_t, node]
 
         # Initialize prediction variables for all modes
         # Both are needed by the catchment water consumption logic below
@@ -305,7 +292,7 @@ class PredictedTimeseriesPreprocessor(DataPreprocessor):
             Yhat_lag_prediction = val_t
             Yhat_lag_minus1_prediction = val_t
 
-        elif mode in ("gage_flow", "perfect_foresight"):
+        elif mode == "perfect_foresight":
             # Use actual observations as predictions.
             # Note: PredictedInflowPreprocessor overrides _predict_value to handle
             # perfect_foresight differently (using STARFIT-simulated releases for
@@ -316,27 +303,15 @@ class PredictedTimeseriesPreprocessor(DataPreprocessor):
             date_lag = date_t + pd.Timedelta(days=lag)
             date_lag_minus_1 = date_t + pd.Timedelta(days=lag - 1)
 
-            if use_gage_data:
-                if date_lag in data_source.index:
-                    Yhat_lag_prediction = data_source.loc[date_lag, node]
-                else:
-                    Yhat_lag_prediction = data_source[node].iloc[-1]
-
-                if date_lag_minus_1 in data_source.index:
-                    Yhat_lag_minus1_prediction = data_source.loc[date_lag_minus_1, node]
-                else:
-                    Yhat_lag_minus1_prediction = data_source[node].iloc[-1]
+            if date_lag in data_source.index:
+                Yhat_lag_prediction = data_source.loc[date_lag, node]
             else:
-                data_source = self.timeseries_data
-                if date_lag in data_source.index:
-                    Yhat_lag_prediction = data_source.loc[date_lag, node]
-                else:
-                    Yhat_lag_prediction = data_source[node].iloc[-1]
+                Yhat_lag_prediction = data_source[node].iloc[-1]
 
-                if date_lag_minus_1 in data_source.index:
-                    Yhat_lag_minus1_prediction = data_source.loc[date_lag_minus_1, node]
-                else:
-                    Yhat_lag_minus1_prediction = data_source[node].iloc[-1]
+            if date_lag_minus_1 in data_source.index:
+                Yhat_lag_minus1_prediction = data_source.loc[date_lag_minus_1, node]
+            else:
+                Yhat_lag_minus1_prediction = data_source[node].iloc[-1]
 
         elif mode.startswith("regression"):
 

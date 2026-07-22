@@ -48,3 +48,9 @@ docs/conf.py
 docs/api/generated/
 docs/examples/Tutorial*
 docs/Appendix_A*
+*with_flood_nodes_mgd.csv
+scratch/*
+local_archive/*
+experiments/*/outputs/*
+experiments/*/figures/*
+experiments/*/model_json/*

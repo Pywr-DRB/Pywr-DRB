@@ -13,7 +13,6 @@ Prediction Modes:
 - "regression_disagg": AR regression predictions using catchment inflows (realistic forecasts)
 - "perfect_foresight": Pre-simulated STARFIT releases + actual catchment inflows with lag routing
   (best retrospective analysis, accounts for reservoir operations)
-- "gage_flow": Raw natural gage flow lookup (legacy, does not account for STARFIT operations)
 
 Technical Notes:
 - Extends PredictedTimeseriesPreprocessor with specific inflow prediction logic
@@ -34,6 +33,7 @@ Change Log:
 TJA, 2025-05-07, Minor fixes + docstrings
 TJA, 2025-10, Fixed bug where nodes with lag < 0 were not being included in predictions
 TJA, 2026-03, Added STARFIT-aware perfect_foresight mode; renamed old PF to gage_flow
+TJA, 2026-07, Removed legacy gage_flow mode
 """
 import io
 import h5py
@@ -59,7 +59,7 @@ __all__ = ["PredictedInflowPreprocessor", "PredictedInflowEnsemblePreprocessor"]
 class PredictedInflowPreprocessor(PredictedTimeseriesPreprocessor):
     """
     Predicts catchment inflows at Montague and Trenton using specified modes
-    (e.g., regression, perfect foresight, gage flow).
+    (e.g., regression, perfect foresight).
 
     Examples
     --------
@@ -87,7 +87,7 @@ class PredictedInflowPreprocessor(PredictedTimeseriesPreprocessor):
             start_date (bool, None): Start date for the time series. If None, match the input data.
             end_date (bool, None): End date for the time series. If None, match the input data.
             modes (tuple): Modes to use for prediction. Default is ('regression_disagg',).
-                Options: "regression_disagg", "perfect_foresight", "gage_flow"
+                Options: "regression_disagg", "perfect_foresight"
             use_log (bool): Whether to use log transformation. Default is True.
             remove_zeros (bool): Whether to remove zero values. Default is False.
             use_const (bool): Whether to use a constant in regression. Default is False.
@@ -104,7 +104,6 @@ class PredictedInflowPreprocessor(PredictedTimeseriesPreprocessor):
         self.regression_mode_options = [
             "regression_disagg",
             "perfect_foresight",
-            "gage_flow",
         ]
 
         # Modes being used; check validity
@@ -171,34 +170,18 @@ class PredictedInflowPreprocessor(PredictedTimeseriesPreprocessor):
 
     def load(self):
         """
-        Loads catchment inflows, gage flows, STARFIT releases, and water consumption data.
+        Loads catchment inflows, STARFIT releases, and water consumption data.
 
         For regression modes: Uses catchment_inflow_mgd.csv (marginal/incremental flows)
         For perfect_foresight mode: Uses catchment_inflow_mgd.csv + pre-simulated STARFIT releases
-        For gage_flow mode: Uses gage_flow_mgd.csv (total natural flow at gages)
         """
-        # Determine which data sources to load based on modes
-        has_regression = any(mode.startswith("regression") for mode in self.modes)
         has_perfect_foresight = "perfect_foresight" in self.modes
-        has_gage_flow = "gage_flow" in self.modes
 
-        # Load catchment inflow data for regression and perfect_foresight modes
+        # Load catchment inflow data
         # used to predict inflows at Montague and Trenton via aggregation
-        if has_regression or has_perfect_foresight:
-            fname = self.input_dirs["catchment_inflow_mgd.csv"]
-            self.timeseries_data = pd.read_csv(fname, index_col=0, parse_dates=True)
-            self.timeseries_data.index = pd.DatetimeIndex(self.timeseries_data.index)
-        else:
-            self.timeseries_data = None
-
-        # Load gage flow data for gage_flow mode
-        # provides total natural flow directly at gage locations (delMontague, delTrenton)
-        if has_gage_flow:
-            gage_fname = self.pn.sc.get(f"flows/{self.flow_type}") / "gage_flow_mgd.csv"
-            self.gage_data = pd.read_csv(gage_fname, index_col=0, parse_dates=True)
-            self.gage_data.index = pd.DatetimeIndex(self.gage_data.index)
-        else:
-            self.gage_data = None
+        fname = self.input_dirs["catchment_inflow_mgd.csv"]
+        self.timeseries_data = pd.read_csv(fname, index_col=0, parse_dates=True)
+        self.timeseries_data.index = pd.DatetimeIndex(self.timeseries_data.index)
 
         # Pre-simulate STARFIT releases for perfect_foresight mode
         if has_perfect_foresight:
@@ -233,7 +216,7 @@ class PredictedInflowPreprocessor(PredictedTimeseriesPreprocessor):
     def process(self):
         """Run full prediction workflow."""
         # Ensure data is loaded
-        if self.timeseries_data is None and self.gage_data is None:
+        if self.timeseries_data is None:
             self.load()
 
         # Train regression models for all node-lag combinations
@@ -249,7 +232,6 @@ class PredictedInflowPreprocessor(PredictedTimeseriesPreprocessor):
 
         For regression modes: Aggregates upstream catchments with travel time adjustments
         For perfect_foresight: Aggregates upstream catchments with travel times + STARFIT releases
-        For gage_flow: Uses gage data directly at target locations (no aggregation)
         """
 
         # Dictionary to hold regression combination
@@ -262,28 +244,20 @@ class PredictedInflowPreprocessor(PredictedTimeseriesPreprocessor):
             for mode in self.modes:
                 col = f"delMontague_lag{lag}_{mode}"
 
-                if mode == "gage_flow":
-                    # Use gage data directly - no aggregation needed
-                    combos[col] = [(("delMontague", lag), mode)]
-                elif mode == "perfect_foresight" or mode.startswith("regression"):
-                    # Aggregate upstream catchments with travel times
-                    combos[col] = []
-                    for node, travel_time in self.node_to_montague_travel_time.items():
-                        combos[col].append(((node, lag - travel_time), mode))
+                # Aggregate upstream catchments with travel times
+                combos[col] = []
+                for node, travel_time in self.node_to_montague_travel_time.items():
+                    combos[col].append(((node, lag - travel_time), mode))
 
         # Trenton predictions
         for lag in [1, 2, 3, 4]:
             for mode in self.modes:
                 col = f"delTrenton_lag{lag}_{mode}"
 
-                if mode == "gage_flow":
-                    # Use gage data directly - no aggregation needed
-                    combos[col] = [(("delTrenton", lag), mode)]
-                elif mode == "perfect_foresight" or mode.startswith("regression"):
-                    # Aggregate upstream catchments with travel times
-                    combos[col] = []
-                    for node, travel_time in self.node_to_trenton_travel_time.items():
-                        combos[col].append(((node, lag - travel_time), mode))
+                # Aggregate upstream catchments with travel times
+                combos[col] = []
+                for node, travel_time in self.node_to_trenton_travel_time.items():
+                    combos[col].append(((node, lag - travel_time), mode))
 
         return combos
 

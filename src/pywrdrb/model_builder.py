@@ -70,7 +70,7 @@ global pn
 pn = get_pn_object()
 
 ### DEPRECATED: flow_prediction_mode moved to Options dataclass
-# Supported modes: "regression_disagg", "perfect_foresight", "gage_flow"
+# Supported modes: "regression_disagg", "perfect_foresight"
 # Always True
 use_lower_basin_mrf_contributions = True
 
@@ -109,7 +109,7 @@ class Options:
     initial_volume_frac : float
         Initial reservoir storage as a fraction of capacity. Default is 0.8.
     flow_prediction_mode : str
-        Flow prediction mode for FFMP operations. Determines which prediction columns to use from predicted_inflows_mgd.csv. Options are "regression_disagg" (default), "perfect_foresight", and "gage_flow".
+        Flow prediction mode for FFMP operations. Determines which prediction columns to use from predicted_inflows_mgd.csv. Options are "regression_disagg" (default) and "perfect_foresight".
     starfit_params_filename : Optional[str]
         If given, path to an alternative STARFIT parameter CSV (same format as
         istarf_conus.csv, containing all reservoir rows). Used for reservoir
@@ -263,7 +263,7 @@ class ModelBuilder:
             run_starfit_sensitivity_analysis (bool): If True, we run STARFIT sensitivity analysis.
             sensitivity_analysis_scenarios (list of str): List of scenarios to use for STARFIT sensitivity analysis.
             initial_volume_frac (float): Initial reservoir storage as a fraction of capacity. Default is 0.8.
-            flow_prediction_mode (str): Options: "regression_disagg", "perfect_foresight", "gage_flow". Default is "regression_disagg".
+            flow_prediction_mode (str): Options: "regression_disagg", "perfect_foresight". Default is "regression_disagg".
             starfit_params_filename (str): If given, path to an alternative STARFIT parameter CSV (same format as istarf_conus.csv). Default is None.
         """
         
@@ -370,7 +370,7 @@ class ModelBuilder:
         for the model. It also handles scenarios for inflows and temperature/salinity predictions.
         """
         # Validate flow_prediction_mode
-        valid_flow_modes = ["regression_disagg", "perfect_foresight", "gage_flow"]
+        valid_flow_modes = ["regression_disagg", "perfect_foresight"]
         if self.options.flow_prediction_mode not in valid_flow_modes:
             raise ValueError(
                 f"Invalid flow_prediction_mode: '{self.options.flow_prediction_mode}'. "

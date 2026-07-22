@@ -37,6 +37,7 @@ Change Log
 Marilyn Smith, 2025-05-07, Added documentation and cleaned to DRB documentation standard.
 TJA, 2025-06-11, Performance optimizations while maintaining identical functionality.
 TJA, 2026-07-10, Added starfit_params_filename option for custom parameter CSVs.
+TJA, 2026-07-22, Enforce R_min in all storage conditions (was below-NOR only).
 """
 
 import os
@@ -510,7 +511,7 @@ class STARFITReservoirRelease(Parameter):
         """
         if NORlo <= S_hat <= NORhi:
             target = min(
-                self.I_bar * (harmonic_release + epsilon + 1), 
+                self.I_bar * (harmonic_release + epsilon + 1),
                 self.R_max
             )
         elif S_hat > NORhi:
@@ -518,10 +519,13 @@ class STARFITReservoirRelease(Parameter):
         else:
             if self.linear_below_NOR:
                 target = (self.I_bar * (harmonic_release + epsilon + 1)) * (S_hat / NORlo)
-                target = max(target, self.R_min)
             else:
                 target = self.R_min
-        return target
+        # Enforce the minimum release in all storage conditions (previously
+        # only applied below the NOR, allowing the in-NOR release to dip
+        # below R_min on very dry days). Physical availability is still
+        # enforced in value().
+        return max(target, self.R_min)
 
     def value(self, timestep, scenario_index):
         """

@@ -1,5 +1,104 @@
 # Pywr-DRB Release Notes
 
+## v2.2.0 - beta (2026-07-21)
+
+## Overview
+
+Pywr-DRB v2.2.0 adds a new `perfect_foresight` flow prediction mode, a new `STARFITOfflineSimulator` class which simulates STARFIT reservoir releases outside of the Pywr-DRB simulation, and the ability to run the model with custom STARFIT parameters. The pre-packaged observed flow and storage records have been extended through May 2026, with an improved NYC reservoir storage record. This release also contains bug fixes for ensemble simulations run using MPI.
+
+## New Functionality
+
+### 1. New `flow_prediction_mode` option in `ModelBuilder`
+
+The FFMP-based release rules for the NYC and lower basin reservoirs rely on multi-day predictions of flows at Montague and Trenton. In prior versions, these predictions were always generated using a regression-based disaggregation method. This remains the default behavior.
+
+The new `flow_prediction_mode` option in the `ModelBuilder` options allows the user to choose between prediction methods:
+
+- `"regression_disagg"` (default): Regression-based flow predictions, identical to prior versions.
+- `"perfect_foresight"`: Predictions constructed such that the model has perfect knowledge of future non-NYC flow contributions at Montague and Trenton. In this mode, NYC reservoirs contribute zero to the predicted flows (their releases are the quantity being determined by the FFMP logic), STARFIT-controlled reservoirs contribute pre-simulated STARFIT releases (see `STARFITOfflineSimulator` below), and all other nodes contribute their consumption-adjusted catchment inflows.
+
+The legacy internal "perfect foresight" method, which took predictions directly from the dataset gage flows without accounting for reservoir operations, has been removed.
+
+```python
+import pywrdrb
+
+mb = pywrdrb.ModelBuilder(
+    start_date="1983-10-01",
+    end_date="1985-12-31",
+    inflow_type="nhmv10_withObsScaled",
+    options={"flow_prediction_mode": "perfect_foresight"},
+)
+mb.make_model()
+mb.write_model("./model_perfect_foresight.json")
+```
+
+#### 1.1 Regenerated `predicted_inflows_mgd.csv` and `predicted_diversions_mgd.csv`
+
+The `predicted_inflows_mgd.csv` files for all nine pre-packaged datasets, and the `predicted_diversions_mgd.csv` file, have been re-generated and now contain both `regression_disagg` and `perfect_foresight` prediction columns. This allows users to run either prediction mode without re-running the preprocessors.
+
+The `regression_disagg` predicted inflow values are unchanged relative to v2.1.0. The predicted diversions have been re-fit using the updated observed records (described below), so the regression-based diversion predictions differ from v2.1.0 and now extend through May 2025.
+
+### 2. `STARFITOfflineSimulator` for offline reservoir simulation
+
+The new `pywrdrb.pre.STARFITOfflineSimulator` class replicates the STARFIT release logic used by the `pywrdrb.parameters.STARFITReservoirRelease` parameter, but runs outside of the Pywr simulation. Given a timeseries of catchment inflows, it simulates storage dynamics and releases day-by-day for each STARFIT-controlled reservoir.
+
+This class is used to generate the pre-simulated releases required by the `perfect_foresight` prediction mode. It can also be used on its own to study STARFIT release behavior for a given inflow scenario, without needing to run the full Pywr-DRB model.
+
+```python
+from pywrdrb.pre import STARFITOfflineSimulator
+
+sim = STARFITOfflineSimulator(initial_volume_frac=0.8)
+sim.load_parameters()
+releases_df = sim.simulate_all(catchment_inflows_df)
+```
+
+### 3. Use custom STARFIT parameters
+
+In prior versions, the STARFIT reservoir rule parameters were always loaded from the `istarf_conus.csv` file included in the package. The new `starfit_params_filename` option in the `ModelBuilder` options allows the user to provide an alternative STARFIT parameter CSV. The file must follow the same format as `istarf_conus.csv` and contain rows for all Pywr-DRB reservoirs. The custom parameters are used for both the reservoir capacities and the STARFIT release rules.
+
+```python
+mb = pywrdrb.ModelBuilder(
+    start_date="1983-10-01",
+    end_date="1985-12-31",
+    inflow_type="nhmv10_withObsScaled",
+    options={"starfit_params_filename": "./my_starfit_params.csv"},
+)
+```
+
+Note that this option cannot be combined with the `run_starfit_sensitivity_analysis` option, which loads parameters from a separate scenario file.
+
+<!-- Section 4: updated default STARFIT parameters in istarf_conus.csv; to be added before release. -->
+
+## Updated Observed Data Records
+
+The pre-packaged observed data records (`gage_flow_mgd.csv`, `catchment_inflow_mgd.csv`, `reservoir_storage_mg.csv`) have been re-generated and now extend through 2026-05-04.
+
+The NYC reservoir storage records (`cannonsville`, `pepacton`, `neversink`) have been improved:
+
+- DRBC daily storage records are now used for the period 1999-12-01 through 2021-11-30, replacing the storage values derived from USGS elevation records over that period. USGS-derived values are still used outside of the DRBC record period.
+- Early-record storage values known to be erroneous are now dropped on a per-reservoir basis, using reservoir-specific validity start dates.
+- The retrieval workflow (`pywrdrb.pre.ObservationalDataRetriever`) now exports an audit CSV of the USGS-derived NYC storage record, and includes a storage diagnostics plotting function for visual inspection of the merged record.
+
+New tests have been added in `tests/test_observation_loader.py` to verify the merged NYC storage record.
+
+## Bug Fixes
+
+### 1. Fixed scenario indexing in ensemble simulations
+
+Some parameters were indexing scenario data using the local scenario index rather than `scenario_index.global_id`. This produced incorrect scenario mappings when running ensemble simulations with MPI, where each rank only sees a subset of scenarios. The affected parameters, including `STARFITReservoirRelease` and the lower basin FFMP parameters, now use `global_id` throughout.
+
+### 2. Fixed ensemble realization ID handling in preprocessors
+
+The ensemble preprocessors were inconsistent in their handling of integer vs. string realization IDs when reading ensemble HDF5 files, which caused failures for some ensemble datasets. Realization IDs are now consistently coerced to strings. The ensemble preprocessors also now accept an optional `comm` argument, allowing an existing MPI communicator to be reused.
+
+### 3. STARFIT releases now enforce the minimum release in all storage conditions
+
+Previously, the `STARFITReservoirRelease` parameter only enforced the minimum release (`R_min`) when storage was below the normal operating range. When storage was inside the NOR, the release function could dip below `R_min` on very dry days. The minimum release is now enforced in all storage conditions, consistent with the DRBC conservation release requirements at the lower basin reservoirs.
+
+The practical impact is small: in a 40-year test simulation, this affected roughly 0.27% of days at Blue Marsh (the most affected reservoir), with all other days unchanged. The same correction is applied in the `STARFITOfflineSimulator`.
+
+---
+
 ## v2.1.0
 
 ## Bug Fixes

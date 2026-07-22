@@ -39,6 +39,7 @@ from pywrdrb.pre.datapreprocessor_ABC import DataPreprocessor
 from pywrdrb.pywr_drb_node_data import obs_site_matches, obs_pub_site_matches
 from pywrdrb.pywr_drb_node_data import all_flow_gauges, nyc_reservoirs
 from pywrdrb.pywr_drb_node_data import storage_curves, storage_gauge_map
+from pywrdrb.pywr_drb_node_data import supplemental_flow_gauges
 
 __all__ = ["ObservationalDataRetriever"]
 
@@ -505,8 +506,14 @@ class ObservationalDataRetriever(DataPreprocessor):
                 assert all(
                     g in self.flows.columns for g in gauges
                     ), f"Missing inflow gauges {[g for g in gauges if g not in self.flow.columns]} for node {node}"
-                self.gage_flows[node] = self.flows[gauges].sum(axis=1)                
-        
+                self.gage_flows[node] = self.flows[gauges].sum(axis=1)
+
+        # Keep supplemental gauges (not model nodes) as their own columns,
+        # e.g. 01429000 which measures Prompton reservoir releases
+        for gauge in supplemental_flow_gauges:
+            if gauge in self.flows.columns:
+                self.gage_flows[gauge] = self.flows[gauge]
+
         ### Processed and transformed data
         ## Inflows (only unmanaged flow data)
         # Aggregate (sum) inflow gauges and rename from gauge IDs to node names

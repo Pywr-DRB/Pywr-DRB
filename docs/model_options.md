@@ -10,7 +10,6 @@ The FFMP-based release rules for the NYC and lower basin reservoirs rely on mult
 |------|-------------|
 | `"regression_disagg"` | (Default) Regression-based flow predictions, identical to prior versions. |
 | `"perfect_foresight"` | Predictions constructed such that the model has perfect knowledge of future non-NYC flow contributions at Montague and Trenton. NYC reservoirs contribute zero to the predicted flows, STARFIT-controlled reservoirs contribute pre-simulated releases generated with `pywrdrb.pre.STARFITOfflineSimulator`, and all other nodes contribute their consumption-adjusted catchment inflows. |
-| `"gage_flow"` | Predictions taken directly from the dataset gage flows. |
 
 ```python
 import pywrdrb

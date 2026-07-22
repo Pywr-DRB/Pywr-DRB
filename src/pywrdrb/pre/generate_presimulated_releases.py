@@ -24,6 +24,9 @@ Change Log
 ----------
 TJA, 2025-11-26, Initial post-processing version (generate_presimulated_releases).
 TJA, 2026-03, Added STARFITOfflineSimulator for offline pre-simulation.
+TJA, 2026-07-22, Enforce R_min in all storage conditions (matches starfit.py).
+TJA, 2026-07-22, Match model consumption timing (CU_ratio * withdrawal_{t-1},
+    withdrawal limited by inflow) and bound releases by net available water.
 """
 
 import os
@@ -197,13 +200,14 @@ class STARFITOfflineSimulator:
         self._reservoir_params_cache[reservoir_name] = params
         return params
 
-    def _get_catchment_consumption(self, reservoir_name):
+    def _get_withdrawal_params(self, reservoir_name):
         """
-        Get the daily water consumption for a reservoir's catchment.
+        Get the catchment withdrawal capacity and consumption ratio.
 
-        Returns the consumptive use (CU_ratio * withdrawal) which represents
-        the water removed from the system before reaching the reservoir.
-        This matches the model's catchmentConsumption node behavior.
+        These describe the model's catchmentWithdrawal/catchmentConsumption
+        nodes: each day the catchment withdraws min(WD, inflow), and the
+        consumptive loss is CU_ratio * withdrawal from the previous day
+        (the non-consumed remainder returns to the reservoir).
 
         Parameters
         ----------
@@ -212,17 +216,17 @@ class STARFITOfflineSimulator:
 
         Returns
         -------
-        float
-            Daily consumption in MGD. Returns 0.0 if no data available.
+        tuple of (float, float)
+            (Total_WD_MGD, Total_CU_WD_Ratio). (0.0, 0.0) if no data.
         """
         if self._catchment_wc is None:
-            return 0.0
+            return 0.0, 0.0
         pywr_node = f"reservoir_{reservoir_name}"
         if pywr_node in self._catchment_wc.index:
             wd = self._catchment_wc.loc[pywr_node, "Total_WD_MGD"]
             cu = self._catchment_wc.loc[pywr_node, "Total_CU_WD_Ratio"]
-            return cu * wd
-        return 0.0
+            return wd, cu
+        return 0.0, 0.0
 
     def _precompute_seasonal_arrays(self, params):
         """
@@ -337,8 +341,9 @@ class STARFITOfflineSimulator:
         inv_S_cap = 1.0 / S_cap
         inv_I_bar = 1.0 / I_bar
 
-        # Get catchment consumption for storage balance correction
-        consumption = self._get_catchment_consumption(reservoir_name)
+        # Catchment withdrawal capacity and consumption ratio for the
+        # storage balance (mirrors catchmentWithdrawal/catchmentConsumption)
+        wd, cu_ratio = self._get_withdrawal_params(reservoir_name)
 
         n = len(inflows)
         storage = np.empty(n + 1)
@@ -346,6 +351,10 @@ class STARFITOfflineSimulator:
 
         # Initial storage (matches model_builder.py line 795)
         storage[0] = S_cap * self.initial_volume_frac
+
+        # Previous-day withdrawal; pywr's prev_flow starts at 0, so the
+        # first day has zero consumption in the model as well.
+        withdrawal_prev = 0.0
 
         # Main simulation loop — sequential due to storage dependency
         # Each iteration mirrors starfit.py lines 522-560
@@ -382,6 +391,8 @@ class STARFITOfflineSimulator:
             else:
                 # S_hat_t < NORlo_t, linear_below_NOR=False
                 target_release = R_min
+            # Enforce R_min in all storage conditions (matches starfit.py)
+            target_release = max(target_release, R_min)
 
             # Constraints (starfit.py lines 556-560)
             # NOTE: uses gross I_t for available_water, matching online STARFIT
@@ -390,12 +401,19 @@ class STARFITOfflineSimulator:
             release_t = max(min(target_release, available_water), min_required)
             release_t = max(0.0, release_t)
 
-            releases[t] = release_t
+            # Storage balance uses NET inflow (gross - consumption) to match
+            # the Pywr model's mass balance, where consumption_t is
+            # CU_ratio * withdrawal_{t-1}, and withdrawal is limited by the
+            # day's inflow: withdrawal_t = min(WD, I_t).
+            withdrawal_t = min(wd, I_t)
+            consumption_t = min(cu_ratio * withdrawal_prev, withdrawal_t)
+            withdrawal_prev = withdrawal_t
+            net_inflow = I_t - consumption_t
 
-            # Storage balance uses NET inflow (gross - consumption)
-            # to match the Pywr model's mass balance where catchment flow
-            # is split between reservoir inflow and consumption nodes.
-            net_inflow = max(I_t - consumption, 0.0)
+            # The model's LP cannot release more than the net available
+            # water; re-limit here so storage stays within [0, S_cap].
+            release_t = min(release_t, S_t + net_inflow)
+            releases[t] = release_t
             storage[t + 1] = S_t + net_inflow - release_t
 
         return releases, storage

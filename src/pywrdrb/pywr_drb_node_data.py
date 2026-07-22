@@ -409,8 +409,14 @@ for node, gauges in obs_site_matches.items():
 # Add DR Canal gauge, which used for the diversion extrapolation
 all_flow_gauges.extend(["01460440"])
 
+# Supplemental gauges which are not model nodes, but are retrieved and kept
+# as their own columns in gage_flow_mgd.csv for observation comparisons.
+# 01429000: Lackawaxen River at Prompton (measures Prompton reservoir releases)
+supplemental_flow_gauges = ["01429000"]
+all_flow_gauges.extend(supplemental_flow_gauges)
+
 # Remove duplicates
-all_flow_gauges = list(set(all_flow_gauges))  
+all_flow_gauges = list(set(all_flow_gauges))
 
 storage_gauge_map = {
     "beltzvilleCombined": ["01449790"],
