@@ -1,9 +1,9 @@
 """
 Run the three v2.2beta test simulations.
 
-Runs pub_nhmv10_BC_withObsScaled over 2000-2023 with both flow_prediction_mode
-options, plus one run using a custom STARFIT parameter CSV generated from the
-packaged defaults (see utils.make_demo_starfit_csv).
+Runs pub_nhmv10_BC_withObsScaled over the full 1945-2023 record with both
+flow_prediction_mode options, plus one run using a custom STARFIT parameter
+CSV generated from the packaged defaults (see utils.make_demo_starfit_csv).
 
 The legacy "gage_flow" prediction mode has been removed from the package; see TODO.md.
 

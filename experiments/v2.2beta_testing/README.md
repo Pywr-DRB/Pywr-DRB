@@ -9,10 +9,10 @@ Run in order:
 
 | Script | Purpose | Runtime |
 | --- | --- | --- |
-| `01_run_simulations.py` | Three simulations (2000-2023): both prediction modes + a custom STARFIT parameter run | ~3 min |
+| `01_run_simulations.py` | Three full-period simulations (1945-2023): both prediction modes + a custom STARFIT parameter run | ~6 min |
 | `02_offline_starfit.py` | Offline STARFIT simulator: default params, initial storage sweep, reservoir subset, custom params | <1 min |
 | `03_stress_tests.py` | Error handling and short-run checks; prints a PASS/FAIL table | ~2 min |
-| `04_make_figures.py` | Seven diagnostic figures from the outputs of 01 and 02 | <1 min |
+| `04_make_figures.py` | Eight diagnostic figures from the outputs of 01 and 02 | <1 min |
 
 Shared constants and helpers live in `utils.py`. Outputs land in `model_json/`
 (model JSON files), `outputs/` (HDF5 results and offline-simulation CSVs), and

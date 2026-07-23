@@ -16,7 +16,7 @@ OUTPUT_DIR = HERE / "outputs"
 FIG_DIR = HERE / "figures"
 
 INFLOW_TYPE = "pub_nhmv10_BC_withObsScaled"
-START_DATE = "2000-01-01"
+START_DATE = "1945-01-01"
 END_DATE = "2023-12-31"
 
 # Perturbation used to demonstrate the custom STARFIT parameter option

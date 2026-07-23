@@ -3,13 +3,14 @@ Figures for the v2.2beta test runs.
 
 Requires outputs from 01_run_simulations.py and 02_offline_starfit.py.
 
-fig01  NYC aggregate storage, prediction modes vs observed
+fig01  NYC aggregate storage, prediction modes vs observed (full period)
 fig02  Montague/Trenton flow vs MRF target during the 2001-02 drought
 fig03  Lower basin contributions to the Trenton target, by mode
 fig04  Offline STARFIT simulator vs in-model releases
 fig05  Offline storage spin-up across initial_volume_frac values
 fig06  Default vs custom (demo CSV) STARFIT parameters, reservoir storage
 fig07  Updated observed NYC storage record with simulation overlay
+fig08  DRBC lower basin aggregate storage, by mode (full period)
 
 Usage:
     python 04_make_figures.py
@@ -34,7 +35,11 @@ COLORS = {
 }
 NYC_RESERVOIRS = ["cannonsville", "pepacton", "neversink"]
 LOWER_BASIN = ["beltzvilleCombined", "blueMarsh", "nockamixon"]
-DROUGHTS = [("2001-10-01", "2002-11-30"), ("2016-09-01", "2017-04-30")]
+DROUGHTS = [
+    ("1963-06-01", "1967-06-30"),
+    ("2001-10-01", "2002-11-30"),
+    ("2016-09-01", "2017-04-30"),
+]
 
 plt.rcParams.update({
     "figure.dpi": 150, "savefig.dpi": 150, "savefig.bbox": "tight",
@@ -63,7 +68,7 @@ def shade_droughts(ax):
 
 
 def fig01_nyc_storage(data):
-    fig, ax = plt.subplots(figsize=(14, 5))
+    fig, ax = plt.subplots(figsize=(20, 5))
     for mode in MODES:
         storage = get_df(data, "res_storage", mode)
         nyc = storage[NYC_RESERVOIRS].sum(axis=1) / 1000
@@ -163,7 +168,7 @@ def fig05_initial_volume_sweep():
     fig, ax = plt.subplots(figsize=(10, 4))
     for col in storage.columns:
         frac = col.replace("ivf_", "")
-        ax.plot(storage[col].loc["2000":"2003"] / cap * 100, lw=1,
+        ax.plot(storage[col].loc["1945":"1948"] / cap * 100, lw=1,
                 label=f"initial fraction {frac}")
     ax.set_ylabel("prompton storage (% capacity)")
     ax.set_title("Offline simulator spin-up from different initial storages")
@@ -213,6 +218,25 @@ def fig07_obs_record(data):
     save(fig, "fig07_obs_record_update.png")
 
 
+def fig08_lower_basin_storage(data):
+    # no observed line: nockamixon has no storage record, so the observed
+    # aggregate cannot be formed
+    fig, ax = plt.subplots(figsize=(20, 5))
+    for mode in MODES:
+        storage = get_df(data, "res_storage", mode)
+        total = storage[LOWER_BASIN].sum(axis=1) / 1000
+        ax.plot(total, color=COLORS[mode], lw=1, label=mode)
+    shade_droughts(ax)
+    ax.set_ylabel("DRBC lower basin storage (BG)")
+    ax.set_xlim(pd.Timestamp(START_DATE), pd.Timestamp(END_DATE))
+    ax.legend(ncol=2, loc="lower right")
+    ax.set_title(
+        "Aggregate lower basin storage (blueMarsh + beltzvilleCombined + nockamixon) "
+        "by flow prediction mode"
+    )
+    save(fig, "fig08_lower_basin_storage.png")
+
+
 def main():
     make_dirs()
     require_files(
@@ -240,6 +264,7 @@ def main():
     fig05_initial_volume_sweep()
     fig06_custom_starfit(data)
     fig07_obs_record(data)
+    fig08_lower_basin_storage(data)
 
 
 if __name__ == "__main__":
