@@ -657,7 +657,8 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
         ) / (diversion_bounds[1] - diversion_bounds[0])
 
         # Find nearest neighbor in historical data for each month in full time period
-        df_long_m["nn"] = -1
+        # (holds the datetime index label of the matched training month)
+        df_long_m["nn"] = pd.NaT
         for i in range(df_long_m.shape[0]):
             ind = df_long_m.index[i]
             q = df_long_m["quarter"].iloc[i]
