@@ -8,20 +8,19 @@ import pytest
 import pywrdrb
 from pywrdrb.utils.dates import model_date_ranges
 from pywrdrb.path_manager import get_pn_object
-output_folder = "."
 
 pn = get_pn_object()
 flowtype_opts = [i for i in pn.flows.list(type="folder") if i[0] != "_"]
 
-def test_sample_run_all_datasets():
+def test_sample_run_all_datasets(shared_tmp_path):
     """Run sample_run.py workflow for all datasets."""
 
     # Loop through available flowtypes
     for flowtype in flowtype_opts:
-        
-        
-        model_filename = f"{flowtype}_model.json"
-        output_filename = f"{output_folder}/{flowtype}.hdf5"
+
+
+        model_filename = str(shared_tmp_path / f"{flowtype}_model.json")
+        output_filename = str(shared_tmp_path / f"{flowtype}.hdf5")
         
         try:
             start, end = model_date_ranges[flowtype]

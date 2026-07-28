@@ -282,7 +282,7 @@ class LowerBasinMaxMRFContribution(Parameter):
         for res in usable_reservoirs:
             # Get current storage percentage
             S_max = self.max_volumes[res]
-            S_t = self.nodes[res].volume[scenario_index.indices]
+            S_t = self.nodes[res].volume[scenario_index.global_id]
 
             # Add inflow and remove required conservation releases from storage
             inflow = self.parameters[f"flow_{res}"].get_value(scenario_index)

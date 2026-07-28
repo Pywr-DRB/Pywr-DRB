@@ -6,22 +6,23 @@ on:
   push:
     branches:
       - master
+  workflow_dispatch:
 
 jobs:
   # This builds and deploys Pywr-DRB documentation
   build-docs:
-    if: contains(github.event.head_commit.message, '[build]')
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[build]')
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: [3.11]
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
 
     # Install python
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -56,7 +57,7 @@ jobs:
 
         # Now manually fix path in config file to include the base dir outside docs, so we can import pywrdrb
         echo "Appending sys.path modification to conf.py"
-        echo -e "import sys\nimport os\nsys.path.insert(0, os.path.abspath('../'))\nsys.path.insert(0, os.path.abspath('../pywrdrb/'))" >> docs/conf.py
+        echo -e "import sys\nimport os\nsys.path.insert(0, os.path.abspath('../'))\nsys.path.insert(0, os.path.abspath('../src/'))" >> docs/conf.py
 
         # Print contents of modified config file
         echo "Contents of conf.py:"

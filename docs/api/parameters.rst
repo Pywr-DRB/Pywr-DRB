@@ -68,7 +68,8 @@ Used to predict and track water temperature at Lordville using an LSTM model. Cu
    :toctree: generated/
    :nosignatures:
 
-   TemperatureModel
+   TemperatureModelLSTM
+   TemperatureModelRF
    Estimated_Q_C
    Estimated_Q_i
    ThermalReleaseRequirement
@@ -85,9 +86,11 @@ Used to predict and track the salt front location in the lower basin using an LS
    :toctree: generated/
    :nosignatures:
 
-   SalinityModel
+   SalinityModelLSTM
+   SalinityModelRF
    UpdateSaltFrontLocation
    SaltFrontLocation
+   FlowTargetSaltFrontAdjustmentRatio
 
 
 Ensemble Specific

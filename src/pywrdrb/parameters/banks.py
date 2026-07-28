@@ -156,7 +156,7 @@ class IERQRelease_step1(Parameter):
             self.bank_remaining = np.ones(shape=(self.num_scenarios)) * max_bank_volumes[self.bank]
         
         # Advance datetime
-        self.datetime += pd.Timedelta(1, "d")
+        self.datetime += pd.Timedelta(1, "D")
 
 
     @classmethod
@@ -305,7 +305,7 @@ IERQRelease_step1.register()
 #             self.bank_remaining = self.max_bank_volume
         
 #         # Advance datetime
-#         self.datetime += pd.Timedelta(1, "d")
+#         self.datetime += pd.Timedelta(1, "D")
 
 
 #     @classmethod

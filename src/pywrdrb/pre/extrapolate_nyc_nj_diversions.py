@@ -40,6 +40,7 @@ Change Log:
 TJA, 2025-05-07, Bug fixes to align with old methods + docstrings
 Modified, Aug 27 2025, Added support for custom flow datasets
 """
+import io
 import os
 import h5py
 import numpy as np
@@ -656,7 +657,8 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
         ) / (diversion_bounds[1] - diversion_bounds[0])
 
         # Find nearest neighbor in historical data for each month in full time period
-        df_long_m["nn"] = -1
+        # (holds the datetime index label of the matched training month)
+        df_long_m["nn"] = pd.NaT
         for i in range(df_long_m.shape[0]):
             ind = df_long_m.index[i]
             q = df_long_m["quarter"].iloc[i]
@@ -1016,10 +1018,11 @@ class ExtrapolatedDiversionEnsemblePreprocessor(ExtrapolatedDiversionPreprocesso
                  flow_type,
                  ensemble_hdf5_file,
                  realization_ids=None,
-                 use_mpi=True):
+                 use_mpi=True,
+                 comm=None):
         """
         Initialize the ExtrapolatedDiversionEnsemblePreprocessor.
-        
+
         Parameters
         ----------
         loc : str
@@ -1028,20 +1031,27 @@ class ExtrapolatedDiversionEnsemblePreprocessor(ExtrapolatedDiversionPreprocesso
             Flow type for custom data. Must be provided.
         ensemble_hdf5_file : str
             Path to the HDF5 file containing ensemble gage_flow_mgd data.
+        use_mpi : bool, optional
+            Whether to use MPI for parallel processing (default: True).
+        comm : MPI communicator, optional
+            If None and use_mpi=True, uses MPI.COMM_WORLD.
         """
-        super().__init__(loc=loc, 
+        super().__init__(loc=loc,
                          flow_type=flow_type)
 
         self.ensemble_hdf5_file = ensemble_hdf5_file
         self.realization_ids = realization_ids
-        
+
         assert loc in ["nyc", "nj"], f"Invalid location specified. Expected 'nyc' or 'nj'. Got {loc}"
         self.loc = loc
-        
+
         self.use_mpi = use_mpi
         if self.use_mpi:
-            from mpi4py import MPI
-            self.comm = MPI.COMM_WORLD
+            if comm is not None:
+                self.comm = comm
+            else:
+                from mpi4py import MPI
+                self.comm = MPI.COMM_WORLD
             self.rank = self.comm.Get_rank()
             self.size = self.comm.Get_size()
         else:
@@ -1086,11 +1096,12 @@ class ExtrapolatedDiversionEnsemblePreprocessor(ExtrapolatedDiversionPreprocesso
             node_data = hdf5_file[node]
             column_labels = node_data.attrs["column_labels"]
 
-            err_msg = f"The specified realization {realization_id} is not available in the HDF file."
-            assert realization_id in column_labels, (
-                err_msg + f" Realizations available: {column_labels}"
+            err_msg = f"The specified realization {realization_id} with type {type(realization_id)} is not available in the HDF file."
+            column_labels_str = [str(label) for label in column_labels]
+            assert str(realization_id) in column_labels_str, (
+                err_msg + f" Realizations available, with type {type(column_labels[0]) if len(column_labels) > 0 else 'unknown'}: {column_labels}"
             )
-            data[node] = node_data[realization_id][:]
+            data[node] = node_data[str(realization_id)][:]
 
         dates = node_data["date"][:].tolist()
         data["datetime"] = dates
@@ -1101,46 +1112,76 @@ class ExtrapolatedDiversionEnsemblePreprocessor(ExtrapolatedDiversionPreprocesso
         return df
 
     def load(self):
-        """Load available realization IDs and training data (optimized for MPI)."""
+        """Load available realization IDs, training data, and all realization data.
 
-        ### Load realization IDs from HDF5 if not provided
-        # Get available realization IDs if not specified
-        if self.realization_ids is None:
-            with h5py.File(self.ensemble_hdf5_file, 'r') as f:
-                self.realization_ids = [key for key in f.keys()]
-        else:
-            # Ensure provided IDs are strings
-            self.realization_ids = [str(rid) for rid in self.realization_ids]
-
-        if self.rank == 0:
-            print(f"Processing {len(self.realization_ids)} realizations across {self.size} processes")
-
-        ### OPTIMIZATION: Load training data only on rank 0, then broadcast
-        # This avoids redundant disk I/O across all MPI ranks
+        Rank 0 performs all file reads. Data is distributed using MPI primitives
+        that avoid pickle-based large-object broadcasts:
+        - training_flow and diversion are broadcast as CSV strings
+        - realization DataFrames are scattered so each rank receives only its slice
+        """
+        ### Load training data on rank 0; broadcast as CSV strings to avoid
+        # pickle-based DataFrame bcast which fails on some HPC MPI stacks.
         if self.rank == 0:
             print(f"Rank 0: Loading training data...")
             training_flow, diversion = self.load_training_data()
+            training_flow_str = training_flow.to_csv()
+            diversion_str = diversion.to_csv()
         else:
-            training_flow, diversion = None, None
+            training_flow_str = None
+            diversion_str = None
 
-        # Broadcast training data to all ranks
         if self.use_mpi:
-            if self.rank == 0:
-                print(f"Rank 0: Broadcasting training data to all ranks...")
-            self.training_flow = self.comm.bcast(training_flow, root=0)
-            self.diversion = self.comm.bcast(diversion, root=0)
+            training_flow_str = self.comm.bcast(training_flow_str, root=0)
+            diversion_str = self.comm.bcast(diversion_str, root=0)
+
+        self.training_flow = pd.read_csv(io.StringIO(training_flow_str), index_col=0, parse_dates=True)
+        self.diversion = pd.read_csv(io.StringIO(diversion_str), index_col=0, parse_dates=True)
+
+        ### Rank 0 reads all realization data from HDF5, then scatters per-rank slices.
+        # This avoids (a) concurrent file opens and (b) broadcasting a large dict of
+        # all DataFrames to every rank, both of which cause MPI_ERR_OTHER on HPC.
+        if self.rank == 0:
+            print(f"Rank 0: Reading all realization data from HDF5...")
+            with h5py.File(self.ensemble_hdf5_file, 'r') as f:
+                if self.realization_ids is None:
+                    self.realization_ids = [key for key in f.keys()]
+                else:
+                    self.realization_ids = [str(rid) for rid in self.realization_ids]
+                all_data = {
+                    rid: self._extract_realization_from_open_file(f, rid)
+                    for rid in self.realization_ids
+                }
         else:
-            self.training_flow = training_flow
-            self.diversion = diversion
+            all_data = None
+
+        if self.use_mpi:
+            # Broadcast the realization ID list (small) so all ranks know the full set
+            self.realization_ids = self.comm.bcast(self.realization_ids, root=0)
+
+            # Build per-rank slices on rank 0, then scatter one slice per rank
+            if self.rank == 0:
+                slices = [
+                    {rid: all_data[rid] for rid in chunk}
+                    for chunk in np.array_split(self.realization_ids, self.size)
+                ]
+                print(f"Rank 0: Scattering realization data to {self.size} ranks...")
+            else:
+                slices = None
+            self.realization_data = self.comm.scatter(slices, root=0)
+        else:
+            self.realization_data = all_data
 
         if self.rank == 0:
-            print(f"Training data loaded and distributed to all ranks")
+            print(f"Processing {len(self.realization_ids)} realizations across {self.size} processes")
+            print(f"Training data and realization data loaded and distributed to all ranks")
 
         return
 
 
     def process(self):
-        """Process ensemble extrapolations using MPI parallelization (optimized I/O)."""
+        """Process ensemble extrapolations using MPI parallelization."""
+        if not hasattr(self, "realization_data"):
+            self.load()
 
         # Distribute realizations across MPI processes
         realizations_per_rank = np.array_split(self.realization_ids, self.size)
@@ -1148,42 +1189,35 @@ class ExtrapolatedDiversionEnsemblePreprocessor(ExtrapolatedDiversionPreprocesso
 
         local_predictions = {}
 
-        ### OPTIMIZATION: Batch HDF5 reads - open file once per rank
-        # This reduces file I/O overhead from N opens to 1 per rank
         if self.rank == 0:
-            print(f"Rank {self.rank}: Processing {len(my_realizations)} realizations with batched HDF5 reads...")
+            print(f"Rank {self.rank}: Processing {len(my_realizations)} realizations...")
 
-        with h5py.File(self.ensemble_hdf5_file, 'r') as hdf5_file:
-            # Process assigned realizations with the file already open
-            for i, realization_id in enumerate(my_realizations):
-                if self.rank == 0 and (i + 1) % max(1, len(my_realizations) // 5) == 0:
-                    print(f"Rank 0: Processing realization {i+1}/{len(my_realizations)}: {realization_id}")
+        for i, realization_id in enumerate(my_realizations):
+            if self.rank == 0 and (i + 1) % max(1, len(my_realizations) // 5) == 0:
+                print(f"Rank 0: Processing realization {i+1}/{len(my_realizations)}: {realization_id}")
 
-                # Extract realization data from open HDF5 file
-                extrapolation_flow_i = self._extract_realization_from_open_file(
-                    hdf5_file,
-                    realization_id
-                )
+            # Use pre-loaded realization data (read by rank 0 and broadcast in load())
+            extrapolation_flow_i = self.realization_data[str(realization_id)]
 
-                # Need to add NYC_inflow columns if not present
-                if self.loc == "nyc" and "NYC_inflow" not in extrapolation_flow_i.columns:
-                    extrapolation_flow_i["NYC_inflow"] = extrapolation_flow_i[nyc_reservoirs].sum(axis=1)
+            # Need to add NYC_inflow columns if not present
+            if self.loc == "nyc" and "NYC_inflow" not in extrapolation_flow_i.columns:
+                extrapolation_flow_i["NYC_inflow"] = extrapolation_flow_i[nyc_reservoirs].sum(axis=1)
 
-                # Ensure delTrenton column exists (required for NJ)
-                if self.loc == "nj" and "delTrenton" not in extrapolation_flow_i.columns:
-                    raise ValueError(f"Custom flow data must contain 'delTrenton' column for NJ diversions.")
+            # Ensure delTrenton column exists (required for NJ)
+            if self.loc == "nj" and "delTrenton" not in extrapolation_flow_i.columns:
+                raise ValueError(f"Custom flow data must contain 'delTrenton' column for NJ diversions.")
 
-                # Set the extrapolation_flow with this realization
-                # This attribute is expected before super().process() is called
-                self.extrapolation_flow = extrapolation_flow_i
+            # Set the extrapolation_flow with this realization
+            # This attribute is expected before super().process() is called
+            self.extrapolation_flow = extrapolation_flow_i
 
-                # Run the extrapolation using the base class
-                super().process()
+            # Run the extrapolation using the base class
+            super().process()
 
-                # Pull out the processed data for this realization
-                extrapolated_diversion_i = self.processed_data.copy()
+            # Pull out the processed data for this realization
+            extrapolated_diversion_i = self.processed_data.copy()
 
-                local_predictions[str(realization_id)] = extrapolated_diversion_i
+            local_predictions[str(realization_id)] = extrapolated_diversion_i
 
         if self.rank == 0:
             print(f"Rank 0: Completed processing all assigned realizations")

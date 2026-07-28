@@ -30,13 +30,33 @@ temp_results/*
 local/*
 cache/
 
-input_data/historic_ensembles/historic_reconstruction_daily_ensemble.hdf5
 *.err
 *.out
 
-input_data/*.hdf5
-input_data/*/*.hdf5
-
 ./synthetics/*
 dist/*
+build/
+*.egg-info/
+.pytest_cache/
+.vscode/
+.DS_Store
 .claude/
+
+# local data / development directories (not part of the package)
+/experiments/
+/input_data/
+/examples/
+/scratch/
+/local_archive/
+
+# simulation outputs
+*.hdf5
+*.h5
+
+# docs build artifacts
+docs/_build/
+docs/conf.py
+docs/api/generated/
+docs/examples/Tutorial*
+docs/Appendix_A*
+*with_flood_nodes_mgd.csv

@@ -36,8 +36,11 @@ Change Log
 ----------
 Marilyn Smith, 2025-05-07, Added documentation and cleaned to DRB documentation standard.
 TJA, 2025-06-11, Performance optimizations while maintaining identical functionality.
+TJA, 2026-07-10, Added starfit_params_filename option for custom parameter CSVs.
+TJA, 2026-07-22, Enforce R_min in all storage conditions (was below-NOR only).
 """
 
+import os
 import numpy as np
 import pandas as pd
 import math
@@ -115,6 +118,9 @@ class STARFITReservoirRelease(Parameter):
 
     # Class-level cache for default parameters (shared across instances)
     _default_params_cache = None
+    # Class-level cache for custom parameter files, keyed by (abspath, mtime)
+    # so overwriting a file in a live session invalidates its cached entry
+    _custom_params_cache = {}
 
     def __init__(
         self,
@@ -124,6 +130,7 @@ class STARFITReservoirRelease(Parameter):
         flow_parameter,
         run_starfit_sensitivity_analysis,
         sensitivity_analysis_scenarios,
+        starfit_params_filename=None,
         **kwargs,
     ):
         super().__init__(model, **kwargs)
@@ -141,6 +148,8 @@ class STARFITReservoirRelease(Parameter):
         self.sample_scenario_index = None
         self.run_sensitivity_analysis = run_starfit_sensitivity_analysis
         self.sensitivity_analysis_scenarios = sensitivity_analysis_scenarios
+        # Optional alternative parameter CSV (same format as istarf_conus.csv)
+        self.starfit_params_filename = starfit_params_filename
 
         # Modifications to
         self.remove_R_max = False
@@ -170,11 +179,46 @@ class STARFITReservoirRelease(Parameter):
         """
         if cls._default_params_cache is None:
             cls._default_params_cache = pd.read_csv(
-                pn.operational_constants.get_str("istarf_conus.csv"), 
-                sep=",", 
+                pn.operational_constants.get_str("istarf_conus.csv"),
+                sep=",",
                 index_col=0
             )
         return cls._default_params_cache
+
+    @classmethod
+    def load_custom_starfit_params(cls, filename):
+        """
+        Load STARFIT parameters from a custom CSV file with caching.
+
+        The CSV must follow the same format as `istarf_conus.csv` (indexed by
+        reservoir name, containing all rows needed by the model). The cache is
+        keyed by (absolute path, modification time) so overwriting the file
+        invalidates the cached entry.
+
+        Parameters
+        ----------
+        filename : str
+            Path to the custom STARFIT parameter CSV.
+
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame indexed by reservoir name containing STARFIT calibration parameters.
+        """
+        key = (os.path.abspath(filename), os.path.getmtime(filename))
+        if key not in cls._custom_params_cache:
+            cls._custom_params_cache[key] = pd.read_csv(
+                filename,
+                sep=",",
+                index_col=0,
+            )
+        return cls._custom_params_cache[key]
+
+    @classmethod
+    def clear_starfit_cache(cls):
+        """Clear cached default and custom STARFIT parameter tables."""
+        cls._default_params_cache = None
+        cls._custom_params_cache = {}
 
     @lru_cache(maxsize=128)
     def load_starfit_sensitivity_samples(self, sample_scenario_id):
@@ -223,8 +267,11 @@ class STARFITReservoirRelease(Parameter):
 
         # Check if parameters are available
         if self.starfit_name not in starfit_params.index:
-            print(f"Warning: No STARFIT parameters found for '{self.starfit_name}'.")
-            return
+            raise ValueError(
+                f"No STARFIT parameters found for '{self.starfit_name}' "
+                f"(reservoir: {self.reservoir_name}). "
+                "Check that the parameter CSV contains this row."
+            )
 
         params = starfit_params.loc[self.starfit_name]
 
@@ -464,7 +511,7 @@ class STARFITReservoirRelease(Parameter):
         """
         if NORlo <= S_hat <= NORhi:
             target = min(
-                self.I_bar * (harmonic_release + epsilon + 1), 
+                self.I_bar * (harmonic_release + epsilon + 1),
                 self.R_max
             )
         elif S_hat > NORhi:
@@ -472,10 +519,13 @@ class STARFITReservoirRelease(Parameter):
         else:
             if self.linear_below_NOR:
                 target = (self.I_bar * (harmonic_release + epsilon + 1)) * (S_hat / NORlo)
-                target = max(target, self.R_min)
             else:
                 target = self.R_min
-        return target
+        # Enforce the minimum release in all storage conditions (previously
+        # only applied below the NOR, allowing the in-NOR release to dip
+        # below R_min on very dry days). Physical availability is still
+        # enforced in value().
+        return max(target, self.R_min)
 
     def value(self, timestep, scenario_index):
         """
@@ -504,6 +554,10 @@ class STARFITReservoirRelease(Parameter):
                     self.sample_scenario_index
                 )
                 print(f"Loading STARFIT parameters for {self.reservoir_name}")
+            elif self.starfit_params_filename is not None:
+                self.starfit_params = self.load_custom_starfit_params(
+                    self.starfit_params_filename
+                )
             else:
                 self.starfit_params = self.load_default_starfit_params()
             
@@ -512,7 +566,7 @@ class STARFITReservoirRelease(Parameter):
 
         # Get current storage and inflow conditions
         I_t = self.inflow.get_value(scenario_index)
-        S_t = self.node.volume[scenario_index.indices]
+        S_t = self.node.volume[scenario_index.global_id]
 
         # Fast computation using pre-computed values and constants
         I_hat_t = self.standardize_inflow(I_t)
@@ -552,6 +606,7 @@ class STARFITReservoirRelease(Parameter):
         flow_parameter = load_parameter(model, f"flow_{reservoir_name}")
         run_starfit_sensitivity_analysis = data.pop("run_starfit_sensitivity_analysis")
         sensitivity_analysis_scenarios = data.pop("sensitivity_analysis_scenarios")
+        starfit_params_filename = data.pop("starfit_params_filename", None)
         return cls(
             model,
             reservoir_name,
@@ -559,6 +614,7 @@ class STARFITReservoirRelease(Parameter):
             flow_parameter,
             run_starfit_sensitivity_analysis,
             sensitivity_analysis_scenarios,
+            starfit_params_filename=starfit_params_filename,
             **data,
         )
 

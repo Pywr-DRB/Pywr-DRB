@@ -159,7 +159,7 @@ class FfmpNycRunningAvgParameter(Parameter):
                 self.max_delivery < 0
             ] = 0  # max delivery cannot be less than zero
         ### update date for tomorrow
-        self.datetime += pd.Timedelta(1, "d")
+        self.datetime += pd.Timedelta(1, "D")
 
     @classmethod
     def load(cls, model, data):
@@ -355,7 +355,7 @@ class FfmpNjRunningAvgParameter(Parameter):
             self.max_delivery > self.max_daily_delivery
         ] = self.max_daily_delivery
         ### update date & previous factor for tomorrow
-        self.datetime += pd.Timedelta(1, "d")
+        self.datetime += pd.Timedelta(1, "D")
         self.previous_drought_factor[...] = self.current_drought_factor[...]
 
     @classmethod

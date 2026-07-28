@@ -1,9 +1,7 @@
 [project]
 name = "pywrdrb"
-version = "2.1.0-beta"
-packages = [
-  { include = "pywrdrb", from = "src" }
-]
+version = "2.2.0"
+requires-python = ">=3.10"
 authors = [
     {name = "Chung-Yi Lin", email = "philip928lin@gmail.com"},
     {name = "Trevor Amestoy", email = "tja73@cornell.edu"},
@@ -14,6 +12,13 @@ authors = [
 license = { file = "LICENSE" }
 description = "An open-source Python model for water availability and drought risk assessment in the Delaware River Basin"
 readme = { file = "README.md", content-type = "text/markdown" }  # Specify README with content type
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Hydrology",
+]
 dependencies = [
     "pywr==1.27.4",
     "numpy",
@@ -38,7 +43,7 @@ dev = [
     "ipython",
     "pytest",
     "hatch",
-    "jupyter-book",
+    "jupyter-book<2",
     "ghp-import",
     "folium",
 ]
@@ -50,6 +55,10 @@ plotting = [
     "matplotlib",
     "seaborn"
 ]
+
+[project.urls]
+Documentation = "https://pywr-drb.github.io/Pywr-DRB/intro.html"
+Repository = "https://github.com/Pywr-DRB/Pywr-DRB"
 
 [build-system]
 requires = ["hatchling"]
@@ -68,9 +77,9 @@ source = "src"
 [tool.hatch.build.targets.wheel]
 sources = ["src"]
 
-[tool.hatch.build.data]
-include = [
-  "pywrdrb/data/**/*",
+[tool.pytest.ini_options]
+markers = [
+    "network: requires internet access to USGS NWIS",
 ]
 
 [tool.black]

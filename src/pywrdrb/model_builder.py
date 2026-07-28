@@ -69,12 +69,8 @@ __all__ = ["ModelBuilder"]
 global pn
 pn = get_pn_object()
 
-### model options/parameters (should not be placed into options)
-# flow_prediction_mode was something Andrew set up when he was developing the FFMP.
-# I'm not sure if the other regression approaches would actually still work...
-flow_prediction_mode = "regression_disagg"  
-# Decrepated options, but kept for backward compatibility
-### 'regression_agg', 'regression_disagg', 'perfect_foresight', 'same_day', 'moving_average'
+### DEPRECATED: flow_prediction_mode moved to Options dataclass
+# Supported modes: "regression_disagg", "perfect_foresight"
 # Always True
 use_lower_basin_mrf_contributions = True
 
@@ -112,6 +108,13 @@ class Options:
         List of scenarios to use for STARFIT sensitivity analysis. Default is an empty list.
     initial_volume_frac : float
         Initial reservoir storage as a fraction of capacity. Default is 0.8.
+    flow_prediction_mode : str
+        Flow prediction mode for FFMP operations. Determines which prediction columns to use from predicted_inflows_mgd.csv. Options are "regression_disagg" (default) and "perfect_foresight".
+    starfit_params_filename : Optional[str]
+        If given, path to an alternative STARFIT parameter CSV (same format as
+        istarf_conus.csv, containing all reservoir rows). Used for reservoir
+        capacities and STARFIT release rules in place of the default file.
+        Default is None.
     """
     NSCENARIOS: int = 1
     inflow_ensemble_indices: Optional[List[int]] = None
@@ -122,6 +125,8 @@ class Options:
     sensitivity_analysis_scenarios: List[str] = field(default_factory=list)
     # Initial reservoir storages as 80% of capacity
     initial_volume_frac: float = 0.8
+    flow_prediction_mode: str = "regression_disagg"
+    starfit_params_filename: Optional[str] = None
 
     def list(self):
         """Prints the options."""
@@ -258,6 +263,8 @@ class ModelBuilder:
             run_starfit_sensitivity_analysis (bool): If True, we run STARFIT sensitivity analysis.
             sensitivity_analysis_scenarios (list of str): List of scenarios to use for STARFIT sensitivity analysis.
             initial_volume_frac (float): Initial reservoir storage as a fraction of capacity. Default is 0.8.
+            flow_prediction_mode (str): Options: "regression_disagg", "perfect_foresight". Default is "regression_disagg".
+            starfit_params_filename (str): If given, path to an alternative STARFIT parameter CSV (same format as istarf_conus.csv). Default is None.
         """
         
         self.start_date = start_date
@@ -272,6 +279,23 @@ class ModelBuilder:
         self.diversion_type = diversion_type
 
         self.options = Options(**options)
+
+        # Validate and resolve custom STARFIT parameter file, if given
+        if self.options.starfit_params_filename is not None:
+            if self.options.run_starfit_sensitivity_analysis:
+                raise ValueError(
+                    "starfit_params_filename cannot be combined with "
+                    "run_starfit_sensitivity_analysis; the sensitivity analysis "
+                    "loads parameters from scenarios_data.h5."
+                )
+            self.options.starfit_params_filename = os.path.abspath(
+                self.options.starfit_params_filename
+            )
+            if not os.path.exists(self.options.starfit_params_filename):
+                raise FileNotFoundError(
+                    f"STARFIT parameter file not found: "
+                    f"{self.options.starfit_params_filename}"
+                )
 
         # Tracking purposes
         self.reservoirs = []
@@ -345,6 +369,14 @@ class ModelBuilder:
         minor nodes (withdrawals, consumption, outflows, etc.), edges between nodes, and parameters
         for the model. It also handles scenarios for inflows and temperature/salinity predictions.
         """
+        # Validate flow_prediction_mode
+        valid_flow_modes = ["regression_disagg", "perfect_foresight"]
+        if self.options.flow_prediction_mode not in valid_flow_modes:
+            raise ValueError(
+                f"Invalid flow_prediction_mode: '{self.options.flow_prediction_mode}'. "
+                f"Must be one of {valid_flow_modes}."
+            )
+
         ####################################################################
         ### Add pywr scenarios
         ####################################################################
@@ -446,22 +478,37 @@ class ModelBuilder:
         self.hist_releases = None
         self.hist_diversions = None
 
+    def _starfit_csv_path(self):
+        """
+        Get the STARFIT parameter CSV path: the custom file from options if
+        given, otherwise the default istarf_conus.csv.
+
+        returns
+        -------
+        str
+            Absolute path to the STARFIT parameter CSV.
+        """
+        return (
+            self.options.starfit_params_filename
+            or pn.operational_constants.get_str("istarf_conus.csv")
+        )
+
     def _get_reservoir_capacity(self, reservoir):
         """
         Get the capacity of a reservoir from the ISTARF data.
-        
+
         Parameters
         ----------
         reservoir : str
             The name of the reservoir to get the capacity for.
-        
+
         returns
         -------
         float
             The capacity of the reservoir in million gallons (MG).
         """
         if self.istarf is None:
-            self.istarf = pd.read_csv(pn.operational_constants.get_str("istarf_conus.csv"))
+            self.istarf = pd.read_csv(self._starfit_csv_path())
         return float(
             self.istarf["Adjusted_CAP_MG"].loc[self.istarf["reservoir"] == reservoir].iloc[0]
         )
@@ -748,7 +795,7 @@ class ModelBuilder:
         # max volume of reservoir, from GRanD database except where adjusted from other sources (eg NYC)
         model_dict["parameters"][f"max_volume_{reservoir_name}"] = {
             "type": "constant",
-            "url": pn.operational_constants.get_str("istarf_conus.csv"),
+            "url": self._starfit_csv_path(),
             "column": "Adjusted_CAP_MG",
             "index_col": "reservoir",
             "index": f"modified_{reservoir_name}"
@@ -776,6 +823,10 @@ class ModelBuilder:
                 "run_starfit_sensitivity_analysis": self.options.run_starfit_sensitivity_analysis,
                 "sensitivity_analysis_scenarios": self.options.sensitivity_analysis_scenarios,
             }
+            if self.options.starfit_params_filename is not None:
+                model_dict["parameters"][f"starfit_release_{reservoir_name}"][
+                    "starfit_params_filename"
+                ] = self.options.starfit_params_filename
 
         ### assign inflows to nodes
         inflow_ensemble_indices = self.options.inflow_ensemble_indices
@@ -1548,7 +1599,7 @@ class ModelBuilder:
                 ),
                 (1, 2, 1, 2, 3, 4),
             ):
-                label = f"{mrf}_lag{lag}_{flow_prediction_mode}"
+                label = f"{mrf}_lag{lag}_{self.options.flow_prediction_mode}"
                 model_dict["parameters"][
                     f"predicted_nonnyc_gage_flow_{mrf}_lag{lag}"
                 ] = {
@@ -1567,7 +1618,7 @@ class ModelBuilder:
                     pred_div_fname = str(pn.sc.get(f"flows/{inflow_type}") / "predicted_diversions_mgd.csv")
                     assert os.path.exists(pred_div_fname), f"Custom predicted diversion file {pred_div_fname} does not exist but is required when nyc_nj_demand_source is 'custom'."
                 
-                label = f"demand_nj_lag{lag}_{flow_prediction_mode}"
+                label = f"demand_nj_lag{lag}_{self.options.flow_prediction_mode}"
                 model_dict["parameters"][f"predicted_demand_nj_lag{lag}"] = {
                     "type": "dataframe",
                     "url": pred_div_fname,
@@ -1588,7 +1639,7 @@ class ModelBuilder:
                 ),
                 (1, 2, 1, 2, 3, 4),
             ):
-                label = f"{mrf}_lag{lag}_{flow_prediction_mode}"
+                label = f"{mrf}_lag{lag}_{self.options.flow_prediction_mode}"
 
                 model_dict["parameters"][
                     f"predicted_nonnyc_gage_flow_{mrf}_lag{lag}"
@@ -1601,7 +1652,7 @@ class ModelBuilder:
 
             ### now get predicted nj demand - use PredictionEnsemble for ensemble mode
             for lag in range(1, 5):
-                label = f"demand_nj_lag{lag}_{flow_prediction_mode}"
+                label = f"demand_nj_lag{lag}_{self.options.flow_prediction_mode}"
                 model_dict["parameters"][f"predicted_demand_nj_lag{lag}"] = {
                     "type": "PredictionEnsemble",
                     "column": label,
