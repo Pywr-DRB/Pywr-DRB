@@ -15,41 +15,44 @@
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
   </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-
-  
-  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+  <link href="_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=eba8b062" />
-    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=9c3e77be" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
   
+  <!-- So that users can add custom icons -->
+  <script defer src="_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
-  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
     <script src="_static/documentation_options.js?v=9eb32ce0"></script>
     <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="_static/copybutton.js?v=f281be69"></script>
-    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
     <script>let toggleHintShow = 'Click to show';</script>
     <script>let toggleHintHide = 'Click to hide';</script>
     <script>let toggleOpenOnPrint = 'true';</script>
-    <script src="_static/togglebutton.js?v=4a39c7ea"></script>
+    <script src="_static/togglebutton.js?v=b8b12719"></script>
     <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
     <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
@@ -57,38 +60,35 @@
     <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
     <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'genindex';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="#" />
     <link rel="search" title="Search" href="search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="_static/searchtools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="searchindex.js"></script>
+  
   </head>
-  
-  
-  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
-
+  <body data-default-mode="">
   
   
   <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
   
   <div id="pst-scroll-pixel-helper"></div>
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
   
-  <input type="checkbox"
-          class="sidebar-toggle"
-          id="pst-primary-sidebar-checkbox"/>
-  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
   
-  <input type="checkbox"
-          class="sidebar-toggle"
-          id="pst-secondary-sidebar-checkbox"/>
-  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
   
-  <div class="search-button__wrapper">
-    <div class="search-button__overlay"></div>
-    <div class="search-button__search-container">
+  
+  <dialog id="pst-search-dialog">
+    
 <form class="bd-search d-flex align-items-center"
       action="search.html"
       method="get">
@@ -96,7 +96,6 @@
   <input type="search"
          class="form-control"
          name="q"
-         id="search-input"
          placeholder="Search this book..."
          aria-label="Search this book..."
          autocomplete="off"
@@ -104,15 +103,55 @@
          autocapitalize="off"
          spellcheck="false"/>
   <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
-</form></div>
-  </div>
+</form>
+  </dialog>
 
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
 
   
-    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
     </header>
   
 
@@ -123,7 +162,8 @@
       
         
       
-      <div class="bd-sidebar-primary bd-sidebar">
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
         
 
   
@@ -153,21 +193,17 @@
     
     
     <img src="_static/logo.png" class="logo__image only-light" alt="Pywr-DRB Integrated Water Resource Management Model - Home"/>
-    <script>document.write(`<img src="_static/logo.png" class="logo__image only-dark" alt="Pywr-DRB Integrated Water Resource Management Model - Home"/>`);</script>
+    <img src="_static/logo.png" class="logo__image only-dark pst-js-only" alt="Pywr-DRB Integrated Water Resource Management Model - Home"/>
   
   
 </a></div>
         <div class="sidebar-primary-item">
 
- <script>
- document.write(`
-   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="fa-solid fa-magnifying-glass"></i>
-    <span class="search-button__default-text">Search</span>
-    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
-   </button>
- `);
- </script></div>
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
         <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
         
@@ -200,16 +236,19 @@
 <li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.VolBalanceLowerBasinMRFIndividual.html">pywrdrb.parameters.VolBalanceLowerBasinMRFIndividual</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.IERQRelease_step1.html">pywrdrb.parameters.IERQRelease_step1</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html">pywrdrb.parameters.STARFITReservoirRelease</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.TemperatureModel.html">pywrdrb.parameters.TemperatureModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.TemperatureModelLSTM.html">pywrdrb.parameters.TemperatureModelLSTM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.TemperatureModelRF.html">pywrdrb.parameters.TemperatureModelRF</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.Estimated_Q_C.html">pywrdrb.parameters.Estimated_Q_C</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.Estimated_Q_i.html">pywrdrb.parameters.Estimated_Q_i</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.ThermalReleaseRequirement.html">pywrdrb.parameters.ThermalReleaseRequirement</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.ForecastedTemperatureBeforeThermalRelease.html">pywrdrb.parameters.ForecastedTemperatureBeforeThermalRelease</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.UpdateTemperatureAtLordville.html">pywrdrb.parameters.UpdateTemperatureAtLordville</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.TemperatureAfterThermalRelease.html">pywrdrb.parameters.TemperatureAfterThermalRelease</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.SalinityModel.html">pywrdrb.parameters.SalinityModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.SalinityModelLSTM.html">pywrdrb.parameters.SalinityModelLSTM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.SalinityModelRF.html">pywrdrb.parameters.SalinityModelRF</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.UpdateSaltFrontLocation.html">pywrdrb.parameters.UpdateSaltFrontLocation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.SaltFrontLocation.html">pywrdrb.parameters.SaltFrontLocation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.FlowTargetSaltFrontAdjustmentRatio.html">pywrdrb.parameters.FlowTargetSaltFrontAdjustmentRatio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.FlowEnsemble.html">pywrdrb.parameters.FlowEnsemble</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.PredictionEnsemble.html">pywrdrb.parameters.PredictionEnsemble</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.LaggedReservoirRelease.html">pywrdrb.parameters.LaggedReservoirRelease</a></li>
@@ -220,6 +259,27 @@
 <li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.pre.PredictedInflowPreprocessor.html">pywrdrb.pre.PredictedInflowPreprocessor</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.pre.PredictedDiversionPreprocessor.html">pywrdrb.pre.PredictedDiversionPreprocessor</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.pre.ExtrapolatedDiversionPreprocessor.html">pywrdrb.pre.ExtrapolatedDiversionPreprocessor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.pre.STARFITOfflineSimulator.html">pywrdrb.pre.STARFITOfflineSimulator</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="api/post.html">pywrdrb.post</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.post.metrics.calculate_reliability.html">pywrdrb.post.metrics.calculate_reliability</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.post.metrics.calculate_vulnerability.html">pywrdrb.post.metrics.calculate_vulnerability</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.post.metrics.get_shortfall_metrics.html">pywrdrb.post.metrics.get_shortfall_metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.post.metrics.get_ensemble_hashimoto_metrics.html">pywrdrb.post.metrics.get_ensemble_hashimoto_metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.post.calculate_error_metrics.calculate_error_metrics.html">pywrdrb.post.calculate_error_metrics.calculate_error_metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.post.ensemble_metrics.ensemble_mean.html">pywrdrb.post.ensemble_metrics.ensemble_mean</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.post.ensemble_metrics.ensemble_std.html">pywrdrb.post.ensemble_metrics.ensemble_std</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.post.ensemble_metrics.ensemble_median.html">pywrdrb.post.ensemble_metrics.ensemble_median</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="api/utils.html">pywrdrb.utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.utils.hdf5.get_hdf5_realization_numbers.html">pywrdrb.utils.hdf5.get_hdf5_realization_numbers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.utils.hdf5.extract_realization_from_hdf5.html">pywrdrb.utils.hdf5.extract_realization_from_hdf5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.utils.hdf5.combine_batched_hdf5_outputs.html">pywrdrb.utils.hdf5.combine_batched_hdf5_outputs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.utils.hdf5.get_n_scenarios_from_pywrdrb_output_file.html">pywrdrb.utils.hdf5.get_n_scenarios_from_pywrdrb_output_file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.utils.timeseries.subset_timeseries.html">pywrdrb.utils.timeseries.subset_timeseries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.utils.timeseries.get_rollmean_timeseries.html">pywrdrb.utils.timeseries.get_rollmean_timeseries</a></li>
 </ul>
 </details></li>
 </ul>
@@ -237,6 +297,8 @@
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="results_set_options.html">Results Set Table</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_options.html">ModelBuilder Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html">Pywr-DRB Release Notes</a></li>
 </ul>
 
     </div>
@@ -245,9 +307,14 @@
   
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
   </div>
-  
-  <div id="rtd-footer-container"></div>
 
 
       </div>
@@ -329,7 +396,7 @@
 
 
 <button onclick="toggleFullScreen()"
-  class="btn btn-sm btn-fullscreen-button"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
   title="Fullscreen mode"
   data-bs-placement="bottom" data-bs-toggle="tooltip"
 >
@@ -343,24 +410,16 @@
 
 
 
-<script>
-document.write(`
-  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
-    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
-    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
-  </button>
-`);
-</script>
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
 
 
-<script>
-document.write(`
-  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass fa-lg"></i>
-  </button>
-`);
-</script>
+</button>
 
 </div></div>
       
@@ -434,6 +493,8 @@ document.write(`
 </li>
         <li><a href="api/generated/pywrdrb.parameters.FlowEnsemble.html#pywrdrb.parameters.FlowEnsemble.__init__">(pywrdrb.parameters.FlowEnsemble method)</a>
 </li>
+        <li><a href="api/generated/pywrdrb.parameters.FlowTargetSaltFrontAdjustmentRatio.html#pywrdrb.parameters.FlowTargetSaltFrontAdjustmentRatio.__init__">(pywrdrb.parameters.FlowTargetSaltFrontAdjustmentRatio method)</a>
+</li>
         <li><a href="api/generated/pywrdrb.parameters.ForecastedTemperatureBeforeThermalRelease.html#pywrdrb.parameters.ForecastedTemperatureBeforeThermalRelease.__init__">(pywrdrb.parameters.ForecastedTemperatureBeforeThermalRelease method)</a>
 </li>
         <li><a href="api/generated/pywrdrb.parameters.IERQRelease_step1.html#pywrdrb.parameters.IERQRelease_step1.__init__">(pywrdrb.parameters.IERQRelease_step1 method)</a>
@@ -448,7 +509,9 @@ document.write(`
 </li>
         <li><a href="api/generated/pywrdrb.parameters.PredictionEnsemble.html#pywrdrb.parameters.PredictionEnsemble.__init__">(pywrdrb.parameters.PredictionEnsemble method)</a>
 </li>
-        <li><a href="api/generated/pywrdrb.parameters.SalinityModel.html#pywrdrb.parameters.SalinityModel.__init__">(pywrdrb.parameters.SalinityModel method)</a>
+        <li><a href="api/generated/pywrdrb.parameters.SalinityModelLSTM.html#pywrdrb.parameters.SalinityModelLSTM.__init__">(pywrdrb.parameters.SalinityModelLSTM method)</a>
+</li>
+        <li><a href="api/generated/pywrdrb.parameters.SalinityModelRF.html#pywrdrb.parameters.SalinityModelRF.__init__">(pywrdrb.parameters.SalinityModelRF method)</a>
 </li>
         <li><a href="api/generated/pywrdrb.parameters.SaltFrontLocation.html#pywrdrb.parameters.SaltFrontLocation.__init__">(pywrdrb.parameters.SaltFrontLocation method)</a>
 </li>
@@ -456,7 +519,9 @@ document.write(`
 </li>
         <li><a href="api/generated/pywrdrb.parameters.TemperatureAfterThermalRelease.html#pywrdrb.parameters.TemperatureAfterThermalRelease.__init__">(pywrdrb.parameters.TemperatureAfterThermalRelease method)</a>
 </li>
-        <li><a href="api/generated/pywrdrb.parameters.TemperatureModel.html#pywrdrb.parameters.TemperatureModel.__init__">(pywrdrb.parameters.TemperatureModel method)</a>
+        <li><a href="api/generated/pywrdrb.parameters.TemperatureModelLSTM.html#pywrdrb.parameters.TemperatureModelLSTM.__init__">(pywrdrb.parameters.TemperatureModelLSTM method)</a>
+</li>
+        <li><a href="api/generated/pywrdrb.parameters.TemperatureModelRF.html#pywrdrb.parameters.TemperatureModelRF.__init__">(pywrdrb.parameters.TemperatureModelRF method)</a>
 </li>
         <li><a href="api/generated/pywrdrb.parameters.ThermalReleaseRequirement.html#pywrdrb.parameters.ThermalReleaseRequirement.__init__">(pywrdrb.parameters.ThermalReleaseRequirement method)</a>
 </li>
@@ -483,6 +548,8 @@ document.write(`
         <li><a href="api/generated/pywrdrb.pre.PredictedDiversionPreprocessor.html#pywrdrb.pre.PredictedDiversionPreprocessor.__init__">(pywrdrb.pre.PredictedDiversionPreprocessor method)</a>
 </li>
         <li><a href="api/generated/pywrdrb.pre.PredictedInflowPreprocessor.html#pywrdrb.pre.PredictedInflowPreprocessor.__init__">(pywrdrb.pre.PredictedInflowPreprocessor method)</a>
+</li>
+        <li><a href="api/generated/pywrdrb.pre.STARFITOfflineSimulator.html#pywrdrb.pre.STARFITOfflineSimulator.__init__">(pywrdrb.pre.STARFITOfflineSimulator method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -579,13 +646,21 @@ document.write(`
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.post.calculate_error_metrics.calculate_error_metrics.html#pywrdrb.post.calculate_error_metrics.calculate_error_metrics">calculate_error_metrics() (in module pywrdrb.post.calculate_error_metrics)</a>
+</li>
       <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.calculate_percent_storage">calculate_percent_storage() (pywrdrb.parameters.STARFITReservoirRelease method)</a>
 </li>
       <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.calculate_release_adjustment">calculate_release_adjustment() (pywrdrb.parameters.STARFITReservoirRelease method)</a>
 </li>
+      <li><a href="api/generated/pywrdrb.post.metrics.calculate_reliability.html#pywrdrb.post.metrics.calculate_reliability">calculate_reliability() (in module pywrdrb.post.metrics)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.calculate_target_release">calculate_target_release() (pywrdrb.parameters.STARFITReservoirRelease method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.post.metrics.calculate_vulnerability.html#pywrdrb.post.metrics.calculate_vulnerability">calculate_vulnerability() (in module pywrdrb.post.metrics)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.utils.hdf5.combine_batched_hdf5_outputs.html#pywrdrb.utils.hdf5.combine_batched_hdf5_outputs">combine_batched_hdf5_outputs() (in module pywrdrb.utils.hdf5)</a>
 </li>
       <li><a href="api/generated/pywrdrb.parameters.FfmpNjRunningAvgParameter.html#pywrdrb.parameters.FfmpNjRunningAvgParameter.current_drought_factor">current_drought_factor (pywrdrb.parameters.FfmpNjRunningAvgParameter attribute)</a>
 </li>
@@ -647,6 +722,12 @@ document.write(`
 </li>
       <li><a href="api/generated/pywrdrb.parameters.PredictionEnsemble.html#pywrdrb.parameters.PredictionEnsemble.ensemble_indices">ensemble_indices (pywrdrb.parameters.PredictionEnsemble attribute)</a>
 </li>
+      <li><a href="api/generated/pywrdrb.post.ensemble_metrics.ensemble_mean.html#pywrdrb.post.ensemble_metrics.ensemble_mean">ensemble_mean() (in module pywrdrb.post.ensemble_metrics)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.post.ensemble_metrics.ensemble_median.html#pywrdrb.post.ensemble_metrics.ensemble_median">ensemble_median() (in module pywrdrb.post.ensemble_metrics)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.post.ensemble_metrics.ensemble_std.html#pywrdrb.post.ensemble_metrics.ensemble_std">ensemble_std() (in module pywrdrb.post.ensemble_metrics)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.EPS">EPS (pywrdrb.ModelBuilder attribute)</a>
@@ -655,7 +736,11 @@ document.write(`
 </li>
       <li><a href="api/generated/pywrdrb.parameters.Estimated_Q_i.html#pywrdrb.parameters.Estimated_Q_i">Estimated_Q_i (class in pywrdrb.parameters)</a>
 </li>
+      <li><a href="api/generated/pywrdrb.utils.hdf5.extract_realization_from_hdf5.html#pywrdrb.utils.hdf5.extract_realization_from_hdf5">extract_realization_from_hdf5() (in module pywrdrb.utils.hdf5)</a>
+</li>
       <li><a href="api/generated/pywrdrb.pre.ExtrapolatedDiversionPreprocessor.html#pywrdrb.pre.ExtrapolatedDiversionPreprocessor">ExtrapolatedDiversionPreprocessor (class in pywrdrb.pre)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.pre.ExtrapolatedDiversionPreprocessor.html#pywrdrb.pre.ExtrapolatedDiversionPreprocessor.extrapolation_flow">extrapolation_flow (pywrdrb.pre.ExtrapolatedDiversionPreprocessor attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -691,7 +776,11 @@ document.write(`
         <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.flow_reservoirs">(pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1 attribute)</a>
 </li>
       </ul></li>
+      <li><a href="api/generated/pywrdrb.pre.ExtrapolatedDiversionPreprocessor.html#pywrdrb.pre.ExtrapolatedDiversionPreprocessor.flow_type">flow_type (pywrdrb.pre.ExtrapolatedDiversionPreprocessor attribute)</a>
+</li>
       <li><a href="api/generated/pywrdrb.parameters.FlowEnsemble.html#pywrdrb.parameters.FlowEnsemble">FlowEnsemble (class in pywrdrb.parameters)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.parameters.FlowTargetSaltFrontAdjustmentRatio.html#pywrdrb.parameters.FlowTargetSaltFrontAdjustmentRatio">FlowTargetSaltFrontAdjustmentRatio (class in pywrdrb.parameters)</a>
 </li>
       <li><a href="api/generated/pywrdrb.parameters.ForecastedTemperatureBeforeThermalRelease.html#pywrdrb.parameters.ForecastedTemperatureBeforeThermalRelease">ForecastedTemperatureBeforeThermalRelease (class in pywrdrb.parameters)</a>
 </li>
@@ -701,19 +790,29 @@ document.write(`
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.post.metrics.get_ensemble_hashimoto_metrics.html#pywrdrb.post.metrics.get_ensemble_hashimoto_metrics">get_ensemble_hashimoto_metrics() (in module pywrdrb.post.metrics)</a>
+</li>
       <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.get_harmonic_release">get_harmonic_release() (pywrdrb.parameters.STARFITReservoirRelease method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.utils.hdf5.get_hdf5_realization_numbers.html#pywrdrb.utils.hdf5.get_hdf5_realization_numbers">get_hdf5_realization_numbers() (in module pywrdrb.utils.hdf5)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.utils.hdf5.get_n_scenarios_from_pywrdrb_output_file.html#pywrdrb.utils.hdf5.get_n_scenarios_from_pywrdrb_output_file">get_n_scenarios_from_pywrdrb_output_file() (in module pywrdrb.utils.hdf5)</a>
 </li>
       <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.get_NORhi">get_NORhi() (pywrdrb.parameters.STARFITReservoirRelease method)</a>
 </li>
-      <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.get_NORlo">get_NORlo() (pywrdrb.parameters.STARFITReservoirRelease method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.get_NORlo">get_NORlo() (pywrdrb.parameters.STARFITReservoirRelease method)</a>
+</li>
       <li><a href="api/generated/pywrdrb.pre.ExtrapolatedDiversionPreprocessor.html#pywrdrb.pre.ExtrapolatedDiversionPreprocessor.get_overlapping_timespan">get_overlapping_timespan() (pywrdrb.pre.ExtrapolatedDiversionPreprocessor method)</a>
 </li>
       <li><a href="api/generated/pywrdrb.pre.ExtrapolatedDiversionPreprocessor.html#pywrdrb.pre.ExtrapolatedDiversionPreprocessor.get_quarter">get_quarter() (pywrdrb.pre.ExtrapolatedDiversionPreprocessor method)</a>
 </li>
       <li><a href="api/generated/pywrdrb.pre.ExtrapolatedDiversionPreprocessor.html#pywrdrb.pre.ExtrapolatedDiversionPreprocessor.get_random_prediction_sample">get_random_prediction_sample() (pywrdrb.pre.ExtrapolatedDiversionPreprocessor method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.utils.timeseries.get_rollmean_timeseries.html#pywrdrb.utils.timeseries.get_rollmean_timeseries">get_rollmean_timeseries() (in module pywrdrb.utils.timeseries)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.post.metrics.get_shortfall_metrics.html#pywrdrb.post.metrics.get_shortfall_metrics">get_shortfall_metrics() (in module pywrdrb.post.metrics)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -867,8 +966,6 @@ document.write(`
 </li>
       <li><a href="api/generated/pywrdrb.parameters.NYCFloodRelease.html#pywrdrb.parameters.NYCFloodRelease.max_volume_reservoir">max_volume_reservoir (pywrdrb.parameters.NYCFloodRelease attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/pywrdrb.OutputRecorder.html#pywrdrb.OutputRecorder.model">model (pywrdrb.OutputRecorder attribute)</a>
 
       <ul>
@@ -877,10 +974,27 @@ document.write(`
         <li><a href="api/generated/pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.html#pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.model">(pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.model_dict">model_dict (pywrdrb.ModelBuilder attribute)</a>
 </li>
       <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder">ModelBuilder (class in pywrdrb)</a>
 </li>
+      <li>
+    module
+
+      <ul>
+        <li><a href="api/post.html#module-pywrdrb.post.calculate_error_metrics">pywrdrb.post.calculate_error_metrics</a>
+</li>
+        <li><a href="api/post.html#module-pywrdrb.post.ensemble_metrics">pywrdrb.post.ensemble_metrics</a>
+</li>
+        <li><a href="api/post.html#module-pywrdrb.post.metrics">pywrdrb.post.metrics</a>
+</li>
+        <li><a href="api/utils.html#module-pywrdrb.utils.hdf5">pywrdrb.utils.hdf5</a>
+</li>
+        <li><a href="api/utils.html#module-pywrdrb.utils.timeseries">pywrdrb.utils.timeseries</a>
+</li>
+      </ul></li>
       <li><a href="api/generated/pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.html#pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.mrf">mrf (pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF attribute)</a>
 </li>
       <li><a href="api/generated/pywrdrb.parameters.NYCCombinedReleaseFactor.html#pywrdrb.parameters.NYCCombinedReleaseFactor.mrf_drought_factor_agg_reservoir">mrf_drought_factor_agg_reservoir (pywrdrb.parameters.NYCCombinedReleaseFactor attribute)</a>
@@ -977,8 +1091,6 @@ document.write(`
 </li>
       <li><a href="api/generated/pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.html#pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.predicted_demand_nj">predicted_demand_nj (pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.html#pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.predicted_nonnyc_gage_flow_mrf">predicted_nonnyc_gage_flow_mrf (pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF attribute)</a>
 </li>
       <li><a href="api/generated/pywrdrb.pre.PredictedDiversionPreprocessor.html#pywrdrb.pre.PredictedDiversionPreprocessor">PredictedDiversionPreprocessor (class in pywrdrb.pre)</a>
@@ -989,12 +1101,49 @@ document.write(`
 </li>
       <li><a href="api/generated/pywrdrb.parameters.FfmpNjRunningAvgParameter.html#pywrdrb.parameters.FfmpNjRunningAvgParameter.previous_drought_factor">previous_drought_factor (pywrdrb.parameters.FfmpNjRunningAvgParameter attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.html#pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.previous_release_reservoirs">previous_release_reservoirs (pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF attribute)</a>
 </li>
       <li><a href="api/generated/pywrdrb.pre.ExtrapolatedDiversionPreprocessor.html#pywrdrb.pre.ExtrapolatedDiversionPreprocessor.process">process() (pywrdrb.pre.ExtrapolatedDiversionPreprocessor method)</a>
 </li>
       <li><a href="api/generated/pywrdrb.pre.ExtrapolatedDiversionPreprocessor.html#pywrdrb.pre.ExtrapolatedDiversionPreprocessor.processed_data">processed_data (pywrdrb.pre.ExtrapolatedDiversionPreprocessor attribute)</a>
 </li>
+      <li>
+    pywrdrb.post.calculate_error_metrics
+
+      <ul>
+        <li><a href="api/post.html#module-pywrdrb.post.calculate_error_metrics">module</a>
+</li>
+      </ul></li>
+      <li>
+    pywrdrb.post.ensemble_metrics
+
+      <ul>
+        <li><a href="api/post.html#module-pywrdrb.post.ensemble_metrics">module</a>
+</li>
+      </ul></li>
+      <li>
+    pywrdrb.post.metrics
+
+      <ul>
+        <li><a href="api/post.html#module-pywrdrb.post.metrics">module</a>
+</li>
+      </ul></li>
+      <li>
+    pywrdrb.utils.hdf5
+
+      <ul>
+        <li><a href="api/utils.html#module-pywrdrb.utils.hdf5">module</a>
+</li>
+      </ul></li>
+      <li>
+    pywrdrb.utils.timeseries
+
+      <ul>
+        <li><a href="api/utils.html#module-pywrdrb.utils.timeseries">module</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -1065,7 +1214,9 @@ document.write(`
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.S_cap">S_cap (pywrdrb.parameters.STARFITReservoirRelease attribute)</a>
 </li>
-      <li><a href="api/generated/pywrdrb.parameters.SalinityModel.html#pywrdrb.parameters.SalinityModel">SalinityModel (class in pywrdrb.parameters)</a>
+      <li><a href="api/generated/pywrdrb.parameters.SalinityModelLSTM.html#pywrdrb.parameters.SalinityModelLSTM">SalinityModelLSTM (class in pywrdrb.parameters)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.parameters.SalinityModelRF.html#pywrdrb.parameters.SalinityModelRF">SalinityModelRF (class in pywrdrb.parameters)</a>
 </li>
       <li><a href="api/generated/pywrdrb.parameters.SaltFrontLocation.html#pywrdrb.parameters.SaltFrontLocation">SaltFrontLocation (class in pywrdrb.parameters)</a>
 </li>
@@ -1097,6 +1248,8 @@ document.write(`
 </li>
       <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease.standardize_inflow">standardize_inflow() (pywrdrb.parameters.STARFITReservoirRelease method)</a>
 </li>
+      <li><a href="api/generated/pywrdrb.pre.STARFITOfflineSimulator.html#pywrdrb.pre.STARFITOfflineSimulator">STARFITOfflineSimulator (class in pywrdrb.pre)</a>
+</li>
       <li><a href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html#pywrdrb.parameters.STARFITReservoirRelease">STARFITReservoirRelease (class in pywrdrb.parameters)</a>
 </li>
       <li><a href="api/generated/pywrdrb.ModelBuilder.html#pywrdrb.ModelBuilder.start_date">start_date (pywrdrb.ModelBuilder attribute)</a>
@@ -1109,6 +1262,8 @@ document.write(`
         <li><a href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2.html#pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2.step">(pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2 attribute)</a>
 </li>
       </ul></li>
+      <li><a href="api/generated/pywrdrb.utils.timeseries.subset_timeseries.html#pywrdrb.utils.timeseries.subset_timeseries">subset_timeseries() (in module pywrdrb.utils.timeseries)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -1117,7 +1272,9 @@ document.write(`
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/pywrdrb.parameters.TemperatureAfterThermalRelease.html#pywrdrb.parameters.TemperatureAfterThermalRelease">TemperatureAfterThermalRelease (class in pywrdrb.parameters)</a>
 </li>
-      <li><a href="api/generated/pywrdrb.parameters.TemperatureModel.html#pywrdrb.parameters.TemperatureModel">TemperatureModel (class in pywrdrb.parameters)</a>
+      <li><a href="api/generated/pywrdrb.parameters.TemperatureModelLSTM.html#pywrdrb.parameters.TemperatureModelLSTM">TemperatureModelLSTM (class in pywrdrb.parameters)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.parameters.TemperatureModelRF.html#pywrdrb.parameters.TemperatureModelRF">TemperatureModelRF (class in pywrdrb.parameters)</a>
 </li>
       <li><a href="api/generated/pywrdrb.parameters.ThermalReleaseRequirement.html#pywrdrb.parameters.ThermalReleaseRequirement">ThermalReleaseRequirement (class in pywrdrb.parameters)</a>
 </li>
@@ -1136,6 +1293,8 @@ document.write(`
       <li><a href="api/generated/pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.html#pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF">TotalReleaseNeededForDownstreamMRF (class in pywrdrb.parameters)</a>
 </li>
       <li><a href="api/generated/pywrdrb.pre.ExtrapolatedDiversionPreprocessor.html#pywrdrb.pre.ExtrapolatedDiversionPreprocessor.train_regressions">train_regressions() (pywrdrb.pre.ExtrapolatedDiversionPreprocessor method)</a>
+</li>
+      <li><a href="api/generated/pywrdrb.pre.ExtrapolatedDiversionPreprocessor.html#pywrdrb.pre.ExtrapolatedDiversionPreprocessor.training_flow">training_flow (pywrdrb.pre.ExtrapolatedDiversionPreprocessor attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1286,8 +1445,8 @@ By The Reed Group at Cornell CEE
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
-<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+  <script defer src="_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
 
   <footer class="bd-footer">
   </footer>

@@ -20,6 +20,7 @@
       ~STARFITReservoirRelease.calculate_percent_storage
       ~STARFITReservoirRelease.calculate_release_adjustment
       ~STARFITReservoirRelease.calculate_target_release
+      ~STARFITReservoirRelease.clear_starfit_cache
       ~STARFITReservoirRelease.finish
       ~STARFITReservoirRelease.get_NORhi
       ~STARFITReservoirRelease.get_NORlo
@@ -34,6 +35,7 @@
       ~STARFITReservoirRelease.get_integer_variables
       ~STARFITReservoirRelease.get_value
       ~STARFITReservoirRelease.load
+      ~STARFITReservoirRelease.load_custom_starfit_params
       ~STARFITReservoirRelease.load_default_starfit_params
       ~STARFITReservoirRelease.load_starfit_sensitivity_samples
       ~STARFITReservoirRelease.register

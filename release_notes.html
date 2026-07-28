@@ -1,0 +1,1648 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Pywr-DRB Release Notes &#8212; Pywr-DRB Integrated Water Resource Management Model</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=9c3e77be" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
+
+    <script src="_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js?v=b8b12719"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'release_notes';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="ModelBuilder Options" href="model_options.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="_static/searchtools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="intro.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo.png" class="logo__image only-light" alt="Pywr-DRB Integrated Water Resource Management Model - Home"/>
+    <img src="_static/logo.png" class="logo__image only-dark pst-js-only" alt="Pywr-DRB Integrated Water Resource Management Model - Home"/>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="intro.html">
+                    Pywr-DRB
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="api/api.html">API References</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="api/pywrdrb.html">pywrdrb</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.ModelBuilder.html">pywrdrb.ModelBuilder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.OutputRecorder.html">pywrdrb.OutputRecorder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.Data.html">pywrdrb.Data</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="api/parameters.html">pywrdrb.parameters</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.NYCCombinedReleaseFactor.html">pywrdrb.parameters.NYCCombinedReleaseFactor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.NYCFloodRelease.html">pywrdrb.parameters.NYCFloodRelease</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.VolBalanceNYCDemand.html">pywrdrb.parameters.VolBalanceNYCDemand</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.FfmpNycRunningAvgParameter.html">pywrdrb.parameters.FfmpNycRunningAvgParameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.FfmpNjRunningAvgParameter.html">pywrdrb.parameters.FfmpNjRunningAvgParameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF.html">pywrdrb.parameters.TotalReleaseNeededForDownstreamMRF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1.html">pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2.html">pywrdrb.parameters.VolBalanceNYCDownstreamMRF_step2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.LowerBasinMaxMRFContribution.html">pywrdrb.parameters.LowerBasinMaxMRFContribution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate.html">pywrdrb.parameters.VolBalanceLowerBasinMRFAggregate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.VolBalanceLowerBasinMRFIndividual.html">pywrdrb.parameters.VolBalanceLowerBasinMRFIndividual</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.IERQRelease_step1.html">pywrdrb.parameters.IERQRelease_step1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.STARFITReservoirRelease.html">pywrdrb.parameters.STARFITReservoirRelease</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.TemperatureModelLSTM.html">pywrdrb.parameters.TemperatureModelLSTM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.TemperatureModelRF.html">pywrdrb.parameters.TemperatureModelRF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.Estimated_Q_C.html">pywrdrb.parameters.Estimated_Q_C</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.Estimated_Q_i.html">pywrdrb.parameters.Estimated_Q_i</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.ThermalReleaseRequirement.html">pywrdrb.parameters.ThermalReleaseRequirement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.ForecastedTemperatureBeforeThermalRelease.html">pywrdrb.parameters.ForecastedTemperatureBeforeThermalRelease</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.UpdateTemperatureAtLordville.html">pywrdrb.parameters.UpdateTemperatureAtLordville</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.TemperatureAfterThermalRelease.html">pywrdrb.parameters.TemperatureAfterThermalRelease</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.SalinityModelLSTM.html">pywrdrb.parameters.SalinityModelLSTM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.SalinityModelRF.html">pywrdrb.parameters.SalinityModelRF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.UpdateSaltFrontLocation.html">pywrdrb.parameters.UpdateSaltFrontLocation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.SaltFrontLocation.html">pywrdrb.parameters.SaltFrontLocation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.FlowTargetSaltFrontAdjustmentRatio.html">pywrdrb.parameters.FlowTargetSaltFrontAdjustmentRatio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.FlowEnsemble.html">pywrdrb.parameters.FlowEnsemble</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.PredictionEnsemble.html">pywrdrb.parameters.PredictionEnsemble</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.parameters.LaggedReservoirRelease.html">pywrdrb.parameters.LaggedReservoirRelease</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="api/pre.html">pywrdrb.pre</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.pre.ObservationalDataRetriever.html">pywrdrb.pre.ObservationalDataRetriever</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.pre.PredictedInflowPreprocessor.html">pywrdrb.pre.PredictedInflowPreprocessor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.pre.PredictedDiversionPreprocessor.html">pywrdrb.pre.PredictedDiversionPreprocessor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.pre.ExtrapolatedDiversionPreprocessor.html">pywrdrb.pre.ExtrapolatedDiversionPreprocessor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.pre.STARFITOfflineSimulator.html">pywrdrb.pre.STARFITOfflineSimulator</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="api/post.html">pywrdrb.post</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.post.metrics.calculate_reliability.html">pywrdrb.post.metrics.calculate_reliability</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.post.metrics.calculate_vulnerability.html">pywrdrb.post.metrics.calculate_vulnerability</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.post.metrics.get_shortfall_metrics.html">pywrdrb.post.metrics.get_shortfall_metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.post.metrics.get_ensemble_hashimoto_metrics.html">pywrdrb.post.metrics.get_ensemble_hashimoto_metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.post.calculate_error_metrics.calculate_error_metrics.html">pywrdrb.post.calculate_error_metrics.calculate_error_metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.post.ensemble_metrics.ensemble_mean.html">pywrdrb.post.ensemble_metrics.ensemble_mean</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.post.ensemble_metrics.ensemble_std.html">pywrdrb.post.ensemble_metrics.ensemble_std</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.post.ensemble_metrics.ensemble_median.html">pywrdrb.post.ensemble_metrics.ensemble_median</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="api/utils.html">pywrdrb.utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.utils.hdf5.get_hdf5_realization_numbers.html">pywrdrb.utils.hdf5.get_hdf5_realization_numbers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.utils.hdf5.extract_realization_from_hdf5.html">pywrdrb.utils.hdf5.extract_realization_from_hdf5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.utils.hdf5.combine_batched_hdf5_outputs.html">pywrdrb.utils.hdf5.combine_batched_hdf5_outputs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.utils.hdf5.get_n_scenarios_from_pywrdrb_output_file.html">pywrdrb.utils.hdf5.get_n_scenarios_from_pywrdrb_output_file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.utils.timeseries.subset_timeseries.html">pywrdrb.utils.timeseries.subset_timeseries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/generated/pywrdrb.utils.timeseries.get_rollmean_timeseries.html">pywrdrb.utils.timeseries.get_rollmean_timeseries</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="examples/examples.html">Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples/Tutorial%2001%20Installation.html">Tutorial 01 Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/Tutorial%2002%20Run%20Simulation.html">Tutorial 02 Run Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/Tutorial%2003%20Load%20Results.html">Tutorial 03 Load Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/Tutorial%2004%20Using%20Customized%20Data%20To%20Run%20Model.html">Tutorial 04 Using Customized Data To Run Model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="basin_resources/basin_resources.html">Basin Resources</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="basin_resources/drb_overview.html">DRB Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basin_resources/reading_list.html">Reading List</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="results_set_options.html">Results Set Table</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_options.html">ModelBuilder Options</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Pywr-DRB Release Notes</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/Pywr-DRB/Pywr-DRB" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/Pywr-DRB/Pywr-DRB/issues/new?title=Issue%20on%20page%20%2Frelease_notes.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/release_notes.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Pywr-DRB Release Notes</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v2-2-0-2026-07-28">v2.2.0 (2026-07-28)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-functionality">New Functionality</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#new-flow-prediction-mode-option-in-modelbuilder">1. New <code class="docutils literal notranslate"><span class="pre">flow_prediction_mode</span></code> option in <code class="docutils literal notranslate"><span class="pre">ModelBuilder</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#regenerated-predicted-inflows-mgd-csv-and-predicted-diversions-mgd-csv">1.1 Regenerated <code class="docutils literal notranslate"><span class="pre">predicted_inflows_mgd.csv</span></code> and <code class="docutils literal notranslate"><span class="pre">predicted_diversions_mgd.csv</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#starfitofflinesimulator-for-offline-reservoir-simulation">2. <code class="docutils literal notranslate"><span class="pre">STARFITOfflineSimulator</span></code> for offline reservoir simulation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#use-custom-starfit-parameters">3. Use custom STARFIT parameters</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#updated-default-starfit-parameters-for-fe-walter-beltzville-blue-marsh-and-prompton">4. Updated default STARFIT parameters for FE Walter, Beltzville, Blue Marsh, and Prompton</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#prompton-release-gauge-added-to-observed-data">4.1 Prompton release gauge added to observed data</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#updated-observed-data-records">Updated Observed Data Records</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bug-fixes">Bug Fixes</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fixed-scenario-indexing-in-ensemble-simulations">1. Fixed scenario indexing in ensemble simulations</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fixed-ensemble-realization-id-handling-in-preprocessors">2. Fixed ensemble realization ID handling in preprocessors</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#starfit-releases-now-enforce-the-minimum-release-in-all-storage-conditions">3. STARFIT releases now enforce the minimum release in all storage conditions</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v2-1-0">v2.1.0</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Bug Fixes</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fixed-bug-in-predictedinflowpreprocessor">1. Fixed bug in <code class="docutils literal notranslate"><span class="pre">PredictedInflowPreprocessor</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#fixed-predicted-inflows-mgd-csv-for-certain-pre-packaged-datasets">1.1 Fixed <code class="docutils literal notranslate"><span class="pre">predicted_inflows_mgd.csv</span></code> for certain pre-packaged datasets</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fixed-lower-basin-release-accounting-for-trenton-flow-target">2. Fixed lower basin release accounting for Trenton flow target</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#improved-trenton-equivalent-flow-calculation">Improved Trenton Equivalent Flow Calculation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#updated-ml-temperature-and-salinity-modeling-capabilities">Updated ML temperature and salinity modeling capabilities</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">New Functionality</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#use-custom-diversion-data">Use custom diversion data</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#extrapolateddiversionpreprocessor-to-generate-for-custom-diversion-data"><code class="docutils literal notranslate"><span class="pre">ExtrapolatedDiversionPreprocessor</span></code> to generate for custom diversion data</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#predicteddiversionensemblepreprocessor-to-support-custom-inflow-ensemble-simulation"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionEnsemblePreprocessor</span></code> to support custom inflow ensemble simulation</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v2-0-1">v2.0.1</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#package-dependencies">Package Dependencies</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#minor-bug-fixes-and-updates">Minor Bug Fixes and Updates</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb-data-updates"><code class="docutils literal notranslate"><span class="pre">pywrdrb.Data()</span></code> Updates</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-modifying-exporting-and-re-loading-data-objects">Example: Modifying, exporting and re-loading data objects</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-loading-custom-hydrologic-data-using-pywrdrb-data">Example: Loading custom hydrologic data using <code class="docutils literal notranslate"><span class="pre">pywrdrb.Data()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v2-0-0-2025">v2.0.0 (2025)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#links-and-references">Links and References</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#major-updates">Major Updates</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#modularization-packaging">1. Modularization &amp; Packaging</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#key-modules-classes">Key modules &amp; classes</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#improved-policy-representation-with-respect-to-trenton-flow-target">2. Improved policy representation with respect to Trenton flow target</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#enabled-water-temperature-salt-front-location-prediction-capabilities">3. Enabled water temperature &amp; salt front location prediction capabilities</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#designed-lstms-capability">Designed LSTMs’ capability</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#temperature-lstm-model">Temperature LSTM model</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#salinity-lstm-model">Salinity LSTM model</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#expanded-number-of-pre-packaged-streamflow-scenarios">4. Expanded number of pre-packaged streamflow scenarios</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#added-support-for-customized-datasets">5 Added support for customized datasets</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v2-0-0-beta-2025-05-28">v2.0.0 - beta (2025-05-28)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">Links and References</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">Major Updates</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">1. Modularization &amp; Packaging</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">Key modules &amp; classes</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">2. Improved policy representation with respect to Trenton flow target</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">3. Enabled water temperature &amp; salt front location prediction capabilities</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">Designed LSTMs’ capability</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">Temperature LSTM model</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">Salinity LSTM model</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id15">4. Expanded number of pre-packaged streamflow scenarios</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">5 Added support for customized datasets</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id17">References</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-0-2-2024-8-04">v1.0.2 (2024-8-04)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id18">Overview</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="pywr-drb-release-notes">
+<h1>Pywr-DRB Release Notes<a class="headerlink" href="#pywr-drb-release-notes" title="Link to this heading">#</a></h1>
+<section id="v2-2-0-2026-07-28">
+<h2>v2.2.0 (2026-07-28)<a class="headerlink" href="#v2-2-0-2026-07-28" title="Link to this heading">#</a></h2>
+</section>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
+<p>Pywr-DRB v2.2.0 adds a new <code class="docutils literal notranslate"><span class="pre">perfect_foresight</span></code> flow prediction mode, a new <code class="docutils literal notranslate"><span class="pre">STARFITOfflineSimulator</span></code> class which simulates STARFIT reservoir releases outside of the Pywr-DRB simulation, and the ability to run the model with custom STARFIT parameters. The pre-packaged observed flow and storage records have been extended through July 2026, with an improved NYC reservoir storage record. This release also contains bug fixes for ensemble simulations run using MPI.</p>
+</section>
+<section id="new-functionality">
+<h2>New Functionality<a class="headerlink" href="#new-functionality" title="Link to this heading">#</a></h2>
+<section id="new-flow-prediction-mode-option-in-modelbuilder">
+<h3>1. New <code class="docutils literal notranslate"><span class="pre">flow_prediction_mode</span></code> option in <code class="docutils literal notranslate"><span class="pre">ModelBuilder</span></code><a class="headerlink" href="#new-flow-prediction-mode-option-in-modelbuilder" title="Link to this heading">#</a></h3>
+<p>The FFMP-based release rules for the NYC and lower basin reservoirs rely on multi-day predictions of flows at Montague and Trenton. In prior versions, these predictions were always generated using a regression-based disaggregation method. This remains the default behavior.</p>
+<p>The new <code class="docutils literal notranslate"><span class="pre">flow_prediction_mode</span></code> option in the <code class="docutils literal notranslate"><span class="pre">ModelBuilder</span></code> options allows the user to choose between prediction methods:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;regression_disagg&quot;</span></code> (default): Regression-based flow predictions, identical to prior versions.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;perfect_foresight&quot;</span></code>: Predictions constructed such that the model has perfect knowledge of future non-NYC flow contributions at Montague and Trenton. In this mode, NYC reservoirs contribute zero to the predicted flows (their releases are the quantity being determined by the FFMP logic), STARFIT-controlled reservoirs contribute pre-simulated STARFIT releases (see <code class="docutils literal notranslate"><span class="pre">STARFITOfflineSimulator</span></code> below), and all other nodes contribute their consumption-adjusted catchment inflows.</p></li>
+</ul>
+<p>The legacy internal “perfect foresight” method, which took predictions directly from the dataset gage flows without accounting for reservoir operations, has been removed.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pywrdrb</span>
+
+<span class="n">mb</span> <span class="o">=</span> <span class="n">pywrdrb</span><span class="o">.</span><span class="n">ModelBuilder</span><span class="p">(</span>
+    <span class="n">start_date</span><span class="o">=</span><span class="s2">&quot;1983-10-01&quot;</span><span class="p">,</span>
+    <span class="n">end_date</span><span class="o">=</span><span class="s2">&quot;1985-12-31&quot;</span><span class="p">,</span>
+    <span class="n">inflow_type</span><span class="o">=</span><span class="s2">&quot;nhmv10_withObsScaled&quot;</span><span class="p">,</span>
+    <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;flow_prediction_mode&quot;</span><span class="p">:</span> <span class="s2">&quot;perfect_foresight&quot;</span><span class="p">},</span>
+<span class="p">)</span>
+<span class="n">mb</span><span class="o">.</span><span class="n">make_model</span><span class="p">()</span>
+<span class="n">mb</span><span class="o">.</span><span class="n">write_model</span><span class="p">(</span><span class="s2">&quot;./model_perfect_foresight.json&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<section id="regenerated-predicted-inflows-mgd-csv-and-predicted-diversions-mgd-csv">
+<h4>1.1 Regenerated <code class="docutils literal notranslate"><span class="pre">predicted_inflows_mgd.csv</span></code> and <code class="docutils literal notranslate"><span class="pre">predicted_diversions_mgd.csv</span></code><a class="headerlink" href="#regenerated-predicted-inflows-mgd-csv-and-predicted-diversions-mgd-csv" title="Link to this heading">#</a></h4>
+<p>The <code class="docutils literal notranslate"><span class="pre">predicted_inflows_mgd.csv</span></code> files for all nine pre-packaged datasets, and the <code class="docutils literal notranslate"><span class="pre">predicted_diversions_mgd.csv</span></code> file, have been re-generated and now contain both <code class="docutils literal notranslate"><span class="pre">regression_disagg</span></code> and <code class="docutils literal notranslate"><span class="pre">perfect_foresight</span></code> prediction columns. This allows users to run either prediction mode without re-running the preprocessors.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">regression_disagg</span></code> predicted inflow values are unchanged relative to v2.1.0. The predicted diversions have been re-fit using the updated observed records (described below), so the regression-based diversion predictions differ from v2.1.0 and now extend through May 2025.</p>
+</section>
+</section>
+<section id="starfitofflinesimulator-for-offline-reservoir-simulation">
+<h3>2. <code class="docutils literal notranslate"><span class="pre">STARFITOfflineSimulator</span></code> for offline reservoir simulation<a class="headerlink" href="#starfitofflinesimulator-for-offline-reservoir-simulation" title="Link to this heading">#</a></h3>
+<p>The new <code class="docutils literal notranslate"><span class="pre">pywrdrb.pre.STARFITOfflineSimulator</span></code> class replicates the STARFIT release logic used by the <code class="docutils literal notranslate"><span class="pre">pywrdrb.parameters.STARFITReservoirRelease</span></code> parameter, but runs outside of the Pywr simulation. Given a timeseries of catchment inflows, it simulates storage dynamics and releases day-by-day for each STARFIT-controlled reservoir.</p>
+<p>This class is used to generate the pre-simulated releases required by the <code class="docutils literal notranslate"><span class="pre">perfect_foresight</span></code> prediction mode. It can also be used on its own to study STARFIT release behavior for a given inflow scenario, without needing to run the full Pywr-DRB model.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pywrdrb.pre</span><span class="w"> </span><span class="kn">import</span> <span class="n">STARFITOfflineSimulator</span>
+
+<span class="n">sim</span> <span class="o">=</span> <span class="n">STARFITOfflineSimulator</span><span class="p">(</span><span class="n">initial_volume_frac</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">load_parameters</span><span class="p">()</span>
+<span class="n">releases_df</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">simulate_all</span><span class="p">(</span><span class="n">catchment_inflows_df</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="use-custom-starfit-parameters">
+<h3>3. Use custom STARFIT parameters<a class="headerlink" href="#use-custom-starfit-parameters" title="Link to this heading">#</a></h3>
+<p>In prior versions, the STARFIT reservoir rule parameters were always loaded from the <code class="docutils literal notranslate"><span class="pre">istarf_conus.csv</span></code> file included in the package. The new <code class="docutils literal notranslate"><span class="pre">starfit_params_filename</span></code> option in the <code class="docutils literal notranslate"><span class="pre">ModelBuilder</span></code> options allows the user to provide an alternative STARFIT parameter CSV. The file must follow the same format as <code class="docutils literal notranslate"><span class="pre">istarf_conus.csv</span></code> and contain rows for all Pywr-DRB reservoirs. The custom parameters are used for both the reservoir capacities and the STARFIT release rules.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mb</span> <span class="o">=</span> <span class="n">pywrdrb</span><span class="o">.</span><span class="n">ModelBuilder</span><span class="p">(</span>
+    <span class="n">start_date</span><span class="o">=</span><span class="s2">&quot;1983-10-01&quot;</span><span class="p">,</span>
+    <span class="n">end_date</span><span class="o">=</span><span class="s2">&quot;1985-12-31&quot;</span><span class="p">,</span>
+    <span class="n">inflow_type</span><span class="o">=</span><span class="s2">&quot;nhmv10_withObsScaled&quot;</span><span class="p">,</span>
+    <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;starfit_params_filename&quot;</span><span class="p">:</span> <span class="s2">&quot;./my_starfit_params.csv&quot;</span><span class="p">},</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that this option cannot be combined with the <code class="docutils literal notranslate"><span class="pre">run_starfit_sensitivity_analysis</span></code> option, which loads parameters from a separate scenario file.</p>
+</section>
+<section id="updated-default-starfit-parameters-for-fe-walter-beltzville-blue-marsh-and-prompton">
+<h3>4. Updated default STARFIT parameters for FE Walter, Beltzville, Blue Marsh, and Prompton<a class="headerlink" href="#updated-default-starfit-parameters-for-fe-walter-beltzville-blue-marsh-and-prompton" title="Link to this heading">#</a></h3>
+<p>The default STARFIT rule parameters for the four lower basin flood control reservoirs (<code class="docutils literal notranslate"><span class="pre">fewalter</span></code>, <code class="docutils literal notranslate"><span class="pre">beltzvilleCombined</span></code>, <code class="docutils literal notranslate"><span class="pre">blueMarsh</span></code>, <code class="docutils literal notranslate"><span class="pre">prompton</span></code>) have been updated in <code class="docutils literal notranslate"><span class="pre">istarf_conus.csv</span></code>. The new parameters were fit to the observed reservoir storage and release records (2004-2023): the normal operating range (NOR) bounds now follow the observed seasonal storage guide curves, and the seasonal release harmonics were fit by water balance so that simulated releases reproduce the observed seasonal storage cycle.</p>
+<p>Compared to the prior defaults, the updated parameters substantially improve simulated storage and release accuracy at all four reservoirs. Notable changes:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Adjusted_MEANFLOW_MGD</span></code> values are now set to the mean catchment inflows for each reservoir, correcting values which were previously off by up to a factor of three (e.g., FE Walter listed 137 MGD vs. an actual mean inflow near 400 MGD). This corrects the scaling of the inflow-response and storage-response terms in the release function.</p></li>
+<li><p>The Beltzville capacity (<code class="docutils literal notranslate"><span class="pre">Adjusted_CAP_MG</span></code>) was raised from 13,500 MG to the storage-curve maximum of 17,750 MG. The prior value was below the observed normal pool volume (~14,000 MG), which made the observed storage level unreachable in simulation. The DRBC Water Code priority staging in <code class="docutils literal notranslate"><span class="pre">lower_basin_ffmp.py</span></code> uses separate hard-coded usable-storage values and is unaffected.</p></li>
+<li><p>Prompton’s release bounds were updated using the Prompton release gauge (USGS 01429000): a 10 MGD minimum consistent with observed low releases, and a 2,000 MGD maximum which allows observed flood peaks to pass.</p></li>
+<li><p>The DRBC-specified conservation releases and maximum discharges at FE Walter, Beltzville, and Blue Marsh are hard-coded in <code class="docutils literal notranslate"><span class="pre">lower_basin_ffmp.py</span></code> and are unchanged by the new parameters.</p></li>
+</ul>
+<p>The prior default parameter values are retained in <code class="docutils literal notranslate"><span class="pre">istarf_conus.csv</span></code> under new row names (<code class="docutils literal notranslate"><span class="pre">fewalter_v2.1_default</span></code>, <code class="docutils literal notranslate"><span class="pre">beltzvilleCombined_v2.1_default</span></code>, <code class="docutils literal notranslate"><span class="pre">blueMarsh_v2.1_default</span></code>, <code class="docutils literal notranslate"><span class="pre">prompton_v2.1_default</span></code>) for reference. To run the model with the prior parameters, copy these rows into a custom parameter CSV (using the original row names) and pass it via the <code class="docutils literal notranslate"><span class="pre">starfit_params_filename</span></code> option.</p>
+<p>The packaged <code class="docutils literal notranslate"><span class="pre">perfect_foresight</span></code> prediction files were re-generated using the updated default parameters, since the pre-simulated STARFIT releases embedded in those predictions are computed from the default parameter set.</p>
+<p>The figure below compares observed storage dynamics against offline STARFIT simulations (driven by <code class="docutils literal notranslate"><span class="pre">pub_nhmv10_BC_withObsScaled</span></code> catchment inflows) using the v2.1 and v2.2 default parameters. Each panel shows the seasonal (day-of-year) median and interquartile range of storage as a fraction of the v2.2 capacity, over each reservoir’s observed storage record. Note the offline simulation represents pure STARFIT behavior only — the FFMP / Trenton-contribution logic that also influences Beltzville and Blue Marsh releases in the full model is not included.</p>
+<p><img alt="Observed vs v2.1 and v2.2 default STARFIT storage dynamics" src="https://raw.githubusercontent.com/Pywr-DRB/Pywr-DRB/master/docs/images/starfit_v22_default_comparison.png" /></p>
+<section id="prompton-release-gauge-added-to-observed-data">
+<h4>4.1 Prompton release gauge added to observed data<a class="headerlink" href="#prompton-release-gauge-added-to-observed-data" title="Link to this heading">#</a></h4>
+<p>The Prompton release gauge (USGS 01429000, Lackawaxen River at Prompton) is now retrieved with the observational data and included as its own column (<code class="docutils literal notranslate"><span class="pre">01429000</span></code>) in <code class="docutils literal notranslate"><span class="pre">gage_flow_mgd.csv</span></code>. Prompton has no downstream gauge node in the model network, so this record is provided for observation comparisons such as evaluating simulated Prompton releases.</p>
+</section>
+</section>
+</section>
+<section id="updated-observed-data-records">
+<h2>Updated Observed Data Records<a class="headerlink" href="#updated-observed-data-records" title="Link to this heading">#</a></h2>
+<p>The pre-packaged observed data records (<code class="docutils literal notranslate"><span class="pre">gage_flow_mgd.csv</span></code>, <code class="docutils literal notranslate"><span class="pre">catchment_inflow_mgd.csv</span></code>, <code class="docutils literal notranslate"><span class="pre">reservoir_storage_mg.csv</span></code>) have been re-generated and now extend through 2026-07-20.</p>
+<p>The NYC reservoir storage records (<code class="docutils literal notranslate"><span class="pre">cannonsville</span></code>, <code class="docutils literal notranslate"><span class="pre">pepacton</span></code>, <code class="docutils literal notranslate"><span class="pre">neversink</span></code>) have been improved:</p>
+<ul class="simple">
+<li><p>DRBC daily storage records are now used for the period 1999-12-01 through 2021-11-30, replacing the storage values derived from USGS elevation records over that period. USGS-derived values are still used outside of the DRBC record period.</p></li>
+<li><p>Early-record storage values known to be erroneous are now dropped on a per-reservoir basis, using reservoir-specific validity start dates.</p></li>
+<li><p>The retrieval workflow (<code class="docutils literal notranslate"><span class="pre">pywrdrb.pre.ObservationalDataRetriever</span></code>) now exports an audit CSV of the USGS-derived NYC storage record, and includes a storage diagnostics plotting function for visual inspection of the merged record.</p></li>
+</ul>
+<p>New tests have been added in <code class="docutils literal notranslate"><span class="pre">tests/test_observation_loader.py</span></code> to verify the merged NYC storage record.</p>
+</section>
+<section id="bug-fixes">
+<h2>Bug Fixes<a class="headerlink" href="#bug-fixes" title="Link to this heading">#</a></h2>
+<section id="fixed-scenario-indexing-in-ensemble-simulations">
+<h3>1. Fixed scenario indexing in ensemble simulations<a class="headerlink" href="#fixed-scenario-indexing-in-ensemble-simulations" title="Link to this heading">#</a></h3>
+<p>Some parameters were indexing scenario data using the local scenario index rather than <code class="docutils literal notranslate"><span class="pre">scenario_index.global_id</span></code>. This produced incorrect scenario mappings when running ensemble simulations with MPI, where each rank only sees a subset of scenarios. The affected parameters, including <code class="docutils literal notranslate"><span class="pre">STARFITReservoirRelease</span></code> and the lower basin FFMP parameters, now use <code class="docutils literal notranslate"><span class="pre">global_id</span></code> throughout.</p>
+</section>
+<section id="fixed-ensemble-realization-id-handling-in-preprocessors">
+<h3>2. Fixed ensemble realization ID handling in preprocessors<a class="headerlink" href="#fixed-ensemble-realization-id-handling-in-preprocessors" title="Link to this heading">#</a></h3>
+<p>The ensemble preprocessors were inconsistent in their handling of integer vs. string realization IDs when reading ensemble HDF5 files, which caused failures for some ensemble datasets. Realization IDs are now consistently coerced to strings. The ensemble preprocessors also now accept an optional <code class="docutils literal notranslate"><span class="pre">comm</span></code> argument, allowing an existing MPI communicator to be reused.</p>
+</section>
+<section id="starfit-releases-now-enforce-the-minimum-release-in-all-storage-conditions">
+<h3>3. STARFIT releases now enforce the minimum release in all storage conditions<a class="headerlink" href="#starfit-releases-now-enforce-the-minimum-release-in-all-storage-conditions" title="Link to this heading">#</a></h3>
+<p>Previously, the <code class="docutils literal notranslate"><span class="pre">STARFITReservoirRelease</span></code> parameter only enforced the minimum release (<code class="docutils literal notranslate"><span class="pre">R_min</span></code>) when storage was below the normal operating range. When storage was inside the NOR, the release function could dip below <code class="docutils literal notranslate"><span class="pre">R_min</span></code> on very dry days. The minimum release is now enforced in all storage conditions, consistent with the DRBC conservation release requirements at the lower basin reservoirs.</p>
+<p>The practical impact is small: in a 40-year test simulation, this affected roughly 0.27% of days at Blue Marsh (the most affected reservoir), with all other days unchanged. The same correction is applied in the <code class="docutils literal notranslate"><span class="pre">STARFITOfflineSimulator</span></code>.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="v2-1-0">
+<h2>v2.1.0<a class="headerlink" href="#v2-1-0" title="Link to this heading">#</a></h2>
+</section>
+<section id="id1">
+<h2>Bug Fixes<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
+<section id="fixed-bug-in-predictedinflowpreprocessor">
+<h3>1. Fixed bug in <code class="docutils literal notranslate"><span class="pre">PredictedInflowPreprocessor</span></code><a class="headerlink" href="#fixed-bug-in-predictedinflowpreprocessor" title="Link to this heading">#</a></h3>
+<p>Starting in Pywr-DRB v2.0.0, we include the <code class="docutils literal notranslate"><span class="pre">pywrdrb.pre.PredictedInflowPreprocessor()</span></code> class. This is designed to flexibly support inflow prediction for any custom dataset.</p>
+<p>This class contained a bug which was previously resulting in predicted flows being much less than the actual modeled flows at Trenton.  As a result, the model was over-compensating and Blue Marsh and Beltzville reservoirs were releasing un-necessary water toward Trenton.</p>
+<p>This bug has been fixed in the latest version.</p>
+<section id="fixed-predicted-inflows-mgd-csv-for-certain-pre-packaged-datasets">
+<h4>1.1 Fixed <code class="docutils literal notranslate"><span class="pre">predicted_inflows_mgd.csv</span></code> for certain pre-packaged datasets<a class="headerlink" href="#fixed-predicted-inflows-mgd-csv-for-certain-pre-packaged-datasets" title="Link to this heading">#</a></h4>
+<p>Due to the bug described above, a few of the pre-packaged datasets which were new to version 2.0.0 included faulty input data for the <code class="docutils literal notranslate"><span class="pre">predicted_inflow_mgd.csv</span></code>.</p>
+<p>This bug affected the following datasets:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pub_nhmv10_BC_withObsScaled</span></code> (with package installation)</p></li>
+<li><p>All <code class="docutils literal notranslate"><span class="pre">wrf*</span></code> datasets (with package installation)</p></li>
+</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">predicted_inflow_mgd.csv</span></code> for each of these datasets has been re-generated using the revised <code class="docutils literal notranslate"><span class="pre">PredictedInflowPreprocessor</span></code>, and the correct values are now included in the package installation.</p>
+</section>
+</section>
+<section id="fixed-lower-basin-release-accounting-for-trenton-flow-target">
+<h3>2. Fixed lower basin release accounting for Trenton flow target<a class="headerlink" href="#fixed-lower-basin-release-accounting-for-trenton-flow-target" title="Link to this heading">#</a></h3>
+<p>Lower basin reservoirs (beltzville, blue marsh, nockamixon) are used to help support the Trenton equivalent flow target with additional releases.</p>
+<p>In prior versions of the model, these reservoirs were releasing excessive volumes to support Trenton flows, even when they were not necessary.</p>
+<p>This was a bug located in the <code class="docutils literal notranslate"><span class="pre">pywrdrb.parameters.ffmp.TotalReleaseNeededForDownstreamMRF</span></code> parameter which was not considering prior lower basin releases when determining the remaining contribution requirements.  This new version improves the accounting and helps avoid unnecessary releases.</p>
+</section>
+</section>
+<section id="improved-trenton-equivalent-flow-calculation">
+<h2>Improved Trenton Equivalent Flow Calculation<a class="headerlink" href="#improved-trenton-equivalent-flow-calculation" title="Link to this heading">#</a></h2>
+<p>This new version includes a more accurate representation of the “Trenton Equivalent Flow”.</p>
+<blockquote>
+<div><p>“The Trenton Equivalent Flow is computed as the sum of flows at the USGS Trenton gaging station, releases in excess of conservation releases from Blue Marsh Reservoir, and an amount of water, determined by the Delaware River Basin Commission (DRBC), to account for bypass flows via Yardley and the Point Pleasant Pumping Station.” (2017 FFMP Section 2.b)</p>
+</div></blockquote>
+<p>In prior versions of the model, the Trenton Equivalent Flow was calculated as: Total flow at Trenton gauge + Blue Marsh reservoir releases beyond the normal, STARFIT-based releases.</p>
+<p>In the revised model, the Trenton Equivalent Flow is calculated as: Total flow at Trenton gauge + Blue Marsh releases above the conservation release value (50 cfs)</p>
+</section>
+<section id="updated-ml-temperature-and-salinity-modeling-capabilities">
+<h2>Updated ML temperature and salinity modeling capabilities<a class="headerlink" href="#updated-ml-temperature-and-salinity-modeling-capabilities" title="Link to this heading">#</a></h2>
+<p>Improved API and functionality for the LSTM temperature and salinity models.</p>
+<p>A new tutorial notebook will be available soon.</p>
+</section>
+<section id="id2">
+<h2>New Functionality<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<section id="use-custom-diversion-data">
+<h3>Use custom diversion data<a class="headerlink" href="#use-custom-diversion-data" title="Link to this heading">#</a></h3>
+<p>In prior versions of the model, there was only a single historical diversion dataset available. This restricted simulation to the historic period, since future diversions were not available. Additionally, the user could not use any alternative diversion other than the single historic data.</p>
+<p>In the new version, we allow for custom diversions when running custom inflow scenarios.</p>
+<p>The custom diversions can either be manually generated or generated using the preprocessor described below.</p>
+<section id="extrapolateddiversionpreprocessor-to-generate-for-custom-diversion-data">
+<h4><code class="docutils literal notranslate"><span class="pre">ExtrapolatedDiversionPreprocessor</span></code> to generate for custom diversion data<a class="headerlink" href="#extrapolateddiversionpreprocessor-to-generate-for-custom-diversion-data" title="Link to this heading">#</a></h4>
+<p>A new tutorial notebook demonstrating this functionality will be available soon.</p>
+<p>In the ModelBuilder options, there is a new option <code class="docutils literal notranslate"><span class="pre">nyc_nj_demand_data</span></code> which can take values [‘historic’, ‘custom’, ‘constant’].  When</p>
+</section>
+</section>
+<section id="predicteddiversionensemblepreprocessor-to-support-custom-inflow-ensemble-simulation">
+<h3><code class="docutils literal notranslate"><span class="pre">PredictedDiversionEnsemblePreprocessor</span></code> to support custom inflow ensemble simulation<a class="headerlink" href="#predicteddiversionensemblepreprocessor-to-support-custom-inflow-ensemble-simulation" title="Link to this heading">#</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">PredictedDiversionPreprocessor</span></code> is needed when running custom inflow scenarios.  However, prior versions only supporting single-scenario datasets.  This prevented the use of custom inflow <em>ensemble</em> data from being used.</p>
+<p>The new <code class="docutils literal notranslate"><span class="pre">PredictedDiversionEnsemblePreprocessor</span></code> allows for ensembles of custom inflow to be run using Pywr-DRB.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="v2-0-1">
+<h2>v2.0.1<a class="headerlink" href="#v2-0-1" title="Link to this heading">#</a></h2>
+</section>
+<section id="id3">
+<h2>Overview<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
+<p>Pywr-DRB v2.0.1 adds package dependency versions to avoid installation issues, and contains minor bug fixes with the <code class="docutils literal notranslate"><span class="pre">pywrdrb.Data()</span></code> class functionality.</p>
+</section>
+<section id="package-dependencies">
+<h2>Package Dependencies<a class="headerlink" href="#package-dependencies" title="Link to this heading">#</a></h2>
+<p>Recent updates to the <code class="docutils literal notranslate"><span class="pre">pywr</span></code> and <code class="docutils literal notranslate"><span class="pre">scipy</span></code> packages cause issues during installation.</p>
+<p>We have updated the <code class="docutils literal notranslate"><span class="pre">pywrdrb</span></code> dependency list to include:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;pywr==1.27.4&quot;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;scipy==1.15.3&quot;</span></code></p></li>
+</ul>
+<p>We specify versions across the dependency list, however the only necessary version requirements at the moment are for the two packages above.</p>
+</section>
+<section id="minor-bug-fixes-and-updates">
+<h2>Minor Bug Fixes and Updates<a class="headerlink" href="#minor-bug-fixes-and-updates" title="Link to this heading">#</a></h2>
+<section id="pywrdrb-data-updates">
+<h3><code class="docutils literal notranslate"><span class="pre">pywrdrb.Data()</span></code> Updates<a class="headerlink" href="#pywrdrb-data-updates" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Modified the <code class="docutils literal notranslate"><span class="pre">AbstractDataLoader</span></code> class to support ensemble flow files in `AbstractDataLoader.get_base_results()</p>
+<ul>
+<li><p>Previously, this only supported loading data from <code class="docutils literal notranslate"><span class="pre">gage_flow_mgd.csv</span></code> files</p></li>
+<li><p>Now, it supports ensemble files (<code class="docutils literal notranslate"><span class="pre">gage_flow_mgd.hdf5</span></code>) for a list of <code class="docutils literal notranslate"><span class="pre">realization_ids</span></code></p></li>
+</ul>
+</li>
+<li><p>Moved the <code class="docutils literal notranslate"><span class="pre">flowtye_opts</span></code> list creation into the <code class="docutils literal notranslate"><span class="pre">__init__()</span></code> of the <code class="docutils literal notranslate"><span class="pre">HydrologicModelFlow()</span></code> class.  This is necessary to allow for custom inflow types to be recognized as a valid flowtype option when using:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">pywrdrb.Data().load_hydrologic_model_flow()</span></code></p></li>
+<li><p>User’s are still required to register the custom flowtype using the <code class="docutils literal notranslate"><span class="pre">pathnavigator</span></code> as demonstrated in <a class="reference external" href="https://pywr-drb.github.io/Pywr-DRB/examples/Tutorial%2004%20Using%20Customized%20Data%20To%20Run%20Model.html">Tutorial 04 - Using Customized Data to Run Pywr-DRB</a></p></li>
+</ul>
+</li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">&quot;all&quot;</span></code> to the <code class="docutils literal notranslate"><span class="pre">hydrologic_model_results_set_opts</span></code></p>
+<ul>
+<li><p>This allows uses to load flows from all nodes (instead of just major_nodes) when running <code class="docutils literal notranslate"><span class="pre">pywrdrb.Data().load_hydrologic_model_flow()</span></code></p></li>
+</ul>
+</li>
+<li><p>Modified the <code class="docutils literal notranslate"><span class="pre">pywrdrb.Data().export()</span></code> and <code class="docutils literal notranslate"><span class="pre">pywrdrb.Data().load_from_export()</span></code> to support custom data.</p>
+<ul>
+<li><p>Previously, these functions only allowed for export/load of existing <code class="docutils literal notranslate"><span class="pre">results_set</span></code> options.</p></li>
+<li><p>Now, users can add new/custom data to the <code class="docutils literal notranslate"><span class="pre">pywrdrb.Data</span></code> object, then export and re-load that data later.</p></li>
+<li><p>See the example</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+<section id="example-modifying-exporting-and-re-loading-data-objects">
+<h2>Example: Modifying, exporting and re-loading data objects<a class="headerlink" href="#example-modifying-exporting-and-re-loading-data-objects" title="Link to this heading">#</a></h2>
+<p>Below is an example of how custom/new data can be added to the <code class="docutils literal notranslate"><span class="pre">pywrdrb.Data</span></code> class, and how the full data class can be exported to a new file and later reloaded.</p>
+<p>First, load the Pywr-DRB output using the existing <code class="docutils literal notranslate"><span class="pre">pywrdrb.Data</span></code> functionality.  See <a class="reference external" href="https://pywr-drb.github.io/Pywr-DRB/examples/Tutorial%2003%20Load%20Results.html">Tutorial 03 - Loading and Interpreting Output</a> for more detail on this existing functionality.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">## Existing functionality</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pywrdrb</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">pywrdrb</span><span class="o">.</span><span class="n">Data</span><span class="p">()</span>
+<span class="n">data</span><span class="o">.</span><span class="n">load_output</span><span class="p">(</span>
+    <span class="n">results_sets</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;major_flow&#39;</span><span class="p">],</span>
+    <span class="n">output_filenames</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;./pywrdrb_output.hdf5&#39;</span><span class="p">]</span>
+<span class="p">)</span>
+<span class="n">df_flow</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">major_flow</span><span class="p">[</span><span class="s2">&quot;pywrdrb_output&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>We can calculate new data using the loaded output data. In this example below, I’ll do a simple 7-day mean flow calculation.</p>
+<p>Then, we can store the newly calculated <code class="docutils literal notranslate"><span class="pre">rolling_mean_major_flow</span></code> inside the data object. Importantly, this addition must match the hierarchical data dictionary formatting.</p>
+<p>After the data is stored in the <code class="docutils literal notranslate"><span class="pre">data</span></code> object, we can use the <code class="docutils literal notranslate"><span class="pre">export()</span></code> function.</p>
+<p>The export function will save all attributes/contents of the <code class="docutils literal notranslate"><span class="pre">data</span></code> object to an HDF5 file with the given name.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">## New functionality</span>
+<span class="c1"># Calculate new metrics based on the original output data</span>
+<span class="n">df_flow_rolling</span> <span class="o">=</span> <span class="n">df_flow</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+<span class="c1"># Store the new df in the data object</span>
+<span class="c1"># Important: Format of dictionaries must match</span>
+<span class="n">data</span><span class="o">.</span><span class="n">rolling_mean_major_flow</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">data</span><span class="o">.</span><span class="n">rolling_mean_major_flow</span><span class="p">[</span><span class="s2">&quot;pywrdrb_output&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">data</span><span class="o">.</span><span class="n">rolling_mean_major_flow</span><span class="p">[</span><span class="s2">&quot;pywrdrb_output&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_flow_rolling</span>
+
+<span class="c1"># Save the full data object as an export</span>
+<span class="c1"># This will include all metrics, including the added rolling mean flow</span>
+<span class="n">data</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="s2">&quot;./pywrdrb_output_with_postprocessing.hdf5&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Then, later we can re-load the modified data object using:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">pywrdrb</span><span class="o">.</span><span class="n">Data</span><span class="p">()</span>
+<span class="n">data</span><span class="o">.</span><span class="n">load_from_export</span><span class="p">(</span><span class="s2">&quot;./pywrdrb_output_with_postprocessing.hdf5&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="example-loading-custom-hydrologic-data-using-pywrdrb-data">
+<h2>Example: Loading custom hydrologic data using <code class="docutils literal notranslate"><span class="pre">pywrdrb.Data()</span></code><a class="headerlink" href="#example-loading-custom-hydrologic-data-using-pywrdrb-data" title="Link to this heading">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">load_hydrologic_model_flow()</span></code> function is designed to load <code class="docutils literal notranslate"><span class="pre">&lt;flowtype&gt;/gage_flow_mgd.csv</span></code> files.  Thus, the resulting data is reflective of the full natural flow as modeled by the model/dataset being loaded. This flow is <em>not</em> routed through Pywr-DRB.</p>
+<p>Previously, this funciton was unable to be used for custom <code class="docutils literal notranslate"><span class="pre">flowtypes</span></code> arguments, and was only able to load the datasets that came pre-packaged with <code class="docutils literal notranslate"><span class="pre">pywrdrb</span></code> installation.</p>
+<p>The 2.0.1 patch fixes this, as shown below.</p>
+<p>Importantly, this assumes that the custom data <code class="docutils literal notranslate"><span class="pre">csv</span></code> file has the same formatting as the existing pywrdrb datasets (node names as column names and datetime index) which is generally a pre-requisit for using custom data in the pywrdrb modeling workflow.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Register custom dataset with pathnavigator</span>
+<span class="n">pn_config</span> <span class="o">=</span> <span class="n">pywrdrb</span><span class="o">.</span><span class="n">get_pn_config</span><span class="p">()</span>
+<span class="n">pn_config</span><span class="p">[</span><span class="s2">&quot;flows/custom_data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;custom_data&quot;</span>
+<span class="n">pywrdrb</span><span class="o">.</span><span class="n">load_pn_config</span><span class="p">(</span><span class="n">pn_config</span><span class="p">)</span>
+
+<span class="c1"># List of result types to load</span>
+<span class="c1"># these include all valid options given the input data</span>
+<span class="n">results_sets</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="s1">&#39;major_flow&#39;</span><span class="p">,</span> <span class="s1">&#39;reservoir_downstream_gage&#39;</span><span class="p">]</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">pywrdrb</span><span class="o">.</span><span class="n">Data</span><span class="p">()</span>
+
+<span class="c1"># Previously, using flowtypes=[&#39;custom_data&#39;] would give error</span>
+<span class="n">data</span><span class="o">.</span><span class="n">load_hydrologic_model_flow</span><span class="p">(</span><span class="n">flowtypes</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;custom_data&quot;</span><span class="p">],</span>
+                                <span class="n">results_sets</span><span class="o">=</span><span class="n">results_sets</span><span class="p">)</span>
+
+<span class="c1"># The &quot;all&quot; results set is new, and returns gage_flow (full natural) at all nodes</span>
+<span class="n">data</span><span class="o">.</span><span class="n">all</span><span class="p">[</span><span class="s1">&#39;custom_data&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="v2-0-0-2025">
+<h2>v2.0.0 (2025)<a class="headerlink" href="#v2-0-0-2025" title="Link to this heading">#</a></h2>
+</section>
+<section id="id4">
+<h2>Overview<a class="headerlink" href="#id4" title="Link to this heading">#</a></h2>
+<p>Pywr-DRB v2.0.0 includes a major re-structure and modularization of the Pywr-DRB v1.0.2 (Hamilton et al., 2024), which emphasizes on improving the user interfaces for flexibility and ease of use. This version also greatly improves runtime efficiency and model fidelity by adding water temperature prediction and salt front location prediction capabilities while maintaining much of the core reservoir, diversion, regulatory and management functionality as the prior versions.</p>
+<p>Please cite the release as</p>
+<p>Lin, C.Y., Amestoy, T., Smith, M., Hamilton, A., &amp; Reed, P. (2025). Pywr‑DRB v2.0.0 [Software]. Zenodo. <a class="reference external" href="https://doi.org/10.5281/zenodo.15659955">https://doi.org/10.5281/zenodo.15659955</a></p>
+</section>
+<section id="links-and-references">
+<h2>Links and References<a class="headerlink" href="#links-and-references" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/Pywr-DRB/Pywr-DRB">Pywr-DRB Repository</a></p></li>
+<li><p><a class="reference external" href="https://pywr-drb.github.io/Pywr-DRB/intro.html">Pywr-DRB Documentation</a></p></li>
+<li><p><a class="reference external" href="https://doi.org/10.5281/zenodo.10720011">Pywr-DRB DOI <img alt="DOI" src="https://zenodo.org/badge/479150651.svg" /></a></p></li>
+</ul>
+</section>
+<section id="major-updates">
+<h2>Major Updates<a class="headerlink" href="#major-updates" title="Link to this heading">#</a></h2>
+<section id="modularization-packaging">
+<h3>1. Modularization &amp; Packaging<a class="headerlink" href="#modularization-packaging" title="Link to this heading">#</a></h3>
+<ul>
+<li><p>Modularize the code and introduce new <code class="docutils literal notranslate"><span class="pre">pywrdrb</span></code> <a class="reference external" href="https://pywr-drb.github.io/Pywr-DRB/api/api.html">API</a>, relative to that used in Hamilton et al. (2024) seeks to:</p>
+<ul class="simple">
+<li><p>Improve standardization (e.g., file naming conventions, workflows, docstrings)</p></li>
+<li><p>Add flexibility for running simulations with different scenarios, settings and options</p></li>
+<li><p>Improve runtime efficiency</p></li>
+<li><p>Improve code reliability (e.g., unit testing and more detailed package dependency specifications)</p></li>
+<li><p>Introduce object-oriented interface:</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># v2.0.0 approach - object-oriented interface</span>
+
+<span class="n">mb</span> <span class="o">=</span> <span class="n">pywrdrb</span><span class="o">.</span><span class="n">ModelBuilder</span><span class="p">(</span>
+    <span class="n">inflow_type</span><span class="o">=</span><span class="s1">&#39;nhmv10_withObsScaled&#39;</span><span class="p">,</span>
+    <span class="n">start_date</span><span class="o">=</span><span class="s2">&quot;2020-01-01&quot;</span><span class="p">,</span>
+    <span class="n">end_date</span><span class="o">=</span><span class="s2">&quot;2020-12-31&quot;</span>
+<span class="p">)</span>
+<span class="n">mb</span><span class="o">.</span><span class="n">make_model</span><span class="p">()</span>
+<span class="n">mb</span><span class="o">.</span><span class="n">write_model</span><span class="p">(</span><span class="s2">&quot;model.json&quot;</span><span class="p">)</span>
+
+<span class="c1"># Load model</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">pywrdrb</span><span class="o">.</span><span class="n">Model</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;model.json&quot;</span><span class="p">)</span>
+<span class="n">recorder</span> <span class="o">=</span> <span class="n">pywrdrb</span><span class="o">.</span><span class="n">OutputRecorder</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+    <span class="n">output_filename</span><span class="o">=</span><span class="n">output_filename</span><span class="p">,</span>
+    <span class="n">parameters</span><span class="o">=</span><span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">parameters</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+    <span class="p">)</span>
+
+<span class="c1"># Execute the simulation</span>
+<span class="n">stats</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</li>
+<li><p>Adopts <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> to handle dependencies installation &amp; package specifications that allows for simple <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">pywrdrb</span></code></p></li>
+<li><p>All of the data is now stored in a standardized format within <a class="reference external" href="https://github.com/Pywr-DRB/Pywr-DRB/tree/master/src/pywrdrb/data"><code class="docutils literal notranslate"><span class="pre">Pywr-DRB/src/pywrdrb/data/</span></code></a></p></li>
+</ul>
+<section id="key-modules-classes">
+<h4>Key modules &amp; classes<a class="headerlink" href="#key-modules-classes" title="Link to this heading">#</a></h4>
+<p><img alt="alt text" src="docs/images/pywrdrb_v2_modules.png" /></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">DataPreprocessor</span> <span class="pre">classes</span></code>:</p>
+<ul>
+<li><p>Create necessary model inputs from the raw datasets (e.g., hydrological data).</p></li>
+<li><p>Retrieve latest observed data (e.g., gauge flows and reservoir storages).</p></li>
+<li><p>This module enable sustainable and customizable use of the model to run with latest information and user-provided inputs.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pywrdrb.path_manager</span></code>:</p>
+<ul>
+<li><p>Adopt <a class="reference external" href="https://github.com/philip928lin/PathNavigator"><code class="docutils literal notranslate"><span class="pre">pathnavigator</span></code></a> for better path management that enable linking external custom datasets to pywrdrb.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pywrdrb.ModelBuilder</span></code>:</p>
+<ul>
+<li><p>Modularize the model building process for customizing simulation settings.</p></li>
+<li><p>Write a model to JSON model file</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pywrdrb.OutputRecorder</span></code>:</p>
+<ul>
+<li><p>Enable subset output variables to reduce memory burden.</p></li>
+<li><p>Improve runtime speed by avoiding frequent IO and utilizing internal memory.</p></li>
+<li><p>This enable future large-scale experiments.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pywrdrb.Data</span></code>:</p>
+<ul>
+<li><p>Convert internal variable names into user-friendly names.</p></li>
+<li><p>Allow loading multiple output files</p></li>
+<li><p>Enable loading subset of outputs to enhance loading speed.</p></li>
+<li><p>This enable smooth comparison across simulation runs.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+<section id="improved-policy-representation-with-respect-to-trenton-flow-target">
+<h3>2. Improved policy representation with respect to Trenton flow target<a class="headerlink" href="#improved-policy-representation-with-respect-to-trenton-flow-target" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Pywr-DRB <code class="docutils literal notranslate"><span class="pre">v1.0.2</span></code> error incorrectly required NYC reservoirs to maintain the Trenton Equivalent Flow Objective at all times, which is inaccurate relative to the actual basin policy, which only requires NYC to maintain the Montague Flow Objective.</p></li>
+<li><p>Pywr-DRB <code class="docutils literal notranslate"><span class="pre">v2.0.0</span></code> correction: Implements the constrained Interim Excess Release Quantity (IERQ) Trenton flow bank as described by the <a class="reference external" href="https://www.nj.gov/drbc/programs/flow/FFMP_PerformanceRpts.html">Flexible Flow Management Program</a>; NYC reservoirs have an annual allocation of 6.09 billion gallons for the Trenton Equivalent Flow Objective.</p>
+<ul>
+<li><p>NYC reservoirs are required to maintain only the Montague flow target, as specified by the <a class="reference external" href="https://supreme.justia.com/cases/federal/us/347/995/">1954 US Supreme Court Decree.</a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">IERQRelease</span></code> parameter (<code class="docutils literal notranslate"><span class="pre">pywrdrb/parameters/banks.py</span></code>) tracks bank usage and enforces constraints on NYC releases used for the Trenton Flow Objective. Bank resets each June 1st as specified in FFMP regulations</p>
+<ul>
+<li><p>In the latest version, we limit the annual NYC releases for Trenton to 6.02BG</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="enabled-water-temperature-salt-front-location-prediction-capabilities">
+<h3>3. Enabled water temperature &amp; salt front location prediction capabilities<a class="headerlink" href="#enabled-water-temperature-salt-front-location-prediction-capabilities" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Added custom parameters to couple LSTM models with <a class="reference internal" href="#github.com/philip928lin/PywrDRB-ML"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">PywrDRB-ML</span></code></span></a> plug-in to predict 1) daily maximum water temperature at Lordville and 2) 7-day averaged salt front location in river mile.</p></li>
+<li><p>The <a class="reference internal" href="#github.com/philip928lin/PywrDRB-ML"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">PywrDRB-ML</span></code></span></a> plug-in is currently private pending publication, but may be available upon request.</p></li>
+</ul>
+<section id="designed-lstms-capability">
+<h4>Designed LSTMs’ capability<a class="headerlink" href="#designed-lstms-capability" title="Link to this heading">#</a></h4>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Model</p></th>
+<th class="head"><p>From</p></th>
+<th class="head"><p>To</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>TempLSTM</p></td>
+<td><p>1/1/1979</p></td>
+<td><p>12/31/2023</p></td>
+</tr>
+<tr class="row-odd"><td><p>SalinityLSTM</p></td>
+<td><p>10/1/1963</p></td>
+<td><p>12/31/2023</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="temperature-lstm-model">
+<h4>Temperature LSTM model<a class="headerlink" href="#temperature-lstm-model" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>The temperature model is developed based on Zwart et al. (2023). In order to fit to the control purpose, we construct TempLSTM1 to predict the Cannonsville downstream gauge temperature (T_C) and TempLSTM2 to predict the East Branch flow and the natural flow to Lordville (T_i).</p></li>
+<li><p>The final water temperature at Lordville (T_L) is calculated by mapping the average temperature (Tavg) to the maximum temperature (T_L) using a random forest model.</p></li>
+<li><p>Introduce API to allow user input thermal control policy</p></li>
+</ul>
+</section>
+<section id="salinity-lstm-model">
+<h4>Salinity LSTM model<a class="headerlink" href="#salinity-lstm-model" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>The Salinity LSTM model is developed based on Gorski et al. (2024). We rebuild the model using the LSTM and BMI sturcture derived from Zwart et al. (2023) to predict 7-day averaged salt front location in river mile at each timestep.</p></li>
+<li><p>Note that the salt front location has not yet be integrated into Montague and Trenton flow target operations. It is scheduled in the next release.</p></li>
+</ul>
+</section>
+</section>
+<section id="expanded-number-of-pre-packaged-streamflow-scenarios">
+<h3>4. Expanded number of pre-packaged streamflow scenarios<a class="headerlink" href="#expanded-number-of-pre-packaged-streamflow-scenarios" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The original code used in Hamilton et al. (2024) only supported Pywr-DRB simulations using 4 hydrologic inflow datasets:</p>
+<ul>
+<li><p>NHM version 1.0</p></li>
+<li><p>NHM version 1.0 with scaled observational inflows at some reservoirs</p></li>
+<li><p>NWM version 2.1</p></li>
+<li><p>NWM version 2.1 with scaled observational inflows at some reservoirs</p></li>
+</ul>
+</li>
+<li><p>The latest version adds the following hydrologic inflow scenarios:</p>
+<ul>
+<li><p>WRF-Hydro simulated flow during the AORC period</p></li>
+<li><p>WRF-Hydro simulated flow during the AORC period with scaled observational inflows at some reservoirs</p></li>
+<li><p>WRF-Hydro simulated flow during the 1960s drought</p></li>
+<li><p>WRF-Hydro simulated flow during the 1960s drought, under a +2C climate scenario</p></li>
+</ul>
+</li>
+<li><p>All of these inflow scenarios come pre-packaged with the <code class="docutils literal notranslate"><span class="pre">pywrdrb</span></code> source code, and are ready for simulation. The table below summarizes the scenarios, lists their scenario keys and provides their simulation periods.</p></li>
+</ul>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Scenario Key</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Simulation Period</p></th>
+<th class="head"><p>Source</p></th>
+<th class="head"><p>New to Pywr-DRB v2.0?</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;nhmv10&quot;</span></code></p></td>
+<td><p>National Hydrologic Model v1.0</p></td>
+<td><p>1983-10-01 to 2016-12-31</p></td>
+<td><p>Hay &amp; LaFontain (2020)</p></td>
+<td><p>No</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;nhmv10_withObsScaled&quot;</span></code></p></td>
+<td><p>NHM v1.0 with scaled observations</p></td>
+<td><p>1983-10-01 to 2016-12-31</p></td>
+<td><p>Hamilton et al. (2024)</p></td>
+<td><p>No</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;nwmv21&quot;</span></code></p></td>
+<td><p>National Water Model v2.1</p></td>
+<td><p>1983-10-01 to 2016-12-31</p></td>
+<td><p>Blodgett (2022)</p></td>
+<td><p>No</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;nwmv21_withObsScaled&quot;</span></code></p></td>
+<td><p>NWM v2.1 with scaled observations</p></td>
+<td><p>1983-10-01 to 2016-12-31</p></td>
+<td><p>Hamilton et al. (2024)</p></td>
+<td><p>No</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;wrfaorc_calib_nlcd2016&quot;</span></code></p></td>
+<td><p>WRF-Hydro AORC calibrated</p></td>
+<td><p>1979-10-01 to 2021-12-31</p></td>
+<td><p>NCAR^</p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;wrfaorc_withObsScaled&quot;</span></code></p></td>
+<td><p>WRF-Hydro AORC calibrated with scaled Observations</p></td>
+<td><p>1979-10-01 to 2021-12-31</p></td>
+<td><p>NCAR^</p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;wrf1960s_calib_nlcd2016&quot;</span></code></p></td>
+<td><p>WRF-Hydro 1960s drought</p></td>
+<td><p>1959-10-01 to 1969-12-31</p></td>
+<td><p>NCAR^</p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;wrf2050s_calib_nlcd2016&quot;</span></code></p></td>
+<td><p>WRF-Hydro +2°C climate scenario</p></td>
+<td><p>1959-10-01 to 1969-12-31*</p></td>
+<td><p>NCAR^</p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;pub_nhmv10_BC_withObsScaled&quot;</span></code></p></td>
+<td><p>Reconstructed streamflow (median)</p></td>
+<td><p>1945-01-01 to 2023-12-31</p></td>
+<td><p>Amestoy &amp; Reed (In Review)</p></td>
+<td><p>Yes</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul class="simple">
+<li><p>^ National Center for Atmospheric Research. Publication unavailable.</p></li>
+<li><p>* The <code class="docutils literal notranslate"><span class="pre">&quot;wrf2050s_calib_nlcd2016&quot;</span></code> scenario is meant to represent the drought of record (1960s) during a +2C warming scenario (2050). In the <code class="docutils literal notranslate"><span class="pre">pywrdrb</span></code> code, we adopt the 1959-1969 datetime index such that it is more easily compared to other simulation timeseries during the historic period.</p></li>
+</ul>
+</section>
+<section id="added-support-for-customized-datasets">
+<h3>5 Added support for customized datasets<a class="headerlink" href="#added-support-for-customized-datasets" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The new code is designed to support custom streamflow datasets provided by the user.</p></li>
+<li><p>This is done using the <code class="docutils literal notranslate"><span class="pre">pywrdrb.pre</span></code> module.</p></li>
+<li><p>Users must have a single CSV file with full natural flow estimates at all model nodes, and have them labeled using the node labels.</p></li>
+<li><p>Then, we provide the <code class="docutils literal notranslate"><span class="pre">PredictedInflowPreprocessor</span></code> to generate supporting input data required for the simulation.</p></li>
+<li><p>See advanced tutorials for the detailed custom dataset workflows.</p></li>
+</ul>
+</section>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
+<p>Hamilton, A. L., Amestoy, T. J., &amp; Reed, P. M. (2024). Pywr-DRB: An open-source Python model for water availability and drought risk assessment in the Delaware River Basin. Environmental Modelling &amp; Software, 181, 106185. <a class="reference external" href="https://doi.org/10.1016/j.envsoft.2024.106185">https://doi.org/10.1016/j.envsoft.2024.106185</a></p>
+<p>Amestoy, T. J. &amp; Reed, P. M., (In Review) Integrated River Basin Assessment Framework Combining Probabilistic Streamflow Reconstruction, Bayesian Bias Correction, and Drought Storyline Analysis. Available at SSRN: <a class="reference external" href="https://ssrn.com/abstract=5240633">https://ssrn.com/abstract=5240633</a> or <a class="reference external" href="http://dx.doi.org/10.2139/ssrn.5240633">http://dx.doi.org/10.2139/ssrn.5240633</a></p>
+<p>Hay, L.E., and LaFontaine, J.H., 2020, Application of the National Hydrologic Model Infrastructure with the Precipitation-Runoff Modeling System (NHM-PRMS),1980-2016, Daymet Version 3 calibration: U.S. Geological Survey data release, <a class="reference external" href="https://doi.org/10.5066/P9PGZE0S">https://doi.org/10.5066/P9PGZE0S</a>.</p>
+<p>Blodgett, D.L., 2022, National Water Model V2.1 retrospective for selected NWIS gage locations, (1979-2020): U.S. Geological Survey data release, <a class="reference external" href="https://doi.org/10.5066/P9K5BEJG">https://doi.org/10.5066/P9K5BEJG</a>.</p>
+<p>Gorski, G., Cook, S., Snyder, A., Appling, A. P., Thompson, T., Smith, J. D.,
+Warner, J. C., &amp; Topp, S. N. (2024). Deep learning of estuary salinity dynamics is physically accurate at a fraction of hydrodynamic model computational cost. Limnology and Oceanography, 69(5), 1070–1085. <a class="reference external" href="https://doi.org/10.1002/lno.12549">https://doi.org/10.1002/lno.12549</a></p>
+<p>Zwart, J. A., Oliver, S. K., Watkins, W. D., Sadler, J. M., Appling, A. P., Corson‐Dosch, H. R., … &amp; Read, J. S. (2023). Near‐term forecasts of stream temperature using deep learning and data assimilation in support of management decisions. JAWRA Journal of the American Water Resources Association, 59(2), 317-337.</p>
+</section>
+<hr class="docutils" />
+<section id="v2-0-0-beta-2025-05-28">
+<h2>v2.0.0 - beta (2025-05-28)<a class="headerlink" href="#v2-0-0-beta-2025-05-28" title="Link to this heading">#</a></h2>
+</section>
+<section id="id5">
+<h2>Overview<a class="headerlink" href="#id5" title="Link to this heading">#</a></h2>
+<p>Pywr-DRB v2.0.0 - beta is a pre-release version for a broader review before full v2.0.0 release.</p>
+<p>Pywr-DRB v2.0.0 - beta includes a major re-structure and modularization of the Pywr-DRB v1.0.2 (Hamilton et al., 2024), which emphasizes on improving the user interfaces for flexibility and ease of use. This version also greatly improves runtime efficiency and model fidelity by adding water temperature prediction and salt front location prediction capabilities while maintaining much of the core reservoir, diversion, regulatory and management functionality as the prior versions.</p>
+</section>
+<section id="id6">
+<h2>Links and References<a class="headerlink" href="#id6" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/Pywr-DRB/Pywr-DRB">Pywr-DRB Repository</a></p></li>
+<li><p><a class="reference external" href="https://pywr-drb.github.io/Pywr-DRB/intro.html">Pywr-DRB Documentation</a></p></li>
+<li><p><a class="reference external" href="https://doi.org/10.5281/zenodo.10720011">Pywr-DRB DOI <img alt="DOI" src="https://zenodo.org/badge/479150651.svg" /></a></p></li>
+</ul>
+</section>
+<section id="id7">
+<h2>Major Updates<a class="headerlink" href="#id7" title="Link to this heading">#</a></h2>
+<section id="id8">
+<h3>1. Modularization &amp; Packaging<a class="headerlink" href="#id8" title="Link to this heading">#</a></h3>
+<ul>
+<li><p>Modularize the code and introduce new <code class="docutils literal notranslate"><span class="pre">pywrdrb</span></code> <a class="reference external" href="https://pywr-drb.github.io/Pywr-DRB/api/api.html">API</a>, relative to that used in Hamilton et al. (2024) seeks to:</p>
+<ul class="simple">
+<li><p>Improve standardization (e.g., file naming conventions, workflows, docstrings)</p></li>
+<li><p>Add flexibility for running simulations with different scenarios, settings and options</p></li>
+<li><p>Improve runtime efficiency</p></li>
+<li><p>Improve code reliability (e.g., unit testing and more detailed package dependency specifications)</p></li>
+<li><p>Introduce object-oriented interface:</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># v2.0.0 approach - object-oriented interface</span>
+
+<span class="n">mb</span> <span class="o">=</span> <span class="n">pywrdrb</span><span class="o">.</span><span class="n">ModelBuilder</span><span class="p">(</span>
+    <span class="n">inflow_type</span><span class="o">=</span><span class="s1">&#39;nhmv10_withObsScaled&#39;</span><span class="p">,</span>
+    <span class="n">start_date</span><span class="o">=</span><span class="s2">&quot;2020-01-01&quot;</span><span class="p">,</span>
+    <span class="n">end_date</span><span class="o">=</span><span class="s2">&quot;2020-12-31&quot;</span>
+<span class="p">)</span>
+<span class="n">mb</span><span class="o">.</span><span class="n">make_model</span><span class="p">()</span>
+<span class="n">mb</span><span class="o">.</span><span class="n">write_model</span><span class="p">(</span><span class="s2">&quot;model.json&quot;</span><span class="p">)</span>
+
+<span class="c1"># Load model</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">pywrdrb</span><span class="o">.</span><span class="n">Model</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;model.json&quot;</span><span class="p">)</span>
+<span class="n">recorder</span> <span class="o">=</span> <span class="n">pywrdrb</span><span class="o">.</span><span class="n">OutputRecorder</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+    <span class="n">output_filename</span><span class="o">=</span><span class="n">output_filename</span><span class="p">,</span>
+    <span class="n">parameters</span><span class="o">=</span><span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">parameters</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+    <span class="p">)</span>
+
+<span class="c1"># Execute the simulation</span>
+<span class="n">stats</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</li>
+<li><p>Adopts <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> to handle dependencies installation &amp; package specifications that allows for simple <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">pywrdrb</span></code></p></li>
+<li><p>All of the data is now stored in a standardized format within <a class="reference external" href="https://github.com/Pywr-DRB/Pywr-DRB/tree/master/src/pywrdrb/data"><code class="docutils literal notranslate"><span class="pre">Pywr-DRB/src/pywrdrb/data/</span></code></a></p></li>
+</ul>
+<section id="id9">
+<h4>Key modules &amp; classes<a class="headerlink" href="#id9" title="Link to this heading">#</a></h4>
+<p><img alt="alt text" src="docs/images/pywrdrb_v2_modules.png" /></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">DataPreprocessor</span> <span class="pre">classes</span></code>:</p>
+<ul>
+<li><p>Create necessary model inputs from the raw datasets (e.g., hydrological data).</p></li>
+<li><p>Retrieve latest observed data (e.g., gauge flows and reservoir storages).</p></li>
+<li><p>This module enable sustainable and customizable use of the model to run with latest information and user-provided inputs.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pywrdrb.path_manager</span></code>:</p>
+<ul>
+<li><p>Adopt <a class="reference external" href="https://github.com/philip928lin/PathNavigator"><code class="docutils literal notranslate"><span class="pre">pathnavigator</span></code></a> for better path management that enable linking external custom datasets to pywrdrb.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pywrdrb.ModelBuilder</span></code>:</p>
+<ul>
+<li><p>Modularize the model building process for customizing simulation settings.</p></li>
+<li><p>Write a model to JSON model file</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pywrdrb.OutputRecorder</span></code>:</p>
+<ul>
+<li><p>Enable subset output variables to reduce memory burden.</p></li>
+<li><p>Improve runtime speed by avoiding frequent IO and utilizing internal memory.</p></li>
+<li><p>This enable future large-scale experiments.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pywrdrb.Data</span></code>:</p>
+<ul>
+<li><p>Convert internal variable names into user-friendly names.</p></li>
+<li><p>Allow loading multiple output files</p></li>
+<li><p>Enable loading subset of outputs to enhance loading speed.</p></li>
+<li><p>This enable smooth comparison across simulation runs.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+<section id="id10">
+<h3>2. Improved policy representation with respect to Trenton flow target<a class="headerlink" href="#id10" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Pywr-DRB <code class="docutils literal notranslate"><span class="pre">v1.0.2</span></code> error incorrectly required NYC reservoirs to maintain the Trenton Equivalent Flow Objective at all times, which is inaccurate relative to the actual basin policy, which only requires NYC to maintain the Montague Flow Objective.</p></li>
+<li><p>Pywr-DRB <code class="docutils literal notranslate"><span class="pre">v2.0.0</span></code> correction: Implements the constrained Interim Excess Release Quantity (IERQ) Trenton flow bank as described by the <a class="reference external" href="https://www.nj.gov/drbc/programs/flow/FFMP_PerformanceRpts.html">Flexible Flow Management Program</a>; NYC reservoirs have an annual allocation of 6.09 billion gallons for the Trenton Equivalent Flow Objective.</p>
+<ul>
+<li><p>NYC reservoirs are required to maintain only the Montague flow target, as specified by the <a class="reference external" href="https://supreme.justia.com/cases/federal/us/347/995/">1954 US Supreme Court Decree.</a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">IERQRelease</span></code> parameter (<code class="docutils literal notranslate"><span class="pre">pywrdrb/parameters/banks.py</span></code>) tracks bank usage and enforces constraints on NYC releases used for the Trenton Flow Objective. Bank resets each June 1st as specified in FFMP regulations</p>
+<ul>
+<li><p>In the latest version, we limit the annual NYC releases for Trenton to 6.02BG</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id11">
+<h3>3. Enabled water temperature &amp; salt front location prediction capabilities<a class="headerlink" href="#id11" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Added custom parameters to couple LSTM models with <a class="reference internal" href="#github.com/philip928lin/PywrDRB-ML"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">PywrDRB-ML</span></code></span></a> plug-in to predict 1) daily maximum water temperature at Lordville and 2) 7-day averaged salt front location in river mile.</p></li>
+<li><p>The <a class="reference internal" href="#github.com/philip928lin/PywrDRB-ML"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">PywrDRB-ML</span></code></span></a> plug-in is currently private pending publication, but may be available upon request.</p></li>
+</ul>
+<section id="id12">
+<h4>Designed LSTMs’ capability<a class="headerlink" href="#id12" title="Link to this heading">#</a></h4>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Model</p></th>
+<th class="head"><p>From</p></th>
+<th class="head"><p>To</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>TempLSTM</p></td>
+<td><p>1/1/1979</p></td>
+<td><p>12/31/2023</p></td>
+</tr>
+<tr class="row-odd"><td><p>SalinityLSTM</p></td>
+<td><p>10/1/1963</p></td>
+<td><p>12/31/2023</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="id13">
+<h4>Temperature LSTM model<a class="headerlink" href="#id13" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>The temperature model is developed based on Zwart et al. (2023). In order to fit to the control purpose, we construct TempLSTM1 to predict the Cannonsville downstream gauge temperature (T_C) and TempLSTM2 to predict the East Branch flow and the natural flow to Lordville (T_i).</p></li>
+<li><p>The final water temperature at Lordville (T_L) is calculated by mapping the average temperature (Tavg) to the maximum temperature (T_L) using a random forest model.</p></li>
+</ul>
+</section>
+<section id="id14">
+<h4>Salinity LSTM model<a class="headerlink" href="#id14" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>The Salinity LSTM model is developed based on Gorski et al. (2024). We rebuild the model using the LSTM and BMI sturcture derived from Zwart et al. (2023) to predict 7-day averaged salt front location in river mile at each timestep.</p></li>
+<li><p>Note that the salt front location has not yet be integrated into Montague and Trenton flow target operations.</p></li>
+</ul>
+</section>
+</section>
+<section id="id15">
+<h3>4. Expanded number of pre-packaged streamflow scenarios<a class="headerlink" href="#id15" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The original code used in Hamilton et al. (2024) only supported Pywr-DRB simulations using 4 hydrologic inflow datasets:</p>
+<ul>
+<li><p>NHM version 1.0</p></li>
+<li><p>NHM version 1.0 with scaled observational inflows at some reservoirs</p></li>
+<li><p>NWM version 2.1</p></li>
+<li><p>NWM version 2.1 with scaled observational inflows at some reservoirs</p></li>
+</ul>
+</li>
+<li><p>The latest version adds the following hydrologic inflow scenarios:</p>
+<ul>
+<li><p>WRF-Hydro simulated flow during the AORC period</p></li>
+<li><p>WRF-Hydro simulated flow during the AORC period with scaled observational inflows at some reservoirs</p></li>
+<li><p>WRF-Hydro simulated flow during the 1960s drought</p></li>
+<li><p>WRF-Hydro simulated flow during the 1960s drought, under a +2C climate scenario</p></li>
+</ul>
+</li>
+<li><p>All of these inflow scenarios come pre-packaged with the <code class="docutils literal notranslate"><span class="pre">pywrdrb</span></code> source code, and are ready for simulation. The table below summarizes the scenarios, lists their scenario keys and provides their simulation periods.</p></li>
+</ul>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Scenario Key</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Simulation Period</p></th>
+<th class="head"><p>Source</p></th>
+<th class="head"><p>New to Pywr-DRB v2.0?</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;nhmv10&quot;</span></code></p></td>
+<td><p>National Hydrologic Model v1.0</p></td>
+<td><p>1983-10-01 to 2016-12-31</p></td>
+<td><p>Hay &amp; LaFontain (2020)</p></td>
+<td><p>No</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;nhmv10_withObsScaled&quot;</span></code></p></td>
+<td><p>NHM v1.0 with scaled observations</p></td>
+<td><p>1983-10-01 to 2016-12-31</p></td>
+<td><p>Hamilton et al. (2024)</p></td>
+<td><p>No</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;nwmv21&quot;</span></code></p></td>
+<td><p>National Water Model v2.1</p></td>
+<td><p>1983-10-01 to 2016-12-31</p></td>
+<td><p>Blodgett (2022)</p></td>
+<td><p>No</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;nwmv21_withObsScaled&quot;</span></code></p></td>
+<td><p>NWM v2.1 with scaled observations</p></td>
+<td><p>1983-10-01 to 2016-12-31</p></td>
+<td><p>Hamilton et al. (2024)</p></td>
+<td><p>No</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;wrfaorc_calib_nlcd2016&quot;</span></code></p></td>
+<td><p>WRF-Hydro AORC calibrated</p></td>
+<td><p>1979-10-01 to 2021-12-31</p></td>
+<td><p>NCAR^</p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;wrfaorc_withObsScaled&quot;</span></code></p></td>
+<td><p>WRF-Hydro AORC calibrated with scaled Observations</p></td>
+<td><p>1979-10-01 to 2021-12-31</p></td>
+<td><p>NCAR^</p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;wrf1960s_calib_nlcd2016&quot;</span></code></p></td>
+<td><p>WRF-Hydro 1960s drought</p></td>
+<td><p>1959-10-01 to 1969-12-31</p></td>
+<td><p>NCAR^</p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;wrf2050s_calib_nlcd2016&quot;</span></code></p></td>
+<td><p>WRF-Hydro +2°C climate scenario</p></td>
+<td><p>1959-10-01 to 1969-12-31*</p></td>
+<td><p>NCAR^</p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;pub_nhmv10_BC_withObsScaled&quot;</span></code></p></td>
+<td><p>Reconstructed streamflow (median)</p></td>
+<td><p>1945-01-01 to 2023-12-31</p></td>
+<td><p>Amestoy &amp; Reed (In Review)</p></td>
+<td><p>Yes</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul class="simple">
+<li><p>^ National Center for Atmospheric Research. Publication unavailable.</p></li>
+<li><p>* The <code class="docutils literal notranslate"><span class="pre">&quot;wrf2050s_calib_nlcd2016&quot;</span></code> scenario is meant to represent the drought of record (1960s) during a +2C warming scenario (2050). In the <code class="docutils literal notranslate"><span class="pre">pywrdrb</span></code> code, we adopt the 1959-1969 datetime index such that it is more easily compared to other simulation timeseries during the historic period.</p></li>
+</ul>
+</section>
+<section id="id16">
+<h3>5 Added support for customized datasets<a class="headerlink" href="#id16" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The new code is designed to support custom streamflow datasets provided by the user.</p></li>
+<li><p>This is done using the <code class="docutils literal notranslate"><span class="pre">pywrdrb.pre</span></code> module.</p></li>
+<li><p>Users must have a single CSV file with full natural flow estimates at all model nodes, and have them labeled using the node labels.</p></li>
+<li><p>Then, we provide the <code class="docutils literal notranslate"><span class="pre">PredictedInflowPreprocessor</span></code> to generate supporting input data required for the simulation.</p></li>
+<li><p>See advanced tutorials for the detailed custom dataset workflows.</p></li>
+</ul>
+</section>
+</section>
+<section id="id17">
+<h2>References<a class="headerlink" href="#id17" title="Link to this heading">#</a></h2>
+<p>Hamilton, A. L., Amestoy, T. J., &amp; Reed, P. M. (2024). Pywr-DRB: An open-source Python model for water availability and drought risk assessment in the Delaware River Basin. Environmental Modelling &amp; Software, 181, 106185. <a class="reference external" href="https://doi.org/10.1016/j.envsoft.2024.106185">https://doi.org/10.1016/j.envsoft.2024.106185</a></p>
+<p>Amestoy, T. J. &amp; Reed, P. M., (In Review) Integrated River Basin Assessment Framework Combining Probabilistic Streamflow Reconstruction, Bayesian Bias Correction, and Drought Storyline Analysis. Available at SSRN: <a class="reference external" href="https://ssrn.com/abstract=5240633">https://ssrn.com/abstract=5240633</a> or <a class="reference external" href="http://dx.doi.org/10.2139/ssrn.5240633">http://dx.doi.org/10.2139/ssrn.5240633</a></p>
+<p>Hay, L.E., and LaFontaine, J.H., 2020, Application of the National Hydrologic Model Infrastructure with the Precipitation-Runoff Modeling System (NHM-PRMS),1980-2016, Daymet Version 3 calibration: U.S. Geological Survey data release, <a class="reference external" href="https://doi.org/10.5066/P9PGZE0S">https://doi.org/10.5066/P9PGZE0S</a>.</p>
+<p>Blodgett, D.L., 2022, National Water Model V2.1 retrospective for selected NWIS gage locations, (1979-2020): U.S. Geological Survey data release, <a class="reference external" href="https://doi.org/10.5066/P9K5BEJG">https://doi.org/10.5066/P9K5BEJG</a>.</p>
+<p>Gorski, G., Cook, S., Snyder, A., Appling, A. P., Thompson, T., Smith, J. D.,
+Warner, J. C., &amp; Topp, S. N. (2024). Deep learning of estuary salinity dynamics is physically accurate at a fraction of hydrodynamic model computational cost. Limnology and Oceanography, 69(5), 1070–1085. <a class="reference external" href="https://doi.org/10.1002/lno.12549">https://doi.org/10.1002/lno.12549</a></p>
+<p>Zwart, J. A., Oliver, S. K., Watkins, W. D., Sadler, J. M., Appling, A. P., Corson‐Dosch, H. R., … &amp; Read, J. S. (2023). Near‐term forecasts of stream temperature using deep learning and data assimilation in support of management decisions. JAWRA Journal of the American Water Resources Association, 59(2), 317-337.</p>
+</section>
+<hr class="docutils" />
+<section id="v1-0-2-2024-8-04">
+<h2>v1.0.2 (2024-8-04)<a class="headerlink" href="#v1-0-2-2024-8-04" title="Link to this heading">#</a></h2>
+<section id="id18">
+<h3>Overview<a class="headerlink" href="#id18" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>This release contains all code needed to create the analysis and figures in the following paper:</p></li>
+</ul>
+<p>Hamilton, A.L., Amestoy, T.J., &amp; P.M. Reed. (2024). Pywr-DRB: An open-source Python model for water availability and drought risk assessment in the Delaware River Basin. (In Review) Environmental Modeling and Software.</p>
+</section>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="model_options.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">ModelBuilder Options</p>
+      </div>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v2-2-0-2026-07-28">v2.2.0 (2026-07-28)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-functionality">New Functionality</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#new-flow-prediction-mode-option-in-modelbuilder">1. New <code class="docutils literal notranslate"><span class="pre">flow_prediction_mode</span></code> option in <code class="docutils literal notranslate"><span class="pre">ModelBuilder</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#regenerated-predicted-inflows-mgd-csv-and-predicted-diversions-mgd-csv">1.1 Regenerated <code class="docutils literal notranslate"><span class="pre">predicted_inflows_mgd.csv</span></code> and <code class="docutils literal notranslate"><span class="pre">predicted_diversions_mgd.csv</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#starfitofflinesimulator-for-offline-reservoir-simulation">2. <code class="docutils literal notranslate"><span class="pre">STARFITOfflineSimulator</span></code> for offline reservoir simulation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#use-custom-starfit-parameters">3. Use custom STARFIT parameters</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#updated-default-starfit-parameters-for-fe-walter-beltzville-blue-marsh-and-prompton">4. Updated default STARFIT parameters for FE Walter, Beltzville, Blue Marsh, and Prompton</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#prompton-release-gauge-added-to-observed-data">4.1 Prompton release gauge added to observed data</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#updated-observed-data-records">Updated Observed Data Records</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bug-fixes">Bug Fixes</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fixed-scenario-indexing-in-ensemble-simulations">1. Fixed scenario indexing in ensemble simulations</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fixed-ensemble-realization-id-handling-in-preprocessors">2. Fixed ensemble realization ID handling in preprocessors</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#starfit-releases-now-enforce-the-minimum-release-in-all-storage-conditions">3. STARFIT releases now enforce the minimum release in all storage conditions</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v2-1-0">v2.1.0</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Bug Fixes</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fixed-bug-in-predictedinflowpreprocessor">1. Fixed bug in <code class="docutils literal notranslate"><span class="pre">PredictedInflowPreprocessor</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#fixed-predicted-inflows-mgd-csv-for-certain-pre-packaged-datasets">1.1 Fixed <code class="docutils literal notranslate"><span class="pre">predicted_inflows_mgd.csv</span></code> for certain pre-packaged datasets</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fixed-lower-basin-release-accounting-for-trenton-flow-target">2. Fixed lower basin release accounting for Trenton flow target</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#improved-trenton-equivalent-flow-calculation">Improved Trenton Equivalent Flow Calculation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#updated-ml-temperature-and-salinity-modeling-capabilities">Updated ML temperature and salinity modeling capabilities</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">New Functionality</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#use-custom-diversion-data">Use custom diversion data</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#extrapolateddiversionpreprocessor-to-generate-for-custom-diversion-data"><code class="docutils literal notranslate"><span class="pre">ExtrapolatedDiversionPreprocessor</span></code> to generate for custom diversion data</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#predicteddiversionensemblepreprocessor-to-support-custom-inflow-ensemble-simulation"><code class="docutils literal notranslate"><span class="pre">PredictedDiversionEnsemblePreprocessor</span></code> to support custom inflow ensemble simulation</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v2-0-1">v2.0.1</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#package-dependencies">Package Dependencies</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#minor-bug-fixes-and-updates">Minor Bug Fixes and Updates</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywrdrb-data-updates"><code class="docutils literal notranslate"><span class="pre">pywrdrb.Data()</span></code> Updates</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-modifying-exporting-and-re-loading-data-objects">Example: Modifying, exporting and re-loading data objects</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-loading-custom-hydrologic-data-using-pywrdrb-data">Example: Loading custom hydrologic data using <code class="docutils literal notranslate"><span class="pre">pywrdrb.Data()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v2-0-0-2025">v2.0.0 (2025)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#links-and-references">Links and References</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#major-updates">Major Updates</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#modularization-packaging">1. Modularization &amp; Packaging</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#key-modules-classes">Key modules &amp; classes</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#improved-policy-representation-with-respect-to-trenton-flow-target">2. Improved policy representation with respect to Trenton flow target</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#enabled-water-temperature-salt-front-location-prediction-capabilities">3. Enabled water temperature &amp; salt front location prediction capabilities</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#designed-lstms-capability">Designed LSTMs’ capability</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#temperature-lstm-model">Temperature LSTM model</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#salinity-lstm-model">Salinity LSTM model</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#expanded-number-of-pre-packaged-streamflow-scenarios">4. Expanded number of pre-packaged streamflow scenarios</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#added-support-for-customized-datasets">5 Added support for customized datasets</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v2-0-0-beta-2025-05-28">v2.0.0 - beta (2025-05-28)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">Links and References</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">Major Updates</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">1. Modularization &amp; Packaging</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">Key modules &amp; classes</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">2. Improved policy representation with respect to Trenton flow target</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">3. Enabled water temperature &amp; salt front location prediction capabilities</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">Designed LSTMs’ capability</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">Temperature LSTM model</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">Salinity LSTM model</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id15">4. Expanded number of pre-packaged streamflow scenarios</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">5 Added support for customized datasets</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id17">References</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-0-2-2024-8-04">v1.0.2 (2024-8-04)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id18">Overview</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The Reed Group at Cornell CEE
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

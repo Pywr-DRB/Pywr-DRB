@@ -17,6 +17,7 @@
       ~ObservationalDataRetriever.elevation_to_storage
       ~ObservationalDataRetriever.get
       ~ObservationalDataRetriever.load
+      ~ObservationalDataRetriever.plot_storage_diagnostics
       ~ObservationalDataRetriever.process
       ~ObservationalDataRetriever.save
    

@@ -17,7 +17,10 @@
       ~ExtrapolatedDiversionPreprocessor.get_overlapping_timespan
       ~ExtrapolatedDiversionPreprocessor.get_quarter
       ~ExtrapolatedDiversionPreprocessor.get_random_prediction_sample
+      ~ExtrapolatedDiversionPreprocessor.get_random_prediction_samples_vectorized
       ~ExtrapolatedDiversionPreprocessor.load
+      ~ExtrapolatedDiversionPreprocessor.load_extrapolation_data
+      ~ExtrapolatedDiversionPreprocessor.load_training_data
       ~ExtrapolatedDiversionPreprocessor.plot
       ~ExtrapolatedDiversionPreprocessor.plot_diversions
       ~ExtrapolatedDiversionPreprocessor.plot_regressions
