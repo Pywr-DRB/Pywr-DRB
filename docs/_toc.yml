@@ -15,8 +15,10 @@ parts:
           file: api/parameters.rst
         - title: pywrdrb.pre
           file: api/pre.rst
-        # - title: pywrdrb.utils
-        #   file: api/utils.rst
+        - title: pywrdrb.post
+          file: api/post.rst
+        - title: pywrdrb.utils
+          file: api/utils.rst
 
     # =============== Examples =================
     - file: examples/examples.md
@@ -43,3 +45,6 @@ parts:
 
     # ============== ModelBuilder options ====
     - file: model_options.md
+
+    # ============== Release notes ============
+    - file: release_notes.md

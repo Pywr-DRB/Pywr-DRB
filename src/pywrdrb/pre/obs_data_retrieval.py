@@ -644,7 +644,7 @@ class ObservationalDataRetriever(DataPreprocessor):
         ----------
         save_dir : str, optional
             Directory to write PNG files into. Defaults to
-            ``experiments/observed_storage_diagnostics`` relative to CWD.
+            ``observed_storage_diagnostics`` relative to CWD.
         show : bool, optional
             If True, call ``plt.show()`` after saving. Default False.
 
@@ -657,7 +657,7 @@ class ObservationalDataRetriever(DataPreprocessor):
         import matplotlib.dates as mdates
 
         if save_dir is None:
-            save_dir = os.path.join("experiments", "observed_storage_diagnostics")
+            save_dir = "observed_storage_diagnostics"
         os.makedirs(save_dir, exist_ok=True)
 
         if self.storages is None:

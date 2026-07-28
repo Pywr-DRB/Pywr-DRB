@@ -1,10 +1,10 @@
 # Pywr-DRB Release Notes
 
-## v2.2.0 - beta (2026-07-21)
+## v2.2.0 (2026-07-28)
 
 ## Overview
 
-Pywr-DRB v2.2.0 adds a new `perfect_foresight` flow prediction mode, a new `STARFITOfflineSimulator` class which simulates STARFIT reservoir releases outside of the Pywr-DRB simulation, and the ability to run the model with custom STARFIT parameters. The pre-packaged observed flow and storage records have been extended through May 2026, with an improved NYC reservoir storage record. This release also contains bug fixes for ensemble simulations run using MPI.
+Pywr-DRB v2.2.0 adds a new `perfect_foresight` flow prediction mode, a new `STARFITOfflineSimulator` class which simulates STARFIT reservoir releases outside of the Pywr-DRB simulation, and the ability to run the model with custom STARFIT parameters. The pre-packaged observed flow and storage records have been extended through July 2026, with an improved NYC reservoir storage record. This release also contains bug fixes for ensemble simulations run using MPI.
 
 ## New Functionality
 
@@ -82,13 +82,17 @@ The prior default parameter values are retained in `istarf_conus.csv` under new 
 
 The packaged `perfect_foresight` prediction files were re-generated using the updated default parameters, since the pre-simulated STARFIT releases embedded in those predictions are computed from the default parameter set.
 
+The figure below compares observed storage dynamics against offline STARFIT simulations (driven by `pub_nhmv10_BC_withObsScaled` catchment inflows) using the v2.1 and v2.2 default parameters. Each panel shows the seasonal (day-of-year) median and interquartile range of storage as a fraction of the v2.2 capacity, over each reservoir's observed storage record. Note the offline simulation represents pure STARFIT behavior only — the FFMP / Trenton-contribution logic that also influences Beltzville and Blue Marsh releases in the full model is not included.
+
+![Observed vs v2.1 and v2.2 default STARFIT storage dynamics](https://raw.githubusercontent.com/Pywr-DRB/Pywr-DRB/master/docs/images/starfit_v22_default_comparison.png)
+
 #### 4.1 Prompton release gauge added to observed data
 
 The Prompton release gauge (USGS 01429000, Lackawaxen River at Prompton) is now retrieved with the observational data and included as its own column (`01429000`) in `gage_flow_mgd.csv`. Prompton has no downstream gauge node in the model network, so this record is provided for observation comparisons such as evaluating simulated Prompton releases.
 
 ## Updated Observed Data Records
 
-The pre-packaged observed data records (`gage_flow_mgd.csv`, `catchment_inflow_mgd.csv`, `reservoir_storage_mg.csv`) have been re-generated and now extend through 2026-05-04.
+The pre-packaged observed data records (`gage_flow_mgd.csv`, `catchment_inflow_mgd.csv`, `reservoir_storage_mg.csv`) have been re-generated and now extend through 2026-07-20.
 
 The NYC reservoir storage records (`cannonsville`, `pepacton`, `neversink`) have been improved:
 
@@ -615,5 +619,3 @@ Zwart, J. A., Oliver, S. K., Watkins, W. D., Sadler, J. M., Appling, A. P., Cors
 - This release contains all code needed to create the analysis and figures in the following paper:
 
 Hamilton, A.L., Amestoy, T.J., & P.M. Reed. (2024). Pywr-DRB: An open-source Python model for water availability and drought risk assessment in the Delaware River Basin. (In Review) Environmental Modeling and Software.
-
----

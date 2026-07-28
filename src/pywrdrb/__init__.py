@@ -8,6 +8,13 @@ the pywrdrb functionalities.
 Change Log:
 Chung-Yi Lin, 2025-05-02, None
 """
+from importlib.metadata import version as _version, PackageNotFoundError as _PackageNotFoundError
+
+try:
+    __version__ = _version("pywrdrb")
+except _PackageNotFoundError:
+    __version__ = "unknown"
+
 # Import pywr modules to be accessed through pywrdrb
 from pywr.model import Model
 

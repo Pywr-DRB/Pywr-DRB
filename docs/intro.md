@@ -4,7 +4,7 @@
 :::{admonition} **New Release:**
 :class: tip
 
-Pywr-DRB v2.2.0-beta is now available [on GitHub!](https://github.com/Pywr-DRB/Pywr-DRB)
+Pywr-DRB v2.2.0 is now available [on GitHub!](https://github.com/Pywr-DRB/Pywr-DRB) See the [release notes](release_notes.md) for what's new.
 :::
 
 Pywr-DRB is a water resources model of the Delaware River Basin (DRB) designed to improve our understanding of water availability, drought risk, and long-term water supply planning within the Basin.
@@ -57,7 +57,7 @@ For more general setup and background, see the
 ## Citation and DOI
 If you are using the package, we kindly ask that you acknowledge both the model and the associated publication.
 
-1. Model: Lin, C.Y., Amestoy, T., Smith, M., Hamilton, A., & Reed, P. (2025). Pywr‑DRB v2.0.0 [Software]. Zenodo. https://doi.org/10.5281/zenodo.15659955
+1. Model: Lin, C.Y., Amestoy, T., Smith, M., Hamilton, A., & Reed, P. (2026). Pywr‑DRB v2.2.0 [Software]. Zenodo. https://doi.org/10.5281/zenodo.10720011
 
 2. Paper: Hamilton, A. L., Amestoy, T. J., & Reed, Patrick. M. (2024). Pywr-DRB: An open-source Python model for water availability and drought risk assessment in the Delaware River Basin. Environmental Modelling & Software, 106185. https://doi.org/10.1016/j.envsoft.2024.106185
 
