@@ -49,11 +49,14 @@ pywrdrb_results_set_descriptions = {
     "mrf_targets": "streamflow targets for Montague and Trenton (MGD).",
     "all_mrf": "All MRF data.",
     "temperature": "Temperature data.",
-    "salinity": "Salt front location."
+    "salinity": "Salt front location.",
+    "flood_stage": "Stage height at flood monitoring locations (ft).",
+    "flood_level": "Flood level category at monitoring locations (0=Normal, 1=Action, 2=Minor, 3=Moderate, 4=Major).",
+    "flood_gage_flow": "Observed streamflow at flood monitoring USGS gauges (MGD)."
 }
 
 
 # Different results_set options which are available for different datasets
 pywrdrb_results_set_opts = list(pywrdrb_results_set_descriptions.keys())
-obs_results_set_opts = ['major_flow', 'reservoir_downstream_gage', 'res_storage']
+obs_results_set_opts = ['major_flow', 'reservoir_downstream_gage', 'res_storage', 'flood_gage_flow']
 hydrologic_model_results_set_opts = ['all', 'major_flow', 'reservoir_downstream_gage']

@@ -21,6 +21,8 @@ Change Log:
 TJA, 2025-05-02, Added consistent docstrings.
 """
 
+import warnings
+
 import numpy as np
 import pandas as pd
 import h5py
@@ -29,14 +31,17 @@ from pywrdrb.utils.constants import mg_to_mcm
 from pywrdrb.utils.results_sets import pywrdrb_results_set_opts
 from pywrdrb.utils.lists import (
     reservoir_list,
+    reservoir_set,
     reservoir_list_nyc,
     majorflow_list,
+    majorflow_set,
     reservoir_link_pairs,
-    drbc_lower_basin_reservoirs
+    reservoir_link_pairs_values_set,
+    reservoir_link_pairs_keys_set,
+    drbc_lower_basin_reservoirs,
 )
 
 from pywrdrb.load.abstract_loader import AbstractDataLoader, default_kwargs
-from pywrdrb.utils.hdf5 import get_n_scenarios_from_pywrdrb_output_file
 
 
 class Output(AbstractDataLoader):
@@ -204,7 +209,7 @@ class Output(AbstractDataLoader):
                 k
                 for k in keys
                 if k.split("_")[0] == "link"
-                and k.split("_")[1] in reservoir_link_pairs.values()
+                and k.split("_")[1] in reservoir_link_pairs_values_set
             ]
             col_names = []
             for k in keys_with_link:
@@ -221,8 +226,8 @@ class Output(AbstractDataLoader):
                 k
                 for k in keys
                 if k.split("_")[0] == "outflow"
-                and k.split("_")[1] in reservoir_list
-                and k.split("_")[1] not in reservoir_link_pairs.keys()
+                and k.split("_")[1] in reservoir_set
+                and k.split("_")[1] not in reservoir_link_pairs_keys_set
             ]
             for k in keys_without_link:
                 col_names.append(k.split("_")[1])
@@ -232,7 +237,7 @@ class Output(AbstractDataLoader):
             keys = [
                 k
                 for k in keys
-                if k.split("_")[0] == "reservoir" and k.split("_")[1] in reservoir_list
+                if k.split("_")[0] == "reservoir" and k.split("_")[1] in reservoir_set
             ]
             col_names = [k.split("_")[1] for k in keys]
             
@@ -243,7 +248,7 @@ class Output(AbstractDataLoader):
             keys = [
                 k
                 for k in keys
-                if k.split("_")[0] == "link" and k.split("_")[1] in majorflow_list
+                if k.split("_")[0] == "link" and k.split("_")[1] in majorflow_set
             ]
             col_names = [k.split("_")[1] for k in keys]
         elif results_set == "res_release":
@@ -282,7 +287,27 @@ class Output(AbstractDataLoader):
             col_names = [k.split("_")[-1] for k in keys]
 
         elif results_set == "ffmp_level_boundaries":
-            keys = [f"level{l}" for l in ["1b", "1c", "2", "3", "4", "5"]]
+            # Default FFMP names take priority (byte-compatible with legacy runs).
+            # Fall back to autodiscovery of zone_* keys for N-zone configs.
+            default_keys = [f"level{l}" for l in ["1b", "1c", "2", "3", "4", "5"]]
+            present_defaults = [k for k in default_keys if k in keys]
+            if present_defaults:
+                keys = present_defaults
+            else:
+                zone_keys = [
+                    k for k in keys
+                    if k.startswith("zone_") and k != "zone_0"
+                    and "_factor_" not in k
+                ]
+                try:
+                    keys = sorted(zone_keys, key=lambda s: int(s.split("_")[1]))
+                except (IndexError, ValueError):
+                    keys = sorted(zone_keys)
+                if not keys:
+                    warnings.warn(
+                        "ffmp_level_boundaries: no default 'level*' or 'zone_*' "
+                        "keys detected in output; returning empty DataFrame."
+                    )
             col_names = [k for k in keys]
         elif results_set == "mrf_target":
             keys = [k for k in keys if results_set in k]
@@ -329,8 +354,14 @@ class Output(AbstractDataLoader):
                 #+ ['estimated_Q_i', 'estimated_Q_C']
             col_names = [k for k in keys]
         elif results_set == "salinity":
-            keys = ["salt_front_location_mu"]#, "salt_front_location_sd"] 
+            keys = ["salt_front_location_mu"]#, "salt_front_location_sd"]
             col_names = [k for k in keys]
+        elif results_set == "flood_stage":
+            keys = [k for k in keys if k.startswith("stage_")]
+            col_names = [k.split("stage_")[1] for k in keys]
+        elif results_set == "flood_level":
+            keys = [k for k in keys if k.startswith("flood_level_")]
+            col_names = [k.split("flood_level_")[1] for k in keys]
         # resulst_set may be a specific key in the model
         elif results_set in keys:
             keys = [results_set]
@@ -384,99 +415,126 @@ class Output(AbstractDataLoader):
             err_msg += f" Valid results_set options: {pywrdrb_results_set_opts}"
             raise ValueError(err_msg)
 
-        # Get result data from HDF5 output file
         with h5py.File(output_filename, "r") as f:
             all_keys = list(f.keys())
-            keys, col_names = self.get_keys_and_column_names_for_results_set(keys=all_keys,
-                                                                        results_set=results_set)
 
-            # 'all' includes every key in the file; keep only 2D (time x scenario)
-            # timeseries datasets (excludes e.g. the 1D 'time' array)
-            if results_set == "all":
-                kept = [
-                    i for i, k in enumerate(keys)
-                    if isinstance(f[k], h5py.Dataset) and f[k].ndim == 2
-                ]
-                keys = [keys[i] for i in kept]
-                col_names = [col_names[i] for i in kept]
+            if datetime_index is None or len(datetime_index) != len(f["time"]):
+                datetime_index = self._parse_datetime_from_open_hdf(f)
 
-            data = []
-            # Now pull the data using keys
-            for k in keys:
-                data.append(f[k][:, scenarios])
+            results_dict = self._get_results_from_open_hdf(
+                f=f, all_keys=all_keys, results_set=results_set,
+                scenarios=scenarios, datetime_index=datetime_index, units=units,
+            )
 
-            # Convert data to 3D array
-            data = np.stack(data, axis=2)
+        return results_dict, datetime_index
 
-            if units is not None:
-                if units == "MG":
-                    pass
-                elif units == "MCM":
-                    data *= mg_to_mcm
+    def _parse_datetime_from_open_hdf(self, f):
+        """Parse datetime index from an already-open h5py.File using vectorized operations.
 
-            if datetime_index is not None:
-                if len(datetime_index) == len(f["time"]):
-                    reuse_datetime_index = True
-                else:
-                    reuse_datetime_index = False
-            else:
-                reuse_datetime_index = False
+        Parameters
+        ----------
+        f : h5py.File
+            An already-open HDF5 file object.
 
-            if not reuse_datetime_index:
-                # Format datetime index
-                time = f["time"][:]
-                
-                ### custom OutputRecorder requires this:
-                if type(time[0]) == bytes:
-                    datetime_index = pd.to_datetime([t.decode('utf-8') for t in f['time'][:]])
+        Returns
+        -------
+        pd.DatetimeIndex
+        """
+        time = f["time"][:]
 
-                ### TablesRecorder requires this:
-                else:                
-                    day = [f["time"][i][0] for i in range(len(f["time"]))]
-                    month = [f["time"][i][2] for i in range(len(f["time"]))]
-                    year = [f["time"][i][3] for i in range(len(f["time"]))]
-                    date = [f"{y}-{m}-{d}" for y, m, d in zip(year, month, day)]
-                    datetime_index = pd.to_datetime(date)
+        # custom OutputRecorder stores time as byte strings
+        if isinstance(time[0], bytes):
+            datetime_index = pd.to_datetime([t.decode('utf-8') for t in time])
+        # TablesRecorder stores time as structured array
+        else:
+            day = time[:, 0]
+            month = time[:, 2]
+            year = time[:, 3]
+            datetime_index = pd.to_datetime(
+                pd.DataFrame({'year': year, 'month': month, 'day': day})
+            )
+        return datetime_index
 
+    def _get_results_from_open_hdf(self, f, all_keys, results_set, scenarios,
+                                    datetime_index, units):
+        """Extract results from an already-open h5py.File.
 
-            # Now store each scenario as individual pd.DataFrames in the dict
-            results_dict = {}
+        Parameters
+        ----------
+        f : h5py.File
+            An already-open HDF5 file object.
+        all_keys : list[str]
+            All keys in the HDF5 file.
+        results_set : str
+            The results set to extract.
+        scenarios : array-like
+            Scenario indices to extract.
+        datetime_index : pd.DatetimeIndex
+            Pre-parsed datetime index.
+        units : str or None
+            Units for conversion ("MG", "MCM", or None).
+
+        Returns
+        -------
+        dict
+            Maps scenario indices to DataFrames of results.
+        """
+        keys, col_names = self.get_keys_and_column_names_for_results_set(
+            keys=all_keys, results_set=results_set
+        )
+
+        # 'all' includes every key in the file; keep only 2D (time x scenario)
+        # timeseries datasets (excludes e.g. the 1D 'time' array)
+        if results_set == "all":
+            kept = [
+                i for i, k in enumerate(keys)
+                if isinstance(f[k], h5py.Dataset) and f[k].ndim == 2
+            ]
+            keys = [keys[i] for i in kept]
+            col_names = [col_names[i] for i in kept]
+
+        data = []
+        for k in keys:
+            data.append(f[k][:, scenarios])
+        data = np.stack(data, axis=2)
+
+        if units == "MCM":
+            data *= mg_to_mcm
+
+        results_dict = {}
+        for s in scenarios:
+            results_dict[s] = pd.DataFrame(
+                data[:, s, :], columns=col_names, index=datetime_index
+            )
+
+        # If results_set is 'res_release', sum the outflow and spill data,
+        # columns with the same reservoir name
+        if results_set == "res_release":
             for s in scenarios:
-                results_dict[s] = pd.DataFrame(
-                    data[:, s, :], columns=col_names, index=datetime_index
-                )
+                for r in reservoir_list:
+                    release_cols = [c for c in results_dict[s].columns if r in c]
+                    if len(release_cols) > 1:
+                        results_dict[s][r] = results_dict[s][release_cols].sum(axis=1)
+                        results_dict[s] = results_dict[s].drop(release_cols, axis=1)
+                    else:
+                        results_dict[s] = results_dict[s].rename(
+                            columns={release_cols[0]: r}
+                        )
 
-            # If results_set is 'res_release', sum the outflow and spill data,
-            # columns with the same reservoir name
-            if results_set == "res_release":
-                for s in scenarios:
-                    for r in reservoir_list:
-                        release_cols = [c for c in results_dict[s].columns if r in c]
+        # For temp and salinity LSTM outputs, model output is lag 1;
+        # we need to shift the data 1 day
+        if results_set == "temperature":
+            for s in scenarios:
+                for col in results_dict[s].columns:
+                    if col in ("temperature_after_thermal_release_mu",
+                               "temperature_after_thermal_release_sd"):
+                        results_dict[s][col] = results_dict[s][col].shift(-1)
 
-                        # sum
-                        if len(release_cols) > 1:
-                            results_dict[s][r] = results_dict[s][release_cols].sum(axis=1)
-                            results_dict[s] = results_dict[s].drop(release_cols, axis=1)
-                        else:
-                            results_dict[s] = results_dict[s].rename(
-                                columns={release_cols[0]: r}
-                            )
-            
-            # For temp and salinity LSTM outputs, model output is lag 1;
-            # we need to shift the data 1 day
-            if results_set in ["temperature"]:
-                for s in scenarios:
-                    # shift all columns except "thermal_release_requirement" for temp
-                    for col in results_dict[s].columns:
-                        if col == "temperature_after_thermal_release_mu" or col == "temperature_after_thermal_release_sd":
-                            results_dict[s][col] = results_dict[s][col].shift(-1)
-                            
-            if results_set in ["salinity"]:
-                for s in scenarios:
-                    results_dict[s] = results_dict[s].shift(-1)
+        if results_set == "salinity":
+            for s in scenarios:
+                results_dict[s] = results_dict[s].shift(-1)
 
-                
-            return results_dict, datetime_index
+        return results_dict
 
     def load(self, **kwargs):
         """
@@ -504,27 +562,37 @@ class Output(AbstractDataLoader):
 
         super().__verify_files_exist__(files=self.output_filenames_with_filetype)
 
-        self.__get_scenario_ids_for_output_filenames__()
+        # Load the results: iterate files in the outer loop so each HDF5 file
+        # is opened once and all results_sets are extracted before closing.
+        all_results_data = {s: {} for s in self.results_sets}
+        self.scenarios = {}
+        datetime_index = None
 
-        # Load the results
-        all_results_data = {}
+        for label, file in self.output_labels_and_files.items():
+            filename = file if ".hdf5" in file else f"{file}.hdf5"
+            with h5py.File(filename, "r") as f:
+                all_keys = list(f.keys())
 
-        datetime = None
+                # Detect scenario count from first non-time dataset
+                for name, obj in f.items():
+                    if name != "time" and isinstance(obj, h5py.Dataset):
+                        self.scenarios[label] = np.arange(obj.shape[1])
+                        break
+
+                # Parse datetime once per file
+                if datetime_index is None or len(datetime_index) != len(f["time"]):
+                    datetime_index = self._parse_datetime_from_open_hdf(f)
+
+                # Extract all requested results_sets from this file
+                for s in self.results_sets:
+                    if self.print_status:
+                        print(f"Loading {s} data from {label}")
+
+                    all_results_data[s][label] = self._get_results_from_open_hdf(
+                        f=f, all_keys=all_keys, results_set=s,
+                        scenarios=self.scenarios[label],
+                        datetime_index=datetime_index, units=self.units,
+                    )
+
         for s in self.results_sets:
-            all_results_data[s] = {}
-            
-            for label, file in self.output_labels_and_files.items():
-                if self.print_status:
-                    print(f"Loading {s} data from {label}")
-
-
-                all_results_data[s][label], datetime = self.get_pywrdrb_results(
-                    output_filename=file,
-                    results_set=s,
-                    scenarios=self.scenarios[label],
-                    datetime_index=datetime,
-                    units=self.units,
-                )
-            
-            self.set_data(data = all_results_data[s],
-                             name = s)
+            self.set_data(data=all_results_data[s], name=s)
