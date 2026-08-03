@@ -1,16 +1,16 @@
 r"""
 A module to build a Pywr model file for the Delaware River Basin (DRB).
 
-Overview: 
-A module to build a Pywr model file for the Delaware River Basin (DRB) where multiple 
+Overview:
+A module to build a Pywr model file for the Delaware River Basin (DRB) where multiple
 options are available to construct the model. Please refer to the `Options` class for
-default values and options. To understand the model structure, please refer to the pywr 
-package documentation. 
+default values and options. To understand the model structure, please refer to the pywr
+package documentation.
 
 Key Steps: (If script)
 1. Initialize the model builder with start and end dates, inflow type, and options.
 mb = pywrdrb.ModelBuilder(
-    inflow_type='nhmv10_withObsScaled', 
+    inflow_type='nhmv10_withObsScaled',
     start_date="1983-10-01",
     end_date="1985-12-31"
 )
@@ -24,18 +24,18 @@ model_filename = r"your working location\model.json"
 mb.write_model(model_filename)
 
 
-Technical Notes: 
+Technical Notes:
 - For details on the model structure, please refer to the Pywr documentation.
-- For details on the DRB model structure, please refer to the PywrDRB documentation and 
+- For details on the DRB model structure, please refer to the PywrDRB documentation and
 Andrew's EMS paper.
 
-Links: 
+Links:
 - Pywr: github.com/pywr/pywr
-- Andrew's EMS paper: 
-Hamilton, A. L., Amestoy, T. J., & Reed, Patrick. M. (2024). Pywr-DRB: An open-source 
-Python model for water availability and drought risk assessment in the Delaware River 
+- Andrew's EMS paper:
+Hamilton, A. L., Amestoy, T. J., & Reed, Patrick. M. (2024). Pywr-DRB: An open-source
+Python model for water availability and drought risk assessment in the Delaware River
 Basin. Environmental Modelling & Software, 106185. https://doi.org/10.1016/j.envsoft.2024.106185
- 
+
 Change Log:
 Chung-Yi Lin, 2025-05-02, None
 Chung-Yi Lin, 2025-05-27, Add Temperature and Salinity LSTM model coupling.
@@ -50,14 +50,13 @@ from pywrdrb.utils.lists import (
     reservoir_list,
     reservoir_list_nyc,
     modified_starfit_reservoir_list,
-    drbc_lower_basin_reservoirs
+    drbc_lower_basin_reservoirs,
+    independent_starfit_reservoirs,
 )
 from pywrdrb.utils.constants import cfs_to_mgd
 from pywrdrb.utils.dates import model_date_ranges
-from pywrdrb.pywr_drb_node_data import (
-    immediate_downstream_nodes_dict,
-    downstream_node_lags,
-)
+from pywrdrb.pywr_drb_node_data import TopologyDictionaries
+from pywrdrb.parameters.nyc_operations_config import NYCOperationsConfig
 
 # Import here to avoid circular import
 from pywrdrb.path_manager import get_pn_object
@@ -74,11 +73,19 @@ pn = get_pn_object()
 # Always True
 use_lower_basin_mrf_contributions = True
 
+# Mapping from NYC reservoirs to downstream flood monitoring USGS gages
+NYC_DOWNSTREAM_FLOOD_NODES = {
+    "cannonsville": "01426500",  # Hale Eddy
+    "pepacton": "01421000",  # Fishs Eddy
+    "neversink": "01436690",  # Bridgeville
+}
+
+
 @dataclass
 class Options:
     """
     A dataclass to hold options for the ModelBuilder and it default values.
-    
+
     Attributes
     ----------
     NSCENARIOS : int
@@ -89,18 +96,18 @@ class Options:
         Options: "historical", "custom", "constant_max"
         If "historical", use extrapolated historical NYC/NJ deliveries as demand.
         If "custom", use data provided in custom <flowtype>/ folder. Expects to find "diversion_nj_extrapolated_mgd.csv" and "diversion_nyc_extrapolated_mgd.csv".
-        If "constant_max", assume demand is equal to max allotment under FFMP. 
+        If "constant_max", assume demand is equal to max allotment under FFMP.
         Default is "historical".
     temperature_model: Optional[dict] = None
         If given, use LSTM model to predict temperature at Lordville. Default is None.
-        {"PywrDRB_ML_plugin_path": None, "start_date": None, 
-        "activate_thermal_control": False, "activate_input_bias_correction": False, 
+        {"PywrDRB_ML_plugin_path": None, "start_date": None,
+        "activate_thermal_control": False, "activate_input_bias_correction": False,
         "Q_C_lstm_var_name": None, "Q_i_lstm_var_name": None, "disable_tqdm": False,
         debug: False}
     salinity_model : Optional[dict] = None
         If given, use LSTM model to predict salt front river mile. Default is None.
-        {"PywrDRB_ML_plugin_path": None, "start_date": None, 
-        "Q_Trenton_lstm_var_name": None, "Q_Schuylkill_lstm_var_name": None, 
+        {"PywrDRB_ML_plugin_path": None, "start_date": None,
+        "Q_Trenton_lstm_var_name": None, "Q_Schuylkill_lstm_var_name": None,
         "disable_tqdm": False, debug: False}
     run_starfit_sensitivity_analysis : bool
         If True, run STARFIT sensitivity analysis. Default is False.
@@ -108,14 +115,29 @@ class Options:
         List of scenarios to use for STARFIT sensitivity analysis. Default is an empty list.
     initial_volume_frac : float
         Initial reservoir storage as a fraction of capacity. Default is 0.8.
+    use_trimmed_model : bool
+        If True, use trimmed model with pre-simulated releases for independent STARFIT
+        reservoirs. This reduces runtime by ~50-70% for sensitivity analysis. Default is False.
+    presimulated_releases_file : Optional[str]
+        Custom path to pre-simulated releases CSV file. If None, uses default location
+        at flows/{inflow_type}/presimulated_releases_mgd.csv. Default is None.
+    enable_nyc_flood_operations : bool
+        If True, enables comprehensive NYC flood operations including:
+        (1) Flood monitoring nodes in network topology (01426500, 01421000, 01436690)
+        (2) Stage and flood level parameters at monitoring locations
+        (3) Flood-responsive operations that suppress releases when downstream stage exceeds thresholds
+        (4) Augmented inflow file with flood node catchments
+        Default is False (uses original model without flood features).
     flow_prediction_mode : str
-        Flow prediction mode for FFMP operations. Determines which prediction columns to use from predicted_inflows_mgd.csv. Options are "regression_disagg" (default) and "perfect_foresight".
+        Which prediction columns to use from predicted_inflows_mgd.csv and
+        predicted_diversions_mgd.csv. Options: "regression_disagg", "perfect_foresight".
+        Default is "regression_disagg".
     starfit_params_filename : Optional[str]
         If given, path to an alternative STARFIT parameter CSV (same format as
         istarf_conus.csv, containing all reservoir rows). Used for reservoir
-        capacities and STARFIT release rules in place of the default file.
-        Default is None.
+        capacities and STARFIT release parameters. Default is None.
     """
+
     NSCENARIOS: int = 1
     inflow_ensemble_indices: Optional[List[int]] = None
     nyc_nj_demand_source: str = "historical"  # "historical", "custom", "constant_max"
@@ -125,7 +147,28 @@ class Options:
     sensitivity_analysis_scenarios: List[str] = field(default_factory=list)
     # Initial reservoir storages as 80% of capacity
     initial_volume_frac: float = 0.8
+    # Trimmed model options for faster runtime
+    use_trimmed_model: bool = False
+    presimulated_releases_file: Optional[str] = None
+    # NYC flood operations (single consolidated option)
+    enable_nyc_flood_operations: bool = (
+        False  # Default: original model without flood features
+    )
+    # Use individual reservoir storage zones for flood release calculation (FFMP-compliant)
+    # Per FFMP Section 6 (page 21): discharge mitigation releases are based on individual
+    # reservoir storage zones (L1-a, L1-b, L1-c) when combined storage is in Zone L1.
+    # If False, uses legacy approach with only aggregate storage check (for backward compatibility).
+    use_individual_storage_for_flood_release: bool = True
+    # Flow prediction mode for FFMP operations
+    # Determines which prediction columns to use from predicted_inflows_mgd.csv
+    # and predicted_diversions_mgd.csv files.
+    # Options:
+    #   - "regression_disagg": Uses disaggregated autoregressive predictions (realistic forecasts)
+    #   - "perfect_foresight": Pre-simulated STARFIT releases + actual catchment inflows
+    #     (best retrospective analysis, accounts for reservoir operations)
+    # NOTE: Prediction files must contain columns for the selected mode.
     flow_prediction_mode: str = "regression_disagg"
+    # Optional alternative STARFIT parameter CSV (same format as istarf_conus.csv)
     starfit_params_filename: Optional[str] = None
 
     def list(self):
@@ -133,15 +176,16 @@ class Options:
         for attribute, value in self.__dict__.items():
             print(f"{attribute}: {value}")
 
+
 class ModelBuilder:
     """
     A model builder to create model file Pywr for the Delaware River Basin (DRB).
-    
-    ModelBuilder class to construct a pywr model for the Delaware River Basin. 
-    Essentially, this class creates model dictionary to hold all model nodes, 
+
+    ModelBuilder class to construct a pywr model for the Delaware River Basin.
+    Essentially, this class creates model dictionary to hold all model nodes,
     edges, params, etc, following Pywr protocol. The model dictionary will be
     saved to a JSON file.
-    
+
     Attributes
     ----------
     start_date : str
@@ -149,13 +193,13 @@ class ModelBuilder:
     end_date : str
         End date of the model simulation.
     inflow_type : str
-        Type of inflow data to use. 
-        Options are 'nhmv10_withObsScaled', 'nwmv21_withObsScaled', 'nhmv10', 
+        Type of inflow data to use.
+        Options are 'nhmv10_withObsScaled', 'nwmv21_withObsScaled', 'nhmv10',
         and 'nwmv21'.
     diversion_type : str, optional
         Type of diversion data to use. Default is None.
     options : Options
-        Options for the model builder, including number of scenarios, 
+        Options for the model builder, including number of scenarios,
         inflow ensemble indices, and other parameters.
     reservoirs : list
         List of reservoirs in the model.
@@ -175,7 +219,7 @@ class ModelBuilder:
         DataFrame to hold historical releases data for NYC reservoirs.
     hist_diversions : pd.DataFrame, optional
         DataFrame to hold historical diversions data for NYC reservoirs.
-        
+
     Methods
     -------
     reset_model_dict()
@@ -216,6 +260,8 @@ class ModelBuilder:
         Adds parameters for the minimum required flow for NYC reservoirs.
     add_parameter_nyc_reservoirs_flood_control()
         Adds parameters for flood control releases from NYC reservoirs.
+    add_parameter_flood_monitoring()
+        Adds parameters for flood stage and flood level monitoring at downstream locations.
     add_parameter_nyc_reservoirs_variable_cost_based_on_fractional_storage()
         Adds parameters for variable costs based on fractional storage in NYC reservoirs.
     add_parameter_nyc_reservoirs_current_volume()
@@ -236,9 +282,18 @@ class ModelBuilder:
         Adds parameters to couple the temperature LSTM model with the reservoir model.
     add_parameter_couple_salinity_lstm()
         Adds parameters to couple the salinity LSTM model with the reservoir model.
-        
+
     """
-    def __init__(self, start_date, end_date, inflow_type, diversion_type=None, options={}):
+
+    def __init__(
+        self,
+        start_date,
+        end_date,
+        inflow_type,
+        diversion_type=None,
+        options={},
+        nyc_operations_config=None,
+    ):
         """
         Initialize the ModelBuilder.
 
@@ -249,13 +304,13 @@ class ModelBuilder:
         end_date : str
             End date of the model simulation.
         inflow_type : str
-            Type of inflow data to use. 
-            Options are 'nhmv10_withObsScaled', 'nwmv21_withObsScaled', 'nhmv10', 
+            Type of inflow data to use.
+            Options are 'nhmv10_withObsScaled', 'nwmv21_withObsScaled', 'nhmv10',
             'nwmv21', and "wrfaorc_withObsScaled".
         diversion_type : str, optional
             Type of diversion data to use. Default is None (historical average).
         options : dict, optional
-            Dictionary of options to pass to the model builder. Options include: 
+            Dictionary of options to pass to the model builder. Options include:
             inflow_ensemble_indices (list of int): List of indices to use for inflow ensemble scenarios.
             nyc_nj_demand_source (str): Options: "historical", "custom", "constant_max". Default is "historical". See Options class docstring for details.
             temperature_model (dict): If given, we use LSTM model to predict temperature at Lordville.
@@ -265,14 +320,17 @@ class ModelBuilder:
             initial_volume_frac (float): Initial reservoir storage as a fraction of capacity. Default is 0.8.
             flow_prediction_mode (str): Options: "regression_disagg", "perfect_foresight". Default is "regression_disagg".
             starfit_params_filename (str): If given, path to an alternative STARFIT parameter CSV (same format as istarf_conus.csv). Default is None.
+        nyc_operations_config : NYCOperationsConfig, optional
+            Custom NYC reservoir operations configuration. If None, uses default CSV-based parameters.
+            This allows for flexible modification of operational rules for sensitivity analysis.
         """
-        
+
         self.start_date = start_date
         self.end_date = end_date
         self.timestep = 1
-        
+
         self.model_date_ranges = model_date_ranges
-        
+
         self.inflow_type = inflow_type
         if diversion_type is None:
             diversion_type = inflow_type
@@ -297,6 +355,30 @@ class ModelBuilder:
                     f"{self.options.starfit_params_filename}"
                 )
 
+        if nyc_operations_config is None:
+            self.nyc_operations_config = NYCOperationsConfig.from_defaults()
+        else:
+            self.nyc_operations_config = nyc_operations_config
+
+        # Load topology dictionaries based on flood operations option
+        # This determines whether flood monitoring nodes are included in the network
+        (
+            self.immediate_downstream_nodes_dict,
+            self.upstream_nodes_dict,
+            self.downstream_node_lags,
+            self.obs_site_matches,
+            self.obs_pub_site_matches,
+            self.nhm_site_matches,
+            self.nwm_site_matches,
+            self.wrf_hydro_site_matches,
+        ) = TopologyDictionaries.get(
+            include_flood_nodes=self.options.enable_nyc_flood_operations
+        )
+
+        # Validate trimmed model configuration if enabled
+        if self.options.use_trimmed_model:
+            self._validate_trimmed_model_config()
+
         # Tracking purposes
         self.reservoirs = []
         self.edges = []
@@ -304,8 +386,15 @@ class ModelBuilder:
 
         # Variables
         # Reservoir operational regimes
-        self.levels = ["1a", "1b", "1c", "2", "3", "4", "5"]  
+        config = self.nyc_operations_config
+        self.drought_levels = config.DROUGHT_LEVELS
+        self.storage_levels = config.STORAGE_LEVELS
         self.EPS = 1e-8
+
+        # Cost offset counter for LP determinism
+        # Adding unique offsets to costs prevents LP degeneracy (multiple optimal solutions)
+        # which can cause non-deterministic behavior in the GLPK solver
+        self._cost_offset_counter = 0
 
         self.model_dict = {
             "metadata": {
@@ -334,7 +423,7 @@ class ModelBuilder:
     def reset_model_dict(self):
         """
         Reset the model dictionary to its initial state.
-        
+
         This method clears the model dictionary and sets the number of scenarios to 1.
         It also initializes the model dictionary with metadata, timestepper, scenarios,
         nodes, edges, and parameters.
@@ -359,16 +448,144 @@ class ModelBuilder:
             "parameters": {},
         }
 
+    def _get_unique_cost(self, base_cost: float) -> float:
+        """
+        Get a unique cost value by adding a small offset to the base cost.
+
+        This prevents LP degeneracy (multiple optimal solutions with the same
+        objective value) which can cause non-deterministic behavior in LP solvers
+        like GLPK. Each call returns a cost that differs by 1 from previous calls
+        with the same base cost.
+
+        Parameters
+        ----------
+        base_cost : float
+            The base cost value (e.g., -500.0, -1000.0, -15.0)
+
+        Returns
+        -------
+        float
+            A unique cost value: base_cost - offset (for negative costs, this makes
+            the cost slightly more negative, preserving the relative priority)
+        """
+        self._cost_offset_counter += 1
+        # For negative costs, subtract offset to make each successive node
+        # slightly higher priority (more negative). For positive costs, add offset.
+        if base_cost < 0:
+            return base_cost - self._cost_offset_counter
+        else:
+            return base_cost + self._cost_offset_counter
+
+    def _validate_trimmed_model_config(self):
+        """
+        Validate trimmed model configuration and data availability.
+
+        Checks that:
+        1. Pre-simulated releases file exists (CSV for single-trace, HDF5 for ensemble)
+        2. Date range covers the simulation period
+        3. Inflow type matches
+        4. (Ensemble only) all requested realization IDs are present
+
+        Raises
+        ------
+        FileNotFoundError
+            If pre-simulated releases file is not found.
+        ValueError
+            If date range, inflow type, or realization coverage doesn't match.
+        """
+        import json
+
+        is_ensemble = self.options.inflow_ensemble_indices is not None
+        default_name = (
+            "presimulated_releases_mgd.hdf5"
+            if is_ensemble
+            else "presimulated_releases_mgd.csv"
+        )
+
+        # Determine pre-simulated file location
+        if self.options.presimulated_releases_file:
+            presim_file = self.options.presimulated_releases_file
+        else:
+            input_dir = pn.sc.get(f"flows/{self.inflow_type}")
+            presim_file = os.path.join(str(input_dir), default_name)
+
+        # Store for later use
+        self._presimulated_releases_file = presim_file
+
+        # Check file exists
+        if not os.path.exists(presim_file):
+            if is_ensemble:
+                raise FileNotFoundError(
+                    f"Pre-simulated releases ensemble file not found: {presim_file}\n"
+                    f"Use pywrdrb.pre.STARFITReleaseEnsemblePreprocessor(inflow_type='{self.inflow_type}', "
+                    f"realization_ids=...).run() to create this file."
+                )
+            raise FileNotFoundError(
+                f"Pre-simulated releases file not found: {presim_file}\n"
+                f"Use pywrdrb.pre.generate_presimulated_releases.STARFITOfflineSimulator.generate_and_save() "
+                f"to create this file (no full model run required)."
+            )
+
+        # Check metadata for validation
+        if is_ensemble:
+            metadata_file = presim_file.replace(".hdf5", "_metadata.json")
+        else:
+            metadata_file = presim_file.replace(".csv", "_metadata.json")
+        if os.path.exists(metadata_file):
+            with open(metadata_file, "r") as f:
+                metadata = json.load(f)
+
+            # Validate date range
+            presim_start = pd.to_datetime(metadata["start_date"])
+            presim_end = pd.to_datetime(metadata["end_date"])
+            sim_start = pd.to_datetime(self.start_date)
+            sim_end = pd.to_datetime(self.end_date)
+
+            if sim_start < presim_start or sim_end > presim_end:
+                raise ValueError(
+                    f"Simulation period ({self.start_date} to {self.end_date}) "
+                    f"extends beyond pre-simulated data ({metadata['start_date']} to {metadata['end_date']})"
+                )
+
+            # Validate inflow type
+            if (
+                metadata.get("inflow_type")
+                and metadata["inflow_type"] != self.inflow_type
+            ):
+                raise ValueError(
+                    f"Inflow type mismatch: model uses '{self.inflow_type}' but "
+                    f"pre-simulated data was generated with '{metadata['inflow_type']}'"
+                )
+
+            # Ensemble-only: ensure every requested realization is in the artifact.
+            if is_ensemble and "realization_ids" in metadata:
+                available = {str(r) for r in metadata["realization_ids"]}
+                missing = [
+                    r
+                    for r in self.options.inflow_ensemble_indices
+                    if str(r) not in available
+                ]
+                if missing:
+                    raise ValueError(
+                        f"Pre-simulated releases ensemble is missing realization "
+                        f"IDs {missing}. Available: "
+                        f"{sorted(available, key=lambda x: (len(x), x))[:10]}..."
+                    )
+
     #!! revisit this to incorporate other scenario strategies
 
     def make_model(self):
         """
         Make the model by adding nodes, edges, and parameters based on the DRB structure.
-        
+
         This method constructs the model dictionary by adding major nodes (reservoirs and rivers),
         minor nodes (withdrawals, consumption, outflows, etc.), edges between nodes, and parameters
         for the model. It also handles scenarios for inflows and temperature/salinity predictions.
         """
+        ####################################################################
+        ### Validate options
+        ####################################################################
+
         # Validate flow_prediction_mode
         valid_flow_modes = ["regression_disagg", "perfect_foresight"]
         if self.options.flow_prediction_mode not in valid_flow_modes:
@@ -386,7 +603,10 @@ class ModelBuilder:
         if self.options.inflow_ensemble_indices is not None:
             self.add_ensemble_inflow_scenarios(self.options.inflow_ensemble_indices)
 
-        elif self.options.sensitivity_analysis_scenarios and not self.options.inflow_ensemble_indices:
+        elif (
+            self.options.sensitivity_analysis_scenarios
+            and not self.options.inflow_ensemble_indices
+        ):
             self.options.NSCENARIOS = len(self.options.sensitivity_analysis_scenarios)
             self.model_dict["scenarios"] = [
                 {"name": "starfit_samples", "size": self.options.NSCENARIOS}
@@ -406,13 +626,22 @@ class ModelBuilder:
         #######################################################################
 
         ### Get downstream node to link to for the current node
-        for node, downstream_node in immediate_downstream_nodes_dict.items():
+        for node, downstream_node in self.immediate_downstream_nodes_dict.items():
             # Get flow lag (days) between current node and its downstream connection
-            downstream_lag = downstream_node_lags[node]
+            downstream_lag = self.downstream_node_lags[node]
 
             # Reservoir node
             if node in reservoir_list:
-                self.add_node_major_reservoir(node, downstream_lag, downstream_node)
+                # Check if using trimmed model and this is an independent reservoir
+                if (
+                    self.options.use_trimmed_model
+                    and node in independent_starfit_reservoirs
+                ):
+                    self.add_node_presimulated_reservoir(
+                        node, downstream_lag, downstream_node
+                    )
+                else:
+                    self.add_node_major_reservoir(node, downstream_lag, downstream_node)
             # River node
             else:
                 has_catchment = False if node == "delTrenton" else True
@@ -426,19 +655,24 @@ class ModelBuilder:
         self.add_node_nyc_aggregated_storage_and_link()
         self.add_node_nyc_and_nj_deliveries()
         self.add_node_final_basin_outlet()
-        
+
         self.add_parameter_negative_one_multiplier()
 
         #######################################################################
         ### Add additional parameters beyond those associated with major nodes above
         #######################################################################
-        
+
         self.add_parameter_nyc_and_nj_demands()
         self.add_parameter_nyc_reservoirs_operational_regimes()
         self.add_parameter_nyc_and_nj_delivery_constraints()
         self.add_parameter_nyc_reservoirs_min_require_flow()
-        
+
         self.add_parameter_nyc_reservoirs_flood_control()
+
+        # Add flood monitoring parameters if NYC flood operations enabled
+        if self.options.enable_nyc_flood_operations:
+            self.add_parameter_flood_monitoring()
+
         # Can be removed after volume balancing rules are implemented
         self.add_parameter_nyc_reservoirs_variable_cost_based_on_fractional_storage()
         self.add_parameter_nyc_reservoirs_current_volume()
@@ -447,8 +681,7 @@ class ModelBuilder:
         self.add_parameter_montague_trenton_flow_targets()
         self.add_parameter_predicted_lagged_non_nyc_inflows_to_Montague_and_Trenton_and_lagged_nj_demands()
         self.add_parameter_nyc_reservoirs_balancing_methods()
-        
-        
+
         #######################################################################
         ### Couple temperature & salinaty LSTM model
         #######################################################################
@@ -460,14 +693,27 @@ class ModelBuilder:
     def write_model(self, model_filename):
         """
         Write the model to a JSON file.
-        
+
+        The model dictionary is sorted before writing to ensure deterministic
+        behavior when loaded by Pywr. Sorting nodes, edges, and parameters
+        ensures the LP solver builds its internal matrix in a consistent order,
+        which prevents non-deterministic behavior from LP degeneracy.
+
         Parameters
         ----------
         model_filename : str
             The filename to save the model dictionary to. The file will be saved in JSON format.
         """
+        # Sort nodes, edges, and parameters for deterministic LP solver behavior
+        # This prevents non-determinism caused by dict/list iteration order
+        # affecting the LP matrix construction in GLPK
+        model_dict = self.model_dict.copy()
+        model_dict["nodes"] = sorted(model_dict["nodes"], key=lambda x: x["name"])
+        model_dict["edges"] = sorted(model_dict["edges"], key=lambda x: (x[0], x[1]))
+        model_dict["parameters"] = dict(sorted(model_dict["parameters"].items()))
+
         with open(f"{model_filename}", "w") as o:
-            json.dump(self.model_dict, o, indent=4)
+            json.dump(model_dict, o, indent=4, sort_keys=True)
 
     def detach_data(self):
         """
@@ -510,20 +756,74 @@ class ModelBuilder:
         if self.istarf is None:
             self.istarf = pd.read_csv(self._starfit_csv_path())
         return float(
-            self.istarf["Adjusted_CAP_MG"].loc[self.istarf["reservoir"] == reservoir].iloc[0]
+            self.istarf["Adjusted_CAP_MG"]
+            .loc[self.istarf["reservoir"] == reservoir]
+            .iloc[0]
         )
-    
+
+    def _get_inflow_filename(self, ensemble):
+        """
+        Resolve the catchment-inflow filename for the current options.
+
+        When NYC flood operations are enabled the model needs the augmented
+        inflow file, which carries the three flood-monitoring node columns. That
+        file is generated on demand rather than shipped for every inflow type.
+
+        For the single-trace (CSV) path the file is embedded as a dataframe URL
+        and read during model loading, where a missing file surfaces as an opaque
+        pandas error -- so check for it here and fail with an actionable message.
+        The ensemble (HDF5) path is deliberately NOT checked: `make_model()` is
+        routinely used to emit a model JSON that will be run elsewhere, where the
+        ensemble file lives, and `FlowEnsemble` raises its own clear error if the
+        file is genuinely missing at run time.
+
+        Parameters
+        ----------
+        ensemble : bool
+            True when using an ensemble (HDF5) inflow source.
+
+        Returns
+        -------
+        str
+            The inflow filename to reference.
+
+        Raises
+        ------
+        FileNotFoundError
+            If flood operations are enabled and the augmented CSV is absent.
+        """
+        suffix = "hdf5" if ensemble else "csv"
+        if not self.options.enable_nyc_flood_operations:
+            return f"catchment_inflow_mgd.{suffix}"
+
+        filename = f"catchment_inflow_with_flood_nodes_mgd.{suffix}"
+        if ensemble:
+            return filename
+
+        path = pn.sc.get(f"flows/{self.inflow_type}") / filename
+        if not os.path.exists(path):
+            raise FileNotFoundError(
+                f"enable_nyc_flood_operations=True requires {filename}, which is "
+                f"not present for inflow_type '{self.inflow_type}'.\n"
+                f"Expected at: {path}\n"
+                "Generate it with:\n"
+                f"    python -m pywrdrb.pre.flood_node_inflows "
+                f"--inflow-type {self.inflow_type} --force\n"
+                "or programmatically via pywrdrb.pre.FloodNodeInflowPreprocessor."
+            )
+        return filename
+
     def _get_reservoir_max_release(self, reservoir, release_type):
         """
         Get max reservoir releases for NYC from historical data.
-        
+
         Parameters
         ----------
         reservoir : str
             The name of the reservoir to get the max release for.
         release_type : str
             The type of release to get the max for. Options are 'controlled' or 'flood'.
-            
+
         returns
         -------
         float
@@ -536,35 +836,39 @@ class ModelBuilder:
         if release_type == "controlled":
             if self.hist_releases is None:
                 self.hist_releases = pd.read_excel(
-                    pn.observations.get_str("_raw", "Pep_Can_Nev_releases_daily_2000-2021.xlsx")
+                    pn.observations.get_str(
+                        "_raw", "Pep_Can_Nev_releases_daily_2000-2021.xlsx"
+                    )
                 )
             if reservoir == "pepacton":
-                max_hist_release = self.hist_releases["Pepacton Controlled Release"].max()
+                max_hist_release = self.hist_releases[
+                    "Pepacton Controlled Release"
+                ].max()
             elif reservoir == "cannonsville":
-                max_hist_release = self.hist_releases["Cannonsville Controlled Release"].max()
+                max_hist_release = self.hist_releases[
+                    "Cannonsville Controlled Release"
+                ].max()
             elif reservoir == "neversink":
-                max_hist_release = self.hist_releases["Neversink Controlled Release"].max()
+                max_hist_release = self.hist_releases[
+                    "Neversink Controlled Release"
+                ].max()
             return max_hist_release * cfs_to_mgd
 
         ### constrain flood releases based on FFMP Table 5 instead. Note there is still a separate high cost spill path that can exceed this value.
         elif release_type == "flood":
-            if reservoir == "pepacton":
-                max_hist_release = 2400
-            elif reservoir == "cannonsville":
-                max_hist_release = 4200
-            elif reservoir == "neversink":
-                max_hist_release = 3400
+            config = self.nyc_operations_config
+            max_hist_release = config.get_constant(f"flood_max_release_{reservoir}_cfs")
             return max_hist_release * cfs_to_mgd
 
     def _get_reservoir_max_diversion_NYC(self, reservoir):
         """
         Get max reservoir diversion from `Pep_Can_Nev_diversions_daily_2000-2021.xlsx`.
-        
+
         Parameters
         ----------
         reservoir : str
             The name of the reservoir to get the max diversion for.
-        
+
         returns
         -------
         float
@@ -573,7 +877,9 @@ class ModelBuilder:
         assert reservoir in reservoir_list_nyc, f"No max diversion data for {reservoir}"
         if self.hist_diversions is None:
             self.hist_diversions = pd.read_excel(
-                pn.observations.get_str("_raw", "Pep_Can_Nev_diversions_daily_2000-2021.xlsx")
+                pn.observations.get_str(
+                    "_raw", "Pep_Can_Nev_diversions_daily_2000-2021.xlsx"
+                )
             )
         if reservoir == "pepacton":
             max_hist_diversion = self.hist_diversions["East Delaware Tunnel"].max()
@@ -582,15 +888,15 @@ class ModelBuilder:
         elif reservoir == "neversink":
             max_hist_diversion = self.hist_diversions["Neversink Tunnel"].max()
         return max_hist_diversion * cfs_to_mgd
-    
+
     def add_ensemble_inflow_scenarios(self, inflow_ensemble_indices):
         """
         Add ensemble inflow scenarios to the model based on provided indices.
-        
+
         This method updates the model dictionary to include multiple inflow scenarios
         based on the indices provided. It sets the number of scenarios and adds
         the inflow parameters for each scenario.
-        
+
         Parameters
         ----------
         inflow_ensemble_indices : List[int]
@@ -598,8 +904,10 @@ class ModelBuilder:
         """
         # Parallel strategy used in pywr
         self.options.NSCENARIOS = len(inflow_ensemble_indices)
-        self.model_dict["scenarios"] = [{"name": "inflow", "size": self.options.NSCENARIOS}]
-        
+        self.model_dict["scenarios"] = [
+            {"name": "inflow", "size": self.options.NSCENARIOS}
+        ]
+
     def add_parameter_negative_one_multiplier(self):
         """
         Add a parameter to the model that is a constant multiplier of -1.0.
@@ -608,13 +916,13 @@ class ModelBuilder:
             "type": "constant",
             "value": -1.0,
         }
-        
+
     def add_node_major_reservoir(self, reservoir_name, downstream_lag, downstream_node):
         """
         Add a major reservoir node to the model. This step will also add a cluster of
         nodes that are connected to the reservoir, including catchment, withdrawal,
         consumption, release, overflow, and delay.
-        
+
         Parameters
         ----------
         reservoir_name : str
@@ -656,7 +964,9 @@ class ModelBuilder:
             "max_volume": f"max_volume_{reservoir_name}",
             "initial_volume": initial_volume,
             "initial_volume_pc": initial_volume_frac,
-            "cost": -10.0 if not variable_cost else f"storage_cost_{reservoir_name}",
+            "cost": self._get_unique_cost(-10.0)
+            if not variable_cost
+            else f"storage_cost_{reservoir_name}",
         }
         model_dict["nodes"].append(reservoir)
         self.reservoirs.append(reservoir_name)
@@ -676,7 +986,7 @@ class ModelBuilder:
         withdrawal = {
             "name": f"catchmentWithdrawal_{reservoir_name}",
             "type": "link",
-            "cost": -15.0,
+            "cost": self._get_unique_cost(-15.0),
             "max_flow": f"max_flow_catchmentWithdrawal_{reservoir_name}",
             # Note: "max_flow" is from f"{input_dir}sw_avg_wateruse_Pywr-DRB_Catchments.csv"
         }
@@ -686,7 +996,7 @@ class ModelBuilder:
         consumption = {
             "name": f"catchmentConsumption_{reservoir_name}",
             "type": "output",
-            "cost": -2000.0,
+            "cost": self._get_unique_cost(-2000.0),
             "max_flow": f"max_flow_catchmentConsumption_{reservoir_name}",
             # Note: "max_flow" is the product of "max_flow_catchmentWithdrawal_{reservoir_name}" and "prev_flow_catchmentWithdrawal_{reservoir_name}"
             # "max_flow_catchmentWithdrawal_{reservoir_name}" is from f"{input_dir}sw_avg_wateruse_Pywr-DRB_Catchments.csv"
@@ -701,7 +1011,7 @@ class ModelBuilder:
             outflow = {
                 "name": f"outflow_{reservoir_name}",
                 "type": "link",
-                "cost": -500.0,
+                "cost": self._get_unique_cost(-500.0),
                 "max_flow": f"starfit_release_{reservoir_name}",
                 # the fitted values are in f"{model_data_dir}drb_model_istarf_conus.csv"
             }
@@ -710,10 +1020,10 @@ class ModelBuilder:
             outflow = {
                 "name": f"outflow_{reservoir_name}",
                 "type": "link",
-                "cost": -500.0,
+                "cost": self._get_unique_cost(-500.0),
                 "max_flow": f"downstream_release_target_{reservoir_name}",
                 # Note: f"downstream_release_target_{reservoir_name}" is the sum of its
-                # individually-mandated release from FFMP, flood control release, and 
+                # individually-mandated release from FFMP, flood control release, and
                 # its contribution to the Montague/Trenton targets.
                 # Details are in add_parameter_nyc_reservoirs_balancing_methods()
             }
@@ -723,17 +1033,21 @@ class ModelBuilder:
             outflow = {
                 "name": f"outflow_{reservoir_name}",
                 "type": "link",
-                "cost": -1000.0,
+                "cost": self._get_unique_cost(-1000.0),
                 "max_flow": f"downstream_release_target_{reservoir_name}",
                 # Note: f"downstream_release_target_{reservoir_name}" is the sum of its
-                # individually-mandated release from FFMP, flood control release, and 
+                # individually-mandated release from FFMP, flood control release, and
                 # its contribution to the Montague/Trenton targets.
                 # Details are in add_parameter_nyc_reservoirs_balancing_methods()
             }
         model_dict["nodes"].append(outflow)
 
         ##### Add secondary high-cost flow path for spill above max_flow
-        outflow = {"name": f"spill_{reservoir_name}", "type": "link", "cost": 5000.0}
+        outflow = {
+            "name": f"spill_{reservoir_name}",
+            "type": "link",
+            "cost": self._get_unique_cost(5000.0),
+        }
         model_dict["nodes"].append(outflow)
 
         ##### Add delay node to account for flow travel time between nodes. Lag unit is days.
@@ -833,15 +1147,19 @@ class ModelBuilder:
         inflow_type = self.inflow_type
         if inflow_ensemble_indices is not None:
             ### Use custom FlowEnsemble parameter to handle scenario indexing
+            inflow_filename = self._get_inflow_filename(ensemble=True)
             model_dict["parameters"][f"flow_{reservoir_name}"] = {
                 "type": "FlowEnsemble",
                 "node": reservoir_name,
                 "inflow_type": inflow_type,
                 "inflow_ensemble_indices": inflow_ensemble_indices,
+                "inflow_filename": inflow_filename,
             }
 
         else:
-            inflow_source = str(pn.sc.get(f"flows/{inflow_type}") / "catchment_inflow_mgd.csv")
+            # Choose inflow file based on flood operations option
+            inflow_filename = self._get_inflow_filename(ensemble=False)
+            inflow_source = str(pn.sc.get(f"flows/{inflow_type}") / inflow_filename)
             ### Use single-scenario historic data
             model_dict["parameters"][f"flow_{reservoir_name}"] = {
                 "type": "dataframe",
@@ -854,7 +1172,9 @@ class ModelBuilder:
         # get max flow for catchment withdrawal nodes based on DRBC data
         model_dict["parameters"][f"max_flow_catchmentWithdrawal_{reservoir_name}"] = {
             "type": "constant",
-            "url": pn.catchment_withdrawals.get_str("sw_avg_wateruse_pywrdrb_catchments_mgd.csv"),
+            "url": pn.catchment_withdrawals.get_str(
+                "sw_avg_wateruse_pywrdrb_catchments_mgd.csv"
+            ),
             "column": "Total_WD_MGD",
             "index_col": "node",
             "index": node_name,
@@ -865,7 +1185,9 @@ class ModelBuilder:
         # consumption to withdrawal from DRBC data
         model_dict["parameters"][f"catchmentConsumptionRatio_{reservoir_name}"] = {
             "type": "constant",
-            "url": pn.catchment_withdrawals.get_str("sw_avg_wateruse_pywrdrb_catchments_mgd.csv"),
+            "url": pn.catchment_withdrawals.get_str(
+                "sw_avg_wateruse_pywrdrb_catchments_mgd.csv"
+            ),
             "column": "Total_CU_WD_Ratio",
             "index_col": "node",
             "index": node_name,
@@ -883,6 +1205,127 @@ class ModelBuilder:
             ],
         }
 
+    def add_node_presimulated_reservoir(
+        self, reservoir_name, downstream_lag, downstream_node
+    ):
+        """
+        Add a simplified reservoir node using pre-simulated releases for trimmed model mode.
+
+        This replaces the full reservoir node complex (storage, catchment, withdrawal,
+        consumption, outflow, spill, delay) with a simple Input node that reads pre-simulated
+        releases. This significantly reduces model complexity and runtime while maintaining
+        identical downstream flows.
+
+        Parameters
+        ----------
+        reservoir_name : str
+            The name of the reservoir to add.
+        downstream_lag : int
+            The lag in days to the downstream node.
+        downstream_node : str
+            The name of the downstream node to link to.
+
+        Notes
+        -----
+        The pre-simulated releases file must exist and contain a column for this reservoir.
+        The file path is determined by _validate_trimmed_model_config() and stored in
+        self._presimulated_releases_file.
+
+        This method is only called for reservoirs in independent_starfit_reservoirs
+        when use_trimmed_model=True.
+        """
+        model_dict = self.model_dict
+
+        #############################################
+        ################# Add nodes #################
+        #############################################
+
+        # Add Catchment node that pushes pre-simulated releases into the network
+        # Using "catchment" type since it pushes flow (like inflows) rather than
+        # waiting for downstream demand like "input" type
+        catchment_node = {
+            "name": f"catchment_presim_{reservoir_name}",
+            "type": "catchment",
+            "flow": f"presimulated_release_{reservoir_name}",
+        }
+        model_dict["nodes"].append(catchment_node)
+
+        # Add link node to route the pre-simulated releases
+        # This mirrors the outflow/spill link nodes in the full model
+        outflow_node = {
+            "name": f"outflow_presim_{reservoir_name}",
+            "type": "link",
+            "cost": self._get_unique_cost(-500.0),  # Unique cost for LP determinism
+        }
+        model_dict["nodes"].append(outflow_node)
+
+        # Track as a "reservoir" for compatibility with other parts of the model
+        # that may reference reservoir names
+        self.reservoirs.append(reservoir_name)
+
+        # Add delay node to account for flow travel time between nodes
+        if downstream_lag > 0:
+            delay = {
+                "name": f"delay_{reservoir_name}",
+                "type": "DelayNode",
+                "days": downstream_lag,
+            }
+            model_dict["nodes"].append(delay)
+
+        #############################################
+        ########## Add edges between nodes ##########
+        #############################################
+
+        # Determine downstream node name
+        if downstream_node in majorflow_list:
+            downstream_name = f"link_{downstream_node}"
+        elif downstream_node == "output_del":
+            downstream_name = downstream_node
+        else:
+            downstream_name = f"reservoir_{downstream_node}"
+
+        # Connect: catchment → outflow_presim → (delay →) downstream
+        model_dict["edges"] += [
+            [f"catchment_presim_{reservoir_name}", f"outflow_presim_{reservoir_name}"],
+        ]
+
+        if downstream_lag > 0:
+            model_dict["edges"] += [
+                [f"outflow_presim_{reservoir_name}", f"delay_{reservoir_name}"],
+                [f"delay_{reservoir_name}", downstream_name],
+            ]
+        else:
+            model_dict["edges"] += [
+                [f"outflow_presim_{reservoir_name}", downstream_name],
+            ]
+
+        #############################################
+        ########## Add parameters ###################
+        #############################################
+
+        # Parameter to read pre-simulated releases.
+        # Single-trace: pywr's built-in `dataframe` parameter reads one column from the CSV.
+        # Ensemble: PresimulatedReleaseEnsemble (mirrors FlowEnsemble) reads one node group
+        # from the HDF5 and returns the realization-specific release at each timestep.
+        if self.options.inflow_ensemble_indices is not None:
+            model_dict["parameters"][f"presimulated_release_{reservoir_name}"] = {
+                "type": "PresimulatedReleaseEnsemble",
+                "node": reservoir_name,
+                "inflow_type": self.inflow_type,
+                "inflow_ensemble_indices": self.options.inflow_ensemble_indices,
+                "presim_filename": os.path.basename(
+                    self._presimulated_releases_file
+                ),
+            }
+        else:
+            model_dict["parameters"][f"presimulated_release_{reservoir_name}"] = {
+                "type": "dataframe",
+                "url": self._presimulated_releases_file,
+                "column": reservoir_name,
+                "index_col": "datetime",
+                "parse_dates": True,
+            }
+
     def add_node_major_river(
         self, name, downstream_lag, downstream_node, has_catchment=True
     ):
@@ -890,7 +1333,7 @@ class ModelBuilder:
         Add a major river node to the model. This step will also add a cluster of
         nodes that are connected to the river, including catchment, withdrawal,
         consumption, delay, and outflow nodes.
-        
+
         Parameters
         ----------
         name : str
@@ -925,7 +1368,7 @@ class ModelBuilder:
             withdrawal = {
                 "name": f"catchmentWithdrawal_{name}",
                 "type": "link",
-                "cost": -15.0,
+                "cost": self._get_unique_cost(-15.0),
                 "max_flow": f"max_flow_catchmentWithdrawal_{name}",
             }
             model_dict["nodes"].append(withdrawal)
@@ -935,7 +1378,7 @@ class ModelBuilder:
             consumption = {
                 "name": f"catchmentConsumption_{name}",
                 "type": "output",
-                "cost": -2000.0,
+                "cost": self._get_unique_cost(-2000.0),
                 "max_flow": f"max_flow_catchmentConsumption_{name}",
             }
             model_dict["nodes"].append(consumption)
@@ -990,15 +1433,19 @@ class ModelBuilder:
             ### Assign inflows to nodes
             if inflow_ensemble_indices is not None:
                 ### Use custom FlowEnsemble parameter to handle scenario indexing
+                inflow_filename = self._get_inflow_filename(ensemble=True)
                 model_dict["parameters"][f"flow_{name}"] = {
                     "type": "FlowEnsemble",
                     "node": name,
                     "inflow_type": inflow_type,
                     "inflow_ensemble_indices": inflow_ensemble_indices,
+                    "inflow_filename": inflow_filename,
                 }
 
             else:
-                inflow_source = str(pn.sc.get(f"flows/{inflow_type}") / "catchment_inflow_mgd.csv") 
+                # Choose inflow file based on flood operations option
+                inflow_filename = self._get_inflow_filename(ensemble=False)
+                inflow_source = str(pn.sc.get(f"flows/{inflow_type}") / inflow_filename)
                 ### Use single-scenario historic data
                 model_dict["parameters"][f"flow_{name}"] = {
                     "type": "dataframe",
@@ -1011,7 +1458,9 @@ class ModelBuilder:
             ### get max flow for catchment withdrawal nodes based on DRBC data
             model_dict["parameters"][f"max_flow_catchmentWithdrawal_{name}"] = {
                 "type": "constant",
-                "url": pn.catchment_withdrawals.get_str("sw_avg_wateruse_pywrdrb_catchments_mgd.csv"),
+                "url": pn.catchment_withdrawals.get_str(
+                    "sw_avg_wateruse_pywrdrb_catchments_mgd.csv"
+                ),
                 "column": "Total_WD_MGD",
                 "index_col": "node",
                 "index": node_name,
@@ -1021,7 +1470,9 @@ class ModelBuilder:
             ### assume the consumption_t = R * withdrawal_{t-1}, where R is the ratio of avg consumption to withdrawal from DRBC data
             model_dict["parameters"][f"catchmentConsumptionRatio_{name}"] = {
                 "type": "constant",
-                "url": pn.catchment_withdrawals.get_str("sw_avg_wateruse_pywrdrb_catchments_mgd.csv"),
+                "url": pn.catchment_withdrawals.get_str(
+                    "sw_avg_wateruse_pywrdrb_catchments_mgd.csv"
+                ),
                 "column": "Total_CU_WD_Ratio",
                 "index_col": "node",
                 "index": node_name,
@@ -1069,7 +1520,7 @@ class ModelBuilder:
                 {
                     "name": f"link_{r}_nyc",
                     "type": "link",
-                    "cost": -500.0,
+                    "cost": self._get_unique_cost(-500.0),
                     "max_flow": f"max_flow_delivery_nyc_{r}",
                 }
             )
@@ -1085,7 +1536,7 @@ class ModelBuilder:
                 {
                     "name": f"delivery_{d}",
                     "type": "output",
-                    "cost": -500.0,
+                    "cost": self._get_unique_cost(-500.0),
                     "max_flow": f"max_flow_delivery_{d}",
                 }
             )
@@ -1150,12 +1601,22 @@ class ModelBuilder:
                 }
             else:
                 # Using single-scenario diversions - use dataframe parameter
-                nyc_div_fname = str(pn.sc.get(f"flows/{inflow_type}") / "diversion_nyc_extrapolated_mgd.csv")
-                nj_div_fname = str(pn.sc.get(f"flows/{inflow_type}") / "diversion_nj_extrapolated_mgd.csv")
+                nyc_div_fname = str(
+                    pn.sc.get(f"flows/{inflow_type}")
+                    / "diversion_nyc_extrapolated_mgd.csv"
+                )
+                nj_div_fname = str(
+                    pn.sc.get(f"flows/{inflow_type}")
+                    / "diversion_nj_extrapolated_mgd.csv"
+                )
 
                 # make sure both files exist
-                assert os.path.exists(nyc_div_fname), f"Custom NYC demand file {nyc_div_fname} does not exist but is required when nyc_nj_demand_source is 'custom'."
-                assert os.path.exists(nj_div_fname), f"Custom NJ demand file {nj_div_fname} does not exist but is required when nyc_nj_demand_source is 'custom'."
+                assert os.path.exists(
+                    nyc_div_fname
+                ), f"Custom NYC demand file {nyc_div_fname} does not exist but is required when nyc_nj_demand_source is 'custom'."
+                assert os.path.exists(
+                    nj_div_fname
+                ), f"Custom NJ demand file {nj_div_fname} does not exist but is required when nyc_nj_demand_source is 'custom'."
 
                 # NYC
                 model_dict["parameters"][f"demand_nyc"] = {
@@ -1193,43 +1654,43 @@ class ModelBuilder:
                 "index": "max_flow_baseline_monthlyAvg_delivery_nj",
             }
         else:
-            raise ValueError(f"Invalid nyc_nj_demand_source: {nyc_nj_demand_source}. Options are 'historical', 'custom', or 'constant_max'.")
-
+            raise ValueError(
+                f"Invalid nyc_nj_demand_source: {nyc_nj_demand_source}. Options are 'historical', 'custom', or 'constant_max'."
+            )
 
     def add_parameter_nyc_reservoirs_operational_regimes(self):
         """
         Add parameters defining operational regimes for NYC reservoirs based on combined storage.
         This includes defining levels, control curve indices, and delivery factors for NYC and NJ.
+        Uses configuration from nyc_operations_config for flexible parameter modification.
         """
         model_dict = self.model_dict
-        # Levels defining operational regimes for NYC reservoirs base on combined storage: 1a, 1b, 1c, 2, 3, 4, 5.
-        # Note 1a assumed to fill remaining space, doesnt need to be defined here.
-        levels = self.levels
-        for level in levels[1:]:
-            model_dict["parameters"][f"level{level}"] = {
+        config = self.nyc_operations_config
+
+        # Levels defining operational regimes for NYC reservoirs base on combined storage.
+        # The first drought level (level1a / zone_0) fills remaining space, doesn't need to be defined here.
+        for level in self.storage_levels:
+            zone_profile = config.get_storage_zone_profile(level)
+            model_dict["parameters"][level] = {
                 "type": "dailyprofile",
-                "url": pn.operational_constants.get_str("ffmp_reservoir_operation_daily_profiles.csv"),
-                "index_col": "profile",
-                "index": f"level{level}",
+                "values": zone_profile.tolist(),
             }
 
         ### Control curve index that tells us which level the aggregated NYC storage is currently in
         model_dict["parameters"]["drought_level_agg_nyc"] = {
             "type": "controlcurveindex",
             "storage_node": "reservoir_agg_nyc",
-            "control_curves": [f"level{level}" for level in levels[1:]],
+            "control_curves": [level for level in self.storage_levels],
         }
 
-        ### Factors defining delivery profiles for NYC and NJ, for each storage level: 1a, 1b, 1c, 2, 3, 4, 5.
+        ### Factors defining delivery profiles for NYC and NJ, for each storage level.
         demands = ["nyc", "nj"]
         for demand in demands:
-            for level in levels:
-                model_dict["parameters"][f"level{level}_factor_delivery_{demand}"] = {
+            for level in self.drought_levels:
+                factor_value = config.get_constant(f"{level}_factor_delivery_{demand}")
+                model_dict["parameters"][f"{level}_factor_delivery_{demand}"] = {
                     "type": "constant",
-                    "url": pn.operational_constants.get_str("constants.csv"),
-                    "column": "value",
-                    "index_col": "parameter",
-                    "index": f"level{level}_factor_delivery_{demand}",
+                    "value": factor_value,
                 }
 
         ### Indexed arrays that dictate cutbacks to NYC & NJ deliveries, based on current storage level and DOY
@@ -1238,7 +1699,7 @@ class ModelBuilder:
                 "type": "indexedarray",
                 "index_parameter": "drought_level_agg_nyc",
                 "params": [
-                    f"level{level}_factor_delivery_{demand}" for level in levels
+                    f"{level}_factor_delivery_{demand}" for level in self.drought_levels
                 ],
             }
 
@@ -1247,15 +1708,17 @@ class ModelBuilder:
             model_dict["parameters"][f"drought_level_{reservoir}"] = {
                 "type": "controlcurveindex",
                 "storage_node": f"reservoir_{reservoir}",
-                "control_curves": [f"level{level}" for level in levels[1:]],
+                "control_curves": [level for level in self.storage_levels],
             }
 
     def add_parameter_nyc_and_nj_delivery_constraints(self):
         """
         Add parameters defining delivery constraints for NYC and NJ under normal and drought conditions.
         This includes maximum allowable flows for deliveries and FFMP-based constraints.
+        Uses configuration from nyc_operations_config for flexible parameter modification.
         """
         model_dict = self.model_dict
+        config = self.nyc_operations_config
 
         #######################################################################
         ### NYC & NJ delivery baseline under normal conditions
@@ -1263,26 +1726,17 @@ class ModelBuilder:
         # Max allowable delivery to NYC (on moving avg)
         model_dict["parameters"]["max_flow_baseline_delivery_nyc"] = {
             "type": "constant",
-            "url": pn.operational_constants.get_str("constants.csv"),
-            "column": "value",
-            "index_col": "parameter",
-            "index": "max_flow_baseline_delivery_nyc",
+            "value": config.get_constant("max_flow_baseline_delivery_nyc"),
         }
 
         # NJ has both a daily limit and monthly average limit
         model_dict["parameters"]["max_flow_baseline_daily_delivery_nj"] = {
             "type": "constant",
-            "url": pn.operational_constants.get_str("constants.csv"),
-            "column": "value",
-            "index_col": "parameter",
-            "index": "max_flow_baseline_daily_delivery_nj",
+            "value": config.get_constant("max_flow_baseline_daily_delivery_nj"),
         }
         model_dict["parameters"]["max_flow_baseline_monthlyAvg_delivery_nj"] = {
             "type": "constant",
-            "url": pn.operational_constants.get_str("constants.csv"),
-            "column": "value",
-            "index_col": "parameter",
-            "index": "max_flow_baseline_monthlyAvg_delivery_nj",
+            "value": config.get_constant("max_flow_baseline_monthlyAvg_delivery_nj"),
         }
 
         #######################################################################
@@ -1344,18 +1798,17 @@ class ModelBuilder:
     def add_parameter_nyc_reservoirs_min_require_flow(self):
         """
         Add parameters defining minimum release flow requirements from NYC reservoirs based on FFMP.
+        Uses configuration from nyc_operations_config for flexible parameter modification.
         """
         model_dict = self.model_dict
-        levels = self.levels
+        config = self.nyc_operations_config
+
         # Baseline release flow rate for each NYC reservoir, dictated by FFMP
         # reservoir_list_nyc = ["cannonsville", "pepacton", "neversink"]
         for reservoir in reservoir_list_nyc:
             model_dict["parameters"][f"mrf_baseline_{reservoir}"] = {
                 "type": "constant",
-                "url": pn.operational_constants.get_str("constants.csv"),
-                "column": "value",
-                "index_col": "parameter",
-                "index": f"mrf_baseline_{reservoir}",
+                "value": config.get_constant(f"mrf_baseline_{reservoir}"),
             }
 
         ### Factor governing changing release reqs from NYC reservoirs, based on aggregated storage across 3 reservoirs
@@ -1363,17 +1816,19 @@ class ModelBuilder:
             model_dict["parameters"][f"mrf_drought_factor_agg_{reservoir}"] = {
                 "type": "indexedarray",
                 "index_parameter": "drought_level_agg_nyc",
-                "params": [f"level{level}_factor_mrf_{reservoir}" for level in levels],
+                "params": [
+                    f"{level}_factor_mrf_{reservoir}" for level in self.drought_levels
+                ],
             }
 
         ### Levels defining operational regimes for individual NYC reservoirs, as opposed to aggregated level across 3 reservoirs
         for reservoir in reservoir_list_nyc:
-            for level in levels:
-                model_dict["parameters"][f"level{level}_factor_mrf_{reservoir}"] = {
+            for level in self.drought_levels:
+                profile_name = f"{level}_factor_mrf_{reservoir}"
+                mrf_profile = config.get_mrf_factor_profile(profile_name, daily=True)
+                model_dict["parameters"][profile_name] = {
                     "type": "dailyprofile",
-                    "url": pn.operational_constants.get_str("ffmp_reservoir_operation_daily_profiles.csv"),
-                    "index_col": "profile",
-                    "index": f"level{level}_factor_mrf_{reservoir}",
+                    "values": mrf_profile.tolist(),
                 }
 
         ### Factor governing changing release reqs from NYC reservoirs, based on individual storage for particular reservoir
@@ -1381,18 +1836,41 @@ class ModelBuilder:
             model_dict["parameters"][f"mrf_drought_factor_individual_{reservoir}"] = {
                 "type": "indexedarray",
                 "index_parameter": f"drought_level_{reservoir}",
-                "params": [f"level{level}_factor_mrf_{reservoir}" for level in levels],
+                "params": [
+                    f"{level}_factor_mrf_{reservoir}" for level in self.drought_levels
+                ],
             }
 
         ### Factor governing changing release reqs from NYC reservoirs, depending on whether aggregated or individual storage level is activated
         ### Based on custom Pywr parameter.
         for reservoir in reservoir_list_nyc:
-            model_dict["parameters"][
-                f"mrf_drought_factor_combined_final_{reservoir}"
-            ] = {
+            combined_factor_param = {
                 "type": "NYCCombinedReleaseFactor",
                 "node": f"reservoir_{reservoir}",
+                "flood_conservation_boundary": 2,
             }
+            # When flood operations enabled, pass downstream stage and conservation-boundary factor
+            # so NYCCombinedReleaseFactor can cap the factor at that level during
+            # downstream flooding (FFMP Section 6.iv-vi).
+            if self.options.enable_nyc_flood_operations:
+                downstream_node = NYC_DOWNSTREAM_FLOOD_NODES[reservoir]
+                combined_factor_param[
+                    "downstream_stage_parameter"
+                ] = f"stage_{downstream_node}"
+                # mrf_factor_l2 caps the MRF factor at "the L2 factor" during
+                # downstream flood events (FFMP Section 6.iv-vi). L2 is the
+                # first zone below Zone L1 — i.e. index flood_conservation_boundary + 1
+                # in the drought_levels list. For FFMP default (B=2) this resolves
+                # to drought_levels[3] = 'level2'. For N-zone configs (B kept at
+                # 2 by convention) this resolves to drought_levels[3] = 'zone_3'.
+                flood_B = 2
+                combined_factor_param[
+                    "mrf_factor_l2"
+                ] = f"{self.drought_levels[flood_B + 1]}_factor_mrf_{reservoir}"
+                combined_factor_param["flood_operations_enabled"] = True
+            model_dict["parameters"][
+                f"mrf_drought_factor_combined_final_{reservoir}"
+            ] = combined_factor_param
 
         ### FFMP mandated releases from NYC reservoirs
         for reservoir in reservoir_list_nyc:
@@ -1417,9 +1895,23 @@ class ModelBuilder:
     def add_parameter_nyc_reservoirs_flood_control(self):
         """
         Add parameters defining flood control releases from NYC reservoirs based on FFMP.
-        This includes rolling mean flow calculations and flood release rules.
+
+        Per FFMP Section 6 (page 21): discharge mitigation releases are based on
+        individual reservoir storage zones (L1-a, L1-b, L1-c) when combined storage
+        is in Zone L1.
+
+        If use_individual_storage_for_flood_release is True (default, FFMP-compliant):
+        - Combined NYC storage must be in Zone L1 for discharge mitigation to be active
+        - Individual reservoir storage determines the release rate
+
+        If use_individual_storage_for_flood_release is False (legacy mode):
+        - Uses only aggregate storage check (for backward compatibility)
+
+        If enable_nyc_flood_operations is True, adds downstream stage constraints per
+        FFMP Section 6.iv-vi (pages 21-22).
         """
         model_dict = self.model_dict
+
         ### extra flood releases for NYC reservoirs specified in FFMP
         for reservoir in reservoir_list_nyc:
             model_dict["parameters"][f"weekly_rolling_mean_flow_{reservoir}"] = {
@@ -1429,10 +1921,25 @@ class ModelBuilder:
                 "name": f"flow_{reservoir}",
                 "initial_flow": 0,
             }
-            model_dict["parameters"][f"flood_release_{reservoir}"] = {
+
+            # Create flood release parameter with optional downstream stage constraint
+            flood_release_param = {
                 "type": "NYCFloodRelease",
                 "node": f"reservoir_{reservoir}",
+                "flood_operations_enabled": self.options.enable_nyc_flood_operations,
+                "use_individual_storage": self.options.use_individual_storage_for_flood_release,
+                "flood_zone_threshold": self.storage_levels[1],
+                "flood_conservation_boundary": 2,
             }
+
+            # Add downstream stage parameter if flood operations enabled
+            if self.options.enable_nyc_flood_operations:
+                downstream_node = NYC_DOWNSTREAM_FLOOD_NODES[reservoir]
+                flood_release_param[
+                    "downstream_stage_parameter"
+                ] = f"stage_{downstream_node}"
+
+            model_dict["parameters"][f"flood_release_{reservoir}"] = flood_release_param
 
         ### sum of flood control releases from NYC reservoirs
         model_dict["parameters"]["flood_release_agg_nyc"] = {
@@ -1442,6 +1949,43 @@ class ModelBuilder:
                 f"flood_release_{reservoir}" for reservoir in reservoir_list_nyc
             ],
         }
+
+    def add_parameter_flood_monitoring(self):
+        """
+        Add flood monitoring parameters for downstream stage and flood level tracking.
+
+        Creates StageFromDischargeParameter and FloodLevelIndicator for flood
+        monitoring locations. Only called when enable_nyc_flood_operations option is True.
+
+        Flood monitoring locations (with rating curves):
+        - 01426500 (Hale Eddy) - downstream of Cannonsville
+        - 01421000 (Fishs Eddy) - downstream of Pepacton
+        - 01436690 (Bridgeville) - downstream of Neversink
+
+        Note: delMontague and delTrenton could be added when rating curves become available.
+        """
+        model_dict = self.model_dict
+
+        # Define flood monitoring locations (only those with rating curves)
+        flood_locations = [
+            "01426500",  # Hale Eddy
+            "01421000",  # Fishs Eddy
+            "01436690",  # Bridgeville
+        ]
+
+        for location in flood_locations:
+            # Stage parameter using rating curve
+            model_dict["parameters"][f"stage_{location}"] = {
+                "type": "StageFromDischargeParameter",
+                "node": location,
+            }
+
+            # Flood level indicator using stage
+            model_dict["parameters"][f"flood_level_{location}"] = {
+                "type": "FloodLevelIndicator",
+                "stage_parameter": f"stage_{location}",
+                "location": location,
+            }
 
     # Can be removed after volume balancing rules are implemented
     def add_parameter_nyc_reservoirs_variable_cost_based_on_fractional_storage(self):
@@ -1459,11 +2003,23 @@ class ModelBuilder:
             "neversink": self._get_reservoir_capacity("neversink"),
         }
         for reservoir in reservoir_list_nyc:
+            # Add unique offset to prevent LP degeneracy at same storage fractions
+            self._cost_offset_counter += 1
+            offset = self._cost_offset_counter
+            values = [-100 - offset, -1 - offset]
             model_dict["parameters"][f"storage_cost_{reservoir}"] = {
                 "type": "interpolatedvolume",
-                "values": [-100, -1],
+                "values": values,
                 "node": f"reservoir_{reservoir}",
                 "volumes": [-EPS, volumes[reservoir] + EPS],
+                # Clamp at the domain edges instead of raising. Over long synthetic
+                # ensembles a reservoir volume can land a hair below 0 (~ -2e-8 MG, an
+                # LP-solver/float residual at "empty"), just past the -EPS floor. With
+                # the pywr default (bounds_error=True) that raises ValueError mid-run.
+                # bounds_error=False + fill_value=value-endpoints resolves such dust to
+                # the empty/full edge value (mirrors utils/rating_curves.py). The
+                # volumes/values arrays are untouched, so in-domain results are unchanged.
+                "interp_kwargs": {"bounds_error": False, "fill_value": list(values)},
             }
 
     def add_parameter_nyc_reservoirs_current_volume(self):
@@ -1475,11 +2031,18 @@ class ModelBuilder:
         EPS = self.EPS
         ### current volume stored in each reservoir
         for reservoir in reservoir_list_nyc + ["agg_nyc"]:
+            # Identity map (volume -> volume). volumes == values, so within [-EPS, 1e6]
+            # this returns the volume exactly. Clamp out-of-range queries instead of
+            # raising: see add_parameter_nyc_reservoirs_variable_cost_based_on_fractional_storage
+            # for the dust/clamp rationale. fill_value=value-endpoints preserves the
+            # identity at the edges and never perturbs in-domain results.
+            values = [-EPS, 1000000]
             model_dict["parameters"][f"volume_{reservoir}"] = {
                 "type": "interpolatedvolume",
-                "values": [-EPS, 1000000],
+                "values": values,
                 "node": f"reservoir_{reservoir}",
                 "volumes": [-EPS, 1000000],
+                "interp_kwargs": {"bounds_error": False, "fill_value": list(values)},
             }
 
     def add_parameter_nyc_reservoirs_aggregated_info(self):
@@ -1489,11 +2052,15 @@ class ModelBuilder:
         model_dict = self.model_dict
         EPS = self.EPS
         ### current volume stored in the aggregated storage node
+        # Identity map (volume -> volume); clamp out-of-range queries instead of raising
+        # (see add_parameter_nyc_reservoirs_variable_cost_based_on_fractional_storage).
+        agg_volume_values = [-EPS, 1000000]
         model_dict["parameters"]["volume_agg_nyc"] = {
             "type": "interpolatedvolume",
-            "values": [-EPS, 1000000],
+            "values": agg_volume_values,
             "node": "reservoir_agg_nyc",
             "volumes": [-EPS, 1000000],
+            "interp_kwargs": {"bounds_error": False, "fill_value": list(agg_volume_values)},
         }
 
         ### aggregated inflows to NYC reservoirs
@@ -1516,28 +2083,27 @@ class ModelBuilder:
         """
         Add parameters defining flow targets at Montague and Trenton based on drought levels of NYC aggregated storage.
         This includes baseline flow targets, seasonal multiplier factors, and total flow targets.
+        Uses configuration from nyc_operations_config for flexible parameter modification.
         """
         model_dict = self.model_dict
-        levels = self.levels
+        config = self.nyc_operations_config
+
         ### Baseline flow target at Montague & Trenton
         mrfs = ["delMontague", "delTrenton"]
         for mrf in mrfs:
             model_dict["parameters"][f"mrf_baseline_{mrf}"] = {
                 "type": "constant",
-                "url": pn.operational_constants.get_str("constants.csv"),
-                "column": "value",
-                "index_col": "parameter",
-                "index": f"mrf_baseline_{mrf}",
+                "value": config.get_constant(f"mrf_baseline_{mrf}"),
             }
 
         ### Seasonal multiplier factors for Montague & Trenton flow targets based on drought level of NYC aggregated storage
         for mrf in mrfs:
-            for level in levels:
-                model_dict["parameters"][f"level{level}_factor_mrf_{mrf}"] = {
+            for level in self.drought_levels:
+                profile_name = f"{level}_factor_mrf_{mrf}"
+                mrf_profile = config.get_mrf_factor_profile(profile_name, daily=False)
+                model_dict["parameters"][profile_name] = {
                     "type": "monthlyprofile",
-                    "url": pn.operational_constants.get_str("ffmp_reservoir_operation_monthly_profiles.csv"),
-                    "index_col": "profile",
-                    "index": f"level{level}_factor_mrf_{mrf}",
+                    "values": mrf_profile.tolist(),
                 }
 
         ### Current value of seasonal multiplier factor for Montague & Trenton flow targets based on drought level of NYC aggregated storage
@@ -1545,7 +2111,9 @@ class ModelBuilder:
             model_dict["parameters"][f"mrf_drought_factor_{mrf}"] = {
                 "type": "indexedarray",
                 "index_parameter": "drought_level_agg_nyc",
-                "params": [f"level{level}_factor_mrf_{mrf}" for level in levels],
+                "params": [
+                    f"{level}_factor_mrf_{mrf}" for level in self.drought_levels
+                ],
             }
 
         ### Total Montague & Trenton flow targets based on drought level of NYC aggregated storage
@@ -1565,13 +2133,13 @@ class ModelBuilder:
         # NYC IERQ bank storages
         # Currently only Trenton equivalent flow bank is implemented
         for bank in ["trenton"]:
-            for step in [1,2]:
+            for step in [1, 2]:
                 # IERQ remaining volume
                 model_dict["parameters"][f"nyc_{bank}_ierq_remaining_step{step}"] = {
                     "type": "IERQRemaining",
                     "bank": bank,
                     "step": step,
-                } 
+                }
 
     # ?? Not yet understand how this works
     def add_parameter_predicted_lagged_non_nyc_inflows_to_Montague_and_Trenton_and_lagged_nj_demands(
@@ -1585,7 +2153,7 @@ class ModelBuilder:
         inflow_ensemble_indices = self.options.inflow_ensemble_indices
         inflow_type = self.inflow_type
         nyc_nj_demand_source = self.options.nyc_nj_demand_source
-        
+
         ### total predicted lagged non-NYC inflows to Montague & Trenton, and predicted lagged NJ demands
         if inflow_ensemble_indices is None:
             for mrf, lag in zip(
@@ -1604,20 +2172,28 @@ class ModelBuilder:
                     f"predicted_nonnyc_gage_flow_{mrf}_lag{lag}"
                 ] = {
                     "type": "dataframe",
-                    "url": str(pn.sc.get(f"flows/{inflow_type}") / "predicted_inflows_mgd.csv"),
+                    "url": str(
+                        pn.sc.get(f"flows/{inflow_type}") / "predicted_inflows_mgd.csv"
+                    ),
                     "column": label,
                     "index_col": "datetime",
                     "parse_dates": True,
                 }
             ### now get predicted nj demand
             for lag in range(1, 5):
-                
                 if nyc_nj_demand_source != "custom":
-                    pred_div_fname = pn.diversions.get_str("predicted_diversions_mgd.csv")
+                    pred_div_fname = pn.diversions.get_str(
+                        "predicted_diversions_mgd.csv"
+                    )
                 else:
-                    pred_div_fname = str(pn.sc.get(f"flows/{inflow_type}") / "predicted_diversions_mgd.csv")
-                    assert os.path.exists(pred_div_fname), f"Custom predicted diversion file {pred_div_fname} does not exist but is required when nyc_nj_demand_source is 'custom'."
-                
+                    pred_div_fname = str(
+                        pn.sc.get(f"flows/{inflow_type}")
+                        / "predicted_diversions_mgd.csv"
+                    )
+                    assert os.path.exists(
+                        pred_div_fname
+                    ), f"Custom predicted diversion file {pred_div_fname} does not exist but is required when nyc_nj_demand_source is 'custom'."
+
                 label = f"demand_nj_lag{lag}_{self.options.flow_prediction_mode}"
                 model_dict["parameters"][f"predicted_demand_nj_lag{lag}"] = {
                     "type": "dataframe",
@@ -1650,16 +2226,34 @@ class ModelBuilder:
                     "ensemble_indices": inflow_ensemble_indices,
                 }
 
-            ### now get predicted nj demand - use PredictionEnsemble for ensemble mode
-            for lag in range(1, 5):
-                label = f"demand_nj_lag{lag}_{self.options.flow_prediction_mode}"
-                model_dict["parameters"][f"predicted_demand_nj_lag{lag}"] = {
-                    "type": "PredictionEnsemble",
-                    "column": label,
-                    "inflow_type": inflow_type,
-                    "ensemble_indices": inflow_ensemble_indices,
-                    "prediction_type": "diversions",
-                }
+            ### now get predicted nj demand
+            # When demand is held constant across time (constant_max mode),
+            # the lagged forecast is that same scalar at every horizon.
+            # Using a `constant` parameter here avoids the need for the
+            # per-realization `predicted_diversions_mgd.hdf5` ensemble file
+            # and keeps the forecast consistent with the scalar `demand_nj`
+            # set in add_parameter_nyc_and_nj_demands (constant_max branch).
+            # For `historical` / `custom` modes the ensemble forecast still
+            # applies.
+            if nyc_nj_demand_source == "constant_max":
+                for lag in range(1, 5):
+                    model_dict["parameters"][f"predicted_demand_nj_lag{lag}"] = {
+                        "type": "constant",
+                        "url": pn.operational_constants.get_str("constants.csv"),
+                        "column": "value",
+                        "index_col": "parameter",
+                        "index": "max_flow_baseline_monthlyAvg_delivery_nj",
+                    }
+            else:
+                for lag in range(1, 5):
+                    label = f"demand_nj_lag{lag}_{self.options.flow_prediction_mode}"
+                    model_dict["parameters"][f"predicted_demand_nj_lag{lag}"] = {
+                        "type": "PredictionEnsemble",
+                        "column": label,
+                        "inflow_type": inflow_type,
+                        "ensemble_indices": inflow_ensemble_indices,
+                        "prediction_type": "diversions",
+                    }
 
     def add_parameter_nyc_reservoirs_balancing_methods(self):
         """
@@ -1682,7 +2276,7 @@ class ModelBuilder:
             "mrf": "delMontague",
             "step": step,
         }
-        
+
         ### now get addl release (above Montague release) needed to meet Trenton target in 4 days
         model_dict["parameters"][f"release_needed_mrf_trenton_step{step}"] = {
             "type": "TotalReleaseNeededForDownstreamMRF",
@@ -1690,13 +2284,15 @@ class ModelBuilder:
             "step": step,
         }
 
-        # Max available Trenton contribution from each available lower basin reservoir. 
+        # Max available Trenton contribution from each available lower basin reservoir.
         # Step 1 is for Cannonsville/Pepacton release, so 4 days ahead for Trenton.
         for reservoir in drbc_lower_basin_reservoirs:
             model_dict["parameters"][f"max_mrf_trenton_step{step}_{reservoir}"] = {
                 "type": "LowerBasinMaxMRFContribution",
                 "node": f"reservoir_{reservoir}",
                 "step": step,
+                "nyc_drought_emergency_level": self.nyc_operations_config.n_drought_levels
+                - 1,
             }
 
         ## Aggregate total expected lower basin contribution to Trenton
@@ -1710,11 +2306,16 @@ class ModelBuilder:
         model_dict["parameters"][f"neg_lower_basin_agg_mrf_trenton_step{step}"] = {
             "type": "aggregated",
             "agg_func": "product",
-            "parameters": [f"lower_basin_agg_mrf_trenton_step{step}", "negative_one_multiplier"],
+            "parameters": [
+                f"lower_basin_agg_mrf_trenton_step{step}",
+                "negative_one_multiplier",
+            ],
         }
 
         # Trenton contribution needed after accounting for lower basin contributions
-        model_dict["parameters"][f"release_needed_mrf_trenton_after_lower_basin_contributions_step1"] = {
+        model_dict["parameters"][
+            f"release_needed_mrf_trenton_after_lower_basin_contributions_step1"
+        ] = {
             "type": "aggregated",
             "agg_func": "sum",
             "parameters": [
@@ -1730,7 +2331,7 @@ class ModelBuilder:
             "bank": "trenton",
         }
 
-        ### total mrf release needed is sum of Montague & Trenton. 
+        ### total mrf release needed is sum of Montague & Trenton.
         # This Step 1 is for Cannonsville/Pepacton releases.
         model_dict["parameters"][f"total_agg_mrf_montagueTrenton_step{step}"] = {
             "type": "aggregated",
@@ -1741,11 +2342,11 @@ class ModelBuilder:
             ],
         }
 
-        ### now calculate actual Cannonsville & Pepacton releases to meet Montague&Trenton, 
+        ### now calculate actual Cannonsville & Pepacton releases to meet Montague&Trenton,
         # with assumed releases for Neversink & lower basin
         for reservoir in ["cannonsville", "pepacton"]:
             model_dict["parameters"][f"mrf_montagueTrenton_{reservoir}"] = {
-                "type": f"VolBalanceNYCDownstreamMRF_step{step}", # step 1
+                "type": f"VolBalanceNYCDownstreamMRF_step{step}",  # step 1
                 "node": f"reservoir_{reservoir}",
             }
 
@@ -1784,7 +2385,6 @@ class ModelBuilder:
             "mrf": "delTrenton",
             "step": step,
         }
-        
 
         ## Max available Trenton contribution from each available lower basin reservoir. Step 2 is for Neversink release, so 3 days ahead for Trenton.
         for reservoir in drbc_lower_basin_reservoirs:
@@ -1792,6 +2392,8 @@ class ModelBuilder:
                 "type": "LowerBasinMaxMRFContribution",
                 "node": f"reservoir_{reservoir}",
                 "step": step,
+                "nyc_drought_emergency_level": self.nyc_operations_config.n_drought_levels
+                - 1,
             }
 
         ## Aggregate total expected lower basin contribution to Trenton
@@ -1799,17 +2401,21 @@ class ModelBuilder:
             "type": "VolBalanceLowerBasinMRFAggregate",
             "step": step,
         }
-        
+
         ## Negative value of lower basin contribution
         model_dict["parameters"][f"neg_lower_basin_agg_mrf_trenton_step{step}"] = {
             "type": "aggregated",
             "agg_func": "product",
-            "parameters": [f"lower_basin_agg_mrf_trenton_step{step}", 
-                           "negative_one_multiplier"],
+            "parameters": [
+                f"lower_basin_agg_mrf_trenton_step{step}",
+                "negative_one_multiplier",
+            ],
         }
-        
+
         ## Now get remaining trenton release needed after accounting for lower basin contributions
-        model_dict["parameters"][f"release_needed_mrf_trenton_after_lower_basin_contributions_step{step}"] = {
+        model_dict["parameters"][
+            f"release_needed_mrf_trenton_after_lower_basin_contributions_step{step}"
+        ] = {
             "type": "aggregated",
             "agg_func": "sum",
             "parameters": [
@@ -1817,14 +2423,14 @@ class ModelBuilder:
                 f"neg_lower_basin_agg_mrf_trenton_step{step}",
             ],
         }
-        
+
         # Max allowable NYC Trenton contribution
         # constrained by IERQ bank storage
         model_dict["parameters"][f"nyc_mrf_trenton_step{step}"] = {
             "type": "constant",
             "value": 0.0,
         }
-        
+
         ### total mrf release needed is sum of Montague & Trenton. This Step 2 is for Neversink releases.
         model_dict["parameters"][f"total_agg_mrf_montagueTrenton_step{step}"] = {
             "type": "aggregated",
@@ -1835,9 +2441,7 @@ class ModelBuilder:
             ],
         }
 
-
-
-        ### Now assign Neversink releases to meet Montague/Trenton mrf, 
+        ### Now assign Neversink releases to meet Montague/Trenton mrf,
         # after accting for previous Can/Pep releases & expected lower basin contribution
         model_dict["parameters"][f"mrf_montagueTrenton_neversink"] = {
             "type": f"VolBalanceNYCDownstreamMRF_step{step}",
@@ -1891,13 +2495,15 @@ class ModelBuilder:
             "step": step,
         }
 
-        ## Max available Trenton contribution from each available lower basin reservoir. 
+        ## Max available Trenton contribution from each available lower basin reservoir.
         # Step 3 is for Beltzville/BlueMarsh release, so 2 days ahead for Trenton.
         for reservoir in drbc_lower_basin_reservoirs:
             model_dict["parameters"][f"max_mrf_trenton_step{step}_{reservoir}"] = {
                 "type": "LowerBasinMaxMRFContribution",
                 "node": f"reservoir_{reservoir}",
                 "step": step,
+                "nyc_drought_emergency_level": self.nyc_operations_config.n_drought_levels
+                - 1,
             }
 
         ## Aggregate total expected lower basin contribution to Trenton
@@ -1975,7 +2581,7 @@ class ModelBuilder:
                 "lag": lag,
             }
 
-        ### now get addl release (above NYC releases from steps 1-2 & lower basin releases from step 3) 
+        ### now get addl release (above NYC releases from steps 1-2 & lower basin releases from step 3)
         # needed to meet Trenton target in 1 days
         model_dict["parameters"][f"release_needed_mrf_trenton_step{step}"] = {
             "type": "TotalReleaseNeededForDownstreamMRF",
@@ -1989,6 +2595,8 @@ class ModelBuilder:
                 "type": "LowerBasinMaxMRFContribution",
                 "node": f"reservoir_{reservoir}",
                 "step": step,
+                "nyc_drought_emergency_level": self.nyc_operations_config.n_drought_levels
+                - 1,
             }
 
         ## Aggregate total expected lower basin contribution to Trenton
@@ -2049,84 +2657,95 @@ class ModelBuilder:
     def add_parameter_temperature_model(self):
         """
         Add parameters for temperature prediction using LSTM model.
-        This includes temperature model initialization, thermal release requirements, 
+        This includes temperature model initialization, thermal release requirements,
         and predicted maximum water temperature at Lordville.
         """
         model_dict = self.model_dict
         # Add the temperature model so that all instances can use or retrieve attributes from it.
         # The value method return None.
         temp_options = self.options.temperature_model
-        
+
         PywrDRB_ML_plugin_path = temp_options["PywrDRB_ML_plugin_path"]
-        pn.sc.add("PywrDRB_ML", PywrDRB_ML_plugin_path, overwrite=True) 
+        pn.sc.add("PywrDRB_ML", PywrDRB_ML_plugin_path, overwrite=True)
         if pn.sc.get("PywrDRB_ML").exists() is False:
-            raise FileNotFoundError(f"PywrDRB_ML plugin not found at {PywrDRB_ML_plugin_path}")
-        
-        # Main temperature model        
+            raise FileNotFoundError(
+                f"PywrDRB_ML plugin not found at {PywrDRB_ML_plugin_path}"
+            )
+
+        # Main temperature model
         ml_model_type = temp_options.get("ml_model_type", "lstm")
         if ml_model_type == "lstm":
             model_dict["parameters"]["temperature_model"] = {
-                    "type": "TemperatureModelLSTM",
-                    "model1": temp_options.get("model1"),
-                    "model2": temp_options.get("model2"),
-                    "Tavg2Tmax_coefs": temp_options.get("Tavg2Tmax_coefs"),
-                    "start_date": temp_options.get("start_date", None),       
-                    "end_date": temp_options.get("end_date", '2023-12-31'),
-                    "activate_thermal_control": temp_options.get("activate_thermal_control", False),
-                    "Q_C_lstm_var_name": temp_options.get("Q_C_lstm_var_name", "QbcTavg_Q_C"),
-                    "Q_i_lstm_var_name": temp_options.get("Q_i_lstm_var_name", "QbcTavg_Q_i"),
-                    "cannonsville_storage_pct_lstm_var_name": temp_options.get("cannonsville_storage_pct_lstm_var_name", "bc_cannonsville_storage_pct"),
-                    "PywrDRB_ML_plugin_path": str(PywrDRB_ML_plugin_path),
-                    "thermal_mitigation_bank_size": temp_options.get("thermal_mitigation_bank_size", 1620),  # mgd
-                    "asycronized_update": temp_options.get("asycronized_update", False),
-                    "debug": temp_options.get("debug", False),    
-                }
+                "type": "TemperatureModelLSTM",
+                "model1": temp_options.get("model1"),
+                "model2": temp_options.get("model2"),
+                "Tavg2Tmax_coefs": temp_options.get("Tavg2Tmax_coefs"),
+                "start_date": temp_options.get("start_date", None),
+                "end_date": temp_options.get("end_date", "2023-12-31"),
+                "activate_thermal_control": temp_options.get(
+                    "activate_thermal_control", False
+                ),
+                "Q_C_lstm_var_name": temp_options.get(
+                    "Q_C_lstm_var_name", "QbcTavg_Q_C"
+                ),
+                "Q_i_lstm_var_name": temp_options.get(
+                    "Q_i_lstm_var_name", "QbcTavg_Q_i"
+                ),
+                "cannonsville_storage_pct_lstm_var_name": temp_options.get(
+                    "cannonsville_storage_pct_lstm_var_name",
+                    "bc_cannonsville_storage_pct",
+                ),
+                "PywrDRB_ML_plugin_path": str(PywrDRB_ML_plugin_path),
+                "thermal_mitigation_bank_size": temp_options.get(
+                    "thermal_mitigation_bank_size", 1620
+                ),  # mgd
+                "asycronized_update": temp_options.get("asycronized_update", False),
+                "debug": temp_options.get("debug", False),
+            }
         elif ml_model_type == "rf":
             model_dict["parameters"]["temperature_model"] = {
-                    "type": "TemperatureModelRF",
-                    "start_date": temp_options.get("start_date", None),
-                    "activate_thermal_control": temp_options.get("activate_thermal_control", False),
-                    "quantile": temp_options.get("quantile", None),
-                    "asycronized_update": temp_options.get("asycronized_update", False),
-                    "PywrDRB_ML_plugin_path": str(PywrDRB_ML_plugin_path),
-                    "debug": temp_options.get("debug", False),
-                }
-            
+                "type": "TemperatureModelRF",
+                "start_date": temp_options.get("start_date", None),
+                "activate_thermal_control": temp_options.get(
+                    "activate_thermal_control", False
+                ),
+                "quantile": temp_options.get("quantile", None),
+                "asycronized_update": temp_options.get("asycronized_update", False),
+                "PywrDRB_ML_plugin_path": str(PywrDRB_ML_plugin_path),
+                "debug": temp_options.get("debug", False),
+            }
+
         # Call update() in TemperatureModel to compute the max water temperature at Lordville after thermal release
         # This will use the flow from the previous time step to update the lstms as this is pre-LP implementation.
         model_dict["parameters"]["update_temperature_at_lordville"] = {
-                "type": "UpdateTemperatureAtLordville",
-            }
-        
-        model_dict["parameters"]["estimated_Q_i"] = {
-            "type": "Estimated_Q_i"
+            "type": "UpdateTemperatureAtLordville",
         }
 
-        model_dict["parameters"]["estimated_Q_C"] = {
-            "type": "Estimated_Q_C"
-        }
+        model_dict["parameters"]["estimated_Q_i"] = {"type": "Estimated_Q_i"}
+
+        model_dict["parameters"]["estimated_Q_C"] = {"type": "Estimated_Q_C"}
 
         # Call make_control_release() in TemperatureModel if activate_thermal_control is True
         model_dict["parameters"]["thermal_release_requirement"] = {
-                "type": "ThermalReleaseRequirement",
-            }
-        
+            "type": "ThermalReleaseRequirement",
+        }
+
         # Retrieve forecasted temperature before thermal release (t)
         model_dict["parameters"]["forecasted_temperature_before_thermal_release_mu"] = {
-                "type": "ForecastedTemperatureBeforeThermalRelease",
-                "ml_model_type": ml_model_type,
-                "variable": "mu"
-            }
-        
-        # We will not output sd directly as only lstm will output the sd. RF model 
+            "type": "ForecastedTemperatureBeforeThermalRelease",
+            "ml_model_type": ml_model_type,
+            "variable": "mu",
+        }
+
+        # We will not output sd directly as only lstm will output the sd. RF model
         # output ub and lb assicated with given quantile, not sd.
         # Users can retrieve the sd post simulation if needed.
         # The previous timestep info (mu, sd or others) will be available in the initiated object for dynamic usage.
-        #model_dict["parameters"]["forecasted_temperature_before_thermal_release_sd"] = {
+        # model_dict["parameters"]["forecasted_temperature_before_thermal_release_sd"] = {
         #        "type": "ForecastedTemperatureBeforeThermalRelease",
         #        "variable": "sd"
         #    }
-        
+
         # Overwrite original downstream setting to add the thermal release
         for reservoir in ["cannonsville"]:
             # Overwrite the max flow of the outflow node with the additional thermal release.
@@ -2134,34 +2753,38 @@ class ModelBuilder:
             # Not the most efficient way, but it make the code more searchable.
             for i, node in enumerate(model_dict["nodes"]):
                 if node["name"] == f"outflow_{reservoir}":
-                    model_dict["nodes"][i]["max_flow"] = f"downstream_add_thermal_release_to_target_{reservoir}"
+                    model_dict["nodes"][i][
+                        "max_flow"
+                    ] = f"downstream_add_thermal_release_to_target_{reservoir}"
 
             # Add the additional thermal release to the downstream release target
-            model_dict["parameters"][f"downstream_add_thermal_release_to_target_{reservoir}"] = {
+            model_dict["parameters"][
+                f"downstream_add_thermal_release_to_target_{reservoir}"
+            ] = {
                 "type": "aggregated",
                 "agg_func": "sum",
                 "parameters": [
                     f"downstream_release_target_{reservoir}",
-                    "thermal_release_requirement"
+                    "thermal_release_requirement",
                 ],
             }
-        
+
         # Retrieve the max water temperature at Lordville after thermal release (t-1)
         model_dict["parameters"]["temperature_after_thermal_release_mu"] = {
-                "type": "TemperatureAfterThermalRelease",
-                "ml_model_type": ml_model_type,
-                "variable": "mu"
-            }
-        
-        # We will not output sd directly as only lstm will output the sd. RF model 
+            "type": "TemperatureAfterThermalRelease",
+            "ml_model_type": ml_model_type,
+            "variable": "mu",
+        }
+
+        # We will not output sd directly as only lstm will output the sd. RF model
         # output ub and lb assicated with given quantile, not sd.
         # Users can retrieve the sd post simulation if needed.
         # The previous timestep info (mu, sd or others) will be available in the initiated object for dynamic usage.
-        #model_dict["parameters"]["temperature_after_thermal_release_sd"] = {
+        # model_dict["parameters"]["temperature_after_thermal_release_sd"] = {
         #        "type": "TemperatureAfterThermalRelease",
         #        "variable": "sd"
         #    }
-        
+
     def add_parameter_salinity_model(self):
         """
         Add parameters for salinity prediction using LSTM model.
@@ -2169,53 +2792,57 @@ class ModelBuilder:
         """
         model_dict = self.model_dict
         salinity_options = self.options.salinity_model
-        
+
         PywrDRB_ML_plugin_path = salinity_options["PywrDRB_ML_plugin_path"]
-        pn.sc.add("PywrDRB_ML", PywrDRB_ML_plugin_path, overwrite=True) 
+        pn.sc.add("PywrDRB_ML", PywrDRB_ML_plugin_path, overwrite=True)
         if pn.sc.get("PywrDRB_ML").exists() is False:
-            raise FileNotFoundError(f"PywrDRB_ML plugin not found at {PywrDRB_ML_plugin_path}")
-        
+            raise FileNotFoundError(
+                f"PywrDRB_ML plugin not found at {PywrDRB_ML_plugin_path}"
+            )
+
         # Main salinity model
         ml_model_type = salinity_options.get("ml_model_type", "rf")
 
         if ml_model_type == "lstm":
             model_dict["parameters"]["salinity_model"] = {
-                    "type": "SalinityModelLSTM",
-                    "model_salinity": salinity_options.get("model_salinity", None),
-                    "start_date": salinity_options.get("start_date", None),
-                    "end_date": salinity_options.get("end_date", None),
-                    "Q_Trenton_lstm_var_name": salinity_options["Q_Trenton_lstm_var_name"],
-                    "Q_Schuylkill_lstm_var_name": salinity_options["Q_Schuylkill_lstm_var_name"],
-                    "PywrDRB_ML_plugin_path": str(PywrDRB_ML_plugin_path),
-                    "asycronized_update": salinity_options.get("asycronized_update", False),
-                    "debug": salinity_options.get("debug", False),
-                }
+                "type": "SalinityModelLSTM",
+                "model_salinity": salinity_options.get("model_salinity", None),
+                "start_date": salinity_options.get("start_date", None),
+                "end_date": salinity_options.get("end_date", None),
+                "Q_Trenton_lstm_var_name": salinity_options["Q_Trenton_lstm_var_name"],
+                "Q_Schuylkill_lstm_var_name": salinity_options[
+                    "Q_Schuylkill_lstm_var_name"
+                ],
+                "PywrDRB_ML_plugin_path": str(PywrDRB_ML_plugin_path),
+                "asycronized_update": salinity_options.get("asycronized_update", False),
+                "debug": salinity_options.get("debug", False),
+            }
         elif ml_model_type == "rf":
             model_dict["parameters"]["salinity_model"] = {
-                    "type": "SalinityModelRF",
-                    "start_date": salinity_options.get("start_date", None),
-                    "quantile": salinity_options.get("quantile", None),
-                    "asycronized_update": salinity_options.get("asycronized_update", False),
-                    "PywrDRB_ML_plugin_path": str(PywrDRB_ML_plugin_path),
-                    "debug": salinity_options.get("debug", False),
-                }
-        
+                "type": "SalinityModelRF",
+                "start_date": salinity_options.get("start_date", None),
+                "quantile": salinity_options.get("quantile", None),
+                "asycronized_update": salinity_options.get("asycronized_update", False),
+                "PywrDRB_ML_plugin_path": str(PywrDRB_ML_plugin_path),
+                "debug": salinity_options.get("debug", False),
+            }
+
         # Use flow at previous time step to update the salt front location as this is pre-LP implementation.
         model_dict["parameters"]["update_salt_front_location"] = {
             "type": "UpdateSaltFrontLocation"
         }
-        
+
         # Retrieve salt front river mile (t-1)
         model_dict["parameters"]["salt_front_location_mu"] = {
-                "type": "SaltFrontLocation",
-                "variable": "mu",
-                "ml_model_type": ml_model_type
-            }
-        #model_dict["parameters"]["salt_front_location_sd"] = {
+            "type": "SaltFrontLocation",
+            "variable": "mu",
+            "ml_model_type": ml_model_type,
+        }
+        # model_dict["parameters"]["salt_front_location_sd"] = {
         #        "type": "SaltFrontLocation",
         #        "variable": "sd"
         #    }
-        
+
         # Overwrite original flow target function to account for salt front location
         # Note that we will use the previous day salt front location to update the flow target.
         # It will be complicated to predict the salt front location at the same time as the flow target.
@@ -2225,15 +2852,23 @@ class ModelBuilder:
             ### Total Montague & Trenton flow targets based on drought level of NYC aggregated storage
             for mrf in ["delMontague", "delTrenton"]:
                 # Salt front adjustment ratio based on the salt front location
-                model_dict["parameters"][f"flow_target_salt_front_adjustment_ratio_{mrf}"] = {
+                model_dict["parameters"][
+                    f"flow_target_salt_front_adjustment_ratio_{mrf}"
+                ] = {
                     "type": "FlowTargetSaltFrontAdjustmentRatio",
                     "flow_target": mrf,
                     "ml_model_type": ml_model_type,
+                    "nyc_drought_emergency_level": self.nyc_operations_config.n_drought_levels
+                    - 1,
                 }
-                
+
                 # Overwrite the flow target function to include the salt front location
                 model_dict["parameters"][f"mrf_target_{mrf}"] = {
                     "type": "aggregated",
                     "agg_func": "product",
-                    "parameters": [f"mrf_baseline_{mrf}", f"mrf_drought_factor_{mrf}", f"flow_target_salt_front_adjustment_ratio_{mrf}"],
+                    "parameters": [
+                        f"mrf_baseline_{mrf}",
+                        f"mrf_drought_factor_{mrf}",
+                        f"flow_target_salt_front_adjustment_ratio_{mrf}",
+                    ],
                 }
