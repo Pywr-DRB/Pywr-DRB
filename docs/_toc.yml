@@ -46,5 +46,9 @@ parts:
     # ============== ModelBuilder options ====
     - file: model_options.md
 
+    # ============== NYC operations ==========
+    - file: NYC_Operations_Configuration.md
+    - file: Variable_N_Storage_Zones.md
+
     # ============== Release notes ============
     - file: release_notes.md

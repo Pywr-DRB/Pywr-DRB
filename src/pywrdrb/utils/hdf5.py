@@ -2,15 +2,15 @@
 Contains functions for working with HDF5 files in pywrdrb context.
 
 Overview:
-Simple functions for reading and working with HDF5 files. 
+Simple functions for reading and working with HDF5 files.
 Some functions are deisgned for pywrdrb output files while others are for ensemble input files.
 
-Technical Notes: 
+Technical Notes:
 - In the future, we should consider improving this to be a more standard class, but for now these are simple functions.
 
-Links: 
+Links:
 - NA
- 
+
 Change Log:
 TJA, 2025-05-06, Add docs.
 """
@@ -22,6 +22,7 @@ import numpy as np
 from pywrdrb.pywr_drb_node_data import obs_site_matches
 
 pywrdrb_all_nodes = list(obs_site_matches.keys())
+
 
 def get_n_scenarios_from_pywrdrb_output_file(file_path):
     """
@@ -48,14 +49,13 @@ def get_n_scenarios_from_pywrdrb_output_file(file_path):
     ValueError
         If no valid dataset is found in the file.
     """
-    with h5py.File(file_path, 'r') as hdf_file:
+    with h5py.File(file_path, "r") as hdf_file:
         for name, obj in hdf_file.items():
-            if name == 'time':  # Skip the 'time' dataset since it is always 1d
+            if name == "time":  # Skip the 'time' dataset since it is always 1d
                 continue
             if isinstance(obj, h5py.Dataset):  # Only consider datasets
                 return obj.shape[1]  # Return n_scenarios from the second dimension
     raise ValueError("No valid datasets found in the HDF5 file.")
-
 
 
 def combine_batched_hdf5_outputs(batch_files, combined_output_file):
@@ -68,7 +68,7 @@ def combine_batched_hdf5_outputs(batch_files, combined_output_file):
         List of full paths to the HDF5 files to be combined. Must be full filename.
     combined_output_file : str
         Path to the output HDF5 file where the combined data will be stored. Must be full filename.
-    
+
     Returns
     -------
     None
@@ -124,12 +124,12 @@ def combine_batched_hdf5_outputs(batch_files, combined_output_file):
 def get_hdf5_realization_numbers(filename):
     """
     Checks the contents of hdf5 and return a list of the realization IDs.
-     
+
     Parameters
     ----------
     flename : str
         The filename for the hdf5 file.
-    
+
     Returns
     -------
     realization_numbers
@@ -150,13 +150,13 @@ def get_hdf5_realization_numbers(filename):
             if type(col) == str:
                 if col.startswith("realization_"):
                     # Extract the realization number from the key
-                    realization_numbers.append(int(col.split("_")[1]))
+                    realization_numbers.append(str(int(col.split("_")[1])))
                 else:
                     realization_numbers.append(col)
-            elif type(col) == int:
-                realization_numbers.append(col)
+            elif type(col) in [int, np.int64]:
+                realization_numbers.append(str(int(col)))
             else:
-                err_msg = f"Unexpected type {type(col)} for column label {col}."
+                err_msg = f"Unexpected type {type(col)} for column label {col} "
                 err_msg += f"in HDF5 file {filename}"
                 raise ValueError(err_msg)
     return realization_numbers
@@ -174,7 +174,7 @@ def extract_realization_from_hdf5(hdf5_file, realization, stored_by_node=False):
             The realization number or name to extract.
     stored_by_node : bool, optional
                 If True, assumes that the data keys are node names. If False, keys are realizations. Default is False.
-                
+
     Returns
     -------
     pd.DataFrame
@@ -194,7 +194,7 @@ def extract_realization_from_hdf5(hdf5_file, realization, stored_by_node=False):
                 assert realization in column_labels, (
                     err_msg + f" Realizations available: {column_labels}"
                 )
-                data[node] = node_data[realization][:]
+                data[node] = node_data[str(realization)][:]
 
             dates = node_data["date"][:].tolist()
 
@@ -215,7 +215,9 @@ def extract_realization_from_hdf5(hdf5_file, realization, stored_by_node=False):
             elif "date" in realization_group.keys():
                 dates = realization_group["date"][:].tolist()
             else:
-                raise KeyError("Neither 'date' nor 'datetime' found in realization group")
+                raise KeyError(
+                    "Neither 'date' nor 'datetime' found in realization group"
+                )
         data["datetime"] = dates
 
     # Combine into dataframe
