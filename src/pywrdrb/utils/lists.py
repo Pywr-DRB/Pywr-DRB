@@ -55,8 +55,19 @@ majorflow_list = [
     "01447800",
     "01463620",
     "01470960",
+    # Flood monitoring nodes (optional, added when enable_nyc_flood_operations=True)
+    "01426500",  # Hale Eddy
+    "01421000",  # Fishs Eddy
+    "01436690",  # Bridgeville
 ]
 majorflow_list_figs = ["delMontague", "delTrenton", "outletSchuylkill"]
+
+# Flood monitoring nodes - USGS gauges for downstream flood monitoring
+flood_monitoring_nodes = [
+    "01426500",  # Hale Eddy (West Branch Delaware, downstream of Cannonsville)
+    "01421000",  # Fishs Eddy (East Branch Delaware, downstream of Pepacton)
+    "01436690",  # Bridgeville (Neversink River, downstream of Neversink)
+]
 
 # The USGS gage data available downstream of reservoirs
 reservoir_link_pairs = {
@@ -108,9 +119,19 @@ drbc_lower_basin_reservoirs = [
     "nockamixon",
 ]  # 'wallenpaupack' at comission request; not implemented
 
-# Independent STARFIT reservoirs (not NYC, not DRBC lower basin)
-# Used by STARFITOfflineSimulator for pre-simulating releases
+# Independent STARFIT reservoirs that can be pre-simulated for trimmed model mode
+# These have no downstream feedback to NYC or lower basin MRF operations
 independent_starfit_reservoirs = [
     r for r in starfit_reservoir_list
     if r not in drbc_lower_basin_reservoirs
 ]
+
+# Reservoirs that must remain in the model (NYC + lower basin MRF contributors)
+required_model_reservoirs = reservoir_list_nyc + drbc_lower_basin_reservoirs
+
+# Frozenset versions of lists for O(1) membership lookups
+reservoir_set = frozenset(reservoir_list)
+reservoir_set_nyc = frozenset(reservoir_list_nyc)
+majorflow_set = frozenset(majorflow_list)
+reservoir_link_pairs_values_set = frozenset(reservoir_link_pairs.values())
+reservoir_link_pairs_keys_set = frozenset(reservoir_link_pairs.keys())

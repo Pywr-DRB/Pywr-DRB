@@ -14,6 +14,7 @@ except (ImportError, AttributeError) as e:
 from pywrdrb.pre.predict_diversions import *
 from pywrdrb.pre.predict_inflows import *
 from pywrdrb.pre.extrapolate_nyc_nj_diversions import *
+from pywrdrb.pre.flood_node_inflows import *
 from pywrdrb.pre.generate_presimulated_releases import (
     STARFITOfflineSimulator,
     STARFITReleaseEnsemblePreprocessor,

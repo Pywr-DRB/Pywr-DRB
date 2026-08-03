@@ -60,3 +60,5 @@ docs/api/generated/
 docs/examples/Tutorial*
 docs/Appendix_A*
 *with_flood_nodes_mgd.csv
+# ...but the packaged flood-node inflow data must stay tracked
+!src/pywrdrb/data/flows/**/*with_flood_nodes_mgd.csv

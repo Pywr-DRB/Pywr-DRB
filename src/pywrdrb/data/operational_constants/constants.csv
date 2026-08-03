@@ -24,3 +24,8 @@ level2_factor_delivery_nj,1,
 level3_factor_delivery_nj,1,
 level4_factor_delivery_nj,0.9,
 level5_factor_delivery_nj,0.8,
+flood_max_release_cannonsville_cfs,4200,cfs
+flood_max_release_pepacton_cfs,2400,cfs
+flood_max_release_neversink_cfs,3400,cfs
+delivery_reset_month,5,
+delivery_reset_day,31,

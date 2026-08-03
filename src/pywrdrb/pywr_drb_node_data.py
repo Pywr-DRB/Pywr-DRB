@@ -270,6 +270,10 @@ obs_site_matches = {
     "outletAssunpink": ["01464000"],
     "01470960": ["01470960"],
     "outletSchuylkill": ["01474500"],
+    # Flood monitoring nodes
+    "01426500": ["01426500"],  # Hale Eddy (West Branch Delaware)
+    "01421000": ["01421000"],  # Fishs Eddy (East Branch Delaware)
+    "01436690": ["01436690"],  # Bridgeville (Neversink River)
 }
 
 # NHM data IDs
@@ -441,64 +445,236 @@ storage_curves = {
 nyc_reservoirs = ["pepacton", "cannonsville", "neversink"]
 
 
+class TopologyDictionaries:
+    """
+    Static class for managing network topology dictionaries with optional flood monitoring nodes.
 
+    This class provides efficient access to topology dictionaries with built-in caching.
+    When multiple ModelBuilder instances are created in parallel (e.g., ensemble simulations),
+    the topology dictionaries are computed once and reused, avoiding redundant copying and
+    modification operations.
 
+    Class Attributes
+    ----------------
+    _base_cache : dict or None
+        Cached original topology dictionaries (without flood nodes)
+    _flood_cache : dict or None
+        Cached modified topology dictionaries (with flood nodes)
 
+    Methods
+    -------
+    get(include_flood_nodes=False)
+        Return topology dictionaries, optionally with flood monitoring nodes (uses caching)
+    _build_base_dicts()
+        Build original topology dictionaries (internal helper method)
+    _build_modified_dicts_with_flood_nodes()
+        Build modified topology with flood nodes inserted (internal helper method)
 
-# # Dictionary to map data retrieval of data available for observed retrieval
-# inflow_gauge_map = {
-#     "cannonsville": ["01423000", "0142400103"],
-#     "pepacton": ["01415000", "01414500", "01414000", "01413500"],
-#     "neversink": ["01435000"],
-#     "prompton": ["01428750"],
-#     "beltzvilleCombined": ["01449360"],
-#     "fewalter": ["01447720", "01447500"],
-#     "greenLane": ["01472199", "01472198"],
-#     "01425000": ["01425000"],
-#     "01417000": ["01417000"],
-#     "delLordville": ["01427207"],
-#     "01436000": ["01436000"],
-#     "01433500": ["01433500"],
-#     "delMontague": ["01438500"],
-#     "01449800": ["01449800"],
-#     "01447800": ["01447800"],
-#     "delDRCanal": ["01463500"],
-#     "delTrenton": ["01463500"],
-#     "01463620": ["01463620"],
-#     "outletAssunpink": ["01464000"],
-#     "01470960": ["01470960"],
-#     "outletSchuylkill": ["01474500"],
-# }
-# release_gauge_map = {
-#     "cannonsville": ["01425000"],
-#     "pepacton": ["01417000"],
-#     "neversink": ["01436000"],
-#     "wallenpaupack": ["01438500"],
-#     "prompton": ["01429000"],
-#     "shoholaMarsh": ["01438500"],
-#     "mongaupeCombined": ["01433500"],
-#     "beltzvilleCombined": ["01449800"],
-#     "fewalter": ["01447800"],
-#     "merrillCreek": ["01463500"],
-#     "hopatcong": ["01463500"],
-#     "nockamixon": ["01463500"],
-#     "assunpink": ["01463620"],
-#     "ontelaunee": ["01474500"],
-#     "stillCreek": ["01474500"],
-#     "blueMarsh": ["01470960"],
-#     "greenLane": ["01474500"],
-#     "01425000": ["01427207"],
-#     "01417000": ["01427207"],
-#     "delLordville": ["01438500"],
-#     "01436000": ["01438500"],
-#     "01433500": ["01438500"],
-#     "delMontague": ["01463500"],
-#     "01449800": ["01463500"],
-#     "01447800": ["01463500"],
-#     "delDRCanal": ["01463500"],
-#     "delTrenton": ["01463620"],
-#     "01463620": ["01464000"],
-#     "outletAssunpink": ["01474500"],
-#     "01470960": ["01474500"],
-#     "outletSchuylkill": ["01474500"],
-# }
+    Examples
+    --------
+    # Get original topology (cached after first call)
+    >>> dicts = TopologyDictionaries.get(include_flood_nodes=False)
+    >>> downstream = dicts[0]
+    >>> downstream['01425000']
+    'delLordville'
+
+    # Get flood monitoring topology (cached after first call)
+    >>> dicts = TopologyDictionaries.get(include_flood_nodes=True)
+    >>> downstream = dicts[0]
+    >>> downstream['01425000']
+    '01426500'
+    """
+
+    # Class-level caches for topology dictionaries
+    _base_cache = None
+    _flood_cache = None
+
+    @classmethod
+    def _build_base_dicts(cls):
+        """
+        Build base topology dictionaries (original model without flood nodes).
+
+        Returns
+        -------
+        tuple of dict
+            Eight topology dictionaries with original routing.
+        """
+        return (
+            immediate_downstream_nodes_dict.copy(),
+            upstream_nodes_dict.copy(),
+            downstream_node_lags.copy(),
+            obs_site_matches.copy(),
+            obs_pub_site_matches.copy(),
+            nhm_site_matches.copy(),
+            nwm_site_matches.copy(),
+            wrf_hydro_site_matches.copy(),
+        )
+
+    @classmethod
+    def _build_modified_dicts_with_flood_nodes(cls):
+        """
+        Build modified topology dictionaries with flood monitoring nodes inserted.
+
+        This method creates copies of the original dictionaries and modifies them to insert
+        three flood monitoring nodes into the network routing:
+        - 01426500 (Hale Eddy) on West Branch Delaware River
+        - 01421000 (Fishs Eddy) on East Branch Delaware River
+        - 01436690 (Bridgeville) on Neversink River
+
+        Routing changes:
+        - West Branch: 01425000 → 01426500 → delLordville
+        - East Branch: 01417000 → 01421000 → delLordville
+        - Neversink: 01436000 → 01436690 → delMontague
+
+        Returns
+        -------
+        tuple of dict
+            Eight topology dictionaries with flood monitoring nodes.
+        """
+        # Create deep copies of original dictionaries
+        modified_downstream = immediate_downstream_nodes_dict.copy()
+        modified_upstream = {}
+        for key, value in upstream_nodes_dict.items():
+            modified_upstream[key] = value.copy() if isinstance(value, list) else value
+
+        modified_lags = downstream_node_lags.copy()
+        modified_obs = obs_site_matches.copy()
+        modified_obs_pub = obs_pub_site_matches.copy()
+        modified_nhm = nhm_site_matches.copy()
+        modified_nwm = nwm_site_matches.copy()
+        modified_wrf = wrf_hydro_site_matches.copy()
+
+        # Modify downstream routing to insert flood monitoring nodes
+        # West Branch: Stilesville → Hale Eddy → Lordville
+        modified_downstream["01425000"] = "01426500"
+        modified_downstream["01426500"] = "delLordville"
+
+        # East Branch: Downsville → Fishs Eddy → Lordville
+        modified_downstream["01417000"] = "01421000"
+        modified_downstream["01421000"] = "delLordville"
+
+        # Neversink: Release → Bridgeville → Montague
+        modified_downstream["01436000"] = "01436690"
+        modified_downstream["01436690"] = "delMontague"
+
+        # Add upstream relationships for flood monitoring nodes
+        modified_upstream["01426500"] = ["cannonsville", "01425000"]
+        modified_upstream["01421000"] = ["pepacton", "01417000"]
+        modified_upstream["01436690"] = ["neversink", "01436000"]
+
+        # Update convergence nodes to include flood monitoring nodes in their upstream lists
+        modified_upstream["delLordville"] = (
+            upstream_nodes_dict["delLordville"] +
+            ["01426500", "01421000"]
+        )
+        modified_upstream["delMontague"] = (
+            upstream_nodes_dict["delMontague"] +
+            ["01436690"]
+        )
+        modified_upstream["delDRCanal"] = (
+            upstream_nodes_dict["delDRCanal"] +
+            ["01426500", "01421000", "01436690"]
+        )
+        modified_upstream["delTrenton"] = (
+            upstream_nodes_dict["delTrenton"] +
+            ["01426500", "01421000", "01436690"]
+        )
+
+        # Add zero-day travel time lags for flood monitoring segments
+        # (short distances between nodes, fast routing)
+        modified_lags["01426500"] = 0  # Hale Eddy → Lordville
+        modified_lags["01421000"] = 0  # Fishs Eddy → Lordville
+        modified_lags["01436690"] = 0  # Bridgeville → Montague
+
+        # Add USGS observation site matches for flood monitoring nodes
+        modified_obs["01426500"] = ["01426500"]
+        modified_obs["01421000"] = ["01421000"]
+        modified_obs["01436690"] = ["01436690"]
+
+        modified_obs_pub["01426500"] = ["01426500"]
+        modified_obs_pub["01421000"] = ["01421000"]
+        modified_obs_pub["01436690"] = ["01436690"]
+
+        # NHM/NWM/WRF-Hydro segment matches left empty for now
+        # To be added when segment mapping is completed:
+        # modified_nhm["01426500"] = [segment_ids]
+        # modified_nwm["01426500"] = [segment_ids]
+        # modified_wrf["01426500"] = [segment_ids]
+
+        return (
+            modified_downstream,
+            modified_upstream,
+            modified_lags,
+            modified_obs,
+            modified_obs_pub,
+            modified_nhm,
+            modified_nwm,
+            modified_wrf,
+        )
+
+    @classmethod
+    def get(cls, include_flood_nodes=False):
+        """
+        Return topology dictionaries, optionally modified to include flood monitoring nodes.
+
+        Uses class-level caching for efficiency when multiple ModelBuilder instances
+        are created (e.g., parallel ensemble simulations). Dictionaries are computed
+        once and reused on subsequent calls.
+
+        Parameters
+        ----------
+        include_flood_nodes : bool, optional
+            If True, insert flood monitoring nodes (01426500, 01421000, 01436690) into
+            network topology by modifying routing between existing nodes and downstream
+            convergence points. If False, return original topology without flood nodes.
+            Default is False (original model).
+
+        Returns
+        -------
+        tuple of dict
+            Eight dictionaries in this order:
+            - immediate_downstream_nodes_dict : Routing from each node to next downstream node
+            - upstream_nodes_dict : All upstream contributors for each node
+            - downstream_node_lags : Travel time (days) from node to downstream
+            - obs_site_matches : USGS gage IDs for observed data (managed + natural)
+            - obs_pub_site_matches : USGS gage IDs for full natural flow data only
+            - nhm_site_matches : NHMv1.0 segment IDs
+            - nwm_site_matches : NWMv2.1 segment IDs
+            - wrf_hydro_site_matches : WRF-Hydro segment IDs
+
+        Notes
+        -----
+        Flood monitoring nodes, with the local drainage area each one adds
+        (USGS drainage areas; see pywrdrb.pre.flood_node_inflows.DRAINAGE_AREAS):
+        - 01426500 (Hale Eddy): West Branch Delaware River below Stilesville, +139 sq mi
+        - 01421000 (Fishs Eddy): East Branch Delaware River below Downsville, +412 sq mi
+          (includes the large unregulated Beaver Kill)
+        - 01436690 (Bridgeville): Neversink River below the reservoir release, +78.4 sq mi
+
+        When flood nodes are included, routing is modified as follows:
+        - West Branch: 01425000 → 01426500 → delLordville (was: 01425000 → delLordville)
+        - East Branch: 01417000 → 01421000 → delLordville (was: 01417000 → delLordville)
+        - Neversink: 01436000 → 01436690 → delMontague (was: 01436000 → delMontague)
+
+        All flood segments use zero-day travel time lags (short distances, fast routing).
+
+        Performance
+        -----------
+        - First call: Dictionaries are computed and cached (O(n) copy operations)
+        - Subsequent calls: Cached dictionaries are returned (O(1) lookup)
+        - Thread-safe for parallel model building
+        """
+        # Return cached version if available
+        if not include_flood_nodes:
+            if cls._base_cache is not None:
+                return cls._base_cache
+            # Build and cache base dictionaries
+            cls._base_cache = cls._build_base_dicts()
+            return cls._base_cache
+        else:
+            if cls._flood_cache is not None:
+                return cls._flood_cache
+            # Build and cache modified dictionaries with flood nodes
+            cls._flood_cache = cls._build_modified_dicts_with_flood_nodes()
+            return cls._flood_cache
+
