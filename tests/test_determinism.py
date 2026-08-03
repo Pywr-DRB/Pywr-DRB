@@ -49,13 +49,33 @@ class TestModelDeterminism:
         return model_filename, tmp_path
 
     def _run_model(self, model_filename, output_filename):
-        """Run a model and return key results."""
-        model = pywrdrb.Model.load(model_filename)
-        recorder = pywrdrb.OutputRecorder(
-            model=model,
-            output_filename=output_filename,
+        """Run a model in a fresh subprocess and return key results.
+
+        Each run executes in its own interpreter so the GLPK solver starts
+        from a clean state. Running in-process makes this test order-fragile:
+        any earlier test that ran a model perturbs solver internals enough
+        that LP-degenerate solutions diverge between back-to-back runs
+        (differences of hundreds of MG in reservoir storage during spin-up).
+        Subprocess isolation also matches what the test claims to verify —
+        that the same model FILE reproduces identically across separate runs.
+        """
+        import subprocess
+
+        script = (
+            "import pywrdrb\n"
+            f"model = pywrdrb.Model.load({model_filename!r})\n"
+            "recorder = pywrdrb.OutputRecorder(\n"
+            "    model=model,\n"
+            f"    output_filename={output_filename!r},\n"
+            ")\n"
+            "model.run()\n"
         )
-        model.run()
+        subprocess.run(
+            [sys.executable, "-c", script],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
 
         results = {}
         with h5py.File(output_filename, 'r') as hdf:
