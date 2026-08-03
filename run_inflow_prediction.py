@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-
+import pywrdrb
 from pywrdrb.pre import (
     PredictedInflowPreprocessor,
     ExtrapolatedDiversionPreprocessor,
@@ -8,18 +8,8 @@ from pywrdrb.pre import (
 )
 
 ## Predicted inflows
-inflow_type_options = [
-    "nhmv10",
-    "nhmv10_withObsScaled",
-    "nwmv21",
-    "nwmv21_withObsScaled",
-    "wrf1960s_calib_nlcd2016",
-    "wrf2050s_calib_nlcd2016",
-    "wrfaorc_calib_nlcd2016",
-    "wrfaorc_withObsScaled",
-    "pub_nhmv10_BC_withObsScaled",
-]
-
+model_date_ranges = pywrdrb.utils.dates.model_date_ranges
+inflow_type_options = list(model_date_ranges.keys())
 
 REDO_INFLOW_PREDICTION = True
 REDO_DIVERSION_EXTRAPOLATION = True

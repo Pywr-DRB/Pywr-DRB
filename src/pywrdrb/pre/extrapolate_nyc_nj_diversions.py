@@ -42,6 +42,7 @@ Modified, Aug 27 2025, Added support for custom flow datasets
 """
 import io
 import os
+import time
 import h5py
 import numpy as np
 import pandas as pd
@@ -50,6 +51,7 @@ import statsmodels.api as sm
 import datetime
 
 from pywrdrb.utils.constants import cfs_to_mgd
+from pywrdrb.pre._mpi_utils import bcast_with_error, point_to_point_gather
 from pywrdrb.pre.datapreprocessor_ABC import DataPreprocessor
 from pywrdrb.pywr_drb_node_data import obs_site_matches, nyc_reservoirs
 from pywrdrb.utils.hdf5 import extract_realization_from_hdf5
@@ -137,12 +139,13 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
     >>> processor.save()
     >>> [out] Saved extrapolated diversion data to <path>src\pywrdrb\data\flows\my_custom_flows\
     """
-    def __init__(self, 
+    def __init__(self,
                  loc,
-                 flow_type=None):
+                 flow_type=None,
+                 max_mean_demand=None):
         """
         Initialize the ExtrapolatedDiversionPreprocessor.
-        
+
         Parameters
         ----------
         loc : str
@@ -150,19 +153,32 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
         flow_type : str, optional
             Flow type for custom data. If None, uses historical observations.
             When provided, uses gage_flow_mgd.csv from flows/{flow_type}/ folder.
-            
+        max_mean_demand : float, optional
+            Maximum allowable mean monthly demand (MGD). If None, uses defaults:
+            - NYC: 800 MGD
+            - NJ: 100 MGD
+            After extrapolation, any month with mean demand exceeding this threshold
+            will have its daily demands scaled uniformly to meet the constraint.
+
         Raises
         ------
         ValueError
             If the location parameter is not "nyc" or "nj".
         """
         super().__init__()
-        
+
         assert loc in ["nyc", "nj"], f"Invalid location specified. Expected 'nyc' or 'nj'. Got {loc}"
-        
+
         self.loc = loc
         self.flow_type = flow_type
-        
+
+        # Set maximum mean monthly demand constraint
+        if max_mean_demand is None:
+            # Default values based on location
+            self.max_mean_demand = 800.0 if loc == "nyc" else 100.0
+        else:
+            self.max_mean_demand = max_mean_demand
+
         # Seasons (quarters) used for different regression models
         self.quarters = ("DJF", "MAM", "JJA", "SON")
         
@@ -530,10 +546,102 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
 
         return predictions
 
+    def enforce_max_mean_demand(self, diversion_data):
+        """
+        Enforce maximum mean monthly demand constraint.
+
+        For any month where the mean daily demand exceeds max_mean_demand, this method
+        scales all daily demands in that month uniformly so the monthly mean equals
+        max_mean_demand.
+
+        Parameters
+        ----------
+        diversion_data : pd.DataFrame
+            DataFrame with datetime index and diversion columns to be constrained.
+
+        Returns
+        -------
+        pd.DataFrame
+            Modified DataFrame with demand constraints applied.
+        """
+        # Create a copy to avoid modifying the original
+        diversion_constrained = diversion_data.copy()
+
+        # Determine which column(s) contain the diversion data
+        if self.loc == "nyc":
+            diversion_columns = ["pepacton", "cannonsville", "neversink", "aggregate"]
+        else:  # NJ
+            diversion_columns = ["D_R_Canal"]
+
+        # Track statistics for reporting
+        n_months_scaled = 0
+        max_reduction_pct = 0.0
+
+        # Group by year-month
+        grouped = diversion_constrained.groupby(
+            [diversion_constrained.index.year, diversion_constrained.index.month]
+        )
+
+        for (year, month), month_data in grouped:
+            # Calculate mean for this month
+            if self.loc == "nyc":
+                # For NYC, check the aggregate column
+                monthly_mean = month_data["aggregate"].mean()
+
+                if monthly_mean > self.max_mean_demand:
+                    # Calculate scaling factor to bring mean down to threshold
+                    scale_factor = self.max_mean_demand / monthly_mean
+
+                    # Apply scaling uniformly to all daily values in this month
+                    month_indices = month_data.index
+                    for col in diversion_columns:
+                        diversion_constrained.loc[month_indices, col] *= scale_factor
+
+                    # Track statistics
+                    n_months_scaled += 1
+                    reduction_pct = (1 - scale_factor) * 100
+                    max_reduction_pct = max(max_reduction_pct, reduction_pct)
+
+            else:  # NJ
+                # For NJ, check the D_R_Canal column
+                monthly_mean = month_data["D_R_Canal"].mean()
+
+                if monthly_mean > self.max_mean_demand:
+                    # Calculate scaling factor
+                    scale_factor = self.max_mean_demand / monthly_mean
+
+                    # Apply scaling uniformly to all daily values in this month
+                    month_indices = month_data.index
+                    diversion_constrained.loc[
+                        month_indices, "D_R_Canal"
+                    ] *= scale_factor
+
+                    # Track statistics
+                    n_months_scaled += 1
+                    reduction_pct = (1 - scale_factor) * 100
+                    max_reduction_pct = max(max_reduction_pct, reduction_pct)
+
+        # Report constraint enforcement results
+        if n_months_scaled > 0:
+            # Only print from rank 0 if using MPI
+            if getattr(self, "rank", 0) == 0:
+                print(
+                    f"  Max mean demand constraint ({self.max_mean_demand:.0f} MGD) enforced:"
+                )
+                print(f"    - Scaled {n_months_scaled} months")
+                print(f"    - Maximum reduction: {max_reduction_pct:.1f}%")
+        else:
+            if getattr(self, "rank", 0) == 0:
+                print(
+                    f"  No months exceeded max mean demand threshold ({self.max_mean_demand:.0f} MGD)"
+                )
+
+        return diversion_constrained
+
     def process(self):
         """
         Run the full extrapolation workflow.
-        
+
         This method implements the full extrapolation workflow:
         1. Load diversion and flow data
         2. Create daily dataframe combining diversions and training flows
@@ -777,7 +885,12 @@ class ExtrapolatedDiversionPreprocessor(DataPreprocessor):
             self.processed_data.index >= self.extrapolation_flow.index.min(),
             self.processed_data.index <= self.extrapolation_flow.index.max(),
         )
-        self.processed_data = self.processed_data.loc[keep_dates]   
+        self.processed_data = self.processed_data.loc[keep_dates]
+
+        # Enforce maximum mean monthly demand constraint
+        if getattr(self, "rank", 0) == 0:
+            print(f"\nEnforcing maximum mean monthly demand constraint...")
+        self.processed_data = self.enforce_max_mean_demand(self.processed_data)
 
     def save(self):
         """
@@ -1019,7 +1132,8 @@ class ExtrapolatedDiversionEnsemblePreprocessor(ExtrapolatedDiversionPreprocesso
                  ensemble_hdf5_file,
                  realization_ids=None,
                  use_mpi=True,
-                 comm=None):
+                 comm=None,
+                 max_mean_demand=None):
         """
         Initialize the ExtrapolatedDiversionEnsemblePreprocessor.
 
@@ -1035,9 +1149,13 @@ class ExtrapolatedDiversionEnsemblePreprocessor(ExtrapolatedDiversionPreprocesso
             Whether to use MPI for parallel processing (default: True).
         comm : MPI communicator, optional
             If None and use_mpi=True, uses MPI.COMM_WORLD.
+        max_mean_demand : float, optional
+            Maximum allowable mean monthly demand (MGD). If None, uses defaults
+            (NYC: 800 MGD, NJ: 100 MGD). See ExtrapolatedDiversionPreprocessor.
         """
         super().__init__(loc=loc,
-                         flow_type=flow_type)
+                         flow_type=flow_type,
+                         max_mean_demand=max_mean_demand)
 
         self.ensemble_hdf5_file = ensemble_hdf5_file
         self.realization_ids = realization_ids
@@ -1112,12 +1230,13 @@ class ExtrapolatedDiversionEnsemblePreprocessor(ExtrapolatedDiversionPreprocesso
         return df
 
     def load(self):
-        """Load available realization IDs, training data, and all realization data.
+        """Load training data and each rank's realization slice.
 
-        Rank 0 performs all file reads. Data is distributed using MPI primitives
-        that avoid pickle-based large-object broadcasts:
-        - training_flow and diversion are broadcast as CSV strings
-        - realization DataFrames are scattered so each rank receives only its slice
+        Rank 0 reads the training data and broadcasts it as CSV strings (avoids
+        pickle-based DataFrame bcast). Each rank then opens the ensemble HDF5
+        independently to read only its own realization slice, replacing the
+        rank-0-reads-all + pickle-scatter pattern that fails with MPI_ERR_ARG
+        when the aggregate scatter payload exceeds INT_MAX at high rank counts.
         """
         ### Load training data on rank 0; broadcast as CSV strings to avoid
         # pickle-based DataFrame bcast which fails on some HPC MPI stacks.
@@ -1137,39 +1256,44 @@ class ExtrapolatedDiversionEnsemblePreprocessor(ExtrapolatedDiversionPreprocesso
         self.training_flow = pd.read_csv(io.StringIO(training_flow_str), index_col=0, parse_dates=True)
         self.diversion = pd.read_csv(io.StringIO(diversion_str), index_col=0, parse_dates=True)
 
-        ### Rank 0 reads all realization data from HDF5, then scatters per-rank slices.
-        # This avoids (a) concurrent file opens and (b) broadcasting a large dict of
-        # all DataFrames to every rank, both of which cause MPI_ERR_OTHER on HPC.
-        if self.rank == 0:
-            print(f"Rank 0: Reading all realization data from HDF5...")
-            with h5py.File(self.ensemble_hdf5_file, 'r') as f:
-                if self.realization_ids is None:
-                    self.realization_ids = [key for key in f.keys()]
-                else:
-                    self.realization_ids = [str(rid) for rid in self.realization_ids]
-                all_data = {
-                    rid: self._extract_realization_from_open_file(f, rid)
-                    for rid in self.realization_ids
-                }
-        else:
-            all_data = None
+        # Resolve realization ids on rank 0, broadcast to all ranks via a sentinel
+        # envelope so a rank-0 failure raises everywhere instead of hanging in bcast.
+        # Input HDF5 uses node-first layout: realization ids are stored in
+        # /<node>/.attrs["column_labels"], not as top-level keys.
+        def _get_ids():
+            if self.realization_ids is not None:
+                return [str(r) for r in self.realization_ids]
+            with h5py.File(self.ensemble_hdf5_file, "r") as f:
+                labels = f[pywrdrb_all_nodes[0]].attrs["column_labels"]
+                return [str(l) for l in labels]
 
         if self.use_mpi:
-            # Broadcast the realization ID list (small) so all ranks know the full set
-            self.realization_ids = self.comm.bcast(self.realization_ids, root=0)
-
-            # Build per-rank slices on rank 0, then scatter one slice per rank
-            if self.rank == 0:
-                slices = [
-                    {rid: all_data[rid] for rid in chunk}
-                    for chunk in np.array_split(self.realization_ids, self.size)
-                ]
-                print(f"Rank 0: Scattering realization data to {self.size} ranks...")
-            else:
-                slices = None
-            self.realization_data = self.comm.scatter(slices, root=0)
+            self.realization_ids = bcast_with_error(self.comm, self.rank, _get_ids)
         else:
-            self.realization_data = all_data
+            self.realization_ids = _get_ids()
+
+        # Each rank reads only its own realization slice. Concurrent read-only opens
+        # on the same HDF5 are safe on Lustre/GPFS with the serial h5py driver
+        # (HDF5_USE_FILE_LOCKING=FALSE is set on _mpi_utils import).
+        if self.use_mpi:
+            my_ids = list(np.array_split(self.realization_ids, self.size)[self.rank])
+            self.comm.Barrier()  # align all ranks before concurrent opens
+        else:
+            my_ids = list(self.realization_ids)
+
+        t0 = time.time()
+        with h5py.File(self.ensemble_hdf5_file, "r") as f:
+            self.realization_data = {
+                str(rid): self._extract_realization_from_open_file(f, rid)
+                for rid in my_ids
+            }
+        print(
+            f"[rank {self.rank}/{self.size}] load: "
+            f"read {len(my_ids)} realizations in {time.time() - t0:.1f}s"
+        )
+
+        if self.use_mpi:
+            self.comm.Barrier()  # all ranks synced before process() proceeds
 
         if self.rank == 0:
             print(f"Processing {len(self.realization_ids)} realizations across {self.size} processes")
@@ -1222,16 +1346,16 @@ class ExtrapolatedDiversionEnsemblePreprocessor(ExtrapolatedDiversionPreprocesso
         if self.rank == 0:
             print(f"Rank 0: Completed processing all assigned realizations")
 
-        # Gather all predictions to rank 0
+        # Collect all local predictions on rank 0 via point-to-point send/recv,
+        # replacing comm.gather which hits INT_MAX pickle limits at high rank counts.
         if self.use_mpi:
-            all_predictions = self.comm.gather(local_predictions, root=0)
+            merged = point_to_point_gather(
+                self.comm, self.rank, self.size, local_predictions
+            )
+            if self.rank == 0:
+                self.ensemble_diversions = merged
         else:
-            all_predictions = [local_predictions]
-
-        if self.rank == 0:
-            # Combine predictions from all processes
-            for diversions_dict in all_predictions:
-                self.ensemble_diversions.update(diversions_dict)
+            self.ensemble_diversions = dict(local_predictions)
 
     def save(self):
         """Save ensemble extrapolated diversions to HDF5 format."""
@@ -1250,9 +1374,14 @@ class ExtrapolatedDiversionEnsemblePreprocessor(ExtrapolatedDiversionPreprocesso
                     column_labels = list(predictions_df.columns)
                     realization_group.attrs['column_labels'] = column_labels
 
-                    # Store datetime
+                    # Store datetime — h5py 3.x requires explicit string
+                    # dtype for Python object arrays of strings.
                     datetime_strings = predictions_df['datetime'].astype(str).values
-                    realization_group.create_dataset('datetime', data=datetime_strings)
+                    realization_group.create_dataset(
+                        'datetime',
+                        data=datetime_strings,
+                        dtype=h5py.string_dtype(encoding="utf-8"),
+                    )
 
                     # Store prediction columns
                     for col in predictions_df.columns:

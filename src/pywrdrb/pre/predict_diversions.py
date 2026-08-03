@@ -37,11 +37,13 @@ TJA, 2025-05-07, review+docstrings
 """
 
 import io
+import time
 import h5py
 import numpy as np
 
 import pandas as pd
 from pywrdrb.pre.predict_timeseries import PredictedTimeseriesPreprocessor
+from pywrdrb.pre._mpi_utils import bcast_with_error, point_to_point_gather
 from pywrdrb.utils.hdf5 import extract_realization_from_hdf5
 
 
@@ -307,41 +309,49 @@ class PredictedDiversionEnsemblePreprocessor(PredictedDiversionPreprocessor):
         self.ensemble_predictions = {}
 
     def load(self):
-        """Load available realization IDs and all realization data.
+        """Load each rank's realization slice from the ensemble HDF5.
 
-        Rank 0 performs all HDF5 reads, then scatters each rank's assigned slice.
-        This avoids (a) concurrent file opens and (b) broadcasting a large dict of
-        all DataFrames to every rank, both of which cause MPI_ERR_OTHER on HPC.
+        Each rank opens the ensemble HDF5 independently to read only its own
+        realization slice, replacing the rank-0-reads-all + pickle-scatter pattern
+        that fails with MPI_ERR_ARG when the aggregate scatter payload exceeds
+        INT_MAX at high rank counts.
         """
-        ### Rank 0 reads all realization data from HDF5, then scatters per-rank slices.
-        if self.rank == 0:
-            print(f"Rank 0: Reading all realization data from HDF5...")
+        # Resolve realization ids on rank 0, broadcast to all ranks via a sentinel
+        # envelope so a rank-0 failure raises everywhere instead of hanging in bcast.
+        # Input HDF5 uses realization-first layout: top-level keys are realization ids.
+        def _get_ids():
+            if self.realization_ids is not None:
+                return [str(r) for r in self.realization_ids]
             with h5py.File(self.ensemble_hdf5_file, "r") as f:
-                if self.realization_ids is None:
-                    self.realization_ids = [key for key in f.keys()]
-                all_data = {
-                    rid: self._extract_realization_from_open_file(f, rid)
-                    for rid in self.realization_ids
-                }
-        else:
-            all_data = None
+                return [str(k) for k in f.keys()]
 
         if self.use_mpi:
-            # Broadcast the realization ID list (small) so all ranks know the full set
-            self.realization_ids = self.comm.bcast(self.realization_ids, root=0)
-
-            # Build per-rank slices on rank 0, then scatter one slice per rank
-            if self.rank == 0:
-                slices = [
-                    {rid: all_data[rid] for rid in chunk}
-                    for chunk in np.array_split(self.realization_ids, self.size)
-                ]
-                print(f"Rank 0: Scattering realization data to {self.size} ranks...")
-            else:
-                slices = None
-            self.realization_data = self.comm.scatter(slices, root=0)
+            self.realization_ids = bcast_with_error(self.comm, self.rank, _get_ids)
         else:
-            self.realization_data = all_data
+            self.realization_ids = _get_ids()
+
+        # Each rank reads only its own realization slice. Concurrent read-only opens
+        # on the same HDF5 are safe on Lustre/GPFS with the serial h5py driver
+        # (HDF5_USE_FILE_LOCKING=FALSE is set on _mpi_utils import).
+        if self.use_mpi:
+            my_ids = list(np.array_split(self.realization_ids, self.size)[self.rank])
+            self.comm.Barrier()  # align all ranks before concurrent opens
+        else:
+            my_ids = list(self.realization_ids)
+
+        t0 = time.time()
+        with h5py.File(self.ensemble_hdf5_file, "r") as f:
+            self.realization_data = {
+                str(rid): self._extract_realization_from_open_file(f, rid)
+                for rid in my_ids
+            }
+        print(
+            f"[rank {self.rank}/{self.size}] load: "
+            f"read {len(my_ids)} realizations in {time.time() - t0:.1f}s"
+        )
+
+        if self.use_mpi:
+            self.comm.Barrier()  # all ranks synced before process() proceeds
 
         if self.rank == 0:
             print(
@@ -433,16 +443,16 @@ class PredictedDiversionEnsemblePreprocessor(PredictedDiversionPreprocessor):
         if self.rank == 0:
             print(f"Rank 0: Completed processing all assigned realizations")
 
-        # Gather all predictions to rank 0
+        # Collect all local predictions on rank 0 via point-to-point send/recv,
+        # replacing comm.gather which hits INT_MAX pickle limits at high rank counts.
         if self.use_mpi:
-            all_predictions = self.comm.gather(local_predictions, root=0)
+            merged = point_to_point_gather(
+                self.comm, self.rank, self.size, local_predictions
+            )
+            if self.rank == 0:
+                self.ensemble_predictions = merged
         else:
-            all_predictions = [local_predictions]
-
-        if self.rank == 0:
-            # Combine predictions from all processes
-            for predictions_dict in all_predictions:
-                self.ensemble_predictions.update(predictions_dict)
+            self.ensemble_predictions = dict(local_predictions)
 
     def save(self):
         """Save ensemble predictions to HDF5 format."""
@@ -463,9 +473,14 @@ class PredictedDiversionEnsemblePreprocessor(PredictedDiversionPreprocessor):
                     column_labels = list(predictions_df.columns)
                     realization_group.attrs["column_labels"] = column_labels
 
-                    # Store datetime
+                    # Store datetime — h5py 3.x requires explicit string
+                    # dtype for Python object arrays of strings.
                     datetime_strings = predictions_df["datetime"].astype(str).values
-                    realization_group.create_dataset("datetime", data=datetime_strings)
+                    realization_group.create_dataset(
+                        "datetime",
+                        data=datetime_strings,
+                        dtype=h5py.string_dtype(encoding="utf-8"),
+                    )
 
                     # Store prediction columns
                     for col in predictions_df.columns:

@@ -34,12 +34,16 @@ TJA, 2025-05-07, Minor fixes + docstrings
 TJA, 2025-10, Fixed bug where nodes with lag < 0 were not being included in predictions
 TJA, 2026-03, Added STARFIT-aware perfect_foresight mode; renamed old PF to gage_flow
 TJA, 2026-07, Removed legacy gage_flow mode
+TJA, 2026-08, Ensemble: per-rank HDF5 reads + point-to-point gather; PF ensemble reads presimulated releases artifact
 """
 import io
+import os
+import time
 import h5py
 import numpy as np
 import pandas as pd
 from pywrdrb.pre.predict_timeseries import PredictedTimeseriesPreprocessor
+from pywrdrb.pre._mpi_utils import bcast_with_error, point_to_point_gather
 from pywrdrb.utils.hdf5 import extract_realization_from_hdf5
 from pywrdrb.utils.lists import (
     starfit_reservoir_list,
@@ -396,8 +400,10 @@ class PredictedInflowEnsemblePreprocessor(PredictedInflowPreprocessor):
         # Storage for ensemble results
         self.ensemble_predictions = {}
 
-        # STARFIT simulator instance (created once, reused per realization)
-        self._starfit_simulator = None
+        # Per-realization STARFIT releases preloaded from
+        # presimulated_releases_mgd.hdf5 in load() when perfect_foresight is in modes.
+        # Maps str(realization_id) -> DataFrame[datetime x reservoir_name].
+        self._starfit_release_data = {}
 
     def _extract_realization_from_open_file(self, hdf5_file, realization_id):
         """
@@ -443,16 +449,15 @@ class PredictedInflowEnsemblePreprocessor(PredictedInflowPreprocessor):
         return df
 
     def load(self):
-        """Load available realization IDs, catchment water consumption, and all realization data.
+        """Load catchment water consumption and each rank's realization slice.
 
-        Rank 0 performs all HDF5 reads. Data is distributed to other ranks using
-        MPI primitives that avoid pickle-based large-object broadcasts:
-        - wc CSV is broadcast as a raw UTF-8 string (avoids DataFrame pickle)
-        - realization DataFrames are scattered so each rank receives only its slice
+        Water consumption CSV is broadcast from rank 0 as a raw string to avoid
+        pickle-based DataFrame serialization. Each rank then opens the ensemble
+        HDF5 independently to read only its own realization slice, replacing the
+        rank-0-reads-all + pickle-scatter pattern that fails with MPI_ERR_ARG
+        when the aggregate scatter payload exceeds INT_MAX at high rank counts.
         """
-
-        ### Load water consumption CSV on rank 0; broadcast as raw string to avoid
-        # pickle-based DataFrame bcast which fails on some HPC MPI stacks.
+        # Load water consumption CSV on rank 0; broadcast as raw string.
         fname = self.input_dirs["sw_avg_wateruse_pywrdrb_catchments_mgd.csv"]
 
         if self.rank == 0:
@@ -469,46 +474,105 @@ class PredictedInflowEnsemblePreprocessor(PredictedInflowPreprocessor):
         wc.index = wc["node"]
         self.catchment_wc = wc
 
-        ### Rank 0 reads all realization data from HDF5, then scatters each rank's
-        # assigned slice. This avoids (a) concurrent file opens and (b) broadcasting
-        # a large dict of all DataFrames to every rank.
-        if self.rank == 0:
-            print(f"Rank 0: Reading all realization data from HDF5...")
+        # Resolve realization ids on rank 0, broadcast to all ranks via a sentinel
+        # envelope so a rank-0 failure raises everywhere instead of hanging in bcast.
+        # Input HDF5 uses node-first layout: realization ids are stored in
+        # /<node>/.attrs["column_labels"], not as top-level keys.
+        def _get_ids():
+            if self.realization_ids is not None:
+                return [str(r) for r in self.realization_ids]
             with h5py.File(self.ensemble_hdf5_file, "r") as f:
-                if self.realization_ids is None:
-                    self.realization_ids = [key for key in f.keys()]
-                all_data = {
-                    rid: self._extract_realization_from_open_file(f, rid)
-                    for rid in self.realization_ids
-                }
-        else:
-            all_data = None
+                labels = f[pywrdrb_all_nodes[0]].attrs["column_labels"]
+                return [str(l) for l in labels]
 
         if self.use_mpi:
-            # Broadcast the realization ID list (small) so all ranks know the full set
-            self.realization_ids = self.comm.bcast(self.realization_ids, root=0)
-
-            # Build per-rank slices on rank 0, then scatter one slice per rank
-            if self.rank == 0:
-                slices = [
-                    {rid: all_data[rid] for rid in chunk}
-                    for chunk in np.array_split(self.realization_ids, self.size)
-                ]
-                print(f"Rank 0: Scattering realization data to {self.size} ranks...")
-            else:
-                slices = None
-            self.realization_data = self.comm.scatter(slices, root=0)
+            self.realization_ids = bcast_with_error(self.comm, self.rank, _get_ids)
         else:
-            self.realization_data = all_data
+            self.realization_ids = _get_ids()
 
-        # Initialize STARFIT simulator once if perfect_foresight mode is used
+        # Each rank reads only its own realization slice. Concurrent read-only opens
+        # on the same HDF5 are safe on Lustre/GPFS with the serial h5py driver
+        # (HDF5_USE_FILE_LOCKING=FALSE is set on _mpi_utils import).
+        if self.use_mpi:
+            my_ids = list(np.array_split(self.realization_ids, self.size)[self.rank])
+            self.comm.Barrier()  # align all ranks before concurrent opens
+        else:
+            my_ids = list(self.realization_ids)
+
+        t0 = time.time()
+        with h5py.File(self.ensemble_hdf5_file, "r") as f:
+            self.realization_data = {
+                str(rid): self._extract_realization_from_open_file(f, rid)
+                for rid in my_ids
+            }
+        print(
+            f"[rank {self.rank}/{self.size}] load: "
+            f"read {len(my_ids)} realizations in {time.time() - t0:.1f}s"
+        )
+
+        if self.use_mpi:
+            self.comm.Barrier()  # all ranks synced before process() proceeds
+
+        # Read precomputed STARFIT releases for perfect_foresight mode.
+        # Each rank loads only its own realization slice from
+        # presimulated_releases_mgd.hdf5 (written by STARFITReleaseEnsemblePreprocessor).
+        # Concurrent read-only HDF5 opens across ranks are safe because
+        # _mpi_utils sets HDF5_USE_FILE_LOCKING=FALSE at import time.
         if "perfect_foresight" in self.modes:
-            from pywrdrb.pre.generate_presimulated_releases import (
-                STARFITOfflineSimulator,
+            presim_hdf5 = os.path.join(
+                str(self.pn.sc.get(f"flows/{self.flow_type}")),
+                "presimulated_releases_mgd.hdf5",
             )
+            if not os.path.exists(presim_hdf5):
+                raise FileNotFoundError(
+                    f"Pre-simulated STARFIT releases ensemble HDF5 not found: {presim_hdf5}\n"
+                    f"perfect_foresight mode now requires this artifact. Generate it via:\n"
+                    f"  from pywrdrb.pre import STARFITReleaseEnsemblePreprocessor\n"
+                    f"  STARFITReleaseEnsemblePreprocessor(inflow_type='{self.flow_type}', "
+                    f"realization_ids={list(self.realization_ids)}).run()"
+                )
+            with h5py.File(presim_hdf5, "r") as hf:
+                # Validate every reservoir we need is present.
+                missing_res = [
+                    r for r in starfit_reservoir_list if r not in hf.keys()
+                ]
+                if missing_res:
+                    raise ValueError(
+                        f"Missing reservoirs in {presim_hdf5}: {missing_res}. "
+                        f"Regenerate the file with the full starfit_reservoir_list."
+                    )
 
-            self._starfit_simulator = STARFITOfflineSimulator(initial_volume_frac=0.8)
-            self._starfit_simulator.load_parameters()
+                # Read the canonical date axis once.
+                first_node = starfit_reservoir_list[0]
+                date_node = hf[first_node]
+                date_key = "date" if "date" in date_node else "datetime"
+                raw_dates = date_node[date_key][:]
+                date_index = pd.to_datetime(
+                    pd.Index(
+                        [
+                            d.decode() if isinstance(d, bytes) else str(d)
+                            for d in raw_dates
+                        ]
+                    )
+                )
+
+                # Validate every realization we need is present (column_labels of any node).
+                available = {
+                    str(l) for l in hf[first_node].attrs["column_labels"]
+                }
+                for rid in my_ids:
+                    rid_s = str(rid)
+                    if rid_s not in available:
+                        raise ValueError(
+                            f"Realization {rid_s} not present in {presim_hdf5}. "
+                            f"Available: {sorted(available, key=lambda x: (len(x), x))[:10]}..."
+                        )
+                    rel_data = {
+                        node: hf[node][rid_s][:] for node in starfit_reservoir_list
+                    }
+                    self._starfit_release_data[rid_s] = pd.DataFrame(
+                        rel_data, index=date_index
+                    )
 
         if self.rank == 0:
             print(
@@ -537,14 +601,15 @@ class PredictedInflowEnsemblePreprocessor(PredictedInflowPreprocessor):
                     f"Rank 0: Processing realization {i+1}/{len(my_realizations)}: {realization_id}"
                 )
 
-            # Use pre-loaded realization data (read by rank 0 and broadcast in load())
+            # Use pre-loaded realization data (each rank reads its own slice in load())
             self.timeseries_data = self.realization_data[str(realization_id)]
 
-            # Run STARFIT simulation for this realization if perfect_foresight
-            if self._starfit_simulator is not None:
-                self.starfit_releases = self._starfit_simulator.simulate_all(
-                    self.timeseries_data
-                )
+            # Use pre-loaded STARFIT releases for this realization (perfect_foresight mode).
+            # The releases were read from presimulated_releases_mgd.hdf5 in load().
+            if self._starfit_release_data:
+                self.starfit_releases = self._starfit_release_data[
+                    str(realization_id)
+                ]
 
             # Train regressions and make predictions for this realization
             regressions = self.train_regressions()
@@ -555,16 +620,16 @@ class PredictedInflowEnsemblePreprocessor(PredictedInflowPreprocessor):
         if self.rank == 0:
             print(f"Rank 0: Completed processing all assigned realizations")
 
-        # Gather all predictions to rank 0
+        # Collect all local predictions on rank 0 via point-to-point send/recv,
+        # replacing comm.gather which hits INT_MAX pickle limits at high rank counts.
         if self.use_mpi:
-            all_predictions = self.comm.gather(local_predictions, root=0)
+            merged = point_to_point_gather(
+                self.comm, self.rank, self.size, local_predictions
+            )
+            if self.rank == 0:
+                self.ensemble_predictions = merged
         else:
-            all_predictions = [local_predictions]
-
-        if self.rank == 0:
-            # Combine predictions from all processes
-            for predictions_dict in all_predictions:
-                self.ensemble_predictions.update(predictions_dict)
+            self.ensemble_predictions = dict(local_predictions)
 
     def save(self):
         """Save ensemble predictions to HDF5 format."""
@@ -581,9 +646,16 @@ class PredictedInflowEnsemblePreprocessor(PredictedInflowPreprocessor):
                     # Create group for this realization
                     realization_group = hf.create_group(str(realization_id))
 
-                    # Store datetime
+                    # Store datetime. h5py 3.x requires an explicit string
+                    # dtype for Python object arrays of strings; without it
+                    # h5py raises ``TypeError: Object dtype dtype('O') has
+                    # no native HDF5 equivalent``.
                     datetime_strings = predictions_df["datetime"].astype(str).values
-                    realization_group.create_dataset("datetime", data=datetime_strings)
+                    realization_group.create_dataset(
+                        "datetime",
+                        data=datetime_strings,
+                        dtype=h5py.string_dtype(encoding="utf-8"),
+                    )
 
                     # Store prediction columns
                     for col in predictions_df.columns:
