@@ -126,10 +126,12 @@ class LowerBasinMaxMRFContribution(Parameter):
     This is provided to VolBalanceLowerBasinMRFAggregate to determine the aggregate
     MRF contribution from the lower basin reservoirs.
     """
-    def __init__(self, model, reservoir, 
-                 step, nodes, parameters, **kwargs):
+    def __init__(self, model, reservoir,
+                 step, nodes, parameters,
+                 nyc_drought_emergency_level: int = 6,
+                 **kwargs):
         """Initialize the LowerBasinMaxMRFContribution parameter.
-        
+
         Parameters
         ----------
         model : Model
@@ -142,14 +144,18 @@ class LowerBasinMaxMRFContribution(Parameter):
             Dictionary of pywrdrb.nodes.Reservoir instances for each lower basin reservoir. Format {"reservoir_name": pywr.Node}.
         parameters : dict
             Dictionary of pywrdrb.parameters.Parameter instances for each lower basin reservoir. Format {"parameter_name": pywr.Parameter}.
+        nyc_drought_emergency_level : int, optional
+            ControlCurveIndex value corresponding to NYC Drought Emergency (L5
+            in FFMP). Default 6 matches the stock FFMP 6-curve scheme. For
+            N-zone configurations this should equal ``n_drought_levels - 1``.
         **kwargs : dict
             Additional keyword arguments to pass to the pywr.Parameter class. None used.
-            
+
         Returns
         -------
         None
         """
-        
+
         super().__init__(model, **kwargs)
         self.debugging = False
         self.reservoir = reservoir
@@ -157,6 +163,7 @@ class LowerBasinMaxMRFContribution(Parameter):
         self.days_ahead_prediction = 5 - self.step
         self.nodes = nodes
         self.parameters = parameters
+        self.nyc_drought_emergency_level = int(nyc_drought_emergency_level)
 
         # Reservoirs considered during this step
         self.consider_reservoirs = (
@@ -222,9 +229,13 @@ class LowerBasinMaxMRFContribution(Parameter):
         list
             Names of currently usable lower basin reservoirs. 
         """
-        # based on NYC level        
+        # NYC Drought Emergency = L5 per FFMP (Appendix A §III.b-c). Under pywr's
+        # ControlCurveIndex with N storage curves, this is index N (= 6 for the
+        # default 6-curve scheme). Parametric to support N-zone sweeps.
         current_nyc_drought_level = self.drought_level_agg_nyc.get_value(scenario_index)
-        is_nyc_drought_emergency = True if current_nyc_drought_level in [6] else False
+        is_nyc_drought_emergency = (
+            int(round(current_nyc_drought_level)) == self.nyc_drought_emergency_level
+        )
 
         if is_nyc_drought_emergency:
             usable_reservoirs = reservoirs_used_during_drought_conditions

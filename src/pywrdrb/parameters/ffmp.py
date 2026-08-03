@@ -412,6 +412,14 @@ class NYCCombinedReleaseFactor(Parameter):
         Drought factor parameter to use when operating based on aggregated NYC storage.
     mrf_drought_factor_individual_reservoir : pywr.Parameter
         Drought factor parameter to use when operating based on individual reservoir storage.
+    downstream_stage_parameter : pywr.Parameter, optional
+        Parameter providing downstream stage (ft). When stage exceeds action
+        threshold during L1, the factor is capped at the L2 level.
+    flood_operations_enabled : bool
+        Whether flood curtailment logic is active.
+    mrf_factor_l2_reservoir : pywr.Parameter, optional
+        The L2-level daily factor profile for this reservoir. Used as the
+        capped factor during downstream flood curtailment.
 
     Methods
     -------
@@ -434,6 +442,10 @@ class NYCCombinedReleaseFactor(Parameter):
         drought_level_agg_nyc,
         mrf_drought_factor_agg_reservoir,
         mrf_drought_factor_individual_reservoir,
+        downstream_stage_parameter=None,
+        flood_operations_enabled=False,
+        mrf_factor_l2_reservoir=None,
+        flood_conservation_boundary=2,
         **kwargs,
     ):
         """
@@ -451,6 +463,16 @@ class NYCCombinedReleaseFactor(Parameter):
             Drought multiplier for aggregated reservoir operations.
         mrf_drought_factor_individual_reservoir : pywr.Parameter
             Drought multiplier for individual reservoir operations.
+        downstream_stage_parameter : pywr.Parameter, optional
+            Parameter providing downstream stage (ft). If None, no
+            flood curtailment is applied.
+        flood_operations_enabled : bool, optional
+            Enable downstream flood curtailment (default: False).
+        mrf_factor_l2_reservoir : pywr.Parameter, optional
+            L2-level daily factor profile. Used as the capped factor
+            when curtailment is active.
+        flood_conservation_boundary : int, optional
+            Drought level index separating flood zone from conservation zone (default: 2).
         **kwargs
             Additional keyword arguments passed to the base Parameter class.
         """
@@ -465,12 +487,41 @@ class NYCCombinedReleaseFactor(Parameter):
         self.children.add(mrf_drought_factor_agg_reservoir)
         self.children.add(mrf_drought_factor_individual_reservoir)
 
+        # Flood curtailment parameters
+        self.flood_operations_enabled = flood_operations_enabled
+        self.downstream_stage_parameter = downstream_stage_parameter
+        self.mrf_factor_l2_reservoir = mrf_factor_l2_reservoir
+        self.flood_conservation_boundary = flood_conservation_boundary
+        if downstream_stage_parameter is not None:
+            self.children.add(downstream_stage_parameter)
+        if mrf_factor_l2_reservoir is not None:
+            self.children.add(mrf_factor_l2_reservoir)
+
+        # Action stage thresholds per FFMP Section 6.iv-vi (pages 21-22)
+        self.action_stage_thresholds = {
+            'cannonsville': 9.0,   # Hale Eddy
+            'pepacton': 11.0,      # Fishs Eddy
+            'neversink': 12.0,     # Bridgeville
+        }
+        self.action_threshold = None  # Set in setup()
+
+    def setup(self):
+        """Extract reservoir name and set action threshold."""
+        super().setup()
+        reservoir_name = self.node.name.split('_')[1] if '_' in self.node.name else None
+        self.action_threshold = self.action_stage_thresholds.get(reservoir_name, 999.0)
+
     def value(self, timestep, scenario_index):
         """
         Compute the current release factor for an NYC reservoir.
 
-        Uses a weighted logic depending on whether the current drought index 
+        Uses a weighted logic depending on whether the current drought index
         indicates normal/drought (use aggregate) or flood (use individual reservoir).
+
+        When flood operations are enabled and downstream stage exceeds the action
+        threshold during L1, the factor is capped at the L2 level per FFMP
+        Section 6.iv-vi: "releases shall be made in accordance with Zone L2
+        through L5."
 
         Parameters
         ----------
@@ -493,14 +544,26 @@ class NYCCombinedReleaseFactor(Parameter):
         ```
         where D_agg is the drought level index for the NYC system.
         """
-        ### $$ factor_{combined-cannonsville} = \min(\max(levelindex_{aggregated} - 2, 0), 1) * factor_{cannonsville}[levelindex_{aggregated}] +
-        ###                                     \min(\max(3 - levelindex_{aggregated}, 0), 1) * factor_{cannonsville}[levelindex_{cannonsville}] $$
+        D_agg = self.drought_level_agg_nyc.get_value(scenario_index)
+        B = self.flood_conservation_boundary
 
-        return min(
-            max(self.drought_level_agg_nyc.get_value(scenario_index) - 2, 0), 1
-        ) * self.mrf_drought_factor_agg_reservoir.get_value(scenario_index) + min(
-            max(3 - self.drought_level_agg_nyc.get_value(scenario_index), 0), 1
-        ) * self.mrf_drought_factor_individual_reservoir.get_value(
+        # Flood curtailment: when downstream stage exceeds action threshold
+        # during L1 (D_agg < B+1), cap the factor at the conservation boundary daily profile.
+        if (
+            self.flood_operations_enabled
+            and self.downstream_stage_parameter is not None
+            and D_agg < B + 1
+        ):
+            downstream_stage = self.downstream_stage_parameter.get_value(
+                scenario_index
+            )
+            if downstream_stage > self.action_threshold:
+                return self.mrf_factor_l2_reservoir.get_value(scenario_index)
+
+        # Standard weighted formula (unchanged)
+        return min(max(D_agg - B, 0), 1) * self.mrf_drought_factor_agg_reservoir.get_value(
+            scenario_index
+        ) + min(max(B + 1 - D_agg, 0), 1) * self.mrf_drought_factor_individual_reservoir.get_value(
             scenario_index
         )
 
@@ -516,8 +579,10 @@ class NYCCombinedReleaseFactor(Parameter):
         data : dict
             Dictionary containing model configuration. Expected keys:
             - "node": Name of the reservoir node.
-            - "mrf_drought_factor_agg_<reservoir>"
-            - "mrf_drought_factor_individual_<reservoir>"
+            Optional keys (for flood curtailment):
+            - "flood_operations_enabled": bool (default False)
+            - "downstream_stage_parameter": str (parameter name)
+            - "mrf_factor_l2": str (parameter name for L2 daily profile)
 
         Returns
         -------
@@ -534,12 +599,29 @@ class NYCCombinedReleaseFactor(Parameter):
         mrf_drought_factor_individual_reservoir = load_parameter(
             model, f"mrf_drought_factor_individual_{reservoir}"
         )
+
+        # Optional flood curtailment parameters
+        flood_operations_enabled = data.pop("flood_operations_enabled", False)
+        ds_stage_name = data.pop("downstream_stage_parameter", None)
+        downstream_stage_parameter = (
+            load_parameter(model, ds_stage_name) if ds_stage_name else None
+        )
+        l2_name = data.pop("mrf_factor_l2", None)
+        mrf_factor_l2_reservoir = (
+            load_parameter(model, l2_name) if l2_name else None
+        )
+        flood_conservation_boundary = data.pop("flood_conservation_boundary", 2)
+
         return cls(
             model,
             node,
             drought_level_agg_nyc,
             mrf_drought_factor_agg_reservoir,
             mrf_drought_factor_individual_reservoir,
+            downstream_stage_parameter=downstream_stage_parameter,
+            flood_operations_enabled=flood_operations_enabled,
+            mrf_factor_l2_reservoir=mrf_factor_l2_reservoir,
+            flood_conservation_boundary=flood_conservation_boundary,
             **data,
         )
 
@@ -552,18 +634,39 @@ class NYCFloodRelease(Parameter):
     """
     Computes excess flood control release for NYC reservoirs based on storage thresholds.
 
-    If the drought level is 1a or 1b, this parameter calculates the additional volume that must be 
-    released to bring storage back to the 1b/1c boundary over a 7-day period, following the rules 
-    outlined in the FFMP (Flood and Drought Operating Plan) guidance.
+    Per FFMP Section 6 (page 21): "When the combined reservoir usable storage in Figure 1
+    is in Zone L1, the spill mitigation zone, Figure 2 defines three zones of reservoir-
+    specific storage (L1-a, L1-b and L1-c) relative to two rule curves for each reservoir."
+
+    This parameter calculates the additional volume that must be released to bring storage
+    back to the 1b/1c boundary over a 7-day period, following the FFMP rules.
+
+    **FFMP-Compliant Mode (use_individual_storage=True)**:
+    - Combined NYC storage must be in Zone L1 for discharge mitigation to be active
+    - Individual reservoir storage determines the release rate (L1-a, L1-b, L1-c zones)
+
+    **Legacy Mode (use_individual_storage=False)**:
+    - Uses only aggregate storage check (for backward compatibility)
+
+    **Flood-Responsive Operations**:
+    Suppresses Zone L1 excess flood releases when downstream stage exceeds
+    action threshold. The MRF factor is separately capped at L2 by
+    NYCCombinedReleaseFactor:
+    - Cannonsville: No L1 excess if Hale Eddy > 9 ft (FFMP Section 6.iv)
+    - Pepacton: No L1 excess if Fishs Eddy > 11 ft (FFMP Section 6.v)
+    - Neversink: No L1 excess if Bridgeville > 12 ft (FFMP Section 6.vi)
 
     Attributes
     ----------
     node : pywr.Node
         Node representing the reservoir outlet.
     drought_level_reservoir : pywr.Parameter
-        Parameter indicating the current drought level of the reservoir.
-    level1c : pywr.Parameter
-        Threshold parameter for the 1b/1c storage boundary.
+        Parameter indicating the current drought level of the individual reservoir.
+    drought_level_agg_nyc : pywr.Parameter, optional
+        Parameter indicating the combined NYC drought level. Required when
+        use_individual_storage=True.
+    flood_zone_threshold : pywr.Parameter
+        Threshold parameter for the flood zone storage boundary (e.g. 1b/1c boundary).
     volume_reservoir : pywr.Parameter
         Current volume of water stored in the reservoir.
     max_volume_reservoir : pywr.Parameter
@@ -574,6 +677,13 @@ class NYCFloodRelease(Parameter):
         Maximum allowable flood release for the reservoir.
     mrf_target_individual_reservoir : pywr.Parameter
         Baseline release target for the reservoir.
+    downstream_stage_parameter : pywr.Parameter, optional
+        Parameter providing downstream stage (ft). If None, no stage constraint applied.
+    flood_operations_enabled : bool, optional
+        Enable downstream flood constraint (default: True)
+    use_individual_storage : bool, optional
+        If True, uses FFMP-compliant logic requiring both combined and individual
+        storage checks. If False, uses legacy aggregate-only check. Default is True.
 
     Methods
     -------
@@ -584,8 +694,10 @@ class NYCFloodRelease(Parameter):
 
     Notes
     -----
-    For drought levels below 2 (i.e., 1a or 1b), excess storage is released over
-    7 days, accounting for recent inflows and baseline release requirements.
+    Per FFMP Section 6 (page 21): "When combined usable reservoir storage is below
+    Zone L1, reservoir-specific storage zones as defined in Figure 2 are not
+    applicable, and the releases to be made, as set forth in the tables, are for
+    conservation purposes only."
     """
 
     def __init__(
@@ -593,12 +705,17 @@ class NYCFloodRelease(Parameter):
         model,
         node,
         drought_level_reservoir,
-        level1c,
+        flood_zone_threshold,
         volume_reservoir,
         max_volume_reservoir,
         weekly_rolling_mean_flow_reservoir,
         max_release_reservoir,
         mrf_target_individual_reservoir,
+        drought_level_agg_nyc=None,
+        downstream_stage_parameter=None,
+        flood_operations_enabled=True,
+        use_individual_storage=True,
+        flood_conservation_boundary=2,
         **kwargs,
     ):
         """
@@ -611,9 +728,10 @@ class NYCFloodRelease(Parameter):
         node : pywr.Node
             Node associated with the parameter.
         drought_level_reservoir : pywr.Parameter
-            Parameter indicating the drought level at the reservoir.
-        level1c : pywr.Parameter
-            Storage boundary separating level 1b and 1c.
+            Parameter indicating the drought level of the individual reservoir.
+            Per FFMP Section 6: determines release rate within Zone L1.
+        flood_zone_threshold : pywr.Parameter
+            Storage boundary separating flood release zones (e.g. level1b/1c boundary).
         volume_reservoir : pywr.Parameter
             Current volume in the reservoir.
         max_volume_reservoir : pywr.Parameter
@@ -624,30 +742,79 @@ class NYCFloodRelease(Parameter):
             Maximum release capacity for flood control.
         mrf_target_individual_reservoir : pywr.Parameter
             Minimum release target (baseline MRF) for the reservoir.
+        drought_level_agg_nyc : pywr.Parameter, optional
+            Combined NYC drought level. Required when use_individual_storage=True.
+            Per FFMP Section 6: determines Zone L1 entry condition.
+        downstream_stage_parameter : pywr.Parameter, optional
+            Parameter providing downstream stage (ft). If None, no stage constraint applied.
+        flood_operations_enabled : bool, optional
+            Enable downstream flood constraint (default: True)
+        use_individual_storage : bool, optional
+            If True, uses FFMP-compliant logic with both combined and individual
+            storage checks. If False, uses legacy aggregate-only check. Default is True.
+        flood_conservation_boundary : int, optional
+            Drought level index separating flood zone from conservation zone (default: 2).
         **kwargs
             Additional keyword arguments passed to the base Parameter class.
         """
         super().__init__(model, **kwargs)
         self.node = node
         self.drought_level_reservoir = drought_level_reservoir
-        self.level1c = level1c
+        self.drought_level_agg_nyc = drought_level_agg_nyc
+        self.flood_zone_threshold = flood_zone_threshold
+        self.flood_conservation_boundary = flood_conservation_boundary
         self.volume_reservoir = volume_reservoir
         self.max_volume_reservoir = max_volume_reservoir
         self.weekly_rolling_mean_flow_reservoir = weekly_rolling_mean_flow_reservoir
         self.max_release_reservoir = max_release_reservoir
         self.mrf_target_individual_reservoir = mrf_target_individual_reservoir
+        self.use_individual_storage = use_individual_storage
 
         self.children.add(drought_level_reservoir)
-        self.children.add(level1c)
+        self.children.add(flood_zone_threshold)
         self.children.add(volume_reservoir)
         self.children.add(max_volume_reservoir)
         self.children.add(weekly_rolling_mean_flow_reservoir)
         self.children.add(max_release_reservoir)
         self.children.add(mrf_target_individual_reservoir)
 
+        # Add aggregate drought level to children if provided
+        if drought_level_agg_nyc is not None:
+            self.children.add(drought_level_agg_nyc)
+
+        # Flood-responsive operations
+        self.flood_operations_enabled = flood_operations_enabled
+        self.downstream_stage_parameter = downstream_stage_parameter
+
+        if downstream_stage_parameter is not None:
+            self.children.add(downstream_stage_parameter)
+
+        # Action stage thresholds per FFMP Section 6.iv-vi (pages 21-22)
+        # Reservoir name extracted from node in setup()
+        self.action_stage_thresholds = {
+            'cannonsville': 9.0,   # Hale Eddy action stage (FFMP 6.iv)
+            'pepacton': 11.0,      # Fishs Eddy action stage (FFMP 6.v)
+            'neversink': 12.0,     # Bridgeville action stage (FFMP 6.vi)
+        }
+        self.action_threshold = None  # Set in setup() after we know reservoir name
+
+    def setup(self):
+        """Setup method to extract reservoir name and set action threshold."""
+        super().setup()
+        # Extract reservoir name from node name (format: "outflow_reservoirname")
+        reservoir_name = self.node.name.split('_')[1] if '_' in self.node.name else None
+        if reservoir_name in self.action_stage_thresholds:
+            self.action_threshold = self.action_stage_thresholds[reservoir_name]
+        else:
+            self.action_threshold = 999.0  # High value - effectively no constraint
+
     def value(self, timestep, scenario_index):
         """
         Calculate the flood control release required to reduce reservoir storage.
+
+        Per FFMP Section 6 (page 21):
+        - Discharge mitigation releases only occur when COMBINED storage is in Zone L1
+        - Release rates are based on INDIVIDUAL reservoir storage zones (L1-a, L1-b, L1-c)
 
         Parameters
         ----------
@@ -659,21 +826,36 @@ class NYCFloodRelease(Parameter):
         Returns
         -------
         float
-            Required flood control release (in volume units per day).
+            Flood control release adjustment (volume units per day). Always
+            non-negative. Zero when not in L1, or when downstream stage
+            exceeds action threshold (L1 excess release suppressed; the MRF
+            factor is separately capped at L2 by NYCCombinedReleaseFactor).
 
         Notes
         -----
-        Logic only applies when drought level is < 2 (i.e., level 1a or 1b).
-        Release ensures reservoir storage returns to level 1c threshold in 7 days.
+        Per FFMP Section 6.iv-vi (pages 21-22): If downstream stage exceeds
+        action thresholds, "releases shall be made in accordance with Zone L2
+        through L5." The L1 excess flood release is suppressed here (return 0),
+        while the MRF factor is capped at L2 level by NYCCombinedReleaseFactor.
         """
-        ### extra flood releases needed if we are in level 1a or 1b
-        if self.drought_level_reservoir.get_value(scenario_index) < 2:
-            ## calculate the total excess volume needed to be release in next 7 days:
-            ## assume for now this is just the current storage minus the level 1b/1c boundary, plus 7 * 7-day rolling avg inflow.
+        # Check Zone L1 entry condition
+        B = self.flood_conservation_boundary
+        if self.use_individual_storage and self.drought_level_agg_nyc is not None:
+            # FFMP-compliant: Combined storage must be in Zone L1 (level < B)
+            combined_level = self.drought_level_agg_nyc.get_value(scenario_index)
+            if combined_level >= B:
+                # Combined storage not in Zone L1 - no discharge mitigation
+                return 0.0
+
+        # Check individual reservoir storage zone
+        individual_level = self.drought_level_reservoir.get_value(scenario_index)
+        if individual_level < B:
+            # Individual reservoir in flood zone - calculate flood release
+            # Calculate the total excess volume needed to release in next 7 days
             excess_volume = (
                 self.volume_reservoir.get_value(scenario_index)
                 - (
-                    self.level1c.get_value(scenario_index)
+                    self.flood_zone_threshold.get_value(scenario_index)
                     * self.max_volume_reservoir.get_value(scenario_index)
                 )
                 + self.weekly_rolling_mean_flow_reservoir.get_value(scenario_index) * 7
@@ -687,6 +869,14 @@ class NYCFloodRelease(Parameter):
                 ),
                 0,
             )
+
+            # Check downstream flood constraint per FFMP Section 6.iv-vi
+            if self.flood_operations_enabled and self.downstream_stage_parameter is not None:
+                downstream_stage = self.downstream_stage_parameter.get_value(scenario_index)
+                if downstream_stage > self.action_threshold:
+                    # Suppress L1 excess release. The MRF factor is already
+                    # capped at L2 by NYCCombinedReleaseFactor.
+                    return 0.0
 
             return flood_release
 
@@ -705,11 +895,10 @@ class NYCFloodRelease(Parameter):
         data : dict
             Dictionary specifying parameter configuration. Must include:
                 - node
-                - volume_<reservoir>
-                - max_volume_<reservoir>
-                - weekly_rolling_mean_flow_<reservoir>
-                - flood_max_release_<reservoir>
-                - mrf_target_individual_<reservoir>
+            Optional keys:
+                - use_individual_storage: bool (default True)
+                - flood_operations_enabled: bool (default True)
+                - downstream_stage_parameter: str
 
         Returns
         -------
@@ -719,8 +908,22 @@ class NYCFloodRelease(Parameter):
         reservoir = data.pop("node")
         node = model.nodes[reservoir]
         reservoir = reservoir.split("_")[1]
-        drought_level_reservoir = load_parameter(model, f"drought_level_agg_nyc")
-        level1c = load_parameter(model, "level1c")
+
+        # Get option for storage zone logic (default: FFMP-compliant individual storage)
+        use_individual_storage = data.pop("use_individual_storage", True)
+
+        if use_individual_storage:
+            # FFMP-compliant: Per FFMP Section 6 (page 21), discharge mitigation
+            # releases are based on individual reservoir storage zones when
+            # combined storage is in Zone L1.
+            drought_level_reservoir = load_parameter(model, f"drought_level_{reservoir}")
+            drought_level_agg_nyc = load_parameter(model, f"drought_level_agg_nyc")
+        else:
+            # Legacy mode: Use aggregate level only (backward compatibility)
+            drought_level_reservoir = load_parameter(model, f"drought_level_agg_nyc")
+            drought_level_agg_nyc = None
+
+        flood_zone_threshold = load_parameter(model, data.pop("flood_zone_threshold", "level1c"))
         volume_reservoir = load_parameter(model, f"volume_{reservoir}")
         max_volume_reservoir = load_parameter(model, f"max_volume_{reservoir}")
         weekly_rolling_mean_flow_reservoir = load_parameter(
@@ -731,16 +934,29 @@ class NYCFloodRelease(Parameter):
             model, f"mrf_target_individual_{reservoir}"
         )
 
+        # Optional downstream stage parameter
+        downstream_stage_param = data.pop("downstream_stage_parameter", None)
+        if downstream_stage_param is not None:
+            downstream_stage_param = load_parameter(model, downstream_stage_param)
+
+        flood_operations_enabled = data.pop("flood_operations_enabled", True)
+        flood_conservation_boundary = data.pop("flood_conservation_boundary", 2)
+
         return cls(
             model,
             node,
             drought_level_reservoir,
-            level1c,
+            flood_zone_threshold,
             volume_reservoir,
             max_volume_reservoir,
             weekly_rolling_mean_flow_reservoir,
             max_release_reservoir,
             mrf_target_individual_reservoir,
+            drought_level_agg_nyc=drought_level_agg_nyc,
+            downstream_stage_parameter=downstream_stage_param,
+            flood_operations_enabled=flood_operations_enabled,
+            use_individual_storage=use_individual_storage,
+            flood_conservation_boundary=flood_conservation_boundary,
             **data,
         )
 
