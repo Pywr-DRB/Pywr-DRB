@@ -341,6 +341,12 @@ class PredictedInflowEnsemblePreprocessor(PredictedInflowPreprocessor):
     in HDF5 format compatible with PredictionEnsemble parameter.
     """
 
+    # Routes make_predictions() through the vectorized perfect-foresight kernel
+    # (_predict_perfect_foresight_series). False restores the scalar reference
+    # path (PredictedInflowPreprocessor._predict_value per day) — flipped per
+    # instance by the equivalence tests.
+    _vectorize_perfect_foresight = True
+
     def __init__(
         self,
         flow_type,
@@ -405,6 +411,16 @@ class PredictedInflowEnsemblePreprocessor(PredictedInflowPreprocessor):
         # Maps str(realization_id) -> DataFrame[datetime x reservoir_name].
         self._starfit_release_data = {}
 
+        # Only the travel-time nodes feed predictions (both regression combos
+        # and the perfect-foresight kernel), so per-rank ensemble reads pull
+        # just these — the same read narrowing 99fd7d6 applied to the STARFIT
+        # presim preprocessor. Order follows pywrdrb_all_nodes.
+        self._prediction_nodes = [
+            n for n in pywrdrb_all_nodes
+            if n in self.node_to_trenton_travel_time
+            or n in self.node_to_montague_travel_time
+        ]
+
     def _extract_realization_from_open_file(self, hdf5_file, realization_id):
         """
         Extract a single realization from an already-open HDF5 file.
@@ -424,10 +440,11 @@ class PredictedInflowEnsemblePreprocessor(PredictedInflowPreprocessor):
         pd.DataFrame
             DataFrame containing the extracted realization data
         """
-        # Extract timeseries data from realization for each node
+        # Extract timeseries data from realization for each prediction node
+        # (the travel-time nodes are the only columns any mode reads).
         data = {}
 
-        for node in pywrdrb_all_nodes:
+        for node in self._prediction_nodes:
             node_data = hdf5_file[node]
             column_labels = node_data.attrs["column_labels"]
 
@@ -447,6 +464,136 @@ class PredictedInflowEnsemblePreprocessor(PredictedInflowPreprocessor):
         df = pd.DataFrame(data, index=dates)
         df.index = pd.to_datetime(df.index.astype(str))
         return df
+
+    def _shifted_values(self, frame, node, lag, index, shift_cache):
+        """Column ``node`` of ``frame`` at ``index + lag`` days, vectorized.
+
+        The elementwise twin of the scalar per-day lookup
+        ``frame.loc[date_t + Timedelta(days=lag), node]`` with the
+        out-of-range fallback ``frame[node].iloc[-1]`` — in BOTH directions
+        (negative lags occur: Trenton lag 1 with travel time 4 gives lag -3,
+        so the first days of those series take the record's LAST value,
+        exactly as the scalar path does). Membership is tested by date via
+        ``get_indexer`` (no index-continuity assumption). Values are gathered
+        without any dtype cast so float32/float64 promotion happens at the
+        same points as in the scalar path.
+        """
+        key = (id(frame.index), lag)
+        pos = shift_cache.get(key)
+        if pos is None:
+            target = index + pd.Timedelta(days=lag)
+            tpos = frame.index.get_indexer(target)
+            # -1 = date not present -> the scalar path's .iloc[-1] fallback.
+            pos = np.where(tpos >= 0, tpos, len(frame.index) - 1)
+            shift_cache[key] = pos
+        return frame[node].to_numpy()[pos]
+
+    def _predict_perfect_foresight_series(self, index, node, lag, shift_cache):
+        """Vectorized elementwise twin of the scalar perfect-foresight branch.
+
+        Mirrors ``PredictedInflowPreprocessor._predict_value`` (the
+        ``mode == "perfect_foresight"`` body) over the whole prediction index
+        at once: every operation is the same IEEE-754 op in the same order,
+        ``min()`` becomes ``np.minimum`` with identical argument order, and
+        the two catchment_wc constants are hoisted out of the (former) day
+        loop. Keep in sync with the scalar path — the scalar path is the
+        reference (same contract as
+        ``STARFITOfflineSimulator.simulate_reservoir_ensemble``).
+        """
+        # NYC reservoirs: 0.0 (releases are the control variable). No NYC
+        # node appears in the travel-time dicts, so this guard is only kept
+        # to preserve the scalar semantics verbatim.
+        if node in reservoir_list_nyc:
+            return np.zeros(len(index))
+
+        # STARFIT reservoirs: pre-simulated release (no WC adjustment),
+        # falling back to raw catchment inflow when releases are unavailable.
+        if node in starfit_reservoir_list:
+            if (
+                self.starfit_releases is not None
+                and node in self.starfit_releases.columns
+            ):
+                return self._shifted_values(
+                    self.starfit_releases, node, lag, index, shift_cache
+                )
+            return self._shifted_values(
+                self.timeseries_data, node, lag, index, shift_cache
+            )
+
+        # Non-reservoir nodes: catchment inflow with water consumption
+        # adjustment (scalar twin: Yhat_lag / Yhat_lag_minus1 lookups, then
+        # min(Yhat_lag, cu * min(Yhat_lag_minus1, wd))).
+        y = self._shifted_values(self.timeseries_data, node, lag, index, shift_cache)
+        if node in reservoir_list + majorflow_list:
+            ym1 = self._shifted_values(
+                self.timeseries_data, node, lag - 1, index, shift_cache
+            )
+            pywr_node = (
+                f"reservoir_{node}" if node in reservoir_list else f"link_{node}"
+            )
+            wd = self.catchment_wc.loc[pywr_node, "Total_WD_MGD"]
+            cu = self.catchment_wc.loc[pywr_node, "Total_CU_WD_Ratio"]
+            consumption = np.minimum(y, cu * np.minimum(ym1, wd))
+            return y - consumption
+
+        return y
+
+    def make_predictions(self, regressions):
+        """Vectorized twin of ``PredictedTimeseriesPreprocessor.make_predictions``.
+
+        Structurally identical to the base implementation — same index
+        subsetting, same ``pred_df`` construction, same per-column zero init,
+        and the same ``pred_df[col] += ...`` accumulation in the same
+        travel-time-dict (node, lag) order, so the summation order is
+        preserved bit-for-bit. The only change: perfect_foresight series come
+        from the vectorized kernel instead of a per-day scalar loop. Any
+        non-perfect-foresight mode still routes through the scalar
+        ``_predict_value``. Keep the skeleton in sync with the base method.
+        """
+        if not self._vectorize_perfect_foresight:
+            return super().make_predictions(regressions)
+
+        if self.timeseries_data is not None:
+            index = self.timeseries_data.index
+        else:
+            raise ValueError("No data loaded for making predictions")
+        if self.start_date is not None:
+            index = index[index >= self.start_date]
+        if self.end_date is not None:
+            index = index[index <= self.end_date]
+
+        # Date-membership shifting requires unique, sorted axes (the scalar
+        # path would fail differently on duplicates; fail loudly here).
+        axes = [("prediction index", index),
+                ("timeseries_data index", self.timeseries_data.index)]
+        if self.starfit_releases is not None:
+            axes.append(("starfit_releases index", self.starfit_releases.index))
+        for label, ax in axes:
+            if not (ax.is_unique and ax.is_monotonic_increasing):
+                raise ValueError(
+                    f"{label} must be unique and sorted for the vectorized "
+                    f"perfect-foresight path."
+                )
+
+        pred_df = pd.DataFrame({"datetime": index})
+        node_lags = self.get_prediction_node_lag_combinations()
+        shift_cache = {}
+
+        for col, node_lag_mode_list in node_lags.items():
+            pred_df[col] = np.zeros(len(index))
+            for (node, lag), mode in node_lag_mode_list:
+                if mode == "perfect_foresight":
+                    vals = self._predict_perfect_foresight_series(
+                        index, node, lag, shift_cache
+                    )
+                else:
+                    vals = np.array([
+                        self._predict_value(idx, index[idx], node, lag, mode, regressions)
+                        for idx in range(len(index))
+                    ])
+                pred_df[col] += vals
+
+        return pred_df
 
     def load(self):
         """Load catchment water consumption and each rank's realization slice.
@@ -641,6 +788,13 @@ class PredictedInflowEnsemblePreprocessor(PredictedInflowPreprocessor):
 
             fname = self.output_dirs["predicted_inflows_mgd.hdf5"]
 
+            # All realizations share one date axis, so the (expensive) string
+            # formatting runs once and is reused whenever the axis matches;
+            # a per-group ``datetime`` dataset is still written for every
+            # realization (PredictionEnsemble reads it from the group).
+            ref_datetime = None
+            ref_strings = None
+
             with h5py.File(fname, "w") as hf:
                 for realization_id, predictions_df in self.ensemble_predictions.items():
                     # Create group for this realization
@@ -650,10 +804,13 @@ class PredictedInflowEnsemblePreprocessor(PredictedInflowPreprocessor):
                     # dtype for Python object arrays of strings; without it
                     # h5py raises ``TypeError: Object dtype dtype('O') has
                     # no native HDF5 equivalent``.
-                    datetime_strings = predictions_df["datetime"].astype(str).values
+                    dt_series = predictions_df["datetime"]
+                    if ref_datetime is None or not dt_series.equals(ref_datetime):
+                        ref_datetime = dt_series
+                        ref_strings = dt_series.astype(str).values
                     realization_group.create_dataset(
                         "datetime",
-                        data=datetime_strings,
+                        data=ref_strings,
                         dtype=h5py.string_dtype(encoding="utf-8"),
                     )
 
