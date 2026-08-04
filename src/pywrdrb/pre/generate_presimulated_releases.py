@@ -19,6 +19,9 @@ Technical Notes
 - Seasonal lookup tables are pre-computed once per reservoir for efficiency.
 - The sequential storage loop is unavoidable (S[t+1] depends on S[t]),
   but each iteration is pure scalar arithmetic and runs quickly.
+- For ensembles, simulate_reservoir_ensemble() runs the same day loop with
+  each iteration vectorized across realizations; results are bit-identical
+  to the scalar path.
 
 Change Log
 ----------
@@ -27,6 +30,8 @@ TJA, 2026-03, Added STARFITOfflineSimulator for offline pre-simulation.
 TJA, 2026-07-22, Enforce R_min in all storage conditions (matches starfit.py).
 TJA, 2026-07-22, Match model consumption timing (CU_ratio * withdrawal_{t-1},
     withdrawal limited by inflow) and bound releases by net available water.
+TJA, 2026-08-04, Vectorize ensemble pre-simulation across realizations
+    (simulate_reservoir_ensemble); bit-identical to the per-realization path.
 """
 
 import os
@@ -424,6 +429,113 @@ class STARFITOfflineSimulator:
 
         return releases, storage
 
+    def simulate_reservoir_ensemble(self, reservoir_name, inflows, day_of_year):
+        """
+        Simulate a single STARFIT reservoir across many realizations at once.
+
+        Vectorized counterpart of simulate_reservoir(): the sequential day
+        loop is unchanged (S[t+1] depends on S[t]) but each iteration
+        operates on all realizations simultaneously, so interpreted
+        iterations drop by a factor of n_realizations. The arithmetic is
+        the same elementwise IEEE-754 operation sequence as the scalar
+        path, so results are bit-identical per realization: branches
+        become np.where with identical selection (A_t and epsilon_t are
+        already computed unconditionally in the scalar path), and clamps
+        become np.minimum/np.maximum with the same argument order.
+
+        Parameters
+        ----------
+        reservoir_name : str
+            Reservoir name matching starfit_reservoir_list.
+        inflows : np.ndarray
+            Daily gross inflows in MGD, shape (n_days, n_realizations).
+        day_of_year : np.ndarray
+            Day-of-year values (1-366), shape (n_days,).
+
+        Returns
+        -------
+        releases : np.ndarray
+            Daily releases in MGD, shape (n_days, n_realizations).
+        storage : np.ndarray
+            Daily storage in MG, shape (n_days + 1, n_realizations).
+            storage[0] is initial.
+        """
+        params = self._get_reservoir_params(reservoir_name)
+        harmonic, norhi, norlo = self._precompute_seasonal_arrays(params)
+
+        S_cap = params["S_cap"]
+        I_bar = params["I_bar"]
+        R_min = params["R_min"]
+        R_max = params["R_max"]
+        Release_c = params["Release_c"]
+        Release_p1 = params["Release_p1"]
+        Release_p2 = params["Release_p2"]
+
+        inv_S_cap = 1.0 / S_cap
+        inv_I_bar = 1.0 / I_bar
+
+        wd, cu_ratio = self._get_withdrawal_params(reservoir_name)
+
+        n, n_realizations = inflows.shape
+        storage = np.empty((n + 1, n_realizations))
+        releases = np.empty((n, n_realizations))
+
+        storage[0] = S_cap * self.initial_volume_frac
+
+        withdrawal_prev = np.zeros(n_realizations)
+
+        # Main simulation loop — sequential due to storage dependency.
+        # Each line is the elementwise twin of the scalar path in
+        # simulate_reservoir(); keep the operation order in sync.
+        for t in range(n):
+            I_t = inflows[t]  # gross inflow, shape (n_realizations,)
+            S_t = storage[t]
+
+            I_hat_t = (I_t - I_bar) * inv_I_bar
+            S_hat_t = S_t * inv_S_cap
+
+            day_idx = day_of_year[t] - 1  # 0-indexed
+            NORhi_t = norhi[day_idx]
+            NORlo_t = norlo[day_idx]
+            seasonal_release_t = harmonic[day_idx]
+
+            A_t = (S_hat_t - NORlo_t) / NORhi_t
+            epsilon_t = Release_c + Release_p1 * A_t + Release_p2 * I_hat_t
+
+            in_nor = (NORlo_t <= S_hat_t) & (S_hat_t <= NORhi_t)
+            above_nor = S_hat_t > NORhi_t
+            target_in_nor = np.minimum(
+                I_bar * (seasonal_release_t + epsilon_t + 1), R_max
+            )
+            target_above_nor = np.minimum(
+                (S_cap * (S_hat_t - NORhi_t) + I_t * 7) / 7, R_max
+            )
+            target_release = np.where(
+                in_nor,
+                target_in_nor,
+                np.where(above_nor, target_above_nor, R_min),
+            )
+            # Enforce R_min in all storage conditions (matches starfit.py)
+            target_release = np.maximum(target_release, R_min)
+
+            available_water = I_t + S_t
+            min_required = available_water - S_cap
+            release_t = np.maximum(
+                np.minimum(target_release, available_water), min_required
+            )
+            release_t = np.maximum(0.0, release_t)
+
+            withdrawal_t = np.minimum(wd, I_t)
+            consumption_t = np.minimum(cu_ratio * withdrawal_prev, withdrawal_t)
+            withdrawal_prev = withdrawal_t
+            net_inflow = I_t - consumption_t
+
+            release_t = np.minimum(release_t, S_t + net_inflow)
+            releases[t] = release_t
+            storage[t + 1] = S_t + net_inflow - release_t
+
+        return releases, storage
+
     def simulate_all(self, catchment_inflows_df, reservoir_list=None):
         """
         Simulate all STARFIT reservoirs given a catchment inflows DataFrame.
@@ -569,9 +681,10 @@ class STARFITReleaseEnsemblePreprocessor(DataPreprocessor):
 
     Parallelization mirrors ``FloodNodeInflowEnsemblePreprocessor``:
     ``np.array_split`` distributes realizations across ranks; each rank reads
-    its slice of the input HDF5 concurrently; per-realization STARFIT runs
-    via the existing ``STARFITOfflineSimulator`` engine; results are merged
-    onto rank 0 via point-to-point gather and saved.
+    its slice of the input HDF5 concurrently; STARFIT runs once per reservoir
+    via ``STARFITOfflineSimulator.simulate_reservoir_ensemble``, vectorized
+    across the rank's realizations (bit-identical to per-realization runs);
+    results are merged onto rank 0 via point-to-point gather and saved.
 
     Parameters
     ----------
@@ -726,8 +839,10 @@ class STARFITReleaseEnsemblePreprocessor(DataPreprocessor):
         t0 = time.time()
         with h5py.File(self._input_path, "r") as f:
             for rid in my_ids:
+                # Only reservoir inflows are consumed downstream; skip the
+                # other node groups to cut input read time.
                 self._my_realization_inflows[str(rid)] = (
-                    self._read_one_realization(f, rid, self._node_names)
+                    self._read_one_realization(f, rid, self.reservoir_list)
                 )
             # Read canonical date axis from one (any) node group on every rank
             # so save() on rank 0 always has it without an extra gather.
@@ -765,12 +880,30 @@ class STARFITReleaseEnsemblePreprocessor(DataPreprocessor):
             self.load()
 
         index = pd.to_datetime(pd.Index(self._dates))
+        day_of_year = index.dayofyear.values
+        rid_order = list(self._my_realization_inflows.keys())
         local = {}
-        for rid, node_arrays in self._my_realization_inflows.items():
-            df_in = pd.DataFrame(node_arrays, index=index)
-            local[rid] = self._simulator.simulate_all(
-                df_in, reservoir_list=self.reservoir_list
-            )
+        if rid_order:
+            # One vectorized run per reservoir over all of this rank's
+            # realizations (columns), instead of one scalar run per
+            # realization; bit-identical to the per-realization path.
+            releases_per_reservoir = {}
+            for res in self.reservoir_list:
+                inflows_2d = np.column_stack(
+                    [self._my_realization_inflows[rid][res] for rid in rid_order]
+                ).astype(float)
+                rel, _ = self._simulator.simulate_reservoir_ensemble(
+                    res, inflows_2d, day_of_year
+                )
+                releases_per_reservoir[res] = rel
+            for j, rid in enumerate(rid_order):
+                local[rid] = pd.DataFrame(
+                    {
+                        res: releases_per_reservoir[res][:, j]
+                        for res in self.reservoir_list
+                    },
+                    index=index,
+                )
         self._local_releases = local
 
         if self.use_mpi:
